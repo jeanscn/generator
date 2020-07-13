@@ -1,17 +1,17 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2006-2019 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.mybatis.generator.internal.db;
 
@@ -56,8 +56,8 @@ public class DatabaseIntrospector {
     private Log logger;
 
     public DatabaseIntrospector(Context context,
-            DatabaseMetaData databaseMetaData,
-            JavaTypeResolver javaTypeResolver, List<String> warnings) {
+                                DatabaseMetaData databaseMetaData,
+                                JavaTypeResolver javaTypeResolver, List<String> warnings) {
         super();
         this.context = context;
         this.databaseMetaData = databaseMetaData;
@@ -67,7 +67,7 @@ public class DatabaseIntrospector {
     }
 
     private void calculatePrimaryKey(FullyQualifiedTable table,
-            IntrospectedTable introspectedTable) {
+                                     IntrospectedTable introspectedTable) {
         ResultSet rs = null;
 
         try {
@@ -194,7 +194,7 @@ public class DatabaseIntrospector {
                 // add warning that the table has no columns, remove from the
                 // list
                 String warning = getString(
-                                "Warning.1", introspectedTable.getFullyQualifiedTable().toString()); //$NON-NLS-1$
+                        "Warning.1", introspectedTable.getFullyQualifiedTable().toString()); //$NON-NLS-1$
                 warnings.add(warning);
                 iter.remove();
             } else if (!introspectedTable.hasPrimaryKeyColumns()
@@ -202,7 +202,7 @@ public class DatabaseIntrospector {
                 // add warning that the table has only BLOB columns, remove from
                 // the list
                 String warning = getString(
-                                "Warning.18", introspectedTable.getFullyQualifiedTable().toString()); //$NON-NLS-1$
+                        "Warning.18", introspectedTable.getFullyQualifiedTable().toString()); //$NON-NLS-1$
                 warnings.add(warning);
                 iter.remove();
             } else {
@@ -218,7 +218,7 @@ public class DatabaseIntrospector {
     }
 
     private void removeIgnoredColumns(TableConfiguration tc,
-            Map<ActualTableName, List<IntrospectedColumn>> columns) {
+                                      Map<ActualTableName, List<IntrospectedColumn>> columns) {
         for (Map.Entry<ActualTableName, List<IntrospectedColumn>> entry : columns
                 .entrySet()) {
             Iterator<IntrospectedColumn> tableColumns = entry.getValue()
@@ -240,7 +240,7 @@ public class DatabaseIntrospector {
     }
 
     private void calculateExtraColumnInformation(TableConfiguration tc,
-            Map<ActualTableName, List<IntrospectedColumn>> columns) {
+                                                 Map<ActualTableName, List<IntrospectedColumn>> columns) {
         StringBuilder sb = new StringBuilder();
         Pattern pattern = null;
         String replaceString = null;
@@ -269,7 +269,7 @@ public class DatabaseIntrospector {
                     introspectedColumn.setJavaProperty(
                             JavaBeansUtil.getValidPropertyName(calculatedColumnName));
                 } else if (isTrue(tc
-                                .getProperty(PropertyRegistry.TABLE_USE_COMPOUND_PROPERTY_NAMES))) {
+                        .getProperty(PropertyRegistry.TABLE_USE_COMPOUND_PROPERTY_NAMES))) {
                     sb.setLength(0);
                     sb.append(calculatedColumnName);
                     sb.append('_');
@@ -323,7 +323,7 @@ public class DatabaseIntrospector {
 
                 if (context.autoDelimitKeywords()
                         && SqlReservedWords.containsWord(introspectedColumn
-                            .getActualColumnName())) {
+                        .getActualColumnName())) {
                     introspectedColumn.setColumnNameDelimited(true);
                 }
 
@@ -335,7 +335,7 @@ public class DatabaseIntrospector {
     }
 
     private void calculateIdentityColumns(TableConfiguration tc,
-            Map<ActualTableName, List<IntrospectedColumn>> columns) {
+                                          Map<ActualTableName, List<IntrospectedColumn>> columns) {
         GeneratedKey gk = tc.getGeneratedKey();
         if (gk == null) {
             // no generated key, then no identity or sequence columns
@@ -367,7 +367,7 @@ public class DatabaseIntrospector {
     }
 
     private void applyColumnOverrides(TableConfiguration tc,
-            Map<ActualTableName, List<IntrospectedColumn>> columns) {
+                                      Map<ActualTableName, List<IntrospectedColumn>> columns) {
         for (Map.Entry<ActualTableName, List<IntrospectedColumn>> entry : columns
                 .entrySet()) {
             for (IntrospectedColumn introspectedColumn : entry.getValue()) {
@@ -491,7 +491,7 @@ public class DatabaseIntrospector {
 
         if (logger.isDebugEnabled()) {
             String fullTableName = composeFullyQualifiedTableName(localCatalog, localSchema,
-                            localTableName, '.');
+                    localTableName, '.');
             logger.debug(getString("Tracing.1", fullTableName)); //$NON-NLS-1$
         }
 
@@ -511,7 +511,7 @@ public class DatabaseIntrospector {
             }
         }
 
-        Map<String,String> remarks = getSqlServerRemarks(localTableName);
+        Map<String, String> remarks = getSqlServerRemarks(localTableName);
         while (rs.next()) {
             IntrospectedColumn introspectedColumn = ObjectFactory
                     .createIntrospectedColumn(context);
@@ -526,12 +526,12 @@ public class DatabaseIntrospector {
             introspectedColumn.setScale(rs.getInt("DECIMAL_DIGITS")); //$NON-NLS-1$
             //introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
             String remark = null;
-            if (remarks.size()>0) {
+            if (remarks.size() > 0) {
                 remark = remarks.get(introspectedColumn.getActualColumnName());
             }
-            if (remark!=null) {
+            if (remark != null) {
                 introspectedColumn.setRemarks(remark); //$NON-NLS-1$
-            }else{
+            } else {
                 introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
             }
             introspectedColumn.setDefaultValue(rs.getString("COLUMN_DEF")); //$NON-NLS-1$
@@ -637,10 +637,36 @@ public class DatabaseIntrospector {
 
             enhanceIntrospectedTable(introspectedTable);
 
+            //针对Sql Server更新remark
+            try {
+                updateTableRemark(introspectedTable);
+            } catch (SQLException e) {
+                warnings.add("waring 0030 "+e.getMessage());
+            }
+
             answer.add(introspectedTable);
         }
 
         return answer;
+    }
+
+    private void updateTableRemark(IntrospectedTable introspectedTable) throws SQLException {
+        Connection connection = this.databaseMetaData.getConnection();
+        if (context.isSqlServe()) {
+            ResultSet sqlServerResultSet = null;
+            String sql = "SELECT b.value from sysobjects a\n" +
+                    "left join sys.extended_properties b on a.id=b.major_id and b.minor_id=0\n" +
+                    "WHERE a.name = ? ";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, introspectedTable.getTableConfiguration().getTableName());
+            sqlServerResultSet = ps.executeQuery();
+            while (sqlServerResultSet.next()) {
+                String remark = sqlServerResultSet.getString(1);
+                introspectedTable.setRemarks(remark);
+            }
+            sqlServerResultSet.close();
+        }
+
     }
 
     /**
@@ -669,11 +695,11 @@ public class DatabaseIntrospector {
         }
     }
 
-    private Map<String,String> getSqlServerRemarks(String localTableName)  throws SQLException {
+    private Map<String, String> getSqlServerRemarks(String localTableName) throws SQLException {
         Connection connection = this.databaseMetaData.getConnection();
-        ResultSet sqlServerResultSet = null;
-        boolean isSqlServer = this.databaseMetaData.getDriverName().toUpperCase().contains("SQL SERVER");
-        if (isSqlServer) {
+        Map<String, String> remarks = new HashMap<>();
+        if (context.isSqlServe()) {
+            ResultSet sqlServerResultSet = null;
             String sql = "SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS \n" +
                     "FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id \n" +
                     "LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id \n" +
@@ -681,12 +707,12 @@ public class DatabaseIntrospector {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, localTableName);
             sqlServerResultSet = ps.executeQuery();
-        }
-        Map<String,String> remarks = new HashMap<>();
-        while (Objects.requireNonNull(sqlServerResultSet).next()){
-            String col_Name = sqlServerResultSet.getString(1);
-            String col_Remark = sqlServerResultSet.getString(2);
-            remarks.put(col_Name,col_Remark);
+            while (sqlServerResultSet.next()) {
+                String col_Name = sqlServerResultSet.getString(1);
+                String col_Remark = sqlServerResultSet.getString(2);
+                remarks.put(col_Name, col_Remark);
+            }
+            sqlServerResultSet.close();
         }
         return remarks;
     }

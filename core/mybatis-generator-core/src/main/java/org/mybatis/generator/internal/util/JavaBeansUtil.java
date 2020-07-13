@@ -96,6 +96,12 @@ public class JavaBeansUtil {
         return sb.toString();
     }
 
+    public static String getFirstCharacterLowercase(String inputString) {
+        StringBuilder sb = new StringBuilder(inputString);
+        sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+        return sb.toString();
+    }
+
     public static String getCamelCaseString(String inputString,
             boolean firstCharacterUppercase) {
         StringBuilder sb = new StringBuilder();
