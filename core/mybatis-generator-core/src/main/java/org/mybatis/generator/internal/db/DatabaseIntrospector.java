@@ -22,18 +22,8 @@ import static org.mybatis.generator.internal.util.StringUtility.stringContainsSp
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.sql.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -172,7 +162,7 @@ public class DatabaseIntrospector {
     public List<IntrospectedTable> introspectTables(TableConfiguration tc)
             throws SQLException {
 
-        // get the raw columns from the DB
+        // 从数据库中获取原始列
         Map<ActualTableName, List<IntrospectedColumn>> columns = getColumns(tc);
 
         if (columns.isEmpty()) {
@@ -181,9 +171,13 @@ public class DatabaseIntrospector {
             return Collections.emptyList();
         }
 
+        //去除忽略的列,根据配置文件<ignoreColumn column=""/>
         removeIgnoredColumns(tc, columns);
+        //重命名
         calculateExtraColumnInformation(tc, columns);
+        //override
         applyColumnOverrides(tc, columns);
+        //主键
         calculateIdentityColumns(tc, columns);
 
         List<IntrospectedTable> introspectedTables = calculateIntrospectedTables(
@@ -517,6 +511,7 @@ public class DatabaseIntrospector {
             }
         }
 
+        Map<String,String> remarks = getSqlServerRemarks(localTableName);
         while (rs.next()) {
             IntrospectedColumn introspectedColumn = ObjectFactory
                     .createIntrospectedColumn(context);
@@ -529,7 +524,16 @@ public class DatabaseIntrospector {
             introspectedColumn
                     .setNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable); //$NON-NLS-1$
             introspectedColumn.setScale(rs.getInt("DECIMAL_DIGITS")); //$NON-NLS-1$
-            introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
+            //introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
+            String remark = null;
+            if (remarks.size()>0) {
+                remark = remarks.get(introspectedColumn.getActualColumnName());
+            }
+            if (remark!=null) {
+                introspectedColumn.setRemarks(remark); //$NON-NLS-1$
+            }else{
+                introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
+            }
             introspectedColumn.setDefaultValue(rs.getString("COLUMN_DEF")); //$NON-NLS-1$
 
             if (supportsIsAutoIncrement) {
@@ -547,12 +551,7 @@ public class DatabaseIntrospector {
                     rs.getString("TABLE_SCHEM"), //$NON-NLS-1$
                     rs.getString("TABLE_NAME")); //$NON-NLS-1$
 
-            List<IntrospectedColumn> columns = answer.get(atn);
-            if (columns == null) {
-                columns = new ArrayList<>();
-                answer.put(atn, columns);
-            }
-
+            List<IntrospectedColumn> columns = answer.computeIfAbsent(atn, k -> new ArrayList<>());
             columns.add(introspectedColumn);
 
             if (logger.isDebugEnabled()) {
@@ -668,5 +667,27 @@ public class DatabaseIntrospector {
         } catch (SQLException e) {
             warnings.add(getString("Warning.27", e.getMessage())); //$NON-NLS-1$
         }
+    }
+
+    private Map<String,String> getSqlServerRemarks(String localTableName)  throws SQLException {
+        Connection connection = this.databaseMetaData.getConnection();
+        ResultSet sqlServerResultSet = null;
+        boolean isSqlServer = this.databaseMetaData.getDriverName().toUpperCase().contains("SQL SERVER");
+        if (isSqlServer) {
+            String sql = "SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS \n" +
+                    "FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id \n" +
+                    "LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id \n" +
+                    "WHERE A.name = ? ";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, localTableName);
+            sqlServerResultSet = ps.executeQuery();
+        }
+        Map<String,String> remarks = new HashMap<>();
+        while (Objects.requireNonNull(sqlServerResultSet).next()){
+            String col_Name = sqlServerResultSet.getString(1);
+            String col_Remark = sqlServerResultSet.getString(2);
+            remarks.put(col_Name,col_Remark);
+        }
+        return remarks;
     }
 }
