@@ -89,6 +89,8 @@ public class Context extends PropertyHolder {
     
     private boolean isJava8Targeted = true;
 
+    private boolean isSqlServe;
+
     public Context(ModelType defaultModelType) {
         super();
 
@@ -495,7 +497,9 @@ public class Context extends PropertyHolder {
         } else {
             connectionFactory = ObjectFactory.createConnectionFactory(this);
         }
-
+        if (connectionFactory.getConnection() != null) {
+            this.setSqlServe(connectionFactory.getConnection().getMetaData().getDriverName().toUpperCase().contains("SQL SERVER"));
+        }
         return connectionFactory.getConnection();
     }
 
@@ -528,5 +532,12 @@ public class Context extends PropertyHolder {
 
     public void setJava8Targeted(boolean isJava8Targeted) {
         this.isJava8Targeted = isJava8Targeted;
+    }
+    public boolean isSqlServe() {
+        return isSqlServe;
+    }
+
+    public void setSqlServe(boolean sqlServe) {
+        isSqlServe = sqlServe;
     }
 }
