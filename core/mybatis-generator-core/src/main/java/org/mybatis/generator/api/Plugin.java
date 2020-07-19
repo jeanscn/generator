@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -170,6 +170,7 @@ public interface Plugin {
      *         with the other files from this run.
      */
     List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles();
+    List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles();
 
     /**
      * This method can be used to generate additional XML files needed by your
@@ -183,6 +184,8 @@ public interface Plugin {
      *         with the other files from this run.
      */
     List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(
+            IntrospectedTable introspectedTable);
+    List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(
             IntrospectedTable introspectedTable);
 
     /**
@@ -1110,6 +1113,9 @@ public interface Plugin {
      */
     boolean sqlMapGenerated(GeneratedXmlFile sqlMap,
             IntrospectedTable introspectedTable);
+
+    boolean htmlMapGenerated(GeneratedHtmlFile htmlMap,
+                            IntrospectedTable introspectedTable);
 
     /**
      * This method is called when the SqlMap document has been generated. This

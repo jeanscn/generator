@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,14 +13,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.eclipse.ui.launcher.tabs;
+package org.mybatis.generator.api.dom.html;
 
-import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
+import java.util.Objects;
 
-public class UserClasspathTab extends JavaClasspathTab {
+public class Attribute {
 
-    @Override
-    public boolean isShowBootpath() {
-        return false;
+    private String name;
+
+    private String value;
+
+    public Attribute(String name, String value) {
+        this.name = Objects.requireNonNull(name);
+        this.value = Objects.requireNonNull(value);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

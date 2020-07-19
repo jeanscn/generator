@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,19 +18,11 @@ package org.mybatis.generator.codegen.mybatis3;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mybatis.generator.api.GeneratedJavaFile;
-import org.mybatis.generator.api.GeneratedKotlinFile;
-import org.mybatis.generator.api.GeneratedXmlFile;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
+import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.codegen.AbstractGenerator;
-import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
-import org.mybatis.generator.codegen.AbstractJavaGenerator;
-import org.mybatis.generator.codegen.AbstractKotlinGenerator;
-import org.mybatis.generator.codegen.AbstractXmlGenerator;
+import org.mybatis.generator.codegen.*;
 import org.mybatis.generator.codegen.mybatis3.javamapper.AnnotatedClientGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.JavaMapperGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.MixedClientGenerator;
@@ -55,6 +47,8 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     protected List<AbstractKotlinGenerator> kotlinGenerators = new ArrayList<>();
 
     protected AbstractXmlGenerator xmlMapperGenerator;
+
+    protected AbstractHtmlGenerator htmlMapperGenerator;
 
     public IntrospectedTableMyBatis3Impl() {
         super(TargetRuntime.MYBATIS3);
@@ -243,6 +237,22 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             }
         }
 
+        return answer;
+    }
+
+    @Override
+    public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
+        List<GeneratedHtmlFile> answer = new ArrayList<>();
+
+        if (htmlMapperGenerator != null) {
+            org.mybatis.generator.api.dom.html.Document document = htmlMapperGenerator.getDocument();
+            GeneratedHtmlFile gxf = new GeneratedHtmlFile(document,
+                    "abcd.html", "templates","src/main/resources",
+                    true, context.getHtmlFormatter());
+            if (context.getPlugins().htmlMapGenerated(gxf, this)) {
+                answer.add(gxf);
+            }
+        }
         return answer;
     }
 

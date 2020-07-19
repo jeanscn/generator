@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -82,6 +82,17 @@ public abstract class PluginAdapter implements Plugin {
 
     @Override
     public List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(
+            IntrospectedTable introspectedTable) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(
             IntrospectedTable introspectedTable) {
         return Collections.emptyList();
     }
@@ -366,6 +377,12 @@ public abstract class PluginAdapter implements Plugin {
     @Override
     public boolean sqlMapGenerated(GeneratedXmlFile sqlMap,
             IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    @Override
+    public boolean htmlMapGenerated(GeneratedHtmlFile htmlMap,
+                                   IntrospectedTable introspectedTable) {
         return true;
     }
 

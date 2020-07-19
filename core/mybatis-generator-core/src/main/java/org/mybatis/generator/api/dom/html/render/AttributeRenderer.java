@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,7 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-/**
- * This package contains tests for the summarizer visitors and matchers.
- */
-package org.mybatis.generator.eclipse.tests.harness.tests;
+package org.mybatis.generator.api.dom.html.render;
+
+import org.mybatis.generator.api.dom.html.Attribute;
+
+public class AttributeRenderer {
+
+    public String render(Attribute attribute) {
+        return attribute.getName()
+                + "=\"" //$NON-NLS-1$
+                + attribute.getValue()
+                + "\""; //$NON-NLS-1$
+    }
+}

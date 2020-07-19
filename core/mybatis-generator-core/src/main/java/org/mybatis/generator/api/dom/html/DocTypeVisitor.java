@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,17 +13,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.eclipse.tests.harness.summary.support;
+package org.mybatis.generator.api.dom.html;
 
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-
-public class InterfaceSummarizer extends AbstractTypeOrEnumSummarizer {
-
-    private InterfaceSummarizer(TypeDeclaration node) {
-        super(node);
-    }
+public interface DocTypeVisitor<R> {
+    R visit(PublicDocType docType);
     
-    public static InterfaceSummarizer from(TypeDeclaration node) {
-        return new InterfaceSummarizer(node);
-    }
+    R visit(SystemDocType docType);
 }

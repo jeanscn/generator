@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,26 +13,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.eclipse.ui.ant.logging;
+package org.mybatis.generator.api.dom.html;
 
-public class LogException extends Exception {
-
-    private static final long serialVersionUID = 7522435242386492002L;
-
-    public LogException() {
-        super();
-    }
-
-    public LogException(String message) {
-        super(message);
-    }
-
-    public LogException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public LogException(Throwable cause) {
-        super(cause);
-    }
-
+public interface ElementVisitor<R> {
+    R visit(TextElement element);
+    
+    R visit(HtmlElement element);
 }

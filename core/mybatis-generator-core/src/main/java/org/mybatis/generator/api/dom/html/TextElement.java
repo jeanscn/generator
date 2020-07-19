@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,14 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.eclipse.tests.harness.matchers.support;
+package org.mybatis.generator.api.dom.html;
 
-import org.mybatis.generator.eclipse.tests.harness.summary.AbstractSummary;
+public class TextElement implements VisitableElement {
 
-public class ClassExistenceChecker implements ExistenceChecker {
+    private String content;
+
+    public TextElement(String content) {
+        this.content = content;
+    }
+
+    public String getContent() {
+        return content;
+    }
 
     @Override
-    public boolean exists(AbstractSummary item, String matchString) {
-        return item.getClassSummary(matchString) != null;
+    public <R> R accept(ElementVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }
