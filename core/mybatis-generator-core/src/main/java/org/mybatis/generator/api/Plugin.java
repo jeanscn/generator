@@ -71,7 +71,7 @@ import org.mybatis.generator.config.Context;
  * 
  */
 public interface Plugin {
-    
+
     enum ModelClassType {
         PRIMARY_KEY, 
         BASE_RECORD, 
@@ -1136,6 +1136,8 @@ public interface Plugin {
      */
     boolean sqlMapDocumentGenerated(Document document,
             IntrospectedTable introspectedTable);
+
+    boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable);
 
     /**
      * This method is called when the base resultMap is generated.

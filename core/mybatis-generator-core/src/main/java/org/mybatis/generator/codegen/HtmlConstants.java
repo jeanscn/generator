@@ -16,7 +16,7 @@
 package org.mybatis.generator.codegen;
 
 /**
- * Constants for MyBatis HTML IDs.
+ * Constants for MyBatis XML IDs.
  * 
  * @author Jeff Butler
  */
@@ -29,21 +29,10 @@ public class HtmlConstants {
         super();
     }
 
-    public static final String MYBATIS3_MAPPER_SYSTEM_ID =
-            "http://mybatis.org/dtd/mybatis-3-mapper.dtd"; //$NON-NLS-1$
+    public static final String MYBATIS3_THYEMLEAF_XMLNS_TH =
+            "http://www.thymeleaf.org"; //$NON-NLS-1$
 
-    public static final String MYBATIS3_MAPPER_PUBLIC_ID =
-            "-//mybatis.org//DTD Mapper 3.0//EN"; //$NON-NLS-1$
+    public static final String MYBATIS3_THYEMLEAF_XMLNS_SEC =
+            "http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"; //$NON-NLS-1$
 
-    public static final String MYBATIS3_MAPPER_CONFIG_SYSTEM_ID =
-            "http://mybatis.org/dtd/mybatis-3-config.dtd"; //$NON-NLS-1$
-
-    public static final String MYBATIS3_MAPPER_CONFIG_PUBLIC_ID =
-            "-//mybatis.org//DTD Config 3.0//EN"; //$NON-NLS-1$
-
-    public static final String MYBATIS_GENERATOR_CONFIG_SYSTEM_ID =
-            "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd"; //$NON-NLS-1$
-
-    public static final String MYBATIS_GENERATOR_CONFIG_PUBLIC_ID =
-            "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"; //$NON-NLS-1$
 }

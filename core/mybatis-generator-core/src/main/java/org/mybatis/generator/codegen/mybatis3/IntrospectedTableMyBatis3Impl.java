@@ -23,6 +23,8 @@ import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateHtmlFiles;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLMapperGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.AnnotatedClientGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.JavaMapperGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.MixedClientGenerator;
@@ -63,6 +65,8 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 calculateClientGenerators(warnings, progressCallback);
             
         calculateXmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
+
+        calculateHtmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
     }
 
     protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator, 
@@ -77,6 +81,21 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         }
         
         initializeAbstractGenerator(xmlMapperGenerator, warnings,
+                progressCallback);
+    }
+
+    protected void calculateHtmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,
+                                               List<String> warnings,
+                                               ProgressCallback progressCallback) {
+        if (javaClientGenerator == null) {
+            if (context.getHtmlMapGeneratorConfiguration() != null) {
+                htmlMapperGenerator = new HTMLMapperGenerator();
+            }
+        } else {
+            htmlMapperGenerator = javaClientGenerator.getMatchedHTMLGenerator();
+        }
+
+        initializeAbstractGenerator(htmlMapperGenerator, warnings,
                 progressCallback);
     }
 
@@ -242,17 +261,10 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
     @Override
     public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
-        List<GeneratedHtmlFile> answer = new ArrayList<>();
-
-        if (htmlMapperGenerator != null) {
-            org.mybatis.generator.api.dom.html.Document document = htmlMapperGenerator.getDocument();
-            GeneratedHtmlFile gxf = new GeneratedHtmlFile(document,
-                    "abcd.html", "templates","src/main/resources",
-                    true, context.getHtmlFormatter());
-            if (context.getPlugins().htmlMapGenerated(gxf, this)) {
-                answer.add(gxf);
-            }
-        }
+        GenerateHtmlFiles generateHtmlFiles = new GenerateHtmlFiles(context,
+                this,
+                htmlMapperGenerator);
+        List<GeneratedHtmlFile> answer = generateHtmlFiles.getGeneratedHtmlFiles();
         return answer;
     }
 

@@ -919,6 +919,17 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.htmlMapDocumentGenerated(document, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean htmlMapGenerated(GeneratedHtmlFile htmlMap, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.htmlMapGenerated(htmlMap, introspectedTable)) {

@@ -363,8 +363,12 @@ public abstract class PluginAdapter implements Plugin {
     }
 
     @Override
-    public boolean sqlMapDocumentGenerated(Document document,
-            IntrospectedTable introspectedTable) {
+    public boolean sqlMapDocumentGenerated(Document document,IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    @Override
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document,IntrospectedTable introspectedTable) {
         return true;
     }
 

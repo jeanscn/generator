@@ -30,19 +30,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.ModelType;
-import org.mybatis.generator.config.PropertyHolder;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
 import org.mybatis.generator.internal.rules.HierarchicalModelRules;
 import org.mybatis.generator.internal.rules.Rules;
+import org.mybatis.generator.internal.util.StringUtility;
 
 /**
  * Base class for all code generator implementations. This class provides many
@@ -95,7 +88,12 @@ public abstract class IntrospectedTable {
         ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID,
         ATTR_MYBATIS3_SQL_PROVIDER_TYPE,
         ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE,
-        ATTR_KOTLIN_RECORD_TYPE
+        ATTR_KOTLIN_RECORD_TYPE,
+        ATTR_HTML_THYMELEAF_XMLNS_TH,
+        ATTR_HTML_THYMELEAF_XMLNS_SEC,
+        ATTR_HTML_THYMELEAF_PACKAGE,
+        ATTR_HTML_THYMELEAF_FILE_NAME,
+        ATTR_HTML_THYMELEAF_VIEW_NAME
     }
 
     protected TableConfiguration tableConfiguration;
@@ -388,6 +386,7 @@ public abstract class IntrospectedTable {
         calculateJavaClientAttributes();
         calculateModelAttributes();
         calculateXmlAttributes();
+        calculateHtmlAttributes();
 
         if (tableConfiguration.getModelType() == ModelType.HIERARCHICAL) {
             rules = new HierarchicalModelRules(this);
@@ -398,6 +397,50 @@ public abstract class IntrospectedTable {
         }
 
         context.getPlugins().initialized(this);
+    }
+    protected void calculateHtmlAttributes() {
+        setMyBatis3HtmlMapperFileName(calculateMyBatis3HtmlMapperFileName());
+        setMybatis3HtmlMapperViewName(calculateHtmlMapViewName());
+        setMyBatis3HtmlMapperPackage(calculateHtmlMapPackage());
+    }
+
+    private String calculateHtmlMapViewName() {
+        StringBuilder sb = new StringBuilder();
+        String p;
+        HtmlMapGeneratorConfiguration config = context.getHtmlMapGeneratorConfiguration();
+        if (config != null) {
+            p = config.getTargetPackage();
+            if (p.length()>0) {
+                if (p.length()>0) {
+                    p.replace(".", "/");
+                    sb.append(p);
+                }
+            }
+        }
+        if (stringHasValue(tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH))) {
+            String viewpath = tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH);
+            String[] v = viewpath.split("\\\\|/");
+            for (String s : v) {
+                if (s.trim().length()>0) {
+                    sb.append("/"+s);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    protected String calculateHtmlMapPackage(){
+        String vp = calculateHtmlMapViewName();
+        if (vp.trim().length()>0) {
+            vp = vp.replace("/", ".");
+            vp = vp.substring(0, vp.lastIndexOf("."));
+        }
+        return vp;
+    }
+
+    private void setMybatis3HtmlMapperViewName(String viewName) {
+        this.internalAttributes.put(InternalAttribute.ATTR_HTML_THYMELEAF_VIEW_NAME,
+                viewName);
     }
 
     protected void calculateXmlAttributes() {
@@ -818,6 +861,24 @@ public abstract class IntrospectedTable {
         }
         return sb.toString();
     }
+    protected String calculateMyBatis3HtmlMapperFileName() {
+        StringBuilder sb = new StringBuilder();
+        if (stringHasValue(tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH))) {
+            String viewPath = tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH);
+            viewPath = viewPath.replaceAll("\\\\","/");
+            int ind = viewPath.lastIndexOf('/');
+            if (ind == -1) {
+                sb.append(viewPath);
+            } else {
+                sb.append(viewPath.substring(ind + 1));
+            }
+            sb.append(".html"); //$NON-NLS-1$
+        } else {
+            sb.append(fullyQualifiedTable.getDomainObjectName());
+            sb.append(".html"); //$NON-NLS-1$
+        }
+        return sb.toString();
+    }
 
     protected String calculateMyBatis3FallbackSqlMapNamespace() {
         StringBuilder sb = new StringBuilder();
@@ -965,10 +1026,26 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_PACKAGE);
     }
 
+    public String getMyBatis3HtmlMapperPackage() {
+        return internalAttributes
+                .get(InternalAttribute.ATTR_HTML_THYMELEAF_PACKAGE);
+    }
+
+    public String getMyBatis3HtmlMapperViewName() {
+        return internalAttributes
+                .get(InternalAttribute.ATTR_HTML_THYMELEAF_VIEW_NAME);
+    }
+
     public void setMyBatis3XmlMapperPackage(String mybatis3XmlMapperPackage) {
         internalAttributes.put(
                 InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_PACKAGE,
                 mybatis3XmlMapperPackage);
+    }
+
+    public void setMyBatis3HtmlMapperPackage(String mybatis3HtmlMapperPackage) {
+        internalAttributes.put(
+                InternalAttribute.ATTR_HTML_THYMELEAF_PACKAGE,
+                mybatis3HtmlMapperPackage);
     }
 
     public String getMyBatis3XmlMapperFileName() {
@@ -976,10 +1053,21 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_FILE_NAME);
     }
 
+    public String getMyBatis3HtmlMapperFileName() {
+        return internalAttributes
+                .get(InternalAttribute.ATTR_HTML_THYMELEAF_FILE_NAME);
+    }
+
     public void setMyBatis3XmlMapperFileName(String mybatis3XmlMapperFileName) {
         internalAttributes.put(
                 InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_FILE_NAME,
                 mybatis3XmlMapperFileName);
+    }
+
+    public void setMyBatis3HtmlMapperFileName(String mybatis3HtmlMapperFileName) {
+        internalAttributes.put(
+                InternalAttribute.ATTR_HTML_THYMELEAF_FILE_NAME,
+                mybatis3HtmlMapperFileName);
     }
 
     public String getMyBatis3JavaMapperType() {
