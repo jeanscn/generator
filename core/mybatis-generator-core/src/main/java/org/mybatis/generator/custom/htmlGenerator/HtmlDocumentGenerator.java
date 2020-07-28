@@ -13,18 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.api.dom.html.render;
+package org.mybatis.generator.custom.htmlGenerator;
 
-import org.mybatis.generator.api.dom.html.Attribute;
-
-public class AttributeRenderer {
-
-    public String render(Attribute attribute) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(attribute.getName());
-        if (attribute.getValue() != null) {
-            sb.append("=\"").append(attribute.getValue()).append("\"");
-        }
-        return sb.toString();
+/**
+ * @description:
+ * @author: <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
+ * @created: 2020-07-23 00:55
+ * @version: 3.0
+ */
+public interface HtmlDocumentGenerator {
+    default boolean htmlMapDocumentGenerated() {
+        return true;
     }
 }

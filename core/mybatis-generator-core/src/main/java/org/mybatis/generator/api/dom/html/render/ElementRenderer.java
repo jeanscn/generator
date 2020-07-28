@@ -21,6 +21,7 @@ import org.mybatis.generator.api.dom.html.VisitableElement;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class ElementRenderer implements ElementVisitor<Stream<String>> {
@@ -42,10 +43,15 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
     }
 
     private Stream<String> renderWithoutChildren(HtmlElement element) {
-        return Stream.of("<" //$NON-NLS-1$
-                + element.getName()
-                + renderAttributes(element)
-                + " />"); //$NON-NLS-1$
+        StringBuilder sb = new StringBuilder();
+        sb.append("<").append(element.getName());
+        sb.append(renderAttributes(element));
+        if (isAllowSelfColse(element.getName().toLowerCase())) {
+            sb.append("/>");
+        }else{
+            sb.append("></" + element.getName() + ">");
+        }
+        return Stream.of(sb.toString()); //$NON-NLS-1$
     }
 
     public Stream<String> renderWithChildren(HtmlElement element) {
@@ -86,4 +92,10 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
                 + element.getName()
                 + ">"); //$NON-NLS-1$
     }
+    private boolean isAllowSelfColse(String elementName){
+        return  Arrays.asList(new String[]{"br","hr","area","base","img",
+                "input","link","meta","basefont","param","col","frame"
+                ,"embed","keygen","source","command","track","wbr"}).contains(elementName);
+    }
+
 }

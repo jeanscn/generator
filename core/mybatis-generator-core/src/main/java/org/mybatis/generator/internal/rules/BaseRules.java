@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,12 +38,28 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean isModelOnly;
 
+    protected final boolean isGenerateCont;
+
+    protected final boolean isGenerateHtml;
+
     public BaseRules(IntrospectedTable introspectedTable) {
         super();
         this.introspectedTable = introspectedTable;
         this.tableConfiguration = introspectedTable.getTableConfiguration();
         String modelOnly = tableConfiguration.getProperty(PropertyRegistry.TABLE_MODEL_ONLY);
         isModelOnly = StringUtility.isTrue(modelOnly);
+        String generateCONT = tableConfiguration.getProperty(PropertyRegistry.TABLE_GENERATE_CONTROLLER);
+        isGenerateHtml = StringUtility.isTrue(generateCONT);
+        String generateHTML = tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_GENERATE);
+        isGenerateCont = StringUtility.isTrue(generateHTML);
+    }
+
+    public boolean generateController(){
+        return isGenerateCont;
+    }
+
+    public boolean generateHtml(){
+        return isGenerateHtml;
     }
 
     /**

@@ -30,9 +30,19 @@ public class HtmlConstants {
     }
 
     public static final String MYBATIS3_THYEMLEAF_XMLNS_TH =
-            "http://www.thymeleaf.org"; //$NON-NLS-1$
+            "http://www.thymeleaf.org";
 
     public static final String MYBATIS3_THYEMLEAF_XMLNS_SEC =
-            "http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"; //$NON-NLS-1$
+            "http://www.thymeleaf.org/thymeleaf-extras-springsecurity4";
+
+    public static final String HTML_UI_FRAME_LAYUI = "layui";
+
+    public static final String HTML_UI_FRAME_ZUI = "zui";
+
+    public static final String HTML_KEY_WORD_TOP = "top";
+
+    public static final String HTML_KEY_WORD_BOTTOM = "bottom";
+
+    public static final String HTML_KEY_WORD_ALL = "all";
 
 }

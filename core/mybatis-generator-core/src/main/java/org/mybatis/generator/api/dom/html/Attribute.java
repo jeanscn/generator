@@ -25,7 +25,7 @@ public class Attribute {
 
     public Attribute(String name, String value) {
         this.name = Objects.requireNonNull(name);
-        this.value = Objects.requireNonNull(value);
+        this.value = value;
     }
 
     public String getName() {
@@ -34,5 +34,9 @@ public class Attribute {
 
     public String getValue() {
         return value;
+    }
+
+    public void setValue(String value){
+        this.value = value;
     }
 }

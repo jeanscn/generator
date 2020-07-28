@@ -34,7 +34,6 @@ public class PropertyRegistry {
     public static final String ANY_ROOT_CLASS = "rootClass"; //$NON-NLS-1$
     public static final String ANY_IMMUTABLE = "immutable"; //$NON-NLS-1$
     public static final String ANY_CONSTRUCTOR_BASED = "constructorBased"; //$NON-NLS-1$
-
     /**
      * recognized by table and java client generator.
      */
@@ -49,9 +48,13 @@ public class PropertyRegistry {
     public static final String TABLE_RUNTIME_TABLE_NAME = "runtimeTableName"; //$NON-NLS-1$
     public static final String TABLE_MODEL_ONLY = "modelOnly"; //$NON-NLS-1$
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
-    public static final String TABLE_VIEW_PATH = "viewPath";
+    //定制属性
     public static final String TABLE_GENERATE_CONTROLLER = "generateController";
-
+    public static final String TABLE_HTML_GENERATE = "generateHtml";
+    public static final String TABLE_VIEW_PATH = "viewPath";
+    public static final String TABLE_HTML_UI_FRAME = "htmlUiFrame";
+    public static final String TABLE_HTML_PAGE_COLUMNS = "htmlPageColumns";
+    public static final String TABLE_HTML_TOOLBAR_POSITION = "htmlBarPosition";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$
@@ -63,7 +66,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_TARGET_JAVA8 = "targetJava8"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FORMATTER = "kotlinFormatter"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FILE_ENCODING = "kotlinFileEncoding"; //$NON-NLS-1$
-    public static final String CONTEXT_HTML_GENERATE = "generateHtml";
+    //定制属性
     public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";
     public static final String CONTEXT_HTML_TARGET_PACKAGE = "htmlTargetPackage";
 

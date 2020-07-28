@@ -79,10 +79,12 @@ public class Context extends PropertyHolder {
     private XmlFormatter xmlFormatter;
 
     private HtmlFormatter htmlFormatter;
-    
+
     private boolean isJava8Targeted = true;
 
     private boolean isSqlServe;
+
+
 
     public Context(ModelType defaultModelType) {
         super();

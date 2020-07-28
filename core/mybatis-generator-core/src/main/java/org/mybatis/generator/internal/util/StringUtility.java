@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.util;
 
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class StringUtility {
@@ -115,4 +116,77 @@ public class StringUtility {
 
         return s.indexOf('%') != -1 || s.indexOf('_') != -1;
     }
+
+    public static String substringAfter(String str, String separator) {
+        if (isEmpty(str)) {
+            return str;
+        } else if (separator == null) {
+            return "";
+        } else {
+            int pos = str.indexOf(separator);
+            return pos == -1 ? "" : str.substring(pos + separator.length());
+        }
+    }
+
+    public static String substringAfterLast(String str, String separator) {
+        if (isEmpty(str)) {
+            return str;
+        } else if (isEmpty(separator)) {
+            return "";
+        } else {
+            int pos = str.lastIndexOf(separator);
+            return pos != -1 && pos != str.length() - separator.length() ? str.substring(pos + separator.length()) : "";
+        }
+    }
+
+    public static String substringBefore(String str, String separator) {
+        if (!isEmpty(str) && separator != null) {
+            if (separator.isEmpty()) {
+                return "";
+            } else {
+                int pos = str.indexOf(separator);
+                return pos == -1 ? str : str.substring(0, pos);
+            }
+        } else {
+            return str;
+        }
+    }
+
+    public static String substringBeforeLast(String str, String separator) {
+        if (!isEmpty(str) && !isEmpty(separator)) {
+            int pos = str.lastIndexOf(separator);
+            return pos == -1 ? str : str.substring(0, pos);
+        } else {
+            return str;
+        }
+    }
+    public static boolean isBlank(CharSequence cs) {
+        int strLen = length(cs);
+        if (strLen == 0) {
+            return true;
+        } else {
+            for(int i = 0; i < strLen; ++i) {
+                if (!Character.isWhitespace(cs.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    public static boolean isEmpty(CharSequence cs) {
+        return cs == null || cs.length() == 0;
+    }
+    public static int length(CharSequence cs) {
+        return cs == null ? 0 : cs.length();
+    }
+    public static String lowerCase(String str) {
+        return str == null ? null : str.toLowerCase();
+    }
+
+    public static String lowerCase(String str, Locale locale) {
+        return str == null ? null : str.toLowerCase(locale);
+    }
+
 }

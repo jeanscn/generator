@@ -55,6 +55,21 @@ public class HtmlElement implements VisitableElement {
         return elements;
     }
 
+    public List<VisitableElement> getAllElements(){
+        List<VisitableElement> result = new ArrayList<>();
+        getAllElements(this,result);
+        return result;
+    }
+    /*递归获得所有子节点*/
+    private void getAllElements(HtmlElement rElement,List<VisitableElement> result) {
+        if (rElement.hasChildren()) {
+            result.addAll(rElement.getElements());
+            for (VisitableElement element : rElement.getElements()) {
+                getAllElements((HtmlElement)element,result);
+            }
+        }
+    }
+
     public void addElement(VisitableElement element) {
         elements.add(element);
     }

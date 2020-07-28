@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,8 +44,9 @@ public class UpdateByExampleWithBLOBsElementGenerator extends
 
         StringBuilder sb = new StringBuilder();
         sb.append("update "); //$NON-NLS-1$
-        sb.append(introspectedTable
-                .getAliasedFullyQualifiedTableNameAtRuntime());
+        /*sb.append(introspectedTable
+                .getAliasedFullyQualifiedTableNameAtRuntime());*/
+        addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
         answer.addElement(new TextElement(sb.toString()));
 
         // set up for first column
@@ -75,7 +76,7 @@ public class UpdateByExampleWithBLOBsElementGenerator extends
                 OutputUtilities.xmlIndent(sb, 1);
             }
         }
-
+        addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
         answer.addElement(getUpdateByExampleIncludeElement());
 
         if (context.getPlugins()

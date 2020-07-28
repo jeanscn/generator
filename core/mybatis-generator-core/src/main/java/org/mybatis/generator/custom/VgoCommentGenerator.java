@@ -23,7 +23,6 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Properties;
@@ -101,20 +100,37 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        if(("view"+record.getShortName()).equals(method.getName())){
+            method.addJavaDocLine("/**");
+            method.addJavaDocLine("* 根据主键获取单个实体");
+            method.addJavaDocLine("* @param id 可选参数，存在时查询数据，否则直接返回视图");
+            method.addJavaDocLine("*/");
+            addSwaggerApiAnnotation(method,"获得数据并返回页面视图",
+                    "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图");
+        }
         if(("get"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/*根据主键获取单个实体*/");
+            addSwaggerApiAnnotation(method,"获得单条列表","根据给定id获取单个实体");
         }
         if(("list"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/*获取条件实体对象列表*/");
+            method.addJavaDocLine("/**");
+            method.addJavaDocLine("* 获取条件实体对象列表");
+            method.addJavaDocLine("* @param applicationInfos 用于接收属性同名参数");
+            method.addJavaDocLine("*/");
+            addSwaggerApiAnnotation(method,"获得数据列表",
+                    "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
         }
         if(("create"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/*新增一条记录*/");
+            addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录");
         }
         if(("update"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/*根据主键更新实体对象*/");
+            addSwaggerApiAnnotation(method,"更新一条记录","根据主键更新实体对象");
         }
         if(("delete"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/*删除一条记录*/");
+            addSwaggerApiAnnotation(method,"单条记录删除","根据给定的id删除一条记录");
         }
     }
 
@@ -142,5 +158,17 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
                 new TextElement("  这个元素通过Mybatis Generator自动生成," //$NON-NLS-1$
                         + " 请勿修改.")); //$NON-NLS-1$
         xmlElement.addElement(new TextElement("-->")); //$NON-NLS-1$
+    }
+
+    private void addSwaggerApiAnnotation(Method method, String value, String notes) {
+        StringBuilder sb = new StringBuilder();
+        if (StringUtility.stringHasValue(value)) sb.append("value = \""+value+"\"");
+        if (StringUtility.stringHasValue(notes)) {
+            if (sb.length()>0) sb.append(",");
+            sb.append("notes = \""+notes+"\"");
+        }
+        if (sb.length()>0) {
+            method.addAnnotation("@ApiOperation("+sb.toString()+")");
+        }
     }
 }
