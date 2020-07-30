@@ -15,20 +15,21 @@
  */
 package org.mybatis.generator.custom;
 
-import org.mybatis.generator.custom.controllerGenerator.GenerateJavaController;
-import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
-import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
-import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
+
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.controllerGenerator.GenerateJavaController;
+import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
+import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
+import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -108,7 +109,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             String serviceAnnotation = "org.springframework.stereotype.Service";
             FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(serviceAnnotation);
             FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType);
-            String implClazzName = entityType.getShortName() + JavaBeansUtil.getFirstCharacterUppercase(implSubPackage);
+            String implClazzName = introspectedTable.getControllerBeanName();
 
             FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(StrBizPackage + "." + implSubPackage + "." + implClazzName);
             TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
@@ -156,20 +157,17 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             String seriveImplShortName = bizClazzImplType.getShortName();
             String entityShortName = entityType.getShortName();
             String lowerCaseEntityName = StringUtility.lowerCase(entityShortName);
-            String firstLowerCaseEntityName = JavaBeansUtil.getFirstCharacterLowercase(entityShortName);
             String seriveImplVar = JavaBeansUtil.getFirstCharacterLowercase(seriveImplShortName);
 
-            sb.setLength(0);
             sb.append(StringUtility.substringBeforeLast(entityType.getPackageName(), "."));
-            String StrConPackage = sb.toString();
-
             sb.append(".").append("controller").append(".").append(entityShortName).append("Controller");
             FullyQualifiedJavaType conClazzType = new FullyQualifiedJavaType(sb.toString());
             TopLevelClass conTopClazz = new TopLevelClass(conClazzType);
             commentGenerator.addJavaFileComment(conTopClazz);
-            FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType("BaseController");
+            FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType("com.vgosoft.web.abs.AbsBaseController");
             conTopClazz.setSuperClass(supClazzType);
             conTopClazz.addImportedType(infName);
+            conTopClazz.addImportedType(supClazzType);
             conTopClazz.addImportedType(entityType);
             conTopClazz.addImportedType(exampleType);
             conTopClazz.addImportedType(new FullyQualifiedJavaType("org.springframework.web.servlet.ModelAndView"));
@@ -178,7 +176,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             sb.append("@Api(value = \"/").append(lowerCaseEntityName).append("\", tags = \"");
             sb.append(introspectedTable.getRemarks()).append("\")");
             conTopClazz.addAnnotation(sb.toString());
-            conTopClazz.addAnnotation("@RequestMapping(value = \"/" + StringUtility.substringAfterLast(StrConPackage, ".") + "\")");
+            conTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
 
             FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
             Field field = new Field(seriveImplVar, bizInfType);
@@ -266,13 +264,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         FullyQualifiedJavaType annColum = new FullyQualifiedJavaType(columnMetaAnnotationName);
         topLevelClass.addImportedType(annTable);
         topLevelClass.addImportedType(annColum);
-
-        Field serialVersionUID = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
-        serialVersionUID.setInitializationString("1l");
-        serialVersionUID.setVisibility(JavaVisibility.PRIVATE);
-        serialVersionUID.setFinal(true);
-        serialVersionUID.setStatic(true);
-        topLevelClass.getFields().add(0, serialVersionUID);
         for (int i = 0; i < topLevelClass.getFields().size(); i++) {
             Field field = topLevelClass.getFields().get(i);
             String columnMetaAnnotation = getColumnMetaAnnotation(field, introspectedTable, topLevelClass,i);
@@ -282,23 +273,28 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
         String tableMetaAnnotation = getTableMetaAnnotation(topLevelClass, introspectedTable);
         topLevelClass.addAnnotation(tableMetaAnnotation);
+        //添加序列化标识
+        Field serialVersionUID = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
+        serialVersionUID.setInitializationString("1l");
+        serialVersionUID.setVisibility(JavaVisibility.PRIVATE);
+        serialVersionUID.setFinal(true);
+        serialVersionUID.setStatic(true);
+        topLevelClass.getFields().add(0, serialVersionUID);
+        //添加@Repository注解
         String repositoryAnnotation = "org.springframework.stereotype.Repository";
         topLevelClass.addImportedType(new FullyQualifiedJavaType(repositoryAnnotation));
+        topLevelClass.addAnnotation("@Repository");
 
         String viewpath = introspectedTable.getTableConfigurationProperty("viewPath");
+
         //更新构造器
         List<Method> methods = topLevelClass.getMethods();
         for (Method method : methods) {
             if (method.isConstructor()) {
-                if (method.getParameters().size() > 0) {
-
-                } else {
-
-                }
                 addConstructorBodyLine(method, false, introspectedTable, viewpath);
             }
         }
-        //有参构造器
+        //添加一个参数的构造器
         Method method = new Method(topLevelClass.getType().getShortName());
         method.addParameter(new Parameter(new FullyQualifiedJavaType("int"), "persistenceStatus"));
         addConstructorBodyLine(method, true, introspectedTable, viewpath);
@@ -349,6 +345,41 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         addSelectBySqlCondition(document, false, introspectedTable);
         addSelectBySqlCondition(document, true, introspectedTable);
         return true;
+    }
+
+    @Override
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable) {
+        HtmlDocumentGenerator htmlDocumentGenerated;
+        String uiFrame = getUiFrame(introspectedTable);
+        if (HtmlConstants.HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
+            htmlDocumentGenerated = (HtmlDocumentGenerator) new LayuiDocumentGenerated(document, introspectedTable);
+        }else if(HtmlConstants.HTML_UI_FRAME_ZUI.equals(uiFrame)){
+            htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable);
+        }else{
+            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable);
+        }
+        return htmlDocumentGenerated.htmlMapDocumentGenerated();
+    }
+
+    @Override
+    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(IntrospectedTable introspectedTable) {
+        List<GeneratedHtmlFile> htmlFiles = new ArrayList<>();
+        return htmlFiles;
+    }
+
+    private String getUiFrame(IntrospectedTable introspectedTable) {
+        TableConfiguration tableConfiguration = introspectedTable.getTableConfiguration();
+        Optional<String> propertyt = Optional.ofNullable(tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_UI_FRAME));
+        if (!propertyt.isPresent()) {
+            Optional<String> propertyc = Optional.ofNullable(context.getProperty(PropertyRegistry.TABLE_HTML_UI_FRAME));
+            if (!propertyc.isPresent()) {
+                return HtmlConstants.HTML_UI_FRAME_LAYUI;
+            }else{
+                return propertyc.get();
+            }
+        }else{
+            return propertyt.get();
+        }
     }
 
     private void addSelectBySqlCondition(Document document, boolean isSub, IntrospectedTable introspectedTable) {
@@ -455,7 +486,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * @return
      */
     private String getTableMetaAnnotation(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        topLevelClass.addAnnotation("@Repository");
         StringBuilder sb = new StringBuilder();
         TableConfiguration tableConfiguration = introspectedTable.getTableConfiguration();
         sb.append("@TableMeta(value = \"").append(tableConfiguration.getTableName()).append("\"");
@@ -525,27 +555,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         supperType.addTypeArgument(entityType);
         supperType.addTypeArgument(exampleType);
         return supperType;
-    }
-
-    @Override
-    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable) {
-        HtmlDocumentGenerator htmlDocumentGenerated;
-        String uiFrame = Optional.ofNullable(introspectedTable.getContext().getProperty(PropertyRegistry.TABLE_HTML_UI_FRAME))
-                .orElse("layui");
-        if ("layui".equals(uiFrame)) {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable);
-        }else if("zui".equals(uiFrame)){
-            htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable);
-        }else{
-            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable);
-        }
-        return htmlDocumentGenerated.htmlMapDocumentGenerated();
-    }
-
-    @Override
-    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(IntrospectedTable introspectedTable) {
-        List<GeneratedHtmlFile> htmlFiles = new ArrayList<>();
-        return htmlFiles;
     }
 
 }

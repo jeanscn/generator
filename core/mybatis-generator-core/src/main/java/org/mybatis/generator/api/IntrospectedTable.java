@@ -35,6 +35,7 @@ import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
 import org.mybatis.generator.internal.rules.HierarchicalModelRules;
 import org.mybatis.generator.internal.rules.Rules;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 /**
@@ -93,7 +94,10 @@ public abstract class IntrospectedTable {
         ATTR_HTML_THYMELEAF_XMLNS_SEC,
         ATTR_HTML_THYMELEAF_PACKAGE,
         ATTR_HTML_THYMELEAF_FILE_NAME,
-        ATTR_HTML_THYMELEAF_VIEW_NAME
+        ATTR_HTML_THYMELEAF_VIEW_NAME,
+        /*CONTROLLE相关*/
+        ATTR_CONTROL_BASE_REQUEST_MAPPING,
+        ATTR_CONTROL_BEAN_NAME
     }
 
     protected TableConfiguration tableConfiguration;
@@ -118,10 +122,10 @@ public abstract class IntrospectedTable {
      */
     protected Map<String, Object> attributes = new HashMap<>();
 
+
     /** Internal attributes are used to store commonly accessed items by all code generators. */
     protected Map<IntrospectedTable.InternalAttribute, String> internalAttributes =
             new EnumMap<>(InternalAttribute.class);
-
     /**
      * Table remarks retrieved from database metadata.
      */
@@ -387,6 +391,7 @@ public abstract class IntrospectedTable {
         calculateModelAttributes();
         calculateXmlAttributes();
         calculateHtmlAttributes();
+        calculateControllerAttributes();
 
         if (tableConfiguration.getModelType() == ModelType.HIERARCHICAL) {
             rules = new HierarchicalModelRules(this);
@@ -398,6 +403,20 @@ public abstract class IntrospectedTable {
 
         context.getPlugins().initialized(this);
     }
+
+    protected void calculateControllerAttributes(){
+        Context context = getContext();
+        String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+        String str1 = targetPackage.substring(0, targetPackage.lastIndexOf("."));
+        String packageStr = StringUtility.substringAfterLast(str1, ".");
+        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, packageStr);
+        if (tableConfiguration.getDomainObjectName()!=null) {
+            String entityName = JavaBeansUtil.getFirstCharacterLowercase(tableConfiguration.getDomainObjectName());
+            String beanName = entityName+"Impl";
+            internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME,beanName);
+        }
+    };
+
     protected void calculateHtmlAttributes() {
         setMyBatis3HtmlMapperFileName(calculateMyBatis3HtmlMapperFileName());
         setMybatis3HtmlMapperViewName(calculateHtmlMapViewName());
@@ -583,6 +602,16 @@ public abstract class IntrospectedTable {
     public void setCountByExampleStatementId(String s) {
         internalAttributes.put(
                 InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID, s);
+    }
+
+    public String getControllerBeanName() {
+        return internalAttributes
+                .get(InternalAttribute.ATTR_CONTROL_BEAN_NAME);
+    }
+
+    public String getControllerSimplePackage() {
+        return internalAttributes
+                .get(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING);
     }
 
     public String getBlobColumnListId() {

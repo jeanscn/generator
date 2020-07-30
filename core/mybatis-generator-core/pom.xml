@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2019 the original author or authors.
+       Copyright 2006-2020 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -59,6 +59,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <doclint>none</doclint>
+          <charset>UTF-8</charset>
+          <encoding>UTF-8</encoding>
+          <docencoding>UTF-8</docencoding>
+        </configuration>
         <executions>
           <execution>
             <phase>prepare-package</phase>
@@ -223,6 +229,12 @@
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.vgosoft</groupId>
+      <artifactId>vgosoft-core</artifactId>
+      <version>3.0.27-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

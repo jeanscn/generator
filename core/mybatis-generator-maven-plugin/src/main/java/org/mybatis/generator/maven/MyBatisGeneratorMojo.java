@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2018 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,12 +18,9 @@ package org.mybatis.generator.maven;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -35,7 +32,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ShellCallback;
-import org.mybatis.generator.config.Configuration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
@@ -217,17 +214,14 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         }
 
         try {
-            ConfigurationParser cp = new ConfigurationParser(
-                    project.getProperties(), warnings);
+            ConfigurationParser cp = new ConfigurationParser(project.getProperties(), warnings);
             Configuration config = cp.parseConfiguration(configurationFile);
-
+            customConfig(config);
             ShellCallback callback = new MavenShellCallback(this, overwrite);
 
-            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,
-                    callback, warnings);
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,callback, warnings);
 
-            myBatisGenerator.generate(new MavenProgressCallback(getLog(),
-                    verbose), contextsToRun, fullyqualifiedTables);
+            myBatisGenerator.generate(new MavenProgressCallback(getLog(),verbose), contextsToRun, fullyqualifiedTables);
 
         } catch (XMLParserException e) {
             for (String error : e.getErrors()) {
@@ -317,5 +311,45 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
 
     private void restoreClassLoader() {
         Thread.currentThread().setContextClassLoader(savedClassloader.get());
+    }
+
+    private void customConfig(Configuration config){
+        List<Context> contexts = config.getContexts();
+        for (Context context : contexts) {
+            context.addProperty("javaFileEncoding", "UTF-8");
+            //添加generator plugin
+            PluginConfiguration pluginConfiguration = new PluginConfiguration();
+            pluginConfiguration.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
+            context.addPluginConfiguration(pluginConfiguration);
+            //添加commentGenerator
+            CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
+            commentGeneratorConfiguration.setConfigurationType("org.mybatis.generator.custom.VgoCommentGenerator");
+            commentGeneratorConfiguration.addProperty("javaFileEncoding", "UTF-8");
+            commentGeneratorConfiguration.addProperty("suppressAllComment", "false");
+            commentGeneratorConfiguration.addProperty("suppressDate", "false");
+            commentGeneratorConfiguration.addProperty("dateFormat", "yyyy-MM-dd HH:mm");
+            commentGeneratorConfiguration.addProperty("addRemarkComments", "true");
+            context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
+            //生成mybatis的类型
+            context.setTargetRuntime("Mybatis3");
+            //genrator Model 配置
+            JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
+            javaModelGeneratorConfiguration.addProperty("trimStrings", "true");
+            javaModelGeneratorConfiguration.addProperty("constructorBased", "true");
+            String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+            javaModelGeneratorConfiguration.addProperty("exampleTargetPackage", targetPackage + ".example");
+            context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
+            //生成html配置
+            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
+            htmlMapGeneratorConfiguration = Optional.ofNullable(context.getHtmlMapGeneratorConfiguration())
+                    .orElseGet(()->new HtmlMapGeneratorConfiguration());
+            htmlMapGeneratorConfiguration.setTargetProject(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
+                    .orElse("src/main/resources/templates"));
+            String modelPackage = javaModelGeneratorConfiguration.getTargetPackage();
+            String p = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(modelPackage, "."), ".");
+            htmlMapGeneratorConfiguration.setTargetPackage(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
+                    .orElse(p));
+            context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);
+        }
     }
 }

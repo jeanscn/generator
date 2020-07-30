@@ -17,23 +17,22 @@ package org.mybatis.generator.custom.htmlGenerator;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.html.Attribute;
-import org.mybatis.generator.api.dom.html.Document;
-import org.mybatis.generator.api.dom.html.HtmlElement;
-import org.mybatis.generator.api.dom.html.VisitableElement;
+import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.TableConfiguration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * @description:
+ *
  * @author: <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
- * @created: 2020-07-23 00:57
+ *  2020-07-23 00:57
  * @version: 3.0
  */
 public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator {
@@ -41,14 +40,58 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     private Document document;
     private IntrospectedTable introspectedTable;
     private FullyQualifiedJavaType entityType;
-    private int pageColumns;
+    private TableConfiguration tableConfiguration;
+    private Context context;
+    protected final String btn_sumit_id = "btn_save";
+    protected final String btn_close_id = "btn_close";
+    protected final String input_subject_id = "subject";
 
     public AbsHtmlDocumentGenerator(Document document, IntrospectedTable introspectedTable) {
         this.document = document;
         this.introspectedTable = introspectedTable;
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String uiFrame = Optional.ofNullable(introspectedTable.getContext().getProperty(PropertyRegistry.TABLE_HTML_UI_FRAME))
-                .orElse("layui");
+        this.tableConfiguration = introspectedTable.getTableConfiguration();
+        this.context = introspectedTable.getContext();
+    }
+
+    public int getPageColumnsConfig() {
+        String pcStr = "2";
+        Optional<String> propertyt = Optional.ofNullable(tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS));
+        if (!propertyt.isPresent()) {
+            Optional<String> propertyc = Optional.ofNullable(context.getProperty(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS));
+            if (!propertyc.isPresent()) {
+                pcStr = "2";
+            } else {
+                pcStr = propertyc.get();
+            }
+        } else {
+            pcStr = propertyt.get();
+        }
+        int c = Integer.valueOf(pcStr);
+        if (c > 12) {
+            c = 12;
+        } else if (c <= 0) {
+            c = 2;
+        }
+        if (12 % c == 0) {
+            return c;
+        } else {
+            return 2;
+        }
+    }
+
+    public String getHtmlBarPositionConfig() {
+        String bpStr = HtmlConstants.HTML_KEY_WORD_BOTTOM;
+        Optional<String> propertyt = Optional.ofNullable(tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION));
+        if (!propertyt.isPresent()) {
+            Optional<String> propertyc = Optional.ofNullable(context.getProperty(PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION));
+            if (propertyc.isPresent()) {
+                bpStr = propertyc.get();
+            }
+        } else {
+            bpStr = propertyt.get();
+        }
+        return bpStr;
     }
 
     public abstract boolean htmlMapDocumentGenerated();
@@ -89,21 +132,22 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     protected HtmlElement generateHtmlBody() {
         HtmlElement body = new HtmlElement("body");
-        HtmlElement out = new HtmlElement("div");
-        out.addAttribute(new Attribute("class", "outContainer"));
-        HtmlElement inner = new HtmlElement("div");
-        inner.addAttribute(new Attribute("class", "innerContainer"));
-        out.addElement(inner);
-        body.addElement(out);
+        HtmlElement out = addDivWithClassToParent(body, "outContainer");
+        HtmlElement inner = addDivWithClassToParent(out, "innerContainer");
+        HtmlElement content = addDivWithClassToParent(inner, "content");
         return body;
     }
 
-    protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn) {
+    protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn, boolean isHidden) {
         StringBuilder sb = new StringBuilder();
         HtmlElement input = new HtmlElement("input");
         input.addAttribute(new Attribute("id", baseColumn.getJavaProperty()));
         input.addAttribute(new Attribute("name", baseColumn.getJavaProperty()));
-        input.addAttribute(new Attribute("type", "text"));
+        if (isHidden) {
+            input.addAttribute(new Attribute("type", "hidden"));
+        }else{
+            input.addAttribute(new Attribute("type", "text"));
+        }
         sb.setLength(0);
         sb.append("${entity?.").append(baseColumn.getJavaProperty());
         if ("DATE".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
@@ -122,27 +166,14 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return input;
     }
 
-    protected String genLocalCssFilePath(String path, String filename) {
-        return genLocalFilePath(path, filename, "css");
-    }
-
-    protected String genLocalJsFilePath(String path, String filename) {
-        return genLocalFilePath(path, filename, "js");
-    }
-
-    private String genLocalFilePath(String path, String filename, String type) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("/" + type + "/");
-        if (path != null && path.length() > 0) {
-            if (path.indexOf(".") > -1) {
-                path = path.replace(".", "/");
-            }
-            sb.append(path).append("/");
+    protected void addLocalStaticResource(HtmlElement head) {
+        String p = getIntrospectedTable().getMyBatis3HtmlMapperPackage();
+        if (p.lastIndexOf(".") > 0) {
+            p = p.substring(0, p.lastIndexOf("."));
         }
-        if (filename != null && filename.length() > 0) {
-            sb.append(filename).append(".").append(type);
-        }
-        return sb.toString();
+        addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
+        addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getMyBatis3HtmlMapperPackage(),
+                getEntityType().getShortName().toLowerCase()));
     }
 
     protected Document getDocument() {
@@ -153,21 +184,36 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return introspectedTable;
     }
 
+    protected HtmlElement addDivWithClassToParent(HtmlElement parent, String className) {
+        HtmlElement div = new HtmlElement("div");
+        addClassNameToElement(div, className);
+        parent.addElement(div);
+        return div;
+    }
+
+    protected HtmlElement addDivWithClass(String className) {
+        HtmlElement div = new HtmlElement("div");
+        addClassNameToElement(div, className);
+        return div;
+    }
+
     protected void addClassNameToElement(HtmlElement element, String className) {
-        boolean isExsit = false;
+        boolean classExist = false;
         for (Attribute attribute : element.getAttributes()) {
             if ("class".equals(attribute.getName())) {
                 String[] classNames = attribute.getValue().split(" ");
-                List<String> listClassNames = Arrays.asList(classNames);
+                List<String> listClassNames = new ArrayList<>(Arrays.asList(classNames));
                 if (!listClassNames.contains(className)) {
                     listClassNames.add(className);
                     String v = listClassNames.stream().collect(Collectors.joining(" "));
                     attribute.setValue(v);
                 }
-                isExsit = true;
+                classExist = true;
             }
         }
-        element.addAttribute(new Attribute("class", className));
+        if (!classExist) {
+            element.addAttribute(new Attribute("class", className));
+        }
     }
 
     protected List<HtmlElement> getElmentByClassName(String className) {
@@ -189,11 +235,132 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return answer;
     }
 
-    public FullyQualifiedJavaType getEntityType() {
+    protected List<HtmlElement> getElmentById(String id) {
+        List<HtmlElement> answer = new ArrayList<>();
+        for (VisitableElement element : document.getRootElement().getAllElements()) {
+            HtmlElement htmlElement = (HtmlElement) element;
+            if (htmlElement.getAttributes().size() > 0) {
+                for (Attribute attribute : htmlElement.getAttributes()) {
+                    if ("id".equalsIgnoreCase(attribute.getName()) && id.equals(attribute.getValue().toString())) {
+                        answer.add((HtmlElement) element);
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    /*按配置列数分割总列数*/
+    protected Map<String, List<IntrospectedColumn>> getHtmlRows(List<IntrospectedColumn> baseColumns) {
+        int pageColumnsConfig = getPageColumnsConfig();
+        Map<String, List<IntrospectedColumn>> introspectedColumnRows = new HashMap<>();
+        List<IntrospectedColumn> onRow = new ArrayList<>();
+        List<IntrospectedColumn> alones = new ArrayList<>();
+        for (IntrospectedColumn baseColumn : baseColumns) {
+            if (baseColumn.getLength() > 255) {
+                alones.add(baseColumn);
+            } else {
+                onRow.add(baseColumn);
+            }
+        }
+        int columnsSize = onRow.size();
+        int rows = (columnsSize + pageColumnsConfig - 1) / pageColumnsConfig;
+        for (int i = 0; i < rows; i++) {
+            int fromIndex = i * pageColumnsConfig;
+            int toIndex = (i + 1) * pageColumnsConfig < columnsSize ? (i + 1) * pageColumnsConfig : columnsSize;
+            introspectedColumnRows.put(onRow.get(i).getJavaProperty(), onRow.subList(fromIndex, toIndex));
+        }
+        if (alones.size() > 0) {
+            for (IntrospectedColumn alone : alones) {
+                List<IntrospectedColumn> a = new ArrayList<>();
+                a.add(alone);
+                introspectedColumnRows.put(alone.getJavaProperty(), new ArrayList<>(a));
+            }
+        }
+        return introspectedColumnRows;
+    }
+
+    protected List<String> getColumnsJavaProperty() {
+        List<IntrospectedColumn> columns = introspectedTable.getAllColumns();
+        List<String> javaProperties = new ArrayList<>();
+        for (IntrospectedColumn baseColumn : columns) {
+            javaProperties.add(baseColumn.getJavaProperty());
+        }
+        return javaProperties;
+    }
+
+    protected boolean isContainProperty(List<IntrospectedColumn> columns, String propertyName){
+        List<String> javaProperties = new ArrayList<>();
+        for (IntrospectedColumn baseColumn : columns) {
+            if (baseColumn.getJavaProperty().equals(propertyName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected List<IntrospectedColumn> getColumsExceptBlod(){
+        return Stream.of(introspectedTable.getPrimaryKeyColumns().stream()
+                ,introspectedTable.getBaseColumns().stream()).flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    protected void addSubjectInput(HtmlElement parent){
+        boolean include = false;
+        for (IntrospectedColumn introspectedColumn : getColumsExceptBlod()) {
+            if (input_subject_id.equals(introspectedColumn.getJavaProperty())) {
+               include = true;
+            }
+        }
+        if (!include) {
+            HtmlElement input = new HtmlElement("input");
+            input.addAttribute(new Attribute("id", input_subject_id));
+            input.addAttribute(new Attribute("name", input_subject_id));
+            input.addAttribute(new Attribute("type", "hidden"));
+            input.addAttribute(new Attribute("value", introspectedTable.getRemarks()));
+            parent.addElement(input);
+        }
+    }
+
+    protected FullyQualifiedJavaType getEntityType() {
         return entityType;
     }
 
-    public void setEntityType(FullyQualifiedJavaType entityType) {
+    protected void setEntityType(FullyQualifiedJavaType entityType) {
         this.entityType = entityType;
     }
+
+    protected HtmlElement addButton(HtmlElement parent, String id, String text){
+        HtmlElement btn = new HtmlElement("button");
+        btn.addAttribute(new Attribute("type", "button"));
+        btn.addAttribute(new Attribute("id", id));
+        if (text!=null) {
+            btn.addElement(new TextElement(text));
+        }
+        parent.addElement(btn);
+        return btn;
+    }
+
+    protected HtmlElement generateToolBar(HtmlElement parent){
+        String config = getHtmlBarPositionConfig();
+        HtmlElement toolBar;
+        String btnClass = null;
+        if (HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
+            toolBar = addDivWithClassToParent(parent, "breadcrumb _top");
+        }else if(HtmlConstants.HTML_KEY_WORD_BOTTOM.equals(config)){
+            toolBar = addDivWithClassToParent(parent, "breadcrumb _footer");
+        }else{
+            toolBar = addDivWithClassToParent(parent, "breadcrumb _footer");
+        }
+        return toolBar;
+    };
+
+    protected HtmlElement addJavaScriptFragment(HtmlElement parent){
+        HtmlElement js = new HtmlElement("script");
+        js.addAttribute(new Attribute("language", "JavaScript"));
+        js.addAttribute(new Attribute("type", "text/javascript"));
+        parent.addElement(js);
+        return js;
+    }
+
 }

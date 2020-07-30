@@ -43,10 +43,11 @@ public class GenerateJavaController {
         this.exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         this.entityLowerShortName = entityType.getShortName().toLowerCase();
         this.responseSimple = new FullyQualifiedJavaType("com.vgosoft.web.ResponseSimple");
-        this.serviceBeanName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()+"Impl");
+        this.serviceBeanName = introspectedTable.getControllerBeanName();
         this.serviceInterfaceName = "I"+entityType.getShortName();
         commentGenerator = introspectedTable.getContext().getCommentGenerator();
         this.entityParamter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
+        this.entityParamter.addAnnotation("@RequestBody");
         this.entityFirstLowerShortName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
     }
 
@@ -117,7 +118,7 @@ public class GenerateJavaController {
         final String methodPrefix = "list";
         StringBuilder sb = new StringBuilder();
         Method method = ctreateMethod(methodPrefix);
-        method.addParameter(entityParamter);
+        method.addParameter(new Parameter(entityType, entityFirstLowerShortName));
         method.setReturnType(responseSimple);
         addControllerMapping(method,"","get");
         method.addBodyLine("ResponseSimpleList responseSimple = new ResponseSimpleList();");
@@ -187,6 +188,7 @@ public class GenerateJavaController {
         StringBuilder sb = new StringBuilder();
         Method method = ctreateMethod(methodPrefix);
         method.addParameter(entityParamter);
+
         method.setReturnType(responseSimple);
         addControllerMapping(method,"","post");
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
