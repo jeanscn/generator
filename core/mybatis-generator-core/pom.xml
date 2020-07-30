@@ -230,12 +230,6 @@
       <artifactId>kotlin-stdlib</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.vgosoft</groupId>
-      <artifactId>vgosoft-core</artifactId>
-      <version>3.0.27-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <distributionManagement>
