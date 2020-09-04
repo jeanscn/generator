@@ -16,11 +16,13 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.GeneratedKey;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     public abstract void addElements(XmlElement parentElement);
@@ -93,5 +95,20 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         ifElement.addElement(includeElement);
 
         return ifElement;
+    }
+
+    protected void addUpdateAliasedFullyQualifiedTableName(IntrospectedTable introspectedTable,StringBuilder sb){
+        if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
+            sb.append(introspectedTable.getFullyQualifiedTable().getAlias());
+        }else{
+            sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
+        }
+    }
+
+    protected void addUpdateAliasedFullyQualifiedTableNameFrom(IntrospectedTable introspectedTable,XmlElement parent){
+        if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
+            String from = "from "+introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+            parent.addElement(new TextElement(from));
+        }
     }
 }

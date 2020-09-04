@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,16 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.ConnectionFactory;
-import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.JavaFormatter;
-import org.mybatis.generator.api.JavaTypeResolver;
-import org.mybatis.generator.api.KotlinFormatter;
-import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.XmlFormatter;
+import org.mybatis.generator.api.*;
+import org.mybatis.generator.api.dom.DefaultHtmlFormatter;
 import org.mybatis.generator.api.dom.DefaultJavaFormatter;
 import org.mybatis.generator.api.dom.DefaultKotlinFormatter;
 import org.mybatis.generator.api.dom.DefaultXmlFormatter;
@@ -302,6 +294,19 @@ public class ObjectFactory {
         }
 
         XmlFormatter answer = (XmlFormatter) createInternalObject(type);
+
+        answer.setContext(context);
+
+        return answer;
+    }
+
+    public static HtmlFormatter createHtmlFormatter(Context context) {
+        String type = context.getProperty(PropertyRegistry.CONTEXT_HTML_FORMATTER);
+        if (!stringHasValue(type)) {
+            type = DefaultHtmlFormatter.class.getName();
+        }
+
+        HtmlFormatter answer = (HtmlFormatter) createInternalObject(type);
 
         answer.setContext(context);
 

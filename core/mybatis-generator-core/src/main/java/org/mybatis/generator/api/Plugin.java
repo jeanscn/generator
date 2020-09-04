@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ import org.mybatis.generator.config.Context;
  * 
  */
 public interface Plugin {
-    
+
     enum ModelClassType {
         PRIMARY_KEY, 
         BASE_RECORD, 
@@ -170,6 +170,7 @@ public interface Plugin {
      *         with the other files from this run.
      */
     List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles();
+    List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles();
 
     /**
      * This method can be used to generate additional XML files needed by your
@@ -183,6 +184,8 @@ public interface Plugin {
      *         with the other files from this run.
      */
     List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(
+            IntrospectedTable introspectedTable);
+    List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(
             IntrospectedTable introspectedTable);
 
     /**
@@ -1111,6 +1114,9 @@ public interface Plugin {
     boolean sqlMapGenerated(GeneratedXmlFile sqlMap,
             IntrospectedTable introspectedTable);
 
+    boolean htmlMapGenerated(GeneratedHtmlFile htmlMap,
+                            IntrospectedTable introspectedTable);
+
     /**
      * This method is called when the SqlMap document has been generated. This
      * method can be used to add additional XML elements the the generated
@@ -1130,6 +1136,8 @@ public interface Plugin {
      */
     boolean sqlMapDocumentGenerated(Document document,
             IntrospectedTable introspectedTable);
+
+    boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable);
 
     /**
      * This method is called when the base resultMap is generated.

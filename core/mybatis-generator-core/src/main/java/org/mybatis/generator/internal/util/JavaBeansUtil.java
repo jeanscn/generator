@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -93,6 +93,12 @@ public class JavaBeansUtil {
     public static String getFirstCharacterUppercase(String inputString) {
         StringBuilder sb = new StringBuilder(inputString);
         sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+        return sb.toString();
+    }
+
+    public static String getFirstCharacterLowercase(String inputString) {
+        StringBuilder sb = new StringBuilder(inputString);
+        sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
         return sb.toString();
     }
 

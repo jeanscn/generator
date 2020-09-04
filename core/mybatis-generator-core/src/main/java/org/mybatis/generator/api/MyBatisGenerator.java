@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,10 +35,7 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.ShellException;
-import org.mybatis.generator.internal.DefaultShellCallback;
-import org.mybatis.generator.internal.NullProgressCallback;
-import org.mybatis.generator.internal.ObjectFactory;
-import org.mybatis.generator.internal.XmlFileMergerJaxp;
+import org.mybatis.generator.internal.*;
 
 /**
  * This class is the main interface to MyBatis generator. A typical execution of the tool involves these steps:
@@ -62,6 +59,8 @@ public class MyBatisGenerator {
     private List<GeneratedJavaFile> generatedJavaFiles = new ArrayList<>();
 
     private List<GeneratedXmlFile> generatedXmlFiles = new ArrayList<>();
+
+    private List<GeneratedHtmlFile> generatedHtmlFiles = new ArrayList<>();
 
     private List<GeneratedKotlinFile> generatedKotlinFiles = new ArrayList<>();
     
@@ -207,8 +206,10 @@ public class MyBatisGenerator {
      * @throws InterruptedException
      *             if the method is canceled through the ProgressCallback
      */
-    public void generate(ProgressCallback callback, Set<String> contextIds,
-            Set<String> fullyQualifiedTableNames, boolean writeFiles) throws SQLException,
+    public void generate(ProgressCallback callback,
+                         Set<String> contextIds,
+                         Set<String> fullyQualifiedTableNames,
+                         boolean writeFiles) throws SQLException,
             IOException, InterruptedException {
 
         if (callback == null) {
@@ -217,6 +218,7 @@ public class MyBatisGenerator {
 
         generatedJavaFiles.clear();
         generatedXmlFiles.clear();
+        generatedHtmlFiles.clear();
         ObjectFactory.reset();
         RootClassInfo.reset();
 
@@ -260,7 +262,7 @@ public class MyBatisGenerator {
 
         for (Context context : contextsToRun) {
             context.generateFiles(callback, generatedJavaFiles,
-                    generatedXmlFiles, generatedKotlinFiles, warnings);
+                    generatedXmlFiles, generatedHtmlFiles,generatedKotlinFiles, warnings);
         }
 
         // now save the files
@@ -271,6 +273,11 @@ public class MyBatisGenerator {
             for (GeneratedXmlFile gxf : generatedXmlFiles) {
                 projects.add(gxf.getTargetProject());
                 writeGeneratedXmlFile(gxf, callback);
+            }
+
+            for (GeneratedHtmlFile gxf : generatedHtmlFiles) {
+                projects.add(gxf.getTargetProject());
+                writeGeneratedHtmlFile(gxf, callback);
             }
 
             for (GeneratedJavaFile gjf : generatedJavaFiles) {
@@ -398,6 +405,42 @@ public class MyBatisGenerator {
         }
     }
 
+    private void writeGeneratedHtmlFile(GeneratedHtmlFile gxf, ProgressCallback callback)
+            throws InterruptedException, IOException {
+        File targetFile;
+        String source;
+        try {
+            File directory = shellCallback.getDirectory(gxf
+                    .getTargetProject(), gxf.getTargetPackage());
+            targetFile = new File(directory, gxf.getFileName());
+            if (targetFile.exists()) {
+                if (gxf.isMergeable()) {
+                    source = HtmlFileMergerJaxp.getMergedSource(gxf,
+                            targetFile);
+                } else if (shellCallback.isOverwriteEnabled()) {
+                    source = gxf.getFormattedContent();
+                    warnings.add(getString("Warning.11", //$NON-NLS-1$
+                            targetFile.getAbsolutePath()));
+                } else {
+                    source = gxf.getFormattedContent();
+                    targetFile = getUniqueFileName(directory, gxf
+                            .getFileName());
+                    warnings.add(getString(
+                            "Warning.2", targetFile.getAbsolutePath())); //$NON-NLS-1$
+                }
+            } else {
+                source = gxf.getFormattedContent();
+            }
+
+            callback.checkCancel();
+            callback.startTask(getString(
+                    "Progress.15", targetFile.getName())); //$NON-NLS-1$
+            writeFile(targetFile, source, "UTF-8"); //$NON-NLS-1$
+        } catch (ShellException e) {
+            warnings.add(e.getMessage());
+        }
+    }
+
     /**
      * Writes, or overwrites, the contents of the specified file.
      *
@@ -490,5 +533,9 @@ public class MyBatisGenerator {
      */
     public List<GeneratedXmlFile> getGeneratedXmlFiles() {
         return generatedXmlFiles;
+    }
+
+    public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
+        return generatedHtmlFiles;
     }
 }

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,17 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.eclipse.tests.harness.summary.support;
+package org.mybatis.generator.api.dom.html;
 
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+public class SystemDocType implements DocType {
+    private String dtdLocation;
 
-public class InterfaceSummarizer extends AbstractTypeOrEnumSummarizer {
-
-    private InterfaceSummarizer(TypeDeclaration node) {
-        super(node);
+    public SystemDocType(String dtdLocation) {
+        super();
+        this.dtdLocation = dtdLocation;
     }
-    
-    public static InterfaceSummarizer from(TypeDeclaration node) {
-        return new InterfaceSummarizer(node);
+
+    public String getDtdLocation() {
+        return dtdLocation;
+    }
+
+    @Override
+    public <R> R accept(DocTypeVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }

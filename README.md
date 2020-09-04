@@ -8,6 +8,9 @@ MyBatis Generator (MBG)
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ![mybatis-generator](http://mybatis.github.io/images/mybatis-logo.png)
+1、SqlServer无法获得remark的问题
+2、增加生成controller的java类
+3、增减生成html页面的部分内容
 
 This is a code generator for MyBatis.
 

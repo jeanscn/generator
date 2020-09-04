@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public class DeleteByExampleElementGenerator extends
         AbstractXmlElementGenerator {
@@ -39,7 +40,11 @@ public class DeleteByExampleElementGenerator extends
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("delete from "); //$NON-NLS-1$
+        sb.append("delete "); //$NON-NLS-1$
+        if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
+            sb.append(introspectedTable.getFullyQualifiedTable().getAlias());
+        }
+        sb.append(" from ");
         sb.append(introspectedTable
                 .getAliasedFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));

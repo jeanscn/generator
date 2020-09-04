@@ -26,18 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.ConnectionFactory;
-import org.mybatis.generator.api.GeneratedJavaFile;
-import org.mybatis.generator.api.GeneratedKotlinFile;
-import org.mybatis.generator.api.GeneratedXmlFile;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.JavaFormatter;
-import org.mybatis.generator.api.JavaTypeResolver;
-import org.mybatis.generator.api.KotlinFormatter;
-import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.ProgressCallback;
-import org.mybatis.generator.api.XmlFormatter;
+import org.mybatis.generator.api.*;
 import org.mybatis.generator.internal.JDBCConnectionFactory;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.PluginAggregator;
@@ -52,6 +41,8 @@ public class Context extends PropertyHolder {
     private ConnectionFactoryConfiguration connectionFactoryConfiguration;
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
+
+    private HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
 
     private JavaTypeResolverConfiguration javaTypeResolverConfiguration;
 
@@ -86,8 +77,14 @@ public class Context extends PropertyHolder {
     private KotlinFormatter kotlinFormatter;
 
     private XmlFormatter xmlFormatter;
-    
+
+    private HtmlFormatter htmlFormatter;
+
     private boolean isJava8Targeted = true;
+
+    private boolean isSqlServe;
+
+
 
     public Context(ModelType defaultModelType) {
         super();
@@ -124,6 +121,10 @@ public class Context extends PropertyHolder {
 
     public SqlMapGeneratorConfiguration getSqlMapGeneratorConfiguration() {
         return sqlMapGeneratorConfiguration;
+    }
+
+    public HtmlMapGeneratorConfiguration getHtmlMapGeneratorConfiguration() {
+        return htmlMapGeneratorConfiguration;
     }
 
     public void addPluginConfiguration(
@@ -228,6 +229,11 @@ public class Context extends PropertyHolder {
         this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
     }
 
+    public void setHtmlMapGeneratorConfiguration(
+            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+        this.htmlMapGeneratorConfiguration = htmlMapGeneratorConfiguration;
+    }
+
     public ModelType getDefaultModelType() {
         return defaultModelType;
     }
@@ -291,6 +297,14 @@ public class Context extends PropertyHolder {
         }
 
         return xmlFormatter;
+    }
+
+    public HtmlFormatter getHtmlFormatter() {
+        if (htmlFormatter == null) {
+            htmlFormatter = ObjectFactory.createHtmlFormatter(this);
+        }
+
+        return htmlFormatter;
     }
 
     public CommentGeneratorConfiguration getCommentGeneratorConfiguration() {
@@ -444,6 +458,7 @@ public class Context extends PropertyHolder {
     public void generateFiles(ProgressCallback callback,
             List<GeneratedJavaFile> generatedJavaFiles,
             List<GeneratedXmlFile> generatedXmlFiles,
+            List<GeneratedHtmlFile> generatedHtmlFiles,
             List<GeneratedKotlinFile> generatedKotlinFiles,
             List<String> warnings)
             throws InterruptedException {
@@ -469,6 +484,8 @@ public class Context extends PropertyHolder {
                     .getGeneratedJavaFiles());
             generatedXmlFiles.addAll(introspectedTable
                     .getGeneratedXmlFiles());
+            generatedHtmlFiles.addAll(introspectedTable
+                    .getGeneratedHtmlFiles());
             generatedKotlinFiles.addAll(introspectedTable
                     .getGeneratedKotlinFiles());
 
@@ -476,6 +493,8 @@ public class Context extends PropertyHolder {
                     .contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator
                     .contextGenerateAdditionalXmlFiles(introspectedTable));
+            generatedHtmlFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalHtmlFiles(introspectedTable));
             generatedKotlinFiles.addAll(pluginAggregator
                     .contextGenerateAdditionalKotlinFiles(introspectedTable));
         }
@@ -484,6 +503,8 @@ public class Context extends PropertyHolder {
                 .contextGenerateAdditionalJavaFiles());
         generatedXmlFiles.addAll(pluginAggregator
                 .contextGenerateAdditionalXmlFiles());
+        generatedHtmlFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalHtmlFiles());
         generatedKotlinFiles.addAll(pluginAggregator
                 .contextGenerateAdditionalKotlinFiles());
     }
@@ -495,7 +516,9 @@ public class Context extends PropertyHolder {
         } else {
             connectionFactory = ObjectFactory.createConnectionFactory(this);
         }
-
+        if (connectionFactory.getConnection() != null) {
+            this.setSqlServe(connectionFactory.getConnection().getMetaData().getDriverName().toUpperCase().contains("SQL SERVER"));
+        }
         return connectionFactory.getConnection();
     }
 
@@ -528,5 +551,12 @@ public class Context extends PropertyHolder {
 
     public void setJava8Targeted(boolean isJava8Targeted) {
         this.isJava8Targeted = isJava8Targeted;
+    }
+    public boolean isSqlServe() {
+        return isSqlServe;
+    }
+
+    public void setSqlServe(boolean sqlServe) {
+        isSqlServe = sqlServe;
     }
 }

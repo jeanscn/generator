@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,8 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-/**
- * This package contains custom Hamcrest matchers used for writing expressive unit tests
- * using the summary classes.
- */
-package org.mybatis.generator.eclipse.tests.harness.matchers;
+package org.mybatis.generator.api.dom.html;
+
+import java.util.Objects;
+
+public class Attribute {
+
+    private String name;
+
+    private String value;
+
+    public Attribute(String name, String value) {
+        this.name = Objects.requireNonNull(name);
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value){
+        this.value = value;
+    }
+}

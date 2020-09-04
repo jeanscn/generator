@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -117,6 +117,22 @@ public abstract class CompositePlugin implements Plugin {
     public List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(IntrospectedTable introspectedTable) {
         return plugins.stream()
                 .map(p -> p.contextGenerateAdditionalXmlFiles(introspectedTable))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles() {
+        return plugins.stream()
+                .map(Plugin::contextGenerateAdditionalHtmlFiles)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(IntrospectedTable introspectedTable) {
+        return plugins.stream()
+                .map(p -> p.contextGenerateAdditionalHtmlFiles(introspectedTable))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -899,6 +915,28 @@ public abstract class CompositePlugin implements Plugin {
             }
         }
         
+        return true;
+    }
+
+    @Override
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.htmlMapDocumentGenerated(document, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean htmlMapGenerated(GeneratedHtmlFile htmlMap, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.htmlMapGenerated(htmlMap, introspectedTable)) {
+                return false;
+            }
+        }
+
         return true;
     }
 

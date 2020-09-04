@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.generator.eclipse.tests.harness.matchers.support;
+package org.mybatis.generator.custom.htmlGenerator;
 
-import org.mybatis.generator.eclipse.tests.harness.summary.AbstractSummary;
-
-public class ClassExistenceChecker implements ExistenceChecker {
-
-    @Override
-    public boolean exists(AbstractSummary item, String matchString) {
-        return item.getClassSummary(matchString) != null;
-    }
+/**
+ *
+ * @author <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
+ *  2020-07-23 00:55
+ * @version 3.0
+ */
+public  interface HtmlDocumentGenerator {
+    default boolean htmlMapDocumentGenerated(){
+        return true;
+    };
 }

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public class UpdateByExampleSelectiveElementGenerator extends
         AbstractXmlElementGenerator {
@@ -42,8 +43,7 @@ public class UpdateByExampleSelectiveElementGenerator extends
 
         StringBuilder sb = new StringBuilder();
         sb.append("update "); //$NON-NLS-1$
-        sb.append(introspectedTable
-                .getAliasedFullyQualifiedTableNameAtRuntime());
+        addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
         answer.addElement(new TextElement(sb.toString()));
 
         XmlElement dynamicElement = new XmlElement("set"); //$NON-NLS-1$
@@ -68,7 +68,7 @@ public class UpdateByExampleSelectiveElementGenerator extends
 
             isNotNullElement.addElement(new TextElement(sb.toString()));
         }
-
+        addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
         answer.addElement(getUpdateByExampleIncludeElement());
 
         if (context.getPlugins()
