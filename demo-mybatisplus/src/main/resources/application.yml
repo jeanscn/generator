@@ -1,0 +1,17 @@
+server:
+  port: 8095
+spring:
+  thymeleaf:
+    prefix:
+  datasource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://vgosoft.uicp.io;DatabaseName=gas
+    username: pas
+    password: pas1234
+mybatis:
+  mapper-locations: classpath*:mappers/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+flowable:
+  async-executor-activate: false
+  check-process-definitions: false
