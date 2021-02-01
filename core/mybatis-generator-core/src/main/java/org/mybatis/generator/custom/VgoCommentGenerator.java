@@ -23,6 +23,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Properties;
@@ -56,7 +57,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
             String[] remarkLinesStrings = remarks.split(System.getProperty("line.separator"));
             for (String remarkLine : remarkLinesStrings) {
                 field.addJavaDocLine(" * " + remarkLine);
-                field.addJavaDocLine(" * @Column Name:" + introspectedColumn.getActualColumnName() + " Type:" + introspectedColumn.getActualTypeName() + " Remark:" + introspectedColumn.getRemarks());
+                field.addJavaDocLine(" * Column Name:" + introspectedColumn.getActualColumnName() + " Type:" + introspectedColumn.getActualTypeName() + " Remark:" + introspectedColumn.getRemarks());
             }
         }
         field.addJavaDocLine(" */");
@@ -102,10 +103,10 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         if(("view"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/**");
-            method.addJavaDocLine("* 根据主键获取单个实体");
-            method.addJavaDocLine("* @param id 可选参数，存在时查询数据，否则直接返回视图");
+            method.addJavaDocLine("* 根据主键获取单个业务实例");
+            method.addJavaDocLine("* @param id 可选参数，存在时查询数据；否则直接返回视图，用于打开表单。");
             method.addJavaDocLine("*/");
-            addSwaggerApiAnnotation(method,"获得数据并返回页面视图",
+            addSwaggerApiAnnotation(method,"获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                     "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图");
         }
         if(("get"+record.getShortName()).equals(method.getName())){
@@ -115,14 +116,18 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         if(("list"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/**");
             method.addJavaDocLine("* 获取条件实体对象列表");
-            method.addJavaDocLine("* @param applicationInfos 用于接收属性同名参数");
+            StringBuilder sb = new StringBuilder("* @param ");
+            FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+            sb.append(JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
+            sb.append(" 用于接收属性同名参数");
+            method.addJavaDocLine(sb.toString());
             method.addJavaDocLine("*/");
             addSwaggerApiAnnotation(method,"获得数据列表",
                     "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
         }
         if(("create"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/*新增一条记录*/");
-            addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录");
+            addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录,返回json");
         }
         if(("update"+record.getShortName()).equals(method.getName())){
             method.addJavaDocLine("/*根据主键更新实体对象*/");

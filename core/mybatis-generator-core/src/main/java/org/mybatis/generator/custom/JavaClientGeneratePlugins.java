@@ -16,6 +16,7 @@
 package org.mybatis.generator.custom;
 
 
+import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -35,24 +36,21 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * @description: dao生成插件
- * @author: <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
- * @created: 2020-07-14 05:23
- * @version: 3.0
+ *  dao生成插件
+ * @author <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
+ *  2020-07-14 05:23
+ * @version 3.0
  */
 public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
     private final String bizSubPackage;
     private final String implSubPackage;
-    private final String htmlTargetProject;
 
     public JavaClientGeneratePlugins() {
         bizSubPackage = "service";
         implSubPackage = "impl";
-        htmlTargetProject = "src/main/resources/templates";
     }
 
     @Override
@@ -109,7 +107,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             String serviceAnnotation = "org.springframework.stereotype.Service";
             FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(serviceAnnotation);
             FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType);
-            String implClazzName = introspectedTable.getControllerBeanName();
+            String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
 
             FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(StrBizPackage + "." + implSubPackage + "." + implClazzName);
             TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
@@ -140,17 +138,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return list;
     }
 
-
-
     private GeneratedJavaFile generateControllerFile(IntrospectedTable introspectedTable,
                                                      FullyQualifiedJavaType bizClazzImplType,
                                                      String infName) {
         CommentGenerator commentGenerator = this.context.getCommentGenerator();
         //是否生成controller，缺省为true
-        Optional<String> generateController = Optional.ofNullable(introspectedTable.getTableConfigurationProperty("generateController"));
-        generateController.orElse("true");
         StringBuilder sb = new StringBuilder();
-        if (Boolean.valueOf(generateController.get())) {
+        if (introspectedTable.getRules().generateController()) {
             GenerateJavaController gc = new GenerateJavaController(introspectedTable);
             FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
             FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
@@ -170,7 +164,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             conTopClazz.addImportedType(supClazzType);
             conTopClazz.addImportedType(entityType);
             conTopClazz.addImportedType(exampleType);
-            conTopClazz.addImportedType(new FullyQualifiedJavaType("org.springframework.web.servlet.ModelAndView"));
             conClazzAddStaticImportedType(conTopClazz);
             sb.setLength(0);
             sb.append("@Api(value = \"/").append(lowerCaseEntityName).append("\", tags = \"");
@@ -216,6 +209,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         conTopClazz.addJavaDocLine(sb.toString());
         conTopClazz.addImportedType("java.lang.reflect.Field");
         conTopClazz.addImportedType("java.util.List");
+        conTopClazz.addImportedType("org.springframework.web.servlet.ModelAndView");
         conTopClazz.addJavaDocLine(sb.toString());
         conTopClazz.addAnnotation("@RestController");
     }
@@ -225,7 +219,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      *
      * @param interfaze
      * @param introspectedTable
-     * @return
+     * @return boolean
      */
     @Override
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
@@ -233,8 +227,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         /*调整引入*/
         interfaze.getImportedTypes().clear();
-        String mapperAnnotation = "org.apache.ibatis.annotations.Mapper";
-        interfaze.addImportedType(new FullyQualifiedJavaType(mapperAnnotation));
         interfaze.addImportedType(entityType);
         interfaze.addImportedType(exampleType);
         String mapperINF = "com.vgosoft.mybatis.inf.MBGMapperInterface";
@@ -253,7 +245,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      *
      * @param topLevelClass
      * @param introspectedTable
-     * @return
+     * @return boolean
      */
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
@@ -275,7 +267,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         topLevelClass.addAnnotation(tableMetaAnnotation);
         //添加序列化标识
         Field serialVersionUID = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
-        serialVersionUID.setInitializationString("1l");
+        serialVersionUID.setInitializationString("1L");
         serialVersionUID.setVisibility(JavaVisibility.PRIVATE);
         serialVersionUID.setFinal(true);
         serialVersionUID.setStatic(true);
@@ -284,9 +276,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         String repositoryAnnotation = "org.springframework.stereotype.Repository";
         topLevelClass.addImportedType(new FullyQualifiedJavaType(repositoryAnnotation));
         topLevelClass.addAnnotation("@Repository");
-
-        String viewpath = introspectedTable.getTableConfigurationProperty("viewPath");
-
+        String viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
         //更新构造器
         List<Method> methods = topLevelClass.getMethods();
         for (Method method : methods) {
@@ -303,21 +293,55 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         topLevelClass.getMethods().add(1, method);
         topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.inf.PersistenceObject"));
 
-        //判断是否需要实现ShowInWiew接口
-        FullyQualifiedJavaType supperType = topLevelClass.getSuperClass().get();
-        String s = supperType.getFullyQualifiedName();
-        Boolean needViewPath = true;
-        try {
-            Class<?> pclazz = Class.forName("com.vgosoft.core.inf.ShowInView");
-            Class<?> aClass = Class.forName(s);
-            if (aClass.isInstance(pclazz)) {
-                needViewPath = false;
+        /*是否需要增加属性*/
+        //TODO 增加附件属性方法，需要完成
+        String javaModelAddtionProperty = introspectedTable.getTableConfigurationProperty("javaModelAddtionProperty");
+        if (javaModelAddtionProperty != null) {
+            FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAddtionProperty);
+            String javaModelName = JavaBeansUtil.getFirstCharacterLowercase(addPropertyType.getShortName());
+
+            String ptype = introspectedTable.getTableConfigurationProperty("javaModelAddtionPropertyType");
+            FullyQualifiedJavaType returnType;
+            String propertyName;
+            if (ptype!=null && "list".equals(ptype.toLowerCase())) {
+                propertyName = javaModelName+"s";
+                returnType = new FullyQualifiedJavaType("java.util.List<"+addPropertyType.getShortName()+">");
+                topLevelClass.addImportedType("java.util.List");
+            }else{
+                returnType = addPropertyType;
+                propertyName = javaModelName;
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Field field = new Field(propertyName, returnType);
+            field.setVisibility(JavaVisibility.PRIVATE);
+            topLevelClass.addField(field);
+            topLevelClass.addImportedType(javaModelAddtionProperty);
+
+            //getter
+            Method getter = JavaBeansUtil.getBasicJavaBeansGetter(propertyName,returnType);
+            topLevelClass.addMethod(getter);
+            //setter
+            Method setter = JavaBeansUtil.getBasicJavaBeanSetter(propertyName,false,returnType);
+            topLevelClass.addMethod(setter);
         }
-        if (viewpath != null && needViewPath) {
-            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.inf.ShowInView"));
+
+        //判断是否需要实现ShowInWiew接口
+        FullyQualifiedJavaType supperType;
+        if (viewpath != null) {
+            if (topLevelClass.getSuperClass().isPresent()) {
+                supperType = topLevelClass.getSuperClass().get();
+                try {
+                    Class<?> pclazz = Class.forName("com.vgosoft.core.inf.ShowInView");
+                    Class<?> aClass = Class.forName(supperType.getFullyQualifiedName());
+                    if (!ClassUtils.isAssignable(aClass, pclazz)) {
+                        //添加ShowInView接口
+                        FullyQualifiedJavaType showinview = new FullyQualifiedJavaType("com.vgosoft.core.inf.ShowInView");
+                        topLevelClass.addImportedType(showinview);
+                        topLevelClass.addSuperInterface(showinview);
+                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             //添加viewpath的属性及方法
             Field field = new Field("viewPath", new FullyQualifiedJavaType("String"));
             field.setVisibility(JavaVisibility.PRIVATE);
@@ -332,10 +356,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             method.addParameter(new Parameter(new FullyQualifiedJavaType("String"), "viewPath"));
             method.addBodyLine("this.viewPath = viewPath;");
             topLevelClass.addMethod(method);
-            //为类添加ShowInView接口
-            FullyQualifiedJavaType infType = new FullyQualifiedJavaType("com.vgosoft.core.inf.ShowInView");
-            topLevelClass.addSuperInterface(infType);
-            topLevelClass.addImportedType(infType);
         }
         return true;
     }
@@ -368,18 +388,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     }
 
     private String getUiFrame(IntrospectedTable introspectedTable) {
-        TableConfiguration tableConfiguration = introspectedTable.getTableConfiguration();
-        Optional<String> propertyt = Optional.ofNullable(tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_UI_FRAME));
-        if (!propertyt.isPresent()) {
-            Optional<String> propertyc = Optional.ofNullable(context.getProperty(PropertyRegistry.TABLE_HTML_UI_FRAME));
-            if (!propertyc.isPresent()) {
-                return HtmlConstants.HTML_UI_FRAME_LAYUI;
-            }else{
-                return propertyc.get();
-            }
-        }else{
-            return propertyt.get();
-        }
+        return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_UI_FRAME);
     }
 
     private void addSelectBySqlCondition(Document document, boolean isSub, IntrospectedTable introspectedTable) {
@@ -431,7 +440,15 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             xmlElement = new XmlElement("if");
             xmlElement.addAttribute(new Attribute("test", "principals != null and principals.size &gt;0"));
             sb.setLength(0);
-            sb.append("and ID in(");
+
+            IntrospectedColumn introspectedColumn = introspectedTable.getPrimaryKeyColumns().get(0);
+            String actualColumnName = introspectedColumn.getActualColumnName();
+            if (!StringUtility.isEmpty(actualColumnName)) {
+                sb.append("and "+actualColumnName+" in(");
+            }else{
+                sb.append("and ID_ in(");
+            }
+
             sb.append("select distinct BUSINESS_KEY_ from VCORE_RU_AUTHORITY ");
             sb.append("where AUTHORITY_NAME_ in");
             xmlElement.addElement(new TextElement(sb.toString()));
@@ -502,7 +519,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      */
     private String getTableBeanName(IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String implClazzName = entityType.getShortName() + JavaBeansUtil.getFirstCharacterUppercase(implSubPackage);
+        String implClazzName = introspectedTable.getControllerBeanName();
         return JavaBeansUtil.getFirstCharacterLowercase(implClazzName);
     }
 
@@ -522,7 +539,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 sb.append(",description = \"").append(column.getRemarks()).append("\"");
                 sb.append(",size =");
                 sb.append(column.getLength());
-                sb.append(",order = ").append(String.valueOf(i+10));
+                sb.append(",order = ").append(String.valueOf(i+20));
                 if (!"VARCHAR".equals(column.getJdbcTypeName())) {
                     sb.append(",type = JDBCType.").append(column.getJdbcTypeName());
                     topLevelClass.addImportedType("java.sql.JDBCType");

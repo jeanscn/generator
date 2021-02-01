@@ -15,11 +15,15 @@
  */
 package org.mybatis.generator.custom.htmlGenerator;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.PropertyScope;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *  工具类
@@ -30,15 +34,12 @@ import java.util.List;
 public class GenerateUtils {
 
     /*判断当前属性是否为隐藏属性*/
-    public static boolean isHiddenJavaProperty(String propertyName){
-        List<String> propertis = new ArrayList<>(Arrays.asList(
-                "id","version","created","modified"
-        ));
-        return propertis.contains(propertyName);
-    }
-
-    public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn){
-        return isHiddenJavaProperty(introspectedColumn.getJavaProperty());
+     public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn){
+        String hiddenFileds = introspectedColumn.getIntrospectedTable().getConfigPropertyValue(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS, PropertyScope.any, "");
+        List<String> fieldsList = Arrays.asList(hiddenFileds.split(","))
+                .stream().map(String::toUpperCase)
+                .collect(Collectors.toList());
+        return fieldsList.contains(introspectedColumn.getActualColumnName().toUpperCase());
     };
 
     public static String getLocalCssFilePath(String path, String filename) {
@@ -65,4 +66,22 @@ public class GenerateUtils {
         return sb.toString();
     }
 
+    public static Boolean isWorkflowInstance(IntrospectedTable introspectedTable){
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        try {
+            if (rootClass != null) {
+                Class<?> aClass = Class.forName(rootClass);
+                Class<?> pClass = Class.forName("com.vgosoft.core.inf.WorkflowBaseEntity");
+                return  ClassUtils.isAssignable(aClass,pClass);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
+    }
+
+    public static String getEntityKeyStr(IntrospectedTable introspectedTable){
+        return GenerateUtils.isWorkflowInstance(introspectedTable)?"business":"entity";
+    }
 }

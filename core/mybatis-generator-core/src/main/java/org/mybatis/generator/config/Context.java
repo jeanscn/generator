@@ -15,10 +15,11 @@
  */
 package org.mybatis.generator.config;
 
-import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
+import org.mybatis.generator.api.*;
+import org.mybatis.generator.internal.JDBCConnectionFactory;
+import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.PluginAggregator;
+import org.mybatis.generator.internal.db.DatabaseIntrospector;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,11 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.mybatis.generator.api.*;
-import org.mybatis.generator.internal.JDBCConnectionFactory;
-import org.mybatis.generator.internal.ObjectFactory;
-import org.mybatis.generator.internal.PluginAggregator;
-import org.mybatis.generator.internal.db.DatabaseIntrospector;
+import static org.mybatis.generator.internal.util.StringUtility.*;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class Context extends PropertyHolder {
 
@@ -88,13 +86,11 @@ public class Context extends PropertyHolder {
 
     public Context(ModelType defaultModelType) {
         super();
-
         if (defaultModelType == null) {
             this.defaultModelType = ModelType.CONDITIONAL;
         } else {
             this.defaultModelType = defaultModelType;
         }
-
         tableConfigurations = new ArrayList<>();
         pluginConfigurations = new ArrayList<>();
     }
@@ -271,7 +267,6 @@ public class Context extends PropertyHolder {
         if (commentGenerator == null) {
             commentGenerator = ObjectFactory.createCommentGenerator(this);
         }
-
         return commentGenerator;
     }
 
@@ -347,11 +342,11 @@ public class Context extends PropertyHolder {
     //
 
     private List<IntrospectedTable> introspectedTables = new ArrayList<>();
-    
+
     /**
      * This method could be useful for users that use the library for introspection only
      * and not for code generation.
-     * 
+     *
      * @return a list containing the results of table introspection. The list will be empty
      *     if this method is called before introspectTables(), or if no tables are found that
      *     match the configuration
@@ -377,7 +372,7 @@ public class Context extends PropertyHolder {
     /**
      * Introspect tables based on the configuration specified in the
      * constructor. This method is long running.
-     * 
+     *
      * @param callback
      *            a progress callback if progress information is desired, or
      *            <code>null</code>
@@ -391,7 +386,7 @@ public class Context extends PropertyHolder {
      *            "bar", then the fully qualified table name is "foo.bar". If
      *            the Set is null or empty, then all tables in the configuration
      *            will be used for code generation.
-     * 
+     *
      * @throws SQLException
      *             if some error arises while introspecting the specified
      *             database tables.
@@ -480,33 +475,21 @@ public class Context extends PropertyHolder {
 
             introspectedTable.initialize();
             introspectedTable.calculateGenerators(warnings, callback);
-            generatedJavaFiles.addAll(introspectedTable
-                    .getGeneratedJavaFiles());
-            generatedXmlFiles.addAll(introspectedTable
-                    .getGeneratedXmlFiles());
-            generatedHtmlFiles.addAll(introspectedTable
-                    .getGeneratedHtmlFiles());
-            generatedKotlinFiles.addAll(introspectedTable
-                    .getGeneratedKotlinFiles());
+            generatedJavaFiles.addAll(introspectedTable.getGeneratedJavaFiles());
+            generatedXmlFiles.addAll(introspectedTable.getGeneratedXmlFiles());
+            generatedHtmlFiles.addAll(introspectedTable.getGeneratedHtmlFiles());
+            generatedKotlinFiles.addAll(introspectedTable.getGeneratedKotlinFiles());
 
-            generatedJavaFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalJavaFiles(introspectedTable));
-            generatedXmlFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalXmlFiles(introspectedTable));
-            generatedHtmlFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalHtmlFiles(introspectedTable));
-            generatedKotlinFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalKotlinFiles(introspectedTable));
+            generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
+            generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
+            generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles(introspectedTable));
+            generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
         }
 
-        generatedJavaFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalJavaFiles());
-        generatedXmlFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalXmlFiles());
-        generatedHtmlFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalHtmlFiles());
-        generatedKotlinFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalKotlinFiles());
+        generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles());
+        generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles());
+        generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles());
+        generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
     }
 
     private Connection getConnection() throws SQLException {

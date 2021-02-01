@@ -34,6 +34,7 @@ public class PropertyRegistry {
     public static final String ANY_ROOT_CLASS = "rootClass"; //$NON-NLS-1$
     public static final String ANY_IMMUTABLE = "immutable"; //$NON-NLS-1$
     public static final String ANY_CONSTRUCTOR_BASED = "constructorBased"; //$NON-NLS-1$
+
     /**
      * recognized by table and java client generator.
      */
@@ -55,6 +56,7 @@ public class PropertyRegistry {
     public static final String TABLE_HTML_UI_FRAME = "htmlUiFrame";
     public static final String TABLE_HTML_PAGE_COLUMNS = "htmlPageColumns";
     public static final String TABLE_HTML_TOOLBAR_POSITION = "htmlBarPosition";
+    public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$

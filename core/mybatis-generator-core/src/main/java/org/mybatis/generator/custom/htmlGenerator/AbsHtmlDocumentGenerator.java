@@ -22,6 +22,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.PropertyScope;
 import org.mybatis.generator.config.TableConfiguration;
 
 import java.util.*;
@@ -31,9 +32,9 @@ import java.util.stream.Stream;
 
 /**
  *
- * @author: <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
+ * @author <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
  *  2020-07-23 00:57
- * @version: 3.0
+ * @version 3.0
  */
 public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator {
 
@@ -55,43 +56,22 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public int getPageColumnsConfig() {
-        String pcStr = "2";
-        Optional<String> propertyt = Optional.ofNullable(tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS));
-        if (!propertyt.isPresent()) {
-            Optional<String> propertyc = Optional.ofNullable(context.getProperty(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS));
-            if (!propertyc.isPresent()) {
-                pcStr = "2";
-            } else {
-                pcStr = propertyc.get();
-            }
-        } else {
-            pcStr = propertyt.get();
-        }
+        String pcStr = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS);
         int c = Integer.valueOf(pcStr);
         if (c > 12) {
             c = 12;
         } else if (c <= 0) {
-            c = 2;
+            c = 1;
         }
         if (12 % c == 0) {
             return c;
         } else {
-            return 2;
+            return 1;
         }
     }
 
     public String getHtmlBarPositionConfig() {
-        String bpStr = HtmlConstants.HTML_KEY_WORD_BOTTOM;
-        Optional<String> propertyt = Optional.ofNullable(tableConfiguration.getProperty(PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION));
-        if (!propertyt.isPresent()) {
-            Optional<String> propertyc = Optional.ofNullable(context.getProperty(PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION));
-            if (propertyc.isPresent()) {
-                bpStr = propertyc.get();
-            }
-        } else {
-            bpStr = propertyt.get();
-        }
-        return bpStr;
+        return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION, PropertyScope.any,"bottom");
     }
 
     public abstract boolean htmlMapDocumentGenerated();
@@ -132,14 +112,14 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     protected HtmlElement generateHtmlBody() {
         HtmlElement body = new HtmlElement("body");
-        HtmlElement out = addDivWithClassToParent(body, "outContainer");
-        HtmlElement inner = addDivWithClassToParent(out, "innerContainer");
+        HtmlElement out = addDivWithClassToParent(body, "container");
+        addClassNameToElement(out, "outContainer");
+        HtmlElement inner = addDivWithClassToParent(out, "icontainer");
         HtmlElement content = addDivWithClassToParent(inner, "content");
         return body;
     }
 
     protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn, boolean isHidden) {
-        StringBuilder sb = new StringBuilder();
         HtmlElement input = new HtmlElement("input");
         input.addAttribute(new Attribute("id", baseColumn.getJavaProperty()));
         input.addAttribute(new Attribute("name", baseColumn.getJavaProperty()));
@@ -148,22 +128,25 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         }else{
             input.addAttribute(new Attribute("type", "text"));
         }
-        sb.setLength(0);
-        sb.append("${entity?.").append(baseColumn.getJavaProperty());
+        return input;
+    }
+
+    protected String thymeleafValue(IntrospectedColumn baseColumn,String entityName){
+        StringBuilder sb = new StringBuilder();
+        sb.append("${"+entityName+"?.").append(baseColumn.getJavaProperty());
         if ("DATE".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
-            sb.append("!=null?#dates.format(entity.");
+            sb.append("!=null?#dates.format("+entityName+".");
             sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd'):''}");
         } else if ("TIME".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
-            sb.append("!=null?#dates.format(entity.");
+            sb.append("!=null?#dates.format("+entityName+".");
             sb.append(baseColumn.getJavaProperty()).append(",'HH:mm:ss'):''}");
         } else if ("TIMESTAMP".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
-            sb.append("!=null?#dates.format(entity.");
+            sb.append("!=null?#dates.format("+entityName+".");
             sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
         } else {
             sb.append("}?:_");
         }
-        input.addAttribute(new Attribute("th:value", sb.toString()));
-        return input;
+        return sb.toString();
     }
 
     protected void addLocalStaticResource(HtmlElement head) {
@@ -176,6 +159,13 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
                 getEntityType().getShortName().toLowerCase()));
     }
 
+    //TODO
+    protected boolean isEntityTypeJsFileExsit(){
+        String filePath = GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getMyBatis3HtmlMapperPackage(),getEntityType().getShortName().toLowerCase());
+
+        return false;
+    }
+
     protected Document getDocument() {
         return document;
     }
@@ -186,16 +176,25 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     protected HtmlElement addDivWithClassToParent(HtmlElement parent, String className) {
         HtmlElement div = new HtmlElement("div");
-        addClassNameToElement(div, className);
+        if (!className.isEmpty()) {
+            addClassNameToElement(div, className);
+        }
         parent.addElement(div);
         return div;
     }
 
-    protected HtmlElement addDivWithClass(String className) {
+    protected HtmlElement addFormWithClassToParent(HtmlElement parent, String className) {
+        HtmlElement from = new HtmlElement("form");
+        addClassNameToElement(from, className);
+        parent.addElement(from);
+        return from;
+    }
+
+    /*protected HtmlElement addDivWithClass(String className) {
         HtmlElement div = new HtmlElement("div");
         addClassNameToElement(div, className);
         return div;
-    }
+    }*/
 
     protected void addClassNameToElement(HtmlElement element, String className) {
         boolean classExist = false;
@@ -235,7 +234,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return answer;
     }
 
-    protected List<HtmlElement> getElmentById(String id) {
+   /* protected List<HtmlElement> getElmentById(String id) {
         List<HtmlElement> answer = new ArrayList<>();
         for (VisitableElement element : document.getRootElement().getAllElements()) {
             HtmlElement htmlElement = (HtmlElement) element;
@@ -248,10 +247,10 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
             }
         }
         return answer;
-    }
-
-    /*按配置列数分割总列数*/
-    protected Map<String, List<IntrospectedColumn>> getHtmlRows(List<IntrospectedColumn> baseColumns) {
+    }*/
+/*
+    *//*按配置列数分割总列数*//*
+    protected Map<String, List<IntrospectedColumn>> getHtmlRows2(List<IntrospectedColumn> baseColumns) {
         int pageColumnsConfig = getPageColumnsConfig();
         Map<String, List<IntrospectedColumn>> introspectedColumnRows = new HashMap<>();
         List<IntrospectedColumn> onRow = new ArrayList<>();
@@ -278,25 +277,39 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
             }
         }
         return introspectedColumnRows;
-    }
+    }*/
 
-    protected List<String> getColumnsJavaProperty() {
-        List<IntrospectedColumn> columns = introspectedTable.getAllColumns();
-        List<String> javaProperties = new ArrayList<>();
-        for (IntrospectedColumn baseColumn : columns) {
-            javaProperties.add(baseColumn.getJavaProperty());
-        }
-        return javaProperties;
-    }
-
-    protected boolean isContainProperty(List<IntrospectedColumn> columns, String propertyName){
-        List<String> javaProperties = new ArrayList<>();
-        for (IntrospectedColumn baseColumn : columns) {
-            if (baseColumn.getJavaProperty().equals(propertyName)) {
-                return true;
+    /*按配置列数分割总列数*/
+    protected Map<Integer, List<IntrospectedColumn>> getHtmlRows(List<IntrospectedColumn> baseColumns) {
+        int pageColumnsConfig = getPageColumnsConfig();
+        Map<Integer, List<IntrospectedColumn>> introspectedColumnRows = new HashMap<>();
+        int rowIndex = 1,colIndex=1;
+        for (IntrospectedColumn baseColumn : baseColumns) {
+            if (baseColumn.getLength() > 255) {
+                if (introspectedColumnRows.get(rowIndex) != null) {
+                    rowIndex = rowIndex+1;
+                }
+                List<IntrospectedColumn> tmp = new ArrayList<>();
+                tmp.add(baseColumn);
+                introspectedColumnRows.put(rowIndex, tmp);
+                rowIndex = rowIndex+1;
+            }else{
+                if (introspectedColumnRows.get(rowIndex) != null && introspectedColumnRows.get(rowIndex).size()<pageColumnsConfig) {
+                   introspectedColumnRows.get(rowIndex).add(baseColumn);
+                    if (introspectedColumnRows.get(rowIndex).size()==pageColumnsConfig) {
+                        rowIndex = rowIndex+1;
+                    }
+                }else{
+                    List<IntrospectedColumn> tmp = new ArrayList<>();
+                    tmp.add(baseColumn);
+                    introspectedColumnRows.put(rowIndex, tmp);
+                    if (tmp.size()==pageColumnsConfig) {
+                        rowIndex = rowIndex+1;
+                    }
+                }
             }
         }
-        return false;
+        return introspectedColumnRows;
     }
 
     protected List<IntrospectedColumn> getColumsExceptBlod(){

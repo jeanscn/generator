@@ -15,17 +15,17 @@
  */
 package org.mybatis.generator.api;
 
-import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.DomainObjectRenamingRule;
 import org.mybatis.generator.internal.util.EqualsUtil;
 import org.mybatis.generator.internal.util.HashCodeUtil;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class FullyQualifiedTable {
 
@@ -253,7 +253,7 @@ public class FullyQualifiedTable {
     /**
      * Calculates a Java package fragment based on the table catalog and schema.
      * If qualifiers are ignored, then this method will return an empty string.
-     * 
+     *
      * <p>This method is used for determining the sub package for Java client and
      * SQL map (XML) objects.  It ignores any sub-package added to the
      * domain object name in the table configuration.
@@ -281,15 +281,13 @@ public class FullyQualifiedTable {
                 sb.append(introspectedSchema.toLowerCase());
             }
         }
-
-        // TODO - strip characters that are not valid in package names
         return sb.toString();
     }
 
     /**
      * Calculates a Java package fragment based on the table catalog and schema.
      * If qualifiers are ignored, then this method will return an empty string.
-     * 
+     *
      * <p>This method is used for determining the sub package for Java model objects only.
      * It takes into account the possibility that a sub-package was added to the
      * domain object name in the table configuration.

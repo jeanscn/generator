@@ -20,6 +20,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.internal.rules.BaseRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,17 +44,17 @@ public class GenerateHtmlFiles {
         }else{
             tagertProject = "src/main/resources/templates";
         }
-
-        if (htmlMapperGenerator != null) {
+        BaseRules rules = introspectedTable.getRules();
+        if (htmlMapperGenerator != null && rules.generateHtml()) {
             Document document = htmlMapperGenerator.getDocument();
-            GeneratedHtmlFile gxf = new GeneratedHtmlFile(document,
+            GeneratedHtmlFile ghf = new GeneratedHtmlFile(document,
                     introspectedTable.getMyBatis3HtmlMapperFileName(),
                     introspectedTable.getMyBatis3HtmlMapperPackage(),
                     tagertProject,
                     false,
                     context.getHtmlFormatter());
-            if (context.getPlugins().htmlMapGenerated(gxf, introspectedTable)) {
-                answer.add(gxf);
+            if (context.getPlugins().htmlMapGenerated(ghf, introspectedTable)) {
+                answer.add(ghf);
             }
         }
         return answer;

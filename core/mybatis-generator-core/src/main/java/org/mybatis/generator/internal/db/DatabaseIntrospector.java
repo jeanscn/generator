@@ -15,33 +15,25 @@
  */
 package org.mybatis.generator.internal.db;
 
-import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringContainsSQLWildcard;
-import static org.mybatis.generator.internal.util.StringUtility.stringContainsSpace;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
-import java.sql.*;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;
-import org.mybatis.generator.config.ColumnOverride;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
+
+import java.sql.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.mybatis.generator.internal.util.StringUtility.*;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class DatabaseIntrospector {
 
@@ -700,11 +692,11 @@ public class DatabaseIntrospector {
         Map<String, String> remarks = new HashMap<>();
         if (context.isSqlServe()) {
             ResultSet sqlServerResultSet = null;
-            String sql = "SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS \n" +
-                    "FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id \n" +
-                    "LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id \n" +
-                    "WHERE A.name = ? ";
-            PreparedStatement ps = connection.prepareStatement(sql);
+            StringBuilder sb = new StringBuilder("SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS ");
+            sb.append("FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id ");
+            sb.append("LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id ");
+            sb.append("WHERE A.name = ? ");
+            PreparedStatement ps = connection.prepareStatement(sb.toString());
             ps.setString(1, localTableName);
             sqlServerResultSet = ps.executeQuery();
             while (sqlServerResultSet.next()) {

@@ -15,36 +15,27 @@
  */
 package org.mybatis.generator.api;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.config.*;
+import org.mybatis.generator.internal.rules.*;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.mybatis.generator.config.*;
-import org.mybatis.generator.internal.rules.ConditionalModelRules;
-import org.mybatis.generator.internal.rules.FlatModelRules;
-import org.mybatis.generator.internal.rules.HierarchicalModelRules;
-import org.mybatis.generator.internal.rules.Rules;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * Base class for all code generator implementations. This class provides many
  * of the housekeeping methods needed to implement a code generator, with only
  * the actual code generation methods left unimplemented.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public abstract class IntrospectedTable {
 
@@ -52,7 +43,6 @@ public abstract class IntrospectedTable {
         MYBATIS3,
         MYBATIS3_DSQL
     }
-
     protected enum InternalAttribute {
         ATTR_PRIMARY_KEY_TYPE,
         ATTR_BASE_RECORD_TYPE,
@@ -90,11 +80,10 @@ public abstract class IntrospectedTable {
         ATTR_MYBATIS3_SQL_PROVIDER_TYPE,
         ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE,
         ATTR_KOTLIN_RECORD_TYPE,
-        ATTR_HTML_THYMELEAF_XMLNS_TH,
-        ATTR_HTML_THYMELEAF_XMLNS_SEC,
+        ATTR_HTML_THYMELEAF_VIEW_NAME,
+        ATTR_HTML_TARGET_PROJECT,
         ATTR_HTML_THYMELEAF_PACKAGE,
         ATTR_HTML_THYMELEAF_FILE_NAME,
-        ATTR_HTML_THYMELEAF_VIEW_NAME,
         /*CONTROLLE相关*/
         ATTR_CONTROL_BASE_REQUEST_MAPPING,
         ATTR_CONTROL_BEAN_NAME
@@ -106,7 +95,7 @@ public abstract class IntrospectedTable {
 
     protected Context context;
 
-    protected Rules rules;
+    protected BaseRules rules;
 
     protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
 
@@ -163,7 +152,7 @@ public abstract class IntrospectedTable {
                 .filter(ic -> columnMatches(ic, columnName))
                 .findFirst();
     }
-    
+
     private boolean columnMatches(IntrospectedColumn introspectedColumn, String columnName) {
         if (introspectedColumn.isColumnNameDelimited()) {
             return introspectedColumn.getActualColumnName().equals(columnName);
@@ -175,7 +164,7 @@ public abstract class IntrospectedTable {
     /**
      * Returns true if any of the columns in the table are JDBC Dates (as
      * opposed to timestamps).
-     * 
+     *
      * @return true if the table contains DATE columns
      */
     public boolean hasJDBCDateColumns() {
@@ -187,7 +176,7 @@ public abstract class IntrospectedTable {
     /**
      * Returns true if any of the columns in the table are JDBC Times (as
      * opposed to timestamps).
-     * 
+     *
      * @return true if the table contains TIME columns
      */
     public boolean hasJDBCTimeColumns() {
@@ -200,7 +189,7 @@ public abstract class IntrospectedTable {
      * Returns the columns in the primary key. If the generatePrimaryKeyClass()
      * method returns false, then these columns will be iterated as the
      * parameters of the selectByPrimaryKay and deleteByPrimaryKey methods
-     * 
+     *
      * @return a List of ColumnDefinition objects for columns in the primary key
      */
     public List<IntrospectedColumn> getPrimaryKeyColumns() {
@@ -260,7 +249,7 @@ public abstract class IntrospectedTable {
         return !baseColumns.isEmpty();
     }
 
-    public Rules getRules() {
+    public BaseRules getRules() {
         return rules;
     }
 
@@ -405,11 +394,13 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateControllerAttributes(){
-        Context context = getContext();
-        String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
-        String str1 = targetPackage.substring(0, targetPackage.lastIndexOf("."));
-        String packageStr = StringUtility.substringAfterLast(str1, ".");
-        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, packageStr);
+        //base Package
+        String htmlTargetPackage = getConfigPropertyValue(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE);
+        if (htmlTargetPackage == null) {
+            String modelTargetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+            htmlTargetPackage = StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTargetPackage,"."),".");
+        }
+        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, htmlTargetPackage);
         if (tableConfiguration.getDomainObjectName()!=null) {
             String entityName = JavaBeansUtil.getFirstCharacterLowercase(tableConfiguration.getDomainObjectName());
             String beanName = entityName+"Impl";
@@ -772,7 +763,7 @@ public abstract class IntrospectedTable {
             sb.append("SqlProvider"); //$NON-NLS-1$
         }
         setMyBatis3SqlProviderType(sb.toString());
-        
+
         sb.setLength(0);
         sb.append(calculateJavaClientInterfacePackage());
         sb.append('.');
@@ -834,7 +825,7 @@ public abstract class IntrospectedTable {
     /**
      * If property exampleTargetPackage specified for example use the specified value, else
      * use default value (targetPackage).
-     * 
+     *
      * @return the calculated package
      */
     protected String calculateJavaModelExamplePackage() {
@@ -843,7 +834,7 @@ public abstract class IntrospectedTable {
         if (!stringHasValue(exampleTargetPackage)) {
             return calculateJavaModelPackage();
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append(exampleTargetPackage);
         sb.append(fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config)));
@@ -854,7 +845,7 @@ public abstract class IntrospectedTable {
         StringBuilder sb = new StringBuilder();
         SqlMapGeneratorConfiguration config = context
                 .getSqlMapGeneratorConfiguration();
-        
+
         // config can be null if the Java client does not require XML
         if (config != null) {
             sb.append(config.getTargetPackage());
@@ -942,7 +933,7 @@ public abstract class IntrospectedTable {
 
     /**
      * This method can be used to initialize the generators before they will be called.
-     * 
+     *
      * <p>This method is called after all the setX methods, but before getNumberOfSubtasks(), getGeneratedJavaFiles, and
      * getGeneratedXmlFiles.
      *
@@ -958,7 +949,7 @@ public abstract class IntrospectedTable {
      * This method should return a list of generated Java files related to this
      * table. This list could include various types of model classes, as well as
      * DAO classes.
-     * 
+     *
      * @return the list of generated Java files for this table
      */
     public abstract List<GeneratedJavaFile> getGeneratedJavaFiles();
@@ -967,17 +958,17 @@ public abstract class IntrospectedTable {
      * This method should return a list of generated XML files related to this
      * table. Most implementations will only return one file - the generated
      * SqlMap file.
-     * 
+     *
      * @return the list of generated XML files for this table
      */
     public abstract List<GeneratedXmlFile> getGeneratedXmlFiles();
 
     public abstract List<GeneratedHtmlFile> getGeneratedHtmlFiles();
-    
+
     /**
      * This method should return a list of generated Kotlin files related to this
      * table. This list could include a data classes, a mapper interface, extension methods, etc.
-     * 
+     *
      * @return the list of generated Kotlin files for this table
      */
     public abstract List<GeneratedKotlinFile> getGeneratedKotlinFiles();
@@ -985,7 +976,7 @@ public abstract class IntrospectedTable {
     /**
      * This method should return the number of progress messages that will be
      * send during the generation phase.
-     * 
+     *
      * @return the number of progress messages
      */
     public abstract int getGenerationSteps();
@@ -996,7 +987,7 @@ public abstract class IntrospectedTable {
      * @param rules
      *            the new rules
      */
-    public void setRules(Rules rules) {
+    public void setRules(BaseRules rules) {
         this.rules = rules;
     }
 
@@ -1120,19 +1111,19 @@ public abstract class IntrospectedTable {
                 InternalAttribute.ATTR_MYBATIS3_SQL_PROVIDER_TYPE,
                 mybatis3SqlProviderType);
     }
-    
+
     public String getMyBatisDynamicSqlSupportType() {
         return internalAttributes.get(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE);
     }
-    
+
     public void setMyBatisDynamicSqlSupportType(String s) {
         internalAttributes.put(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE, s);
     }
-    
+
     public TargetRuntime getTargetRuntime() {
         return targetRuntime;
     }
-    
+
     public boolean isImmutable() {
         Properties properties;
 
@@ -1188,5 +1179,62 @@ public abstract class IntrospectedTable {
 
     public void setTableType(String tableType) {
         this.tableType = tableType;
+    }
+
+    /**
+     * 获得配置表的属性值
+     * */
+    public String getConfigPropertyValue(String propertyRegistry,PropertyScope scope,String defaultValue) {
+        Optional<String> property;
+        if (PropertyScope.any.equals(scope)) {
+            property = Optional.ofNullable(tableConfiguration.getProperty(propertyRegistry));
+            if (!property.isPresent()) {
+                property = Optional.ofNullable(context.getProperty(propertyRegistry));
+                if (!property.isPresent()) {
+                    return defaultValue;
+                }
+            }
+        }else if(PropertyScope.table.equals(scope)){
+            property = Optional.ofNullable(tableConfiguration.getProperty(propertyRegistry));
+            if (!property.isPresent()) {
+                return defaultValue;
+            }
+        } else{
+            property = Optional.ofNullable(context.getProperty(propertyRegistry));
+            if (!property.isPresent()) {
+                return defaultValue;
+            }
+        }
+        return property.get();
+    }
+    public String getConfigPropertyValue(String propertyRegistry,PropertyScope scope) {
+        return getConfigPropertyValue(propertyRegistry,scope,propertyRegistryDefaultValue(propertyRegistry));
+    }
+    public String getConfigPropertyValue(String propertyRegistry) {
+        return getConfigPropertyValue(propertyRegistry,PropertyScope.any,propertyRegistryDefaultValue(propertyRegistry));
+    }
+
+    private String propertyRegistryDefaultValue(String propertyRegistry){
+        switch (propertyRegistry){
+            case PropertyRegistry.TABLE_GENERATE_CONTROLLER:
+                return "false";
+            case PropertyRegistry.TABLE_HTML_GENERATE:
+                return "fasle";
+            case PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT:
+                return "src/main/resources/templates";
+            case PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE:
+                String modelTarget = context.getJavaModelGeneratorConfiguration().getTargetProject();
+                return StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."),".");
+            case PropertyRegistry.TABLE_HTML_UI_FRAME:
+                return HtmlConstants.HTML_UI_FRAME_LAYUI;
+            case PropertyRegistry.TABLE_HTML_PAGE_COLUMNS:
+                return "2";
+            case PropertyRegistry.TABLE_VIEW_PATH:
+                return null;
+            case PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION:
+                return HtmlConstants.HTML_KEY_WORD_BOTTOM;
+            default:
+                return null;
+        }
     }
 }

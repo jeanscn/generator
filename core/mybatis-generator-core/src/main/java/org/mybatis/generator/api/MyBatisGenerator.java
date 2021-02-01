@@ -1,33 +1,4 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.api;
-
-import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.config.Configuration;
@@ -37,9 +8,20 @@ import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.*;
 
+import java.io.*;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
+
 /**
  * This class is the main interface to MyBatis generator. A typical execution of the tool involves these steps:
- * 
+ *
  * <ol>
  * <li>Create a Configuration object. The Configuration can be the result of a parsing the XML configuration file, or it
  * can be created solely in Java.</li>
@@ -63,14 +45,14 @@ public class MyBatisGenerator {
     private List<GeneratedHtmlFile> generatedHtmlFiles = new ArrayList<>();
 
     private List<GeneratedKotlinFile> generatedKotlinFiles = new ArrayList<>();
-    
-    private List<String> warnings;
+
+    private final List<String> warnings;
 
     private Set<String> projects = new HashSet<>();
 
     /**
      * Constructs a MyBatisGenerator object.
-     * 
+     *
      * @param configuration
      *            The configuration for this invocation
      * @param shellCallback
@@ -330,7 +312,8 @@ public class MyBatisGenerator {
             callback.checkCancel();
             callback.startTask(getString(
                     "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, gjf.getFileEncoding());
+            Charset Charset1 = Charset.forName(gjf.getFileEncoding());
+            writeFile(targetFile, source, Charset1);
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         }
@@ -363,7 +346,8 @@ public class MyBatisGenerator {
             callback.checkCancel();
             callback.startTask(getString(
                     "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, gkf.getFileEncoding());
+            Charset Charset1 = Charset.forName(gkf.getFileEncoding());
+            writeFile(targetFile, source, Charset1);
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         }
@@ -399,43 +383,44 @@ public class MyBatisGenerator {
             callback.checkCancel();
             callback.startTask(getString(
                     "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, "UTF-8"); //$NON-NLS-1$
+            Charset Charset1 = Charset.forName("UTF8");
+            writeFile(targetFile, source, Charset1); //$NON-NLS-1$
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         }
     }
 
-    private void writeGeneratedHtmlFile(GeneratedHtmlFile gxf, ProgressCallback callback)
+    private void writeGeneratedHtmlFile(GeneratedHtmlFile ghf, ProgressCallback callback)
             throws InterruptedException, IOException {
         File targetFile;
         String source;
         try {
-            File directory = shellCallback.getDirectory(gxf
-                    .getTargetProject(), gxf.getTargetPackage());
-            targetFile = new File(directory, gxf.getFileName());
+            File directory = shellCallback.getDirectory(ghf.getTargetProject(), ghf.getTargetPackage());
+            targetFile = new File(directory, ghf.getFileName());
             if (targetFile.exists()) {
-                if (gxf.isMergeable()) {
-                    source = HtmlFileMergerJaxp.getMergedSource(gxf,
+                if (ghf.isMergeable()) {
+                    source = HtmlFileMergerJaxp.getMergedSource(ghf,
                             targetFile);
                 } else if (shellCallback.isOverwriteEnabled()) {
-                    source = gxf.getFormattedContent();
+                    source = ghf.getFormattedContent();
                     warnings.add(getString("Warning.11", //$NON-NLS-1$
                             targetFile.getAbsolutePath()));
                 } else {
-                    source = gxf.getFormattedContent();
-                    targetFile = getUniqueFileName(directory, gxf
+                    source = ghf.getFormattedContent();
+                    targetFile = getUniqueFileName(directory, ghf
                             .getFileName());
                     warnings.add(getString(
                             "Warning.2", targetFile.getAbsolutePath())); //$NON-NLS-1$
                 }
             } else {
-                source = gxf.getFormattedContent();
+                source = ghf.getFormattedContent();
             }
 
             callback.checkCancel();
             callback.startTask(getString(
                     "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, "UTF-8"); //$NON-NLS-1$
+            Charset Charset1 = Charset.forName("UTF8");
+            writeFile(targetFile, source, Charset1); //$NON-NLS-1$
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         }
@@ -453,7 +438,7 @@ public class MyBatisGenerator {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    private void writeFile(File file, String content, String fileEncoding) throws IOException {
+    private void writeFile(File file, String content, java.nio.charset.Charset fileEncoding) throws IOException {
         FileOutputStream fos = new FileOutputStream(file, false);
         OutputStreamWriter osw;
         if (fileEncoding == null) {
@@ -506,7 +491,7 @@ public class MyBatisGenerator {
      * Returns the list of generated Java files after a call to one of the generate methods.
      * This is useful if you prefer to process the generated files yourself and do not want
      * the generator to write them to disk.
-     *  
+     *
      * @return the list of generated Java files
      */
     public List<GeneratedJavaFile> getGeneratedJavaFiles() {
@@ -517,7 +502,7 @@ public class MyBatisGenerator {
      * Returns the list of generated Kotlin files after a call to one of the generate methods.
      * This is useful if you prefer to process the generated files yourself and do not want
      * the generator to write them to disk.
-     *  
+     *
      * @return the list of generated Kotlin files
      */
     public List<GeneratedKotlinFile> getGeneratedKotlinFiles() {
@@ -528,7 +513,7 @@ public class MyBatisGenerator {
      * Returns the list of generated XML files after a call to one of the generate methods.
      * This is useful if you prefer to process the generated files yourself and do not want
      * the generator to write them to disk.
-     *  
+     *
      * @return the list of generated XML files
      */
     public List<GeneratedXmlFile> getGeneratedXmlFiles() {

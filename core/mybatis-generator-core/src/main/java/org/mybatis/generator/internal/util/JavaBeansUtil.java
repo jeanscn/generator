@@ -15,22 +15,17 @@
  */
 package org.mybatis.generator.internal.util;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.TableConfiguration;
 
 import java.util.Locale;
 import java.util.Properties;
 
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.TableConfiguration;
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 
 public class JavaBeansUtil {
 
@@ -41,7 +36,7 @@ public class JavaBeansUtil {
     /**
      * Computes a getter method name.  Warning - does not check to see that the property is a valid
      * property.  Call getValidPropertyName first.
-     * 
+     *
      * @param property
      *            the property
      * @param fullyQualifiedJavaType
@@ -144,18 +139,18 @@ public class JavaBeansUtil {
 
     /**
      * This method ensures that the specified input string is a valid Java property name.
-     * 
+     *
      * <p>The rules are as follows:
-     * 
+     *
      * <ol>
      *   <li>If the first character is lower case, then OK</li>
      *   <li>If the first two characters are upper case, then OK</li>
      *   <li>If the first character is upper case, and the second character is lower case, then the first character
      *       should be made lower case</li>
      * </ol>
-     * 
+     *
      * <p>For example:
-     * 
+     *
      * <ul>
      *   <li>eMail &gt; eMail</li>
      *   <li>firstName &gt; firstName</li>
@@ -205,6 +200,20 @@ public class JavaBeansUtil {
         return method;
     }
 
+    public static Method getBasicJavaBeansGetter(String cloumnJavaProperty,FullyQualifiedJavaType parameter) {
+        Method method = new Method(getGetterMethodName(cloumnJavaProperty, parameter));
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(parameter);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("return "); //$NON-NLS-1$
+        sb.append(cloumnJavaProperty);
+        sb.append(';');
+        method.addBodyLine(sb.toString());
+
+        return method;
+    }
+
     private static Method getBasicJavaBeansGetter(IntrospectedColumn introspectedColumn) {
         FullyQualifiedJavaType fqjt = introspectedColumn
                 .getFullyQualifiedJavaType();
@@ -222,7 +231,7 @@ public class JavaBeansUtil {
 
         return method;
     }
-    
+
     private static void addGeneratedGetterJavaDoc(Method method, IntrospectedColumn introspectedColumn,
             Context context, IntrospectedTable introspectedTable) {
         context.getCommentGenerator().addGetterComment(method,
@@ -263,7 +272,7 @@ public class JavaBeansUtil {
 
         return field;
     }
-    
+
     private static void addGeneratedJavaDoc(Field field, Context context, IntrospectedColumn introspectedColumn,
             IntrospectedTable introspectedTable) {
         context.getCommentGenerator().addFieldComment(field,
@@ -275,7 +284,7 @@ public class JavaBeansUtil {
         context.getCommentGenerator().addFieldAnnotation(field, introspectedTable, introspectedColumn,
                 compilationUnit.getImportedTypes());
     }
-    
+
     public static Method getJavaBeansSetter(IntrospectedColumn introspectedColumn,
             Context context,
             IntrospectedTable introspectedTable) {
@@ -289,6 +298,32 @@ public class JavaBeansUtil {
             IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
         Method method = getBasicJavaBeansSetter(introspectedColumn);
         addGeneratedSetterAnnotation(method, introspectedColumn, context, introspectedTable, compilationUnit);
+        return method;
+    }
+
+    public static Method getBasicJavaBeanSetter(String cloumnJavaProperty,boolean isStringReturn,FullyQualifiedJavaType parameter) {
+        Method method = new Method(getSetterMethodName(cloumnJavaProperty));
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.addParameter(new Parameter(parameter, cloumnJavaProperty));
+
+        StringBuilder sb = new StringBuilder();
+        if (isStringReturn) {
+            sb.append("this."); //$NON-NLS-1$
+            sb.append(cloumnJavaProperty);
+            sb.append(" = "); //$NON-NLS-1$
+            sb.append(cloumnJavaProperty);
+            sb.append(" == null ? null : "); //$NON-NLS-1$
+            sb.append(cloumnJavaProperty);
+            sb.append(".trim();"); //$NON-NLS-1$
+            method.addBodyLine(sb.toString());
+        } else {
+            sb.append("this."); //$NON-NLS-1$
+            sb.append(cloumnJavaProperty);
+            sb.append(" = "); //$NON-NLS-1$
+            sb.append(cloumnJavaProperty);
+            sb.append(';');
+            method.addBodyLine(sb.toString());
+        }
         return method;
     }
 
@@ -319,10 +354,9 @@ public class JavaBeansUtil {
             sb.append(';');
             method.addBodyLine(sb.toString());
         }
-
         return method;
     }
-    
+
     private static void addGeneratedSetterJavaDoc(Method method, IntrospectedColumn introspectedColumn, Context context,
             IntrospectedTable introspectedTable) {
         context.getCommentGenerator().addSetterComment(method,
@@ -335,7 +369,7 @@ public class JavaBeansUtil {
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, introspectedColumn,
                 compilationUnit.getImportedTypes());
     }
-    
+
     private static boolean isTrimStringsEnabled(Context context) {
         Properties properties = context
                 .getJavaModelGeneratorConfiguration().getProperties();
