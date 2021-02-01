@@ -294,7 +294,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.inf.PersistenceObject"));
 
         /*是否需要增加属性*/
-        //TODO 增加附件属性方法，需要完成
         String javaModelAddtionProperty = introspectedTable.getTableConfigurationProperty("javaModelAddtionProperty");
         if (javaModelAddtionProperty != null) {
             FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAddtionProperty);

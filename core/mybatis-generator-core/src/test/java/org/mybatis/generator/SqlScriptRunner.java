@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2017 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.mybatis.generator;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,10 +24,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
 /**
  * This class is used to execute an SQL script before a code generation
  * run.
- * 
+ *
  * @author Jeff Butler
  */
 public class SqlScriptRunner {
@@ -41,7 +41,7 @@ public class SqlScriptRunner {
 
     public SqlScriptRunner(InputStream sourceFile, String driver, String url,
             String userId, String password) throws Exception {
-        
+
         if (!stringHasValue(driver)) {
             throw new Exception("JDBC Driver is required");
         }
@@ -122,12 +122,10 @@ public class SqlScriptRunner {
     }
 
     private String readStatement(BufferedReader br) throws IOException {
-        StringBuffer sb = new StringBuffer();
-
+        StringBuilder sb = new StringBuilder();
         String line;
-
         while ((line = br.readLine()) != null) {
-            if (line.startsWith("--")) { //$NON-NLS-1$
+            if (line.startsWith("--")) {
                 continue;
             }
 
@@ -135,7 +133,8 @@ public class SqlScriptRunner {
                 continue;
             }
 
-            if (line.endsWith(";")) { //$NON-NLS-1$
+            //$NON-NLS-1$
+            if (line.endsWith(";")) {
                 sb.append(line.substring(0, line.length() - 1));
                 break;
             } else {

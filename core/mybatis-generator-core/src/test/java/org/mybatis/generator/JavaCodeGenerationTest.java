@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2019 the original author or authors.
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,12 +15,8 @@
  */
 package org.mybatis.generator;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.StaticJavaParser;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mybatis.generator.api.GeneratedJavaFile;
@@ -30,8 +26,11 @@ import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
-import com.github.javaparser.ParseProblemException;
-import com.github.javaparser.StaticJavaParser;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JavaCodeGenerationTest {
 
