@@ -159,7 +159,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
                 getEntityType().getShortName().toLowerCase()));
     }
 
-    //TODO
+    //TODO 计划第一次生产js文件，并初始化
     protected boolean isEntityTypeJsFileExsit(){
         String filePath = GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getMyBatis3HtmlMapperPackage(),getEntityType().getShortName().toLowerCase());
 
