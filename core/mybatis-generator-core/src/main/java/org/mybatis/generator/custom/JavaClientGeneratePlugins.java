@@ -115,14 +115,19 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             bizClazzImpl.addImportedType(implSuperType);
             bizClazzImpl.addImportedType(entityType);
             bizClazzImpl.addImportedType(exampleType);
-            bizClazzImpl.addImportedType(importAnnotation);
             bizClazzImpl.addImportedType(bizINF.getType());
             bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
             bizClazzImpl.setSuperClass(implSuperType);
             bizClazzImpl.addSuperInterface(bizINF.getType());
-            sb.setLength(0);
-            sb = new StringBuilder("@Service(\"").append(getTableBeanName(introspectedTable)).append("\")");
-            bizClazzImpl.addAnnotation(sb.toString());
+
+            /*是否添加@Service注解*/
+            String noSericeAnnotation = introspectedTable.getTableConfigurationProperty("NoSericeAnnotation");
+            if (!(noSericeAnnotation != null && Boolean.valueOf(noSericeAnnotation))) {
+                bizClazzImpl.addImportedType(importAnnotation);
+                sb.setLength(0);
+                sb = new StringBuilder("@Service(\"").append(getTableBeanName(introspectedTable)).append("\")");
+                bizClazzImpl.addAnnotation(sb.toString());
+            }
             sb.setLength(0);
             GeneratedJavaFile generatedJavaFilebizImpl = new GeneratedJavaFile(bizClazzImpl, targetProject,
                     context.getProperty("javaFileEncoding"), context.getJavaFormatter());
