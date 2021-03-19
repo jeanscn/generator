@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.2-SNAPSHOT</version>
   </parent>
   <artifactId>mybatis-generator-systests-domtests</artifactId>
 
@@ -29,7 +29,7 @@
     <generated.source.directory>${project.build.directory}/generated-test-sources/mybatis-generator-domtest</generated.source.directory>
     <checkstyle.config>${project.basedir}/../checkstyle-override.xml</checkstyle.config>
   </properties>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -100,7 +100,7 @@
       </plugin>
     </plugins>
   </build>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.mybatis.generator</groupId>

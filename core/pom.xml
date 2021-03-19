@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2020 the original author or authors.
+       Copyright 2006-2021 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
     <name>MyBatis Generator</name>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2006</inceptionYear>
@@ -64,6 +64,14 @@
         <junit.jupiter.version>5.6.2</junit.jupiter.version>
         <junit.platform.version>1.6.2</junit.platform.version>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.vgosoft</groupId>
+            <artifactId>vgosoft-web2</artifactId>
+            <version>3.5.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 
     <build>
         <pluginManagement>
@@ -187,6 +195,7 @@
         </plugins>
     </reporting>
 
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -241,7 +250,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.16.1</version>
+                <version>3.19.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

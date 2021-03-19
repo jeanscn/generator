@@ -243,8 +243,7 @@ public class MyBatisGenerator {
         callback.generationStarted(totalSteps);
 
         for (Context context : contextsToRun) {
-            context.generateFiles(callback, generatedJavaFiles,
-                    generatedXmlFiles, generatedHtmlFiles,generatedKotlinFiles, warnings);
+            context.generateFiles(callback, generatedJavaFiles,generatedXmlFiles, generatedHtmlFiles,generatedKotlinFiles, warnings);
         }
 
         // now save the files

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.vgosoft:vgosoft-webjars:3.5.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/vgosoft/vgosoft-webjars/3.5.1-SNAPSHOT/vgosoft-webjars-3.5.1-20210318.031820-2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/vgosoft/vgosoft-webjars/3.5.1-SNAPSHOT/vgosoft-webjars-3.5.1-20210318.031820-2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/vgosoft/vgosoft-webjars/3.5.1-SNAPSHOT/vgosoft-webjars-3.5.1-20210318.031820-2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

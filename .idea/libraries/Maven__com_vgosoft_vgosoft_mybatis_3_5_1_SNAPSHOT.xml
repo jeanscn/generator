@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.vgosoft:vgosoft-mybatis:3.5.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/vgosoft/vgosoft-mybatis/3.5.1-SNAPSHOT/vgosoft-mybatis-3.5.1-20210318.122858-11.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/vgosoft/vgosoft-mybatis/3.5.1-SNAPSHOT/vgosoft-mybatis-3.5.1-20210318.122858-11-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/vgosoft/vgosoft-mybatis/3.5.1-SNAPSHOT/vgosoft-mybatis-3.5.1-20210318.122858-11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -86,15 +86,24 @@ public class JavaBeansUtil {
     }
 
     public static String getFirstCharacterUppercase(String inputString) {
-        StringBuilder sb = new StringBuilder(inputString);
-        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-        return sb.toString();
+        if (inputString!=null) {
+            StringBuilder sb = new StringBuilder(inputString);
+            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+            return sb.toString();
+        }else{
+            return null;
+        }
+
     }
 
     public static String getFirstCharacterLowercase(String inputString) {
-        StringBuilder sb = new StringBuilder(inputString);
-        sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-        return sb.toString();
+        if (inputString != null) {
+            StringBuilder sb = new StringBuilder(inputString);
+            sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+            return sb.toString();
+        }else{
+            return null;
+        }
     }
 
     public static String getCamelCaseString(String inputString,

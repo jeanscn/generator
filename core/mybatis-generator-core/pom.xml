@@ -22,16 +22,17 @@
   <parent>
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>mybatis-generator-core</artifactId>
   <packaging>jar</packaging>
   <name>MyBatis Generator Core</name>
-  
+
   <properties>
     <checkstyle.config>${project.basedir}/../checkstyle-override.xml</checkstyle.config>
     <module.name>org.mybatis.generator</module.name>
+    <vgosoft-core.version>3.1.0-SNAPSHOT</vgosoft-core.version>
   </properties>
 
   <build>
@@ -164,7 +165,7 @@
       </plugin>
     </plugins>
   </build>
-  
+
   <dependencies>
     <dependency>
       <groupId>log4j</groupId>
@@ -187,6 +188,13 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.vgosoft</groupId>
+      <artifactId>vgosoft-core</artifactId>
+      <version>${vgosoft-core.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>

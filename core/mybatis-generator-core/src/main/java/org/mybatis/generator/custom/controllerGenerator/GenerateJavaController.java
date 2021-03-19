@@ -46,7 +46,7 @@ public class GenerateJavaController {
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         this.exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         this.entityLowerShortName = entityType.getShortName().toLowerCase();
-        this.responseSimple = new FullyQualifiedJavaType("com.vgosoft.web.ResponseSimple");
+        this.responseSimple = new FullyQualifiedJavaType("com.vgosoft.web.respone.ResponseSimple");
         this.modelAndView = new FullyQualifiedJavaType("org.springframework.web.servlet.ModelAndView");
         this.serviceBeanName = introspectedTable.getControllerBeanName();
         this.serviceInterfaceName = "I" + entityType.getShortName();
@@ -135,7 +135,7 @@ public class GenerateJavaController {
         method.addParameter(new Parameter(entityType, entityFirstLowerShortName));
         method.setReturnType(responseSimple);
         addControllerMapping(method, "", "get");
-        method.addBodyLine("ResponseSimpleList responseSimple = new ResponseSimpleList();");
+        method.addBodyLine("ResponseList responseSimple = new ResponseSimpleList();");
         sb.setLength(0);
         sb.append(exampleType.getShortName()).append(" example = new ");
         sb.append(exampleType.getShortName()).append("();");

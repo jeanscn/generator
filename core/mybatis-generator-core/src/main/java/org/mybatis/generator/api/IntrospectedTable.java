@@ -396,13 +396,13 @@ public abstract class IntrospectedTable {
     protected void calculateControllerAttributes(){
         //base Package
         String htmlTargetPackage = getConfigPropertyValue(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE);
-        if (htmlTargetPackage == null) {
+        if (htmlTargetPackage == null || "".equals(htmlTargetPackage)) {
             String modelTargetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
             htmlTargetPackage = StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTargetPackage,"."),".");
         }
         internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, htmlTargetPackage);
-        if (tableConfiguration.getDomainObjectName()!=null) {
-            String entityName = JavaBeansUtil.getFirstCharacterLowercase(tableConfiguration.getDomainObjectName());
+        if (fullyQualifiedTable.getDomainObjectName() != null) {
+            String entityName = JavaBeansUtil.getFirstCharacterLowercase(fullyQualifiedTable.getDomainObjectName());
             String beanName = entityName+"Impl";
             internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME,beanName);
         }
@@ -443,7 +443,9 @@ public abstract class IntrospectedTable {
         String vp = calculateHtmlMapViewName();
         if (vp.trim().length()>0) {
             vp = vp.replace("/", ".");
-            vp = vp.substring(0, vp.lastIndexOf("."));
+            if (vp.contains(".")) {
+                vp = vp.substring(0, vp.lastIndexOf("."));
+            }
         }
         return vp;
     }
