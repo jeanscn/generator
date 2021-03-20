@@ -59,10 +59,16 @@ public abstract class BaseRules implements Rules {
     }
 
     public boolean generateController(){
+        if (isModelOnly) {
+            return false;
+        }
         return isGenerateCont;
     }
 
     public boolean generateHtml(){
+        if (isModelOnly) {
+            return false;
+        }
         return isGenerateHtml;
     }
 
@@ -370,9 +376,9 @@ public abstract class BaseRules implements Rules {
             return false;
         }
 
-        if (isModelOnly) {
+        /*if (isModelOnly) {
             return false;
-        }
+        }*/
 
         return tableConfiguration.isSelectByExampleStatementEnabled()
                 || tableConfiguration.isDeleteByExampleStatementEnabled()
@@ -448,5 +454,13 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean generateJavaClient() {
         return !isModelOnly;
+    }
+
+    @Override
+    public boolean generateService(){
+        if (isModelOnly) {
+            return false;
+        }
+        return true;
     }
 }

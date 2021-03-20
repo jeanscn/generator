@@ -110,7 +110,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
                     "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图");
         }
         if(("get"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/*根据主键获取单个实体*/");
+            method.addJavaDocLine("/** 根据主键获取单个实体 */");
             addSwaggerApiAnnotation(method,"获得单条列表","根据给定id获取单个实体");
         }
         if(("list"+record.getShortName()).equals(method.getName())){
@@ -126,15 +126,15 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
                     "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
         }
         if(("create"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/*新增一条记录*/");
+            method.addJavaDocLine("/** 新增一条记录 */");
             addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录,返回json");
         }
         if(("update"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/*根据主键更新实体对象*/");
+            method.addJavaDocLine("/** 根据主键更新实体对象 */");
             addSwaggerApiAnnotation(method,"更新一条记录","根据主键更新实体对象");
         }
         if(("delete"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/*删除一条记录*/");
+            method.addJavaDocLine("/** 删除一条记录 */");
             addSwaggerApiAnnotation(method,"单条记录删除","根据给定的id删除一条记录");
         }
     }

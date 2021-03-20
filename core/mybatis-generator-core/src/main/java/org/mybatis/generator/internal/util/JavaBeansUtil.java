@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.util;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -43,23 +44,22 @@ public class JavaBeansUtil {
      *            the fully qualified java type
      * @return the getter method name
      */
-    public static String getGetterMethodName(String property,
-            FullyQualifiedJavaType fullyQualifiedJavaType) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(property);
-        if (Character.isLowerCase(sb.charAt(0))
-                && (sb.length() == 1 || !Character.isUpperCase(sb.charAt(1)))) {
-            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-        }
-
-        if (fullyQualifiedJavaType.equals(FullyQualifiedJavaType
-                .getBooleanPrimitiveInstance())) {
+    public static String getGetterMethodName(String property,FullyQualifiedJavaType fullyQualifiedJavaType) {
+        StringBuilder sb = new StringBuilder(getMethodName(property));
+        if (fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getBooleanPrimitiveInstance())) {
             sb.insert(0, "is"); //$NON-NLS-1$
         } else {
             sb.insert(0, "get"); //$NON-NLS-1$
         }
+        return sb.toString();
+    }
 
+    private static String getMethodName(String property) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(property);
+        if (Character.isLowerCase(sb.charAt(0)) && (sb.length() == 1 || !Character.isUpperCase(sb.charAt(1)))) {
+            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+        }
         return sb.toString();
     }
 
@@ -72,16 +72,8 @@ public class JavaBeansUtil {
      * @return the setter method name
      */
     public static String getSetterMethodName(String property) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(property);
-        if (Character.isLowerCase(sb.charAt(0))
-                && (sb.length() == 1 || !Character.isUpperCase(sb.charAt(1)))) {
-            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-        }
-
+        StringBuilder sb = new StringBuilder(getMethodName(property));
         sb.insert(0, "set"); //$NON-NLS-1$
-
         return sb.toString();
     }
 
@@ -402,5 +394,33 @@ public class JavaBeansUtil {
             return isTrue(trimSpaces);
         }
         return isTrimStringsEnabled(column.getIntrospectedTable());
+    }
+
+    //是否某个类的子类
+    public static boolean isAssignable(String parentClassName,String childClassName){
+        try {
+            Class<?> pClazz = Class.forName(parentClassName);
+            Class<?> aClass = Class.forName(childClassName);
+            return ClassUtils.isAssignable(aClass, pClazz);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public static boolean isAssignableCurrent(String parentClassName,TopLevelClass topLevelClass){
+        if (topLevelClass.getSuperClass().isPresent()) {
+            String fullyQualifiedName = topLevelClass.getSuperClass().get().getFullyQualifiedName();
+            boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName);
+            if (assignable) {
+                return true;
+            }
+        }
+        for (FullyQualifiedJavaType superInterfaceType : topLevelClass.getSuperInterfaceTypes()) {
+            boolean assignableCurrent = JavaBeansUtil.isAssignable(parentClassName, superInterfaceType.getFullyQualifiedName());
+            if (assignableCurrent) {
+                return true;
+            }
+        }
+        return false;
     }
 }

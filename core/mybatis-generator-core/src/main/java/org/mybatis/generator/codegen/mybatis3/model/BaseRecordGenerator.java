@@ -126,7 +126,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 superClass = null;
             }
         }
-
         return superClass;
     }
 

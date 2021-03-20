@@ -32,7 +32,6 @@
   <properties>
     <checkstyle.config>${project.basedir}/../checkstyle-override.xml</checkstyle.config>
     <module.name>org.mybatis.generator</module.name>
-    <vgosoft-core.version>3.1.0-SNAPSHOT</vgosoft-core.version>
   </properties>
 
   <build>
@@ -188,13 +187,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.vgosoft</groupId>
-      <artifactId>vgosoft-core</artifactId>
-      <version>${vgosoft-core.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>

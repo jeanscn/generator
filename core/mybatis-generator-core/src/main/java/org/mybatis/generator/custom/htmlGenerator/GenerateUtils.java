@@ -71,7 +71,7 @@ public class GenerateUtils {
         try {
             if (rootClass != null) {
                 Class<?> aClass = Class.forName(rootClass);
-                Class<?> pClass = Class.forName("com.vgosoft.core.inf.WorkflowBaseEntity");
+                Class<?> pClass = Class.forName("com.vgosoft.core.entity.IWorkflowBaseEntity");
                 return  ClassUtils.isAssignable(aClass,pClass);
             }
         } catch (ClassNotFoundException e) {
