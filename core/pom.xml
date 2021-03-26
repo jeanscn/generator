@@ -68,8 +68,16 @@
         <dependency>
             <groupId>com.vgosoft</groupId>
             <artifactId>vgosoft-web2</artifactId>
-            <version>3.5.1-SNAPSHOT</version>
+            <version>3.5.3-SNAPSHOT</version>
+            <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.18</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
 
@@ -428,11 +436,11 @@
             <distributionManagement>
                 <snapshotRepository>
                     <id>nexus</id>
-                    <url>http://vgosoft.uicp.io:8083/repository/maven-snapshots/</url>
+                    <url>http://maven.vgosoft.com:8083/repository/maven-snapshots/</url>
                 </snapshotRepository>
                 <repository>
                     <id>nexus</id>
-                    <url>http://vgosoft.uicp.io:8083/repository/maven-releases/</url>
+                    <url>http://maven.vgosoft.com:8083/repository/maven-releases/</url>
                 </repository>
             </distributionManagement>
         </profile>
