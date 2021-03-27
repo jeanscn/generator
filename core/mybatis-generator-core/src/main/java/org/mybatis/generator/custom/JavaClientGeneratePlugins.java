@@ -356,11 +356,14 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             Method setter = JavaBeansUtil.getBasicJavaBeanSetter(propertyName, false, returnType);
             topLevelClass.addMethod(setter);
         }
+        String beanName = getTableBeanName(introspectedTable);
         InitializationBlock initializationBlock = new InitializationBlock(false);
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("this.persistenceBeanName = ");
-        stringBuilder.append("\"" + getTableBeanName(introspectedTable) + "\";");
-        initializationBlock.addBodyLine(stringBuilder.toString());
+        if (!StringUtility.isEmpty(beanName)) {
+            stringBuilder.append("this.persistenceBeanName = ");
+            stringBuilder.append("\"" + getTableBeanName(introspectedTable) + "\";");
+            initializationBlock.addBodyLine(stringBuilder.toString());
+        }
         String viewpath = null;
         viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
         if (!StringUtility.isEmpty(viewpath)) {
