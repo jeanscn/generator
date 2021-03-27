@@ -312,7 +312,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         List<Method> methods = topLevelClass.getMethods();
         for (Method method : methods) {
             if (method.isConstructor()) {
-                addConstructorBodyLine(method, false, introspectedTable, topLevelClass);
+                addConstructorBodyLine(method, false, topLevelClass);
             }
         }
 
@@ -323,7 +323,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             method.addParameter(new Parameter(new FullyQualifiedJavaType("int"), "persistenceStatus"));
             method.setVisibility(JavaVisibility.PUBLIC);
             method.setConstructor(true);
-            addConstructorBodyLine(method, true, introspectedTable, topLevelClass);
+            addConstructorBodyLine(method, true, topLevelClass);
             topLevelClass.getMethods().add(1, method);
         }
 
@@ -356,17 +356,20 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             Method setter = JavaBeansUtil.getBasicJavaBeanSetter(propertyName, false, returnType);
             topLevelClass.addMethod(setter);
         }
-
+        InitializationBlock initializationBlock = new InitializationBlock(false);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("this.persistenceBeanName = ");
+        stringBuilder.append("\"" + getTableBeanName(introspectedTable) + "\";");
+        initializationBlock.addBodyLine(stringBuilder.toString());
         String viewpath = null;
         viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
         if (!StringUtility.isEmpty(viewpath)) {
             //添加程序块
-            InitializationBlock initializationBlock = new InitializationBlock(false);
-            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.setLength(0);
             stringBuilder.append("this.viewPath = ").append("\"" + introspectedTable.getMyBatis3HtmlMapperViewName() + "\";");
             initializationBlock.addBodyLine(stringBuilder.toString());
             topLevelClass.addInitializationBlock(initializationBlock);
-            //判断是否需要实现ShowInWiew接口
+            //判断是否需要实现ShowInView接口
             boolean assignable = JavaBeansUtil.isAssignableCurrent(iShowInView, topLevelClass);
             if (!assignable) {
                 //添加ShowInView接口
@@ -509,7 +512,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * @param method          构造器方法
      * @param existParameters 是否有参
      */
-    private void addConstructorBodyLine(Method method, boolean existParameters, IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
+    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass) {
         boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass);
         if (existParameters) {
             method.addBodyLine("super(persistenceStatus);");
@@ -518,7 +521,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             if (!existParameters) {
                 method.addBodyLine("this.setPersistenceStatus(this.DEFAULT_PERSISTENCE_STATUS);");
             }
-            method.addBodyLine("this.setPersistenceBeanName(\"" + getTableBeanName(introspectedTable) + "\");");
         }
     }
 
