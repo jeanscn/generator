@@ -409,7 +409,8 @@ public class JavaBeansUtil {
     }
     public static boolean isAssignableCurrent(String parentClassName,TopLevelClass topLevelClass){
         if (topLevelClass.getSuperClass().isPresent()) {
-            String fullyQualifiedName = topLevelClass.getSuperClass().get().getFullyQualifiedName();
+            FullyQualifiedJavaType fullyQualifiedJavaType = topLevelClass.getSuperClass().get();
+            String fullyQualifiedName = fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters();
             boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName);
             if (assignable) {
                 return true;

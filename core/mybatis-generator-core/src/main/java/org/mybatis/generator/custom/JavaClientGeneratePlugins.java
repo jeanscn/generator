@@ -39,6 +39,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
     private static final String absMBGServiceInterface = "com.vgosoft.mybatis.abs.service.AbsMBGServiceInterface";
+    private static final String absBaseController = "com.vgosoft.web.controller.abs.AbsBaseController";
 
     public static final String mapperInf = "com.vgosoft.mybatis.inf.MBGMapperInterface";
 
@@ -120,8 +121,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             bizClazzImpl.addSuperInterface(bizINF.getType());
 
             /*是否添加@Service注解*/
-            String noSericeAnnotation = introspectedTable.getTableConfigurationProperty("NoSericeAnnotation");
-            if (!(Boolean.parseBoolean(noSericeAnnotation))) {
+            String noServiceAnnotation = introspectedTable.getTableConfigurationProperty("NoServiceAnnotation");
+            if (!(Boolean.parseBoolean(noServiceAnnotation))) {
                 bizClazzImpl.addImportedType(importAnnotation);
                 sb.setLength(0);
                 sb = new StringBuilder("@Service(\"").append(getTableBeanName(introspectedTable)).append("\")");
@@ -163,7 +164,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             FullyQualifiedJavaType conClazzType = new FullyQualifiedJavaType(sb.toString());
             TopLevelClass conTopClazz = new TopLevelClass(conClazzType);
             commentGenerator.addJavaFileComment(conTopClazz);
-            FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType("com.vgosoft.web.abs.AbsBaseController");
+            FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(absBaseController);
             conTopClazz.setSuperClass(supClazzType);
             conTopClazz.addImportedType(infName);
             conTopClazz.addImportedType(supClazzType);
@@ -385,6 +386,21 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 topLevelClass.addField(field);
             }
         }
+
+        /** 添加compareTo方法*/
+        final String iSortableEntity = "com.vgosoft.core.entity.ISortableEntity";
+        boolean assignable = JavaBeansUtil.isAssignableCurrent(iSortableEntity,topLevelClass);
+        if (assignable) {
+            Method method = new Method("compareTo");
+            FullyQualifiedJavaType type = topLevelClass.getType();
+            method.addParameter(new Parameter(type, "o"));
+            method.setVisibility(JavaVisibility.PUBLIC);
+            method.setReturnType(new FullyQualifiedJavaType("int"));
+            method.addBodyLine("return (int) (this.getSort() - o.getSort());");
+            method.addAnnotation("@Override");
+            topLevelClass.getMethods().add(method);
+        }
+
         return true;
     }
 

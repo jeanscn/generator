@@ -31,6 +31,8 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class SimpleModelGenerator extends AbstractJavaGenerator {
 
+
+
     public SimpleModelGenerator(String project) {
         super(project);
     }
@@ -111,6 +113,10 @@ public class SimpleModelGenerator extends AbstractJavaGenerator {
         String rootClass = getRootClass();
         if (rootClass != null) {
             superClass = new FullyQualifiedJavaType(rootClass);
+            boolean assignable = isAssignable(iSortableEntity, rootClass);
+            if (assignable) {
+                superClass.addTypeArgument(new FullyQualifiedJavaType(introspectedTable.getBaseRecordType()));
+            }
         } else {
             superClass = null;
         }

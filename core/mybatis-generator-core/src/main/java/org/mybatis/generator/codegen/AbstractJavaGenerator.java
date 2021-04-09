@@ -15,34 +15,32 @@
  */
 package org.mybatis.generator.codegen;
 
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
+import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.config.PropertyRegistry;
 
 import java.util.List;
 import java.util.Properties;
 
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.PropertyRegistry;
+import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
 
 public abstract class AbstractJavaGenerator extends AbstractGenerator {
+
+    protected static final String iSortableEntity = "com.vgosoft.core.entity.ISortableEntity";
+
     public abstract List<CompilationUnit> getCompilationUnits();
-    
+
     private String project;
-    
+
     public AbstractJavaGenerator(String project) {
         this.project = project;
     }
-    
+
     public String getProject() {
         return project;
     }
 
     public static Method getGetter(Field field) {
-        Method method = new Method(getGetterMethodName(field.getName(), field
-                .getType()));
+        Method method = new Method(getGetterMethodName(field.getName(), field.getType()));
         method.setReturnType(field.getType());
         method.setVisibility(JavaVisibility.PUBLIC);
         StringBuilder sb = new StringBuilder();
@@ -54,11 +52,9 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     }
 
     public String getRootClass() {
-        String rootClass = introspectedTable
-                .getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
         if (rootClass == null) {
-            Properties properties = context
-                    .getJavaModelGeneratorConfiguration().getProperties();
+            Properties properties = context.getJavaModelGeneratorConfiguration().getProperties();
             rootClass = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
         }
 
@@ -92,7 +88,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         method.addBodyLine("super();"); //$NON-NLS-1$
         return method;
     }
-    
+
     private void addGeneratedJavaDoc(Method method) {
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
     }

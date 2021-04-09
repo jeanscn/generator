@@ -116,12 +116,15 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
     private FullyQualifiedJavaType getSuperClass() {
         FullyQualifiedJavaType superClass;
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
-            superClass = new FullyQualifiedJavaType(introspectedTable
-                    .getPrimaryKeyType());
+            superClass = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
             String rootClass = getRootClass();
             if (rootClass != null) {
                 superClass = new FullyQualifiedJavaType(rootClass);
+                boolean assignable = isAssignable(iSortableEntity, rootClass);
+                if (assignable) {
+                    superClass.addTypeArgument(new FullyQualifiedJavaType(introspectedTable.getBaseRecordType()));
+                }
             } else {
                 superClass = null;
             }
