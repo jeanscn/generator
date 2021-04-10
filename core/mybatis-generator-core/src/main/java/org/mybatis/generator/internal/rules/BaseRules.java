@@ -43,6 +43,10 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean isGenerateHtml;
 
+    protected final boolean isNoMetaAnnotation;
+
+    protected final boolean isNoSwaggerAnnotation;
+
 
     public BaseRules(IntrospectedTable introspectedTable) {
         super();
@@ -55,6 +59,12 @@ public abstract class BaseRules implements Rules {
         String generateHTML = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_GENERATE, PropertyScope.any, "true");
         isGenerateCont = StringUtility.isTrue(generateCONT);
         isGenerateHtml = StringUtility.isTrue(generateHTML);
+
+        String noMetaAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION, PropertyScope.any, "false");
+        isNoMetaAnnotation = StringUtility.isTrue(noMetaAnnotation);
+
+        String noSwaggerAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION, PropertyScope.any, "false");
+        isNoSwaggerAnnotation = StringUtility.isTrue(noSwaggerAnnotation);
 
     }
 
@@ -70,6 +80,14 @@ public abstract class BaseRules implements Rules {
             return false;
         }
         return isGenerateHtml;
+    }
+
+    public boolean isNoMetaAnnotation(){
+        return isNoMetaAnnotation;
+    }
+
+    public boolean isNoSwaggerAnnotation(){
+        return isNoSwaggerAnnotation;
     }
 
     /**

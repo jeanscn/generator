@@ -243,5 +243,6 @@ public interface Rules {
 
     boolean generateService();
 
+
     IntrospectedTable getIntrospectedTable();
 }

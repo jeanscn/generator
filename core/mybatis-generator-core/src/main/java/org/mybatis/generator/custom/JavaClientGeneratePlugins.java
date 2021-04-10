@@ -35,11 +35,14 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
     private static final String iShowInView = "com.vgosoft.core.entity.IShowInView";
     private static final String tableMeta = "com.vgosoft.core.annotation.TableMeta";
+    private static final String apiModel = "io.swagger.annotations.ApiModel";
+    private static final String apiModelProperty = "io.swagger.annotations.ApiModelProperty";
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
     private static final String absMBGServiceInterface = "com.vgosoft.mybatis.abs.service.AbsMBGServiceInterface";
     private static final String absBaseController = "com.vgosoft.web.controller.abs.AbsBaseController";
+    private static final String repositoryAnnotation = "org.springframework.stereotype.Repository";
 
     public static final String mapperInf = "com.vgosoft.mybatis.inf.MBGMapperInterface";
 
@@ -267,17 +270,39 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         //为属性添加@TableMeta、@ColumnMeta注解
-        topLevelClass.addImportedType(new FullyQualifiedJavaType(tableMeta));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType(columnMeta));
-        for (int i = 0; i < topLevelClass.getFields().size(); i++) {
-            Field field = topLevelClass.getFields().get(i);
-            String columnMetaAnnotation = getColumnMetaAnnotation(field, introspectedTable, topLevelClass, i);
-            if (columnMetaAnnotation.length() > 0) {
-                field.addAnnotation(columnMetaAnnotation);
+        boolean isNoMetaAnnotation = introspectedTable.getRules().isNoMetaAnnotation();
+        if (!isNoMetaAnnotation) {
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(tableMeta));
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(columnMeta));
+            //添加@Repository注解
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(repositoryAnnotation));
+            topLevelClass.addAnnotation("@Repository");
+            for (int i = 0; i < topLevelClass.getFields().size(); i++) {
+                Field field = topLevelClass.getFields().get(i);
+                String columnMetaAnnotation = getColumnMetaAnnotation(field, introspectedTable, topLevelClass, i);
+                if (columnMetaAnnotation.length() > 0) {
+                    field.addAnnotation(columnMetaAnnotation);
+                }
             }
+            String tableMetaAnnotation = getTableMetaAnnotation(introspectedTable);
+            topLevelClass.addAnnotation(tableMetaAnnotation);
         }
-        String tableMetaAnnotation = getTableMetaAnnotation(introspectedTable);
-        topLevelClass.addAnnotation(tableMetaAnnotation);
+
+        /** 添加@ApiModel、@ApiModelProperty*/
+        boolean isNoSwaggerAnnotation = introspectedTable.getRules().isNoSwaggerAnnotation();
+        if (!isNoSwaggerAnnotation) {
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(apiModel ));
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(apiModelProperty ));
+            for (int i = 0; i < topLevelClass.getFields().size(); i++) {
+                Field field = topLevelClass.getFields().get(i);
+                String apiModelPropertyAnnotation = getApiModelPropertyAnnotation(field, introspectedTable, topLevelClass, i);
+                if (apiModelPropertyAnnotation.length() > 0) {
+                    field.addAnnotation(apiModelPropertyAnnotation);
+                }
+            }
+            String apiModelAnnotation = getApiModelAnnotation(introspectedTable);
+            topLevelClass.addAnnotation(apiModelAnnotation);
+        }
 
         //添加序列化标识
         boolean isb = false;
@@ -304,10 +329,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         topLevelClass.addImportedType(new FullyQualifiedJavaType(aGetter));
         topLevelClass.addAnnotation("@Setter");
         topLevelClass.addAnnotation("@Getter");
-        //添加@Repository注解
-        String repositoryAnnotation = "org.springframework.stereotype.Repository";
-        topLevelClass.addImportedType(new FullyQualifiedJavaType(repositoryAnnotation));
-        topLevelClass.addAnnotation("@Repository");
 
         //更新构造器
         List<Method> methods = topLevelClass.getMethods();
@@ -611,6 +632,44 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         supperType.addTypeArgument(entityType);
         supperType.addTypeArgument(exampleType);
         return supperType;
+    }
+
+    /**
+     * model类的@apiModel
+     */
+    private String getApiModelAnnotation(IntrospectedTable introspectedTable) {
+        StringBuilder sb = new StringBuilder();
+        FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        sb.append("@ApiModel(value = \"").append(fullyQualifiedJavaType.getShortName()).append("\"");
+        if (introspectedTable.getRemarks() != null) {
+            sb.append(", description = \"").append(introspectedTable.getRemarks()).append("\"");
+        } else {
+            sb.append(", description = \"").append("\"");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    /**
+     * 获得表元数据注解@ApiModelProperty
+     */
+    private String getApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable, TopLevelClass topLevelClass, int i) {
+        StringBuilder sb = new StringBuilder();
+        for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+            if (column.getJavaProperty().equals(field.getName())) {
+                sb.append("@ApiModelProperty(").append("value = \"");
+                sb.append(column.getRemarks()).append("\"");
+                sb.append(",name = \"");
+                sb.append(column.getActualColumnName()).append("\"");
+                sb.append(")");
+                return sb.toString();
+            }
+        }
+        if (sb.length() > 0) {
+            return sb.toString();
+        } else {
+            return "";
+        }
     }
 
 }
