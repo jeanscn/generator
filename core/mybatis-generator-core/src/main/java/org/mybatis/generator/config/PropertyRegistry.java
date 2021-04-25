@@ -58,6 +58,7 @@ public class PropertyRegistry {
     public static final String TABLE_HTML_TOOLBAR_POSITION = "htmlBarPosition";
     public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
     public static final String TABLE_MODEL_NOT_META_ANNOTATION = "noMetaAnnotation";
+    public static final String TABLE_MODEL_NOT_SERVICE_ANNOTATION = "noServiceAnnotation";
     public static final String TABLE_MODEL_NOT_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$

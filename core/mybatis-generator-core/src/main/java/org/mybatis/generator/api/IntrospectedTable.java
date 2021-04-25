@@ -1219,9 +1219,11 @@ public abstract class IntrospectedTable {
     private String propertyRegistryDefaultValue(String propertyRegistry){
         switch (propertyRegistry){
             case PropertyRegistry.TABLE_GENERATE_CONTROLLER:
-                return "false";
             case PropertyRegistry.TABLE_HTML_GENERATE:
-                return "fasle";
+            case PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION:
+            case PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION:
+            case PropertyRegistry.TABLE_MODEL_NOT_SERVICE_ANNOTATION:
+                return "false";
             case PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT:
                 return "src/main/resources/templates";
             case PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE:
@@ -1231,10 +1233,9 @@ public abstract class IntrospectedTable {
                 return HtmlConstants.HTML_UI_FRAME_LAYUI;
             case PropertyRegistry.TABLE_HTML_PAGE_COLUMNS:
                 return "2";
-            case PropertyRegistry.TABLE_VIEW_PATH:
-                return null;
             case PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION:
                 return HtmlConstants.HTML_KEY_WORD_BOTTOM;
+            case PropertyRegistry.TABLE_VIEW_PATH:
             default:
                 return null;
         }

@@ -47,6 +47,8 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean isNoSwaggerAnnotation;
 
+    protected final boolean isNoServiceAnnotation;
+
 
     public BaseRules(IntrospectedTable introspectedTable) {
         super();
@@ -65,6 +67,9 @@ public abstract class BaseRules implements Rules {
 
         String noSwaggerAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION, PropertyScope.any, "false");
         isNoSwaggerAnnotation = StringUtility.isTrue(noSwaggerAnnotation);
+
+        String noServiceAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_SERVICE_ANNOTATION, PropertyScope.any, "false");
+        isNoServiceAnnotation = StringUtility.isTrue(noSwaggerAnnotation);
 
     }
 
@@ -88,6 +93,10 @@ public abstract class BaseRules implements Rules {
 
     public boolean isNoSwaggerAnnotation(){
         return isNoSwaggerAnnotation;
+    }
+
+    public boolean isNoServiceAnnotation(){
+        return isNoServiceAnnotation;
     }
 
     /**

@@ -124,8 +124,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             bizClazzImpl.addSuperInterface(bizINF.getType());
 
             /*是否添加@Service注解*/
-            String noServiceAnnotation = introspectedTable.getTableConfigurationProperty("NoServiceAnnotation");
-            if (!(Boolean.parseBoolean(noServiceAnnotation))) {
+            boolean noServiceAnnotation = introspectedTable.getRules().isNoServiceAnnotation();
+            if (!noServiceAnnotation) {
                 bizClazzImpl.addImportedType(importAnnotation);
                 sb.setLength(0);
                 sb = new StringBuilder("@Service(\"").append(getTableBeanName(introspectedTable)).append("\")");
