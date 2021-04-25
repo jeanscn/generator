@@ -68,8 +68,8 @@ public abstract class BaseRules implements Rules {
         String noSwaggerAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION, PropertyScope.any, "false");
         isNoSwaggerAnnotation = StringUtility.isTrue(noSwaggerAnnotation);
 
-        String noServiceAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_SERVICE_ANNOTATION, PropertyScope.any, "false");
-        isNoServiceAnnotation = StringUtility.isTrue(noSwaggerAnnotation);
+        String noServiceAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_SERVICE_NOT_SERVICE_ANNOTATION, PropertyScope.any, "false");
+        isNoServiceAnnotation = StringUtility.isTrue(noServiceAnnotation);
 
     }
 

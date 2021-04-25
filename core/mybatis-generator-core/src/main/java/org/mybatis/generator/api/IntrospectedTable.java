@@ -1222,7 +1222,7 @@ public abstract class IntrospectedTable {
             case PropertyRegistry.TABLE_HTML_GENERATE:
             case PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION:
             case PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION:
-            case PropertyRegistry.TABLE_MODEL_NOT_SERVICE_ANNOTATION:
+            case PropertyRegistry.TABLE_SERVICE_NOT_SERVICE_ANNOTATION:
                 return "false";
             case PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT:
                 return "src/main/resources/templates";
