@@ -15,18 +15,16 @@
  */
 package org.mybatis.generator.config;
 
-import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import org.mybatis.generator.internal.util.EqualsUtil;
+import org.mybatis.generator.internal.util.HashCodeUtil;
+import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mybatis.generator.internal.util.EqualsUtil;
-import org.mybatis.generator.internal.util.HashCodeUtil;
-import org.mybatis.generator.internal.util.messages.Messages;
+import static org.mybatis.generator.internal.util.StringUtility.*;
 
 public class TableConfiguration extends PropertyHolder {
 
@@ -67,6 +65,8 @@ public class TableConfiguration extends PropertyHolder {
     private String alias;
 
     private ModelType modelType;
+
+    private List<ColumnSearch> columnSearchs;
 
     private boolean wildcardEscapingEnabled;
 
@@ -316,7 +316,7 @@ public class TableConfiguration extends PropertyHolder {
      * Returns a List of Strings. The values are the columns
      * that were specified to be ignored in the table, but do not exist in the
      * table.
-     * 
+     *
      * @return a List of Strings - the columns that were improperly configured
      *         as ignored columns
      */

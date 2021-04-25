@@ -27,19 +27,17 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 public class GenerateJavaController {
 
-    private IntrospectedTable introspectedTable;
-    private FullyQualifiedJavaType entityType;
-    private FullyQualifiedJavaType exampleType;
-    private String entityLowerShortName;
-    private String entityFirstLowerShortName;
-    private FullyQualifiedJavaType responseSimple;
-    private FullyQualifiedJavaType modelAndView;
-    private String serviceBeanName;
-    private String serviceInterfaceName;
-    CommentGenerator commentGenerator;
-    private Parameter entityParamter;
-    private String viewPath;
-    private String entityNameKey;
+    private final IntrospectedTable introspectedTable;
+    private final FullyQualifiedJavaType entityType;
+    private final FullyQualifiedJavaType exampleType;
+    private final String entityLowerShortName;
+    private final String entityFirstLowerShortName;
+    private final FullyQualifiedJavaType responseSimple;
+    private final String serviceBeanName;
+    private final CommentGenerator commentGenerator;
+    private final Parameter entityParameter;
+    private final String viewPath;
+    private final String entityNameKey;
 
     public GenerateJavaController(IntrospectedTable introspectedTable) {
         this.introspectedTable = introspectedTable;
@@ -47,12 +45,10 @@ public class GenerateJavaController {
         this.exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         this.entityLowerShortName = entityType.getShortName().toLowerCase();
         this.responseSimple = new FullyQualifiedJavaType("com.vgosoft.web.respone.ResponseSimple");
-        this.modelAndView = new FullyQualifiedJavaType("org.springframework.web.servlet.ModelAndView");
         this.serviceBeanName = introspectedTable.getControllerBeanName();
-        this.serviceInterfaceName = "I" + entityType.getShortName();
         commentGenerator = introspectedTable.getContext().getCommentGenerator();
-        this.entityParamter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
-        this.entityParamter.addAnnotation("@RequestBody");
+        this.entityParameter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
+        this.entityParameter.addAnnotation("@RequestBody");
         this.entityFirstLowerShortName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
         this.viewPath = introspectedTable.getMyBatis3HtmlMapperViewName();
         this.entityNameKey = GenerateUtils.getEntityKeyStr(introspectedTable);
@@ -170,7 +166,7 @@ public class GenerateJavaController {
         final String methodPrefix = "create";
         StringBuilder sb = new StringBuilder();
         Method method = ctreateMethod(methodPrefix);
-        method.addParameter(entityParamter);
+        method.addParameter(entityParameter);
 
         method.setReturnType(responseSimple);
         addControllerMapping(method, "", "post");
@@ -200,7 +196,7 @@ public class GenerateJavaController {
         final String methodPrefix = "update";
         StringBuilder sb = new StringBuilder();
         Method method = ctreateMethod(methodPrefix);
-        method.addParameter(entityParamter);
+        method.addParameter(entityParameter);
         method.setReturnType(responseSimple);
         addControllerMapping(method, "", "put");
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
