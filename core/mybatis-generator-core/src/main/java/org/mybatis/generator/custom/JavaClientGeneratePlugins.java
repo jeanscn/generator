@@ -2,10 +2,7 @@ package org.mybatis.generator.custom;
 
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.api.dom.xml.*;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -21,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * dao生成插件
@@ -429,6 +428,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
         addSelectBySqlCondition(document, false, introspectedTable);
         addSelectBySqlCondition(document, true, introspectedTable);
+        addSelectBySqlBuilder(document,introspectedTable);
+        addSelectMapBySqlBuilder(document);
         return true;
     }
 
@@ -453,6 +454,52 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
     private String getUiFrame(IntrospectedTable introspectedTable) {
         return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_UI_FRAME);
+    }
+
+    private void addSelectBySqlBuilder(Document document,IntrospectedTable introspectedTable){
+
+        XmlElement selectBySqlBuilder = new XmlElement("select");
+        selectBySqlBuilder.addAttribute(new Attribute("id", "selectBySqlBuilder"));
+        selectBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        selectBySqlBuilder.addAttribute(new Attribute("resultMap", "BaseResultMap"));
+        context.getCommentGenerator().addComment(selectBySqlBuilder);
+
+        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null")); //$NON-NLS-1$ //$NON-NLS-2$
+        ifElement.addElement(new TextElement("select")); //$NON-NLS-1$
+        ifElement.addElement(getBaseColumnListElement(introspectedTable));
+        StringBuilder sb = new StringBuilder();
+        sb.append("from ");
+        sb.append("(${sql}) ");
+        String alias = introspectedTable.getFullyQualifiedTable().getAlias();
+        if (stringHasValue(alias)) {
+            sb.append(' ');
+            sb.append(alias);
+        }
+        ifElement.addElement(new TextElement(sb.toString()));
+        selectBySqlBuilder.addElement(ifElement);
+        document.getRootElement().addElement(selectBySqlBuilder);
+    }
+
+    private XmlElement getBaseColumnListElement(IntrospectedTable introspectedTable) {
+        XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("refid", //$NON-NLS-1$
+                introspectedTable.getBaseColumnListId()));
+        return answer;
+    }
+
+    private void addSelectMapBySqlBuilder(Document document){
+        StringBuilder sb = new StringBuilder();
+        XmlElement selectMapBySqlBuilder = new XmlElement("select");
+        selectMapBySqlBuilder.addAttribute(new Attribute("id", "selectMapBySqlBuilder"));
+        selectMapBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        selectMapBySqlBuilder.addAttribute(new Attribute("resultType", "java.util.Map"));
+        context.getCommentGenerator().addComment(selectMapBySqlBuilder);
+        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null"));
+        ifElement.addElement(new TextElement("${sql}")); //$NON-NLS-1$
+        selectMapBySqlBuilder.addElement(ifElement);
+        document.getRootElement().addElement(selectMapBySqlBuilder);
     }
 
     private void addSelectBySqlCondition(Document document, boolean isSub, IntrospectedTable introspectedTable) {

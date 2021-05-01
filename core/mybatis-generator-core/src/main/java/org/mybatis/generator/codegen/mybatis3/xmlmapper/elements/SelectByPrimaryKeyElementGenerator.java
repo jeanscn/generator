@@ -15,13 +15,13 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class SelectByPrimaryKeyElementGenerator extends
         AbstractXmlElementGenerator {
@@ -81,8 +81,7 @@ public class SelectByPrimaryKeyElementGenerator extends
 
         sb.setLength(0);
         sb.append("from "); //$NON-NLS-1$
-        sb.append(introspectedTable
-                .getAliasedFullyQualifiedTableNameAtRuntime());
+        sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
 
         boolean and = false;
