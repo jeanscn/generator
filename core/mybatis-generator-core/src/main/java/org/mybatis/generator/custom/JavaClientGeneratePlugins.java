@@ -428,8 +428,11 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
         addSelectBySqlCondition(document, false, introspectedTable);
         addSelectBySqlCondition(document, true, introspectedTable);
-        addSelectBySqlBuilder(document,introspectedTable);
-        addSelectMapBySqlBuilder(document);
+        addBaseBySql(document);
+        addSelectBySql(document,introspectedTable);
+        addSelectMapBySql(document);
+        addInsertBySql(document);
+        addUpdateBySql(document);
         return true;
     }
 
@@ -456,14 +459,23 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_UI_FRAME);
     }
 
-    private void addSelectBySqlBuilder(Document document,IntrospectedTable introspectedTable){
+    private void addBaseBySql(Document document){
+        XmlElement sqlSqlBuilder = new XmlElement("sql");
+        sqlSqlBuilder.addAttribute(new Attribute("id", "Base_By_Sql"));
+        context.getCommentGenerator().addComment(sqlSqlBuilder);
+        XmlElement ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "_parameter != null"));
+        ifElement.addElement(new TextElement("${sql}"));
+        sqlSqlBuilder.addElement(ifElement);
+        document.getRootElement().addElement(sqlSqlBuilder);
+    }
 
+    private void addSelectBySql(Document document,IntrospectedTable introspectedTable){
         XmlElement selectBySqlBuilder = new XmlElement("select");
-        selectBySqlBuilder.addAttribute(new Attribute("id", "selectBySqlBuilder"));
+        selectBySqlBuilder.addAttribute(new Attribute("id", "selectBySql"));
         selectBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
         selectBySqlBuilder.addAttribute(new Attribute("resultMap", "BaseResultMap"));
         context.getCommentGenerator().addComment(selectBySqlBuilder);
-
         XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
         ifElement.addAttribute(new Attribute("test", "_parameter != null")); //$NON-NLS-1$ //$NON-NLS-2$
         ifElement.addElement(new TextElement("select")); //$NON-NLS-1$
@@ -481,25 +493,44 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(selectBySqlBuilder);
     }
 
+    private void addSelectMapBySql(Document document){
+        XmlElement selectMapBySqlBuilder = new XmlElement("select");
+        selectMapBySqlBuilder.addAttribute(new Attribute("id", "selectMapBySql"));
+        selectMapBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        selectMapBySqlBuilder.addAttribute(new Attribute("resultType", "java.util.Map"));
+        context.getCommentGenerator().addComment(selectMapBySqlBuilder);
+        selectMapBySqlBuilder.addElement(getBaseBySqlElement());
+        document.getRootElement().addElement(selectMapBySqlBuilder);
+    }
+
+    private void addInsertBySql(Document document){
+        XmlElement insertBySqlBuilder = new XmlElement("insert");
+        insertBySqlBuilder.addAttribute(new Attribute("id", "insertBySql"));
+        insertBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        context.getCommentGenerator().addComment(insertBySqlBuilder);
+        insertBySqlBuilder.addElement(getBaseBySqlElement());
+        document.getRootElement().addElement(insertBySqlBuilder);
+    }
+
+    private void addUpdateBySql(Document document){
+        XmlElement updateBySqlBuilder = new XmlElement("update");
+        updateBySqlBuilder.addAttribute(new Attribute("id", "updateBySql"));
+        updateBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        context.getCommentGenerator().addComment(updateBySqlBuilder);
+        updateBySqlBuilder.addElement(getBaseBySqlElement());
+        document.getRootElement().addElement(updateBySqlBuilder);
+    }
+
     private XmlElement getBaseColumnListElement(IntrospectedTable introspectedTable) {
         XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
         answer.addAttribute(new Attribute("refid", //$NON-NLS-1$
                 introspectedTable.getBaseColumnListId()));
         return answer;
     }
-
-    private void addSelectMapBySqlBuilder(Document document){
-        StringBuilder sb = new StringBuilder();
-        XmlElement selectMapBySqlBuilder = new XmlElement("select");
-        selectMapBySqlBuilder.addAttribute(new Attribute("id", "selectMapBySqlBuilder"));
-        selectMapBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        selectMapBySqlBuilder.addAttribute(new Attribute("resultType", "java.util.Map"));
-        context.getCommentGenerator().addComment(selectMapBySqlBuilder);
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "_parameter != null"));
-        ifElement.addElement(new TextElement("${sql}")); //$NON-NLS-1$
-        selectMapBySqlBuilder.addElement(ifElement);
-        document.getRootElement().addElement(selectMapBySqlBuilder);
+    private XmlElement getBaseBySqlElement() {
+        XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("refid", "Base_By_Sql"));
+        return answer;
     }
 
     private void addSelectBySqlCondition(Document document, boolean isSub, IntrospectedTable introspectedTable) {
