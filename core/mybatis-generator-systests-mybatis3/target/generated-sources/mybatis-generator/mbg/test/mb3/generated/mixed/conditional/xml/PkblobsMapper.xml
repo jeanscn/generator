@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mbg.test.mb3.generated.mixed.conditional.mapper.PkblobsMapper">
+  <resultMap id="BaseResultMap" type="mbg.test.mb3.generated.mixed.conditional.model.Pkblobs">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <constructor>
+      <idArg column="ID" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    </constructor>
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="mbg.test.mb3.generated.mixed.conditional.model.Pkblobs">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <constructor>
+      <idArg column="ID" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="BLOB1" javaType="_byte[]" jdbcType="VARBINARY" />
+      <arg column="BLOB2" javaType="_byte[]" jdbcType="VARBINARY" />
+      <arg column="CHARACTERLOB" javaType="java.lang.String" jdbcType="CLOB" />
+    </constructor>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    ID
+  </sql>
+  <sql id="Blob_Column_List">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    BLOB1, BLOB2, CHARACTERLOB
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="mbg.test.mb3.generated.mixed.conditional.model.example.PkblobsExample" resultMap="ResultMapWithBLOBs">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from PKBLOBS
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="mbg.test.mb3.generated.mixed.conditional.model.example.PkblobsExample" resultMap="BaseResultMap">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from PKBLOBS
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="mbg.test.mb3.generated.mixed.conditional.model.example.PkblobsExample">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    delete  from PKBLOBS
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insertSelective" parameterType="mbg.test.mb3.generated.mixed.conditional.model.Pkblobs">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    insert into PKBLOBS
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="blob1 != null">
+        BLOB1,
+      </if>
+      <if test="blob2 != null">
+        BLOB2,
+      </if>
+      <if test="characterlob != null">
+        CHARACTERLOB,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="blob1 != null">
+        #{blob1,jdbcType=VARBINARY},
+      </if>
+      <if test="blob2 != null">
+        #{blob2,jdbcType=VARBINARY},
+      </if>
+      <if test="characterlob != null">
+        #{characterlob,jdbcType=CLOB},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="mbg.test.mb3.generated.mixed.conditional.model.example.PkblobsExample" resultType="java.lang.Long">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    select count(*) from PKBLOBS
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    update PKBLOBS
+    <set>
+      <if test="record.id != null">
+        ID = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.blob1 != null">
+        BLOB1 = #{record.blob1,jdbcType=VARBINARY},
+      </if>
+      <if test="record.blob2 != null">
+        BLOB2 = #{record.blob2,jdbcType=VARBINARY},
+      </if>
+      <if test="record.characterlob != null">
+        CHARACTERLOB = #{record.characterlob,jdbcType=CLOB},
+      </if>
+    </set>
+    <if test="example != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    update PKBLOBS
+    set ID = #{record.id,jdbcType=INTEGER},
+        BLOB1 = #{record.blob1,jdbcType=VARBINARY},
+        BLOB2 = #{record.blob2,jdbcType=VARBINARY},
+        CHARACTERLOB = #{record.characterlob,jdbcType=CLOB}
+    <if test="example != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    update PKBLOBS
+    set ID = #{record.id,jdbcType=INTEGER}
+    <if test="example != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="mbg.test.mb3.generated.mixed.conditional.model.Pkblobs">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    update PKBLOBS
+    <set>
+      <if test="blob1 != null">
+        BLOB1 = #{blob1,jdbcType=VARBINARY},
+      </if>
+      <if test="blob2 != null">
+        BLOB2 = #{blob2,jdbcType=VARBINARY},
+      </if>
+      <if test="characterlob != null">
+        CHARACTERLOB = #{characterlob,jdbcType=CLOB},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectBySqlCondition" parameterType="com.vgosoft.core.entity.ComSelSqlParameter" resultMap="BaseResultMap">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    select
+    <if test="distinct != null">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from PKBLOBS
+    <if test="condition != null and  condition !=''">
+      where ${condition}
+    </if>
+    <if test="orderby != null and orderby !=''">
+      order by ${orderby}
+    </if>
+  </select>
+  <select id="selectBySqlConditionSub" parameterType="com.vgosoft.core.entity.ComSelSqlParameter" resultMap="BaseResultMap">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    select
+    <if test="distinct != null">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from PKBLOBS
+    <where>
+      <if test="condition != null and  condition !=''">
+        ${condition}
+      </if>
+      <if test="principals != null and principals.size &gt;0">
+        and ID in(select distinct BUSINESS_KEY_ from VCORE_RU_AUTHORITY where AUTHORITY_NAME_ in
+        <foreach close=")" collection="principals" index="index" item="principal" open="(" separator=",">
+          #{principal}
+        </foreach>
+        )
+      </if>
+    </where>
+    <if test="orderby != null and orderby !=''">
+      order by ${orderby}
+    </if>
+  </select>
+  <sql id="Base_By_Sql">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <if test="_parameter != null">
+      ${sql}
+    </if>
+  </sql>
+  <select id="selectBySql" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <if test="_parameter != null">
+      select
+      <include refid="Base_Column_List" />
+      from (${sql}) 
+    </if>
+  </select>
+  <select id="selectMapBySql" parameterType="java.lang.String" resultType="java.util.Map">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <include refid="Base_By_Sql" />
+  </select>
+  <insert id="insertBySql" parameterType="java.lang.String">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <include refid="Base_By_Sql" />
+  </insert>
+  <update id="updateBySql" parameterType="java.lang.String">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <include refid="Base_By_Sql" />
+  </update>
+  <select id="countBySql" parameterType="java.lang.String" resultType="java.lang.Long">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <include refid="Base_By_Sql" />
+  </select>
+  <select id="listBySql" parameterType="java.lang.String" resultType="java.lang.String">
+    <!--
+      提示 - @mbg.generated
+      这个元素通过Mybatis Generator自动生成, 请勿修改.
+    -->
+    <include refid="Base_By_Sql" />
+  </select>
+</mapper>

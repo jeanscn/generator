@@ -433,6 +433,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         addSelectMapBySql(document);
         addInsertBySql(document);
         addUpdateBySql(document);
+        addCountBySql(document);
+        addListBySql(document);
         return true;
     }
 
@@ -519,6 +521,26 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         context.getCommentGenerator().addComment(updateBySqlBuilder);
         updateBySqlBuilder.addElement(getBaseBySqlElement());
         document.getRootElement().addElement(updateBySqlBuilder);
+    }
+
+    private void addCountBySql(Document document){
+        XmlElement countBySqlBuilder = new XmlElement("select");
+        countBySqlBuilder.addAttribute(new Attribute("id", "countBySql"));
+        countBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        countBySqlBuilder.addAttribute(new Attribute("resultType", "java.lang.Long"));
+        context.getCommentGenerator().addComment(countBySqlBuilder);
+        countBySqlBuilder.addElement(getBaseBySqlElement());
+        document.getRootElement().addElement(countBySqlBuilder);
+    }
+
+    private void addListBySql(Document document){
+        XmlElement listBySqlBuilder = new XmlElement("select");
+        listBySqlBuilder.addAttribute(new Attribute("id", "listBySql"));
+        listBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
+        listBySqlBuilder.addAttribute(new Attribute("resultType", "java.lang.String"));
+        context.getCommentGenerator().addComment(listBySqlBuilder);
+        listBySqlBuilder.addElement(getBaseBySqlElement());
+        document.getRootElement().addElement(listBySqlBuilder);
     }
 
     private XmlElement getBaseColumnListElement(IntrospectedTable introspectedTable) {
