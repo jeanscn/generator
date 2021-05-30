@@ -64,6 +64,9 @@ public class GenerateJavaController {
         Parameter parameter = new Parameter(new FullyQualifiedJavaType("String"), "id");
         parameter.addAnnotation("@RequestParam(required = false)");
         method.addParameter(parameter);
+        Parameter viewStatus = new Parameter(new FullyQualifiedJavaType("String"), "viewStatus");
+        viewStatus.addAnnotation("@RequestParam(required = false)");
+        method.addParameter(viewStatus);
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         addControllerMapping(method, methodPrefix, "get");
         //函数体
@@ -83,6 +86,11 @@ public class GenerateJavaController {
         sb.append(this.entityNameKey);
         sb.append("\",").append(entityLowerShortName).append(");");
         method.addBodyLine(sb.toString());
+        method.addBodyLine("}");
+        method.addBodyLine("if (viewStatus != null) {");
+        method.addBodyLine("mv.addObject(\"viewStatus\",viewStatus);");
+        method.addBodyLine("}else{");
+        method.addBodyLine("mv.addObject(\"viewStatus\",1);");
         method.addBodyLine("}");
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("mv.setViewName(\"page/500\");");
@@ -138,7 +146,7 @@ public class GenerateJavaController {
         method.addBodyLine(sb.toString());
         method.addBodyLine("try {");
         sb.setLength(0);
-        sb.append("if (").append(entityFirstLowerShortName).append(" != null) {");
+       /* sb.append("if (").append(entityFirstLowerShortName).append(" != null) {");
         method.addBodyLine(sb.toString());
         sb.setLength(0);
         sb.append("List<Field> list = getFieldsIsNotEmpty(").append(entityFirstLowerShortName).append(");");
@@ -147,7 +155,7 @@ public class GenerateJavaController {
         method.addBodyLine("if (list.size() > 0) {");
         method.addBodyLine(sb.toString());
         method.addBodyLine("}");
-        method.addBodyLine("}");
+        method.addBodyLine("}");*/
         sb.append("List<").append(entityType.getShortName()).append("> ");
         sb.append(entityFirstLowerShortName).append("s");
         sb.append(" = ").append(serviceBeanName).append(".selectByExample(example);");

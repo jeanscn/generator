@@ -37,8 +37,7 @@ public class GenerateUtils {
      public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn){
         String hiddenFileds = introspectedColumn.getIntrospectedTable().getConfigPropertyValue(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS, PropertyScope.any, "");
         List<String> fieldsList = Arrays.asList(hiddenFileds.split(","))
-                .stream().map(String::toUpperCase)
-                .collect(Collectors.toList());
+                .stream().map(String::toUpperCase).collect(Collectors.toList());
         return fieldsList.contains(introspectedColumn.getActualColumnName().toUpperCase());
     };
 

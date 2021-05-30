@@ -73,6 +73,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         addSubjectInput(form);
         /*表单验证button*/
         addVerifyButton(form);
+        /** 查看状态*/
+        if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            HtmlElement viewStatus = generateHtmlInput("viewStatus", true);
+            viewStatus.addAttribute(new Attribute("th:value", "${viewStatus}?:1"));
+            content.addElement(viewStatus);
+        }
         generateLayuiToolBar(content);
         //TODO 去掉生成的js
         //addLayJavaScriptFrament(body);
@@ -190,6 +196,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         label.addElement(new TextElement(introspectedColumn.getRemarks()));
         parent.addElement(label);
     }
+
     private void drawInput(IntrospectedColumn introspectedColumn,String entityKey,HtmlElement parent){
         HtmlElement input = generateHtmlInput(introspectedColumn, false);
         input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
@@ -215,8 +222,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         }
         return toolBar;
     }
-
-    ;
 
     private HtmlElement addLayButton(HtmlElement parent, String id, String text, String unicode) {
         HtmlElement btn = addButton(parent, id, null);

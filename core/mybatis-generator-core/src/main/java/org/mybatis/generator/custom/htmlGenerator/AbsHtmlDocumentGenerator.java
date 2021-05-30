@@ -131,6 +131,18 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return input;
     }
 
+    protected HtmlElement generateHtmlInput(String name, boolean isHidden) {
+        HtmlElement input = new HtmlElement("input");
+        input.addAttribute(new Attribute("id", name));
+        input.addAttribute(new Attribute("name", name));
+        if (isHidden) {
+            input.addAttribute(new Attribute("type", "hidden"));
+        }else{
+            input.addAttribute(new Attribute("type", "text"));
+        }
+        return input;
+    }
+
     protected String thymeleafValue(IntrospectedColumn baseColumn,String entityName){
         StringBuilder sb = new StringBuilder();
         sb.append("${"+entityName+"?.").append(baseColumn.getJavaProperty());
@@ -144,7 +156,11 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
             sb.append("!=null?#dates.format("+entityName+".");
             sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
         } else {
-            sb.append("}?:_");
+            if ("version".equals(baseColumn.getJavaProperty())) {
+                sb.append("}?:1");
+            }else{
+                sb.append("}?:_");
+            }
         }
         return sb.toString();
     }
@@ -155,11 +171,12 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
             p = p.substring(0, p.lastIndexOf("."));
         }
         addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
-        addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getMyBatis3HtmlMapperPackage(),
+        addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(
+                getIntrospectedTable().getMyBatis3HtmlMapperPackage(),
                 getEntityType().getShortName().toLowerCase()));
     }
 
-    //TODO 计划第一次生产js文件，并初始化
+    //TODO 计划第一次生成js文件，并初始化
     protected boolean isEntityTypeJsFileExsit(){
         String filePath = GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getMyBatis3HtmlMapperPackage(),getEntityType().getShortName().toLowerCase());
 
