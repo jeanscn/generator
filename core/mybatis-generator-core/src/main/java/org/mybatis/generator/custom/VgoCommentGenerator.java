@@ -137,6 +137,10 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
             method.addJavaDocLine("/** 删除一条记录 */");
             addSwaggerApiAnnotation(method,"单条记录删除","根据给定的id删除一条记录");
         }
+        if(("deleteBatch"+record.getShortName()).equals(method.getName())){
+            method.addJavaDocLine("/** 根据ids批量删除记录 */");
+            addSwaggerApiAnnotation(method,"批量记录删除","根据给定的一组id删除多条记录");
+        }
     }
 
     @Override
