@@ -201,6 +201,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             conTopClazz.addMethod(gc.createGenerate());
             conTopClazz.addMethod(gc.updateGenerate());
             conTopClazz.addMethod(gc.deleteGenerate());
+            conTopClazz.addMethod(gc.deleteBatchGenerate());
             return new GeneratedJavaFile(conTopClazz, context.getJavaModelGeneratorConfiguration().getTargetProject(),
                     context.getProperty("javaFileEncoding"), context.getJavaFormatter());
         }
@@ -392,7 +393,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             stringBuilder.setLength(0);
             stringBuilder.append("this.viewPath = ").append("\"" + introspectedTable.getMyBatis3HtmlMapperViewName() + "\";");
             initializationBlock.addBodyLine(stringBuilder.toString());
-            topLevelClass.addInitializationBlock(initializationBlock);
             //判断是否需要实现ShowInView接口
             boolean assignable = JavaBeansUtil.isAssignableCurrent(iShowInView, topLevelClass);
             if (!assignable) {
@@ -405,6 +405,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 field.setVisibility(JavaVisibility.PRIVATE);
                 topLevelClass.addField(field);
             }
+        }
+        if (initializationBlock.getBodyLines().size()>0) {
+            topLevelClass.addInitializationBlock(initializationBlock);
         }
 
         /** 添加compareTo方法*/
