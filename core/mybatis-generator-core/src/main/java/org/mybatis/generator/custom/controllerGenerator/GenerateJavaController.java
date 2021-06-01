@@ -251,7 +251,7 @@ public class GenerateJavaController {
         final String methodPrefix = "deleteBatch";
         Method method = ctreateMethod(methodPrefix);
         Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "id");
-        parameter.addAnnotation("@RequestParam");
+        parameter.addAnnotation("@RequestBody");
         method.addParameter(parameter);
         method.setReturnType(responseSimple);
         addControllerMapping(method, null, "delete");
