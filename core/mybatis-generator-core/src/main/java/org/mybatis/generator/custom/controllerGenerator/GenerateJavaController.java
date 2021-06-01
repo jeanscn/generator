@@ -244,6 +244,34 @@ public class GenerateJavaController {
         return method;
     }
 
+    /**
+     * deleteBatchXXXXXX
+     * */
+    public Method deleteBatchGenerate() {
+        final String methodPrefix = "deleteBatch";
+        Method method = ctreateMethod(methodPrefix);
+        Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "id");
+        parameter.addAnnotation("@RequestParam");
+        method.addParameter(parameter);
+        method.setReturnType(responseSimple);
+        addControllerMapping(method, null, "delete");
+        method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
+        StringBuilder sb = new StringBuilder();
+        sb.append(exampleType.getShortName()).append(" example = new ");
+        sb.append(exampleType.getShortName()).append("();");
+        method.addBodyLine(sb.toString());
+        method.addBodyLine("example.createCriteria().andIdIn(ids);");
+        method.addBodyLine("try {");
+        sb.setLength(0);
+        sb.append("int rows =  ").append(serviceBeanName).append(".deleteByExample(example);");
+        method.addBodyLine(sb.toString());
+        sb.setLength(0);
+        sb.append("responseSimple.addAttribute(\"rows\",String.valueOf(rows));");
+        method.addBodyLine(sb.toString());
+        addExceptionAndreturn(method);
+        return method;
+    }
+
     private Method ctreateMethod(String methodPrefix) {
         Method method = new Method(methodPrefix + entityType.getShortName());
         method.setVisibility(JavaVisibility.PUBLIC);
