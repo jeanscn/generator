@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.custom.controllerGenerator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -67,12 +68,13 @@ public class GenerateJavaController {
         Parameter viewStatus = new Parameter(new FullyQualifiedJavaType("String"), "viewStatus");
         viewStatus.addAnnotation("@RequestParam(required = false)");
         method.addParameter(viewStatus);
+        Parameter prefix = new Parameter(new FullyQualifiedJavaType("String"), "prefix");
+        prefix.addAnnotation("@RequestParam(required = false)");
+        method.addParameter(prefix);
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         addControllerMapping(method, methodPrefix, "get");
         //函数体
-        sb.append("ModelAndView mv = new ModelAndView(\"");
-        sb.append(viewPath);
-        sb.append("\");");
+        sb.append("ModelAndView mv = new ModelAndView();");
         method.addBodyLine(sb.toString());
         method.addBodyLine("try {");
         method.addBodyLine("if (id != null) {");
@@ -91,6 +93,24 @@ public class GenerateJavaController {
         method.addBodyLine("mv.addObject(\"viewStatus\",viewStatus);");
         method.addBodyLine("}else{");
         method.addBodyLine("mv.addObject(\"viewStatus\",1);");
+        method.addBodyLine("}");
+
+        String[] split = StringUtils.split(viewPath, "/");
+        split[split.length-1] = "{0}"+split[split.length-1];
+        String mString = StringUtils.join(split,"/");
+        method.addBodyLine("if (prefix != null) {");
+        sb.setLength(0);
+        sb.append("mv.setViewName(\"");
+        String replace = mString.replace("{0}", "\"+prefix+\"");
+        sb.append(replace);
+        sb.append("\");");
+        method.addBodyLine(sb.toString());
+        method.addBodyLine("}else{");
+        sb.setLength(0);
+        sb.append("mv.setViewName(\"");
+        sb.append(viewPath);
+        sb.append("\");");
+        method.addBodyLine(sb.toString());
         method.addBodyLine("}");
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("mv.setViewName(\"page/500\");");
@@ -250,7 +270,7 @@ public class GenerateJavaController {
     public Method deleteBatchGenerate() {
         final String methodPrefix = "deleteBatch";
         Method method = ctreateMethod(methodPrefix);
-        Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "id");
+        Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "ids");
         parameter.addAnnotation("@RequestBody");
         method.addParameter(parameter);
         method.setReturnType(responseSimple);
