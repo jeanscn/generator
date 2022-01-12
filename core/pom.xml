@@ -29,7 +29,7 @@
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
     <name>MyBatis Generator</name>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.4.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2006</inceptionYear>
@@ -129,9 +129,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
+               <!-- <configuration>
                     <argLine>${argLine} -Xmx1024m -XX:MaxPermSize=256m</argLine>
-                </configuration>
+                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
