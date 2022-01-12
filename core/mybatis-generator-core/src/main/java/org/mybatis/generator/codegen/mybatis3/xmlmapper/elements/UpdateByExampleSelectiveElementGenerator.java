@@ -21,7 +21,6 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.internal.util.StringUtility;
 
 public class UpdateByExampleSelectiveElementGenerator extends
         AbstractXmlElementGenerator {
@@ -43,7 +42,8 @@ public class UpdateByExampleSelectiveElementGenerator extends
 
         StringBuilder sb = new StringBuilder();
         sb.append("update "); //$NON-NLS-1$
-        addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
+        //addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
+        sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
 
         XmlElement dynamicElement = new XmlElement("set"); //$NON-NLS-1$
@@ -59,8 +59,10 @@ public class UpdateByExampleSelectiveElementGenerator extends
             dynamicElement.addElement(isNotNullElement);
 
             sb.setLength(0);
+            //sb.append(MyBatis3FormattingUtilities
+             //       .getAliasedEscapedColumnName(introspectedColumn));
             sb.append(MyBatis3FormattingUtilities
-                    .getAliasedEscapedColumnName(introspectedColumn));
+                    .getEscapedColumnName(introspectedColumn));
             sb.append(" = "); //$NON-NLS-1$
             sb.append(MyBatis3FormattingUtilities.getParameterClause(
                     introspectedColumn, "record.")); //$NON-NLS-1$
@@ -68,7 +70,7 @@ public class UpdateByExampleSelectiveElementGenerator extends
 
             isNotNullElement.addElement(new TextElement(sb.toString()));
         }
-        addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
+        //addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
         answer.addElement(getUpdateByExampleIncludeElement());
 
         if (context.getPlugins()
