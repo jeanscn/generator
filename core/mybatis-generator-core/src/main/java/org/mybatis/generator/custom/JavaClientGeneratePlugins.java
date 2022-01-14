@@ -39,8 +39,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
-    private static final String absMBGServiceInterface = "com.vgosoft.mybatis.abs.service.AbsMBGServiceInterface";
-    private static final String absBaseController = "com.vgosoft.web.controller.abs.AbsBaseController";
+    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.service.AbstractMBGServiceInterface";
+    private static final String absBaseController = "com.vgosoft.web.controller.abs.AbstractBaseController";
     private static final String repositoryAnnotation = "org.springframework.stereotype.Repository";
 
     public static final String mapperInf = "com.vgosoft.mybatis.inf.MBGMapperInterface";
@@ -731,7 +731,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * 获得Service抽象类父类
      */
     private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType) {
-        FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(absMBGServiceInterface);
+        FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(abstractMBGServiceInterface);
         supperType.addTypeArgument(entityType);
         supperType.addTypeArgument(exampleType);
         return supperType;

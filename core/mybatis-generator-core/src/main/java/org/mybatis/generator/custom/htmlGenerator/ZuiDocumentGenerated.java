@@ -73,8 +73,8 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private HtmlElement generateZuiHead() {
         HtmlElement head = generateHtmlHead();
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::zuiRequired");
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::zuiForm");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::zuiRequired");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::zuiForm");
         addLocalStaticResource(head);
         return head;
     }

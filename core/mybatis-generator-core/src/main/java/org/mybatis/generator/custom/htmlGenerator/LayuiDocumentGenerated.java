@@ -97,9 +97,9 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private HtmlElement generateLayuiHead() {
         HtmlElement head = generateHtmlHead();
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::layuiRequired");
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::layuiForm");
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::contextMemuOnly");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiRequired");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiForm");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::contextMemuOnly");
         addStaticJavaScript(head, "/webjars/plugins/js/mainform.min.js");
         addLocalStaticResource(head);
         return head;

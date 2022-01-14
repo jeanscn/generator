@@ -79,8 +79,8 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     protected HtmlElement generateHtmlHead() {
         HtmlElement head = new HtmlElement("head");
         HtmlElement div = new HtmlElement("div");
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::baseRequired('" + introspectedTable.getRemarks() + "')");
-        addStaticReplace(head, "subpages/webjarsPluginsRequired.html::jQueryRequired");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::baseRequired('" + introspectedTable.getRemarks() + "')");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::jQueryRequired");
         return head;
     }
 
