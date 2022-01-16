@@ -94,6 +94,11 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         sb.append(" * 类对应的数据库表为： "); //$NON-NLS-1$
         sb.append(introspectedTable.getFullyQualifiedTable());
         topLevelClass.addJavaDocLine(sb.toString());
+        //添加表注释
+        sb.setLength(0);
+        sb.append(" * ");
+        sb.append(introspectedTable.getRemarks());
+        topLevelClass.addJavaDocLine(sb.toString());
         /*addJavadocTag(topLevelClass, false);*/
         topLevelClass.addJavaDocLine(" */"); //$NON-NLS-1$
     }

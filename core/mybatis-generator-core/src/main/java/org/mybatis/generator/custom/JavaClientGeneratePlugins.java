@@ -683,7 +683,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         TableConfiguration tableConfiguration = introspectedTable.getTableConfiguration();
         sb.append("@TableMeta(value = \"").append(tableConfiguration.getTableName()).append("\"");
         if (introspectedTable.getRemarks() != null) {
-            sb.append(", descript = \"").append(introspectedTable.getRemarks()).append("\"");
+            sb.append(", descript = \"");
+            sb.append(remarkLeft(introspectedTable.getRemarks()));
+            sb.append("\"");
         } else {
             sb.append(", descript = \"").append("\"");
         }
@@ -710,16 +712,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 sb.append(column.getActualColumnName()).append("\"");
                 sb.append(",description = \"");
                 if (StringUtils.isNotEmpty(column.getRemarks())) {
-                    int pos;
-                    if (StringUtils.indexOf(column.getRemarks(), "(")>0) {
-                        pos = StringUtils.indexOf(column.getRemarks(), "(");
-                        sb.append(StringUtils.left(column.getRemarks(),pos));
-                    }else if (StringUtils.indexOf(column.getRemarks(), "（")>0) {
-                        pos = StringUtils.indexOf(column.getRemarks(), "（");
-                        sb.append(StringUtils.left(column.getRemarks(),pos));
-                    }else{
-                        sb.append(column.getRemarks());
-                    }
+                    sb.append(remarkLeft(column.getRemarks()));
                 }else{
                     sb.append(column.getActualColumnName());
                 }
@@ -795,6 +788,19 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             return sb.toString();
         } else {
             return "";
+        }
+    }
+
+    private String remarkLeft(String remark){
+        int pos;
+        if (StringUtils.indexOf(remark, "(")>0) {
+            pos = StringUtils.indexOf(remark, "(");
+            return StringUtils.left(remark,pos);
+        }else if (StringUtils.indexOf(remark, "（")>0) {
+            pos = StringUtils.indexOf(remark, "（");
+            return StringUtils.left(remark,pos);
+        }else{
+            return remark;
         }
     }
 
