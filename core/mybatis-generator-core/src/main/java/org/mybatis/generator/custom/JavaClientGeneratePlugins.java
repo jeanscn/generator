@@ -1,8 +1,12 @@
 package org.mybatis.generator.custom;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.api.dom.xml.*;
+import org.mybatis.generator.api.dom.xml.Attribute;
+import org.mybatis.generator.api.dom.xml.Document;
+import org.mybatis.generator.api.dom.xml.TextElement;
+import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -153,6 +157,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         StringBuilder sb = new StringBuilder();
         if (introspectedTable.getRules().generateController()) {
             logger.debug("生成Controller");
+
             GenerateJavaController gc = new GenerateJavaController(introspectedTable);
             FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
             FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
@@ -178,7 +183,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             sb.append(introspectedTable.getRemarks()).append("\")");
             conTopClazz.addAnnotation(sb.toString());
             conTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
-
             FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
             Field field = new Field(seriveImplVar, bizInfType);
             field.setVisibility(JavaVisibility.PRIVATE);
@@ -291,8 +295,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         /** 添加@ApiModel、@ApiModelProperty*/
         boolean isNoSwaggerAnnotation = introspectedTable.getRules().isNoSwaggerAnnotation();
         if (!isNoSwaggerAnnotation) {
-            topLevelClass.addImportedType(new FullyQualifiedJavaType(apiModel ));
-            topLevelClass.addImportedType(new FullyQualifiedJavaType(apiModelProperty ));
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(apiModel));
+            topLevelClass.addImportedType(new FullyQualifiedJavaType(apiModelProperty));
             for (int i = 0; i < topLevelClass.getFields().size(); i++) {
                 Field field = topLevelClass.getFields().get(i);
                 String apiModelPropertyAnnotation = getApiModelPropertyAnnotation(field, introspectedTable, topLevelClass, i);
@@ -350,12 +354,12 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         /*是否需要增加List集合属性*/
-        String javaModelAddtionProperty = introspectedTable.getTableConfigurationProperty("javaModelAddtionProperty");
-        if (javaModelAddtionProperty != null) {
-            FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAddtionProperty);
+        String javaModelAdditionProperty = introspectedTable.getTableConfigurationProperty("javaModelAdditionProperty");
+        if (javaModelAdditionProperty != null) {
+            FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAdditionProperty);
             String javaModelName = JavaBeansUtil.getFirstCharacterLowercase(addPropertyType.getShortName());
 
-            String ptype = introspectedTable.getTableConfigurationProperty("javaModelAddtionPropertyType");
+            String ptype = introspectedTable.getTableConfigurationProperty("javaModelAdditionPropertyType");
             FullyQualifiedJavaType returnType;
             String propertyName;
             if (ptype != null && "list".equalsIgnoreCase(ptype)) {
@@ -369,7 +373,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             Field field = new Field(propertyName, returnType);
             field.setVisibility(JavaVisibility.PRIVATE);
             topLevelClass.addField(field);
-            topLevelClass.addImportedType(javaModelAddtionProperty);
+            topLevelClass.addImportedType(javaModelAdditionProperty);
 
             //getter
             Method getter = JavaBeansUtil.getBasicJavaBeansGetter(propertyName, returnType);
@@ -401,18 +405,21 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 topLevelClass.addImportedType(showinview);
                 topLevelClass.addSuperInterface(showinview);
                 //添加viewpath的属性及方法
-                Field field = new Field("viewPath", new FullyQualifiedJavaType("String"));
-                field.setVisibility(JavaVisibility.PRIVATE);
-                topLevelClass.addField(field);
+                long lCount = topLevelClass.getFields().stream().filter(t->t.getName().equalsIgnoreCase("viewPath")).count();
+                if (lCount==0) {
+                    Field field = new Field("viewPath", new FullyQualifiedJavaType("String"));
+                    field.setVisibility(JavaVisibility.PRIVATE);
+                    topLevelClass.addField(field);
+                }
             }
         }
-        if (initializationBlock.getBodyLines().size()>0) {
+        if (initializationBlock.getBodyLines().size() > 0) {
             topLevelClass.addInitializationBlock(initializationBlock);
         }
 
         /** 添加compareTo方法*/
         final String iSortableEntity = "com.vgosoft.core.entity.ISortableEntity";
-        boolean assignable = JavaBeansUtil.isAssignableCurrent(iSortableEntity,topLevelClass);
+        boolean assignable = JavaBeansUtil.isAssignableCurrent(iSortableEntity, topLevelClass);
         if (assignable) {
             Method method = new Method("compareTo");
             FullyQualifiedJavaType type = topLevelClass.getType();
@@ -432,7 +439,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         addSelectBySqlCondition(document, false, introspectedTable);
         addSelectBySqlCondition(document, true, introspectedTable);
         addBaseBySql(document);
-        addSelectBySql(document,introspectedTable);
+        addSelectBySql(document, introspectedTable);
         addSelectMapBySql(document);
         addInsertBySql(document);
         addUpdateBySql(document);
@@ -464,7 +471,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_UI_FRAME);
     }
 
-    private void addBaseBySql(Document document){
+    private void addBaseBySql(Document document) {
         XmlElement sqlSqlBuilder = new XmlElement("sql");
         sqlSqlBuilder.addAttribute(new Attribute("id", "Base_By_Sql"));
         context.getCommentGenerator().addComment(sqlSqlBuilder);
@@ -475,7 +482,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(sqlSqlBuilder);
     }
 
-    private void addSelectBySql(Document document,IntrospectedTable introspectedTable){
+    private void addSelectBySql(Document document, IntrospectedTable introspectedTable) {
         XmlElement selectBySqlBuilder = new XmlElement("select");
         selectBySqlBuilder.addAttribute(new Attribute("id", "selectBySql"));
         selectBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
@@ -498,7 +505,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(selectBySqlBuilder);
     }
 
-    private void addSelectMapBySql(Document document){
+    private void addSelectMapBySql(Document document) {
         XmlElement selectMapBySqlBuilder = new XmlElement("select");
         selectMapBySqlBuilder.addAttribute(new Attribute("id", "selectMapBySql"));
         selectMapBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
@@ -508,7 +515,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(selectMapBySqlBuilder);
     }
 
-    private void addInsertBySql(Document document){
+    private void addInsertBySql(Document document) {
         XmlElement insertBySqlBuilder = new XmlElement("insert");
         insertBySqlBuilder.addAttribute(new Attribute("id", "insertBySql"));
         insertBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
@@ -517,7 +524,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(insertBySqlBuilder);
     }
 
-    private void addUpdateBySql(Document document){
+    private void addUpdateBySql(Document document) {
         XmlElement updateBySqlBuilder = new XmlElement("update");
         updateBySqlBuilder.addAttribute(new Attribute("id", "updateBySql"));
         updateBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
@@ -526,7 +533,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(updateBySqlBuilder);
     }
 
-    private void addCountBySql(Document document){
+    private void addCountBySql(Document document) {
         XmlElement countBySqlBuilder = new XmlElement("select");
         countBySqlBuilder.addAttribute(new Attribute("id", "countBySql"));
         countBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
@@ -536,7 +543,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         document.getRootElement().addElement(countBySqlBuilder);
     }
 
-    private void addListBySql(Document document){
+    private void addListBySql(Document document) {
         XmlElement listBySqlBuilder = new XmlElement("select");
         listBySqlBuilder.addAttribute(new Attribute("id", "listBySql"));
         listBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
@@ -552,6 +559,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 introspectedTable.getBaseColumnListId()));
         return answer;
     }
+
     private XmlElement getBaseBySqlElement() {
         XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
         answer.addAttribute(new Attribute("refid", "Base_By_Sql"));
@@ -700,7 +708,22 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             if (column.getJavaProperty().equals(field.getName())) {
                 sb.append("@ColumnMeta(").append("value = \"");
                 sb.append(column.getActualColumnName()).append("\"");
-                sb.append(",description = \"").append(column.getRemarks()).append("\"");
+                sb.append(",description = \"");
+                if (StringUtils.isNotEmpty(column.getRemarks())) {
+                    int pos;
+                    if (StringUtils.indexOf(column.getRemarks(), "(")>0) {
+                        pos = StringUtils.indexOf(column.getRemarks(), "(");
+                        sb.append(StringUtils.left(column.getRemarks(),pos));
+                    }else if (StringUtils.indexOf(column.getRemarks(), "（")>0) {
+                        pos = StringUtils.indexOf(column.getRemarks(), "（");
+                        sb.append(StringUtils.left(column.getRemarks(),pos));
+                    }else{
+                        sb.append(column.getRemarks());
+                    }
+                }else{
+                    sb.append(column.getActualColumnName());
+                }
+                sb.append("\"");
                 sb.append(",size =");
                 sb.append(column.getLength());
                 sb.append(",order = ").append((i + 20));

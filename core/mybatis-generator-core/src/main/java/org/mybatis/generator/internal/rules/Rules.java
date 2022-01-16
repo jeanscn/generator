@@ -241,8 +241,5 @@ public interface Rules {
      */
     boolean generateJavaClient();
 
-    boolean generateService();
-
-
     IntrospectedTable getIntrospectedTable();
 }

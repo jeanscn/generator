@@ -1220,6 +1220,8 @@ public abstract class IntrospectedTable {
         switch (propertyRegistry){
             case PropertyRegistry.TABLE_GENERATE_CONTROLLER:
             case PropertyRegistry.TABLE_HTML_GENERATE:
+            case PropertyRegistry.TABLE_SERVICE_GENERATE:
+            case PropertyRegistry.TABLE_DAO_GENERATE:
             case PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION:
             case PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION:
             case PropertyRegistry.TABLE_SERVICE_NOT_SERVICE_ANNOTATION:

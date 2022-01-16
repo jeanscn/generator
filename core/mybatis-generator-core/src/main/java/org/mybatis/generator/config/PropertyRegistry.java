@@ -52,6 +52,8 @@ public class PropertyRegistry {
     //定制属性
     public static final String TABLE_GENERATE_CONTROLLER = "generateController";
     public static final String TABLE_HTML_GENERATE = "generateHtml";
+    public static final String TABLE_SERVICE_GENERATE = "generateService";
+    public static final String TABLE_DAO_GENERATE = "generateDao";
     public static final String TABLE_VIEW_PATH = "viewPath";
     public static final String TABLE_HTML_UI_FRAME = "htmlUiFrame";
     public static final String TABLE_HTML_PAGE_COLUMNS = "htmlPageColumns";

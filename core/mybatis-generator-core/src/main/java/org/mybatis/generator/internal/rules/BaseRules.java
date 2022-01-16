@@ -43,6 +43,10 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean isGenerateHtml;
 
+    protected final boolean isGenerateService;
+
+    protected final boolean isGenerateDao;
+
     protected final boolean isNoMetaAnnotation;
 
     protected final boolean isNoSwaggerAnnotation;
@@ -57,10 +61,17 @@ public abstract class BaseRules implements Rules {
         String modelOnly = tableConfiguration.getProperty(PropertyRegistry.TABLE_MODEL_ONLY);
         isModelOnly = StringUtility.isTrue(modelOnly);
 
-        String generateCONT = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_GENERATE_CONTROLLER, PropertyScope.any, "true");
-        String generateHTML = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_GENERATE, PropertyScope.any, "true");
+        String generateCONT = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_GENERATE_CONTROLLER, PropertyScope.any, "false");
         isGenerateCont = StringUtility.isTrue(generateCONT);
+
+        String generateHTML = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_GENERATE, PropertyScope.any, "false");
         isGenerateHtml = StringUtility.isTrue(generateHTML);
+
+        String generateSERV = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_SERVICE_GENERATE, PropertyScope.any, "false");
+        isGenerateService = StringUtility.isTrue(generateSERV);
+
+        String generateDAO = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_DAO_GENERATE, PropertyScope.any, "false");
+        isGenerateDao = StringUtility.isTrue(generateDAO);
 
         String noMetaAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION, PropertyScope.any, "false");
         isNoMetaAnnotation = StringUtility.isTrue(noMetaAnnotation);
@@ -70,7 +81,6 @@ public abstract class BaseRules implements Rules {
 
         String noServiceAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_SERVICE_NOT_SERVICE_ANNOTATION, PropertyScope.any, "false");
         isNoServiceAnnotation = StringUtility.isTrue(noServiceAnnotation);
-
     }
 
     public boolean generateController(){
@@ -78,6 +88,20 @@ public abstract class BaseRules implements Rules {
             return false;
         }
         return isGenerateCont;
+    }
+
+    public boolean generateService(){
+        if (isModelOnly) {
+            return false;
+        }
+        return isGenerateService;
+    }
+
+    public boolean generateDao(){
+        if (isModelOnly) {
+            return false;
+        }
+        return isGenerateDao;
     }
 
     public boolean generateHtml(){
@@ -480,12 +504,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateJavaClient() {
-        return !isModelOnly;
-    }
-
-    @Override
-    public boolean generateService(){
-        if (isModelOnly) {
+        if (isModelOnly || !this.isGenerateDao) {
             return false;
         }
         return true;

@@ -29,7 +29,7 @@
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
     <name>MyBatis Generator</name>
-    <version>1.4.3-SNAPSHOT</version>
+    <version>1.4.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2006</inceptionYear>

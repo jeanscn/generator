@@ -56,7 +56,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public int getPageColumnsConfig() {
-        String pcStr = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS);
+        String pcStr = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS, PropertyScope.any,"2");
         int c = Integer.valueOf(pcStr);
         if (c > 12) {
             c = 12;
