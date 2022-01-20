@@ -15,7 +15,9 @@
  */
 package org.mybatis.generator.codegen;
 
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.internal.ObjectFactory;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -25,14 +27,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.internal.ObjectFactory;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * Holds information about a class (uses the JavaBeans Introspector to find properties).
  * @author Jeff Butler
- * 
+ *
  */
 public class RootClassInfo {
 
@@ -53,7 +53,7 @@ public class RootClassInfo {
      * a generation run to clear the cached root class info in case there has been a change.
      * For example, when using the eclipse launcher, the cache would be kept until eclipse
      * was restarted.
-     * 
+     *
      */
     public static void reset() {
         rootClassInfoMap.clear();
@@ -103,7 +103,6 @@ public class RootClassInfo {
         // better yet, have a map of method Names. check against it.
         for (int i = 0; i < propertyDescriptors.length; i++) {
             PropertyDescriptor propertyDescriptor = propertyDescriptors[i];
-
             if (hasProperty(propertyName, propertyType, propertyDescriptor)) {
                 found = true;
                 break;
@@ -112,20 +111,20 @@ public class RootClassInfo {
 
         return found;
     }
-    
+
     private boolean hasProperty(String propertyName, String propertyType, PropertyDescriptor propertyDescriptor) {
         return hasCorrectName(propertyName, propertyDescriptor)
                 && isProperType(propertyName, propertyType, propertyDescriptor)
                 && hasGetter(propertyName, propertyDescriptor)
                 && hasSetter(propertyName, propertyDescriptor);
     }
-    
+
     private boolean hasCorrectName(String propertyName, PropertyDescriptor propertyDescriptor) {
         return propertyDescriptor.getName().equals(propertyName);
     }
-    
+
     private boolean isProperType(String propertyName, String propertyType, PropertyDescriptor propertyDescriptor) {
-        String introspectedPropertyType = propertyDescriptor.getPropertyType().getName();
+        String introspectedPropertyType = propertyDescriptor.getPropertyType().getTypeName();
         if (genericMode && introspectedPropertyType.equals("java.lang.Object")) { //$NON-NLS-1$
             // OK - but add a warning
             warnings.add(getString("Warning.28", //$NON-NLS-1$
@@ -135,7 +134,7 @@ public class RootClassInfo {
                     propertyName, className, propertyType));
             return false;
         }
-        
+
         return true;
     }
 
@@ -145,7 +144,7 @@ public class RootClassInfo {
                     propertyName, className));
             return false;
         }
-        
+
         return true;
     }
 
@@ -155,7 +154,7 @@ public class RootClassInfo {
                     propertyName, className));
             return false;
         }
-        
+
         return true;
     }
 }

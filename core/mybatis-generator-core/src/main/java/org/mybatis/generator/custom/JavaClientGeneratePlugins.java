@@ -157,7 +157,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         StringBuilder sb = new StringBuilder();
         if (introspectedTable.getRules().generateController()) {
             logger.debug("生成Controller");
-
+            String viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
             GenerateJavaController gc = new GenerateJavaController(introspectedTable);
             FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
             FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
@@ -198,8 +198,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     ';';
             method.addBodyLine(sb1);
             conTopClazz.addMethod(method);
-
-            conTopClazz.addMethod(gc.viewGenerate());
+            if (viewpath != null) {
+                conTopClazz.addMethod(gc.viewGenerate());
+            }
             conTopClazz.addMethod(gc.getGenerate());
             conTopClazz.addMethod(gc.listGenerate());
             conTopClazz.addMethod(gc.createGenerate());
@@ -359,16 +360,26 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAdditionProperty);
             String javaModelName = JavaBeansUtil.getFirstCharacterLowercase(addPropertyType.getShortName());
 
-            String ptype = introspectedTable.getTableConfigurationProperty("javaModelAdditionPropertyType");
+            String pType = introspectedTable.getTableConfigurationProperty("javaModelAdditionPropertyType");
+            String pName = introspectedTable.getTableConfigurationProperty("javaModelAdditionPropertyName");
             FullyQualifiedJavaType returnType;
             String propertyName;
-            if (ptype != null && "list".equalsIgnoreCase(ptype)) {
-                propertyName = javaModelName + "s";
+
+            if (pType != null && "list".equalsIgnoreCase(pType)) {
+                if (StringUtils.isNotEmpty(pName)) {
+                    propertyName = pName;
+                }else{
+                    propertyName = javaModelName + "s";
+                }
                 returnType = new FullyQualifiedJavaType("java.util.List<" + addPropertyType.getShortName() + ">");
                 topLevelClass.addImportedType("java.util.List");
             } else {
                 returnType = addPropertyType;
-                propertyName = javaModelName;
+                if (StringUtils.isNotEmpty(pName)) {
+                    propertyName = pName;
+                }else{
+                    propertyName = javaModelName;
+                }
             }
             Field field = new Field(propertyName, returnType);
             field.setVisibility(JavaVisibility.PRIVATE);
@@ -390,8 +401,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             stringBuilder.append("\"" + getTableBeanName(introspectedTable) + "\";");
             initializationBlock.addBodyLine(stringBuilder.toString());
         }
-        String viewpath = null;
-        viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
+        String viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
         if (!StringUtility.isEmpty(viewpath)) {
             //添加程序块
             stringBuilder.setLength(0);
