@@ -15,11 +15,6 @@
  */
 package org.mybatis.generator.maven;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Resource;
@@ -42,13 +37,18 @@ import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
 import org.mybatis.generator.logging.LogFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+
 /**
  * Goal which generates MyBatis artifacts.
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.TEST)
 public class MyBatisGeneratorMojo extends AbstractMojo {
-    
+
     private ThreadLocal<ClassLoader> savedClassloader = new ThreadLocal<>();
 
     /**
@@ -135,7 +135,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
      */
     @Parameter(property = "mybatis.generator.skip", defaultValue = "false")
     private boolean skip;
-    
+
     /**
      * If true, then dependencies in scope compile, provided, and system scopes will be
      * added to the classpath of the generator.  These dependencies will be searched for
@@ -151,7 +151,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
      */
     @Parameter(property = "mybatis.generator.includeAllDependencies", defaultValue = "false")
     private boolean includeAllDependencies;
-    
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -160,7 +160,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         }
 
         saveClassLoader();
-        
+
         LogFactory.setLogFactory(new MavenLogFactory(this));
 
         calculateClassPath();
@@ -256,7 +256,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
             resource.addInclude("**/*.xml");
             project.addResource(resource);
         }
-        
+
         restoreClassLoader();
     }
 
@@ -271,11 +271,11 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
                 if (includeCompileDependencies) {
                     entries.addAll(project.getCompileClasspathElements());
                 }
-                
+
                 if (includeAllDependencies) {
                     entries.addAll(project.getTestClasspathElements());
                 }
-                
+
                 // remove the output directories (target/classes and target/test-classes)
                 // because this mojo runs in the generate-sources phase and
                 // those directories have not been created yet (typically)
@@ -289,7 +289,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
             }
         }
     }
-    
+
     private void runScriptIfNecessary() throws MojoExecutionException {
         if (sqlScript == null) {
             return;
@@ -304,7 +304,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
     public File getOutputDirectory() {
         return outputDirectory;
     }
-    
+
     private void saveClassLoader() {
         savedClassloader.set(Thread.currentThread().getContextClassLoader());
     }
@@ -332,7 +332,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
             context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
             //生成mybatis的类型
             context.setTargetRuntime("Mybatis3");
-            //genrator Model 配置
+            //generator Model 配置
             JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
             javaModelGeneratorConfiguration.addProperty("trimStrings", "true");
             javaModelGeneratorConfiguration.addProperty("constructorBased", "true");
