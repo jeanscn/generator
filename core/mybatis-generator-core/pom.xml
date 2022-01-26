@@ -39,6 +39,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+        <version>${site.version}</version>
         <configuration>
           <skipDeploy>false</skipDeploy>
         </configuration>
@@ -59,6 +60,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${javadoc.version}</version>
         <configuration>
           <doclint>none</doclint>
           <charset>UTF-8</charset>
@@ -77,6 +79,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>${jar.version}</version>
         <configuration>
           <archive>
             <manifest>
@@ -88,6 +91,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>${assembly.version}</version>
         <configuration>
           <descriptors>
             <descriptor>${project.basedir}/src/main/assembly/src.xml</descriptor>
@@ -107,6 +111,7 @@
       <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
         <groupId>org.jetbrains.kotlin</groupId>
+        <version>${kotlin.version}</version>
         <executions>
           <execution>
             <id>compile</id>
@@ -135,6 +140,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${compiler.version}</version>
         <executions>
           <!-- Replacing default-compile as it is treated specially by maven -->
           <execution>

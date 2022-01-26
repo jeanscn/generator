@@ -68,7 +68,7 @@
         <dependency>
             <groupId>com.vgosoft</groupId>
             <artifactId>vgosoft-web2</artifactId>
-            <version>3.5.3-SNAPSHOT</version>
+            <version>3.7.0-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -129,6 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
                <!-- <configuration>
                     <argLine>${argLine} -Xmx1024m -XX:MaxPermSize=256m</argLine>
                 </configuration>-->
@@ -136,6 +137,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+                <version>${site.version}</version>
                 <configuration>
                     <!-- turn off deployment by default, we'll turn it back on in the core project -->
                     <skipDeploy>true</skipDeploy>
@@ -145,6 +147,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${enforcer.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-java</id>
@@ -196,6 +199,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin}</version>
                 <configuration>
                     <configLocation>${checkstyle.config}</configLocation>
                 </configuration>
@@ -324,9 +328,9 @@
         <module>mybatis-generator-systests-domtests</module>
         <module>mybatis-generator-maven-plugin</module>
         <module>mybatis-generator-systests-common</module>
-        <module>mybatis-generator-systests-mybatis3</module>
-        <module>mybatis-generator-systests-mybatis3-java8</module>
-        <module>mybatis-generator-systests-kotlin</module>
+        <!--<module>mybatis-generator-systests-mybatis3</module>-->
+        <!--<module>mybatis-generator-systests-mybatis3-java8</module>-->
+        <!--<module>mybatis-generator-systests-kotlin</module>-->
     </modules>
 
     <profiles>

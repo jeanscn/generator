@@ -58,7 +58,7 @@ public class PropertyRegistry {
     public static final String TABLE_HTML_UI_FRAME = "htmlUiFrame";
     public static final String TABLE_HTML_PAGE_COLUMNS = "htmlPageColumns";
     public static final String TABLE_HTML_TOOLBAR_POSITION = "htmlBarPosition";
-    public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
+    public static final String TABLE_HIDDEN_COLUMNS = "hiddenColumns";
     public static final String TABLE_MODEL_NOT_META_ANNOTATION = "noMetaAnnotation";
     public static final String TABLE_SERVICE_NOT_SERVICE_ANNOTATION = "noServiceAnnotation";
     public static final String TABLE_MODEL_NOT_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
