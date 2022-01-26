@@ -394,6 +394,13 @@ public class MyBatisGenerator {
         File targetFile;
         String source;
         try {
+            File htmlDirector = new File(ghf.getTargetProject());
+            if (!htmlDirector.isDirectory()) {
+                final boolean mkDirs = htmlDirector.mkdirs();
+                if(!mkDirs){
+                    warnings.add(getString("Warning.3",ghf.getTargetProject()));
+                }
+            }
             File directory = shellCallback.getDirectory(ghf.getTargetProject(), ghf.getTargetPackage());
             targetFile = new File(directory, ghf.getFileName());
             if (targetFile.exists()) {
