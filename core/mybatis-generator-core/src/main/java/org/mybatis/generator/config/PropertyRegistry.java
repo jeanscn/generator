@@ -62,6 +62,10 @@ public class PropertyRegistry {
     public static final String TABLE_MODEL_NOT_META_ANNOTATION = "noMetaAnnotation";
     public static final String TABLE_SERVICE_NOT_SERVICE_ANNOTATION = "noServiceAnnotation";
     public static final String TABLE_MODEL_NOT_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
+    public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY = "javaModelAdditionProperty";
+    public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY_TYPE = "javaModelAdditionPropertyType";
+    public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY_NAME = "javaModelAdditionPropertyName";
+    public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$

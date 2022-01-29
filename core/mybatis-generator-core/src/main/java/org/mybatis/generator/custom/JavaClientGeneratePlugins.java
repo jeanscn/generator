@@ -44,10 +44,30 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
-    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.service.AbstractMBGServiceInterface";
+    //service实现抽象父类
+    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMBGServiceInterface";
+    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMBGBlobServiceInterface";
+    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMBGBlobFileService";
+    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMBGBlobBytesService";
+    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMBGBlobStringService";
+    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractServiceBusiness";
+    private static final String abstractBlobFileServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobFileServiceBusiness";
+    private static final String abstractBlobBytesServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
+    private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
+    //service接口父类
+    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.MBGServiceInterface";
+    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.MBGBlobServiceInterface";
+    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.MBGBlobFileService";
+    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.MBGBlobBytesService";
+    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.MBGBlobStringService";
+
+    //mapper接口
+    public static final String mBGMapperInterface = "com.vgosoft.mybatis.inf.MBGMapperInterface";
+    public static final String mBGMapperBlobInterface = "com.vgosoft.mybatis.inf.MBGMapperBlobInterface";
+
     private static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
     private static final String repositoryAnnotation = "org.springframework.stereotype.Repository";
-    public static final String mapperInf = "com.vgosoft.mybatis.inf.MBGMapperInterface";
+
     private static final String bizSubPackage = "service";
     private static final String implSubPackage = "impl";
 
@@ -90,7 +110,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 /*生成service接口文件*/
                 Interface bizINF = new Interface(infName);
                 commentGenerator.addJavaFileComment(bizINF);
-                FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType("com.vgosoft.mybatis.inf.MBGServiceInterface");
+                FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
                 infSuperType.addTypeArgument(entityType);
                 infSuperType.addTypeArgument(exampleType);
                 bizINF.addImportedType(infSuperType);
@@ -105,7 +125,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 /*生成service实现接口*/
                 String serviceAnnotation = "org.springframework.stereotype.Service";
                 FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(serviceAnnotation);
-                FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType);
+                FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType,introspectedTable);
 
 
 
@@ -240,7 +260,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         interFace.addImportedType(mapperAnnotation);
         interFace.addImportedType(entityType);
         interFace.addImportedType(exampleType);
-        FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(mapperInf);
+        FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
         infSuperType.addTypeArgument(exampleType);
         interFace.addImportedType(infSuperType);
@@ -343,13 +363,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         /*是否需要增加List集合属性*/
-        String javaModelAdditionProperty = introspectedTable.getTableConfigurationProperty("javaModelAdditionProperty");
+        String javaModelAdditionProperty = introspectedTable.getTableConfigurationProperty(PropertyRegistry.TABLE_JAVA_MODEL_ADDITION_PROPERTY);
         if (javaModelAdditionProperty != null) {
             FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAdditionProperty);
             String javaModelName = JavaBeansUtil.getFirstCharacterLowercase(addPropertyType.getShortName());
 
-            String pType = introspectedTable.getTableConfigurationProperty("javaModelAdditionPropertyType");
-            String pName = introspectedTable.getTableConfigurationProperty("javaModelAdditionPropertyName");
+            String pType = introspectedTable.getTableConfigurationProperty(PropertyRegistry.TABLE_JAVA_MODEL_ADDITION_PROPERTY_TYPE);
+            String pName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.TABLE_JAVA_MODEL_ADDITION_PROPERTY_NAME);
             FullyQualifiedJavaType returnType;
             String propertyName;
 
@@ -762,8 +782,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * 内部类
      * 获得Service抽象类父类
      */
-    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType) {
-        FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(abstractMBGServiceInterface);
+    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType,IntrospectedTable introspectedTable) {
+        FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(getAbstractService(introspectedTable));
         supperType.addTypeArgument(entityType);
         supperType.addTypeArgument(exampleType);
         return supperType;
@@ -807,6 +827,12 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
     }
 
+    /**
+     * 截取字符串中括号前的内容
+     * 主要用于截取表注释、列注释，用于生成标题
+     * @param remark 注释信息
+     * @return 字符串
+     */
     private String remarkLeft(String remark) {
         String ret = remark;
         if (StringUtils.indexOf(remark, "(") > 0) {
@@ -815,6 +841,68 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             ret = StringUtils.substringBefore(remark, "（");
         }
         return StringUtils.chomp(ret);
+    }
+
+    /**
+     * 获得service类的抽象实现类
+     * @param introspectedTable 生成基类
+     */
+    private String getAbstractService(IntrospectedTable introspectedTable){
+        if (GenerateUtils.isBlobInstance(introspectedTable)) {
+            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
+            if (GenerateUtils.isBusinessInstance(introspectedTable)) {
+                switch (steamOutType){
+                    case "bytes":
+                        return abstractBlobBytesServiceBusiness;
+                    case "file":
+                        return abstractBlobFileServiceBusiness;
+                    case "string":
+                        return abstractBlobStringServiceBusiness;
+                }
+                return abstractServiceBusiness;
+            }else{
+                switch (steamOutType) {
+                    case "bytes":
+                        return abstractMBGBlobBytesService;
+                    case "file":
+                        return abstractMBGBlobFileService;
+                    case "string":
+                        return abstractMBGBlobStringService;
+                }
+                return abstractMBGBlobServiceInterface;
+            }
+        }
+        return abstractMBGServiceInterface;
+    }
+
+    /**
+     * 获得service类的抽象实现类
+     * @param introspectedTable 生成基类
+     */
+    private String getServiceInterface(IntrospectedTable introspectedTable){
+        if (GenerateUtils.isBlobInstance(introspectedTable)) {
+            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
+            switch (steamOutType){
+                case "bytes":
+                    return mBGBlobBytesService;
+                case "file":
+                    return mBGBlobFileService;
+                case "string":
+                    return mBGBlobStringService;
+            }
+            return mBGBlobServiceInterface;
+        }
+        return mBGServiceInterface;
+    }
+
+    /**
+     * 获得mapper接口
+     */
+    private String getMapperInterface(IntrospectedTable introspectedTable){
+        if (GenerateUtils.isBlobInstance(introspectedTable)) {
+            return mBGMapperBlobInterface;
+        }
+        return mBGMapperInterface;
     }
 
 }

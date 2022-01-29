@@ -33,6 +33,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * Base class for all code generator implementations. This class provides many
  * of the housekeeping methods needed to implement a code generator, with only
  * the actual code generation methods left unimplemented.
+ * 所有代码生成器实现的基类。这个类提供了实现代码生成器所需的许多内务管理方法，只有实际的代码生成方法没有实现。
  *
  * @author Jeff Butler
  *
@@ -1237,6 +1238,8 @@ public abstract class IntrospectedTable {
                 return "2";
             case PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION:
                 return HtmlConstants.HTML_KEY_WORD_BOTTOM;
+            case PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE:
+                return "bytes";
             case PropertyRegistry.TABLE_VIEW_PATH:
             default:
                 return null;

@@ -65,6 +65,11 @@ public class GenerateUtils {
         return sb.toString();
     }
 
+    /**
+     * 生成的实体是否工作流子类
+     * @param introspectedTable 代码生成的基类
+     * @return 布尔值 true为工作流对象，否则 false
+     */
     public static Boolean isWorkflowInstance(IntrospectedTable introspectedTable){
         String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
         try {
@@ -82,5 +87,45 @@ public class GenerateUtils {
 
     public static String getEntityKeyStr(IntrospectedTable introspectedTable){
         return GenerateUtils.isWorkflowInstance(introspectedTable)?"business":"entity";
+    }
+
+    /**
+     * 生成的实体是否为含有大字段的对象
+     * @param introspectedTable 代码生成的基类
+     * @return 布尔值 true为工含有大字段，否则 false
+     */
+    public static Boolean isBlobInstance(IntrospectedTable introspectedTable){
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        try {
+            if (rootClass != null) {
+                Class<?> aClass = Class.forName(rootClass);
+                Class<?> pClass = Class.forName("com.vgosoft.core.entity.IPersistenceBlob");
+                return  ClassUtils.isAssignable(aClass,pClass);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * 生成的实体是否为业务对象
+     * @param introspectedTable 代码生成的基类
+     * @return 布尔值 true为业务对象，否则 false
+     */
+    public static Boolean isBusinessInstance(IntrospectedTable introspectedTable){
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        try {
+            if (rootClass != null) {
+                Class<?> aClass = Class.forName(rootClass);
+                Class<?> pClass = Class.forName("com.vgosoft.core.entity.IBusinessEntity");
+                return  ClassUtils.isAssignable(aClass,pClass);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 }
