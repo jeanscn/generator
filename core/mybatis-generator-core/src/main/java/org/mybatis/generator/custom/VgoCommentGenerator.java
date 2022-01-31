@@ -36,7 +36,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     public void addConfigurationProperties(Properties properties) {
         //调用父类方法保证父类方法可以正常使用
         super.addConfigurationProperties(properties);
-        //获取supressAllComment参数值
+        //获取suppressAllComments参数值
         suppressAllComments = Boolean.parseBoolean(properties.getProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS));
         //获取addRemarkComments参数值
         addRemarkComments = Boolean.parseBoolean(properties.getProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS));
@@ -107,43 +107,46 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         if(("view"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/**");
-            method.addJavaDocLine("* 根据主键获取单个业务实例");
-            method.addJavaDocLine("* @param id 可选参数，存在时查询数据；否则直接返回视图，用于打开表单。");
-            method.addJavaDocLine("*/");
+            addMethodJavaDocLine(method,"根据主键获取单个业务实例",""
+                    ,"@param id 可选参数，存在时查询数据；否则直接返回视图，用于打开表单。");
             addSwaggerApiAnnotation(method,"获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                     "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图");
         }
         if(("get"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/** 根据主键获取单个实体 */");
+            addMethodJavaDocLine(method,"根据主键获取单个实体");
             addSwaggerApiAnnotation(method,"获得单条列表","根据给定id获取单个实体");
         }
         if(("list"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/**");
-            method.addJavaDocLine("* 获取条件实体对象列表");
-            StringBuilder sb = new StringBuilder("* @param ");
             FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-            sb.append(JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
-            sb.append(" 用于接收属性同名参数");
-            method.addJavaDocLine(sb.toString());
-            method.addJavaDocLine("*/");
+            String firstCharacterLowercase = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+            addMethodJavaDocLine(method,"获取条件实体对象列表",""
+                    ,"@param "+firstCharacterLowercase+" 用于接收属性同名参数");
             addSwaggerApiAnnotation(method,"获得数据列表",
                     "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
         }
         if(("create"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/** 新增一条记录 */");
+            addMethodJavaDocLine(method,"新增一条记录");
             addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录,返回json");
         }
+        if(("upload"+record.getShortName()).equals(method.getName())){
+            addMethodJavaDocLine(method,"单个文件上传");
+            addSwaggerApiAnnotation(method,"单个文件上传","单个文件上传接口");
+        }
+        if(("download"+record.getShortName()).equals(method.getName())){
+            addMethodJavaDocLine(method,"文件下载","","@param id 路径参数，资源标识id"
+                    ,"@param type 路径参数，下载方式：1-下载或另存 0-直接在浏览器中打开");
+            addSwaggerApiAnnotation(method,"单个文件下载","单个文件下载接口");
+        }
         if(("update"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/** 根据主键更新实体对象 */");
+            addMethodJavaDocLine(method,"根据主键更新实体对象");
             addSwaggerApiAnnotation(method,"更新一条记录","根据主键更新实体对象");
         }
         if(("delete"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/** 删除一条记录 */");
+            addMethodJavaDocLine(method,"删除一条记录");
             addSwaggerApiAnnotation(method,"单条记录删除","根据给定的id删除一条记录");
         }
         if(("deleteBatch"+record.getShortName()).equals(method.getName())){
-            method.addJavaDocLine("/** 根据ids批量删除记录 */");
+            addMethodJavaDocLine(method,"根据ids批量删除记录");
             addSwaggerApiAnnotation(method,"批量记录删除","根据给定的一组id删除多条记录");
         }
     }
@@ -184,5 +187,31 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         if (sb.length()>0) {
             method.addAnnotation("@ApiOperation("+sb.toString()+")");
         }
+    }
+
+    /**
+     * 添加注释
+     * @param method 要添加注释的方法
+     * @param comments 要添加的注释
+     * @param type 注释方式（false-多行javaDoc方式，true-单行双斜杠）
+     */
+    private void addMethodJavaDocLine(Method method,boolean type,String...comments){
+        if (comments.length == 0) {
+            return;
+        }
+        if (type) {
+            for (String comment : comments) {
+                method.addJavaDocLine("// " + comment);
+            }
+        }else{
+            method.addJavaDocLine("/** ");
+            for (String comment : comments) {
+                method.addJavaDocLine("* " + comment);
+            }
+            method.addJavaDocLine("*/ ");
+        }
+    }
+    private void addMethodJavaDocLine(Method method,String...comments){
+        addMethodJavaDocLine(method,false,comments);
     }
 }

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -175,7 +176,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
             String serviceImplShortName = bizClazzImplType.getShortName();
             String entityShortName = entityType.getShortName();
-            String lowerCaseEntityName = StringUtility.lowerCase(entityShortName);
             String serviceImplVar = JavaBeansUtil.getFirstCharacterLowercase(serviceImplShortName);
 
             sb.append(StringUtility.substringBeforeLast(entityType.getPackageName(), "."));
@@ -190,8 +190,21 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             conTopClazz.addImportedType(entityType);
             conTopClazz.addImportedType(exampleType);
             conClazzAddStaticImportedType(conTopClazz);
+            //因需添加的静态导入
+            //文件上传下载相关
+            Boolean blobInstance = GenerateUtils.isBlobInstance(introspectedTable);
+            if (blobInstance) {
+                conTopClazz.addImportedType("org.apache.commons.lang3.StringUtils");
+                conTopClazz.addImportedType("org.springframework.web.multipart.MultipartFile");
+                conTopClazz.addImportedType("org.springframework.http.MediaType");
+                conTopClazz.addImportedType("org.apache.commons.lang3.StringUtils");
+                conTopClazz.addImportedType("javax.servlet.http.HttpServletResponse");
+                conTopClazz.addImportedType("org.springframework.util.Assert");
+                conTopClazz.addImportedType("com.vgosoft.core.util.UUID");
+                conTopClazz.addImportedType("org.apache.commons.lang3.BooleanUtils");
+            }
             sb.setLength(0);
-            sb.append("@Api(value = \"/").append(lowerCaseEntityName).append("\", tags = \"");
+            sb.append("@Api(tags = \"");
             sb.append(introspectedTable.getRemarks()).append("\")");
             conTopClazz.addAnnotation(sb.toString());
             conTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
@@ -216,6 +229,10 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             conTopClazz.addMethod(gc.getGenerate());
             conTopClazz.addMethod(gc.listGenerate());
             conTopClazz.addMethod(gc.createGenerate());
+            if (blobInstance) {
+                conTopClazz.addMethod(gc.uploadGenerate());
+                conTopClazz.addMethod(gc.downloadGenerate());
+            }
             conTopClazz.addMethod(gc.updateGenerate());
             conTopClazz.addMethod(gc.deleteGenerate());
             conTopClazz.addMethod(gc.deleteBatchGenerate());
@@ -224,7 +241,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
         return null;
     }
-
 
     /**
      * 内部方法
@@ -246,6 +262,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         conTopClazz.addJavaDocLine("");
         conTopClazz.addAnnotation("@RestController");
     }
+
 
     /**
      * dao接口文件生成后，进行符合性调整
@@ -285,21 +302,12 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      */
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        //为属性添加@TableMeta、@ColumnMeta注解
+        //添加import引入
         topLevelClass.addImportedType(new FullyQualifiedJavaType(tableMeta));
         topLevelClass.addImportedType(new FullyQualifiedJavaType(columnMeta));
-        //添加@Repository注解
         topLevelClass.addImportedType(new FullyQualifiedJavaType(repositoryAnnotation));
+        //添加@Repository注解
         topLevelClass.addAnnotation("@Repository");
-        for (int i = 0; i < topLevelClass.getFields().size(); i++) {
-            Field field = topLevelClass.getFields().get(i);
-            String columnMetaAnnotation = getColumnMetaAnnotation(field, introspectedTable, topLevelClass, i);
-            if (columnMetaAnnotation.length() > 0) {
-                field.addAnnotation(columnMetaAnnotation);
-            }
-        }
-        String tableMetaAnnotation = getTableMetaAnnotation(introspectedTable);
-        topLevelClass.addAnnotation(tableMetaAnnotation);
 
         // 添加@ApiModel、@ApiModelProperty
         boolean isNoSwaggerAnnotation = introspectedTable.getRules().isNoSwaggerAnnotation();
@@ -313,10 +321,20 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     field.addAnnotation(apiModelPropertyAnnotation);
                 }
             }
-            String apiModelAnnotation = getApiModelAnnotation(introspectedTable);
+            String apiModelAnnotation = getApiModelAnnotation(introspectedTable,topLevelClass);
             topLevelClass.addAnnotation(apiModelAnnotation);
         }
-
+        //为实体添加@TableMeta注解
+        String tableMetaAnnotation = getTableMetaAnnotation(introspectedTable);
+        topLevelClass.addAnnotation(tableMetaAnnotation);
+        //为属性添加@ColumnMeta注解
+        for (int i = 0; i < topLevelClass.getFields().size(); i++) {
+            Field field = topLevelClass.getFields().get(i);
+            String columnMetaAnnotation = getColumnMetaAnnotation(field, introspectedTable, topLevelClass, i);
+            if (columnMetaAnnotation.length() > 0) {
+                field.addAnnotation(columnMetaAnnotation);
+            }
+        }
         //添加序列化标识
         boolean isb = false;
         for (Field field : topLevelClass.getFields()) {
@@ -431,6 +449,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     Field field = new Field("viewPath", new FullyQualifiedJavaType("String"));
                     field.setVisibility(JavaVisibility.PRIVATE);
                     topLevelClass.addField(field);
+                    if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
+                        field.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
+                    }
                 }
             }
         }
@@ -792,7 +813,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     /**
      * model类的@apiModel
      */
-    private String getApiModelAnnotation(IntrospectedTable introspectedTable) {
+    private String getApiModelAnnotation(IntrospectedTable introspectedTable,TopLevelClass topLevelClass) {
         StringBuilder sb = new StringBuilder();
         FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         sb.append("@ApiModel(value = \"").append(fullyQualifiedJavaType.getShortName()).append("\"");
@@ -801,7 +822,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         } else {
             sb.append(", description = \"").append("\"");
         }
-        sb.append(")");
+        final Optional<FullyQualifiedJavaType> superClass = topLevelClass.getSuperClass();
+        if (superClass.isPresent()) {
+            final String clazz = superClass.get().getShortName() + ".class";
+            sb.append(", parent = ");
+            sb.append(clazz);
+        }
+        sb.append(" )");
         return sb.toString();
     }
 
@@ -814,8 +841,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             if (column.getJavaProperty().equals(field.getName())) {
                 sb.append("@ApiModelProperty(").append("value = \"");
                 sb.append(column.getRemarks()).append("\"");
-                sb.append(",name = \"");
-                sb.append(column.getActualColumnName()).append("\"");
                 sb.append(")");
                 return sb.toString();
             }
