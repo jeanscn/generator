@@ -95,6 +95,10 @@ public class Context extends PropertyHolder {
         pluginConfigurations = new ArrayList<>();
     }
 
+    public void setDefaultModelType(ModelType defaultModelType) {
+        this.defaultModelType = defaultModelType;
+    }
+
     public void addTableConfiguration(TableConfiguration tc) {
         tableConfigurations.add(tc);
     }

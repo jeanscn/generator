@@ -15,24 +15,9 @@
  */
 package org.mybatis.generator.config.xml;
 
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.codegen.XmlConstants;
-import org.mybatis.generator.config.Configuration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.XMLParserException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -41,6 +26,18 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class ConfigurationParser {
 
@@ -56,10 +53,10 @@ public class ConfigurationParser {
      * This constructor accepts a properties object which may be used to specify
      * an additional property set.  Typically this property set will be Ant or Maven properties
      * specified in the build.xml file or the POM.
-     * 
-     * <p>If there are name collisions between the different property sets, they will be 
+     *
+     * <p>If there are name collisions between the different property sets, they will be
      * resolved in this order:
-     * 
+     *
      * <ol>
      *   <li>System properties take highest precedence</li>
      *   <li>Properties specified in the &lt;properties&gt; configuration
@@ -67,7 +64,7 @@ public class ConfigurationParser {
      *   <li>Properties specified in this "extra" property set are
      *       lowest precedence.</li>
      * </ol>
-     * 
+     *
      * @param extraProperties an (optional) set of properties used to resolve property
      *     references in the configuration file
      * @param warnings any warnings are added to this array
@@ -168,5 +165,63 @@ public class ConfigurationParser {
         MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(
                 extraProperties);
         return parser.parseConfiguration(rootNode);
+    }
+
+    public void customConfig(Configuration config){
+        List<Context> contexts = config.getContexts();
+        for (Context context : contexts) {
+            context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+            //添加generator plugin
+            PluginConfiguration pluginConfiguration = new PluginConfiguration();
+            pluginConfiguration.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
+            context.addPluginConfiguration(pluginConfiguration);
+
+            //添加commentGenerator
+            CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())
+                    .orElseGet(CommentGeneratorConfiguration::new);
+            commentGeneratorConfiguration.setConfigurationType("org.mybatis.generator.custom.VgoCommentGenerator");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS, "false");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, "false");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_DATE_FORMAT, "yyyy-MM-dd HH:mm");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS, "true");
+            context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
+
+            //生成mybatis的类型
+            context.setTargetRuntime("Mybatis3");
+            context.addProperty(PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS, "true");
+            context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, "'");
+            context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, "'");
+            for (TableConfiguration tableConfiguration : context.getTableConfigurations()) {
+                tableConfiguration.setConfiguredModelType("flat");
+            }
+            context.setDefaultModelType(ModelType.FLAT);
+
+            //类型转换
+            JavaTypeResolverConfiguration javaTypeResolverConfiguration = Optional.ofNullable(context.getJavaTypeResolverConfiguration())
+                    .orElseGet(JavaTypeResolverConfiguration::new);
+            javaTypeResolverConfiguration.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, "true");
+            context.setJavaTypeResolverConfiguration(javaTypeResolverConfiguration);
+
+            //generator Model 配置
+            JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = Optional.ofNullable(context.getJavaModelGeneratorConfiguration())
+                    .orElseGet(JavaModelGeneratorConfiguration::new);
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "true");
+            String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
+            context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
+
+            //生成html配置
+            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration = Optional.ofNullable(context.getHtmlMapGeneratorConfiguration())
+                    .orElseGet(HtmlMapGeneratorConfiguration::new);
+            htmlMapGeneratorConfiguration.setTargetProject(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
+                    .orElse("src/main/resources/templates"));
+            String modelPackage = javaModelGeneratorConfiguration.getTargetPackage();
+            String p = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(modelPackage, "."), ".");
+            htmlMapGeneratorConfiguration.setTargetPackage(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
+                    .orElse(p));
+            context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);
+        }
     }
 }

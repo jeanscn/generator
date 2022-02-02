@@ -397,27 +397,37 @@ public class JavaBeansUtil {
     }
 
     //是否某个类的子类
-    public static boolean isAssignable(String parentClassName,String childClassName){
+    public static boolean isAssignable(String parentClassName,String childClassName,IntrospectedTable introspectedTable){
         try {
+            //TODO 处理生成key类未加载的问题
+            FullyQualifiedJavaType childClassNameType = new FullyQualifiedJavaType(childClassName);
+            FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+            if (childClassNameType.getShortName().equals(entityType.getShortName()+"Key")) {
+                childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+                if (childClassName == null) {
+                    Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
+                    childClassName = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+                }
+            }
             Class<?> pClazz = Class.forName(parentClassName);
-            Class<?> aClass = Class.forName(childClassName);
-            return ClassUtils.isAssignable(aClass, pClazz);
+            Class<?> cClazz = Class.forName(childClassName);
+            return ClassUtils.isAssignable(cClazz, pClazz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }
     }
-    public static boolean isAssignableCurrent(String parentClassName,TopLevelClass topLevelClass){
+    public static boolean isAssignableCurrent(String parentClassName,TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
         if (topLevelClass.getSuperClass().isPresent()) {
             FullyQualifiedJavaType fullyQualifiedJavaType = topLevelClass.getSuperClass().get();
             String fullyQualifiedName = fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters();
-            boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName);
+            boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName,introspectedTable);
             if (assignable) {
                 return true;
             }
         }
         for (FullyQualifiedJavaType superInterfaceType : topLevelClass.getSuperInterfaceTypes()) {
-            boolean assignableCurrent = JavaBeansUtil.isAssignable(parentClassName, superInterfaceType.getFullyQualifiedName());
+            boolean assignableCurrent = JavaBeansUtil.isAssignable(parentClassName, superInterfaceType.getFullyQualifiedName(),introspectedTable);
             if (assignableCurrent) {
                 return true;
             }

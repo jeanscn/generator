@@ -9,6 +9,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.ModelType;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.controllerGenerator.GenerateJavaController;
@@ -365,18 +366,18 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         List<Method> methods = topLevelClass.getMethods();
         for (Method method : methods) {
             if (method.isConstructor()) {
-                addConstructorBodyLine(method, false, topLevelClass);
+                addConstructorBodyLine(method, false, topLevelClass,introspectedTable);
             }
         }
 
         //添加一个参数的构造器
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass);
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass,introspectedTable);
         if (assignable1) {
             Method method = new Method(topLevelClass.getType().getShortName());
             method.addParameter(new Parameter(new FullyQualifiedJavaType("int"), "persistenceStatus"));
             method.setVisibility(JavaVisibility.PUBLIC);
             method.setConstructor(true);
-            addConstructorBodyLine(method, true, topLevelClass);
+            addConstructorBodyLine(method, true, topLevelClass,introspectedTable);
             topLevelClass.getMethods().add(1, method);
         }
 
@@ -437,7 +438,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             stringBuilder.append("\";");
             initializationBlock.addBodyLine(stringBuilder.toString());
             //判断是否需要实现ShowInView接口
-            boolean assignable = JavaBeansUtil.isAssignableCurrent(INTERFACE_SHOW_IN_VIEW, topLevelClass);
+            boolean assignable = JavaBeansUtil.isAssignableCurrent(INTERFACE_SHOW_IN_VIEW, topLevelClass,introspectedTable);
             if (!assignable) {
                 //添加ShowInView接口
                 FullyQualifiedJavaType showInView = new FullyQualifiedJavaType(INTERFACE_SHOW_IN_VIEW);
@@ -458,21 +459,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         if (initializationBlock.getBodyLines().size() > 0) {
             topLevelClass.addInitializationBlock(initializationBlock);
         }
-
-        // 添加compareTo方法
-        final String iSortableEntity = "com.vgosoft.core.entity.ISortableEntity";
-        boolean assignable = JavaBeansUtil.isAssignableCurrent(iSortableEntity, topLevelClass);
-        if (assignable) {
-            Method method = new Method("compareTo");
-            FullyQualifiedJavaType type = topLevelClass.getType();
-            method.addParameter(new Parameter(type, "o"));
-            method.setVisibility(JavaVisibility.PUBLIC);
-            method.setReturnType(new FullyQualifiedJavaType("int"));
-            method.addBodyLine("return (int) (this.getSort() - o.getSort());");
-            method.addAnnotation("@Override");
-            topLevelClass.getMethods().add(method);
-        }
-
         return true;
     }
 
@@ -705,10 +691,14 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * @param method          构造器方法
      * @param existParameters 是否有参
      */
-    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass) {
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass);
+    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass,introspectedTable);
         if (existParameters) {
-            method.addBodyLine("super(persistenceStatus);");
+            if (introspectedTable.getTableConfiguration().getModelType() == ModelType.FLAT){
+                method.addBodyLine("super(persistenceStatus);");
+            }else{
+                method.addBodyLine("this.persistenceStatus = persistenceStatus;");
+            }
         }
         if (assignable1) {
             if (!existParameters) {

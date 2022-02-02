@@ -15,7 +15,6 @@
  */
 package org.mybatis.generator.maven;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -27,7 +26,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ShellCallback;
-import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
@@ -216,7 +215,8 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         try {
             ConfigurationParser cp = new ConfigurationParser(project.getProperties(), warnings);
             Configuration config = cp.parseConfiguration(configurationFile);
-            customConfig(config);
+            //customConfig(config);
+            cp.customConfig(config);
             ShellCallback callback = new MavenShellCallback(this, overwrite);
 
             MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,callback, warnings);
@@ -313,10 +313,10 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         Thread.currentThread().setContextClassLoader(savedClassloader.get());
     }
 
-    private void customConfig(Configuration config){
+    /* private void customConfig(Configuration config){
         List<Context> contexts = config.getContexts();
         for (Context context : contexts) {
-            context.addProperty("javaFileEncoding", "UTF-8");
+            context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
             //添加generator plugin
             PluginConfiguration pluginConfiguration = new PluginConfiguration();
             pluginConfiguration.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
@@ -324,25 +324,34 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
             commentGeneratorConfiguration.setConfigurationType("org.mybatis.generator.custom.VgoCommentGenerator");
-            commentGeneratorConfiguration.addProperty("javaFileEncoding", "UTF-8");
-            commentGeneratorConfiguration.addProperty("suppressAllComment", "false");
-            commentGeneratorConfiguration.addProperty("suppressDate", "false");
-            commentGeneratorConfiguration.addProperty("dateFormat", "yyyy-MM-dd HH:mm");
-            commentGeneratorConfiguration.addProperty("addRemarkComments", "true");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS, "false");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, "false");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_DATE_FORMAT, "yyyy-MM-dd HH:mm");
+            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS, "true");
             context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
             //生成mybatis的类型
             context.setTargetRuntime("Mybatis3");
+            context.addProperty(PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS, "true");
+            context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, "'");
+            context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, "'");
+            for (TableConfiguration tableConfiguration : context.getTableConfigurations()) {
+                tableConfiguration.setConfiguredModelType("flat");
+            }
+            //类型转换
+            JavaTypeResolverConfiguration javaTypeResolverConfiguration = new JavaTypeResolverConfiguration();
+            javaTypeResolverConfiguration.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, "true");
             //generator Model 配置
             JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
-            javaModelGeneratorConfiguration.addProperty("trimStrings", "true");
-            javaModelGeneratorConfiguration.addProperty("constructorBased", "true");
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "true");
             String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
-            javaModelGeneratorConfiguration.addProperty("exampleTargetPackage", targetPackage + ".example");
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
             context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
             //生成html配置
             HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
             htmlMapGeneratorConfiguration = Optional.ofNullable(context.getHtmlMapGeneratorConfiguration())
-                    .orElseGet(()->new HtmlMapGeneratorConfiguration());
+                    .orElseGet(HtmlMapGeneratorConfiguration::new);
             htmlMapGeneratorConfiguration.setTargetProject(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
                     .orElse("src/main/resources/templates"));
             String modelPackage = javaModelGeneratorConfiguration.getTargetPackage();
@@ -351,5 +360,5 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
                     .orElse(p));
             context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);
         }
-    }
+    }*/
 }

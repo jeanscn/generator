@@ -57,7 +57,6 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             Properties properties = context.getJavaModelGeneratorConfiguration().getProperties();
             rootClass = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
         }
-
         return rootClass;
     }
 
