@@ -206,10 +206,10 @@ public class GenerateJavaController {
         method.addBodyLine("initBlobEntityFromMultipartFile("+entityFirstLowerShortName+",file);");
         method.addBodyLine("int rows;");
         method.addBodyLine("if (StringUtils.isNotBlank("+entityFirstLowerShortName+".getId())) {");
-        method.addBodyLine("rows = "+serviceBeanName+".updateByPrimaryKey(vbizAttachment);");
+        method.addBodyLine("rows = "+serviceBeanName+".updateByPrimaryKey("+entityFirstLowerShortName+");");
         method.addBodyLine("} else {");
         method.addBodyLine(entityFirstLowerShortName+".setId(UUID.nextUUID());");
-        method.addBodyLine("rows = "+serviceBeanName+".insert(vbizAttachment);");
+        method.addBodyLine("rows = "+serviceBeanName+".insert("+entityFirstLowerShortName+");");
         method.addBodyLine("}");
         method.addBodyLine("if (rows < 1) {");
         method.addBodyLine("responseSimple.setMessage(\"上传失败！\");");
