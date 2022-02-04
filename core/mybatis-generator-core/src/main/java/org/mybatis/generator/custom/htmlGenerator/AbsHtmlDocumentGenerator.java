@@ -119,20 +119,13 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return body;
     }
 
-    protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn, boolean isHidden) {
-        HtmlElement input = new HtmlElement("input");
-        input.addAttribute(new Attribute("id", baseColumn.getJavaProperty()));
-        input.addAttribute(new Attribute("name", baseColumn.getJavaProperty()));
-        if (isHidden) {
-            input.addAttribute(new Attribute("type", "hidden"));
-        }else{
-            input.addAttribute(new Attribute("type", "text"));
-        }
-        return input;
+    protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn, boolean isHidden,boolean isTextArea) {
+        return generateHtmlInput(baseColumn.getJavaProperty(), isHidden, isTextArea);
     }
 
-    protected HtmlElement generateHtmlInput(String name, boolean isHidden) {
-        HtmlElement input = new HtmlElement("input");
+    protected HtmlElement generateHtmlInput(String name, boolean isHidden,boolean isTextArea) {
+        String type = isTextArea?"textarea":"input";
+        HtmlElement input = new HtmlElement(type);
         input.addAttribute(new Attribute("id", name));
         input.addAttribute(new Attribute("name", name));
         if (isHidden) {

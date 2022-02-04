@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.internal.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -160,6 +162,19 @@ public class StringUtility {
             return str;
         }
     }
+
+    /**
+     * 截取字符串中括号前的内容
+     * 主要用于截取表注释、列注释，用于生成标题
+     * @param remark 注释信息
+     * @return 字符串
+     */
+    public static String remarkLeft(String remark) {
+        return StringUtils.chomp(
+                StringUtils.substringBefore(
+                        StringUtils.substringBefore(remark, "("), "（"));
+    }
+
     public static boolean isBlank(CharSequence cs) {
         int strLen = length(cs);
         if (strLen == 0) {

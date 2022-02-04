@@ -158,7 +158,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     }
 
     private void drawInput(IntrospectedColumn introspectedColumn, String entityKey, HtmlElement parent) {
-        HtmlElement input = generateHtmlInput(introspectedColumn, false);
+        HtmlElement input = generateHtmlInput(introspectedColumn, false,false);
         input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
         addClassNameToElement(input, "form-control");
         parent.addElement(input);

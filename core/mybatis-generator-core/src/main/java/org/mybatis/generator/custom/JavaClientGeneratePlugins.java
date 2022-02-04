@@ -723,7 +723,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
         if (introspectedTable.getRemarks() != null) {
             sb.append(", descript = \"");
-            sb.append(remarkLeft(introspectedTable.getRemarks()));
+            sb.append(StringUtility.remarkLeft(introspectedTable.getRemarks()));
             sb.append("\"");
         } else {
             sb.append(", descript = \"").append("\"");
@@ -754,7 +754,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 sb.append(column.getActualColumnName()).append("\"");
                 sb.append(",description = \"");
                 if (StringUtils.isNotEmpty(column.getRemarks())) {
-                    sb.append(remarkLeft(column.getRemarks()));
+                    sb.append(StringUtility.remarkLeft(column.getRemarks()));
                 } else {
                     sb.append(column.getActualColumnName());
                 }
@@ -840,22 +840,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         } else {
             return "";
         }
-    }
-
-    /**
-     * 截取字符串中括号前的内容
-     * 主要用于截取表注释、列注释，用于生成标题
-     * @param remark 注释信息
-     * @return 字符串
-     */
-    private String remarkLeft(String remark) {
-        String ret = remark;
-        if (StringUtils.indexOf(remark, "(") > 0) {
-            ret = StringUtils.substringBefore(remark, "(");
-        } else if (StringUtils.indexOf(remark, "（") > 0) {
-            ret = StringUtils.substringBefore(remark, "（");
-        }
-        return StringUtils.chomp(ret);
     }
 
     /**
