@@ -126,7 +126,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         }
         if(("create"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"新增一条记录");
-            addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录,返回json");
+            addSwaggerApiAnnotation(method,"新增一条记录","新增一条记录,返回json，包含影响条数及消息");
         }
         if(("upload"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"单个文件上传");

@@ -57,7 +57,7 @@ public class GenerateJavaController {
 
     /**
      * viewXXXXXX
-     * */
+     */
     public Method viewGenerate() {
         final String methodPrefix = "view";
         StringBuilder sb = new StringBuilder();
@@ -89,15 +89,10 @@ public class GenerateJavaController {
         sb.append("\",").append(entityLowerShortName).append(");");
         method.addBodyLine(sb.toString());
         method.addBodyLine("}");
-        method.addBodyLine("if (viewStatus != null) {");
-        method.addBodyLine("mv.addObject(\"viewStatus\",viewStatus);");
-        method.addBodyLine("} else {");
-        method.addBodyLine("mv.addObject(\"viewStatus\",1);");
-        method.addBodyLine("}");
-
+        method.addBodyLine("mv.addObject(\"viewStatus\", Objects.requireNonNullElse(viewStatus, 1));");
         String[] split = StringUtils.split(viewPath, "/");
-        split[split.length-1] = "{0}"+split[split.length-1];
-        String mString = StringUtils.join(split,"/");
+        split[split.length - 1] = "{0}" + split[split.length - 1];
+        String mString = StringUtils.join(split, "/");
         method.addBodyLine("if (prefix != null) {");
         sb.setLength(0);
         sb.append("mv.setViewName(\"");
@@ -122,7 +117,7 @@ public class GenerateJavaController {
 
     /**
      * getXXXXXX
-     * */
+     */
     public Method getGenerate() {
         final String methodPrefix = "get";
         StringBuilder sb = new StringBuilder();
@@ -151,7 +146,7 @@ public class GenerateJavaController {
 
     /**
      * listXXXXXX
-     * */
+     */
     public Method listGenerate() {
         final String methodPrefix = "list";
         StringBuilder sb = new StringBuilder();
@@ -187,7 +182,7 @@ public class GenerateJavaController {
         return method;
     }
 
-    public Method uploadGenerate(){
+    public Method uploadGenerate() {
         final String methodPrefix = "upload";
         Method method = createMethod(methodPrefix);
         FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
@@ -203,26 +198,25 @@ public class GenerateJavaController {
         method.addAnnotation(sb.toString());
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
         method.addBodyLine("try {");
-        method.addBodyLine("initBlobEntityFromMultipartFile("+entityFirstLowerShortName+",file);");
+        method.addBodyLine("initBlobEntityFromMultipartFile(" + entityFirstLowerShortName + ",file);");
         method.addBodyLine("int rows;");
-        method.addBodyLine("if (StringUtils.isNotBlank("+entityFirstLowerShortName+".getId())) {");
-        method.addBodyLine("rows = "+serviceBeanName+".updateByPrimaryKey("+entityFirstLowerShortName+");");
+        method.addBodyLine("if (StringUtils.isNotBlank(" + entityFirstLowerShortName + ".getId())) {");
+        method.addBodyLine("rows = " + serviceBeanName + ".updateByPrimaryKey(" + entityFirstLowerShortName + ");");
         method.addBodyLine("} else {");
-        method.addBodyLine(entityFirstLowerShortName+".setId(UUID.nextUUID());");
-        method.addBodyLine("rows = "+serviceBeanName+".insert("+entityFirstLowerShortName+");");
+        method.addBodyLine("rows = " + serviceBeanName + ".insert(" + entityFirstLowerShortName + ");");
         method.addBodyLine("}");
         method.addBodyLine("if (rows < 1) {");
         method.addBodyLine("responseSimple.setMessage(\"上传失败！\");");
         method.addBodyLine(" } else {");
         method.addBodyLine("responseSimple.addAttribute(\"rows\", String.valueOf(rows));");
-        method.addBodyLine("responseSimple.addAttribute(\"id\","+entityFirstLowerShortName+".getId());");
+        method.addBodyLine("responseSimple.addAttribute(\"id\"," + entityFirstLowerShortName + ".getId());");
         method.addBodyLine("responseSimple.setMessage(\"上传成功！\");");
         method.addBodyLine("}");
         addExceptionAndreturn(method);
         return method;
     }
 
-    public Method downloadGenerate(){
+    public Method downloadGenerate() {
         final String methodPrefix = "download";
         Method method = createMethod(methodPrefix);
         Parameter idParameter = new Parameter(new FullyQualifiedJavaType("String"), "id");
@@ -232,7 +226,7 @@ public class GenerateJavaController {
         typeParameter.addAnnotation("@PathVariable");
         method.addParameter(typeParameter);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse");
-        method.addParameter(new Parameter(response,"response"));
+        method.addParameter(new Parameter(response, "response"));
         StringBuilder sb = new StringBuilder();
         sb.append("@GetMapping(value = \"");
         sb.append(StringUtils.lowerCase(this.serviceBeanName));
@@ -245,9 +239,9 @@ public class GenerateJavaController {
         sb.append(entityFirstLowerShortName).append("=");
         sb.append(this.serviceBeanName).append(".selectByPrimaryKey(id);");
         method.addBodyLine(sb.toString());
-        method.addBodyLine(String.format("Assert.notNull(%s, \"获取文件失败！\");",entityFirstLowerShortName));
-        method.addBodyLine(String.format("byte[] bytes = %s.getBytes();",entityFirstLowerShortName));
-        method.addBodyLine(String.format("String fileName = %s.getName() == null ? id : %s.getName();",entityFirstLowerShortName,entityFirstLowerShortName));
+        method.addBodyLine(String.format("Assert.notNull(%s, \"获取文件失败！\");", entityFirstLowerShortName));
+        method.addBodyLine(String.format("byte[] bytes = %s.getBytes();", entityFirstLowerShortName));
+        method.addBodyLine(String.format("String fileName = %s.getName() == null ? id : %s.getName();", entityFirstLowerShortName, entityFirstLowerShortName));
         method.addBodyLine("setResponseContent(fileName, response, bytes, BooleanUtils.toBoolean(type));");
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("response.setStatus(404);");
@@ -258,7 +252,7 @@ public class GenerateJavaController {
 
     /**
      * createXXXXXX
-     * */
+     */
     public Method createGenerate() {
         final String methodPrefix = "create";
         StringBuilder sb = new StringBuilder();
@@ -269,22 +263,17 @@ public class GenerateJavaController {
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
         method.addBodyLine("try {");
         sb.setLength(0);
-        sb.append("int rows =  ").append(serviceBeanName).append(".insert(");
-        sb.append(entityFirstLowerShortName).append(");");
+        sb.append("insert(").append(serviceBeanName).append(",")
+                .append(entityFirstLowerShortName)
+                .append(", responseSimple);");
         method.addBodyLine(sb.toString());
-        method.addBodyLine("if (rows < 1) {");
-        method.addBodyLine("responseSimple.setMessage(\"添加记录失败！\");");
-        method.addBodyLine(" } else {");
-        method.addBodyLine("responseSimple.addAttribute(\"rows\", String.valueOf(rows));");
-        method.addBodyLine("responseSimple.setMessage(\"添加成功！\");");
-        method.addBodyLine("}");
         addExceptionAndreturn(method);
         return method;
     }
 
     /**
      * updateXXXXXX
-     * */
+     */
     public Method updateGenerate() {
         final String methodPrefix = "update";
         StringBuilder sb = new StringBuilder();
@@ -307,7 +296,7 @@ public class GenerateJavaController {
 
     /**
      * deleteXXXXXX
-     * */
+     */
     public Method deleteGenerate() {
         final String methodPrefix = "delete";
         StringBuilder sb = new StringBuilder();
@@ -331,7 +320,7 @@ public class GenerateJavaController {
 
     /**
      * deleteBatchXXXXXX
-     * */
+     */
     public Method deleteBatchGenerate() {
         final String methodPrefix = "deleteBatch";
         Method method = createMethod(methodPrefix);
@@ -364,19 +353,6 @@ public class GenerateJavaController {
         return method;
     }
 
-    private void addControllerMapping(Method method, String otherKey, String methodType) {
-        StringBuilder sb = new StringBuilder();
-        String mappingPrefix = JavaBeansUtil.getFirstCharacterUppercase(methodType);
-        sb.append("@").append(mappingPrefix).append("Mapping(value = \"");
-        sb.append(StringUtils.lowerCase(this.serviceBeanName));
-        if (StringUtility.stringHasValue(otherKey)) {
-            sb.append("/" + otherKey + "\")");
-        } else {
-            sb.append("\")");
-        }
-        method.addAnnotation(sb.toString());
-    }
-
     /**
      * 内部方法
      * 生成Controller时添加方法的catch和return语句
@@ -388,5 +364,18 @@ public class GenerateJavaController {
         method.addBodyLine("setExceptionResponse(responseSimple, e);");
         method.addBodyLine("}");
         method.addBodyLine("return responseSimple;");
+    }
+
+    private void addControllerMapping(Method method, String otherKey, String methodType) {
+        StringBuilder sb = new StringBuilder();
+        String mappingPrefix = JavaBeansUtil.getFirstCharacterUppercase(methodType);
+        sb.append("@").append(mappingPrefix).append("Mapping(value = \"");
+        sb.append(this.serviceBeanName);
+        if (StringUtility.stringHasValue(otherKey)) {
+            sb.append("/" + otherKey + "\")");
+        } else {
+            sb.append("\")");
+        }
+        method.addAnnotation(sb.toString());
     }
 }

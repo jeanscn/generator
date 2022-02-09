@@ -201,7 +201,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 conTopClazz.addImportedType("org.apache.commons.lang3.StringUtils");
                 conTopClazz.addImportedType("javax.servlet.http.HttpServletResponse");
                 conTopClazz.addImportedType("org.springframework.util.Assert");
-                conTopClazz.addImportedType("com.vgosoft.core.util.UUID");
+                //conTopClazz.addImportedType("com.vgosoft.core.util.UUID");
                 conTopClazz.addImportedType("org.apache.commons.lang3.BooleanUtils");
             }
             sb.setLength(0);
@@ -257,7 +257,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         conTopClazz.addImportedType("io.swagger.annotations.Api");
         conTopClazz.addImportedType("io.swagger.annotations.ApiOperation");
         conTopClazz.addJavaDocLine("");
-        conTopClazz.addImportedType("java.lang.reflect.Field");
+        conTopClazz.addImportedType("java.util.Objects");
         conTopClazz.addImportedType("java.util.List");
         conTopClazz.addImportedType("org.springframework.web.servlet.ModelAndView");
         conTopClazz.addJavaDocLine("");
