@@ -230,6 +230,7 @@ public class MyBatisGenerator {
         }
         callback.introspectionStarted(totalSteps);
 
+        //处理数据表相关信息到introspectedTable
         for (Context context : contextsToRun) {
             context.introspectTables(callback, warnings,
                     fullyQualifiedTableNames);
