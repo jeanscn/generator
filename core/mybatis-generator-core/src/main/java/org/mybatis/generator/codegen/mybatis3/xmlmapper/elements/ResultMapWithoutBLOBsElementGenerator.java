@@ -15,14 +15,16 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.custom.RelationPropertyHolder;
+import org.mybatis.generator.custom.RelationTypeEnum;
+
+import java.util.List;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class ResultMapWithoutBLOBsElementGenerator extends
         AbstractXmlElementGenerator {
@@ -37,8 +39,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("resultMap"); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("id", //$NON-NLS-1$
-                introspectedTable.getBaseResultMapId()));
+        answer.addAttribute(new Attribute("id",introspectedTable.getBaseResultMapId()));
 
         String returnType;
         if (isSimple) {
@@ -51,8 +52,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
             }
         }
 
-        answer.addAttribute(new Attribute("type", //$NON-NLS-1$
-                returnType));
+        answer.addAttribute(new Attribute("type",returnType));
 
         context.getCommentGenerator().addComment(answer);
 
@@ -65,6 +65,40 @@ public class ResultMapWithoutBLOBsElementGenerator extends
         if (context.getPlugins().sqlMapResultMapWithoutBLOBsElementGenerated(
                 answer, introspectedTable)) {
             parentElement.addElement(answer);
+        }
+
+        //根据属性生成联查的ResultMap
+        if (introspectedTable.getRelationProperties().size()>0) {
+            XmlElement resultMapWithRelation = new XmlElement("resultMap"); //$NON-NLS-1$
+            resultMapWithRelation.addAttribute(new Attribute("id",introspectedTable.getRelationResultMapId()));
+            resultMapWithRelation.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+            resultMapWithRelation.addAttribute(new Attribute("type",returnType));
+            context.getCommentGenerator().addComment(resultMapWithRelation);
+            for (RelationPropertyHolder relationProperty : introspectedTable.getRelationProperties()) {
+                XmlElement relationElement;
+                if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
+                    relationElement = new XmlElement("collection");
+                    if (relationProperty.getJavaType() != null) {
+                        relationElement.addAttribute(new Attribute("javaType",relationProperty.getJavaType()));
+                    }else{
+                        relationElement.addAttribute(new Attribute("javaType","ArrayList"));
+                    }
+                    relationElement.addAttribute(new Attribute("ofType",relationProperty.getModelTye()));
+                }else{
+                    relationElement = new XmlElement("association");
+                }
+                relationElement.addAttribute(new Attribute("property", relationProperty.getPropertyName()));
+                relationElement.addAttribute(new Attribute("select", relationProperty.getSelect()));
+                StringBuilder sb = new StringBuilder();
+                String alias = introspectedTable.getTableConfiguration().getAlias();
+                if (alias != null) {
+                    sb.append(alias).append("_");
+                }
+                sb.append(relationProperty.getColumn());
+                relationElement.addAttribute(new Attribute("column",sb.toString()));
+                resultMapWithRelation.addElement(relationElement);
+            }
+            parentElement.addElement(resultMapWithRelation);
         }
     }
 
@@ -159,7 +193,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
 
         answer.addElement(constructor);
     }
-    
+
     private Attribute generateColumnAttribute(IntrospectedColumn introspectedColumn) {
         return new Attribute("column", //$NON-NLS-1$
                 MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(introspectedColumn));

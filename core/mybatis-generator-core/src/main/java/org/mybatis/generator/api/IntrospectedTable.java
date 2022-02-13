@@ -17,6 +17,7 @@ package org.mybatis.generator.api;
 
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.RelationPropertyHolder;
 import org.mybatis.generator.internal.rules.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -85,9 +86,13 @@ public abstract class IntrospectedTable {
         ATTR_HTML_TARGET_PROJECT,
         ATTR_HTML_THYMELEAF_PACKAGE,
         ATTR_HTML_THYMELEAF_FILE_NAME,
-        /*CONTROLLE相关*/
+        /*CONTROLLER相关*/
         ATTR_CONTROL_BASE_REQUEST_MAPPING,
-        ATTR_CONTROL_BEAN_NAME
+        ATTR_CONTROL_BEAN_NAME,
+
+        ATTR_RELATION_RESULT_MAP_ID,
+        ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID
+
     }
 
     protected TableConfiguration tableConfiguration;
@@ -100,9 +105,13 @@ public abstract class IntrospectedTable {
 
     protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
 
+    protected List<IntrospectedColumn> foreignKeyColumns = new ArrayList<>();
+
     protected List<IntrospectedColumn> baseColumns = new ArrayList<>();
 
     protected List<IntrospectedColumn> blobColumns = new ArrayList<>();
+
+    protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
 
     protected TargetRuntime targetRuntime;
 
@@ -145,6 +154,10 @@ public abstract class IntrospectedTable {
 
     public GeneratedKey getGeneratedKey() {
         return tableConfiguration.getGeneratedKey();
+    }
+
+    public List<IntrospectedColumn> getForeignKeyColumns() {
+        return foreignKeyColumns;
     }
 
     public Optional<IntrospectedColumn> getColumn(String columnName) {
@@ -336,6 +349,18 @@ public abstract class IntrospectedTable {
         introspectedColumn.setIntrospectedTable(this);
     }
 
+    public void addForeignKeyColumn(String columnName) {
+        Iterator<IntrospectedColumn> iter = baseColumns.iterator();
+        while (iter.hasNext()) {
+            IntrospectedColumn introspectedColumn = iter.next();
+            if (introspectedColumn.getActualColumnName().equals(columnName)) {
+                foreignKeyColumns.add(introspectedColumn);
+                iter.remove();
+                break;
+            }
+        }
+    }
+
     public void addPrimaryKeyColumn(String columnName) {
         boolean found = false;
         // first search base columns
@@ -472,6 +497,7 @@ public abstract class IntrospectedTable {
         setInsertSelectiveStatementId("insertSelective"); //$NON-NLS-1$
         setSelectAllStatementId("selectAll"); //$NON-NLS-1$
         setSelectByExampleStatementId("selectByExample"); //$NON-NLS-1$
+        setSelectByExampleWithRelationStatementId("selectByExampleWithRelation");
         setSelectByExampleWithBLOBsStatementId("selectByExampleWithBLOBs"); //$NON-NLS-1$
         setSelectByPrimaryKeyStatementId("selectByPrimaryKey"); //$NON-NLS-1$
         setUpdateByExampleStatementId("updateByExample"); //$NON-NLS-1$
@@ -481,6 +507,7 @@ public abstract class IntrospectedTable {
         setUpdateByPrimaryKeySelectiveStatementId("updateByPrimaryKeySelective"); //$NON-NLS-1$
         setUpdateByPrimaryKeyWithBLOBsStatementId("updateByPrimaryKeyWithBLOBs"); //$NON-NLS-1$
         setBaseResultMapId("BaseResultMap"); //$NON-NLS-1$
+        setRelationResultMapId("ResultMapRelation");
         setResultMapWithBLOBsId("ResultMapWithBLOBs"); //$NON-NLS-1$
         setExampleWhereClauseId("Example_Where_Clause"); //$NON-NLS-1$
         setBaseColumnListId("Base_Column_List"); //$NON-NLS-1$
@@ -514,6 +541,10 @@ public abstract class IntrospectedTable {
 
     public void setBaseResultMapId(String s) {
         internalAttributes.put(InternalAttribute.ATTR_BASE_RESULT_MAP_ID, s);
+    }
+
+    public void setRelationResultMapId(String s){
+        internalAttributes.put(InternalAttribute.ATTR_RELATION_RESULT_MAP_ID,s);
     }
 
     public void setUpdateByPrimaryKeyWithBLOBsStatementId(String s) {
@@ -572,6 +603,10 @@ public abstract class IntrospectedTable {
     public void setSelectByExampleStatementId(String s) {
         internalAttributes.put(
                 InternalAttribute.ATTR_SELECT_BY_EXAMPLE_STATEMENT_ID, s);
+    }
+
+    public void setSelectByExampleWithRelationStatementId(String s){
+        internalAttributes.put(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID, s);
     }
 
     public void setInsertSelectiveStatementId(String s) {
@@ -638,6 +673,10 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_BASE_RESULT_MAP_ID);
     }
 
+    public String getRelationResultMapId(){
+        return internalAttributes.get(InternalAttribute.ATTR_RELATION_RESULT_MAP_ID);
+    }
+
     public String getUpdateByPrimaryKeyWithBLOBsStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);
@@ -686,6 +725,10 @@ public abstract class IntrospectedTable {
     public String getSelectByExampleStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_STATEMENT_ID);
+    }
+
+    public String getSelectByExampleWithRelationStatementId(){
+        return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID);
     }
 
     public String getInsertSelectiveStatementId() {
@@ -1182,6 +1225,14 @@ public abstract class IntrospectedTable {
 
     public void setTableType(String tableType) {
         this.tableType = tableType;
+    }
+
+    public List<RelationPropertyHolder> getRelationProperties() {
+        return relationProperties;
+    }
+
+    public void setRelationProperties(List<RelationPropertyHolder> relationProperties) {
+        this.relationProperties = relationProperties;
     }
 
     /**

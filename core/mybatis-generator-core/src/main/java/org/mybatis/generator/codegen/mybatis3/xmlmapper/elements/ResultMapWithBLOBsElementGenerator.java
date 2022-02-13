@@ -15,12 +15,12 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class ResultMapWithBLOBsElementGenerator extends
         AbstractXmlElementGenerator {
@@ -49,8 +49,11 @@ public class ResultMapWithBLOBsElementGenerator extends
                 returnType));
 
         if (!introspectedTable.isConstructorBased()) {
-            answer.addAttribute(new Attribute("extends", //$NON-NLS-1$
-                    introspectedTable.getBaseResultMapId()));
+            if (introspectedTable.getRelationProperties().size()>0) {
+                answer.addAttribute(new Attribute("extends",introspectedTable.getRelationResultMapId()));
+            }else{
+                answer.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+            }
         }
 
         context.getCommentGenerator().addComment(answer);
@@ -91,7 +94,7 @@ public class ResultMapWithBLOBsElementGenerator extends
 
     private void addResultMapConstructorElements(XmlElement answer) {
         XmlElement constructor = new XmlElement("constructor"); //$NON-NLS-1$
-        
+
         for (IntrospectedColumn introspectedColumn : introspectedTable
                 .getPrimaryKeyColumns()) {
             XmlElement resultElement = new XmlElement("idArg"); //$NON-NLS-1$
@@ -110,7 +113,7 @@ public class ResultMapWithBLOBsElementGenerator extends
 
             constructor.addElement(resultElement);
         }
-        
+
         for (IntrospectedColumn introspectedColumn : introspectedTable
                 .getNonPrimaryKeyColumns()) {
             XmlElement resultElement = new XmlElement("arg"); //$NON-NLS-1$
@@ -136,7 +139,7 @@ public class ResultMapWithBLOBsElementGenerator extends
                 resultElement.addAttribute(new Attribute("javaType", //$NON-NLS-1$
                         introspectedColumn.getFullyQualifiedJavaType().getFullyQualifiedName()));
             }
-            
+
             if (stringHasValue(introspectedColumn
                     .getTypeHandler())) {
                 resultElement.addAttribute(new Attribute(

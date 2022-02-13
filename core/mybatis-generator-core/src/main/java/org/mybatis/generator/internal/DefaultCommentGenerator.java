@@ -15,7 +15,18 @@
  */
 package org.mybatis.generator.internal;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import org.mybatis.generator.api.CommentGenerator;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.MyBatisGenerator;
+import org.mybatis.generator.api.dom.html.HtmlElement;
+import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.kotlin.KotlinFile;
+import org.mybatis.generator.api.dom.xml.TextElement;
+import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.config.MergeConstants;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
@@ -24,26 +35,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
-import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.MyBatisGenerator;
-import org.mybatis.generator.api.dom.html.HtmlElement;
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.InnerClass;
-import org.mybatis.generator.api.dom.java.InnerEnum;
-import org.mybatis.generator.api.dom.java.JavaElement;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.api.dom.kotlin.KotlinFile;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.config.MergeConstants;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.internal.util.StringUtility;
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 
 public class DefaultCommentGenerator implements CommentGenerator {
 
@@ -159,7 +151,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
      * Returns a formated date string to include in the Javadoc tag and XML
      * comments. You may return null if you do not want the date in these
      * documentation elements.
-     * 
+     *
      * @return a string representing the current timestamp, or null
      */
     protected String getDateString() {
@@ -455,6 +447,30 @@ public class DefaultCommentGenerator implements CommentGenerator {
         imports.add(new FullyQualifiedJavaType("javax.annotation.Generated")); //$NON-NLS-1$
         String comment = "Source Table: " + introspectedTable.getFullyQualifiedTable().toString(); //$NON-NLS-1$
         innerClass.addAnnotation(getGeneratedAnnotation(comment));
+    }
+
+    /**
+     * 添加注释
+     * @param method 要添加注释的方法
+     * @param comments 要添加的注释
+     * @param singleLine 注释方式（false-多行javaDoc方式，true-单行双斜杠）
+     */
+    @Override
+    public void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){
+        if (comments.length == 0) {
+            return;
+        }
+        if (singleLine) {
+            for (String comment : comments) {
+                method.addJavaDocLine("// " + comment);
+            }
+        }else{
+            method.addJavaDocLine("/** ");
+            for (String comment : comments) {
+                method.addJavaDocLine("* " + comment);
+            }
+            method.addJavaDocLine("*/ ");
+        }
     }
 
     private String getGeneratedAnnotation(String comment) {

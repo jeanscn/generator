@@ -15,34 +15,26 @@
  */
 package org.mybatis.generator.runtime.dynamic.sql;
 
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFieldWithGeneratedAnnotation;
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansGetterWithGeneratedAnnotation;
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansSetterWithGeneratedAnnotation;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * This model generator builds a flat model with default constructor and getters/setters.
  * It does not support the immutable model, or constructor based attributes.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public class DynamicSqlModelGenerator extends AbstractJavaGenerator {
 
@@ -77,7 +69,7 @@ public class DynamicSqlModelGenerator extends AbstractJavaGenerator {
             addParameterizedConstructor(topLevelClass);
 
             if (!introspectedTable.isImmutable()) {
-                addDefaultConstructorWithGeneratedAnnotatoin(topLevelClass);
+                addDefaultConstructorWithGeneratedAnnotation(topLevelClass);
             }
         }
 
@@ -90,7 +82,7 @@ public class DynamicSqlModelGenerator extends AbstractJavaGenerator {
 
             Field field = getJavaBeansFieldWithGeneratedAnnotation(introspectedColumn, context, introspectedTable,
                     topLevelClass);
-            
+
             if (plugins.modelFieldGenerated(field, topLevelClass,
                     introspectedColumn, introspectedTable,
                     Plugin.ModelClassType.BASE_RECORD)) {

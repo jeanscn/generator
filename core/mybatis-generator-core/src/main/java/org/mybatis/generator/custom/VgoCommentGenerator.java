@@ -193,13 +193,14 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
      * 添加注释
      * @param method 要添加注释的方法
      * @param comments 要添加的注释
-     * @param type 注释方式（false-多行javaDoc方式，true-单行双斜杠）
+     * @param singleLine 注释方式（false-多行javaDoc方式，true-单行双斜杠）
      */
-    private void addMethodJavaDocLine(Method method,boolean type,String...comments){
+    @Override
+    public void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){
         if (comments.length == 0) {
             return;
         }
-        if (type) {
+        if (singleLine) {
             for (String comment : comments) {
                 method.addJavaDocLine("// " + comment);
             }

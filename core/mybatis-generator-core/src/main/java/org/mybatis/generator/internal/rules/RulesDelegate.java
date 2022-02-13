@@ -185,6 +185,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean generateRelationMap() {
+        return false;
+    }
+
+    @Override
     public boolean generateBaseColumnList() {
         return rules.generateBaseColumnList();
     }

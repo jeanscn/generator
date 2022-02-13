@@ -15,9 +15,13 @@
  */
 package org.mybatis.generator.config.xml;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
+import org.mybatis.generator.config.*;
+import org.mybatis.generator.exception.XMLParserException;
+import org.mybatis.generator.internal.ObjectFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,36 +31,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.mybatis.generator.config.ColumnOverride;
-import org.mybatis.generator.config.ColumnRenamingRule;
-import org.mybatis.generator.config.CommentGeneratorConfiguration;
-import org.mybatis.generator.config.Configuration;
-import org.mybatis.generator.config.ConnectionFactoryConfiguration;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.DomainObjectRenamingRule;
-import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.IgnoredColumn;
-import org.mybatis.generator.config.IgnoredColumnException;
-import org.mybatis.generator.config.IgnoredColumnPattern;
-import org.mybatis.generator.config.JDBCConnectionConfiguration;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.JavaTypeResolverConfiguration;
-import org.mybatis.generator.config.ModelType;
-import org.mybatis.generator.config.PluginConfiguration;
-import org.mybatis.generator.config.PropertyHolder;
-import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
-import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.exception.XMLParserException;
-import org.mybatis.generator.internal.ObjectFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * This class parses configuration files into the new Configuration API.
- * 
+ *
  * @author Jeff Butler
  */
 public class MyBatisGeneratorConfigurationParser {
@@ -326,6 +307,7 @@ public class MyBatisGeneratorConfigurationParser {
             tc.setConfiguredModelType(modelType);
         }
 
+        //避免通配符，设置为true可以帮助抵御SQL注入
         String escapeWildcards = attributes.getProperty("escapeWildcards"); //$NON-NLS-1$
         if (stringHasValue(escapeWildcards)) {
             tc.setWildcardEscapingEnabled(isTrue(escapeWildcards));
@@ -703,14 +685,14 @@ public class MyBatisGeneratorConfigurationParser {
         int currentIndex = 0;
 
         List<String> answer = new ArrayList<>();
-        
+
         int markerStartIndex = s.indexOf(OPEN);
         if (markerStartIndex < 0) {
             // no parameter markers
             answer.add(s);
             currentIndex = s.length();
         }
-        
+
         while (markerStartIndex > -1) {
             if (markerStartIndex > currentIndex) {
                 // add the characters before the next parameter marker
@@ -741,18 +723,18 @@ public class MyBatisGeneratorConfigurationParser {
             } else {
                 answer.add(propertyValue);
             }
-            
+
             currentIndex = markerEndIndex + CLOSE.length();
             markerStartIndex = s.indexOf(OPEN, currentIndex);
         }
-        
+
         if (currentIndex < s.length()) {
             answer.add(s.substring(currentIndex));
         }
-        
+
         return answer.stream().collect(Collectors.joining());
     }
-    
+
     protected void parseCommentGenerator(Context context, Node node) {
         CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
 
@@ -809,10 +791,10 @@ public class MyBatisGeneratorConfigurationParser {
      * This method resolve a property from one of the three sources: system properties,
      * properties loaded from the &lt;properties&gt; configuration element, and
      * "extra" properties that may be supplied by the Maven or Ant environments.
-     * 
+     *
      * <p>If there is a name collision, system properties take precedence, followed by
      * configuration properties, followed by extra properties.
-     * 
+     *
      * @param key property key
      * @return the resolved property.  This method will return null if the property is
      *     undefined in any of the sources.

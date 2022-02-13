@@ -31,6 +31,7 @@ import org.mybatis.generator.codegen.mybatis3.model.PrimaryKeyGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.RecordWithBLOBsGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.RelationPropertyHolder;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -51,6 +52,8 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     protected AbstractXmlGenerator xmlMapperGenerator;
 
     protected AbstractHtmlGenerator htmlMapperGenerator;
+
+    protected List<RelationPropertyHolder> relationPropertyHolders;
 
     public IntrospectedTableMyBatis3Impl() {
         super(TargetRuntime.MYBATIS3);

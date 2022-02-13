@@ -434,4 +434,12 @@ public class JavaBeansUtil {
         }
         return false;
     }
+
+    public static String byColumnMethodName(IntrospectedColumn column){
+        String javaProperty = column.getJavaProperty();
+        StringBuilder sb = new StringBuilder();
+        sb.append("selectByColumn");
+        sb.append(getFirstCharacterUppercase(javaProperty));
+        return sb.toString();
+    }
 }

@@ -64,7 +64,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         topLevelClass.addMethod(getDefaultConstructor(topLevelClass));
     }
 
-    protected void addDefaultConstructorWithGeneratedAnnotatoin(TopLevelClass topLevelClass) {
+    protected void addDefaultConstructorWithGeneratedAnnotation(TopLevelClass topLevelClass) {
         topLevelClass.addMethod(getDefaultConstructorWithGeneratedAnnotation(topLevelClass));
     }
 

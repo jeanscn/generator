@@ -207,7 +207,7 @@ public class ConfigurationParser {
             JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = Optional.ofNullable(context.getJavaModelGeneratorConfiguration())
                     .orElseGet(JavaModelGeneratorConfiguration::new);
             javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
-            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "true");
+            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "false");
             String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
             javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
             context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);

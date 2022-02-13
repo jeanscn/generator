@@ -24,6 +24,8 @@ import org.mybatis.generator.config.PropertyScope;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.Properties;
+
 /**
  * This class centralizes all the rules related to code generation - including
  * the methods and objects to create, and certain attributes related to those
@@ -52,7 +54,6 @@ public abstract class BaseRules implements Rules {
     protected final boolean isNoSwaggerAnnotation;
 
     protected final boolean isNoServiceAnnotation;
-
 
     public BaseRules(IntrospectedTable introspectedTable) {
         super();
@@ -508,5 +509,19 @@ public abstract class BaseRules implements Rules {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean generateRelationMap(){
+        Properties properties = tableConfiguration.getProperties();
+        String javaModelAssociationProperties = properties.getProperty("javaModelAssociationProperties");
+        if (!javaModelAssociationProperties.isEmpty()) {
+            return true;
+        }
+        String javaModelCollectionProperties = properties.getProperty("javaModelCollectionProperties");
+        if (!javaModelCollectionProperties.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 }

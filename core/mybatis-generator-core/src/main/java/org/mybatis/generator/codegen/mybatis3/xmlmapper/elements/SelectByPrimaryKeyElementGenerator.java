@@ -32,16 +32,16 @@ public class SelectByPrimaryKeyElementGenerator extends
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("select"); //$NON-NLS-1$
-
-        answer.addAttribute(new Attribute(
-                "id", introspectedTable.getSelectByPrimaryKeyStatementId())); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("select");
+        answer.addAttribute(new Attribute("id", introspectedTable.getSelectByPrimaryKeyStatementId()));
         if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-            answer.addAttribute(new Attribute("resultMap", //$NON-NLS-1$
-                    introspectedTable.getResultMapWithBLOBsId()));
+            answer.addAttribute(new Attribute("resultMap",introspectedTable.getResultMapWithBLOBsId()));
         } else {
-            answer.addAttribute(new Attribute("resultMap", //$NON-NLS-1$
-                    introspectedTable.getBaseResultMapId()));
+            if (introspectedTable.getRelationProperties().size()>0) {
+                answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
+            }else{
+                answer.addAttribute(new Attribute("resultMap",introspectedTable.getBaseResultMapId()));
+            }
         }
 
         String parameterType;

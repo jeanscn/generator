@@ -22,8 +22,11 @@ import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.RelationPropertyHolder;
+import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
 
@@ -31,6 +34,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -58,8 +62,30 @@ public class DatabaseIntrospector {
         logger = LogFactory.getLog(getClass());
     }
 
-    private void calculatePrimaryKey(FullyQualifiedTable table,
-                                     IntrospectedTable introspectedTable) {
+    private void calculateRelationProperty(IntrospectedTable introspectedTable){
+        String javaModelAssociationProperties = introspectedTable.getConfigPropertyValue("javaModelAssociationProperties", PropertyScope.table);
+        if (StringUtility.stringHasValue(javaModelAssociationProperties)) {
+            List<RelationPropertyHolder> relationProperty = introspectedTable.getTableConfiguration().getRelationProperty(javaModelAssociationProperties, RelationTypeEnum.association);
+            introspectedTable.getRelationProperties().addAll(relationProperty);
+        }
+        String javaModelCollectionProperties = introspectedTable.getConfigPropertyValue("javaModelCollectionProperties", PropertyScope.table);
+        if (StringUtility.stringHasValue(javaModelCollectionProperties)) {
+            List<RelationPropertyHolder> relationProperty = introspectedTable.getTableConfiguration().getRelationProperty(javaModelCollectionProperties, RelationTypeEnum.collection);
+            introspectedTable.getRelationProperties().addAll(relationProperty);
+        }
+    }
+
+    private void calculateForeignKey(FullyQualifiedTable table,IntrospectedTable introspectedTable){
+        //通过table属性配置获得，非物理表外键
+        String foreignKeyColumnProperty = introspectedTable.getConfigPropertyValue("foreignKeyColumn", PropertyScope.table);
+        if (StringUtility.stringHasValue(foreignKeyColumnProperty)) {
+            String[] split = foreignKeyColumnProperty.split(",");
+            List<String> collect = Arrays.stream(split).collect(Collectors.toList());
+            Arrays.stream(split).forEach(introspectedTable::addForeignKeyColumn);
+        }
+    }
+
+    private void calculatePrimaryKey(FullyQualifiedTable table,IntrospectedTable introspectedTable) {
         ResultSet rs = null;
 
         try {
@@ -177,6 +203,7 @@ public class DatabaseIntrospector {
 
         // now introspectedTables has all the columns from all the
         // tables in the configuration. Do some validation...
+        // introspectedTables配置中所有表中的所有列。做一些验证
 
         Iterator<IntrospectedTable> iter = introspectedTables.iterator();
         while (iter.hasNext()) {
@@ -627,7 +654,11 @@ public class DatabaseIntrospector {
 
             calculatePrimaryKey(table, introspectedTable);
 
+            calculateForeignKey(table, introspectedTable);
+
             enhanceIntrospectedTable(introspectedTable);
+
+            calculateRelationProperty(introspectedTable);
 
             //针对Sql Server更新remark
             try {
@@ -646,9 +677,10 @@ public class DatabaseIntrospector {
         Connection connection = this.databaseMetaData.getConnection();
         if (context.isSqlServe()) {
             ResultSet sqlServerResultSet = null;
-            String sql = "SELECT b.value from sysobjects a\n" +
+            /*String sql = "SELECT b.value from sysobjects a\n" +
                     "left join sys.extended_properties b on a.id=b.major_id and b.minor_id=0\n" +
-                    "WHERE a.name = ? ";
+                    "WHERE a.name = ? ";*/
+            String sql = "";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, introspectedTable.getTableConfiguration().getTableName());
             sqlServerResultSet = ps.executeQuery();
