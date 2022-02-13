@@ -18,9 +18,18 @@ public class RelationPropertyHolder extends PropertyHolder {
 
     private String javaType;
 
+    private String columnRemark;
 
 
     public RelationPropertyHolder() {
+    }
+
+    public String getColumnRemark() {
+        return columnRemark;
+    }
+
+    public void setColumnRemark(String columnRemark) {
+        this.columnRemark = columnRemark;
     }
 
     public String getJavaType() {

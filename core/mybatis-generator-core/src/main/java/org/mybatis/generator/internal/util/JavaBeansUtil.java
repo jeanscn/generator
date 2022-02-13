@@ -442,4 +442,11 @@ public class JavaBeansUtil {
         sb.append(getFirstCharacterUppercase(javaProperty));
         return sb.toString();
     }
+
+    public static void addAnnotation(AbstractJavaType javaType,String annotation){
+        long count = javaType.getAnnotations().stream().filter(t->t.equals(annotation)).count();
+        if (count==0) {
+            javaType.addAnnotation(annotation);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
@@ -128,13 +129,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     listType.addTypeArgument(entityType);
                     method.setReturnType(listType);
                     method.setAbstract(true);
-                    context.getCommentGenerator().addMethodJavaDocLine(method,false,"提示 - @mbg.generated","这个抽象方法通过Mybatis Generator自动生成");
+                    context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated", "这个抽象方法通过Mybatis Generator自动生成");
                     bizINF.addMethod(method);
                     bizINF.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                 }
                 if (introspectedTable.getForeignKeyColumns().size() > 0) {
                     for (IntrospectedColumn foreignKeyColumn : introspectedTable.getForeignKeyColumns()) {
-                        addAbstractMethod(bizINF, entityType, JavaBeansUtil.byColumnMethodName(foreignKeyColumn), foreignKeyColumn.getFullyQualifiedJavaType(), foreignKeyColumn.getJavaProperty());
+                        addAbstractMethodByColumn(bizINF, entityType, foreignKeyColumn);
                     }
                 }
                 GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(bizINF, targetProject,
@@ -167,7 +168,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     listType.addTypeArgument(entityType);
                     method.setReturnType(listType);
                     method.setVisibility(JavaVisibility.PUBLIC);
-                    context.getCommentGenerator().addMethodJavaDocLine(method,false,"提示 - @mbg.generated","这个实现方法通过Mybatis Generator自动生成");
+                    context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated", "这个实现方法通过Mybatis Generator自动生成");
                     sb.setLength(0);
                     sb.append("return mapper.");
                     sb.append(introspectedTable.getSelectByExampleWithRelationStatementId());
@@ -192,7 +193,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                         listType.addTypeArgument(entityType);
                         method.setReturnType(listType);
                         method.setVisibility(JavaVisibility.PUBLIC);
-                        context.getCommentGenerator().addMethodJavaDocLine(method,false,"提示 - @mbg.generated","这个实现方法通过Mybatis Generator自动生成");
+                        context.getCommentGenerator().addMethodJavaDocLine(method,false,"提示 - @mbg.generated",
+                                "这个抽象方法通过Mybatis Generator自动生成",
+                                VStringUtil.format("@param {0} {1}",foreignKeyColumn.getJavaProperty(),foreignKeyColumn.getRemarks()));
                         long mapper1 = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
                         if (mapper1 == 0) {
                             Field mapperProperty = getMapperProperty(introspectedTable);
@@ -353,26 +356,18 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         /*调整引入*/
-        FullyQualifiedJavaType mapperAnnotation = new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper");
         interFace.getImportedTypes().clear();
-        interFace.addImportedType(mapperAnnotation);
+        interFace.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         interFace.addImportedType(entityType);
         interFace.addImportedType(exampleType);
+
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
         infSuperType.addTypeArgument(exampleType);
         interFace.addImportedType(infSuperType);
         interFace.addSuperInterface(infSuperType);
-        boolean isExist = false;
-        for (String annotation : interFace.getAnnotations()) {
-            if (annotation.equalsIgnoreCase("@Mapper")) {
-                isExist = true;
-                break;
-            }
-        }
-        if (!isExist) {
-            interFace.addAnnotation("@Mapper");
-        }
+        JavaBeansUtil.addAnnotation(interFace, "@Mapper");
+
         interFace.getMethods().clear();
         //增加relation方法
         if (introspectedTable.getRelationProperties().size() > 0) {
@@ -381,10 +376,25 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         //增加by外键
         if (introspectedTable.getForeignKeyColumns().size() > 0) {
             for (IntrospectedColumn foreignKeyColumn : introspectedTable.getForeignKeyColumns()) {
-                addAbstractMethod(interFace, entityType, JavaBeansUtil.byColumnMethodName(foreignKeyColumn), foreignKeyColumn.getFullyQualifiedJavaType(), foreignKeyColumn.getJavaProperty());
+                addAbstractMethodByColumn(interFace, entityType, foreignKeyColumn);
             }
         }
         return true;
+    }
+
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn foreignKeyColumn) {
+        Method method = new Method(JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
+        method.setAbstract(true);
+        method.addParameter(new Parameter(foreignKeyColumn.getFullyQualifiedJavaType(), foreignKeyColumn.getJavaProperty()));
+        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+        listType.addTypeArgument(entityType);
+        method.setReturnType(listType);
+        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
+                "这个抽象方法通过Mybatis Generator自动生成",
+                VStringUtil.format("@param {0} {1}", foreignKeyColumn.getJavaProperty(), foreignKeyColumn.getRemarks()));
+        interFace.addMethod(method);
+        interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+        interFace.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
     }
 
     private void addAbstractMethod(Interface interFace, FullyQualifiedJavaType entityType, String s, FullyQualifiedJavaType fullyQualifiedJavaType, String javaProperty) {
@@ -394,7 +404,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(entityType);
         method.setReturnType(listType);
-        context.getCommentGenerator().addMethodJavaDocLine(method,false,"提示 - @mbg.generated","这个抽象方法通过Mybatis Generator自动生成");
+        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
+                "这个抽象方法通过Mybatis Generator自动生成");
         interFace.addMethod(method);
         interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         interFace.addImportedType(fullyQualifiedJavaType);
@@ -411,7 +422,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         topLevelClass.addImportedType(new FullyQualifiedJavaType(columnMeta));
         topLevelClass.addImportedType(new FullyQualifiedJavaType(repositoryAnnotation));
         //添加@Repository注解
-        topLevelClass.addAnnotation("@Repository");
+        JavaBeansUtil.addAnnotation(topLevelClass, "@Repository");
 
         // 添加@ApiModel、@ApiModelProperty
         boolean isNoSwaggerAnnotation = introspectedTable.getRules().isNoSwaggerAnnotation();
@@ -514,8 +525,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 } else {
                     propertyName = javaModelName + "s";
                 }
-                returnType = new FullyQualifiedJavaType("java.util.List<" + addPropertyType.getShortName() + ">");
-                topLevelClass.addImportedType("java.util.List");
+                returnType = FullyQualifiedJavaType.getNewListInstance();
+                topLevelClass.addImportedType(returnType);
+                returnType.addTypeArgument(addPropertyType);
             } else {
                 returnType = addPropertyType;
                 if (StringUtils.isNotEmpty(pName)) {
