@@ -1,5 +1,5 @@
-package org.mybatis.generator.maven;
 
+package org.mybatis.generator.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

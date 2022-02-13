@@ -34,7 +34,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -80,7 +79,6 @@ public class DatabaseIntrospector {
         String foreignKeyColumnProperty = introspectedTable.getConfigPropertyValue("foreignKeyColumn", PropertyScope.table);
         if (StringUtility.stringHasValue(foreignKeyColumnProperty)) {
             String[] split = foreignKeyColumnProperty.split(",");
-            List<String> collect = Arrays.stream(split).collect(Collectors.toList());
             Arrays.stream(split).forEach(introspectedTable::addForeignKeyColumn);
         }
     }

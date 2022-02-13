@@ -355,7 +355,6 @@ public abstract class IntrospectedTable {
             IntrospectedColumn introspectedColumn = iter.next();
             if (introspectedColumn.getActualColumnName().equals(columnName)) {
                 foreignKeyColumns.add(introspectedColumn);
-                iter.remove();
                 break;
             }
         }
