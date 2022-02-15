@@ -64,6 +64,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addUpdateByPrimaryKeySelectiveElement(answer);
         addUpdateByPrimaryKeyWithBLOBsElement(answer);
         addUpdateByPrimaryKeyWithoutBLOBsElement(answer);
+        addSelectTreeByParentIdElement(answer);
 
         return answer;
     }
@@ -148,6 +149,14 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
 
+    }
+
+    protected void addSelectTreeByParentIdElement(XmlElement parentElement) {
+        if (!introspectedTable.getCustomAddtionalSelectMethods().isEmpty() &&
+        introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
+            AbstractXmlElementGenerator elementGenerator = new SelectTreeByParentIdElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     protected void addDeleteByExampleElement(XmlElement parentElement) {

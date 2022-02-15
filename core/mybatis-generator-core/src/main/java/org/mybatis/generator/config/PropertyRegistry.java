@@ -66,6 +66,7 @@ public class PropertyRegistry {
     public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY_TYPE = "javaModelAdditionPropertyType";
     public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY_NAME = "javaModelAdditionPropertyName";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
+    public static final String TABLE_GENERATE_CUSTOM_METHODS = "generateCustomMethods";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$

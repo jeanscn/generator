@@ -123,21 +123,25 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 bizINF.addSuperInterface(infSuperType);
                 //增加selectByExampleWithRelation接口方法
                 if (introspectedTable.getRelationProperties().size() > 0) {
-                    Method method = new Method(introspectedTable.getSelectByExampleWithRelationStatementId());
-                    method.addParameter(new Parameter(exampleType, "example"));
-                    FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-                    listType.addTypeArgument(entityType);
-                    method.setReturnType(listType);
-                    method.setAbstract(true);
-                    context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated", "这个抽象方法通过Mybatis Generator自动生成");
-                    bizINF.addMethod(method);
+                    Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
+                            exampleType, "example", true, "查询条件example对象");
+                    bizINF.addMethod(example);
                     bizINF.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                 }
+
+                //增加selectTreeByParentId
+                if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
+                        && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
+                    CustomMethodProperties customMethodProperties = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+                    addAbstractMethodByColumn(bizINF, entityType, customMethodProperties.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
+                }
+
                 if (introspectedTable.getForeignKeyColumns().size() > 0) {
                     for (IntrospectedColumn foreignKeyColumn : introspectedTable.getForeignKeyColumns()) {
                         addAbstractMethodByColumn(bizINF, entityType, foreignKeyColumn);
                     }
                 }
+
                 GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(bizINF, targetProject,
                         context.getProperty("javaFileEncoding"), context.getJavaFormatter());
                 list.add(generatedJavaFile);
@@ -161,60 +165,57 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
                 //增加selectByExampleWithRelation接口实现方法
                 if (introspectedTable.getRelationProperties().size() > 0) {
-                    Method method = new Method(introspectedTable.getSelectByExampleWithRelationStatementId());
-                    method.addAnnotation("@Override");
-                    method.addParameter(new Parameter(exampleType, "example"));
-                    FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-                    listType.addTypeArgument(entityType);
-                    method.setReturnType(listType);
-                    method.setVisibility(JavaVisibility.PUBLIC);
-                    context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated", "这个实现方法通过Mybatis Generator自动生成");
+                    Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(),
+                            entityType, exampleType, "example", false, "查询条件example对象");
+                    example.addAnnotation("@Override");
                     sb.setLength(0);
                     sb.append("return mapper.");
                     sb.append(introspectedTable.getSelectByExampleWithRelationStatementId());
                     sb.append("(example);");
-                    method.addBodyLine(sb.toString());
-                    bizClazzImpl.addMethod(method);
+                    example.addBodyLine(sb.toString());
+                    bizClazzImpl.addMethod(example);
                     bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    long mapper1 = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
-                    if (mapper1 == 0) {
-                        Field mapperProperty = getMapperProperty(introspectedTable);
-                        bizClazzImpl.addField(mapperProperty);
-                        bizClazzImpl.addImportedType(mapperProperty.getType());
-                    }
+                    addJavaMapper(introspectedTable, bizClazzImpl);
 
                 }
                 if (introspectedTable.getForeignKeyColumns().size() > 0) {
                     for (IntrospectedColumn foreignKeyColumn : introspectedTable.getForeignKeyColumns()) {
-                        Method method = new Method(JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
-                        method.addAnnotation("@Override");
-                        method.addParameter(new Parameter(foreignKeyColumn.getFullyQualifiedJavaType(), foreignKeyColumn.getJavaProperty()));
-                        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-                        listType.addTypeArgument(entityType);
-                        method.setReturnType(listType);
-                        method.setVisibility(JavaVisibility.PUBLIC);
-                        context.getCommentGenerator().addMethodJavaDocLine(method,false,"提示 - @mbg.generated",
-                                "这个抽象方法通过Mybatis Generator自动生成",
-                                VStringUtil.format("@param {0} {1}",foreignKeyColumn.getJavaProperty(),foreignKeyColumn.getRemarks()));
-                        long mapper1 = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
-                        if (mapper1 == 0) {
-                            Field mapperProperty = getMapperProperty(introspectedTable);
-                            bizClazzImpl.addField(mapperProperty);
-                            bizClazzImpl.addImportedType(mapperProperty.getType());
-                        }
+                        Method methodByColumn = getMethodByColumn(entityType, foreignKeyColumn,
+                                JavaBeansUtil.byColumnMethodName(foreignKeyColumn), false);
+                        methodByColumn.addAnnotation("@Override");
+                        addJavaMapper(introspectedTable, bizClazzImpl);
                         sb.setLength(0);
                         sb.append("return mapper.");
                         sb.append(JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
                         sb.append("(");
                         sb.append(foreignKeyColumn.getJavaProperty());
                         sb.append(");");
-                        method.addBodyLine(sb.toString());
-                        bizClazzImpl.addMethod(method);
+                        methodByColumn.addBodyLine(sb.toString());
+                        bizClazzImpl.addMethod(methodByColumn);
                         bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                         bizClazzImpl.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
                     }
                 }
 
+                //增加selectTreeByParentId
+                if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
+                        && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
+                    CustomMethodProperties customMethodProperties = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+                    Method methodByColumn = getMethodByColumn(entityType, customMethodProperties.getParentIdColumn(),
+                            customMethodProperties.getMethodName(), false);
+                    methodByColumn.addAnnotation("@Override");
+                    addJavaMapper(introspectedTable, bizClazzImpl);
+                    sb.setLength(0);
+                    sb.append("return mapper.");
+                    sb.append(customMethodProperties.getMethodName());
+                    sb.append("(");
+                    sb.append(customMethodProperties.getParentIdColumn().getJavaProperty());
+                    sb.append(");");
+                    methodByColumn.addBodyLine(sb.toString());
+                    bizClazzImpl.addMethod(methodByColumn);
+                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                    bizClazzImpl.addImportedType(customMethodProperties.getParentIdColumn().getFullyQualifiedJavaType());
+                }
 
                 /*是否添加@Service注解*/
                 boolean noServiceAnnotation = introspectedTable.getRules().isNoServiceAnnotation();
@@ -236,6 +237,15 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             }
         }
         return list;
+    }
+
+    private void addJavaMapper(IntrospectedTable introspectedTable, TopLevelClass bizClazzImpl) {
+        long mapper1 = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
+        if (mapper1 == 0) {
+            Field mapperProperty = getMapperProperty(introspectedTable);
+            bizClazzImpl.addField(mapperProperty);
+            bizClazzImpl.addImportedType(mapperProperty.getType());
+        }
     }
 
     private Field getMapperProperty(IntrospectedTable introspectedTable) {
@@ -371,7 +381,11 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         interFace.getMethods().clear();
         //增加relation方法
         if (introspectedTable.getRelationProperties().size() > 0) {
-            addAbstractMethod(interFace, entityType, introspectedTable.getSelectByExampleWithRelationStatementId(), exampleType, "example");
+            Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
+                    exampleType, "example", true, "查询条件对象");
+            interFace.addMethod(example);
+            interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+            interFace.addImportedType(entityType);
         }
         //增加by外键
         if (introspectedTable.getForeignKeyColumns().size() > 0) {
@@ -379,26 +393,50 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 addAbstractMethodByColumn(interFace, entityType, foreignKeyColumn);
             }
         }
+        //增加
+        if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
+                && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
+            CustomMethodProperties customMethodProperties = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+            addAbstractMethodByColumn(interFace, entityType, customMethodProperties.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
+        }
         return true;
     }
 
     private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn foreignKeyColumn) {
         Method method = new Method(JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
-        method.setAbstract(true);
-        method.addParameter(new Parameter(foreignKeyColumn.getFullyQualifiedJavaType(), foreignKeyColumn.getJavaProperty()));
-        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-        listType.addTypeArgument(entityType);
-        method.setReturnType(listType);
-        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
-                "这个抽象方法通过Mybatis Generator自动生成",
-                VStringUtil.format("@param {0} {1}", foreignKeyColumn.getJavaProperty(), foreignKeyColumn.getRemarks()));
-        interFace.addMethod(method);
-        interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-        interFace.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
+        addAbstractMethodByColumn(interFace, entityType, foreignKeyColumn, JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
     }
 
-    private void addAbstractMethod(Interface interFace, FullyQualifiedJavaType entityType, String s, FullyQualifiedJavaType fullyQualifiedJavaType, String javaProperty) {
-        Method method = new Method(s);
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn parameterColumn, String methodName) {
+        Method method = getMethodByColumn(entityType, parameterColumn, methodName, true);
+        interFace.addMethod(method);
+        interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+        interFace.addImportedType(parameterColumn.getFullyQualifiedJavaType());
+    }
+
+    private Method getMethodByColumn(FullyQualifiedJavaType returnType, IntrospectedColumn parameterColumn, String methodName, boolean isAbstract) {
+        return getMethodByType(methodName, returnType, parameterColumn.getFullyQualifiedJavaType(),
+                parameterColumn.getJavaProperty(), isAbstract, parameterColumn.getRemarks());
+    }
+
+    private Method getMethodByType(String methodName, FullyQualifiedJavaType returnType, FullyQualifiedJavaType parameterFullyQualifiedJavaType, String parameterName, boolean isAbstract, String remark) {
+        Method method = new Method(methodName);
+        if (isAbstract) {
+            method.setAbstract(true);
+        } else {
+            method.setVisibility(JavaVisibility.PUBLIC);
+        }
+        method.addParameter(new Parameter(parameterFullyQualifiedJavaType, parameterName));
+        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+        listType.addTypeArgument(returnType);
+        method.setReturnType(listType);
+        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
+                "这个抽象方法通过定制版Mybatis Generator自动生成",
+                VStringUtil.format("@param {0} {1}", parameterName, remark));
+        return method;
+    }
+   /* private void addAbstractMethod(Interface interFace, FullyQualifiedJavaType entityType, String methodName, FullyQualifiedJavaType fullyQualifiedJavaType, String javaProperty) {
+        Method method = new Method(methodName);
         method.setAbstract(true);
         method.addParameter(new Parameter(fullyQualifiedJavaType, javaProperty));
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
@@ -409,7 +447,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         interFace.addMethod(method);
         interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         interFace.addImportedType(fullyQualifiedJavaType);
-    }
+    }*/
 
     /**
      * model类生成后，进行符合性调整。

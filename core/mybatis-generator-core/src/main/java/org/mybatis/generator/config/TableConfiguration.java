@@ -84,9 +84,7 @@ public class TableConfiguration extends PropertyHolder {
     private String mapperName;
     private String sqlProviderName;
 
-    private List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
-
-    private List<RelationPropertyHolder> relationPropertyHolders = new ArrayList<>();
+    private List<IgnoredColumnPattern> ignoredColumnPatterns;
 
     public TableConfiguration(Context context) {
         super();
@@ -95,6 +93,8 @@ public class TableConfiguration extends PropertyHolder {
 
         columnOverrides = new ArrayList<>();
         ignoredColumns = new HashMap<>();
+
+        ignoredColumnPatterns = new ArrayList<>();
 
         insertStatementEnabled = true;
         selectByPrimaryKeyStatementEnabled = true;
