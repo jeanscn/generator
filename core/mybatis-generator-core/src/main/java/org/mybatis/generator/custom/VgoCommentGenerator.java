@@ -114,7 +114,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         }
         if(("get"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据主键获取单个实体");
-            addSwaggerApiAnnotation(method,"获得单条列表","根据给定id获取单个实体");
+            addSwaggerApiAnnotation(method,"获得单条记录","根据给定id获取单个实体");
         }
         if(("list"+record.getShortName()).equals(method.getName())){
             FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());

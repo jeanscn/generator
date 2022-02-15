@@ -72,7 +72,7 @@ public class SelectTreeByParentIdElementGenerator extends AbstractXmlElementGene
                 sb.append(methodProperties.getSqlMethod());
                 sb.append("(");
                 sb.append(MyBatis3FormattingUtilities.getParameterClause(methodProperties.getParentIdColumn()));
-                sb.append(")");
+                sb.append("))");
                 answer.addElement(new TextElement(sb.toString()));
                 parentElement.addElement(answer);
             }
