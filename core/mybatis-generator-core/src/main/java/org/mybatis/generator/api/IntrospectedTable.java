@@ -18,7 +18,9 @@ package org.mybatis.generator.api;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.CustomMethodProperties;
+import org.mybatis.generator.custom.HtmlElementDescriptor;
 import org.mybatis.generator.custom.RelationPropertyHolder;
+import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -117,6 +119,8 @@ public abstract class IntrospectedTable {
     protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
 
     Map<String, CustomMethodProperties> customAddtionalSelectMethods = new HashMap<>();
+
+    protected List<HtmlElementDescriptor> htmlElementDescriptors = new ArrayList<>();
 
     protected TargetRuntime targetRuntime;
 
@@ -405,11 +409,16 @@ public abstract class IntrospectedTable {
     }
 
     public void initialize() {
+
         calculateJavaClientAttributes();
         calculateModelAttributes();
         calculateXmlAttributes();
         calculateHtmlAttributes();
         calculateControllerAttributes();
+        //附件的一些初始化动作
+        calculateRelationProperty();
+        calculateGenerateCustomMethod();
+        calculateHtmlElement();
 
         if (tableConfiguration.getModelType() == ModelType.HIERARCHICAL) {
             rules = new HierarchicalModelRules(this);
@@ -420,6 +429,99 @@ public abstract class IntrospectedTable {
         }
 
         context.getPlugins().initialized(this);
+    }
+
+    private void calculateHtmlElement() {
+        String property = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_DESCRIPTOR,PropertyScope.table);
+        if (StringUtility.stringHasValue(property)) {
+            String[] elements = property.split(",");
+            for (String element : elements) {
+                String[] split = element.split("\\|");
+                if (split.length>1) {
+                    HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
+                    htmlElementDescriptor.setName(split[0]);
+                    htmlElementDescriptor.setTagType(split[1]);
+                    if (split.length>2) {
+                        htmlElementDescriptor.setDataUrl(split[2]);
+                    }
+                    this.htmlElementDescriptors.add(htmlElementDescriptor);
+                }
+            }
+        }
+    }
+
+
+    protected void calculateRelationProperty(){
+        TableConfiguration tableConfiguration = this.getTableConfiguration();
+        String javaModelAssociationProperties = tableConfiguration.getProperty("javaModelAssociationProperties");
+        if (StringUtility.stringHasValue(javaModelAssociationProperties)) {
+            List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelAssociationProperties, RelationTypeEnum.association);
+            this.getRelationProperties().addAll(relationProperty);
+        }
+        String javaModelCollectionProperties = tableConfiguration.getProperty("javaModelCollectionProperties");
+        if (StringUtility.stringHasValue(javaModelCollectionProperties)) {
+            List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelCollectionProperties, RelationTypeEnum.collection);
+            this.getRelationProperties().addAll(relationProperty);
+        }
+    }
+
+    private List<RelationPropertyHolder> getRelationProperty(String propertyVale, RelationTypeEnum typeEnum){
+        if (!StringUtility.stringHasValue(propertyVale)) {
+            return null;
+        }
+        List<RelationPropertyHolder> ret = new ArrayList<>();
+        String[] rs = propertyVale.split(",");
+        for (String r : rs) {
+            String[] split = r.split("\\|");
+            if ((split.length<4)) {
+                continue;
+            }
+            RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
+            relationPropertyHolder.setPropertyName(split[0]);
+            relationPropertyHolder.setColumn(split[1]);
+            relationPropertyHolder.setModelTye(split[2]);
+            relationPropertyHolder.setSelect(split[3]);
+            if (split.length>4) {
+                relationPropertyHolder.setJavaType(split[4]);
+            }
+            relationPropertyHolder.setType(typeEnum);
+            ret.add(relationPropertyHolder);
+        }
+        return  ret;
+    }
+
+    public List<HtmlElementDescriptor> getHtmlElementDescriptors() {
+        return htmlElementDescriptors;
+    }
+
+    public void addHtmlElementDescriptor(HtmlElementDescriptor htmlElementDescriptor){
+        this.htmlElementDescriptors.add(htmlElementDescriptor);
+    }
+
+    protected void calculateGenerateCustomMethod(){
+        //先看看是否生成selectTreeByParentIdMethod
+        String propertyValue = this.getConfigPropertyValue("generateSelectChildIdsByFunctionResult", PropertyScope.table);
+        if (StringUtility.stringHasValue(propertyValue)) {
+            String[] ps = propertyValue.split("\\|");
+            if(ps.length>0){
+                CustomMethodProperties customMethodProperties = new CustomMethodProperties();
+                customMethodProperties.setMethodName(this.getSelectTreeByParentIdStatementId());
+                customMethodProperties.setSqlMethod(ps[0]);
+                String columnName = "PARENT_ID";
+                if (ps.length>1) {
+                    columnName = ps[1];
+                }
+                this.getColumn(columnName).ifPresent(c->{
+                    customMethodProperties.setParentIdColumn(c);
+                    if (this.getPrimaryKeyColumns().size()>0) {
+                        customMethodProperties.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
+                        this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(),customMethodProperties);
+                    }
+                });
+            }
+        }
+        //再看其他
+
     }
 
     protected void calculateControllerAttributes(){
@@ -510,7 +612,7 @@ public abstract class IntrospectedTable {
         setBaseColumnListId("Base_Column_List"); //$NON-NLS-1$
         setBlobColumnListId("Blob_Column_List"); //$NON-NLS-1$
         setMyBatis3UpdateByExampleWhereClauseId("Update_By_Example_Where_Clause");
-
+        setSelectTreeByParentIdStatementId("selectChildIdsByFunctionResult");
     }
 
     public void setBlobColumnListId(String s) {

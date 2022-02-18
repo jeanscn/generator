@@ -10,8 +10,8 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.ModelType;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.PropertyScope;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.controllerGenerator.GenerateJavaController;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
@@ -46,23 +46,27 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String apiModelProperty = "io.swagger.annotations.ApiModelProperty";
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
+    private static final String abstractEntity = "com.vgosoft.core.entity.AbstractEntity";
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
+    public static final String vStringUtil = "com.vgosoft.tool.core.VStringUtil";
     //service实现抽象父类
-    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMBGServiceInterface";
-    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMBGBlobServiceInterface";
-    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMBGBlobFileService";
-    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMBGBlobBytesService";
-    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMBGBlobStringService";
-    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractServiceBusiness";
+    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGService";
+    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBaseService";
+    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobFileService";
+    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBytesService";
+    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobStringService";
+    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractMybatisServiceBusiness";
     private static final String abstractBlobFileServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobFileServiceBusiness";
     private static final String abstractBlobBytesServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
     private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
     //service接口父类
-    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.MBGServiceInterface";
-    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.MBGBlobServiceInterface";
-    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.MBGBlobFileService";
-    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.MBGBlobBytesService";
-    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.MBGBlobStringService";
+    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGService";
+    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGBlobService";
+    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.IMybatisBGBlobFileService";
+    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.IMybatisBGBlobBytesService";
+    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.IMybatisBGBlobStringService";
+    //Service结果包装类
+    private static final String serviceResult = "com.vgosoft.core.adapter.ServiceResult";
 
     //mapper接口
     public static final String mBGMapperInterface = "com.vgosoft.mybatis.inf.MBGMapperInterface";
@@ -71,8 +75,12 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
     private static final String repositoryAnnotation = "org.springframework.stereotype.Repository";
 
+
+
     private static final String bizSubPackage = "service";
     private static final String implSubPackage = "impl";
+    public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
+    public static final String PROP_NAME_VIEW_PATH = "viewPath";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -276,6 +284,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             sb.append(".").append("controller").append(".").append(entityShortName).append("Controller");
             FullyQualifiedJavaType conClazzType = new FullyQualifiedJavaType(sb.toString());
             TopLevelClass conTopClazz = new TopLevelClass(conClazzType);
+            conTopClazz.setVisibility(JavaVisibility.PUBLIC);
             commentGenerator.addJavaFileComment(conTopClazz);
             FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(ABSTRACT_BASE_CONTROLLER);
             conTopClazz.setSuperClass(supClazzType);
@@ -294,7 +303,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 conTopClazz.addImportedType("org.apache.commons.lang3.StringUtils");
                 conTopClazz.addImportedType("javax.servlet.http.HttpServletResponse");
                 conTopClazz.addImportedType("org.springframework.util.Assert");
-                //conTopClazz.addImportedType("com.vgosoft.core.util.UUID");
                 conTopClazz.addImportedType("org.apache.commons.lang3.BooleanUtils");
             }
             sb.setLength(0);
@@ -341,6 +349,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * 为Controller类添加引入包路径
      */
     private void conClazzAddStaticImportedType(TopLevelClass conTopClazz) {
+        conTopClazz.addImportedType(serviceResult);
+        conTopClazz.addImportedType(vStringUtil);
         conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimple");
         conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
         conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseList");
@@ -352,6 +362,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         conTopClazz.addJavaDocLine("");
         conTopClazz.addImportedType("java.util.Objects");
         conTopClazz.addImportedType("java.util.List");
+        conTopClazz.addImportedType("java.util.Optional");
         conTopClazz.addImportedType("org.springframework.web.servlet.ModelAndView");
         conTopClazz.addJavaDocLine("");
         conTopClazz.addAnnotation("@RestController");
@@ -435,19 +446,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 VStringUtil.format("@param {0} {1}", parameterName, remark));
         return method;
     }
-   /* private void addAbstractMethod(Interface interFace, FullyQualifiedJavaType entityType, String methodName, FullyQualifiedJavaType fullyQualifiedJavaType, String javaProperty) {
-        Method method = new Method(methodName);
-        method.setAbstract(true);
-        method.addParameter(new Parameter(fullyQualifiedJavaType, javaProperty));
-        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-        listType.addTypeArgument(entityType);
-        method.setReturnType(listType);
-        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
-                "这个抽象方法通过Mybatis Generator自动生成");
-        interFace.addMethod(method);
-        interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-        interFace.addImportedType(fullyQualifiedJavaType);
-    }*/
 
     /**
      * model类生成后，进行符合性调整。
@@ -489,22 +487,11 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             }
         }
         //添加序列化标识
-        boolean isb = false;
-        for (Field field : topLevelClass.getFields()) {
-            if (field.getName().equals("serialVersionUID")) {
-                isb = true;
-                break;
-            }
-        }
-        if (!isb) {
-            Field serialVersionUID = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
-            serialVersionUID.setInitializationString("1L");
-            serialVersionUID.setVisibility(JavaVisibility.PRIVATE);
-            serialVersionUID.setFinal(true);
-            serialVersionUID.setStatic(true);
-            topLevelClass.getFields().add(0, serialVersionUID);
-        }
-
+        Field serialVersionUID = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
+        serialVersionUID.setInitializationString("1L");
+        serialVersionUID.setFinal(true);
+        serialVersionUID.setStatic(true);
+        addField(topLevelClass, serialVersionUID, 0,JavaVisibility.PRIVATE);
 
         //添加@Setter,@Getter
         String aSetter = "lombok.Setter";
@@ -532,7 +519,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         //添加一个参数的构造器
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass, introspectedTable);
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(abstractEntity, topLevelClass, introspectedTable);
         if (assignable1) {
             Method method = new Method(topLevelClass.getType().getShortName());
             method.addParameter(new Parameter(new FullyQualifiedJavaType("int"), "persistenceStatus"));
@@ -575,12 +562,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 }
             }
             Field field = new Field(propertyName, returnType);
-            field.setVisibility(JavaVisibility.PRIVATE);
-            long count = topLevelClass.getFields().stream().filter(f -> f.getName().equalsIgnoreCase(field.getName()))
-                    .count();
-            if (count == 0) {
-                topLevelClass.addField(field);
-            }
+            addField(topLevelClass, field);
             topLevelClass.addImportedType(javaModelAdditionProperty);
         }
         //根据新参数添加
@@ -597,33 +579,33 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     returnType = fullyQualifiedJavaType;
                 }
                 Field field = new Field(relationProperty.getPropertyName(), returnType);
-                field.setVisibility(JavaVisibility.PRIVATE);
-                long count = topLevelClass.getFields().stream().filter(f -> f.getName().equalsIgnoreCase(field.getName()))
-                        .count();
-                if (count == 0) {
-                    topLevelClass.addField(field);
-                }
+                addField(topLevelClass, field);
                 topLevelClass.addImportedType(fullyQualifiedJavaType);
             }
         }
 
+        //追加respBasePath属性
+        Field field = new Field(PROP_NAME_REST_BASE_PATH, new FullyQualifiedJavaType("String"));
+        if (addField(topLevelClass,field)) {
+            if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
+                field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
+            }
+        }
+
+        //添加静态代码块
         String beanName = getTableBeanName(introspectedTable);
         InitializationBlock initializationBlock = new InitializationBlock(false);
-        StringBuilder stringBuilder = new StringBuilder();
+        //计算html包属性
+        String propertyValue = introspectedTable.getConfigPropertyValue(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE, PropertyScope.any);
+        if (StringUtility.stringHasValue(propertyValue)) {
+            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_REST_BASE_PATH,propertyValue));
+        }
         if (!StringUtility.isEmpty(beanName) && assignable1) {
-            stringBuilder.append("this.persistenceBeanName = ");
-            stringBuilder.append("\"").append(getTableBeanName(introspectedTable)).append("\";");
-            initializationBlock.addBodyLine(stringBuilder.toString());
+            initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", getTableBeanName(introspectedTable)));
         }
         String viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
         if (!StringUtility.isEmpty(viewpath)) {
-            //添加程序块
-            stringBuilder.setLength(0);
-            stringBuilder.append("this.viewPath = ");
-            stringBuilder.append("\"");
-            stringBuilder.append(introspectedTable.getMyBatis3HtmlMapperViewName());
-            stringBuilder.append("\";");
-            initializationBlock.addBodyLine(stringBuilder.toString());
+            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";",PROP_NAME_VIEW_PATH, introspectedTable.getMyBatis3HtmlMapperViewName()));
             //判断是否需要实现ShowInView接口
             boolean assignable = JavaBeansUtil.isAssignableCurrent(INTERFACE_SHOW_IN_VIEW, topLevelClass, introspectedTable);
             if (!assignable) {
@@ -632,13 +614,10 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 topLevelClass.addImportedType(showInView);
                 topLevelClass.addSuperInterface(showInView);
                 //添加viewpath的属性及方法
-                long lCount = topLevelClass.getFields().stream().filter(t -> t.getName().equalsIgnoreCase("viewPath")).count();
-                if (lCount == 0) {
-                    Field field = new Field("viewPath", new FullyQualifiedJavaType("String"));
-                    field.setVisibility(JavaVisibility.PRIVATE);
-                    topLevelClass.addField(field);
+                Field viewPath = new Field(PROP_NAME_VIEW_PATH, new FullyQualifiedJavaType("String"));
+                if (addField(topLevelClass, viewPath)) {
                     if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                        field.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
+                        viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
                     }
                 }
             }
@@ -646,7 +625,28 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         if (initializationBlock.getBodyLines().size() > 0) {
             topLevelClass.addInitializationBlock(initializationBlock);
         }
+
         return true;
+    }
+
+    private boolean addField(AbstractJavaType javaType, Field field){
+        return addField(javaType, field, null, JavaVisibility.PRIVATE);
+    }
+
+    private boolean addField(AbstractJavaType javaType, Field field, Integer index,JavaVisibility javaVisibility) {
+        field.setVisibility(javaVisibility);
+        long count = javaType.getFields().stream()
+                .filter(t -> t.getName().equalsIgnoreCase(field.getName()))
+                .count();
+        if (count == 0) {
+            if (index != null && javaType.getFields().size() > 0) {
+                javaType.getFields().add(index, field);
+            } else {
+                javaType.addField(field);
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -879,18 +879,15 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * @param existParameters 是否有参
      */
     private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass, introspectedTable);
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(abstractEntity, topLevelClass, introspectedTable);
         if (existParameters) {
-            if (introspectedTable.getTableConfiguration().getModelType() == ModelType.FLAT) {
+            if (assignable1) {
                 method.addBodyLine("super(persistenceStatus);");
             } else {
                 method.addBodyLine("this.persistenceStatus = persistenceStatus;");
             }
-        }
-        if (assignable1) {
-            if (!existParameters) {
-                method.addBodyLine("this.setPersistenceStatus(this.DEFAULT_PERSISTENCE_STATUS);");
-            }
+        }else{
+            method.addBodyLine("super();");
         }
     }
 

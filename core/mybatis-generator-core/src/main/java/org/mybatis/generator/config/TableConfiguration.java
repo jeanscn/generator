@@ -15,11 +15,8 @@
  */
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.custom.RelationPropertyHolder;
-import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.EqualsUtil;
 import org.mybatis.generator.internal.util.HashCodeUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.ArrayList;
@@ -228,31 +225,6 @@ public class TableConfiguration extends PropertyHolder {
         }
 
         return null;
-    }
-
-    public List<RelationPropertyHolder> getRelationProperty(String propertyVale, RelationTypeEnum typeEnum){
-        if (!StringUtility.stringHasValue(propertyVale)) {
-            return null;
-        }
-        List<RelationPropertyHolder> ret = new ArrayList<>();
-        String[] rs = propertyVale.split(",");
-        for (String r : rs) {
-            String[] split = r.split("\\|");
-            if ((split.length<4)) {
-               continue;
-            }
-            RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
-            relationPropertyHolder.setPropertyName(split[0]);
-            relationPropertyHolder.setColumn(split[1]);
-            relationPropertyHolder.setModelTye(split[2]);
-            relationPropertyHolder.setSelect(split[3]);
-            if (split.length>4) {
-                relationPropertyHolder.setJavaType(split[4]);
-            }
-            relationPropertyHolder.setType(typeEnum);
-            ret.add(relationPropertyHolder);
-        }
-        return  ret;
     }
 
     public GeneratedKey getGeneratedKey() {

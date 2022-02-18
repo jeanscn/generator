@@ -22,9 +22,6 @@ import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.CustomMethodProperties;
-import org.mybatis.generator.custom.RelationPropertyHolder;
-import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -53,7 +50,8 @@ public class DatabaseIntrospector {
 
     public DatabaseIntrospector(Context context,
                                 DatabaseMetaData databaseMetaData,
-                                JavaTypeResolver javaTypeResolver, List<String> warnings) {
+                                JavaTypeResolver javaTypeResolver,
+                                List<String> warnings) {
         super();
         this.context = context;
         this.databaseMetaData = databaseMetaData;
@@ -61,48 +59,6 @@ public class DatabaseIntrospector {
         this.warnings = warnings;
         logger = LogFactory.getLog(getClass());
     }
-
-    private void calculateRelationProperty(IntrospectedTable introspectedTable){
-        String javaModelAssociationProperties = introspectedTable.getConfigPropertyValue("javaModelAssociationProperties", PropertyScope.table);
-        if (StringUtility.stringHasValue(javaModelAssociationProperties)) {
-            List<RelationPropertyHolder> relationProperty = introspectedTable.getTableConfiguration().getRelationProperty(javaModelAssociationProperties, RelationTypeEnum.association);
-            introspectedTable.getRelationProperties().addAll(relationProperty);
-        }
-        String javaModelCollectionProperties = introspectedTable.getConfigPropertyValue("javaModelCollectionProperties", PropertyScope.table);
-        if (StringUtility.stringHasValue(javaModelCollectionProperties)) {
-            List<RelationPropertyHolder> relationProperty = introspectedTable.getTableConfiguration().getRelationProperty(javaModelCollectionProperties, RelationTypeEnum.collection);
-            introspectedTable.getRelationProperties().addAll(relationProperty);
-        }
-    }
-
-    private void calculateGenerateCustomMethod(IntrospectedTable introspectedTable){
-        //先看看是否生成selectTreeByParentIdMethod
-        introspectedTable.setSelectTreeByParentIdStatementId("selectTreeChildIdsByParentId");
-        String propertyValue = introspectedTable.getConfigPropertyValue("generateSelectTreeByParentIdMethod", PropertyScope.table);
-        if (StringUtility.stringHasValue(propertyValue)) {
-            String[] ps = propertyValue.split("\\|");
-            if(ps.length>0){
-                CustomMethodProperties customMethodProperties = new CustomMethodProperties();
-                customMethodProperties.setMethodName(introspectedTable.getSelectTreeByParentIdStatementId());
-                customMethodProperties.setSqlMethod(ps[0]);
-                String columnName = "PARENT_ID";
-                if (ps.length>1) {
-                    columnName = ps[1];
-                }
-                introspectedTable.getColumn(columnName).ifPresent(c->{
-                    customMethodProperties.setParentIdColumn(c);
-                    if (introspectedTable.getPrimaryKeyColumns().size()>0) {
-                        customMethodProperties.setPrimaryKeyColumn(introspectedTable.getPrimaryKeyColumns().get(0));
-                        introspectedTable.addCustomAddtionalSelectMethods(introspectedTable.getSelectTreeByParentIdStatementId(),customMethodProperties);
-                    }
-                });
-            }
-        }
-        //再看其他
-
-    }
-
-
 
     private void calculateForeignKey(FullyQualifiedTable table,IntrospectedTable introspectedTable){
         //通过table属性配置获得，非物理表外键
@@ -686,9 +642,6 @@ public class DatabaseIntrospector {
 
             enhanceIntrospectedTable(introspectedTable);
 
-            calculateRelationProperty(introspectedTable);
-
-            calculateGenerateCustomMethod(introspectedTable);
 
             //针对Sql Server更新remark
             try {

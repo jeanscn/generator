@@ -22,9 +22,11 @@ import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.custom.HtmlElementDescriptor;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -100,6 +102,10 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement head = generateHtmlHead();
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiRequired");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiForm");
+        long count = introspectedTable.getBaseColumns().stream().filter(c -> c.getLength() > 1500).count();
+        if (count>0) {
+            addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::neditorRequired");
+        }
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::contextMemuOnly");
         addStaticJavaScript(head, "/webjars/plugins/js/mainform.min.js");
         addLocalStaticResource(head);
@@ -113,16 +119,26 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 .collect(Collectors.toList());
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
+        Map<String,IntrospectedColumn> waitRenderMap = new HashMap<>();
         for (IntrospectedColumn baseColumn : columns) {
             if (GenerateUtils.isHiddenColumn(baseColumn)) {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);
+                //指定一些列的默认生成的样式
+                for (HtmlElementDescriptor htmlElementDescriptor : introspectedTable.getHtmlElementDescriptors()) {
+                    if (htmlElementDescriptor.getName().equals(baseColumn.getActualColumnName())) {
+                       htmlElementDescriptor.setColumn(baseColumn);
+                       waitRenderMap.put(baseColumn.getActualColumnName().toUpperCase(),baseColumn);
+                    }
+                }
             }
         }
+
         int pageColumnsConfig = getPageColumnsConfig();
         Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns);
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
+        List<IntrospectedColumn> rtfColumn = new ArrayList<>();
         if (pageColumnsConfig>1) {
             /*添加表格*/
             HtmlElement table = new HtmlElement("table");
@@ -130,28 +146,31 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             HtmlElement caption = new HtmlElement("caption");
             caption.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
             table.addElement(caption);
-            for (List<IntrospectedColumn> value : baseColumnsRows.values()) {
+            for (List<IntrospectedColumn> introspectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement tr = new HtmlElement("tr");
                 table.addElement(tr);
                 /*列*/
-                for (IntrospectedColumn introspectedColumn : value) {
+                for (IntrospectedColumn introspectedColumn : introspectedColumns) {
                     HtmlElement td = new HtmlElement("td");
                     //label
                     drawLabel(introspectedColumn, td);
                     //input
                     HtmlElement block = addDivWithClassToParent(td, "layui-input-block");
-                    if (value.size()==1 && value.get(0).getLength()>255) {
+                    if (introspectedColumns.size()==1 && introspectedColumns.get(0).getLength()>255) {
                         td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
-                        drawInput(introspectedColumn,entityKey,block,true);
+                    }
+                    if (introspectedColumn.getLength()>1500) {
+                        rtfColumn.add(introspectedColumn);
+                        drawRtfContentDiv(entityKey, introspectedColumn, block);
                     }else{
-                        drawInput(introspectedColumn,entityKey,block,false);
+                        generateHtmlInputComponent(introspectedColumn,entityKey,block,td);
                     }
                     tr.addElement(td);
                 }
                 /*如果列数小于指定列数，则后面补充空单元格*/
-                if (value.size()<pageColumnsConfig && value.get(0).getLength()<=255) {
-                    for (int i = pageColumnsConfig - value.size(); i > 0; i--) {
+                if (introspectedColumns.size()<pageColumnsConfig && introspectedColumns.get(0).getLength()<=255) {
+                    for (int i = pageColumnsConfig - introspectedColumns.size(); i > 0; i--) {
                         HtmlElement td = new HtmlElement("td");
                         tr.addElement(td);
                     }
@@ -162,20 +181,21 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             HtmlElement h2 = new HtmlElement("H2");
             h2.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
             form.addElement(h2);
-            for (List<IntrospectedColumn> value : baseColumnsRows.values()) {
+            for (List<IntrospectedColumn> introspectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement formItem = addDivWithClassToParent(form, "layui-form-item");
                 /*列*/
-                for (IntrospectedColumn introspectedColumn : value) {
+                for (IntrospectedColumn introspectedColumn : introspectedColumns) {
                     //HtmlElement inline = addDivWithClassToParent(formItem, "layui-inline");
                     //label
                     drawLabel(introspectedColumn, formItem);
                     //input
                     HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block");
-                    if (introspectedColumn.getLength()>255) {
-                        drawInput(introspectedColumn,entityKey,inputInline,true);
+                    if (introspectedColumn.getLength()>1500) {
+                        rtfColumn.add(introspectedColumn);
+                        drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
                     }else{
-                        drawInput(introspectedColumn,entityKey,inputInline,false);
+                        generateHtmlInputComponent(introspectedColumn,entityKey,inputInline,null);
                     }
                 }
             }
@@ -188,6 +208,22 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 form.addElement(input);
             }
         }
+        //添加固定隐藏input
+        HtmlElement restBasePath = generateHtmlInput("restBasePath", true, false);
+        StringBuilder sb = new StringBuilder();
+        sb.append("${").append(entityKey).append("?.restBasePath}");
+        restBasePath.addAttribute(new Attribute("th:value", sb.toString()));
+        form.addElement(restBasePath);
+        sb.setLength(0);
+        for (IntrospectedColumn introspectedColumn : rtfColumn) {
+            HtmlElement htmlElement = generateHtmlInput(introspectedColumn, true, false);
+            htmlElement.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
+            form.addElement(htmlElement);
+        }
+        HtmlElement persistenceBeanName = generateHtmlInput("persistenceBeanName", true, false);
+        sb.append("${").append(entityKey).append("?.persistenceBeanName}");
+        persistenceBeanName.addAttribute(new Attribute("th:value", sb.toString()));
+        form.addElement(persistenceBeanName);
         /*添加工作流内容*/
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             HtmlElement div = new HtmlElement("div");
@@ -197,6 +233,106 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         return form;
     }
 
+    //生成页面元素
+    private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn,String entityKey,HtmlElement parent,HtmlElement td) {
+        List<HtmlElementDescriptor> collect = introspectedTable.getHtmlElementDescriptors().stream()
+                .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName()))
+                .collect(Collectors.toList());
+        if (collect.size()>0) {
+            HtmlElementDescriptor htmlElementDescriptor = collect.get(0);
+            StringBuilder sb = new StringBuilder();
+            switch (htmlElementDescriptor.getTagType().toLowerCase()){
+                case "dropdownlist":
+                    HtmlElement element = new HtmlElement("select");
+                    element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
+                    element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
+                    element.addAttribute(new Attribute("lay-filter",introspectedColumn.getJavaProperty()));
+                    element.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
+                    if (htmlElementDescriptor.getDataUrl() != null) {
+                        element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+                    }
+                    HtmlElement option = new HtmlElement("option");
+                    option.addAttribute(new Attribute("value",""));
+                    option.addElement(new TextElement("请选择"));
+                    element.addElement(option);
+                    addClassNameToElement(parent, "oas-form-item-edit");
+                    parent.addElement(element);
+                    if (td != null) {
+                        HtmlElement div = addDivWithClassToParent(td, "oas-form-item-read");
+                        div.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+                    }
+                    break;
+                case "switch":
+                    element = new HtmlElement("input");
+                    element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
+                    element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
+                    element.addAttribute(new Attribute("type", "checkbox"));
+                    element.addAttribute(new Attribute("lay-skin", "switch"));
+                    element.addAttribute(new Attribute("lay-text", "启用|停用"));
+                    element.addAttribute(new Attribute("value", "1"));
+                    element.addAttribute(new Attribute("lay-filter",introspectedColumn.getJavaProperty()));
+                    if (htmlElementDescriptor.getDataUrl() != null) {
+                        element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+                    }
+                    sb.setLength(0);
+                    sb.append("${").append(entityKey).append(".");
+                    sb.append(introspectedColumn.getJavaProperty()).append("} eq 1 ");
+                    element.addAttribute(new Attribute("th:checked", sb.toString()));
+                    parent.addElement(element);
+                    break;
+                case "radio":
+                    for (int i = 0; i < 3; i++) {
+                        HtmlElement element1 = new HtmlElement("input");
+                        element1.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
+                        element1.addAttribute(new Attribute("type", "radio"));
+                        element1.addAttribute(new Attribute("value", Integer.toString(i+1)));
+                        element1.addAttribute(new Attribute("title", "选项"));
+                        element1.addAttribute(new Attribute("lay-filter",introspectedColumn.getJavaProperty()));
+                        sb.setLength(0);
+                        sb.append("${").append(entityKey).append(".");
+                        sb.append(introspectedColumn.getJavaProperty()).append("} eq ").append(Integer.toString(i + 1));
+                        element1.addAttribute(new Attribute("th:checked", sb.toString()));
+                        parent.addElement(element1);
+                    }
+                    if (htmlElementDescriptor.getDataUrl() != null) {
+                        parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+                    }
+                    break;
+                case "checkbox":
+                    for (int i = 0; i < 2; i++) {
+                        HtmlElement element1 = new HtmlElement("input");
+                        element1.addAttribute(new Attribute("type", "checkbox"));
+                        element1.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty() +"["+ i +"]"));
+                        element1.addAttribute(new Attribute("title", "选项"));
+                        element1.addAttribute(new Attribute("lay-filter",introspectedColumn.getJavaProperty()));
+                        element1.addAttribute(new Attribute("value", Integer.toString(i+1)));
+                        sb.setLength(0);
+                        sb.append("${").append(entityKey).append(".");
+                        sb.append(introspectedColumn.getJavaProperty());
+                        sb.append("} eq ").append(Integer.toString(i + 1));
+                        element1.addAttribute(new Attribute("th:checked", sb.toString()));
+                        parent.addElement(element1);
+                    }
+                    if (htmlElementDescriptor.getDataUrl() != null) {
+                        parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+                    }
+                    break;
+                default:
+                    drawInput(introspectedColumn,entityKey,parent);
+            }
+        }else{
+            drawInput(introspectedColumn,entityKey,parent);
+        }
+    }
+
+
+
+    private void drawRtfContentDiv(String entityKey, IntrospectedColumn introspectedColumn, HtmlElement inputInline) {
+        HtmlElement htmlElement = addDivWithClassToParent(inputInline, "rtf-content");
+        htmlElement.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+        htmlElement.addAttribute(new Attribute("th:utext", thymeleafValue(introspectedColumn, entityKey)));
+    }
+
     private void drawLabel(IntrospectedColumn introspectedColumn,HtmlElement parent){
         HtmlElement label = new HtmlElement("label");
         addClassNameToElement(label, "layui-form-label");
@@ -204,23 +340,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         parent.addElement(label);
     }
 
-    private void drawInput(IntrospectedColumn introspectedColumn,String entityKey,HtmlElement parent,boolean isTextArea){
-        HtmlElement input = generateHtmlInput(introspectedColumn, false,isTextArea);
-        input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
-        if (isTextArea) {
-            addClassNameToElement(input, "layui-textarea");
-        }else{
-            addClassNameToElement(input, "layui-input");
-        }
-        input.addAttribute(new Attribute("autocomplete", "off"));
-        input.addAttribute(new Attribute("lay-verify", introspectedColumn.getJavaProperty()));
-        parent.addElement(input);
-        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            addClassNameToElement(input, "oas-form-item-edit");
-            HtmlElement div = addDivWithClassToParent(parent, "oas-form-item-read");
-            div.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
-        }
-    }
     private HtmlElement generateLayuiToolBar(HtmlElement parent) {
         HtmlElement toolBar = generateToolBar(parent);
         String config = getHtmlBarPositionConfig();
@@ -233,6 +352,30 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             }
         }
         return toolBar;
+    }
+    private void drawInput(IntrospectedColumn introspectedColumn,String entityKey,HtmlElement parent){
+        boolean isTextArea = false;
+        if (introspectedColumn.getLength()>500) {
+            isTextArea = true;
+        }
+        HtmlElement input = generateHtmlInput(introspectedColumn, false,isTextArea);
+        input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
+        if (isTextArea) {
+            addClassNameToElement(input, "layui-textarea");
+        }else{
+            addClassNameToElement(input, "layui-input");
+        }
+        input.addAttribute(new Attribute("autocomplete", "off"));
+        input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
+        if (introspectedColumn.isJDBCDateColumn()) {
+            input.addAttribute(new Attribute("readonly", "readonly"));
+        }
+        parent.addElement(input);
+        //if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            addClassNameToElement(input, "oas-form-item-edit");
+            HtmlElement div = addDivWithClassToParent(parent, "oas-form-item-read");
+            div.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+        //}
     }
 
     private HtmlElement addLayButton(HtmlElement parent, String id, String text, String unicode) {

@@ -164,9 +164,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
             p = p.substring(0, p.lastIndexOf("."));
         }
         addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
-        addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(
-                getIntrospectedTable().getMyBatis3HtmlMapperPackage(),
-                getEntityType().getShortName().toLowerCase()));
+        addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(p,p));
     }
 
     //TODO 计划第一次生成js文件，并初始化
