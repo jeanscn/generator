@@ -43,9 +43,11 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     private FullyQualifiedJavaType entityType;
     private TableConfiguration tableConfiguration;
     private Context context;
-    protected final String btn_sumit_id = "btn_save";
+    protected final String btn_submit_id = "btn_save";
     protected final String btn_close_id = "btn_close";
+    protected final String btn_form_reset_id = "btn_form_reset";
     protected final String input_subject_id = "subject";
+    protected final String PLACEHOLDER_PREFIX = "PLACEHOLDER_PREFIX_";
 
     public AbsHtmlDocumentGenerator(Document document, IntrospectedTable introspectedTable) {
         this.document = document;

@@ -124,7 +124,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     private HtmlElement generateZuiToolBar(HtmlElement parent) {
         HtmlElement toolBar = generateToolBar(parent);
         HtmlElement btnClose = addZuiButton(toolBar, btn_close_id, "关闭", "icon-times");
-        HtmlElement btnSubmit = addZuiButton(toolBar, btn_sumit_id, "保存", "icon-check");
+        HtmlElement btnSubmit = addZuiButton(toolBar, btn_submit_id, "保存", "icon-check");
         String config = getHtmlBarPositionConfig();
         if (!HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
             addClassNameToElement(btnClose, "footer-btn");

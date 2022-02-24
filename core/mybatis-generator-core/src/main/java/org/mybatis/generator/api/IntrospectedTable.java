@@ -122,6 +122,8 @@ public abstract class IntrospectedTable {
 
     protected List<HtmlElementDescriptor> htmlElementDescriptors = new ArrayList<>();
 
+    protected List<String> htmlElementInputRequired = new ArrayList<>();
+
     protected TargetRuntime targetRuntime;
 
 
@@ -432,6 +434,7 @@ public abstract class IntrospectedTable {
     }
 
     private void calculateHtmlElement() {
+        //元素生成类型
         String property = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_DESCRIPTOR,PropertyScope.table);
         if (StringUtility.stringHasValue(property)) {
             String[] elements = property.split(",");
@@ -443,9 +446,20 @@ public abstract class IntrospectedTable {
                     htmlElementDescriptor.setTagType(split[1]);
                     if (split.length>2) {
                         htmlElementDescriptor.setDataUrl(split[2]);
+                        if(split.length>3){
+                            htmlElementDescriptor.setDataFormat(split[3]);
+                        }
                     }
                     this.htmlElementDescriptors.add(htmlElementDescriptor);
                 }
+            }
+        }
+        //页面不允许为空的
+        String required = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_REQUIRED,PropertyScope.table);
+        if (StringUtility.stringHasValue(required)) {
+            String[] elements = required.split(",");
+            for (String element : elements) {
+                this.htmlElementInputRequired.add(element);
             }
         }
     }
@@ -496,6 +510,14 @@ public abstract class IntrospectedTable {
 
     public void addHtmlElementDescriptor(HtmlElementDescriptor htmlElementDescriptor){
         this.htmlElementDescriptors.add(htmlElementDescriptor);
+    }
+
+    public List<String> getHtmlElementInputRequired() {
+        return htmlElementInputRequired;
+    }
+
+    public void addHtmlElementInputRequired(String columnName){
+        this.htmlElementInputRequired.add(columnName);
     }
 
     protected void calculateGenerateCustomMethod(){

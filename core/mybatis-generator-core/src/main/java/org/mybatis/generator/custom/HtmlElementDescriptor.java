@@ -12,8 +12,14 @@ public class HtmlElementDescriptor {
 
     private String dataUrl;
 
-    enum HtmlTagType {
-        input,dropdownlist,checkbox,radio
+    private String dataFormat;
+
+    public String getDataFormat() {
+        return dataFormat;
+    }
+
+    public void setDataFormat(String dataFormat) {
+        this.dataFormat = dataFormat;
     }
 
     public IntrospectedColumn getColumn() {
