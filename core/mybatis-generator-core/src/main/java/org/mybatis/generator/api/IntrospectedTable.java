@@ -124,6 +124,8 @@ public abstract class IntrospectedTable {
 
     protected List<String> htmlElementInputRequired = new ArrayList<>();
 
+    protected String htmlPageLoadingType;
+
     protected TargetRuntime targetRuntime;
 
 
@@ -462,6 +464,14 @@ public abstract class IntrospectedTable {
                 this.htmlElementInputRequired.add(element);
             }
         }
+
+        //页面打开形式
+        String loadingType = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_LOADING_TYPE,PropertyScope.table);
+        if (StringUtility.stringHasValue(loadingType)) {
+           this.htmlPageLoadingType = loadingType;
+        }else{
+            this.htmlPageLoadingType = "full";
+        }
     }
 
 
@@ -518,6 +528,10 @@ public abstract class IntrospectedTable {
 
     public void addHtmlElementInputRequired(String columnName){
         this.htmlElementInputRequired.add(columnName);
+    }
+
+    public String getHtmlPageLoadingType() {
+        return htmlPageLoadingType;
     }
 
     protected void calculateGenerateCustomMethod(){

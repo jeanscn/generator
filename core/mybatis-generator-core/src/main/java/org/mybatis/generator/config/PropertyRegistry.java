@@ -69,6 +69,7 @@ public class PropertyRegistry {
     public static final String TABLE_GENERATE_CUSTOM_METHODS = "generateCustomMethods";
     public static final String TABLE_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
     public static final String TABLE_HTML_ELEMENT_REQUIRED = "htmlElementRequired";
+    public static final String TABLE_HTML_PAGE_LOADING_TYPE = "htmlPageLoadingType";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$

@@ -64,7 +64,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         rootElement.addElement(head);
         rootElement.addElement(body);
         document.setRootElement(rootElement);
-        List<HtmlElement> elements = getElmentByClassName("content");
+        List<HtmlElement> elements = getElementByClassName("content");
         this.content = elements.get(0);
         HtmlElement form = generateZuiForm(content);
         generateZuiToolBar(content);

@@ -15,16 +15,16 @@
  */
 package org.mybatis.generator.api;
 
-import java.sql.Types;
-import java.util.Properties;
-
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.sql.Types;
+import java.util.Properties;
+
 /**
  * This class holds information about an introspected column.
- * 
+ *
  * @author Jeff Butler
  */
 public class IntrospectedColumn {
@@ -168,9 +168,9 @@ public class IntrospectedColumn {
         String typeName = getJdbcTypeName();
 
         return "BINARY".equals(typeName) || "BLOB".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$
-                || "CLOB".equals(typeName) || "LONGNVARCHAR".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$ 
+                || "CLOB".equals(typeName) || "LONGNVARCHAR".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$
                 || "LONGVARBINARY".equals(typeName) || "LONGVARCHAR".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$
-                || "NCLOB".equals(typeName) || "VARBINARY".equals(typeName); //$NON-NLS-1$ //$NON-NLS-2$ 
+                || "NCLOB".equals(typeName) || "VARBINARY".equals(typeName); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public boolean isStringColumn() {
@@ -215,6 +215,12 @@ public class IntrospectedColumn {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType
                 .getDateInstance())
                 && "TIME".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
+    }
+
+    public boolean isJDBCTimeStampColumn(){
+        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType
+                .getDateInstance())
+                && "TIMESTAMP".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
     }
 
     public String getTypeHandler() {
@@ -342,7 +348,7 @@ public class IntrospectedColumn {
      * The platform specific type name as reported by the JDBC driver. This value is determined
      * from the DatabaseMetadata.getColumns() call - specifically ResultSet.getString("TYPE_NAME").
      * This value is platform dependent.
-     * 
+     *
      * @return the platform specific type name as reported by the JDBC driver
      */
     public String getActualTypeName() {

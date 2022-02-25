@@ -91,7 +91,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"yyyy-MM-dd\")");
                     topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
                 }
-                if (introspectedColumn.isJDBCTimeColumn()) {
+                if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn()) {
                     field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"yyyy-MM-dd HH:mm:ss\")");
                     topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
                 }

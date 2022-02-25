@@ -62,7 +62,7 @@ public class DatabaseIntrospector {
 
     private void calculateForeignKey(FullyQualifiedTable table,IntrospectedTable introspectedTable){
         //通过table属性配置获得，非物理表外键
-        String foreignKeyColumnProperty = introspectedTable.getConfigPropertyValue("foreignKeyColumn", PropertyScope.table);
+        String foreignKeyColumnProperty = introspectedTable.getConfigPropertyValue("selectByColumn", PropertyScope.table);
         if (StringUtility.stringHasValue(foreignKeyColumnProperty)) {
             String[] split = foreignKeyColumnProperty.split(",");
             Arrays.stream(split).forEach(introspectedTable::addForeignKeyColumn);

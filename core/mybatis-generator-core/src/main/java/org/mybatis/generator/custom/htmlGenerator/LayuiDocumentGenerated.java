@@ -1,18 +1,3 @@
-/**
- * Copyright 2006-2020 the original author or authors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.mybatis.generator.custom.htmlGenerator;
 
 import com.vgosoft.tool.core.VStringUtil;
@@ -70,7 +55,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         rootElement.addElement(head);
         rootElement.addElement(body);
         document.setRootElement(rootElement);
-        List<HtmlElement> elements = getElmentByClassName("content");
+        List<HtmlElement> elements = getElementByClassName("content");
         this.content = elements.get(0);
         HtmlElement form = generateForm(content);
         /*标题区域*/
@@ -78,14 +63,13 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         /*表单验证button*/
         addVerifyButton(form);
         /** 查看状态*/
-        if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
-            viewStatus.addAttribute(new Attribute("th:value", "${viewStatus}?:1"));
-            content.addElement(viewStatus);
-        }
+        // if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
+        HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
+        viewStatus.addAttribute(new Attribute("th:value", "${viewStatus}?:1"));
+        content.addElement(viewStatus);
+        // }
         generateLayuiToolBar(content);
-        //TODO 去掉生成的js
-        //addLayJavaScriptFrament(body);
+        addLayJavaScriptFragment(body);
         return true;
     }
 
@@ -234,7 +218,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         return form;
     }
 
-    //生成页面元素
+    //生成页面dropdownlist、switch、radio、checkbox、date及其它元素
     private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, String entityKey, HtmlElement parent, HtmlElement td) {
         List<HtmlElementDescriptor> collect = introspectedTable.getHtmlElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName()))
@@ -290,8 +274,8 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                         switch (htmlElementDescriptor.getDataFormat()) {
                             case "sex":
                             case "性别":
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "男", "男", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "女", "女", entityKey));
+                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "1", "男", entityKey));
+                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "0", "女", entityKey));
                                 break;
                             case "level":
                             case "级别":
@@ -353,12 +337,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     break;
                 case "date":
                     HtmlElement input = generateHtmlInput(introspectedColumn, false, false);
-                    String dateFmt = htmlElementDescriptor.getDataFormat()!=null?htmlElementDescriptor.getDataFormat():htmlElementDescriptor.getDataUrl();
-                    if (dateFmt == null) {
-                        if (introspectedColumn.isJDBCDateColumn()) dateFmt = "yyyy-MM-dd";
-                        if(introspectedColumn.isJDBCTimeColumn()) dateFmt = "yyyy-MM-dd HH:mm:ss";
+                    String dateType = htmlElementDescriptor.getDataFormat() != null ? htmlElementDescriptor.getDataFormat() : htmlElementDescriptor.getDataUrl();
+                    if (!StringUtility.stringHasValue(dateType)) {
+                        if (introspectedColumn.isJDBCDateColumn()) dateType = "date";
+                        if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn()) dateType = "datetime";
                     }
-                    input.addAttribute(new Attribute("lay-date", dateFmt));
+                    input.addAttribute(new Attribute("lay-date", dateType));
                     input.addAttribute(new Attribute("readonly", "readonly"));
                     input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
                     addClassNameToElement(input, "layui-input");
@@ -402,20 +386,22 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         }
         HtmlElement input = generateHtmlInput(introspectedColumn, false, isTextArea);
         addElementRequired(introspectedColumn.getActualColumnName(), input);
-        input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
+
         if (isTextArea) {
             addClassNameToElement(input, "layui-textarea");
+            input.addAttribute(new Attribute("th:utext", thymeleafValue(introspectedColumn, entityKey)));
         } else {
             addClassNameToElement(input, "layui-input");
+            input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
         }
         input.addAttribute(new Attribute("autocomplete", "off"));
         input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
         if (introspectedColumn.isJDBCDateColumn()) {
             input.addAttribute(new Attribute("readonly", "readonly"));
-            input.addAttribute(new Attribute("lay-date", "yyyy-MM-dd"));
-        } else if (introspectedColumn.isJDBCTimeColumn()) {
+            input.addAttribute(new Attribute("lay-date", "date"));
+        } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn()) {
             input.addAttribute(new Attribute("readonly", "readonly"));
-            input.addAttribute(new Attribute("lay-date", "yyyy-MM-dd HH:mm:ss"));
+            input.addAttribute(new Attribute("lay-date", "datetime"));
         }
         parent.addElement(input);
         //if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
@@ -451,8 +437,10 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (!HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
             addClassNameToElement(btnClose, "footer-btn");
-            HtmlElement btnRestClose = addLayButton(toolBar, btn_form_reset_id, "重置", "&#xe9aa;");
-            addClassNameToElement(btnRestClose, "footer-btn");
+            if (introspectedTable.getHtmlPageLoadingType().equals("inner")) {
+                HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
+                addClassNameToElement(btnReset, "footer-btn");
+            }
             if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
                 HtmlElement btnSubmit = addLayButton(toolBar, btn_submit_id, "保存", "&#xe605;");
                 addClassNameToElement(btnSubmit, "footer-btn");
@@ -484,89 +472,79 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         }
     }
 
-    private HtmlElement addLayJavaScriptFrament(HtmlElement parent) {
-        HtmlElement javascript = addJavaScriptFragment(parent);
+    private HtmlElement addLayJavaScriptFragment(HtmlElement parent) {
+        boolean innerWindow = introspectedTable.getHtmlPageLoadingType().equals("inner");
+        final boolean workflow = GenerateUtils.isWorkflowInstance(introspectedTable);
+
         StringBuilder sb = new StringBuilder();
-        sb.append("layui.use([");
-        sb.append("'form'");
-        sb.append("], function () {");
-        javascript.addElement(new TextElement(sb.toString()));
-        //layui js代码段
-        sb.setLength(0);
-        sb.append("let form = layui.form;");
-        javascript.addElement(new TextElement(sb.toString()));
-        javascript.addElement(new TextElement(""));
-        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            javascript.addElement(new TextElement("$(document).trigger('document_Ready');"));
+        HtmlElement javascript = addJavaScriptFragment(parent);
+        if (!workflow) {
+            javascript.addElement(new TextElement("$(function(){"));
+            if (innerWindow) {
+                javascript.addElement(new TextElement(insertTab(1)+"$('#btn_close').hide();"));
+            }else{
+                javascript.addElement(new TextElement(insertTab(1)+"$('#btn_close').click(function () {"));
+                javascript.addElement(new TextElement(insertTab(2)+"if (parent.datatable && parent.datatable.ajax)  parent.datatable.ajax.reload();"));
+                javascript.addElement(new TextElement(insertTab(2)+"$.refreshPortlet(1);"));
+                javascript.addElement(new TextElement(insertTab(2)+"if (parent.layer) parent.layer.close(parent.layer.getFrameIndex(window.name));"));
+                javascript.addElement(new TextElement(insertTab(1)+"})"));
+            }
         }
-        javascript.addElement(new TextElement("var formVerifyStatus;"));
-
-        sb.setLength(0);
-        sb.append("form.on('submit(");
-        sb.append(form_verify_id);
-        sb.append(")', function (data) {");
-        javascript.addElement(new TextElement(sb.toString()));
-        javascript.addElement(new TextElement("formVerifyStatus = true;"));
-        javascript.addElement(new TextElement("return false;"));
-        javascript.addElement(new TextElement("});"));
-
-        sb.setLength(0);
-        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            sb.append("form.on('submit(");
-            sb.append(btn_submit_id);
-            sb.append(")', function (data) {");
-            javascript.addElement(new TextElement(sb.toString()));
-            javascript.addElement(new TextElement("$.verifyComment();"));
-            javascript.addElement(new TextElement(""));
-            javascript.addElement(new TextElement("$.wfSaveDoc(data, {});"));
-            javascript.addElement(new TextElement("return false;"));
-            javascript.addElement(new TextElement("});"));
+        javascript.addElement(new TextElement(insertTab(1)+"var saveDoc = function(data) {"));
+        if (workflow) {
+            javascript.addElement(new TextElement(insertTab(2)+"data.subject = \"【\" + data.fileCategory + \"】\" + data.name + \"的审批申请（\" + data.applyDate + \"）\";"));
+            javascript.addElement(new TextElement(insertTab(2)+"$.wfSaveDoc(data, {});"));
         } else {
-            sb.append("$('#");
-            sb.append(btn_submit_id);
-            sb.append("').click(function () {");
-            javascript.addElement(new TextElement(sb.toString()));
-            javascript.addElement(new TextElement("formVerifyStatus = false;"));
             sb.setLength(0);
-            sb.append("$('#");
-            sb.append(form_verify_id);
-            sb.append("').click();");
-            javascript.addElement(new TextElement(sb.toString()));
-            javascript.addElement(new TextElement("if (formVerifyStatus) {"));
-            javascript.addElement(new TextElement("let data = $('.layui-form').serializeFormVJSON();"));
-            sb.setLength(0);
-            sb.append("let url = $.getRootPath() + '/");
+            sb.append(insertTab(2)).append("let url = \"/");
             sb.append(introspectedTable.getControllerSimplePackage());
-            sb.append("/");
-            sb.append(introspectedTable.getControllerBeanName());
-            sb.append("';");
+            sb.append("/").append(introspectedTable.getControllerBeanName()).append("\";");
             javascript.addElement(new TextElement(sb.toString()));
-            javascript.addElement(new TextElement("let rtype = $('#id').val().length>0?'PUT':'POST';"));
-            javascript.addElement(new TextElement("$.requestJsonSuccessCallback(url, function (resp) {"));
-            javascript.addElement(new TextElement("$.refreshParentDatatables();"));
-            javascript.addElement(new TextElement("$('#" + btn_close_id + "').click();"));
-            javascript.addElement(new TextElement("}, {"));
-            javascript.addElement(new TextElement("data: JSON.stringify(data),"));
-            javascript.addElement(new TextElement("type: rtype"));
-            javascript.addElement(new TextElement("})"));
-            javascript.addElement(new TextElement("}"));
-            javascript.addElement(new TextElement("});"));
-            javascript.addElement(new TextElement(""));
+            sb.setLength(0);
+            sb.append(insertTab(2)).append("$.requestJsonSuccessCallback(url, function (resp) {");
+            javascript.addElement(new TextElement(sb.toString()));
+            sb.setLength(0);
+            sb.append(insertTab(3)).append("if (resp.attributes.id) $('#id').val(resp.attributes.id);");
+            javascript.addElement(new TextElement(sb.toString()));
+            sb.setLength(0);
+            sb.append(insertTab(3)).append("if (resp.attributes.version && $('#version').length > 0) $('#version').val(resp.attributes.version);");
+            javascript.addElement(new TextElement(sb.toString()));
+            sb.setLength(0);
+            sb.append(insertTab(3)).append("$.showFrameAlertBox(\"操作成功！\", \"info\", {});");
+            javascript.addElement(new TextElement(sb.toString()));
+            if (!innerWindow) {
+                sb.setLength(0);
+                sb.append(insertTab(3)).append("$('#btn_close').trigger('click');");
+                javascript.addElement(new TextElement(sb.toString()));
+            }
+            sb.setLength(0);
+            sb.append(insertTab(2)).append(" }, {");
+            javascript.addElement(new TextElement(sb.toString()));
+            sb.setLength(0);
+            sb.append(insertTab(3)).append("data: JSON.stringify(data),");
+            javascript.addElement(new TextElement(sb.toString()));
+            sb.setLength(0);
+            sb.append(insertTab(3)).append("type: !$.isEmpty(data.id) ? 'PUT' : 'POST'");
+            javascript.addElement(new TextElement(sb.toString()));
+            sb.setLength(0);
+            sb.append(insertTab(2)).append("})");
+            javascript.addElement(new TextElement(sb.toString()));
         }
-
-        //关闭
-        sb.setLength(0);
-        sb.append("$('#");
-        sb.append(btn_close_id);
-        sb.append("').closeself();");
-        javascript.addElement(new TextElement(sb.toString()));
-
-        //日期时间类型的渲染
-
-
-        sb.setLength(0);
-        sb.append("});");
-        javascript.addElement(new TextElement(sb.toString()));
+        javascript.addElement(new TextElement(insertTab(1)+"}"));
+        javascript.addElement(new TextElement(insertTab(1)+"function updateSubject(data){"));
+        javascript.addElement(new TextElement(insertTab(2)+"data.subject = \"【\" + data.fileCategory + \"】\" + data.name + \"的处理单（\" + data.applyDate + \"）\";"));
+        javascript.addElement(new TextElement(insertTab(1)+"}"));
+        javascript.addElement(new TextElement(insertTab(1)+"window.saveDoc = saveDoc;"));
+        javascript.addElement(new TextElement(insertTab(1)+"window.updateSubject = updateSubject;"));
+        javascript.addElement(new TextElement("})"));
         return javascript;
+    }
+
+    private String insertTab(int count) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            sb.append("    ");
+        }
+        return sb.toString();
     }
 }
