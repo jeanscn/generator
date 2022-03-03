@@ -15,26 +15,63 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.custom.SelectByColumnProperties;
 
-public class SelectByForeignKeyElementGenerator extends
+public class SelectByColumnElementGenerator extends
         AbstractXmlElementGenerator {
 
-    public SelectByForeignKeyElementGenerator() {
+    public SelectByColumnElementGenerator() {
         super();
     }
 
     @Override
     public void addElements(XmlElement parentElement) {
-        if (introspectedTable.getForeignKeyColumns().size() == 0) {
+        if (introspectedTable.getSelectByColumnProperties().size() == 0) {
             return;
         }
-        for (IntrospectedColumn foreignKeyColumn : introspectedTable.getForeignKeyColumns()) {
+        for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
+            XmlElement answer = new XmlElement("select");
+            answer.addAttribute(new Attribute("id", selectByColumnProperty.getMethodName()));
+            if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
+                answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
+            } else {
+                if (introspectedTable.getRelationProperties().size() > 0) {
+                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
+                } else {
+                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+                }
+            }
+            answer.addAttribute(new Attribute("parameterType", selectByColumnProperty.getColumn().getFullyQualifiedJavaType().getFullyQualifiedName()));
+            context.getCommentGenerator().addComment(answer);
+
+            answer.addElement(new TextElement("select "));
+            answer.addElement(getBaseColumnListElement());
+            if (introspectedTable.hasBLOBColumns()) {
+                answer.addElement(new TextElement(","));
+                answer.addElement(getBlobColumnListElement());
+            }
+            //form
+            StringBuilder sb = new StringBuilder();
+            sb.append("from ");
+            sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
+            answer.addElement(new TextElement(sb.toString()));
+            //条件
+            sb.setLength(0);
+            sb.append("where ");
+            sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(selectByColumnProperty.getColumn()));
+            sb.append(" = ");
+            sb.append(MyBatis3FormattingUtilities.getParameterClause(selectByColumnProperty.getColumn()));
+            answer.addElement(new TextElement(sb.toString()));
+            if (selectByColumnProperty.getOrderByClause() != null) {
+                answer.addElement(new TextElement("order by "+selectByColumnProperty.getOrderByClause()));
+            }
+            parentElement.addElement(answer);
+        }
+       /* for (IntrospectedColumn foreignKeyColumn : introspectedTable.getSelectByColumnProperties()) {
             XmlElement answer = new XmlElement("select");
             answer.addAttribute(new Attribute("id", JavaBeansUtil.byColumnMethodName(foreignKeyColumn)));
             if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
@@ -68,6 +105,6 @@ public class SelectByForeignKeyElementGenerator extends
             sb.append(MyBatis3FormattingUtilities.getParameterClause(foreignKeyColumn));
             answer.addElement(new TextElement(sb.toString()));
             parentElement.addElement(answer);
-        }
+        }*/
     }
 }

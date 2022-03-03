@@ -34,7 +34,7 @@ public class HTMLMapperGenerator extends AbstractHtmlGenerator {
 
     protected HtmlElement getHtmlMapElement() {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString("Progress.12", table.toString())); //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.121", table.toString())); //$NON-NLS-1$
         HtmlElement answer = new HtmlElement("html"); //$NON-NLS-1$
         answer.addAttribute(new Attribute("xmlns:th",HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_TH));
         answer.addAttribute(new Attribute("xmlns:sec",HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_SEC));

@@ -65,6 +65,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addUpdateByPrimaryKeyWithBLOBsElement(answer);
         addUpdateByPrimaryKeyWithoutBLOBsElement(answer);
         addSelectTreeByParentIdElement(answer);
+        addSelectByTableElement(answer);
 
         return answer;
     }
@@ -144,11 +145,19 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByForeignKeyElement(XmlElement parentElement){
-        if (introspectedTable.getForeignKeyColumns().size() > 0) {
-            AbstractXmlElementGenerator elementGenerator = new SelectByForeignKeyElementGenerator();
+        if (introspectedTable.getSelectByColumnProperties().size() > 0) {
+            AbstractXmlElementGenerator elementGenerator = new SelectByColumnElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
 
+    }
+
+    protected void addSelectByTableElement(XmlElement parentElement){
+        if (introspectedTable.getSelectByTableProperties().size()>0) {
+            SelectByTableElementGenerator elementGenerator = new SelectByTableElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+
+        }
     }
 
     protected void addSelectTreeByParentIdElement(XmlElement parentElement) {
