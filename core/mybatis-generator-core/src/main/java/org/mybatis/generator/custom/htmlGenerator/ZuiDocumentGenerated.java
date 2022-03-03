@@ -46,7 +46,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private HtmlElement head;
 
-    private HtmlElement body;
+    private Map<String,HtmlElement>  body;
 
     private HtmlElement content;
 
@@ -62,10 +62,10 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     @Override
     public boolean htmlMapDocumentGenerated() {
         rootElement.addElement(head);
-        rootElement.addElement(body);
+        rootElement.addElement(body.get("body"));
         document.setRootElement(rootElement);
-        List<HtmlElement> elements = getElementByClassName("content");
-        this.content = elements.get(0);
+        //List<HtmlElement> elements = getElementByClassName("content");
+        this.content = body.get("content");
         HtmlElement form = generateZuiForm(content);
         generateZuiToolBar(content);
         return true;

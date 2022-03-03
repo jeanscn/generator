@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.PropertyScope;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
 import java.util.function.Function;
@@ -89,9 +90,12 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         htmlElement.addElement(div);
     }
 
-    protected HtmlElement generateHtmlBody() {
+    protected Map<String,HtmlElement> generateHtmlBody() {
+        Map<String,HtmlElement> answer = new HashMap<>();
         HtmlElement body = new HtmlElement("body");
         HtmlElement out = addDivWithClassToParent(body, "container");
+        answer.put("body", body);
+        answer.put("out", out);
         switch (introspectedTable.getHtmlPageLoadingType()) {
             case "pop":
                 addClassNameToElement(out, "popContainer");
@@ -105,8 +109,13 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
                 addClassNameToElement(out, "outContainer");
         }
         HtmlElement inner = addDivWithClassToParent(out, "icontainer");
-        addDivWithClassToParent(inner, "content");
-        return body;
+        HtmlElement content = addDivWithClassToParent(inner, "content");
+        HtmlElement contentHeader = addDivWithClassToParent(content, "content-header");
+        HtmlElement headerText = new HtmlElement("span");
+        headerText.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
+        contentHeader.addElement(headerText);
+        answer.put("content",content);
+        return answer;
     }
 
     protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn, boolean isHidden, boolean isTextArea) {
@@ -128,15 +137,15 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     protected String thymeleafValue(IntrospectedColumn baseColumn, String entityName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("${" + entityName + "?.").append(baseColumn.getJavaProperty());
-        if ("DATE".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
-            sb.append("!=null?#dates.format(" + entityName + ".");
+        sb.append("${").append(entityName).append("?.").append(baseColumn.getJavaProperty());
+        if ("DATE".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+            sb.append("!=null?#dates.format(").append(entityName).append(".");
             sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd'):''}");
-        } else if ("TIME".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
-            sb.append("!=null?#dates.format(" + entityName + ".");
+        } else if ("TIME".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+            sb.append("!=null?#dates.format(").append(entityName).append(".");
             sb.append(baseColumn.getJavaProperty()).append(",'HH:mm:ss'):''}");
-        } else if ("TIMESTAMP".equals(baseColumn.getJdbcTypeName().toUpperCase())) {
-            sb.append("!=null?#dates.format(" + entityName + ".");
+        } else if ("TIMESTAMP".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+            sb.append("!=null?#dates.format(").append(entityName).append(".");
             sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
         } else {
             if ("version".equals(baseColumn.getJavaProperty())) {
@@ -210,13 +219,15 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     protected List<HtmlElement> getElementByClassName(String className) {
         List<HtmlElement> answer = new ArrayList<>();
         for (VisitableElement element : document.getRootElement().getAllElements()) {
-            HtmlElement htmlElement = (HtmlElement) element;
-            if (htmlElement.getAttributes().size() > 0) {
-                for (Attribute attribute : htmlElement.getAttributes()) {
-                    if ("class".equals(attribute.getName())) {
-                        if (attribute.getValue() != null) {
-                            if (Arrays.asList(attribute.getValue().split(" ")).contains(className)) {
-                                answer.add((HtmlElement) element);
+            if (element instanceof HtmlElement) {
+                HtmlElement htmlElement = (HtmlElement) element;
+                if (htmlElement.getAttributes().size() > 0) {
+                    for (Attribute attribute : htmlElement.getAttributes()) {
+                        if ("class".equals(attribute.getName())) {
+                            if (attribute.getValue() != null) {
+                                if (Arrays.asList(attribute.getValue().split(" ")).contains(className)) {
+                                    answer.add((HtmlElement) element);
+                                }
                             }
                         }
                     }
