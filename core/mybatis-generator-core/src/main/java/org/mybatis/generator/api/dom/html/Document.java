@@ -39,11 +39,11 @@ public class Document {
         return rootElement;
     }
 
-    public void setRootElement(HtmlElement rootElement) {
-        this.rootElement = rootElement;
-    }
-    
     public Optional<DocType> getDocType() {
         return Optional.ofNullable(docType);
+    }
+
+    public void setRootElement(HtmlElement rootElement) {
+        this.rootElement = rootElement;
     }
 }

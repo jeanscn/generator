@@ -17,10 +17,7 @@ package org.mybatis.generator.api;
 
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.CustomMethodProperties;
-import org.mybatis.generator.custom.HtmlElementDescriptor;
-import org.mybatis.generator.custom.RelationPropertyHolder;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.*;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -110,7 +107,7 @@ public abstract class IntrospectedTable {
 
     protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
 
-    protected List<IntrospectedColumn> foreignKeyColumns = new ArrayList<>();
+    protected List<SelectByColumnProperties> selectByColumnProperties = new ArrayList<>();
 
     protected List<IntrospectedColumn> baseColumns = new ArrayList<>();
 
@@ -118,11 +115,13 @@ public abstract class IntrospectedTable {
 
     protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
 
-    Map<String, CustomMethodProperties> customAddtionalSelectMethods = new HashMap<>();
+    protected Map<String, CustomMethodProperties> customAddtionalSelectMethods = new HashMap<>();
 
     protected List<HtmlElementDescriptor> htmlElementDescriptors = new ArrayList<>();
 
     protected List<String> htmlElementInputRequired = new ArrayList<>();
+
+    protected List<SelectByTableProperties> selectByTableProperties = new ArrayList<>();
 
     protected String htmlPageLoadingType;
 
@@ -170,9 +169,7 @@ public abstract class IntrospectedTable {
         return tableConfiguration.getGeneratedKey();
     }
 
-    public List<IntrospectedColumn> getForeignKeyColumns() {
-        return foreignKeyColumns;
-    }
+
 
     public Optional<IntrospectedColumn> getColumn(String columnName) {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream(), blobColumns.stream())
@@ -363,14 +360,7 @@ public abstract class IntrospectedTable {
         introspectedColumn.setIntrospectedTable(this);
     }
 
-    public void addForeignKeyColumn(String columnName) {
-        for (IntrospectedColumn introspectedColumn : baseColumns) {
-            if (introspectedColumn.getActualColumnName().equals(columnName)) {
-                foreignKeyColumns.add(introspectedColumn);
-                break;
-            }
-        }
-    }
+
 
     public void addPrimaryKeyColumn(String columnName) {
         boolean found = false;
@@ -522,6 +512,10 @@ public abstract class IntrospectedTable {
         this.htmlElementDescriptors.add(htmlElementDescriptor);
     }
 
+    public List<SelectByColumnProperties> getSelectByColumnProperties() {
+        return selectByColumnProperties;
+    }
+
     public List<String> getHtmlElementInputRequired() {
         return htmlElementInputRequired;
     }
@@ -556,7 +550,49 @@ public abstract class IntrospectedTable {
                 });
             }
         }
+        //生成基于关系表主键的查询方法
+        String selectByTable = this.getConfigPropertyValue("selectByTable", PropertyScope.table);
+        if (StringUtility.stringHasValue(selectByTable)) {
+            String[] ps = selectByTable.split(",");
+            for (String p : ps) {
+                String[] split = p.split("\\|");
+                if (split.length>3) {
+                    SelectByTableProperties selectByTableProperties = new SelectByTableProperties();
+                    selectByTableProperties.setTableName(split[0]);
+                    selectByTableProperties.setPrimaryKeyColumn(split[1]);
+                    selectByTableProperties.setOtherPrimaryKeyColumn(split[2]);
+                    selectByTableProperties.setMethodName("selectByTable"+split[3]);
+                    if ((split.length > 4)) {
+                        selectByTableProperties.setParameterName(split[4]);
+                    }else{
+                        selectByTableProperties.setParameterName("id");
+                    }
+                    this.selectByTableProperties.add(selectByTableProperties);
+                }
+            }
+        }
+
+        //生成基于外键的查询方法
+        String selectByColumn = this.getConfigPropertyValue("selectByColumn", PropertyScope.table);
+        if (StringUtility.stringHasValue(selectByColumn)) {
+            String[] ps = selectByColumn.split(",");
+            for (String p : ps) {
+                String[] split = p.split("\\|");
+                SelectByColumnProperties selectByColumnProperties = new SelectByColumnProperties(split[0]);
+                if (split.length>1) {
+                    selectByColumnProperties.setOrderByClause(split[1]);
+                }
+                this.getColumn(split[0]).ifPresent(c->{
+                    selectByColumnProperties.setColumn(c);
+                    selectByColumnProperties.setMethodName(JavaBeansUtil.byColumnMethodName(c));
+                });
+                selectByColumnProperties.setColumn(this.getColumn(split[0]).orElse(null));
+                this.selectByColumnProperties.add(selectByColumnProperties);
+            }
+        }
         //再看其他
+
+
 
     }
 
@@ -1357,6 +1393,10 @@ public abstract class IntrospectedTable {
 
     public Map<String, CustomMethodProperties> getCustomAddtionalSelectMethods() {
         return customAddtionalSelectMethods;
+    }
+
+    public List<SelectByTableProperties> getSelectByTableProperties() {
+        return selectByTableProperties;
     }
 
     public void addCustomAddtionalSelectMethods(String methodName, CustomMethodProperties customMethodProperties) {
