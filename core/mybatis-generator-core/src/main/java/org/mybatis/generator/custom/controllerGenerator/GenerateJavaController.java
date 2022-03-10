@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.custom.controllerGenerator;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -31,7 +32,6 @@ public class GenerateJavaController {
     private final IntrospectedTable introspectedTable;
     private final FullyQualifiedJavaType entityType;
     private final FullyQualifiedJavaType exampleType;
-    private final String entityLowerShortName;
     private final String entityFirstLowerShortName;
     private final FullyQualifiedJavaType responseSimple;
     private final String serviceBeanName;
@@ -44,7 +44,6 @@ public class GenerateJavaController {
         this.introspectedTable = introspectedTable;
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         this.exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-        this.entityLowerShortName = entityType.getShortName().toLowerCase();
         this.responseSimple = new FullyQualifiedJavaType("com.vgosoft.web.respone.ResponseSimple");
         this.serviceBeanName = introspectedTable.getControllerBeanName();
         commentGenerator = introspectedTable.getContext().getCommentGenerator();
@@ -76,41 +75,26 @@ public class GenerateJavaController {
         //函数体
         sb.append("ModelAndView mv = new ModelAndView();");
         method.addBodyLine(sb.toString());
-        method.addBodyLine("try {");
         method.addBodyLine("if (id != null) {");
-        sb.setLength(0);
-        sb.append(entityType.getShortName()).append(" ").append(entityLowerShortName);
-        sb.append(" = ");
-        sb.append(serviceBeanName).append(".selectByPrimaryKey(id);");
-        method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        sb.append("mv.addObject(\"");
-        sb.append(this.entityNameKey);
-        sb.append("\",").append(entityLowerShortName).append(");");
-        method.addBodyLine(sb.toString());
+        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
+                entityType.getShortName(), serviceBeanName));
+        method.addBodyLine("if (serviceResult.isSuccess()) {");
+        method.addBodyLine(VStringUtil.format("mv.addObject(\"{0}\",serviceResult.getResult());",this.entityNameKey));
+        method.addBodyLine("}else{");
+        method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");
-        method.addBodyLine("mv.addObject(\"viewStatus\", Objects.requireNonNullElse(viewStatus, 1));");
-        String[] split = StringUtils.split(viewPath, "/");
-        split[split.length - 1] = "{0}" + split[split.length - 1];
-        String mString = StringUtils.join(split, "/");
-        method.addBodyLine("if (prefix != null) {");
-        sb.setLength(0);
-        sb.append("mv.setViewName(\"");
-        String replace = mString.replace("{0}", "\"+prefix+\"");
-        sb.append(replace);
-        sb.append("\");");
-        method.addBodyLine(sb.toString());
-        method.addBodyLine("} else {");
-        sb.setLength(0);
-        sb.append("mv.setViewName(\"");
-        sb.append(viewPath);
-        sb.append("\");");
-        method.addBodyLine(sb.toString());
+        method.addBodyLine("}else{");
+        method.addBodyLine(VStringUtil.format("mv.addObject(\"{0}\", new {1}(0));", this.entityNameKey,entityType.getShortName()));
         method.addBodyLine("}");
-        method.addBodyLine("} catch (Exception e) {");
-        method.addBodyLine("mv.setViewName(\"page/500\");");
-        method.addBodyLine("mv.addObject(\"error\", e.getMessage());");
-        method.addBodyLine("}");
+        method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewStatus).orElse(\"1\"));");
+        sb.setLength(0);
+        sb.append("String viewName = VStringUtil.format(\"");
+        sb.append(StringUtility.substringBeforeLast(viewPath, "/"));
+        sb.append("/{0}");
+        sb.append(StringUtility.substringAfterLast(viewPath, "/"));
+        sb.append("\",Optional.ofNullable(prefix).orElse(\"\"));");
+        method.addBodyLine(sb.toString());
+        method.addBodyLine("mv.setViewName(viewName);");
         method.addBodyLine("return mv;");
         return method;
     }
@@ -129,18 +113,14 @@ public class GenerateJavaController {
         addControllerMapping(method, "{id}", "get");
         //函数体
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
-        method.addBodyLine("try {");
-        sb.setLength(0);
-        sb.append(entityType.getShortName()).append(" ").append(entityFirstLowerShortName).append(" = ");
-        sb.append(serviceBeanName).append(".selectByPrimaryKey(id);");
-        method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        sb.append("responseSimple.addAttribute(\"");
-        sb.append(this.entityNameKey);
-        sb.append("\", ");
-        sb.append(entityFirstLowerShortName).append(");");
-        method.addBodyLine(sb.toString());
-        addExceptionAndreturn(method);
+        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
+                entityType.getShortName(), serviceBeanName));
+        method.addBodyLine("if (serviceResult.isSuccess()) {");
+        method.addBodyLine(VStringUtil.format("responseSimple.addAttribute(\"{0}\",serviceResult.getResult());",this.entityNameKey));
+        method.addBodyLine("}else{");
+        method.addBodyLine("responseSimple.addAttribute(\"error\", serviceResult.getMessage());");
+        method.addBodyLine("}");
+        method.addBodyLine("return responseSimple;");
         return method;
     }
 
@@ -161,16 +141,6 @@ public class GenerateJavaController {
         method.addBodyLine(sb.toString());
         method.addBodyLine("try {");
         sb.setLength(0);
-       /* sb.append("if (").append(entityFirstLowerShortName).append(" != null) {");
-        method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        sb.append("List<Field> list = getFieldsIsNotEmpty(").append(entityFirstLowerShortName).append(");");
-        method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        method.addBodyLine("if (list.size() > 0) {");
-        method.addBodyLine(sb.toString());
-        method.addBodyLine("}");
-        method.addBodyLine("}");*/
         sb.append("List<").append(entityType.getShortName()).append("> ");
         sb.append(entityFirstLowerShortName).append("s");
         sb.append(" = ").append(serviceBeanName).append(".selectByExample(example);");
@@ -261,13 +231,15 @@ public class GenerateJavaController {
         method.setReturnType(responseSimple);
         addControllerMapping(method, "", "post");
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
-        method.addBodyLine("try {");
-        sb.setLength(0);
-        sb.append("insert(").append(serviceBeanName).append(",")
-                .append(entityFirstLowerShortName)
-                .append(", responseSimple);");
-        method.addBodyLine(sb.toString());
-        addExceptionAndreturn(method);
+        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> insert = {1}.insert({2});",
+                entityType.getShortName(),serviceBeanName,entityFirstLowerShortName));
+        method.addBodyLine("if (!insert.isSuccess()) {");
+        method.addBodyLine("setExceptionResponse(responseSimple, insert.getException());");
+        method.addBodyLine("}else{");
+        method.addBodyLine("responseSimple.addAttribute(\"id\", insert.getResult().getId());");
+        method.addBodyLine("responseSimple.addAttribute(\"version\", insert.getResult().getVersion());");
+        method.addBodyLine("}");
+        method.addBodyLine("return responseSimple;");
         return method;
     }
 
@@ -282,15 +254,16 @@ public class GenerateJavaController {
         method.setReturnType(responseSimple);
         addControllerMapping(method, "", "put");
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
-        method.addBodyLine("try {");
-        sb.setLength(0);
-        sb.append("int rows =  ").append(serviceBeanName).append(".updateByPrimaryKey(");
-        sb.append(entityFirstLowerShortName).append(");");
-        method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        sb.append("responseSimple.addAttribute(\"rows\", String.valueOf(rows));");
-        method.addBodyLine(sb.toString());
-        addExceptionAndreturn(method);
+        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKey({2});",
+                entityType.getShortName(),serviceBeanName,entityFirstLowerShortName));
+        method.addBodyLine("if (serviceResult.isSuccess()) {");
+        method.addBodyLine("responseSimple.addAttribute(\"version\", serviceResult.getResult().getVersion());");
+        method.addBodyLine(VStringUtil.format("responseSimple.addAttribute(\"{0}\",serviceResult.getResult());",this.entityNameKey));
+        method.addBodyLine("}else{");
+        method.addBodyLine("responseSimple.setStatus(1);");
+        method.addBodyLine("responseSimple.setMessage(serviceResult.getMessage());");
+        method.addBodyLine("}");
+        method.addBodyLine("return responseSimple;");
         return method;
     }
 

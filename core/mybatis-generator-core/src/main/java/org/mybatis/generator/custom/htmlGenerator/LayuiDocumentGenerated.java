@@ -323,7 +323,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     }
                     addClassNameToElement(parent, "oas-form-item-edit");
                     HtmlElement rRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    rRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+                    if (htmlElementDescriptor.getDataFormat().equals("急")) {
+                        String format = VStringUtil.format("$'{'{0}.{1} ne null?({0}.{1} <= 50?''正常'':''紧急''):''正常''}'", entityKey, introspectedColumn.getJavaProperty());
+                        rRead.addAttribute(new Attribute("th:text", format));
+                    }else{
+                        rRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+                    }
                     break;
                 case "checkbox":
                     for (int i = 0; i < 2; i++) {

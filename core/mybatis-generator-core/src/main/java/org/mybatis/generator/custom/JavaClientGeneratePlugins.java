@@ -50,21 +50,21 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
     public static final String vStringUtil = "com.vgosoft.tool.core.VStringUtil";
     //service实现抽象父类
-    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMBGServiceInterface";
-    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMBGBlobServiceInterface";
-    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMBGBlobFileService";
-    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMBGBlobBytesService";
-    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMBGBlobStringService";
-    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractServiceBusiness";
+    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGService";
+    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBaseService";
+    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobFileService";
+    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBytesService";
+    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobStringService";
+    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractMybatisServiceBusiness";
     private static final String abstractBlobFileServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobFileServiceBusiness";
     private static final String abstractBlobBytesServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
     private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
     //service接口父类
-    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.MBGServiceInterface";
-    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.MBGBlobServiceInterface";
-    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.MBGBlobFileService";
-    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.MBGBlobBytesService";
-    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.MBGBlobStringService";
+    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGService";
+    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGBlobService";
+    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.IMybatisBGBlobFileService";
+    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.IMybatisBGBlobBytesService";
+    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.IMybatisBGBlobStringService";
 
     //mapper接口
     public static final String mBGMapperInterface = "com.vgosoft.mybatis.inf.MBGMapperInterface";
@@ -321,6 +321,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             commentGenerator.addJavaFileComment(conTopClazz);
             FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(ABSTRACT_BASE_CONTROLLER);
             conTopClazz.setSuperClass(supClazzType);
+            conTopClazz.addImportedType(serviceResult);
             conTopClazz.addImportedType(infName);
             conTopClazz.addImportedType(supClazzType);
             conTopClazz.addImportedType(entityType);
@@ -382,7 +383,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * 为Controller类添加引入包路径
      */
     private void conClazzAddStaticImportedType(TopLevelClass conTopClazz) {
-        //conTopClazz.addImportedType(serviceResult);
+        conTopClazz.addImportedType(serviceResult);
         conTopClazz.addImportedType(vStringUtil);
         conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimple");
         conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
