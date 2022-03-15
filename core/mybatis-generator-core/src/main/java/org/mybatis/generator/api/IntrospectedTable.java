@@ -94,6 +94,7 @@ public abstract class IntrospectedTable {
         ATTR_CONTROL_BEAN_NAME,
         ATTR_RELATION_RESULT_MAP_ID,
         ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID,
+        ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID,
         ATTR_SELECT_TREE_BY_PARENT_ID_STATEMENT_ID
     }
 
@@ -429,17 +430,16 @@ public abstract class IntrospectedTable {
         //元素生成类型
         String property = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_DESCRIPTOR,PropertyScope.table);
         if (StringUtility.stringHasValue(property)) {
-            String[] elements = property.split(",");
-            for (String element : elements) {
-                String[] split = element.split("\\|");
-                if (split.length>1) {
+            String[][] strings = StringUtility.parsePropertyValue(property);
+            for (String[] string : strings) {
+                if (string.length>1) {
                     HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
-                    htmlElementDescriptor.setName(split[0]);
-                    htmlElementDescriptor.setTagType(split[1]);
-                    if (split.length>2) {
-                        htmlElementDescriptor.setDataUrl(split[2]);
-                        if(split.length>3){
-                            htmlElementDescriptor.setDataFormat(split[3]);
+                    htmlElementDescriptor.setName(string[0]);
+                    htmlElementDescriptor.setTagType(string[1]);
+                    if (string.length>2) {
+                        htmlElementDescriptor.setDataUrl(string[2]);
+                        if(string.length>3){
+                            htmlElementDescriptor.setDataFormat(string[3]);
                         }
                     }
                     this.htmlElementDescriptors.add(htmlElementDescriptor);
@@ -450,9 +450,7 @@ public abstract class IntrospectedTable {
         String required = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_REQUIRED,PropertyScope.table);
         if (StringUtility.stringHasValue(required)) {
             String[] elements = required.split(",");
-            for (String element : elements) {
-                this.htmlElementInputRequired.add(element);
-            }
+            Collections.addAll(this.htmlElementInputRequired, elements);
         }
 
         //页面打开形式
@@ -480,26 +478,23 @@ public abstract class IntrospectedTable {
     }
 
     private List<RelationPropertyHolder> getRelationProperty(String propertyVale, RelationTypeEnum typeEnum){
-        if (!StringUtility.stringHasValue(propertyVale)) {
-            return null;
-        }
         List<RelationPropertyHolder> ret = new ArrayList<>();
-        String[] rs = propertyVale.split(",");
-        for (String r : rs) {
-            String[] split = r.split("\\|");
-            if ((split.length<4)) {
-                continue;
+        if (StringUtility.stringHasValue(propertyVale)) {
+            String[][] propertyValeArray = StringUtility.parsePropertyValue(propertyVale);
+            for (String[] strings : propertyValeArray) {
+                if (strings.length>3) {
+                    RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
+                    relationPropertyHolder.setPropertyName(strings[0]);
+                    relationPropertyHolder.setColumn(strings[1]);
+                    relationPropertyHolder.setModelTye(strings[2]);
+                    relationPropertyHolder.setSelect(strings[3]);
+                    if (strings.length>4) {
+                        relationPropertyHolder.setJavaType(strings[4]);
+                    }
+                    relationPropertyHolder.setType(typeEnum);
+                    ret.add(relationPropertyHolder);
+                }
             }
-            RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
-            relationPropertyHolder.setPropertyName(split[0]);
-            relationPropertyHolder.setColumn(split[1]);
-            relationPropertyHolder.setModelTye(split[2]);
-            relationPropertyHolder.setSelect(split[3]);
-            if (split.length>4) {
-                relationPropertyHolder.setJavaType(split[4]);
-            }
-            relationPropertyHolder.setType(typeEnum);
-            ret.add(relationPropertyHolder);
         }
         return  ret;
     }
@@ -532,14 +527,14 @@ public abstract class IntrospectedTable {
         //先看看是否生成selectTreeByParentIdMethod
         String propertyValue = this.getConfigPropertyValue("generateSelectChildIdsByFunctionResult", PropertyScope.table);
         if (StringUtility.stringHasValue(propertyValue)) {
-            String[] ps = propertyValue.split("\\|");
-            if(ps.length>0){
+            String[][] propertyValueArray = StringUtility.parsePropertyValue(propertyValue);
+            for (String[] strings : propertyValueArray) {
                 CustomMethodProperties customMethodProperties = new CustomMethodProperties();
                 customMethodProperties.setMethodName(this.getSelectTreeByParentIdStatementId());
-                customMethodProperties.setSqlMethod(ps[0]);
+                customMethodProperties.setSqlMethod(strings[0]);
                 String columnName = "PARENT_ID";
-                if (ps.length>1) {
-                    columnName = ps[1];
+                if (strings.length>1) {
+                    columnName = strings[1];
                 }
                 this.getColumn(columnName).ifPresent(c->{
                     customMethodProperties.setParentIdColumn(c);
@@ -553,19 +548,20 @@ public abstract class IntrospectedTable {
         //生成基于关系表主键的查询方法
         String selectByTable = this.getConfigPropertyValue("selectByTable", PropertyScope.table);
         if (StringUtility.stringHasValue(selectByTable)) {
-            String[] ps = selectByTable.split(",");
-            for (String p : ps) {
-                String[] split = p.split("\\|");
-                if (split.length>3) {
+            String[][] selectByTableArray = StringUtility.parsePropertyValue(selectByTable);
+            for (String[] strings : selectByTableArray) {
+                if (strings.length>3) {
                     SelectByTableProperties selectByTableProperties = new SelectByTableProperties();
-                    selectByTableProperties.setTableName(split[0]);
-                    selectByTableProperties.setPrimaryKeyColumn(split[1]);
-                    selectByTableProperties.setOtherPrimaryKeyColumn(split[2]);
-                    selectByTableProperties.setMethodName("selectByTable"+split[3]);
-                    if ((split.length > 4)) {
-                        selectByTableProperties.setParameterName(split[4]);
-                    }else{
-                        selectByTableProperties.setParameterName("id");
+                    selectByTableProperties.setTableName(strings[0]);
+                    selectByTableProperties.setPrimaryKeyColumn(strings[1]);
+                    selectByTableProperties.setOtherPrimaryKeyColumn(strings[2]);
+                    selectByTableProperties.setMethodName("selectByTable"+strings[3]);
+                    selectByTableProperties.setParameterName(JavaBeansUtil.getCamelCaseString(strings[2],false));
+                    if ((strings.length > 4)) {
+                        selectByTableProperties.setOrderByClause(strings[4]);
+                    }
+                    if (strings.length>5) {
+                        selectByTableProperties.setAdditionCondition(strings[5]);
                     }
                     this.selectByTableProperties.add(selectByTableProperties);
                 }
@@ -575,19 +571,37 @@ public abstract class IntrospectedTable {
         //生成基于外键的查询方法
         String selectByColumn = this.getConfigPropertyValue("selectByColumn", PropertyScope.table);
         if (StringUtility.stringHasValue(selectByColumn)) {
-            String[] ps = selectByColumn.split(",");
-            for (String p : ps) {
-                String[] split = p.split("\\|");
-                SelectByColumnProperties selectByColumnProperties = new SelectByColumnProperties(split[0]);
-                if (split.length>1) {
-                    selectByColumnProperties.setOrderByClause(split[1]);
+            String[][] selectByColumnArray = StringUtility.parsePropertyValue(selectByColumn);
+            for (String[] strings : selectByColumnArray) {
+                SelectByColumnProperties selectByColumnProperties = new SelectByColumnProperties(strings[0]);
+                if (strings.length>1) {
+                    selectByColumnProperties.setOrderByClause(strings[1]);
                 }
-                this.getColumn(split[0]).ifPresent(c->{
+                this.getColumn(strings[0]).ifPresent(c->{
                     selectByColumnProperties.setColumn(c);
                     selectByColumnProperties.setMethodName(JavaBeansUtil.byColumnMethodName(c));
                 });
-                selectByColumnProperties.setColumn(this.getColumn(split[0]).orElse(null));
+                selectByColumnProperties.setColumn(this.getColumn(strings[0]).orElse(null));
                 this.selectByColumnProperties.add(selectByColumnProperties);
+            }
+        }
+        //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
+        if (this.getRelationProperties().size()>0) {
+            internalAttributes.put(InternalAttribute.ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID, "selectBaseByPrimaryKey");
+            String selectBaseByPrimaryKeyStatementId = this.getSelectBaseByPrimaryKeyStatementId();
+            if (this.getPrimaryKeyColumns().size()==1) {
+                String actualColumnName = this.getPrimaryKeyColumns().get(0).getActualColumnName();
+                long count = 0;
+                if (this.selectByColumnProperties.size()>0) {
+                    count = this.getSelectByColumnProperties().stream().filter(t -> t.getMethodName().equals(selectBaseByPrimaryKeyStatementId)).count();
+                }
+                if (count==0) {
+                    SelectByColumnProperties selectByColumnProperties = new SelectByColumnProperties(actualColumnName);
+                    selectByColumnProperties.setColumn(this.getPrimaryKeyColumns().get(0));
+                    selectByColumnProperties.setMethodName(selectBaseByPrimaryKeyStatementId);
+                    selectByColumnProperties.setReturnType(1);
+                    this.selectByColumnProperties.add(selectByColumnProperties);
+                }
             }
         }
         //再看其他
@@ -865,6 +879,11 @@ public abstract class IntrospectedTable {
     public String getSelectByPrimaryKeyStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID);
+    }
+
+    public String getSelectBaseByPrimaryKeyStatementId() {
+        return internalAttributes
+                .get(InternalAttribute.ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
     public String getSelectByExampleWithBLOBsStatementId() {

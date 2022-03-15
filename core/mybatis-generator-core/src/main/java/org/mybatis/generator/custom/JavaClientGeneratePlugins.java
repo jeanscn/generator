@@ -46,7 +46,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String apiModelProperty = "io.swagger.annotations.ApiModelProperty";
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
-    private static final String abstractEntity = "com.vgosoft.core.entity.AbstractEntity";
+    //private static final String abstractEntity = "com.vgosoft.core.entity.AbstractEntity";
     private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
     public static final String vStringUtil = "com.vgosoft.tool.core.VStringUtil";
     //service实现抽象父类
@@ -146,7 +146,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
                 if (introspectedTable.getSelectByColumnProperties().size() > 0) {
                     for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                        addAbstractMethodByColumn(bizINF, entityType, selectByColumnProperty.getColumn());
+                        addAbstractMethodByColumn(bizINF, entityType, selectByColumnProperty);
                     }
                 }
 
@@ -201,12 +201,12 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
                         IntrospectedColumn foreignKeyColumn = selectByColumnProperty.getColumn();
                         Method methodByColumn = getMethodByColumn(entityType, foreignKeyColumn,
-                                JavaBeansUtil.byColumnMethodName(foreignKeyColumn), false);
+                                selectByColumnProperty.getMethodName(), false);
                         methodByColumn.addAnnotation("@Override");
                         addJavaMapper(introspectedTable, bizClazzImpl);
                         sb.setLength(0);
                         sb.append("return mapper.");
-                        sb.append(JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
+                        sb.append(selectByColumnProperty.getMethodName());
                         sb.append("(");
                         sb.append(foreignKeyColumn.getJavaProperty());
                         sb.append(");");
@@ -435,7 +435,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         //增加by外键
         if (introspectedTable.getSelectByColumnProperties().size() > 0) {
             for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty.getColumn());
+                addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty);
             }
         }
         //增加
@@ -458,9 +458,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return true;
     }
 
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn foreignKeyColumn) {
-        Method method = new Method(JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
-        addAbstractMethodByColumn(interFace, entityType, foreignKeyColumn, JavaBeansUtil.byColumnMethodName(foreignKeyColumn));
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnProperties selectByColumnProperty) {
+        addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty.getColumn(), selectByColumnProperty.getMethodName());
     }
 
 
@@ -484,9 +483,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             method.setVisibility(JavaVisibility.PUBLIC);
         }
         method.addParameter(new Parameter(parameterFullyQualifiedJavaType, parameterName));
-        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-        listType.addTypeArgument(returnType);
-        method.setReturnType(listType);
+        if (methodName.equals("selectBaseByPrimaryKey")) {
+            method.setReturnType(returnType);
+        }else{
+            FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+            listType.addTypeArgument(returnType);
+            method.setReturnType(listType);
+        }
         context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
                 "这个抽象方法通过定制版Mybatis Generator自动生成",
                 VStringUtil.format("@param {0} {1}", parameterName, remark));
@@ -565,7 +568,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         //添加一个参数的构造器
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(abstractEntity, topLevelClass, introspectedTable);
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass, introspectedTable);
         if (assignable1) {
             Method method = new Method(topLevelClass.getType().getShortName());
             method.addParameter(new Parameter(new FullyQualifiedJavaType("int"), "persistenceStatus"));
@@ -925,7 +928,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * @param existParameters 是否有参
      */
     private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(abstractEntity, topLevelClass, introspectedTable);
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(iPersistenceBasic, topLevelClass, introspectedTable);
         if (existParameters) {
             if (assignable1) {
                 method.addBodyLine("super(persistenceStatus);");

@@ -20,6 +20,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.custom.SelectByTableProperties;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public class SelectByTableElementGenerator extends
         AbstractXmlElementGenerator {
@@ -54,6 +55,9 @@ public class SelectByTableElementGenerator extends
             IntrospectedColumn introspectedColumn = introspectedTable.getPrimaryKeyColumns().get(0);
             sb.append(introspectedColumn.getTableAlias()).append(".");
             sb.append(introspectedColumn.getActualColumnName());
+            if (StringUtility.propertyValueValid(selectByTableProperty.getAdditionCondition())) {
+                sb.append(" and ").append(selectByTableProperty.getAdditionCondition());
+            }
             answer.addElement(new TextElement(sb.toString()));
             sb.setLength(0);
             sb.append("where ").append("RT.").append(selectByTableProperty.getOtherPrimaryKeyColumn());
@@ -61,6 +65,9 @@ public class SelectByTableElementGenerator extends
             sb.append(selectByTableProperty.getParameterName());
             sb.append(",jdbcType=VARCHAR} ");
             answer.addElement(new TextElement(sb.toString()));
+            if (StringUtility.propertyValueValid(selectByTableProperty.getOrderByClause())) {
+                answer.addElement(new TextElement("order by "+selectByTableProperty.getOrderByClause()));
+            }
             parentElement.addElement(answer);
         }
     }

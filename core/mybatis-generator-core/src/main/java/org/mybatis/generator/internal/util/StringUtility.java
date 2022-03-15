@@ -204,4 +204,21 @@ public class StringUtility {
         return str == null ? null : str.toLowerCase(locale);
     }
 
+    public static String[][] parsePropertyValue(String propertyValue){
+        final String cs1 = ",";
+        final String cs2 = "\\|";
+        String[] items = propertyValue.split(cs1);
+        String[][] ret = new String[items.length][];
+        for (int i = 0; i < items.length; i++) {
+           String[] split = items[i].split(cs2);
+            ret[i] = new String[split.length];
+            System.arraycopy(split, 0, ret[i], 0, split.length);
+        }
+        return ret;
+    }
+
+    public static boolean propertyValueValid(String value){
+        return StringUtility.stringHasValue(value) && !"_".equals(value);
+    }
+
 }

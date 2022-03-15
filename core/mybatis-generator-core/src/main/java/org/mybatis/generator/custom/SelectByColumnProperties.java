@@ -8,6 +8,8 @@ public class SelectByColumnProperties {
     private String columnName;
     private String orderByClause;
     private IntrospectedColumn column;
+    //返回类型，默认0-返回list，1-返回model
+    private int returnType = 0;
 
     public SelectByColumnProperties(String columnName) {
         this.columnName = columnName;
@@ -43,5 +45,13 @@ public class SelectByColumnProperties {
 
     public void setColumn(IntrospectedColumn column) {
         this.column = column;
+    }
+
+    public int getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(int returnType) {
+        this.returnType = returnType;
     }
 }

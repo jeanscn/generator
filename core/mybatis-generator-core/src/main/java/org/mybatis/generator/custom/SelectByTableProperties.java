@@ -12,6 +12,10 @@ public class SelectByTableProperties {
 
     private String parameterName;
 
+    private String orderByClause;
+
+    private String additionCondition;
+
     public String getParameterName() {
         return parameterName;
     }
@@ -50,5 +54,21 @@ public class SelectByTableProperties {
 
     public void setOtherPrimaryKeyColumn(String otherPrimaryKeyColumn) {
         this.otherPrimaryKeyColumn = otherPrimaryKeyColumn;
+    }
+
+    public String getOrderByClause() {
+        return orderByClause;
+    }
+
+    public void setOrderByClause(String orderByClause) {
+        this.orderByClause = orderByClause;
+    }
+
+    public String getAdditionCondition() {
+        return additionCondition;
+    }
+
+    public void setAdditionCondition(String additionCondition) {
+        this.additionCondition = additionCondition;
     }
 }

@@ -437,10 +437,7 @@ public class JavaBeansUtil {
 
     public static String byColumnMethodName(IntrospectedColumn column){
         String javaProperty = column.getJavaProperty();
-        StringBuilder sb = new StringBuilder();
-        sb.append("selectByColumn");
-        sb.append(getFirstCharacterUppercase(javaProperty));
-        return sb.toString();
+        return "selectByColumn" + getFirstCharacterUppercase(javaProperty);
     }
 
     public static void addAnnotation(AbstractJavaType javaType,String annotation){
