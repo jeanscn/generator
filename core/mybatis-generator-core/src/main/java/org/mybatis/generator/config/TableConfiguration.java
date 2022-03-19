@@ -15,6 +15,9 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.custom.CustomMethodProperty;
+import org.mybatis.generator.custom.SelectByColumnProperty;
+import org.mybatis.generator.custom.SelectByTableProperty;
 import org.mybatis.generator.internal.util.EqualsUtil;
 import org.mybatis.generator.internal.util.HashCodeUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
@@ -81,6 +84,12 @@ public class TableConfiguration extends PropertyHolder {
     private String mapperName;
     private String sqlProviderName;
 
+    private List<SelectByTableProperty> selectByTableProperties;
+
+    private List<SelectByColumnProperty> selectByColumnProperties;
+
+    private List<CustomMethodProperty> customMethodProperties;
+
     private List<IgnoredColumnPattern> ignoredColumnPatterns;
 
     public TableConfiguration(Context context) {
@@ -101,6 +110,9 @@ public class TableConfiguration extends PropertyHolder {
         deleteByExampleStatementEnabled = true;
         countByExampleStatementEnabled = true;
         updateByExampleStatementEnabled = true;
+        selectByTableProperties = new ArrayList<>();
+        selectByColumnProperties =new ArrayList<>();
+        customMethodProperties = new ArrayList<>();
     }
 
     public boolean isDeleteByPrimaryKeyStatementEnabled() {
@@ -470,5 +482,32 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setSqlProviderName(String sqlProviderName) {
         this.sqlProviderName = sqlProviderName;
+    }
+
+    public List<SelectByTableProperty> getSelectByTableProperties() {
+        return selectByTableProperties;
+    }
+
+    public List<SelectByTableProperty> addSelectByTableProperty(SelectByTableProperty selectByTableProperty) {
+        this.selectByTableProperties.add(selectByTableProperty);
+        return this.selectByTableProperties;
+    }
+
+    public List<SelectByColumnProperty> getSelectByColumnProperties() {
+        return selectByColumnProperties;
+    }
+
+    public List<SelectByColumnProperty> addSelectByColumnProperties(SelectByColumnProperty selectByColumnProperty) {
+        this.selectByColumnProperties.add(selectByColumnProperty);
+        return this.selectByColumnProperties;
+    }
+
+    public List<CustomMethodProperty> getCustomMethodProperties() {
+        return customMethodProperties;
+    }
+
+    public List<CustomMethodProperty>  addCustomMethodProperties(CustomMethodProperty customMethodProperty) {
+        this.customMethodProperties.add(customMethodProperty);
+        return this.customMethodProperties;
     }
 }
