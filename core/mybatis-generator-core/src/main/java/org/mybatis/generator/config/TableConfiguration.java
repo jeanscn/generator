@@ -16,6 +16,7 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.custom.CustomMethodProperty;
+import org.mybatis.generator.custom.RelationPropertyHolder;
 import org.mybatis.generator.custom.SelectByColumnProperty;
 import org.mybatis.generator.custom.SelectByTableProperty;
 import org.mybatis.generator.internal.util.EqualsUtil;
@@ -84,13 +85,16 @@ public class TableConfiguration extends PropertyHolder {
     private String mapperName;
     private String sqlProviderName;
 
+    private List<IgnoredColumnPattern> ignoredColumnPatterns;
+
+
     private List<SelectByTableProperty> selectByTableProperties;
 
     private List<SelectByColumnProperty> selectByColumnProperties;
 
     private List<CustomMethodProperty> customMethodProperties;
 
-    private List<IgnoredColumnPattern> ignoredColumnPatterns;
+    private List<RelationPropertyHolder> relationPropertyHolders;
 
     public TableConfiguration(Context context) {
         super();
@@ -113,6 +117,7 @@ public class TableConfiguration extends PropertyHolder {
         selectByTableProperties = new ArrayList<>();
         selectByColumnProperties =new ArrayList<>();
         customMethodProperties = new ArrayList<>();
+        relationPropertyHolders = new ArrayList<>();
     }
 
     public boolean isDeleteByPrimaryKeyStatementEnabled() {
@@ -509,5 +514,14 @@ public class TableConfiguration extends PropertyHolder {
     public List<CustomMethodProperty>  addCustomMethodProperties(CustomMethodProperty customMethodProperty) {
         this.customMethodProperties.add(customMethodProperty);
         return this.customMethodProperties;
+    }
+
+    public List<RelationPropertyHolder> getRelationPropertyHolders() {
+        return relationPropertyHolders;
+    }
+
+    public List<RelationPropertyHolder> addRelationPropertyHolders(RelationPropertyHolder relationPropertyHolder) {
+       this.relationPropertyHolders.add(relationPropertyHolder);
+       return this.relationPropertyHolders;
     }
 }

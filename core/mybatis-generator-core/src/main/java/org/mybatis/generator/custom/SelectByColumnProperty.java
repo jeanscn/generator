@@ -6,10 +6,14 @@ import org.mybatis.generator.api.IntrospectedColumn;
 public class SelectByColumnProperty {
     private String columnName;
     private String orderByClause;
+    //方法返回列表的泛型参数，主键primaryKey或者model默认model
     private String returnTypeParam = "model";
     private String methodName;
     private IntrospectedColumn column;
-    //返回类型，默认0-返回list，1-返回model
+    /**
+     * 返回类型，默认0-返回list，1-返回model
+     * 主要为了标识selectBaseByPrimaryKey方法，返回model
+     * */
     private int returnType = 0;
 
     public SelectByColumnProperty(String columnName) {

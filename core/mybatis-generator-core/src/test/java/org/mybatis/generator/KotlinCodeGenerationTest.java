@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mybatis.generator.api.GeneratedKotlinFile;
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Jeff Butler
  *
  */
+@Disabled
 public class KotlinCodeGenerationTest {
 
     @ParameterizedTest

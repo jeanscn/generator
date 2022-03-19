@@ -16,6 +16,8 @@
 package org.mybatis.generator.config.xml;
 
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.RelationPropertyHolder;
+import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.SelectByColumnProperty;
 import org.mybatis.generator.custom.SelectByTableProperty;
 import org.mybatis.generator.exception.XMLParserException;
@@ -358,8 +360,14 @@ public class MyBatisGeneratorConfigurationParser {
                 parseDomainObjectRenamingRule(tc, childNode);
             } else if ("columnRenamingRule".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseColumnRenamingRule(tc, childNode);
-            }  else if ("selectByTable".equals(childNode.getNodeName())) { //$NON-NLS-1$
+            } else if ("selectByTable".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseSelectByTable(tc, childNode);
+            } else if ("selectByColumn".equals(childNode.getNodeName())) { //$NON-NLS-1$
+                parseSelectByColumn(tc, childNode);
+            } else if ("javaModelAssociation".equals(childNode.getNodeName())) { //$NON-NLS-1$
+                parseJavaModelRelation(tc, childNode,RelationTypeEnum.association);
+            } else if ("javaModelCollection".equals(childNode.getNodeName())) { //$NON-NLS-1$
+                parseJavaModelRelation(tc, childNode,RelationTypeEnum.collection);
             }
         }
     }
@@ -524,7 +532,6 @@ public class MyBatisGeneratorConfigurationParser {
         String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
         String additionClause = attributes.getProperty("additionClause"); //$NON-NLS-1$
         String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
-
         SelectByTableProperty selectByTableProperty = new SelectByTableProperty();
         selectByTableProperty.setTableName(table);
         selectByTableProperty.setPrimaryKeyColumn(thisColumn);
@@ -532,8 +539,9 @@ public class MyBatisGeneratorConfigurationParser {
         selectByTableProperty.setMethodName("selectByTable"+methodSuffix);
         selectByTableProperty.setOrderByClause(orderByClause);
         selectByTableProperty.setAdditionCondition(additionClause);
-        selectByTableProperty.setReturnTypeParam(returnType);
-
+        if (stringHasValue(returnType)) {
+            selectByTableProperty.setReturnTypeParam(returnType);
+        }
         tc.addSelectByTableProperty(selectByTableProperty);
     }
 
@@ -543,7 +551,26 @@ public class MyBatisGeneratorConfigurationParser {
         String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
         String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
         SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(column);
+        selectByColumnProperty.setOrderByClause(orderByClause);
+        if (stringHasValue(returnType)) {
+            selectByColumnProperty.setReturnTypeParam(returnType);
+        }
         tc.addSelectByColumnProperties(selectByColumnProperty);
+    }
+
+    private void parseJavaModelRelation(TableConfiguration tc, Node node,RelationTypeEnum relationTypeEnum) {
+        Properties attributes = parseAttributes(node);
+        String fieldName = attributes.getProperty("fieldName"); //$NON-NLS-1$
+        String whereColumn = attributes.getProperty("whereColumn"); //$NON-NLS-1$
+        String fieldModel = attributes.getProperty("fieldModel"); //$NON-NLS-1$
+        String mapperMethod = attributes.getProperty("mapperMethod"); //$NON-NLS-1$
+        RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
+        relationPropertyHolder.setJavaType(fieldName);
+        relationPropertyHolder.setColumn(whereColumn);
+        relationPropertyHolder.setModelTye(fieldModel);
+        relationPropertyHolder.setSelect(mapperMethod);
+        relationPropertyHolder.setType(relationTypeEnum);
+        tc.addRelationPropertyHolders(relationPropertyHolder);
     }
 
     protected void parseJavaTypeResolver(Context context, Node node) {

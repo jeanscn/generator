@@ -1,18 +1,3 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.api;
 
 import org.mybatis.generator.codegen.HtmlConstants;
@@ -429,7 +414,7 @@ public abstract class IntrospectedTable {
     private void calculateHtmlElement() {
         //元素生成类型
         String property = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_DESCRIPTOR,PropertyScope.table);
-        if (StringUtility.stringHasValue(property)) {
+        if (stringHasValue(property)) {
             String[][] strings = StringUtility.parsePropertyValue(property);
             for (String[] string : strings) {
                 if (string.length>1) {
@@ -448,14 +433,14 @@ public abstract class IntrospectedTable {
         }
         //页面不允许为空的
         String required = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_REQUIRED,PropertyScope.table);
-        if (StringUtility.stringHasValue(required)) {
+        if (stringHasValue(required)) {
             String[] elements = required.split(",");
             Collections.addAll(this.htmlElementInputRequired, elements);
         }
 
         //页面打开形式
         String loadingType = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_LOADING_TYPE,PropertyScope.table);
-        if (StringUtility.stringHasValue(loadingType)) {
+        if (stringHasValue(loadingType)) {
            this.htmlPageLoadingType = loadingType;
         }else{
             this.htmlPageLoadingType = "full";
@@ -465,21 +450,25 @@ public abstract class IntrospectedTable {
 
     protected void calculateRelationProperty(){
         TableConfiguration tableConfiguration = this.getTableConfiguration();
-        String javaModelAssociationProperties = tableConfiguration.getProperty("javaModelAssociationProperties");
-        if (StringUtility.stringHasValue(javaModelAssociationProperties)) {
-            List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelAssociationProperties, RelationTypeEnum.association);
-            this.getRelationProperties().addAll(relationProperty);
-        }
-        String javaModelCollectionProperties = tableConfiguration.getProperty("javaModelCollectionProperties");
-        if (StringUtility.stringHasValue(javaModelCollectionProperties)) {
-            List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelCollectionProperties, RelationTypeEnum.collection);
-            this.getRelationProperties().addAll(relationProperty);
+        if (tableConfiguration.getRelationPropertyHolders().size()>0) {
+            this.getRelationProperties().addAll(tableConfiguration.getRelationPropertyHolders());
+        }else{
+            String javaModelAssociationProperties = tableConfiguration.getProperty("javaModelAssociationProperties");
+            if (stringHasValue(javaModelAssociationProperties)) {
+                List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelAssociationProperties, RelationTypeEnum.association);
+                this.getRelationProperties().addAll(relationProperty);
+            }
+            String javaModelCollectionProperties = tableConfiguration.getProperty("javaModelCollectionProperties");
+            if (stringHasValue(javaModelCollectionProperties)) {
+                List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelCollectionProperties, RelationTypeEnum.collection);
+                this.getRelationProperties().addAll(relationProperty);
+            }
         }
     }
 
     private List<RelationPropertyHolder> getRelationProperty(String propertyVale, RelationTypeEnum typeEnum){
         List<RelationPropertyHolder> ret = new ArrayList<>();
-        if (StringUtility.stringHasValue(propertyVale)) {
+        if (stringHasValue(propertyVale)) {
             String[][] propertyValeArray = StringUtility.parsePropertyValue(propertyVale);
             for (String[] strings : propertyValeArray) {
                 if (strings.length>3) {
@@ -525,74 +514,94 @@ public abstract class IntrospectedTable {
 
     protected void calculateGenerateCustomMethod(){
         //先看看是否生成selectTreeByParentIdMethod
-        String propertyValue = this.getConfigPropertyValue("generateSelectChildIdsByFunctionResult", PropertyScope.table);
-        if (StringUtility.stringHasValue(propertyValue)) {
-            String[][] propertyValueArray = StringUtility.parsePropertyValue(propertyValue);
-            for (String[] strings : propertyValueArray) {
-                CustomMethodProperty customMethodProperty = new CustomMethodProperty();
-                customMethodProperty.setMethodName(this.getSelectTreeByParentIdStatementId());
-                customMethodProperty.setSqlMethod(strings[0]);
-                String columnName = "PARENT_ID";
-                if (strings.length>1) {
-                    columnName = strings[1];
-                }
-                this.getColumn(columnName).ifPresent(c->{
-                    customMethodProperty.setParentIdColumn(c);
-                    if (this.getPrimaryKeyColumns().size()>0) {
-                        customMethodProperty.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
-                        this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(), customMethodProperty);
+        if (tableConfiguration.getCustomMethodProperties().size()>0) {
+            for (CustomMethodProperty customMethodProperty : tableConfiguration.getCustomMethodProperties()) {
+                this.customAddtionalSelectMethods.put(customMethodProperty.getMethodName(), customMethodProperty);
+            }
+        }else{
+            String propertyValue = this.getConfigPropertyValue("generateSelectChildIdsByFunctionResult", PropertyScope.table);
+            if (stringHasValue(propertyValue)) {
+                String[][] propertyValueArray = StringUtility.parsePropertyValue(propertyValue);
+                for (String[] strings : propertyValueArray) {
+                    CustomMethodProperty customMethodProperty = new CustomMethodProperty();
+                    customMethodProperty.setMethodName(this.getSelectTreeByParentIdStatementId());
+                    customMethodProperty.setSqlMethod(strings[0]);
+                    String columnName = "PARENT_ID";
+                    if (strings.length>1) {
+                        columnName = strings[1];
                     }
-                });
+                    this.getColumn(columnName).ifPresent(c->{
+                        customMethodProperty.setParentIdColumn(c);
+                        if (this.getPrimaryKeyColumns().size()>0) {
+                            customMethodProperty.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
+                            this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(), customMethodProperty);
+                        }
+                    });
+                }
             }
         }
         //生成基于关系表主键的查询方法
-        String selectByTable = this.getConfigPropertyValue("selectByTable", PropertyScope.table);
-        if (StringUtility.stringHasValue(selectByTable)) {
-            String[][] selectByTableArray = StringUtility.parsePropertyValue(selectByTable);
-            for (String[] strings : selectByTableArray) {
-                if (strings.length>3) {
-                    SelectByTableProperty selectByTableProperty = new SelectByTableProperty();
-                    selectByTableProperty.setTableName(strings[0]);
-                    selectByTableProperty.setPrimaryKeyColumn(strings[1]);
-                    selectByTableProperty.setOtherPrimaryKeyColumn(strings[2]);
-                    selectByTableProperty.setMethodName("selectByTable"+strings[3]);
-                    selectByTableProperty.setParameterName(JavaBeansUtil.getCamelCaseString(strings[2],false));
-                    if ((strings.length > 4)) {
-                        selectByTableProperty.setOrderByClause(strings[4]);
-                    }
-                    if (strings.length>5) {
-                        selectByTableProperty.setAdditionCondition(strings[5]);
-                    }
-                    if (strings.length>6) {
-                        if ("primaryKey".equalsIgnoreCase(strings[6])) {
-                            selectByTableProperty.setReturnTypeParam("primaryKey");
+        if (tableConfiguration.getSelectByTableProperties().size()>0) {
+            this.selectByTableProperties.addAll(tableConfiguration.getSelectByTableProperties());
+        }else{
+            String selectByTable = this.getConfigPropertyValue("selectByTable", PropertyScope.table);
+            if (stringHasValue(selectByTable)) {
+                String[][] selectByTableArray = StringUtility.parsePropertyValue(selectByTable);
+                for (String[] strings : selectByTableArray) {
+                    if (strings.length>3) {
+                        SelectByTableProperty selectByTableProperty = new SelectByTableProperty();
+                        selectByTableProperty.setTableName(strings[0]);
+                        selectByTableProperty.setPrimaryKeyColumn(strings[1]);
+                        selectByTableProperty.setOtherPrimaryKeyColumn(strings[2]);
+                        selectByTableProperty.setMethodName("selectByTable"+strings[3]);
+                        selectByTableProperty.setParameterName(JavaBeansUtil.getCamelCaseString(strings[2],false));
+                        if ((strings.length > 4)) {
+                            selectByTableProperty.setOrderByClause(strings[4]);
                         }
+                        if (strings.length>5) {
+                            selectByTableProperty.setAdditionCondition(strings[5]);
+                        }
+                        if (strings.length>6) {
+                            if ("primaryKey".equalsIgnoreCase(strings[6])) {
+                                selectByTableProperty.setReturnTypeParam("primaryKey");
+                            }
+                        }
+                        this.selectByTableProperties.add(selectByTableProperty);
                     }
-                    this.selectByTableProperties.add(selectByTableProperty);
                 }
             }
         }
 
-        //生成基于外键的查询方法
-        String selectByColumn = this.getConfigPropertyValue("selectByColumn", PropertyScope.table);
-        if (StringUtility.stringHasValue(selectByColumn)) {
-            String[][] selectByColumnArray = StringUtility.parsePropertyValue(selectByColumn);
-            for (String[] strings : selectByColumnArray) {
-                SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(strings[0]);
-                if (strings.length>1) {
-                    selectByColumnProperty.setOrderByClause(strings[1]);
-                }
-                if (strings.length>2) {
-                    if ("primaryKey".equalsIgnoreCase(strings[2])) {
-                        selectByColumnProperty.setReturnTypeParam("primaryKey");
-                    }
-                }
-                this.getColumn(strings[0]).ifPresent(c->{
+        //生成selectByColumn查询方法
+        if (tableConfiguration.getSelectByColumnProperties().size()>0) {
+            this.selectByColumnProperties.addAll(tableConfiguration.getSelectByColumnProperties());
+            for (SelectByColumnProperty selectByColumnProperty : this.selectByColumnProperties) {
+                getColumn(selectByColumnProperty.getColumnName()).ifPresent(c->{
                     selectByColumnProperty.setColumn(c);
                     selectByColumnProperty.setMethodName(JavaBeansUtil.byColumnMethodName(c));
                 });
-                selectByColumnProperty.setColumn(this.getColumn(strings[0]).orElse(null));
-                this.selectByColumnProperties.add(selectByColumnProperty);
+            }
+        }else{
+            String selectByColumn = this.getConfigPropertyValue("selectByColumn", PropertyScope.table);
+            if (stringHasValue(selectByColumn)) {
+                String[][] selectByColumnArray = StringUtility.parsePropertyValue(selectByColumn);
+                for (String[] strings : selectByColumnArray) {
+                    SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(strings[0]);
+                    if (strings.length>1) {
+                        selectByColumnProperty.setOrderByClause(strings[1]);
+                    }
+                    if (strings.length>2) {
+                        if ("primaryKey".equalsIgnoreCase(strings[2])) {
+                            selectByColumnProperty.setReturnTypeParam("primaryKey");
+                        }
+                    }
+                    this.getColumn(strings[0]).ifPresent(c->{
+                        selectByColumnProperty.setColumn(c);
+                        selectByColumnProperty.setMethodName(JavaBeansUtil.byColumnMethodName(c));
+                    });
+                    selectByColumnProperty.setColumn(this.getColumn(strings[0]).orElse(null));
+                    this.selectByColumnProperties.add(selectByColumnProperty);
+                }
             }
         }
         //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
@@ -955,10 +964,8 @@ public abstract class IntrospectedTable {
             return null;
         }
 
-        String sb = config.getTargetPackage() +
+        return config.getTargetPackage() +
                 fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
-
-        return sb;
     }
 
     protected void calculateJavaClientAttributes() {
@@ -1008,10 +1015,8 @@ public abstract class IntrospectedTable {
         JavaModelGeneratorConfiguration config = context
                 .getJavaModelGeneratorConfiguration();
 
-        String sb = config.getTargetPackage() +
+        return config.getTargetPackage() +
                 fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
-
-        return sb;
     }
 
     protected void calculateModelAttributes() {
@@ -1066,10 +1071,8 @@ public abstract class IntrospectedTable {
             return calculateJavaModelPackage();
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(exampleTargetPackage);
-        sb.append(fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config)));
-        return sb.toString();
+        return exampleTargetPackage +
+                fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
     }
 
     protected String calculateSqlMapPackage() {

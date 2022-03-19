@@ -17,6 +17,7 @@ package org.mybatis.generator;
 
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mybatis.generator.api.GeneratedJavaFile;
@@ -32,6 +33,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+@Disabled
 public class JavaCodeGenerationTest {
 
     @ParameterizedTest

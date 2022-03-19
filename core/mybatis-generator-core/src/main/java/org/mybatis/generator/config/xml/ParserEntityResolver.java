@@ -15,13 +15,13 @@
  */
 package org.mybatis.generator.config.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.mybatis.generator.codegen.XmlConstants;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ParserEntityResolver implements EntityResolver {
 
@@ -37,7 +37,7 @@ public class ParserEntityResolver implements EntityResolver {
             InputStream is = getClass()
                     .getClassLoader()
                     .getResourceAsStream(
-                            "org/mybatis/generator/config/xml/mybatis-generator-config_1_0.dtd"); //$NON-NLS-1$
+                            "org/mybatis/generator/config/xml/mybatis-generator-config_1_4_7.dtd"); //$NON-NLS-1$
             return new InputSource(is);
         } else {
             return null;
