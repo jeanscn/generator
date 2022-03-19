@@ -16,7 +16,7 @@ public class SelectByTableProperty {
 
     private String additionCondition;
 
-    private String returnTypeParam;
+    private String returnTypeParam = "model";
 
     public String getParameterName() {
         return parameterName;

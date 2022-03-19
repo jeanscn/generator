@@ -161,9 +161,9 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             }
             form.addElement(table);
         } else {
-            HtmlElement h2 = new HtmlElement("H2");
-            h2.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
-            form.addElement(h2);
+//            HtmlElement h2 = new HtmlElement("H2");
+//            h2.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
+//            form.addElement(h2);
             for (List<IntrospectedColumn> introspectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement formItem = addDivWithClassToParent(form, "layui-form-item");
@@ -178,7 +178,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
                     } else {
-                        generateHtmlInputComponent(introspectedColumn, entityKey, inputInline, null);
+                        generateHtmlInputComponent(introspectedColumn, entityKey, inputInline, formItem);
                     }
                 }
             }

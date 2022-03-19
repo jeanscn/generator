@@ -18,7 +18,6 @@ package org.mybatis.generator.api;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.*;
-import org.mybatis.generator.custom.enums.MethodReturnTypeEnum;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -585,9 +584,7 @@ public abstract class IntrospectedTable {
                 }
                 if (strings.length>2) {
                     if ("primaryKey".equalsIgnoreCase(strings[2])) {
-                        selectByColumnProperty.setReturnTypeParam(MethodReturnTypeEnum.PRIMARY_KEY);
-                    }else{
-                        selectByColumnProperty.setReturnTypeParam(MethodReturnTypeEnum.MODEL);
+                        selectByColumnProperty.setReturnTypeParam("primaryKey");
                     }
                 }
                 this.getColumn(strings[0]).ifPresent(c->{

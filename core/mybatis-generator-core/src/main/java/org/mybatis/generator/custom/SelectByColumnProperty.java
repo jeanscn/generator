@@ -1,13 +1,12 @@
 package org.mybatis.generator.custom;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.custom.enums.MethodReturnTypeEnum;
 
 
 public class SelectByColumnProperty {
     private String columnName;
     private String orderByClause;
-    private MethodReturnTypeEnum returnTypeParam = MethodReturnTypeEnum.LIST_MODEL;
+    private String returnTypeParam = "model";
     private String methodName;
     private IntrospectedColumn column;
     //返回类型，默认0-返回list，1-返回model
@@ -57,16 +56,16 @@ public class SelectByColumnProperty {
         this.returnType = returnType;
     }
 
-    public MethodReturnTypeEnum getReturnTypeParam() {
+    public String getReturnTypeParam() {
         return returnTypeParam;
     }
 
-    public void setReturnTypeParam(MethodReturnTypeEnum returnTypeParam) {
+    public void setReturnTypeParam(String returnTypeParam) {
         this.returnTypeParam = returnTypeParam;
     }
 
     public boolean isReturnPrimaryKey() {
-        return this.getReturnTypeParam().equals(MethodReturnTypeEnum.PRIMARY_KEY)
-                ||this.getReturnTypeParam().equals(MethodReturnTypeEnum.LIST_PRIMARY_KEY);
+        return this.getReturnTypeParam().equals("primaryKey")
+                ||this.getReturnTypeParam().equals("list_primaryKey");
     }
 }
