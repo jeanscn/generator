@@ -16,6 +16,8 @@
 package org.mybatis.generator.config.xml;
 
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.SelectByColumnProperty;
+import org.mybatis.generator.custom.SelectByTableProperty;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.w3c.dom.Element;
@@ -356,6 +358,8 @@ public class MyBatisGeneratorConfigurationParser {
                 parseDomainObjectRenamingRule(tc, childNode);
             } else if ("columnRenamingRule".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseColumnRenamingRule(tc, childNode);
+            }  else if ("selectByTable".equals(childNode.getNodeName())) { //$NON-NLS-1$
+                parseSelectByTable(tc, childNode);
             }
         }
     }
@@ -509,6 +513,37 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         tc.setColumnRenamingRule(crr);
+    }
+
+    private void parseSelectByTable(TableConfiguration tc, Node node) {
+        Properties attributes = parseAttributes(node);
+        String table = attributes.getProperty("table"); //$NON-NLS-1$
+        String thisColumn = attributes.getProperty("thisColumn"); //$NON-NLS-1$
+        String otherColumn = attributes.getProperty("otherColumn"); //$NON-NLS-1$
+        String methodSuffix = attributes.getProperty("methodSuffix"); //$NON-NLS-1$
+        String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
+        String additionClause = attributes.getProperty("additionClause"); //$NON-NLS-1$
+        String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
+
+        SelectByTableProperty selectByTableProperty = new SelectByTableProperty();
+        selectByTableProperty.setTableName(table);
+        selectByTableProperty.setPrimaryKeyColumn(thisColumn);
+        selectByTableProperty.setOtherPrimaryKeyColumn(otherColumn);
+        selectByTableProperty.setMethodName("selectByTable"+methodSuffix);
+        selectByTableProperty.setOrderByClause(orderByClause);
+        selectByTableProperty.setAdditionCondition(additionClause);
+        selectByTableProperty.setReturnTypeParam(returnType);
+
+        tc.addSelectByTableProperty(selectByTableProperty);
+    }
+
+    private void parseSelectByColumn(TableConfiguration tc, Node node) {
+        Properties attributes = parseAttributes(node);
+        String column = attributes.getProperty("column"); //$NON-NLS-1$
+        String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
+        String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
+        SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(column);
+        tc.addSelectByColumnProperties(selectByColumnProperty);
     }
 
     protected void parseJavaTypeResolver(Context context, Node node) {
