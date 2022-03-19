@@ -15,12 +15,16 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.custom.SelectByColumnProperties;
+import org.mybatis.generator.custom.SelectByColumnProperty;
 import org.mybatis.generator.internal.util.StringUtility;
+
+import java.util.stream.Collectors;
 
 public class SelectByColumnElementGenerator extends
         AbstractXmlElementGenerator {
@@ -34,7 +38,7 @@ public class SelectByColumnElementGenerator extends
         if (introspectedTable.getSelectByColumnProperties().size() == 0) {
             return;
         }
-        for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
+        for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
             XmlElement answer = new XmlElement("select");
             answer.addAttribute(new Attribute("id", selectByColumnProperty.getMethodName()));
             /*if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
@@ -46,15 +50,24 @@ public class SelectByColumnElementGenerator extends
                     answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
                 }
             }*/
-            answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+            if (selectByColumnProperty.isReturnPrimaryKey()) {
+                answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
+            }else{
+                answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+            }
             answer.addAttribute(new Attribute("parameterType", selectByColumnProperty.getColumn().getFullyQualifiedJavaType().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
 
             answer.addElement(new TextElement("select "));
-            answer.addElement(getBaseColumnListElement());
-            if (introspectedTable.hasBLOBColumns()) {
-                answer.addElement(new TextElement(","));
-                answer.addElement(getBlobColumnListElement());
+            if (selectByColumnProperty.isReturnPrimaryKey()) {
+                String collect = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+                answer.addElement(new TextElement(collect));
+            }else{
+                answer.addElement(getBaseColumnListElement());
+                if (introspectedTable.hasBLOBColumns()) {
+                    answer.addElement(new TextElement(","));
+                    answer.addElement(getBlobColumnListElement());
+                }
             }
             //form
             StringBuilder sb = new StringBuilder();

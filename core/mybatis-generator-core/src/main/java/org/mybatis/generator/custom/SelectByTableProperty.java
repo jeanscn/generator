@@ -1,6 +1,6 @@
 package org.mybatis.generator.custom;
 
-public class SelectByTableProperties {
+public class SelectByTableProperty {
 
     private String tableName;
 
@@ -15,6 +15,8 @@ public class SelectByTableProperties {
     private String orderByClause;
 
     private String additionCondition;
+
+    private String returnTypeParam;
 
     public String getParameterName() {
         return parameterName;
@@ -70,5 +72,18 @@ public class SelectByTableProperties {
 
     public void setAdditionCondition(String additionCondition) {
         this.additionCondition = additionCondition;
+    }
+
+    public String getReturnTypeParam() {
+        return returnTypeParam;
+    }
+
+    public void setReturnTypeParam(String returnTypeParam) {
+        this.returnTypeParam = returnTypeParam;
+    }
+
+    public boolean isReturnPrimaryKey() {
+        return this.getReturnTypeParam().equals("primaryKey")
+                ||this.getReturnTypeParam().equals("list_primaryKey");
     }
 }

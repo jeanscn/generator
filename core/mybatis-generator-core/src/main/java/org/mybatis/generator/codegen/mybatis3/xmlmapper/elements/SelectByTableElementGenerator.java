@@ -16,11 +16,14 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.custom.SelectByTableProperties;
+import org.mybatis.generator.custom.SelectByTableProperty;
 import org.mybatis.generator.internal.util.StringUtility;
+
+import java.util.stream.Collectors;
 
 public class SelectByTableElementGenerator extends
         AbstractXmlElementGenerator {
@@ -34,14 +37,23 @@ public class SelectByTableElementGenerator extends
         if (introspectedTable.getSelectByTableProperties().size() == 0) {
             return;
         }
-        for (SelectByTableProperties selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+        for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
             XmlElement answer = new XmlElement("select");
             answer.addAttribute(new Attribute("id", selectByTableProperty.getMethodName()));
-            answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
-            answer.addAttribute(new Attribute("parameterType", "java.lang.String"));
+            if (selectByTableProperty.isReturnPrimaryKey()) {
+                answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
+            }else{
+                answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+            }
+            answer.addAttribute(new Attribute("parameterType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("select "));
-            answer.addElement(getBaseColumnListElement());
+            if (selectByTableProperty.isReturnPrimaryKey()) {
+                String collect = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+                answer.addElement(new TextElement(collect));
+            }else{
+                answer.addElement(getBaseColumnListElement());
+            }
             //form
             StringBuilder sb = new StringBuilder();
             sb.append("from ");

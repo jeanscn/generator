@@ -75,8 +75,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     //Service结果包装类
     private static final String serviceResult = "com.vgosoft.core.adapter.ServiceResult";
 
-
-
     private static final String bizSubPackage = "service";
     private static final String implSubPackage = "impl";
     public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
@@ -140,24 +138,37 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 //增加selectTreeByParentId
                 if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
                         && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-                    CustomMethodProperties customMethodProperties = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-                    addAbstractMethodByColumn(bizINF, entityType, customMethodProperties.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
+                    CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+                    addAbstractMethodByColumn(bizINF, entityType, customMethodProperty.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
                 }
 
                 if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-                    for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                        addAbstractMethodByColumn(bizINF, entityType, selectByColumnProperty);
+                    for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
+                        if (selectByColumnProperty.isReturnPrimaryKey()) {
+                            addAbstractMethodByColumn(bizINF, FullyQualifiedJavaType.getStringInstance(), selectByColumnProperty);
+                            bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
+                        }else{
+                            addAbstractMethodByColumn(bizINF, entityType, selectByColumnProperty);
+                        }
                     }
                 }
 
                 if (introspectedTable.getSelectByTableProperties().size()>0) {
-                    for (SelectByTableProperties selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
-                        Method selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                                new FullyQualifiedJavaType("java.lang.String"), selectByTableProperty.getParameterName(), true,
-                                "中间表中来自其他表的查询键值");
+                    for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+                        Method selectByTable;
+                        if (selectByTableProperty.isReturnPrimaryKey()) {
+                            selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
+                                    FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                                    "中间表中来自其他表的查询键值");
+                            bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
+                        }else{
+                            selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
+                                    FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                                    "中间表中来自其他表的查询键值");
+                            bizINF.addImportedType(entityType);
+                        }
                         bizINF.addMethod(selectByTable);
                         bizINF.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                        bizINF.addImportedType(entityType);
                     }
                 }
 
@@ -198,10 +209,15 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
                 }
                 if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-                    for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
+                    for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
                         IntrospectedColumn foreignKeyColumn = selectByColumnProperty.getColumn();
-                        Method methodByColumn = getMethodByColumn(entityType, foreignKeyColumn,
-                                selectByColumnProperty.getMethodName(), false);
+                        Method methodByColumn;
+                        if (selectByColumnProperty.isReturnPrimaryKey()) {
+                            methodByColumn = getMethodByColumn(FullyQualifiedJavaType.getStringInstance(), foreignKeyColumn,selectByColumnProperty.getMethodName(), false);
+                            bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());
+                        }else{
+                            methodByColumn = getMethodByColumn(entityType, foreignKeyColumn,selectByColumnProperty.getMethodName(), false);
+                        }
                         methodByColumn.addAnnotation("@Override");
                         addJavaMapper(introspectedTable, bizClazzImpl);
                         sb.setLength(0);
@@ -220,28 +236,35 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 //增加selectTreeByParentId
                 if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
                         && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-                    CustomMethodProperties customMethodProperties = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-                    Method methodByColumn = getMethodByColumn(entityType, customMethodProperties.getParentIdColumn(),
-                            customMethodProperties.getMethodName(), false);
+                    CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+                    Method methodByColumn = getMethodByColumn(entityType, customMethodProperty.getParentIdColumn(),
+                            customMethodProperty.getMethodName(), false);
                     methodByColumn.addAnnotation("@Override");
                     addJavaMapper(introspectedTable, bizClazzImpl);
                     sb.setLength(0);
                     sb.append("return mapper.");
-                    sb.append(customMethodProperties.getMethodName());
+                    sb.append(customMethodProperty.getMethodName());
                     sb.append("(");
-                    sb.append(customMethodProperties.getParentIdColumn().getJavaProperty());
+                    sb.append(customMethodProperty.getParentIdColumn().getJavaProperty());
                     sb.append(");");
                     methodByColumn.addBodyLine(sb.toString());
                     bizClazzImpl.addMethod(methodByColumn);
                     bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    bizClazzImpl.addImportedType(customMethodProperties.getParentIdColumn().getFullyQualifiedJavaType());
+                    bizClazzImpl.addImportedType(customMethodProperty.getParentIdColumn().getFullyQualifiedJavaType());
                 }
 
                 //增加selectByTable方法
-                for (SelectByTableProperties selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
-                    Method selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                            new FullyQualifiedJavaType("java.lang.String"), selectByTableProperty.getParameterName(), false,
-                            "中间表中来自其他表的查询键值");
+                for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+                    Method selectByTable;
+                    if (selectByTableProperty.isReturnPrimaryKey()) {
+                        selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
+                                FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), false,
+                                "中间表中来自其他表的查询键值");
+                    }else{
+                        selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
+                                FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), false,
+                                "中间表中来自其他表的查询键值");
+                    }
                     selectByTable.setVisibility(JavaVisibility.PUBLIC);
                     selectByTable.addAnnotation("@Override");
                     addJavaMapper(introspectedTable, bizClazzImpl);
@@ -254,7 +277,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     selectByTable.addBodyLine(sb.toString());
                     bizClazzImpl.addMethod(selectByTable);
                     bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    bizClazzImpl.addImportedType(new FullyQualifiedJavaType("java.lang.String"));
+                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance());
                 }
 
 
@@ -434,22 +457,34 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
         //增加by外键
         if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-            for (SelectByColumnProperties selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty);
+            for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
+                if (selectByColumnProperty.isReturnPrimaryKey()) {
+                    addAbstractMethodByColumn(interFace, FullyQualifiedJavaType.getStringInstance(), selectByColumnProperty);
+                }else{
+                    addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty);
+                }
             }
         }
         //增加
         if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
                 && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodProperties customMethodProperties = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            addAbstractMethodByColumn(interFace, entityType, customMethodProperties.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
+            CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+            addAbstractMethodByColumn(interFace, entityType, customMethodProperty.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
         }
 
         if (introspectedTable.getSelectByTableProperties().size()>0) {
-            for (SelectByTableProperties selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
-                Method selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                        new FullyQualifiedJavaType("java.lang.String"), selectByTableProperty.getParameterName(), true,
-                        "中间表中来自其他表的查询键值");
+            for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+                Method selectByTable;
+                if (selectByTableProperty.isReturnPrimaryKey()) {
+                    selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
+                            FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                            "中间表中来自其他表的查询键值");
+                    interFace.addImportedType(FullyQualifiedJavaType.getStringInstance());
+                }else{
+                    selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
+                            FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                            "中间表中来自其他表的查询键值");
+                }
                 interFace.addMethod(selectByTable);
             }
             interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
@@ -458,7 +493,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return true;
     }
 
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnProperties selectByColumnProperty) {
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnProperty selectByColumnProperty) {
         addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty.getColumn(), selectByColumnProperty.getMethodName());
     }
 
@@ -618,16 +653,20 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         if (introspectedTable.getRelationProperties().size() > 0) {
             for (RelationPropertyHolder relationProperty : introspectedTable.getRelationProperties()) {
                 FullyQualifiedJavaType returnType;
+                Field field;
                 FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());
                 if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
                     FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
                     topLevelClass.addImportedType(listType);
                     returnType = FullyQualifiedJavaType.getNewListInstance();
                     returnType.addTypeArgument(fullyQualifiedJavaType);
+                    field = new Field(relationProperty.getPropertyName(), returnType);
+                    field.setInitializationString("new ArrayList<>()");
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.ArrayList"));
                 } else {
                     returnType = fullyQualifiedJavaType;
+                    field = new Field(relationProperty.getPropertyName(), returnType);
                 }
-                Field field = new Field(relationProperty.getPropertyName(), returnType);
                 addField(topLevelClass, field);
                 topLevelClass.addImportedType(fullyQualifiedJavaType);
             }

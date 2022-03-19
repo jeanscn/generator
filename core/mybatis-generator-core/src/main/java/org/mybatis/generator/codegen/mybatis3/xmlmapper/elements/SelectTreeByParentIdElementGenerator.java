@@ -19,7 +19,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.custom.CustomMethodProperties;
+import org.mybatis.generator.custom.CustomMethodProperty;
 
 import java.util.Map;
 
@@ -32,12 +32,12 @@ public class SelectTreeByParentIdElementGenerator extends AbstractXmlElementGene
     @Override
     public void addElements(XmlElement parentElement) {
         final String selectTreeByParentIdStatementId = introspectedTable.getSelectTreeByParentIdStatementId();
-        Map<String, CustomMethodProperties> customMethodName = introspectedTable.getCustomAddtionalSelectMethods();
+        Map<String, CustomMethodProperty> customMethodName = introspectedTable.getCustomAddtionalSelectMethods();
         if (customMethodName.isEmpty() || !customMethodName.containsKey(selectTreeByParentIdStatementId)) {
             return;
         }
-        for (Map.Entry<String, CustomMethodProperties> methodPropertiesEntry : customMethodName.entrySet()) {
-            CustomMethodProperties methodProperties = methodPropertiesEntry.getValue();
+        for (Map.Entry<String, CustomMethodProperty> methodPropertiesEntry : customMethodName.entrySet()) {
+            CustomMethodProperty methodProperties = methodPropertiesEntry.getValue();
             XmlElement answer = new XmlElement("select");
             answer.addAttribute(new Attribute("id", methodProperties.getMethodName()));
             if (introspectedTable.getRules().generateResultMapWithBLOBs()) {

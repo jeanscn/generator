@@ -18,6 +18,7 @@ package org.mybatis.generator.api;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.*;
+import org.mybatis.generator.custom.enums.MethodReturnTypeEnum;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -108,7 +109,7 @@ public abstract class IntrospectedTable {
 
     protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
 
-    protected List<SelectByColumnProperties> selectByColumnProperties = new ArrayList<>();
+    protected List<SelectByColumnProperty> selectByColumnProperties = new ArrayList<>();
 
     protected List<IntrospectedColumn> baseColumns = new ArrayList<>();
 
@@ -116,13 +117,13 @@ public abstract class IntrospectedTable {
 
     protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
 
-    protected Map<String, CustomMethodProperties> customAddtionalSelectMethods = new HashMap<>();
+    protected Map<String, CustomMethodProperty> customAddtionalSelectMethods = new HashMap<>();
 
     protected List<HtmlElementDescriptor> htmlElementDescriptors = new ArrayList<>();
 
     protected List<String> htmlElementInputRequired = new ArrayList<>();
 
-    protected List<SelectByTableProperties> selectByTableProperties = new ArrayList<>();
+    protected List<SelectByTableProperty> selectByTableProperties = new ArrayList<>();
 
     protected String htmlPageLoadingType;
 
@@ -507,7 +508,7 @@ public abstract class IntrospectedTable {
         this.htmlElementDescriptors.add(htmlElementDescriptor);
     }
 
-    public List<SelectByColumnProperties> getSelectByColumnProperties() {
+    public List<SelectByColumnProperty> getSelectByColumnProperties() {
         return selectByColumnProperties;
     }
 
@@ -529,18 +530,18 @@ public abstract class IntrospectedTable {
         if (StringUtility.stringHasValue(propertyValue)) {
             String[][] propertyValueArray = StringUtility.parsePropertyValue(propertyValue);
             for (String[] strings : propertyValueArray) {
-                CustomMethodProperties customMethodProperties = new CustomMethodProperties();
-                customMethodProperties.setMethodName(this.getSelectTreeByParentIdStatementId());
-                customMethodProperties.setSqlMethod(strings[0]);
+                CustomMethodProperty customMethodProperty = new CustomMethodProperty();
+                customMethodProperty.setMethodName(this.getSelectTreeByParentIdStatementId());
+                customMethodProperty.setSqlMethod(strings[0]);
                 String columnName = "PARENT_ID";
                 if (strings.length>1) {
                     columnName = strings[1];
                 }
                 this.getColumn(columnName).ifPresent(c->{
-                    customMethodProperties.setParentIdColumn(c);
+                    customMethodProperty.setParentIdColumn(c);
                     if (this.getPrimaryKeyColumns().size()>0) {
-                        customMethodProperties.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
-                        this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(),customMethodProperties);
+                        customMethodProperty.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
+                        this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(), customMethodProperty);
                     }
                 });
             }
@@ -551,19 +552,24 @@ public abstract class IntrospectedTable {
             String[][] selectByTableArray = StringUtility.parsePropertyValue(selectByTable);
             for (String[] strings : selectByTableArray) {
                 if (strings.length>3) {
-                    SelectByTableProperties selectByTableProperties = new SelectByTableProperties();
-                    selectByTableProperties.setTableName(strings[0]);
-                    selectByTableProperties.setPrimaryKeyColumn(strings[1]);
-                    selectByTableProperties.setOtherPrimaryKeyColumn(strings[2]);
-                    selectByTableProperties.setMethodName("selectByTable"+strings[3]);
-                    selectByTableProperties.setParameterName(JavaBeansUtil.getCamelCaseString(strings[2],false));
+                    SelectByTableProperty selectByTableProperty = new SelectByTableProperty();
+                    selectByTableProperty.setTableName(strings[0]);
+                    selectByTableProperty.setPrimaryKeyColumn(strings[1]);
+                    selectByTableProperty.setOtherPrimaryKeyColumn(strings[2]);
+                    selectByTableProperty.setMethodName("selectByTable"+strings[3]);
+                    selectByTableProperty.setParameterName(JavaBeansUtil.getCamelCaseString(strings[2],false));
                     if ((strings.length > 4)) {
-                        selectByTableProperties.setOrderByClause(strings[4]);
+                        selectByTableProperty.setOrderByClause(strings[4]);
                     }
                     if (strings.length>5) {
-                        selectByTableProperties.setAdditionCondition(strings[5]);
+                        selectByTableProperty.setAdditionCondition(strings[5]);
                     }
-                    this.selectByTableProperties.add(selectByTableProperties);
+                    if (strings.length>6) {
+                        if ("primaryKey".equalsIgnoreCase(strings[6])) {
+                            selectByTableProperty.setReturnTypeParam("primaryKey");
+                        }
+                    }
+                    this.selectByTableProperties.add(selectByTableProperty);
                 }
             }
         }
@@ -573,16 +579,23 @@ public abstract class IntrospectedTable {
         if (StringUtility.stringHasValue(selectByColumn)) {
             String[][] selectByColumnArray = StringUtility.parsePropertyValue(selectByColumn);
             for (String[] strings : selectByColumnArray) {
-                SelectByColumnProperties selectByColumnProperties = new SelectByColumnProperties(strings[0]);
+                SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(strings[0]);
                 if (strings.length>1) {
-                    selectByColumnProperties.setOrderByClause(strings[1]);
+                    selectByColumnProperty.setOrderByClause(strings[1]);
+                }
+                if (strings.length>2) {
+                    if ("primaryKey".equalsIgnoreCase(strings[2])) {
+                        selectByColumnProperty.setReturnTypeParam(MethodReturnTypeEnum.PRIMARY_KEY);
+                    }else{
+                        selectByColumnProperty.setReturnTypeParam(MethodReturnTypeEnum.MODEL);
+                    }
                 }
                 this.getColumn(strings[0]).ifPresent(c->{
-                    selectByColumnProperties.setColumn(c);
-                    selectByColumnProperties.setMethodName(JavaBeansUtil.byColumnMethodName(c));
+                    selectByColumnProperty.setColumn(c);
+                    selectByColumnProperty.setMethodName(JavaBeansUtil.byColumnMethodName(c));
                 });
-                selectByColumnProperties.setColumn(this.getColumn(strings[0]).orElse(null));
-                this.selectByColumnProperties.add(selectByColumnProperties);
+                selectByColumnProperty.setColumn(this.getColumn(strings[0]).orElse(null));
+                this.selectByColumnProperties.add(selectByColumnProperty);
             }
         }
         //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
@@ -596,11 +609,11 @@ public abstract class IntrospectedTable {
                     count = this.getSelectByColumnProperties().stream().filter(t -> t.getMethodName().equals(selectBaseByPrimaryKeyStatementId)).count();
                 }
                 if (count==0) {
-                    SelectByColumnProperties selectByColumnProperties = new SelectByColumnProperties(actualColumnName);
-                    selectByColumnProperties.setColumn(this.getPrimaryKeyColumns().get(0));
-                    selectByColumnProperties.setMethodName(selectBaseByPrimaryKeyStatementId);
-                    selectByColumnProperties.setReturnType(1);
-                    this.selectByColumnProperties.add(selectByColumnProperties);
+                    SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(actualColumnName);
+                    selectByColumnProperty.setColumn(this.getPrimaryKeyColumns().get(0));
+                    selectByColumnProperty.setMethodName(selectBaseByPrimaryKeyStatementId);
+                    selectByColumnProperty.setReturnType(1);
+                    this.selectByColumnProperties.add(selectByColumnProperty);
                 }
             }
         }
@@ -1410,16 +1423,16 @@ public abstract class IntrospectedTable {
         this.relationProperties = relationProperties;
     }
 
-    public Map<String, CustomMethodProperties> getCustomAddtionalSelectMethods() {
+    public Map<String, CustomMethodProperty> getCustomAddtionalSelectMethods() {
         return customAddtionalSelectMethods;
     }
 
-    public List<SelectByTableProperties> getSelectByTableProperties() {
+    public List<SelectByTableProperty> getSelectByTableProperties() {
         return selectByTableProperties;
     }
 
-    public void addCustomAddtionalSelectMethods(String methodName, CustomMethodProperties customMethodProperties) {
-        this.customAddtionalSelectMethods.put(methodName, customMethodProperties);
+    public void addCustomAddtionalSelectMethods(String methodName, CustomMethodProperty customMethodProperty) {
+        this.customAddtionalSelectMethods.put(methodName, customMethodProperty);
     }
 
     /**
