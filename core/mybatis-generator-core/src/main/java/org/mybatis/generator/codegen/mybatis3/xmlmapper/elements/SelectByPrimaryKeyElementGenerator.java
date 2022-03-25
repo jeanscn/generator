@@ -37,7 +37,7 @@ public class SelectByPrimaryKeyElementGenerator extends
         if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
             answer.addAttribute(new Attribute("resultMap",introspectedTable.getResultMapWithBLOBsId()));
         } else {
-            if (introspectedTable.getRelationProperties().size()>0) {
+            if (introspectedTable.getRules().generateRelationMap()) {
                 answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
             }else{
                 answer.addAttribute(new Attribute("resultMap",introspectedTable.getBaseResultMapId()));

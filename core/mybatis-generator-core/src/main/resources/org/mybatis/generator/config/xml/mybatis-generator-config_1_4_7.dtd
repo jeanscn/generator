@@ -111,7 +111,8 @@
         <!ELEMENT javaModelGenerator (property*)>
         <!ATTLIST javaModelGenerator
                 targetPackage CDATA #REQUIRED
-                targetProject CDATA #REQUIRED>
+                targetProject CDATA #REQUIRED
+                noMetaAnnotation (false|true) #IMPLIED>
 
         <!--
           The javaTypeResolver element is used to define properties of the Java Type Resolver.
@@ -149,7 +150,7 @@
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
         -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByTable*,selectByColumn*,javaModelAssociation*,javaModelCollection*, (columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
                 catalog CDATA #IMPLIED
                 schema CDATA #IMPLIED
@@ -274,15 +275,15 @@
                 orderByClause CDATA #IMPLIED
                 additionClause CDATA #IMPLIED
                 returnType CDATA #IMPLIED>
-      <!--
-        基于字段的查询方法 （也是配合javaModelCollectionProperties实现查询方法）
-        增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
-        元素名：selectByColumn
-        属性信息：
-        1、column 列名
-        2、orderByClause 排序语句
-        3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
-      -->
+        <!--
+          基于字段的查询方法 （也是配合javaModelCollectionProperties实现查询方法）
+          增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
+          元素名：selectByColumn
+          属性信息：
+          1、column 列名
+          2、orderByClause 排序语句
+          3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
+        -->
         <!ELEMENT selectByColumn (property*)>
         <!ATTLIST selectByColumn
                 column CDATA #REQUIRED
@@ -292,35 +293,100 @@
     <!--
         添加一个实体类型的属性，并实现一对一的association查询
         增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
+        *如果仅仅指定field、fieldModel，则仅在实体中添加一个 modelType field的属性。
         元素名：javaModelAssociationProperties
         属性信息：
         1、field 生成的属性名
-        2、whereColumn 条件字段列名
-        3、fieldModel 属性类型完整类名
+        2、modelType 属性类型完整类名
+        3、whereColumn 条件字段列名
         4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByPrimaryKey或也可以返回单个实体的查询方法）
     -->
         <!ELEMENT javaModelAssociation (property*)>
         <!ATTLIST javaModelAssociation
                 fieldName CDATA #REQUIRED
-                whereColumn CDATA #REQUIRED
-                fieldModel CDATA #REQUIRED
-                mapperMethod CDATA #REQUIRED>
+                modelType CDATA #REQUIRED
+                whereColumn CDATA #IMPLIED
+                mapperMethod CDATA #IMPLIED>
 
-    <!--
-        添加一个实体列表的属性，并实现一对多的collection查询
-        需要再相关表需要增加对应的外键属性，并生成对应的查询方法。
-        通过调用自己的外键查询可以达到递归查询的效果（慎用，大量递归可能引发效率问题）
-        如果该实体可能用于生成菜单或层级列表的通过转换方法，必须生成children为属性名的一对多的属性
-        元素名：javaModelCollectionProperties
-        属性信息：
-        1、field 生成的属性名
-        2、whereColumn 条件字段列名
-        3、fieldModel 属性类型完整类名
-        4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
-    -->
+        <!--
+            添加一个实体列表的属性，并实现一对多的collection查询
+            需要再相关表需要增加对应的外键属性，并生成对应的查询方法。
+            *通过调用自己的外键查询可以达到递归查询的效果（慎用，大量递归可能引发效率问题）
+            *如果该实体可能用于生成菜单或层级列表的通过转换方法，必须生成children为属性名的一对多的属性
+            *如果仅仅指定field、fieldModel，则仅在实体中添加一个List<model> field的属性。
+            元素名：javaModelCollectionProperties
+            属性信息：
+            1、field 生成的属性名
+            2、modelType 属性类型完整类名
+            3、whereColumn 条件字段列名
+            4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
+        -->
         <!ELEMENT javaModelCollection (property*)>
         <!ATTLIST javaModelCollection
                 fieldName CDATA #REQUIRED
-                whereColumn CDATA #REQUIRED
-                fieldModel CDATA #REQUIRED
-                mapperMethod CDATA #REQUIRED>
+                modelType CDATA #REQUIRED
+                whereColumn CDATA #IMPLIED
+                mapperMethod CDATA #IMPLIED>
+
+        <!--
+            是否生成页面
+             属性信息：
+            1、generate 是否生成页面：”true“|”false“
+            2、viewPath 视图文件名
+            3、targetProject 视图路径，默认"src/main/resources/templates"
+            4、loadingFrameType 指定页面打开方式：pop-小弹窗，inner-页面嵌入，full-全屏弹窗，默认full
+            5、barPosition 工具条位置，"bottom"\"top" 默认”bottom“
+            6、uiFrameType 页面框架名称，layui|zui
+            7、pageColumnsNum 页面显示元素列数
+            8、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
+        -->
+        <!ELEMENT generateHtml (property*,htmlElementDescriptor*)>
+        <!ATTLIST generateHtml
+                generate (true|false) #REQUIRED
+                viewPath CDATA #REQUIRED
+                targetProject CDATA #IMPLIED
+                loadingFrameType (full|inner|pop) #IMPLIED
+                barPosition (bottom|top) #IMPLIED
+                uiFrameType (layui|zui) #IMPLIED
+                pageColumnsNum CDATA #IMPLIED
+                targetPackage  CDATA #IMPLIED>
+
+        <!--
+            页面元素生成描述
+            属性值构成：
+            1、column 数据库字段名
+            2、tagType 生成的类型，生成类型支持：dropdownlist、radio、checkbox、switch
+            3、dataUrl 数据接口请求地址
+            4、dataFormat 数据格式：启停|有无|是否|性别，可应用在radio和switch，缓急|级别，仅在radio时有效
+        -->
+        <!ELEMENT htmlElementDescriptor EMPTY>
+        <!ATTLIST htmlElementDescriptor
+                column CDATA #REQUIRED
+                tagType (dropdownlist|radio|checkbox|switch) #REQUIRED
+                dataUrl CDATA #IMPLIED
+                dataFormat (启停|有无|是否|性别|缓急|级别) #IMPLIED>
+
+        <!ELEMENT generateDao (property*)>
+        <!ATTLIST generateDao
+                generate (true|false) #REQUIRED
+                targetSubPackage CDATA #IMPLIED>
+
+        <!ELEMENT generateService (property*)>
+        <!ATTLIST generateService
+                generate (true|false) #REQUIRED
+                noServiceAnnotation (false|true) #IMPLIED
+                targetSubPackage CDATA #IMPLIED>
+
+        <!ELEMENT generateController (property*)>
+        <!ATTLIST generateController
+                generate (true|false) #REQUIRED
+                noSwaggerAnnotation (false|true) #IMPLIED>
+
+        <!ELEMENT generateModel (property*)>
+        <!ATTLIST generateModel
+                generate (true|false) #REQUIRED
+                noMetaAnnotation (false|true) #IMPLIED>
+
+        <!ELEMENT generateSqlMap (property*)>
+        <!ATTLIST generateSqlMap
+                generate (true|false) #REQUIRED>

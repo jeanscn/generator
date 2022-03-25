@@ -15,8 +15,6 @@
  */
 package org.mybatis.generator.codegen.mybatis3;
 
-import java.util.List;
-
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
@@ -26,12 +24,14 @@ import org.mybatis.generator.codegen.mybatis3.model.SimpleModelGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.SimpleXMLMapperGenerator;
 import org.mybatis.generator.internal.ObjectFactory;
 
+import java.util.List;
+
 /**
  * Introspected table implementation for generating simple MyBatis3 artifacts (no "by example" methods,
  * flat model, etc.)
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBatis3Impl {
     public IntrospectedTableMyBatis3SimpleImpl() {
@@ -39,7 +39,7 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
     }
 
     @Override
-    protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator, 
+    protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,
             List<String> warnings,
             ProgressCallback progressCallback) {
         if (javaClientGenerator == null) {
@@ -49,7 +49,7 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
         } else {
             xmlMapperGenerator = javaClientGenerator.getMatchedXMLGenerator();
         }
-        
+
         initializeAbstractGenerator(xmlMapperGenerator, warnings,
                 progressCallback);
     }
@@ -59,9 +59,8 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
         if (context.getJavaClientGeneratorConfiguration() == null) {
             return null;
         }
-        
-        String type = context.getJavaClientGeneratorConfiguration()
-                .getConfigurationType();
+
+        String type = context.getJavaClientGeneratorConfiguration().getConfigurationType();
 
         AbstractJavaClientGenerator javaGenerator;
         if ("XMLMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
@@ -71,8 +70,7 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
         } else if ("MAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
             javaGenerator = new SimpleJavaClientGenerator(getClientProject());
         } else {
-            javaGenerator = (AbstractJavaClientGenerator) ObjectFactory
-                    .createInternalObject(type);
+            javaGenerator = (AbstractJavaClientGenerator) ObjectFactory.createInternalObject(type);
         }
 
         return javaGenerator;

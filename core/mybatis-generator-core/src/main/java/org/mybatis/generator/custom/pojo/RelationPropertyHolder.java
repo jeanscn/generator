@@ -1,6 +1,8 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.pojo;
 
 import org.mybatis.generator.config.PropertyHolder;
+import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public class RelationPropertyHolder extends PropertyHolder {
 
@@ -19,10 +21,6 @@ public class RelationPropertyHolder extends PropertyHolder {
     private String javaType;
 
     private String columnRemark;
-
-
-    public RelationPropertyHolder() {
-    }
 
     public String getColumnRemark() {
         return columnRemark;
@@ -70,6 +68,10 @@ public class RelationPropertyHolder extends PropertyHolder {
 
     public void setSelect(String select) {
         this.select = select;
+    }
+
+    public boolean isSubSelected(){
+        return StringUtility.stringHasValue(select) && StringUtility.stringHasValue(column);
     }
 
     public String getModelTye() {

@@ -19,10 +19,11 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.custom.RelationPropertyHolder;
+import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
 import org.mybatis.generator.custom.RelationTypeEnum;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -68,13 +69,14 @@ public class ResultMapWithoutBLOBsElementGenerator extends
         }
 
         //根据属性生成联查的ResultMap
-        if (introspectedTable.getRelationProperties().size()>0) {
+        List<RelationPropertyHolder> collect = introspectedTable.getRelationProperties().stream().filter(RelationPropertyHolder::isSubSelected).collect(Collectors.toList());
+        if (collect.size()>0) {
             XmlElement resultMapWithRelation = new XmlElement("resultMap"); //$NON-NLS-1$
             resultMapWithRelation.addAttribute(new Attribute("id",introspectedTable.getRelationResultMapId()));
             resultMapWithRelation.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
             resultMapWithRelation.addAttribute(new Attribute("type",returnType));
             context.getCommentGenerator().addComment(resultMapWithRelation);
-            for (RelationPropertyHolder relationProperty : introspectedTable.getRelationProperties()) {
+            for (RelationPropertyHolder relationProperty : collect) {
                 XmlElement relationElement;
                 if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
                     relationElement = new XmlElement("collection");

@@ -19,11 +19,8 @@ import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.PropertyScope;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *  工具类
@@ -35,10 +32,11 @@ public class GenerateUtils {
 
     /*判断当前属性是否为隐藏属性*/
      public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn){
-        String hiddenFileds = introspectedColumn.getIntrospectedTable().getConfigPropertyValue(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS, PropertyScope.any, "");
-        List<String> fieldsList = Arrays.asList(hiddenFileds.split(","))
-                .stream().map(String::toUpperCase).collect(Collectors.toList());
-        return fieldsList.contains(introspectedColumn.getActualColumnName().toUpperCase());
+         if (introspectedColumn.getIntrospectedTable().getHtmlDescriptors() == null) {
+             return false;
+         }
+        List<String> hiddenColumn = introspectedColumn.getIntrospectedTable().getHtmlDescriptors().getHiddenColumns();
+        return hiddenColumn.contains(introspectedColumn.getActualColumnName().toUpperCase());
     };
 
     public static String getLocalCssFilePath(String path, String filename) {

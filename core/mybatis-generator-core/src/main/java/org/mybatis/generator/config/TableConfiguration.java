@@ -15,10 +15,7 @@
  */
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.custom.CustomMethodProperty;
-import org.mybatis.generator.custom.RelationPropertyHolder;
-import org.mybatis.generator.custom.SelectByColumnProperty;
-import org.mybatis.generator.custom.SelectByTableProperty;
+import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.internal.util.EqualsUtil;
 import org.mybatis.generator.internal.util.HashCodeUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
@@ -95,6 +92,20 @@ public class TableConfiguration extends PropertyHolder {
     private List<CustomMethodProperty> customMethodProperties;
 
     private List<RelationPropertyHolder> relationPropertyHolders;
+
+    private HtmlDescriptor htmlDescriptor;
+
+    private JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration;
+
+    private JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration;
+
+    private JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration;
+
+    private JavaModelGeneratorConfiguration javaModelGeneratorConfiguration;
+
+    private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
+
+    private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
     public TableConfiguration(Context context) {
         super();
@@ -523,5 +534,61 @@ public class TableConfiguration extends PropertyHolder {
     public List<RelationPropertyHolder> addRelationPropertyHolders(RelationPropertyHolder relationPropertyHolder) {
        this.relationPropertyHolders.add(relationPropertyHolder);
        return this.relationPropertyHolders;
+    }
+
+    public HtmlDescriptor getHtmlDescriptor() {
+        return htmlDescriptor;
+    }
+
+    public void setHtmlDescriptor(HtmlDescriptor htmlDescriptor) {
+        this.htmlDescriptor = htmlDescriptor;
+    }
+
+    public JavaServiceGeneratorConfiguration getJavaServiceGeneratorConfiguration() {
+        return javaServiceGeneratorConfiguration;
+    }
+
+    public void setJavaServiceGeneratorConfiguration(JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration) {
+        this.javaServiceGeneratorConfiguration = javaServiceGeneratorConfiguration;
+    }
+
+    public JavaServiceImplGeneratorConfiguration getJavaServiceImplGeneratorConfiguration() {
+        return javaServiceImplGeneratorConfiguration;
+    }
+
+    public void setJavaServiceImplGeneratorConfiguration(JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration) {
+        this.javaServiceImplGeneratorConfiguration = javaServiceImplGeneratorConfiguration;
+    }
+
+    public JavaControllerGeneratorConfiguration getJavaControllerGeneratorConfiguration() {
+        return javaControllerGeneratorConfiguration;
+    }
+
+    public void setJavaControllerGeneratorConfiguration(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration) {
+        this.javaControllerGeneratorConfiguration = javaControllerGeneratorConfiguration;
+    }
+
+    public JavaModelGeneratorConfiguration getJavaModelGeneratorConfiguration() {
+        return javaModelGeneratorConfiguration;
+    }
+
+    public void setJavaModelGeneratorConfiguration(JavaModelGeneratorConfiguration javaModelGeneratorConfiguration) {
+        this.javaModelGeneratorConfiguration = javaModelGeneratorConfiguration;
+    }
+
+    public SqlMapGeneratorConfiguration getSqlMapGeneratorConfiguration() {
+        return sqlMapGeneratorConfiguration;
+    }
+
+    public void setSqlMapGeneratorConfiguration(SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration) {
+        this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
+    }
+
+    public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
+        return javaClientGeneratorConfiguration;
+    }
+
+    public void setJavaClientGeneratorConfiguration(JavaClientGeneratorConfiguration javaClientGeneratorConfiguration) {
+        this.javaClientGeneratorConfiguration = javaClientGeneratorConfiguration;
     }
 }

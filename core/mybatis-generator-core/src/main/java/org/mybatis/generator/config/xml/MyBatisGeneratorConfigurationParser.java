@@ -1,27 +1,11 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.config.xml;
 
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.RelationPropertyHolder;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.SelectByColumnProperty;
-import org.mybatis.generator.custom.SelectByTableProperty;
+import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -31,9 +15,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -368,6 +355,18 @@ public class MyBatisGeneratorConfigurationParser {
                 parseJavaModelRelation(tc, childNode,RelationTypeEnum.association);
             } else if ("javaModelCollection".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseJavaModelRelation(tc, childNode,RelationTypeEnum.collection);
+            } else if ("generateHtml".equals(childNode.getNodeName())) { //$NON-NLS-1$
+                parseGenerateHtml(tc, childNode);
+            } else if ("generateService".equals(childNode.getNodeName())){
+                parseGenerateService(context,tc, childNode);
+            } else if ("generateController".equals(childNode.getNodeName())){
+                parseGenerateController(context,tc, childNode);
+            } else if ("generateDao".equals(childNode.getNodeName())){
+                parseGenerateDao(context,tc, childNode);
+            } else if ("generateModel".equals(childNode.getNodeName())){
+                parseGenerateModel(context,tc, childNode);
+            } else if ("generateSqlMap".equals(childNode.getNodeName())){
+                parseGenerateSqlMap(context,tc, childNode);
             }
         }
     }
@@ -375,19 +374,15 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseColumnOverride(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
         String column = attributes.getProperty("column"); //$NON-NLS-1$
-
         ColumnOverride co = new ColumnOverride(column);
-
         String property = attributes.getProperty("property"); //$NON-NLS-1$
         if (stringHasValue(property)) {
             co.setJavaProperty(property);
         }
-
         String javaType = attributes.getProperty("javaType"); //$NON-NLS-1$
         if (stringHasValue(javaType)) {
             co.setJavaType(javaType);
         }
-
         String jdbcType = attributes.getProperty("jdbcType"); //$NON-NLS-1$
         if (stringHasValue(jdbcType)) {
             co.setJdbcType(jdbcType);
@@ -397,129 +392,98 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(typeHandler)) {
             co.setTypeHandler(typeHandler);
         }
-
         String delimitedColumnName = attributes
                 .getProperty("delimitedColumnName"); //$NON-NLS-1$
         if (stringHasValue(delimitedColumnName)) {
             co.setColumnNameDelimited(isTrue(delimitedColumnName));
         }
-
         String isGeneratedAlways = attributes.getProperty("isGeneratedAlways"); //$NON-NLS-1$
         if (stringHasValue(isGeneratedAlways)) {
             co.setGeneratedAlways(Boolean.parseBoolean(isGeneratedAlways));
         }
-
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
-
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-
             if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseProperty(co, childNode);
             }
         }
-
         tc.addColumnOverride(co);
     }
 
     private void parseGeneratedKey(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-
-        String column = attributes.getProperty("column"); //$NON-NLS-1$
-        boolean identity = isTrue(attributes
-                .getProperty("identity")); //$NON-NLS-1$
-        String sqlStatement = attributes.getProperty("sqlStatement"); //$NON-NLS-1$
-        String type = attributes.getProperty("type"); //$NON-NLS-1$
-
+        String column = attributes.getProperty("column");
+        boolean identity = isTrue(attributes.getProperty("identity"));
+        String sqlStatement = attributes.getProperty("sqlStatement");
+        String type = attributes.getProperty("type");
         GeneratedKey gk = new GeneratedKey(column, sqlStatement, identity, type);
-
         tc.setGeneratedKey(gk);
     }
 
     private void parseIgnoreColumn(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-        String column = attributes.getProperty("column"); //$NON-NLS-1$
-        String delimitedColumnName = attributes
-                .getProperty("delimitedColumnName"); //$NON-NLS-1$
-
+        String column = attributes.getProperty("column");
+        String delimitedColumnName = attributes.getProperty("delimitedColumnName");
         IgnoredColumn ic = new IgnoredColumn(column);
-
         if (stringHasValue(delimitedColumnName)) {
             ic.setColumnNameDelimited(isTrue(delimitedColumnName));
         }
-
         tc.addIgnoredColumn(ic);
     }
 
     private void parseIgnoreColumnByRegex(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-        String pattern = attributes.getProperty("pattern"); //$NON-NLS-1$
-
+        String pattern = attributes.getProperty("pattern");
         IgnoredColumnPattern icPattern = new IgnoredColumnPattern(pattern);
-
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
-
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-
             if ("except".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseException(icPattern, childNode);
             }
         }
-
         tc.addIgnoredColumnPattern(icPattern);
     }
 
     private void parseException(IgnoredColumnPattern icPattern, Node node) {
         Properties attributes = parseAttributes(node);
-        String column = attributes.getProperty("column"); //$NON-NLS-1$
-        String delimitedColumnName = attributes
-                .getProperty("delimitedColumnName"); //$NON-NLS-1$
-
+        String column = attributes.getProperty("column");
+        String delimitedColumnName = attributes.getProperty("delimitedColumnName");
         IgnoredColumnException exception = new IgnoredColumnException(column);
-
         if (stringHasValue(delimitedColumnName)) {
             exception.setColumnNameDelimited(isTrue(delimitedColumnName));
         }
-
         icPattern.addException(exception);
     }
 
     private void parseDomainObjectRenamingRule(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-        String searchString = attributes.getProperty("searchString"); //$NON-NLS-1$
-        String replaceString = attributes.getProperty("replaceString"); //$NON-NLS-1$
-
+        String searchString = attributes.getProperty("searchString");
+        String replaceString = attributes.getProperty("replaceString");
         DomainObjectRenamingRule dorr = new DomainObjectRenamingRule();
-
         dorr.setSearchString(searchString);
-
         if (stringHasValue(replaceString)) {
             dorr.setReplaceString(replaceString);
         }
-
         tc.setDomainObjectRenamingRule(dorr);
     }
 
     private void parseColumnRenamingRule(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-        String searchString = attributes.getProperty("searchString"); //$NON-NLS-1$
-        String replaceString = attributes.getProperty("replaceString"); //$NON-NLS-1$
-
+        String searchString = attributes.getProperty("searchString");
+        String replaceString = attributes.getProperty("replaceString");
         ColumnRenamingRule crr = new ColumnRenamingRule();
-
         crr.setSearchString(searchString);
-
         if (stringHasValue(replaceString)) {
             crr.setReplaceString(replaceString);
         }
-
         tc.setColumnRenamingRule(crr);
     }
 
@@ -562,38 +526,91 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(node);
         String fieldName = attributes.getProperty("fieldName"); //$NON-NLS-1$
         String whereColumn = attributes.getProperty("whereColumn"); //$NON-NLS-1$
-        String fieldModel = attributes.getProperty("fieldModel"); //$NON-NLS-1$
+        String modelType = attributes.getProperty("modelType"); //$NON-NLS-1$
         String mapperMethod = attributes.getProperty("mapperMethod"); //$NON-NLS-1$
         RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
-        relationPropertyHolder.setJavaType(fieldName);
+        relationPropertyHolder.setPropertyName(fieldName);
         relationPropertyHolder.setColumn(whereColumn);
-        relationPropertyHolder.setModelTye(fieldModel);
+        relationPropertyHolder.setModelTye(modelType);
         relationPropertyHolder.setSelect(mapperMethod);
         relationPropertyHolder.setType(relationTypeEnum);
         tc.addRelationPropertyHolders(relationPropertyHolder);
     }
 
-    protected void parseJavaTypeResolver(Context context, Node node) {
-        JavaTypeResolverConfiguration javaTypeResolverConfiguration = new JavaTypeResolverConfiguration();
-
-        context.setJavaTypeResolverConfiguration(javaTypeResolverConfiguration);
-
+    private void parseGenerateHtml(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-        String type = attributes.getProperty("type"); //$NON-NLS-1$
-
-        if (stringHasValue(type)) {
-            javaTypeResolverConfiguration.setConfigurationType(type);
-        }
-
-        NodeList nodeList = node.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node childNode = nodeList.item(i);
-
+        String generate = attributes.getProperty("generate");
+        String viewPath = attributes.getProperty("viewPath");
+        HtmlDescriptor htmlDescriptor = new HtmlDescriptor();
+        htmlDescriptor.setGenerate(StringUtility.isTrue(generate));
+        htmlDescriptor.setViewPath(viewPath);
+        htmlDescriptor.setTargetProject(attributes.getProperty("targetProject", "src/main/resources/templates"));
+        htmlDescriptor.setLoadingFrameType(attributes.getProperty("loadingFrameType", "full"));
+        htmlDescriptor.setBarPosition(attributes.getProperty("barPosition", "bottom"));
+        htmlDescriptor.setUiFrameType(attributes.getProperty("uiFrameType", "layui"));
+        htmlDescriptor.setPageColumnsNum(Integer.parseInt(attributes.getProperty("pageColumnsNum", "2")));
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
+            if ("property".equals(childNode.getNodeName())) {
+                parseHtmlDescriptorProperty(htmlDescriptor, childNode);
+            } else if ("htmlElementDescriptor".equals(childNode.getNodeName())) {
+                parseHtmlElementDescriptor(htmlDescriptor, childNode);
+            }
+        }
+        tc.setHtmlDescriptor(htmlDescriptor);
+    }
 
-            if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
+    protected void parseHtmlDescriptorProperty(HtmlDescriptor htmlDescriptor, Node node){
+        Properties properties = parseAttributes(node);
+        if (PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS.equalsIgnoreCase(properties.get("name").toString())) {
+            String htmlHiddenColumns = properties.get("value").toString();
+            List<String> collect = Stream.of(htmlDescriptor.getHiddenColumns().stream(), Arrays.stream(htmlHiddenColumns.split(",")))
+                    .flatMap(Function.identity()).distinct().map(String::toUpperCase).collect(Collectors.toList());
+            htmlDescriptor.setHiddenColumns(collect);
+        }else if (PropertyRegistry.TABLE_HTML_REQUIRED_COLUMNS.equalsIgnoreCase(properties.get("name").toString())) {
+            String required = properties.get("value").toString();
+            List<String> collect = Arrays.stream(required.split(",")).map(String::toUpperCase).collect(Collectors.toList());
+            htmlDescriptor.setElementRequired(collect);
+        }
+    }
+
+    protected void parseHtmlElementDescriptor(HtmlDescriptor htmlDescriptor, Node node) {
+        Properties attributes = parseAttributes(node);
+        String column = attributes.getProperty("column");
+        String tagType = attributes.getProperty("tagType");
+        String dataUrl = attributes.getProperty("dataUrl");
+        String dataFormat = attributes.getProperty("dataFormat");
+        HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
+        htmlElementDescriptor.setName(column);
+        htmlElementDescriptor.setTagType(tagType);
+        if (dataUrl != null) {
+            htmlElementDescriptor.setDataUrl(dataUrl);
+        }
+        if (dataFormat != null) {
+            htmlElementDescriptor.setDataFormat(dataFormat);
+        }
+        htmlDescriptor.addElementDescriptors(htmlElementDescriptor);
+    }
+
+    protected void parseJavaTypeResolver(Context context, Node node) {
+        JavaTypeResolverConfiguration javaTypeResolverConfiguration = new JavaTypeResolverConfiguration();
+        context.setJavaTypeResolverConfiguration(javaTypeResolverConfiguration);
+        Properties attributes = parseAttributes(node);
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            javaTypeResolverConfiguration.setConfigurationType(type);
+        }
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node childNode = nodeList.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            if ("property".equals(childNode.getNodeName())) {
                 parseProperty(javaTypeResolverConfiguration, childNode);
             }
         }
@@ -601,22 +618,16 @@ public class MyBatisGeneratorConfigurationParser {
 
     private void parsePlugin(Context context, Node node) {
         PluginConfiguration pluginConfiguration = new PluginConfiguration();
-
         context.addPluginConfiguration(pluginConfiguration);
-
         Properties attributes = parseAttributes(node);
-        String type = attributes.getProperty("type"); //$NON-NLS-1$
-
+        String type = attributes.getProperty("type");
         pluginConfiguration.setConfigurationType(type);
-
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
-
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-
             if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseProperty(pluginConfiguration, childNode);
             }
@@ -625,77 +636,158 @@ public class MyBatisGeneratorConfigurationParser {
 
     protected void parseJavaModelGenerator(Context context, Node node) {
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
-
-        context
-                .setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
-
+        context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
         Properties attributes = parseAttributes(node);
-        String targetPackage = attributes.getProperty("targetPackage"); //$NON-NLS-1$
-        String targetProject = attributes.getProperty("targetProject"); //$NON-NLS-1$
-
-        javaModelGeneratorConfiguration.setTargetPackage(targetPackage);
-        javaModelGeneratorConfiguration.setTargetProject(targetProject);
-
-        NodeList nodeList = node.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node childNode = nodeList.item(i);
-
-            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-
-            if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseProperty(javaModelGeneratorConfiguration, childNode);
-            }
-        }
+        parseAbstractConfigAttributes(context,attributes,javaModelGeneratorConfiguration, ConfigTypeEnum.javaModel,node);
     }
 
     private void parseJavaClientGenerator(Context context, Node node) {
         JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = new JavaClientGeneratorConfiguration();
-
         context.setJavaClientGeneratorConfiguration(javaClientGeneratorConfiguration);
-
         Properties attributes = parseAttributes(node);
-        String type = attributes.getProperty("type"); //$NON-NLS-1$
-        String targetPackage = attributes.getProperty("targetPackage"); //$NON-NLS-1$
-        String targetProject = attributes.getProperty("targetProject"); //$NON-NLS-1$
-
+        String type = attributes.getProperty("type");
         javaClientGeneratorConfiguration.setConfigurationType(type);
-        javaClientGeneratorConfiguration.setTargetPackage(targetPackage);
-        javaClientGeneratorConfiguration.setTargetProject(targetProject);
+        parseAbstractConfigAttributes(context,attributes,javaClientGeneratorConfiguration, ConfigTypeEnum.javaClient,node);
+    }
+
+    /**
+     * -----------------------------------
+     * 解析table
+     * */
+    protected void parseGenerateService(Context context,TableConfiguration tc, Node node) {
+        JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = new JavaServiceGeneratorConfiguration();
+        tc.setJavaServiceGeneratorConfiguration(javaServiceGeneratorConfiguration);
+        JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = new JavaServiceImplGeneratorConfiguration();
+        tc.setJavaServiceImplGeneratorConfiguration(javaServiceImplGeneratorConfiguration);
+        Properties attributes = parseAttributes(node);
+        String targetSubPackage = attributes.getProperty("targetSubPackage");
+        if (!stringHasValue(targetSubPackage)) {
+            attributes.setProperty("targetSubPackage","service");
+        }
+        parseAbstractConfigAttributes(context,attributes,javaServiceGeneratorConfiguration, ConfigTypeEnum.javaModel,node);
+        String targetSubPackage1 = attributes.getProperty("targetSubPackage");
+        attributes.setProperty("targetSubPackage",targetSubPackage1+".impl");
+        parseAbstractConfigAttributes(context,attributes,javaServiceImplGeneratorConfiguration, ConfigTypeEnum.javaModel,node);
+        String noServiceAnnotation = attributes.getProperty("noServiceAnnotation");
+        if (!stringHasValue(noServiceAnnotation)) {
+            noServiceAnnotation = "false";
+        }
+        javaServiceImplGeneratorConfiguration.setNoServiceAnnotation(Boolean.parseBoolean(noServiceAnnotation));
+    }
+
+    protected void parseGenerateController(Context context,TableConfiguration tc, Node node) {
+        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = new JavaControllerGeneratorConfiguration();
+        tc.setJavaControllerGeneratorConfiguration(javaControllerGeneratorConfiguration);
+        Properties attributes = parseAttributes(node);
+        String targetSubPackage = attributes.getProperty("targetSubPackage");
+        if (!stringHasValue(targetSubPackage)) {
+            attributes.setProperty("targetSubPackage","controller");
+        }
+        parseAbstractConfigAttributes(context,attributes,javaControllerGeneratorConfiguration, ConfigTypeEnum.javaModel,node);
+        String noSwaggerAnnotation = attributes.getProperty("noSwaggerAnnotation");
+        if (noSwaggerAnnotation == null) {
+            javaControllerGeneratorConfiguration.setNoSwaggerAnnotation(false);
+        }else{
+            javaControllerGeneratorConfiguration.setNoSwaggerAnnotation(Boolean.parseBoolean(noSwaggerAnnotation));
+        }
+    }
+
+    private void parseGenerateDao(Context context, TableConfiguration tc, Node node) {
+        JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = new JavaClientGeneratorConfiguration();
+        tc.setJavaClientGeneratorConfiguration(javaClientGeneratorConfiguration);
+        Properties attributes = parseAttributes(node);
+        parseAbstractConfigAttributes(context,attributes,javaClientGeneratorConfiguration, ConfigTypeEnum.javaClient,node);
+    }
+
+    private void parseGenerateSqlMap(Context context, TableConfiguration tc, Node node) {
+        SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
+        tc.setSqlMapGeneratorConfiguration(sqlMapGeneratorConfiguration);
+        Properties attributes = parseAttributes(node);
+        parseAbstractConfigAttributes(context,attributes,sqlMapGeneratorConfiguration, ConfigTypeEnum.sqlMap,node);
+    }
+
+    private void parseGenerateModel(Context context, TableConfiguration tc, Node node) {
+        JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
+        tc.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
+        Properties attributes = parseAttributes(node);
+        parseAbstractConfigAttributes(context,attributes,javaModelGeneratorConfiguration, ConfigTypeEnum.javaModel,node);
+        String noMetaAnnotation = attributes.getProperty("noMetaAnnotation"); //$NON-NLS-1$
+        if (noMetaAnnotation == null) {
+            javaModelGeneratorConfiguration.setNoMetaAnnotation(false);
+        }else{
+            javaModelGeneratorConfiguration.setNoMetaAnnotation(Boolean.parseBoolean(noMetaAnnotation));
+        }
+    }
+
+    private void parseAbstractConfigAttributes(Context context, Properties attributes,AbstractGeneratorConfiguration configuration,ConfigTypeEnum typeEnum,Node node){
+
+        String generate = attributes.getProperty("generate");
+        String targetProject = attributes.getProperty("targetProject");
+        String targetPackage = attributes.getProperty("targetPackage");
+        String targetSubPackage = attributes.getProperty("targetSubPackage");
+
+        if (stringHasValue(generate)) {
+            configuration.setGenerate(Boolean.parseBoolean(generate));
+        }else{
+            configuration.setGenerate(false);
+        }
+        if (stringHasValue(targetProject)) {
+            configuration.setTargetProject(targetProject);
+        }else {
+            switch (typeEnum){
+                case javaClient:
+                    configuration.setTargetProject(context.getJavaClientGeneratorConfiguration().getTargetProject());
+                    break;
+                case sqlMap:
+                    configuration.setTargetProject(context.getSqlMapGeneratorConfiguration().getTargetProject());
+                    break;
+                default:
+                    configuration.setTargetProject(context.getJavaModelGeneratorConfiguration().getTargetProject());
+            }
+        }
+
+        if (stringHasValue(targetPackage)) {
+            configuration.setTargetPackage(targetPackage);
+        }else{
+            switch (typeEnum){
+                case javaClient:
+                    String targetPackage1 = context.getJavaClientGeneratorConfiguration().getTargetPackage();
+                    configuration.setTargetPackage(stringHasValue(targetSubPackage)?StringUtility.substringBeforeLast(targetPackage1, ".")+"."+targetSubPackage:targetPackage1);
+                    break;
+                case sqlMap:
+                    String targetPackage2 = context.getSqlMapGeneratorConfiguration().getTargetPackage();
+                    configuration.setTargetPackage(stringHasValue(targetSubPackage)?StringUtility.substringBeforeLast(targetPackage2, ".")+"."+targetSubPackage:targetPackage2);
+                default:
+                    String modelTargetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+                    configuration.setTargetPackage(stringHasValue(targetSubPackage)?StringUtility.substringBeforeLast(modelTargetPackage, ".")+"."+targetSubPackage:modelTargetPackage);
+            }
+        }
 
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
-
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-
             if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseProperty(javaClientGeneratorConfiguration, childNode);
+                parseProperty(configuration, childNode);
             }
         }
     }
 
     protected void parseJdbcConnection(Context context, Node node) {
         JDBCConnectionConfiguration jdbcConnectionConfiguration = new JDBCConnectionConfiguration();
-
         context.setJdbcConnectionConfiguration(jdbcConnectionConfiguration);
-
         Properties attributes = parseAttributes(node);
-        String driverClass = attributes.getProperty("driverClass"); //$NON-NLS-1$
-        String connectionURL = attributes.getProperty("connectionURL"); //$NON-NLS-1$
-
+        String driverClass = attributes.getProperty("driverClass");
+        String connectionURL = attributes.getProperty("connectionURL");
         jdbcConnectionConfiguration.setDriverClass(driverClass);
         jdbcConnectionConfiguration.setConnectionURL(connectionURL);
-
-        String userId = attributes.getProperty("userId"); //$NON-NLS-1$
+        String userId = attributes.getProperty("userId");
         if (stringHasValue(userId)) {
             jdbcConnectionConfiguration.setUserId(userId);
         }
-
-        String password = attributes.getProperty("password"); //$NON-NLS-1$
+        String password = attributes.getProperty("password");
         if (stringHasValue(password)) {
             jdbcConnectionConfiguration.setPassword(password);
         }
@@ -722,10 +814,8 @@ public class MyBatisGeneratorConfigurationParser {
 
     protected void parseProperty(PropertyHolder propertyHolder, Node node) {
         Properties attributes = parseAttributes(node);
-
-        String name = attributes.getProperty("name"); //$NON-NLS-1$
-        String value = attributes.getProperty("value"); //$NON-NLS-1$
-
+        String name = attributes.getProperty("name");
+        String value = attributes.getProperty("value");
         propertyHolder.addProperty(name, value);
     }
 
@@ -737,7 +827,6 @@ public class MyBatisGeneratorConfigurationParser {
             String value = parsePropertyTokens(attribute.getNodeValue());
             attributes.put(attribute.getNodeName(), value);
         }
-
         return attributes;
     }
 
@@ -849,31 +938,16 @@ public class MyBatisGeneratorConfigurationParser {
         }
     }
 
-    /**
-     * This method resolve a property from one of the three sources: system properties,
-     * properties loaded from the &lt;properties&gt; configuration element, and
-     * "extra" properties that may be supplied by the Maven or Ant environments.
-     *
-     * <p>If there is a name collision, system properties take precedence, followed by
-     * configuration properties, followed by extra properties.
-     *
-     * @param key property key
-     * @return the resolved property.  This method will return null if the property is
-     *     undefined in any of the sources.
-     */
     private String resolveProperty(String key) {
-        String property = null;
-
+        String property;
         property = System.getProperty(key);
 
         if (property == null) {
             property = configurationProperties.getProperty(key);
         }
-
         if (property == null) {
             property = extraProperties.getProperty(key);
         }
-
         return property;
     }
 }

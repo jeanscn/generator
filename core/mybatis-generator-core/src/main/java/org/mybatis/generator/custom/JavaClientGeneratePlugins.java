@@ -4,20 +4,17 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.PropertyScope;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.custom.controllerGenerator.GenerateJavaController;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
+import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.slf4j.Logger;
@@ -26,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * dao生成插件
@@ -47,7 +42,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
     //private static final String abstractEntity = "com.vgosoft.core.entity.AbstractEntity";
-    private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
+
     public static final String vStringUtil = "com.vgosoft.tool.core.VStringUtil";
     //service实现抽象父类
     private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGService";
@@ -59,21 +54,12 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     private static final String abstractBlobFileServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobFileServiceBusiness";
     private static final String abstractBlobBytesServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
     private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
-    //service接口父类
-    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGService";
-    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGBlobService";
-    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.IMybatisBGBlobFileService";
-    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.IMybatisBGBlobBytesService";
-    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.IMybatisBGBlobStringService";
 
     //mapper接口
     public static final String mBGMapperInterface = "com.vgosoft.mybatis.inf.MBGMapperInterface";
     public static final String mBGMapperBlobInterface = "com.vgosoft.mybatis.inf.MBGMapperBlobInterface";
 
-    private static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
     private static final String repositoryAnnotation = "org.springframework.stereotype.Repository";
-    //Service结果包装类
-    private static final String serviceResult = "com.vgosoft.core.adapter.ServiceResult";
 
     private static final String bizSubPackage = "service";
     private static final String implSubPackage = "impl";
@@ -114,191 +100,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             /*service实现类名*/
             String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
             FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(StrBizPackage + "." + implSubPackage + "." + implClazzName);
-            if (introspectedTable.getRules().generateService()) {
-                FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-                /*生成service接口文件*/
-                Interface bizINF = new Interface(infName);
-                commentGenerator.addJavaFileComment(bizINF);
-                FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
-                infSuperType.addTypeArgument(entityType);
-                infSuperType.addTypeArgument(exampleType);
-                bizINF.addImportedType(infSuperType);
-                bizINF.addImportedType(entityType);
-                bizINF.addImportedType(exampleType);
-                bizINF.setVisibility(JavaVisibility.PUBLIC);
-                bizINF.addSuperInterface(infSuperType);
-                //增加selectByExampleWithRelation接口方法
-                if (introspectedTable.getRelationProperties().size() > 0) {
-                    Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
-                            exampleType, "example", true, "查询条件example对象");
-                    bizINF.addMethod(example);
-                    bizINF.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                }
-
-                //增加selectTreeByParentId
-                if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
-                        && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-                    CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-                    addAbstractMethodByColumn(bizINF, entityType, customMethodProperty.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
-                }
-
-                if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-                    for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                        if (selectByColumnProperty.isReturnPrimaryKey()) {
-                            addAbstractMethodByColumn(bizINF, FullyQualifiedJavaType.getStringInstance(), selectByColumnProperty);
-                            bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
-                        }else{
-                            addAbstractMethodByColumn(bizINF, entityType, selectByColumnProperty);
-                        }
-                    }
-                }
-
-                if (introspectedTable.getSelectByTableProperties().size()>0) {
-                    for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
-                        Method selectByTable;
-                        if (selectByTableProperty.isReturnPrimaryKey()) {
-                            selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
-                                    FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
-                                    "中间表中来自其他表的查询键值");
-                            bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
-                        }else{
-                            selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                                    FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
-                                    "中间表中来自其他表的查询键值");
-                            bizINF.addImportedType(entityType);
-                        }
-                        bizINF.addMethod(selectByTable);
-                        bizINF.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    }
-                }
-
-                GeneratedJavaFile generatedJavaFile = new GeneratedJavaFile(bizINF, targetProject,
-                        context.getProperty("javaFileEncoding"), context.getJavaFormatter());
-                list.add(generatedJavaFile);
-
-                /*生成service实现接口*/
-                String serviceAnnotation = "org.springframework.stereotype.Service";
-                FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(serviceAnnotation);
-                FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType, introspectedTable);
-
-                TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
-                commentGenerator.addJavaFileComment(bizClazzImpl);
-                bizClazzImpl.addImportedType(implSuperType);
-                bizClazzImpl.addImportedType(entityType);
-                bizClazzImpl.addImportedType(exampleType);
-                bizClazzImpl.addImportedType(bizINF.getType());
-                bizClazzImpl.addImportedType("lombok.RequiredArgsConstructor");
-                bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
-                bizClazzImpl.setSuperClass(implSuperType);
-                bizClazzImpl.addSuperInterface(bizINF.getType());
-                bizClazzImpl.addAnnotation("@RequiredArgsConstructor");
-
-                //增加selectByExampleWithRelation接口实现方法
-                if (introspectedTable.getRelationProperties().size() > 0) {
-                    Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(),
-                            entityType, exampleType, "example", false, "查询条件example对象");
-                    example.addAnnotation("@Override");
-                    sb.setLength(0);
-                    sb.append("return mapper.");
-                    sb.append(introspectedTable.getSelectByExampleWithRelationStatementId());
-                    sb.append("(example);");
-                    example.addBodyLine(sb.toString());
-                    bizClazzImpl.addMethod(example);
-                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    addJavaMapper(introspectedTable, bizClazzImpl);
-
-                }
-                if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-                    for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                        IntrospectedColumn foreignKeyColumn = selectByColumnProperty.getColumn();
-                        Method methodByColumn;
-                        if (selectByColumnProperty.isReturnPrimaryKey()) {
-                            methodByColumn = getMethodByColumn(FullyQualifiedJavaType.getStringInstance(), foreignKeyColumn,selectByColumnProperty.getMethodName(), false);
-                            bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());
-                        }else{
-                            methodByColumn = getMethodByColumn(entityType, foreignKeyColumn,selectByColumnProperty.getMethodName(), false);
-                        }
-                        methodByColumn.addAnnotation("@Override");
-                        addJavaMapper(introspectedTable, bizClazzImpl);
-                        sb.setLength(0);
-                        sb.append("return mapper.");
-                        sb.append(selectByColumnProperty.getMethodName());
-                        sb.append("(");
-                        sb.append(foreignKeyColumn.getJavaProperty());
-                        sb.append(");");
-                        methodByColumn.addBodyLine(sb.toString());
-                        bizClazzImpl.addMethod(methodByColumn);
-                        bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                        bizClazzImpl.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
-                    }
-                }
-
-                //增加selectTreeByParentId
-                if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
-                        && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-                    CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-                    Method methodByColumn = getMethodByColumn(entityType, customMethodProperty.getParentIdColumn(),
-                            customMethodProperty.getMethodName(), false);
-                    methodByColumn.addAnnotation("@Override");
-                    addJavaMapper(introspectedTable, bizClazzImpl);
-                    sb.setLength(0);
-                    sb.append("return mapper.");
-                    sb.append(customMethodProperty.getMethodName());
-                    sb.append("(");
-                    sb.append(customMethodProperty.getParentIdColumn().getJavaProperty());
-                    sb.append(");");
-                    methodByColumn.addBodyLine(sb.toString());
-                    bizClazzImpl.addMethod(methodByColumn);
-                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    bizClazzImpl.addImportedType(customMethodProperty.getParentIdColumn().getFullyQualifiedJavaType());
-                }
-
-                //增加selectByTable方法
-                for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
-                    Method selectByTable;
-                    if (selectByTableProperty.isReturnPrimaryKey()) {
-                        selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
-                                FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), false,
-                                "中间表中来自其他表的查询键值");
-                    }else{
-                        selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                                FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), false,
-                                "中间表中来自其他表的查询键值");
-                    }
-                    selectByTable.setVisibility(JavaVisibility.PUBLIC);
-                    selectByTable.addAnnotation("@Override");
-                    addJavaMapper(introspectedTable, bizClazzImpl);
-                    sb.setLength(0);
-                    sb.append("return mapper.");
-                    sb.append(selectByTableProperty.getMethodName());
-                    sb.append("(");
-                    sb.append(selectByTableProperty.getParameterName());
-                    sb.append(");");
-                    selectByTable.addBodyLine(sb.toString());
-                    bizClazzImpl.addMethod(selectByTable);
-                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance());
-                }
-
-
-                /*是否添加@Service注解*/
-                boolean noServiceAnnotation = introspectedTable.getRules().isNoServiceAnnotation();
-                if (!noServiceAnnotation) {
-                    bizClazzImpl.addImportedType(importAnnotation);
-                    sb.setLength(0);
-                    sb = new StringBuilder("@Service(\"").append(getTableBeanName(introspectedTable)).append("\")");
-                    bizClazzImpl.addAnnotation(sb.toString());
-                }
-                sb.setLength(0);
-                GeneratedJavaFile generatedJavaFileBizImpl = new GeneratedJavaFile(bizClazzImpl, targetProject,
-                        context.getProperty("javaFileEncoding"), context.getJavaFormatter());
-                list.add(generatedJavaFileBizImpl);
-            }
-            /*生成controller文件*/
-            GeneratedJavaFile generatedJavaFileController = generateControllerFile(introspectedTable, bizClazzImplType, infName);
-            if (generatedJavaFileController != null) {
-                list.add(generatedJavaFileController);
-            }
         }
         return list;
     }
@@ -320,110 +121,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return mapper;
     }
 
-    private GeneratedJavaFile generateControllerFile(IntrospectedTable introspectedTable,
-                                                     FullyQualifiedJavaType bizClazzImplType,
-                                                     String infName) {
-        CommentGenerator commentGenerator = this.context.getCommentGenerator();
-        //是否生成controller，缺省为true
-        StringBuilder sb = new StringBuilder();
-        if (introspectedTable.getRules().generateController()) {
-            logger.debug("生成Controller");
-            String viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
-            GenerateJavaController gc = new GenerateJavaController(introspectedTable);
-            FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-            FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-            String serviceImplShortName = bizClazzImplType.getShortName();
-            String entityShortName = entityType.getShortName();
-            String serviceImplVar = JavaBeansUtil.getFirstCharacterLowercase(serviceImplShortName);
-
-            sb.append(StringUtility.substringBeforeLast(entityType.getPackageName(), "."));
-            sb.append(".").append("controller").append(".").append(entityShortName).append("Controller");
-            FullyQualifiedJavaType conClazzType = new FullyQualifiedJavaType(sb.toString());
-            TopLevelClass conTopClazz = new TopLevelClass(conClazzType);
-            conTopClazz.setVisibility(JavaVisibility.PUBLIC);
-            commentGenerator.addJavaFileComment(conTopClazz);
-            FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(ABSTRACT_BASE_CONTROLLER);
-            conTopClazz.setSuperClass(supClazzType);
-            conTopClazz.addImportedType(serviceResult);
-            conTopClazz.addImportedType(infName);
-            conTopClazz.addImportedType(supClazzType);
-            conTopClazz.addImportedType(entityType);
-            conTopClazz.addImportedType(exampleType);
-            conClazzAddStaticImportedType(conTopClazz);
-            //因需添加的静态导入
-            //文件上传下载相关
-            Boolean blobInstance = GenerateUtils.isBlobInstance(introspectedTable);
-            if (blobInstance) {
-                conTopClazz.addImportedType("org.apache.commons.lang3.StringUtils");
-                conTopClazz.addImportedType("org.springframework.web.multipart.MultipartFile");
-                conTopClazz.addImportedType("org.springframework.http.MediaType");
-                conTopClazz.addImportedType("org.apache.commons.lang3.StringUtils");
-                conTopClazz.addImportedType("javax.servlet.http.HttpServletResponse");
-                conTopClazz.addImportedType("org.springframework.util.Assert");
-                conTopClazz.addImportedType("org.apache.commons.lang3.BooleanUtils");
-            }
-            sb.setLength(0);
-            sb.append("@Api(tags = \"");
-            sb.append(introspectedTable.getRemarks()).append("\")");
-            conTopClazz.addAnnotation(sb.toString());
-            conTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
-            FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
-            Field field = new Field(serviceImplVar, bizInfType);
-            field.setVisibility(JavaVisibility.PRIVATE);
-            conTopClazz.addField(field);
-            Method method = new Method(JavaBeansUtil.getSetterMethodName(serviceImplVar));
-            method.setVisibility(JavaVisibility.PUBLIC);
-            method.addParameter(new Parameter(bizInfType, serviceImplVar));
-            method.addAnnotation("@Autowired");
-            String sb1 = "this." +
-                    serviceImplVar +
-                    " = " +
-                    serviceImplVar +
-                    ';';
-            method.addBodyLine(sb1);
-            conTopClazz.addMethod(method);
-            if (viewpath != null) {
-                conTopClazz.addMethod(gc.viewGenerate());
-            }
-            conTopClazz.addMethod(gc.getGenerate());
-            conTopClazz.addMethod(gc.listGenerate());
-            conTopClazz.addMethod(gc.createGenerate());
-            if (blobInstance) {
-                conTopClazz.addMethod(gc.uploadGenerate());
-                conTopClazz.addMethod(gc.downloadGenerate());
-            }
-            conTopClazz.addMethod(gc.updateGenerate());
-            conTopClazz.addMethod(gc.deleteGenerate());
-            conTopClazz.addMethod(gc.deleteBatchGenerate());
-            return new GeneratedJavaFile(conTopClazz, context.getJavaModelGeneratorConfiguration().getTargetProject(),
-                    context.getProperty("javaFileEncoding"), context.getJavaFormatter());
-        }
-        return null;
-    }
-
-    /**
-     * 内部方法
-     * 为Controller类添加引入包路径
-     */
-    private void conClazzAddStaticImportedType(TopLevelClass conTopClazz) {
-        conTopClazz.addImportedType(serviceResult);
-        conTopClazz.addImportedType(vStringUtil);
-        conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimple");
-        conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
-        conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseList");
-        conTopClazz.addImportedType("com.vgosoft.web.respone.ResponseSimpleList");
-        conTopClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
-        conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
-        conTopClazz.addImportedType("io.swagger.annotations.Api");
-        conTopClazz.addImportedType("io.swagger.annotations.ApiOperation");
-        conTopClazz.addJavaDocLine("");
-        conTopClazz.addImportedType("java.util.Objects");
-        conTopClazz.addImportedType("java.util.List");
-        conTopClazz.addImportedType("java.util.Optional");
-        conTopClazz.addImportedType("org.springframework.web.servlet.ModelAndView");
-        conTopClazz.addJavaDocLine("");
-        conTopClazz.addAnnotation("@RestController");
-    }
 
 
     /**
@@ -448,7 +145,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
         interFace.getMethods().clear();
         //增加relation方法
-        if (introspectedTable.getRelationProperties().size() > 0) {
+        //long count = introspectedTable.getRelationProperties().stream().filter(RelationPropertyHolder::isSubSelected).count();
+        if (introspectedTable.getRules().generateRelationMap()) {
             Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
                     exampleType, "example", true, "查询条件对象");
             interFace.addMethod(example);
@@ -617,38 +315,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             }
         }
 
-        /*是否需要增加List集合属性*/
-        String javaModelAdditionProperty = introspectedTable.getTableConfigurationProperty(PropertyRegistry.TABLE_JAVA_MODEL_ADDITION_PROPERTY);
-        if (javaModelAdditionProperty != null) {
-            FullyQualifiedJavaType addPropertyType = new FullyQualifiedJavaType(javaModelAdditionProperty);
-            String javaModelName = JavaBeansUtil.getFirstCharacterLowercase(addPropertyType.getShortName());
-
-            String pType = introspectedTable.getTableConfigurationProperty(PropertyRegistry.TABLE_JAVA_MODEL_ADDITION_PROPERTY_TYPE);
-            String pName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.TABLE_JAVA_MODEL_ADDITION_PROPERTY_NAME);
-            FullyQualifiedJavaType returnType;
-            String propertyName;
-
-            if ("list".equalsIgnoreCase(pType)) {
-                if (StringUtils.isNotEmpty(pName)) {
-                    propertyName = pName;
-                } else {
-                    propertyName = javaModelName + "s";
-                }
-                returnType = FullyQualifiedJavaType.getNewListInstance();
-                topLevelClass.addImportedType(returnType);
-                returnType.addTypeArgument(addPropertyType);
-            } else {
-                returnType = addPropertyType;
-                if (StringUtils.isNotEmpty(pName)) {
-                    propertyName = pName;
-                } else {
-                    propertyName = javaModelName;
-                }
-            }
-            Field field = new Field(propertyName, returnType);
-            addField(topLevelClass, field);
-            topLevelClass.addImportedType(javaModelAdditionProperty);
-        }
         //根据新参数添加
         if (introspectedTable.getRelationProperties().size() > 0) {
             for (RelationPropertyHolder relationProperty : introspectedTable.getRelationProperties()) {
@@ -662,7 +328,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     returnType.addTypeArgument(fullyQualifiedJavaType);
                     field = new Field(relationProperty.getPropertyName(), returnType);
                     field.setInitializationString("new ArrayList<>()");
-                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.ArrayList"));
+                    topLevelClass.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
                 } else {
                     returnType = fullyQualifiedJavaType;
                     field = new Field(relationProperty.getPropertyName(), returnType);
@@ -673,7 +339,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         //追加respBasePath属性
-        Field field = new Field(PROP_NAME_REST_BASE_PATH, new FullyQualifiedJavaType("String"));
+        Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
         if (addField(topLevelClass,field)) {
             if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                 field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
@@ -691,9 +357,11 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         if (!StringUtility.isEmpty(beanName) && assignable1) {
             initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", getTableBeanName(introspectedTable)));
         }
-        String viewpath = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_VIEW_PATH);
-        if (!StringUtility.isEmpty(viewpath)) {
-            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";",PROP_NAME_VIEW_PATH, introspectedTable.getMyBatis3HtmlMapperViewName()));
+
+        HtmlDescriptor htmlDescriptors = introspectedTable.getHtmlDescriptors();
+        if (htmlDescriptors!=null && !StringUtility.isEmpty(htmlDescriptors.getViewPath())) {
+
+            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";",PROP_NAME_VIEW_PATH, htmlDescriptors.getTargetPackage()+"/"+htmlDescriptors.getViewPath()));
             //判断是否需要实现ShowInView接口
             boolean assignable = JavaBeansUtil.isAssignableCurrent(INTERFACE_SHOW_IN_VIEW, topLevelClass, introspectedTable);
             if (!assignable) {
@@ -702,7 +370,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 topLevelClass.addImportedType(showInView);
                 topLevelClass.addSuperInterface(showInView);
                 //添加viewpath的属性及方法
-                Field viewPath = new Field(PROP_NAME_VIEW_PATH, new FullyQualifiedJavaType("String"));
+                Field viewPath = new Field(PROP_NAME_VIEW_PATH, FullyQualifiedJavaType.getStringInstance());
                 if (addField(topLevelClass, viewPath)) {
                     if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                         viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
@@ -713,7 +381,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         if (initializationBlock.getBodyLines().size() > 0) {
             topLevelClass.addInitializationBlock(initializationBlock);
         }
-
         return true;
     }
 
@@ -739,22 +406,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
-        addSelectBySqlCondition(document, false, introspectedTable);
-        addSelectBySqlCondition(document, true, introspectedTable);
-        addBaseBySql(document);
-        addSelectBySql(document, introspectedTable);
-        addSelectMapBySql(document);
-        addInsertBySql(document);
-        addUpdateBySql(document);
-        addCountBySql(document);
-        addListBySql(document);
         return true;
     }
 
     @Override
     public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable) {
         HtmlDocumentGenerator htmlDocumentGenerated;
-        String uiFrame = getUiFrame(introspectedTable);
+        String uiFrame = introspectedTable.getHtmlDescriptors().getUiFrameType();
         if (HtmlConstants.HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
             htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable);
         } else if (HtmlConstants.HTML_UI_FRAME_ZUI.equals(uiFrame)) {
@@ -768,196 +426,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     @Override
     public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(IntrospectedTable introspectedTable) {
         return new ArrayList<>();
-    }
-
-    private String getUiFrame(IntrospectedTable introspectedTable) {
-        return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_UI_FRAME);
-    }
-
-    private void addBaseBySql(Document document) {
-        XmlElement sqlSqlBuilder = new XmlElement("sql");
-        sqlSqlBuilder.addAttribute(new Attribute("id", "Base_By_Sql"));
-        context.getCommentGenerator().addComment(sqlSqlBuilder);
-        XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter != null"));
-        ifElement.addElement(new TextElement("${sql}"));
-        sqlSqlBuilder.addElement(ifElement);
-        document.getRootElement().addElement(sqlSqlBuilder);
-    }
-
-    private void addSelectBySql(Document document, IntrospectedTable introspectedTable) {
-        XmlElement selectBySqlBuilder = new XmlElement("select");
-        selectBySqlBuilder.addAttribute(new Attribute("id", "selectBySql"));
-        selectBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        selectBySqlBuilder.addAttribute(new Attribute("resultMap", "BaseResultMap"));
-        context.getCommentGenerator().addComment(selectBySqlBuilder);
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "_parameter != null")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("select")); //$NON-NLS-1$
-        ifElement.addElement(getBaseColumnListElement(introspectedTable));
-        StringBuilder sb = new StringBuilder();
-        sb.append("from ");
-        sb.append("(${sql}) ");
-        String alias = introspectedTable.getFullyQualifiedTable().getAlias();
-        if (stringHasValue(alias)) {
-            sb.append(' ');
-            sb.append(alias);
-        }
-        ifElement.addElement(new TextElement(sb.toString()));
-        selectBySqlBuilder.addElement(ifElement);
-        document.getRootElement().addElement(selectBySqlBuilder);
-    }
-
-    private void addSelectMapBySql(Document document) {
-        XmlElement selectMapBySqlBuilder = new XmlElement("select");
-        selectMapBySqlBuilder.addAttribute(new Attribute("id", "selectMapBySql"));
-        selectMapBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        selectMapBySqlBuilder.addAttribute(new Attribute("resultType", "java.util.Map"));
-        context.getCommentGenerator().addComment(selectMapBySqlBuilder);
-        selectMapBySqlBuilder.addElement(getBaseBySqlElement());
-        document.getRootElement().addElement(selectMapBySqlBuilder);
-    }
-
-    private void addInsertBySql(Document document) {
-        XmlElement insertBySqlBuilder = new XmlElement("insert");
-        insertBySqlBuilder.addAttribute(new Attribute("id", "insertBySql"));
-        insertBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        context.getCommentGenerator().addComment(insertBySqlBuilder);
-        insertBySqlBuilder.addElement(getBaseBySqlElement());
-        document.getRootElement().addElement(insertBySqlBuilder);
-    }
-
-    private void addUpdateBySql(Document document) {
-        XmlElement updateBySqlBuilder = new XmlElement("update");
-        updateBySqlBuilder.addAttribute(new Attribute("id", "updateBySql"));
-        updateBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        context.getCommentGenerator().addComment(updateBySqlBuilder);
-        updateBySqlBuilder.addElement(getBaseBySqlElement());
-        document.getRootElement().addElement(updateBySqlBuilder);
-    }
-
-    private void addCountBySql(Document document) {
-        XmlElement countBySqlBuilder = new XmlElement("select");
-        countBySqlBuilder.addAttribute(new Attribute("id", "countBySql"));
-        countBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        countBySqlBuilder.addAttribute(new Attribute("resultType", "java.lang.Long"));
-        context.getCommentGenerator().addComment(countBySqlBuilder);
-        countBySqlBuilder.addElement(getBaseBySqlElement());
-        document.getRootElement().addElement(countBySqlBuilder);
-    }
-
-    private void addListBySql(Document document) {
-        XmlElement listBySqlBuilder = new XmlElement("select");
-        listBySqlBuilder.addAttribute(new Attribute("id", "listBySql"));
-        listBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
-        listBySqlBuilder.addAttribute(new Attribute("resultType", "java.lang.String"));
-        context.getCommentGenerator().addComment(listBySqlBuilder);
-        listBySqlBuilder.addElement(getBaseBySqlElement());
-        document.getRootElement().addElement(listBySqlBuilder);
-    }
-
-    private XmlElement getBaseColumnListElement(IntrospectedTable introspectedTable) {
-        XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("refid", //$NON-NLS-1$
-                introspectedTable.getBaseColumnListId()));
-        return answer;
-    }
-
-    private XmlElement getBaseBySqlElement() {
-        XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("refid", "Base_By_Sql"));
-        return answer;
-    }
-
-    private void addSelectBySqlCondition(Document document, boolean isSub, IntrospectedTable introspectedTable) {
-        StringBuilder sb = new StringBuilder();
-        //追加selectBySqlCondition or selectBySqlConditionSub方法
-        FullyQualifiedJavaType sqlParam = new FullyQualifiedJavaType(comSelSqlParameter);
-        XmlElement selectBySqlCondition = new XmlElement("select");
-        if (isSub) {
-            selectBySqlCondition.addAttribute(new Attribute("id", "selectBySqlConditionSub"));
-        } else {
-            selectBySqlCondition.addAttribute(new Attribute("id", "selectBySqlCondition"));
-        }
-        selectBySqlCondition.addAttribute(new Attribute("parameterType", sqlParam.getFullyQualifiedName()));
-        selectBySqlCondition.addAttribute(new Attribute("resultMap", "BaseResultMap"));
-        context.getCommentGenerator().addComment(selectBySqlCondition);
-        //select
-        selectBySqlCondition.addElement(new TextElement("select")); //$NON-NLS-1$
-        //distinct
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "distinct != null")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("distinct")); //$NON-NLS-1$
-        selectBySqlCondition.addElement(ifElement);
-        //include
-        XmlElement xmlElement = new XmlElement("include");
-        xmlElement.addAttribute(new Attribute("refid", introspectedTable.getBaseColumnListId()));
-        selectBySqlCondition.addElement(xmlElement);
-        //from
-        sb.setLength(0);
-        sb.append("from "); //$NON-NLS-1$
-        sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
-        selectBySqlCondition.addElement(new TextElement(sb.toString()));
-        //where
-        if (!isSub) {
-            xmlElement = new XmlElement("if");
-            xmlElement.addAttribute(new Attribute("test", "condition != null and  condition !=''"));
-            xmlElement.addElement(new TextElement("where ${condition}"));
-            selectBySqlCondition.addElement(xmlElement);
-        } else {
-            //<where>
-            XmlElement whereElement = new XmlElement("where");
-            //<if test="condition != null and  condition !=''">
-            //    ${condition}
-            //</if>
-            xmlElement = new XmlElement("if");
-            xmlElement.addAttribute(new Attribute("test", "condition != null and  condition !=''"));
-            xmlElement.addElement(new TextElement("${condition}"));
-            whereElement.addElement(xmlElement);
-
-            xmlElement = new XmlElement("if");
-            xmlElement.addAttribute(new Attribute("test", "principals != null and principals.size &gt;0"));
-            sb.setLength(0);
-
-            if (introspectedTable.getPrimaryKeyColumns().size() > 0) {
-                IntrospectedColumn introspectedColumn = introspectedTable.getPrimaryKeyColumns().get(0);
-                String actualColumnName = introspectedColumn.getActualColumnName();
-                if (!StringUtility.isEmpty(actualColumnName)) {
-                    sb.append("and ").append(actualColumnName).append(" in(");
-                } else {
-                    sb.append("and ID_ in(");
-                }
-            } else {
-                sb.append("and ID_ in(");
-            }
-
-
-            sb.append("select distinct BUSINESS_KEY_ from VCORE_RU_AUTHORITY ");
-            sb.append("where AUTHORITY_NAME_ in");
-            xmlElement.addElement(new TextElement(sb.toString()));
-            //<foreach close=")" collection="principals" index="index" item="principal" open="(" separator=",">
-            //  #{principal}
-            //</foreach>
-            XmlElement forEachElement = new XmlElement("foreach");
-            forEachElement.addAttribute(new Attribute("close", ")"));
-            forEachElement.addAttribute(new Attribute("collection", "principals"));
-            forEachElement.addAttribute(new Attribute("index", "index"));
-            forEachElement.addAttribute(new Attribute("item", "principal"));
-            forEachElement.addAttribute(new Attribute("open", "("));
-            forEachElement.addAttribute(new Attribute("separator", ","));
-            forEachElement.addElement(new TextElement("#{principal}"));
-            xmlElement.addElement(forEachElement);
-            xmlElement.addElement(new TextElement(")"));
-            whereElement.addElement(xmlElement);
-            selectBySqlCondition.addElement(whereElement);
-        }
-        //orderby
-        xmlElement = new XmlElement("if");
-        xmlElement.addAttribute(new Attribute("test", "orderby != null and orderby !=''"));
-        xmlElement.addElement(new TextElement("order by ${orderby}"));
-        selectBySqlCondition.addElement(xmlElement);
-
-        document.getRootElement().addElement(selectBySqlCondition);
     }
 
     /**
@@ -1061,16 +529,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
     }
 
-    /**
-     * 内部类
-     * 获得Service抽象类父类
-     */
-    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType, IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(getAbstractService(introspectedTable));
-        supperType.addTypeArgument(entityType);
-        supperType.addTypeArgument(exampleType);
-        return supperType;
-    }
 
     /**
      * model类的@apiModel
@@ -1114,59 +572,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
     }
 
-    /**
-     * 获得service类的抽象实现类
-     *
-     * @param introspectedTable 生成基类
-     */
-    private String getAbstractService(IntrospectedTable introspectedTable) {
-        if (GenerateUtils.isBlobInstance(introspectedTable)) {
-            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
-            if (GenerateUtils.isBusinessInstance(introspectedTable)) {
-                switch (steamOutType) {
-                    case "bytes":
-                        return abstractBlobBytesServiceBusiness;
-                    case "file":
-                        return abstractBlobFileServiceBusiness;
-                    case "string":
-                        return abstractBlobStringServiceBusiness;
-                }
-                return abstractServiceBusiness;
-            } else {
-                switch (steamOutType) {
-                    case "bytes":
-                        return abstractMBGBlobBytesService;
-                    case "file":
-                        return abstractMBGBlobFileService;
-                    case "string":
-                        return abstractMBGBlobStringService;
-                }
-                return abstractMBGBlobServiceInterface;
-            }
-        }
-        return abstractMBGServiceInterface;
-    }
-
-    /**
-     * 获得service类的抽象实现类
-     *
-     * @param introspectedTable 生成基类
-     */
-    private String getServiceInterface(IntrospectedTable introspectedTable) {
-        if (GenerateUtils.isBlobInstance(introspectedTable)) {
-            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
-            switch (steamOutType) {
-                case "bytes":
-                    return mBGBlobBytesService;
-                case "file":
-                    return mBGBlobFileService;
-                case "string":
-                    return mBGBlobStringService;
-            }
-            return mBGBlobServiceInterface;
-        }
-        return mBGServiceInterface;
-    }
 
     /**
      * 获得mapper接口

@@ -5,8 +5,6 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.PropertyScope;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
@@ -36,8 +34,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public int getPageColumnsConfig() {
-        String pcStr = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_COLUMNS, PropertyScope.any, "2");
-        int c = Integer.parseInt(pcStr);
+        int c = introspectedTable.getHtmlDescriptors().getPageColumnsNum();
         if (c > 12) {
             c = 12;
         } else if (c <= 0) {
@@ -51,14 +48,13 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public String getHtmlBarPositionConfig() {
-        return introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION, PropertyScope.any, "bottom");
+        return introspectedTable.getHtmlDescriptors().getBarPosition();
     }
 
     public abstract boolean htmlMapDocumentGenerated();
 
     protected HtmlElement generateHtmlHead() {
         HtmlElement head = new HtmlElement("head");
-        HtmlElement div = new HtmlElement("div");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::baseRequired('" + introspectedTable.getRemarks() + "')");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::jQueryRequired");
         return head;
@@ -96,7 +92,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         HtmlElement out = addDivWithClassToParent(body, "container");
         answer.put("body", body);
         answer.put("out", out);
-        switch (introspectedTable.getHtmlPageLoadingType()) {
+        switch (introspectedTable.getHtmlDescriptors().getLoadingFrameType()) {
             case "pop":
                 addClassNameToElement(out, "popContainer");
                 body.addAttribute(new Attribute("style", "background-color: #FFFFFF;"));
@@ -158,7 +154,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     protected void addLocalStaticResource(HtmlElement head) {
-        String p = getIntrospectedTable().getMyBatis3HtmlMapperPackage();
+        String p = getIntrospectedTable().getHtmlDescriptors().getTargetPackage();
         if (p.lastIndexOf(".") > 0) {
             p = p.substring(0, p.lastIndexOf("."));
         }
@@ -168,7 +164,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     //TODO 计划第一次生成js文件，并初始化
     protected boolean isEntityTypeJsFileExist() {
-        String filePath = GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getMyBatis3HtmlMapperPackage(), getEntityType().getShortName().toLowerCase());
+        String filePath = GenerateUtils.getLocalJsFilePath(getIntrospectedTable().getHtmlDescriptors().getTargetProject(), getEntityType().getShortName().toLowerCase());
 
         return false;
     }

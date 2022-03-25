@@ -20,7 +20,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.custom.SelectByTableProperty;
+import org.mybatis.generator.custom.pojo.SelectByTableProperty;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.stream.Collectors;

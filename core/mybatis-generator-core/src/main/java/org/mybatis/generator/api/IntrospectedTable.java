@@ -1,8 +1,7 @@
 package org.mybatis.generator.api;
 
-import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.*;
+import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -70,10 +69,6 @@ public abstract class IntrospectedTable {
         ATTR_MYBATIS3_SQL_PROVIDER_TYPE,
         ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE,
         ATTR_KOTLIN_RECORD_TYPE,
-        ATTR_HTML_THYMELEAF_VIEW_NAME,
-        ATTR_HTML_TARGET_PROJECT,
-        ATTR_HTML_THYMELEAF_PACKAGE,
-        ATTR_HTML_THYMELEAF_FILE_NAME,
         /*CONTROLLER相关*/
         ATTR_CONTROL_BASE_REQUEST_MAPPING,
         ATTR_CONTROL_BEAN_NAME,
@@ -91,28 +86,23 @@ public abstract class IntrospectedTable {
 
     protected BaseRules rules;
 
-    protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
+    protected TargetRuntime targetRuntime;
 
-    protected List<SelectByColumnProperty> selectByColumnProperties = new ArrayList<>();
+    protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
 
     protected List<IntrospectedColumn> baseColumns = new ArrayList<>();
 
     protected List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
+    protected List<SelectByTableProperty> selectByTableProperties = new ArrayList<>();
+
+    protected List<SelectByColumnProperty> selectByColumnProperties = new ArrayList<>();
+
     protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
 
     protected Map<String, CustomMethodProperty> customAddtionalSelectMethods = new HashMap<>();
 
-    protected List<HtmlElementDescriptor> htmlElementDescriptors = new ArrayList<>();
-
-    protected List<String> htmlElementInputRequired = new ArrayList<>();
-
-    protected List<SelectByTableProperty> selectByTableProperties = new ArrayList<>();
-
-    protected String htmlPageLoadingType;
-
-    protected TargetRuntime targetRuntime;
-
+    protected HtmlDescriptor htmlDescriptors;
 
     /**
      * Attributes may be used by plugins to capture table related state between
@@ -154,8 +144,6 @@ public abstract class IntrospectedTable {
     public GeneratedKey getGeneratedKey() {
         return tableConfiguration.getGeneratedKey();
     }
-
-
 
     public Optional<IntrospectedColumn> getColumn(String columnName) {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream(), blobColumns.stream())
@@ -346,8 +334,6 @@ public abstract class IntrospectedTable {
         introspectedColumn.setIntrospectedTable(this);
     }
 
-
-
     public void addPrimaryKeyColumn(String columnName) {
         boolean found = false;
         // first search base columns
@@ -393,12 +379,10 @@ public abstract class IntrospectedTable {
         calculateJavaClientAttributes();
         calculateModelAttributes();
         calculateXmlAttributes();
-        calculateHtmlAttributes();
         calculateControllerAttributes();
-        //附件的一些初始化动作
+        calculateHtmlAttributes();
         calculateRelationProperty();
         calculateGenerateCustomMethod();
-        calculateHtmlElement();
 
         if (tableConfiguration.getModelType() == ModelType.HIERARCHICAL) {
             rules = new HierarchicalModelRules(this);
@@ -411,105 +395,24 @@ public abstract class IntrospectedTable {
         context.getPlugins().initialized(this);
     }
 
-    private void calculateHtmlElement() {
-        //元素生成类型
-        String property = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_DESCRIPTOR,PropertyScope.table);
-        if (stringHasValue(property)) {
-            String[][] strings = StringUtility.parsePropertyValue(property);
-            for (String[] string : strings) {
-                if (string.length>1) {
-                    HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
-                    htmlElementDescriptor.setName(string[0]);
-                    htmlElementDescriptor.setTagType(string[1]);
-                    if (string.length>2) {
-                        htmlElementDescriptor.setDataUrl(string[2]);
-                        if(string.length>3){
-                            htmlElementDescriptor.setDataFormat(string[3]);
-                        }
-                    }
-                    this.htmlElementDescriptors.add(htmlElementDescriptor);
-                }
-            }
-        }
-        //页面不允许为空的
-        String required = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_ELEMENT_REQUIRED,PropertyScope.table);
-        if (stringHasValue(required)) {
-            String[] elements = required.split(",");
-            Collections.addAll(this.htmlElementInputRequired, elements);
-        }
-
-        //页面打开形式
-        String loadingType = this.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_PAGE_LOADING_TYPE,PropertyScope.table);
-        if (stringHasValue(loadingType)) {
-           this.htmlPageLoadingType = loadingType;
-        }else{
-            this.htmlPageLoadingType = "full";
-        }
-    }
-
-
     protected void calculateRelationProperty(){
         TableConfiguration tableConfiguration = this.getTableConfiguration();
         if (tableConfiguration.getRelationPropertyHolders().size()>0) {
             this.getRelationProperties().addAll(tableConfiguration.getRelationPropertyHolders());
-        }else{
-            String javaModelAssociationProperties = tableConfiguration.getProperty("javaModelAssociationProperties");
-            if (stringHasValue(javaModelAssociationProperties)) {
-                List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelAssociationProperties, RelationTypeEnum.association);
-                this.getRelationProperties().addAll(relationProperty);
-            }
-            String javaModelCollectionProperties = tableConfiguration.getProperty("javaModelCollectionProperties");
-            if (stringHasValue(javaModelCollectionProperties)) {
-                List<RelationPropertyHolder> relationProperty = this.getRelationProperty(javaModelCollectionProperties, RelationTypeEnum.collection);
-                this.getRelationProperties().addAll(relationProperty);
-            }
+
         }
     }
 
-    private List<RelationPropertyHolder> getRelationProperty(String propertyVale, RelationTypeEnum typeEnum){
-        List<RelationPropertyHolder> ret = new ArrayList<>();
-        if (stringHasValue(propertyVale)) {
-            String[][] propertyValeArray = StringUtility.parsePropertyValue(propertyVale);
-            for (String[] strings : propertyValeArray) {
-                if (strings.length>3) {
-                    RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
-                    relationPropertyHolder.setPropertyName(strings[0]);
-                    relationPropertyHolder.setColumn(strings[1]);
-                    relationPropertyHolder.setModelTye(strings[2]);
-                    relationPropertyHolder.setSelect(strings[3]);
-                    if (strings.length>4) {
-                        relationPropertyHolder.setJavaType(strings[4]);
-                    }
-                    relationPropertyHolder.setType(typeEnum);
-                    ret.add(relationPropertyHolder);
-                }
-            }
-        }
-        return  ret;
+    public HtmlDescriptor getHtmlDescriptors() {
+        return htmlDescriptors;
     }
 
-    public List<HtmlElementDescriptor> getHtmlElementDescriptors() {
-        return htmlElementDescriptors;
-    }
-
-    public void addHtmlElementDescriptor(HtmlElementDescriptor htmlElementDescriptor){
-        this.htmlElementDescriptors.add(htmlElementDescriptor);
+    public void setHtmlDescriptors(HtmlDescriptor htmlDescriptors) {
+        this.htmlDescriptors = htmlDescriptors;
     }
 
     public List<SelectByColumnProperty> getSelectByColumnProperties() {
         return selectByColumnProperties;
-    }
-
-    public List<String> getHtmlElementInputRequired() {
-        return htmlElementInputRequired;
-    }
-
-    public void addHtmlElementInputRequired(String columnName){
-        this.htmlElementInputRequired.add(columnName);
-    }
-
-    public String getHtmlPageLoadingType() {
-        return htmlPageLoadingType;
     }
 
     protected void calculateGenerateCustomMethod(){
@@ -543,32 +446,8 @@ public abstract class IntrospectedTable {
         //生成基于关系表主键的查询方法
         if (tableConfiguration.getSelectByTableProperties().size()>0) {
             this.selectByTableProperties.addAll(tableConfiguration.getSelectByTableProperties());
-        }else{
-            String selectByTable = this.getConfigPropertyValue("selectByTable", PropertyScope.table);
-            if (stringHasValue(selectByTable)) {
-                String[][] selectByTableArray = StringUtility.parsePropertyValue(selectByTable);
-                for (String[] strings : selectByTableArray) {
-                    if (strings.length>3) {
-                        SelectByTableProperty selectByTableProperty = new SelectByTableProperty();
-                        selectByTableProperty.setTableName(strings[0]);
-                        selectByTableProperty.setPrimaryKeyColumn(strings[1]);
-                        selectByTableProperty.setOtherPrimaryKeyColumn(strings[2]);
-                        selectByTableProperty.setMethodName("selectByTable"+strings[3]);
-                        selectByTableProperty.setParameterName(JavaBeansUtil.getCamelCaseString(strings[2],false));
-                        if ((strings.length > 4)) {
-                            selectByTableProperty.setOrderByClause(strings[4]);
-                        }
-                        if (strings.length>5) {
-                            selectByTableProperty.setAdditionCondition(strings[5]);
-                        }
-                        if (strings.length>6) {
-                            if ("primaryKey".equalsIgnoreCase(strings[6])) {
-                                selectByTableProperty.setReturnTypeParam("primaryKey");
-                            }
-                        }
-                        this.selectByTableProperties.add(selectByTableProperty);
-                    }
-                }
+            for (SelectByTableProperty selectByTableProperty : this.selectByTableProperties) {
+                selectByTableProperty.setParameterName(JavaBeansUtil.getCamelCaseString(selectByTableProperty.getOtherPrimaryKeyColumn(),false));
             }
         }
 
@@ -581,31 +460,11 @@ public abstract class IntrospectedTable {
                     selectByColumnProperty.setMethodName(JavaBeansUtil.byColumnMethodName(c));
                 });
             }
-        }else{
-            String selectByColumn = this.getConfigPropertyValue("selectByColumn", PropertyScope.table);
-            if (stringHasValue(selectByColumn)) {
-                String[][] selectByColumnArray = StringUtility.parsePropertyValue(selectByColumn);
-                for (String[] strings : selectByColumnArray) {
-                    SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(strings[0]);
-                    if (strings.length>1) {
-                        selectByColumnProperty.setOrderByClause(strings[1]);
-                    }
-                    if (strings.length>2) {
-                        if ("primaryKey".equalsIgnoreCase(strings[2])) {
-                            selectByColumnProperty.setReturnTypeParam("primaryKey");
-                        }
-                    }
-                    this.getColumn(strings[0]).ifPresent(c->{
-                        selectByColumnProperty.setColumn(c);
-                        selectByColumnProperty.setMethodName(JavaBeansUtil.byColumnMethodName(c));
-                    });
-                    selectByColumnProperty.setColumn(this.getColumn(strings[0]).orElse(null));
-                    this.selectByColumnProperties.add(selectByColumnProperty);
-                }
-            }
         }
+
         //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
-        if (this.getRelationProperties().size()>0) {
+        long relationCount = this.getRelationProperties().stream().filter(RelationPropertyHolder::isSubSelected).count();
+        if (relationCount>0) {
             internalAttributes.put(InternalAttribute.ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID, "selectBaseByPrimaryKey");
             String selectBaseByPrimaryKeyStatementId = this.getSelectBaseByPrimaryKeyStatementId();
             if (this.getPrimaryKeyColumns().size()==1) {
@@ -625,8 +484,6 @@ public abstract class IntrospectedTable {
         }
         //再看其他
 
-
-
     }
 
     protected void calculateControllerAttributes(){
@@ -645,46 +502,32 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateHtmlAttributes() {
-        setMyBatis3HtmlMapperFileName(calculateMyBatis3HtmlMapperFileName());
-        setMybatis3HtmlMapperViewName(calculateHtmlMapViewName());
-        setMyBatis3HtmlMapperPackage(calculateHtmlMapPackage());
-    }
-
-    private String calculateHtmlMapViewName() {
-        StringBuilder sb = new StringBuilder();
-        String p;
-        HtmlMapGeneratorConfiguration config = context.getHtmlMapGeneratorConfiguration();
-        if (config != null) {
-            p = config.getTargetPackage();
-            if (p.length()>0) {
-                sb.append(p.replace(".", "/"));
+        if (tableConfiguration.getHtmlDescriptor() != null) {
+            this.setHtmlDescriptors(tableConfiguration.getHtmlDescriptor());
+            HtmlDescriptor htmlDescriptors = this.getHtmlDescriptors();
+            if (!StringUtility.stringHasValue(htmlDescriptors.getViewPath())) {
+                String domainName = this.getTableConfiguration().getDomainObjectName().toLowerCase();
+                htmlDescriptors.setViewPath(domainName);
             }
-        }
-        if (stringHasValue(tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH))) {
-            String viewpath = tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH);
-            String[] v = viewpath.split("\\\\|/");
-            for (String s : v) {
-                if (s.trim().length()>0) {
-                    sb.append("/").append(s);
+            //附加全局配置隐藏
+            String hiddenColumns = context.getProperty(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS);
+            if (stringHasValue(hiddenColumns)) {
+                List<String> collect = Arrays.stream(hiddenColumns.split(",")).map(String::toUpperCase).collect(Collectors.toList());
+                htmlDescriptors.getHiddenColumns().addAll(collect);
+            }
+            //html包路径
+            if (htmlDescriptors.getTargetPackage() == null) {
+                String targetPackage = context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE);
+                if (stringHasValue(targetPackage)) {
+                    htmlDescriptors.setTargetPackage(targetPackage);
+                }else{
+                    String modelTarget = context.getJavaModelGeneratorConfiguration().getTargetProject();
+                    htmlDescriptors.setTargetPackage(StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."),"."));
                 }
             }
+            //HtmlFileName
+            htmlDescriptors.setHtmlFileName(htmlDescriptors.getViewPath()+".html");
         }
-        return sb.toString();
-    }
-
-    protected String calculateHtmlMapPackage(){
-        String vp = calculateHtmlMapViewName();
-        if (vp.trim().length()>0) {
-            vp = vp.replace("/", ".");
-            if (vp.contains(".")) {
-                vp = vp.substring(0, vp.lastIndexOf("."));
-            }
-        }
-        return vp;
-    }
-
-    private void setMybatis3HtmlMapperViewName(String viewName) {
-        this.internalAttributes.put(InternalAttribute.ATTR_HTML_THYMELEAF_VIEW_NAME,viewName);
     }
 
     protected void calculateXmlAttributes() {
@@ -769,8 +612,7 @@ public abstract class IntrospectedTable {
     }
 
     public void setUpdateByExampleSelectiveStatementId(String s) {
-        internalAttributes
-                .put(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID,s);
+        internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID,s);
     }
 
     public void setUpdateByExampleStatementId(String s) {
@@ -782,8 +624,7 @@ public abstract class IntrospectedTable {
     }
 
     public void setSelectByExampleWithBLOBsStatementId(String s) {
-        internalAttributes
-                .put(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,s);
+        internalAttributes.put(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,s);
     }
 
     public void setSelectAllStatementId(String s) {
@@ -807,23 +648,19 @@ public abstract class IntrospectedTable {
     }
 
     public void setDeleteByPrimaryKeyStatementId(String s) {
-        internalAttributes.put(
-                InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID, s);
+        internalAttributes.put(InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID, s);
     }
 
     public void setDeleteByExampleStatementId(String s) {
-        internalAttributes.put(
-                InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID, s);
+        internalAttributes.put(InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID, s);
     }
 
     public void setCountByExampleStatementId(String s) {
-        internalAttributes.put(
-                InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID, s);
+        internalAttributes.put(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID, s);
     }
 
     public String getControllerBeanName() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_CONTROL_BEAN_NAME);
+        return internalAttributes.get(InternalAttribute.ATTR_CONTROL_BEAN_NAME);
     }
 
     public String getControllerSimplePackage() {
@@ -832,33 +669,27 @@ public abstract class IntrospectedTable {
     }
 
     public String getBlobColumnListId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_BLOB_COLUMN_LIST_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_BLOB_COLUMN_LIST_ID);
     }
 
     public String getBaseColumnListId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_BASE_COLUMN_LIST_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_BASE_COLUMN_LIST_ID);
     }
 
     public String getExampleWhereClauseId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_EXAMPLE_WHERE_CLAUSE_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_EXAMPLE_WHERE_CLAUSE_ID);
     }
 
     public String getMyBatis3UpdateByExampleWhereClauseId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID);
     }
 
     public String getResultMapWithBLOBsId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID);
     }
 
     public String getBaseResultMapId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_BASE_RESULT_MAP_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_BASE_RESULT_MAP_ID);
     }
 
     public String getRelationResultMapId(){
@@ -866,13 +697,11 @@ public abstract class IntrospectedTable {
     }
 
     public String getUpdateByPrimaryKeyWithBLOBsStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);
     }
 
     public String getUpdateByPrimaryKeySelectiveStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_SELECTIVE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_SELECTIVE_STATEMENT_ID);
     }
 
     public String getUpdateByPrimaryKeyStatementId() {
@@ -881,43 +710,35 @@ public abstract class IntrospectedTable {
     }
 
     public String getUpdateByExampleWithBLOBsStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
     }
 
     public String getUpdateByExampleSelectiveStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID);
     }
 
     public String getUpdateByExampleStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_STATEMENT_ID);
     }
 
     public String getSelectByPrimaryKeyStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
     public String getSelectBaseByPrimaryKeyStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
     public String getSelectByExampleWithBLOBsStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
     }
 
     public String getSelectAllStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_SELECT_ALL_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_SELECT_ALL_STATEMENT_ID);
     }
 
     public String getSelectByExampleStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_STATEMENT_ID);
     }
 
     public String getSelectByExampleWithRelationStatementId(){
@@ -929,28 +750,23 @@ public abstract class IntrospectedTable {
     }
 
     public String getInsertSelectiveStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_INSERT_SELECTIVE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_INSERT_SELECTIVE_STATEMENT_ID);
     }
 
     public String getInsertStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_INSERT_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_INSERT_STATEMENT_ID);
     }
 
     public String getDeleteByPrimaryKeyStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
     public String getDeleteByExampleStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID);
     }
 
     public String getCountByExampleStatementId() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes.get(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID);
     }
 
     private boolean isSubPackagesEnabled(PropertyHolder propertyHolder) {
@@ -958,21 +774,17 @@ public abstract class IntrospectedTable {
     }
 
     protected String calculateJavaClientInterfacePackage() {
-        JavaClientGeneratorConfiguration config = context
-                .getJavaClientGeneratorConfiguration();
+        JavaClientGeneratorConfiguration config = context.getJavaClientGeneratorConfiguration();
         if (config == null) {
             return null;
         }
-
-        return config.getTargetPackage() +
-                fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+        return config.getTargetPackage() + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
     }
 
     protected void calculateJavaClientAttributes() {
         if (context.getJavaClientGeneratorConfiguration() == null) {
             return;
         }
-
         StringBuilder sb = new StringBuilder();
         sb.append(calculateJavaClientInterfacePackage());
         sb.append('.');
@@ -1113,24 +925,6 @@ public abstract class IntrospectedTable {
             sb.append(fullyQualifiedTable.getDomainObjectName());
             sb.append("Mapper.xml"); //$NON-NLS-1$
         }
-        return sb.toString();
-    }
-    protected String calculateMyBatis3HtmlMapperFileName() {
-        StringBuilder sb = new StringBuilder();
-        //$NON-NLS-1$
-        if (stringHasValue(tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH))) {
-            String viewPath = tableConfiguration.getProperty(PropertyRegistry.TABLE_VIEW_PATH);
-            viewPath = viewPath.replaceAll("\\\\","/");
-            int ind = viewPath.lastIndexOf('/');
-            if (ind == -1) {
-                sb.append(viewPath);
-            } else {
-                sb.append(viewPath.substring(ind + 1));
-            }
-        } else {
-            sb.append(fullyQualifiedTable.getDomainObjectName());
-        }
-        sb.append(".html"); //$NON-NLS-1$
         return sb.toString();
     }
 
@@ -1280,26 +1074,10 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_PACKAGE);
     }
 
-    public String getMyBatis3HtmlMapperPackage() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_HTML_THYMELEAF_PACKAGE);
-    }
-
-    public String getMyBatis3HtmlMapperViewName() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_HTML_THYMELEAF_VIEW_NAME);
-    }
-
     public void setMyBatis3XmlMapperPackage(String mybatis3XmlMapperPackage) {
         internalAttributes.put(
                 InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_PACKAGE,
                 mybatis3XmlMapperPackage);
-    }
-
-    public void setMyBatis3HtmlMapperPackage(String mybatis3HtmlMapperPackage) {
-        internalAttributes.put(
-                InternalAttribute.ATTR_HTML_THYMELEAF_PACKAGE,
-                mybatis3HtmlMapperPackage);
     }
 
     public String getMyBatis3XmlMapperFileName() {
@@ -1307,21 +1085,10 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_FILE_NAME);
     }
 
-    public String getMyBatis3HtmlMapperFileName() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_HTML_THYMELEAF_FILE_NAME);
-    }
-
     public void setMyBatis3XmlMapperFileName(String mybatis3XmlMapperFileName) {
         internalAttributes.put(
                 InternalAttribute.ATTR_MYBATIS3_XML_MAPPER_FILE_NAME,
                 mybatis3XmlMapperFileName);
-    }
-
-    public void setMyBatis3HtmlMapperFileName(String mybatis3HtmlMapperFileName) {
-        internalAttributes.put(
-                InternalAttribute.ATTR_HTML_THYMELEAF_FILE_NAME,
-                mybatis3HtmlMapperFileName);
     }
 
     public String getMyBatis3JavaMapperType() {
@@ -1419,10 +1186,6 @@ public abstract class IntrospectedTable {
         return relationProperties;
     }
 
-    public void setRelationProperties(List<RelationPropertyHolder> relationProperties) {
-        this.relationProperties = relationProperties;
-    }
-
     public Map<String, CustomMethodProperty> getCustomAddtionalSelectMethods() {
         return customAddtionalSelectMethods;
     }
@@ -1471,7 +1234,6 @@ public abstract class IntrospectedTable {
     private String propertyRegistryDefaultValue(String propertyRegistry){
         switch (propertyRegistry){
             case PropertyRegistry.TABLE_GENERATE_CONTROLLER:
-            case PropertyRegistry.TABLE_HTML_GENERATE:
             case PropertyRegistry.TABLE_SERVICE_GENERATE:
             case PropertyRegistry.TABLE_DAO_GENERATE:
             case PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION:
@@ -1483,12 +1245,6 @@ public abstract class IntrospectedTable {
             case PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE:
                 String modelTarget = context.getJavaModelGeneratorConfiguration().getTargetProject();
                 return StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."),".");
-            case PropertyRegistry.TABLE_HTML_UI_FRAME:
-                return HtmlConstants.HTML_UI_FRAME_LAYUI;
-            case PropertyRegistry.TABLE_HTML_PAGE_COLUMNS:
-                return "2";
-            case PropertyRegistry.TABLE_HTML_TOOLBAR_POSITION:
-                return HtmlConstants.HTML_KEY_WORD_BOTTOM;
             case PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE:
                 return "bytes";
             case PropertyRegistry.TABLE_VIEW_PATH:

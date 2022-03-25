@@ -24,5 +24,6 @@ public enum PropertyScope {
     javaClientGenerator,
     sqlMapGenerator,
     javaTypeResolver,
-    jdbcConnection
+    jdbcConnection,
+    generateHtml
 }

@@ -34,7 +34,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     /**
      * This method should return an XmlElement for the select key used to
      * automatically generate keys.
-     * 
+     *
      * @param introspectedColumn
      *            the column related to the select key statement
      * @param generatedKey
@@ -51,8 +51,8 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         answer.addAttribute(new Attribute(
                 "keyProperty", introspectedColumn.getJavaProperty())); //$NON-NLS-1$
         answer.addAttribute(new Attribute("order", //$NON-NLS-1$
-                generatedKey.getMyBatis3Order())); 
-        
+                generatedKey.getMyBatis3Order()));
+
         answer.addElement(new TextElement(generatedKey
                         .getRuntimeSqlStatement()));
 
@@ -110,5 +110,11 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
             String from = "from "+introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
             parent.addElement(new TextElement(from));
         }
+    }
+
+    protected XmlElement getBaseBySqlElement() {
+        XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("refid", "Base_By_Sql"));
+        return answer;
     }
 }

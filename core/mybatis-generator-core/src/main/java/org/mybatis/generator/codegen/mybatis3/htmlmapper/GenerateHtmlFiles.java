@@ -38,19 +38,19 @@ public class GenerateHtmlFiles {
     }
     public List<GeneratedHtmlFile> getGeneratedHtmlFiles(){
         List<GeneratedHtmlFile> answer = new ArrayList<>();
-        String tagertProject;
+        String targetProject;
         if (context.getHtmlMapGeneratorConfiguration()!=null) {
-            tagertProject = context.getHtmlMapGeneratorConfiguration().getTargetProject();
+            targetProject = context.getHtmlMapGeneratorConfiguration().getTargetProject();
         }else{
-            tagertProject = "src/main/resources/templates";
+            targetProject = "src/main/resources/templates";
         }
         BaseRules rules = introspectedTable.getRules();
         if (htmlMapperGenerator != null && rules.generateHtml()) {
             Document document = htmlMapperGenerator.getDocument();
             GeneratedHtmlFile ghf = new GeneratedHtmlFile(document,
-                    introspectedTable.getMyBatis3HtmlMapperFileName(),
-                    introspectedTable.getMyBatis3HtmlMapperPackage(),
-                    tagertProject,
+                    introspectedTable.getHtmlDescriptors().getHtmlFileName(),
+                    introspectedTable.getHtmlDescriptors().getTargetPackage(),
+                    targetProject,
                     false,
                     context.getHtmlFormatter());
             if (context.getPlugins().htmlMapGenerated(ghf, introspectedTable)) {

@@ -18,8 +18,6 @@ package org.mybatis.generator.internal.util;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
 
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,11 +26,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
+
 /**
  * This class holds methods useful for constructing custom classloaders.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public class ClassloaderUtility {
 
@@ -51,23 +51,18 @@ public class ClassloaderUtility {
             for (String classPathEntry : entries) {
                 file = new File(classPathEntry);
                 if (!file.exists()) {
-                    LOG.warn(getString("Warning.31", classPathEntry)); //$NON-NLS-1$
+                    LOG.warn(getString("Warning.31", classPathEntry));
                     continue;
                 }
-
                 try {
                     urls.add(file.toURI().toURL());
                 } catch (MalformedURLException e) {
                     // this shouldn't happen, but just in case...
-                    throw new RuntimeException(getString(
-                            "RuntimeError.9", classPathEntry)); //$NON-NLS-1$
+                    throw new RuntimeException(getString("RuntimeError.9", classPathEntry));
                 }
             }
         }
-
         ClassLoader parent = Thread.currentThread().getContextClassLoader();
-
-        return new URLClassLoader(urls.toArray(new URL[urls
-                .size()]), parent);
+        return new URLClassLoader(urls.toArray(new URL[urls.size()]), parent);
     }
 }

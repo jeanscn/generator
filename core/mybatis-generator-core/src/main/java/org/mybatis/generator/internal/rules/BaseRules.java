@@ -19,12 +19,9 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.PropertyScope;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
 import org.mybatis.generator.internal.util.StringUtility;
-
-import java.util.Properties;
 
 /**
  * This class centralizes all the rules related to code generation - including
@@ -62,26 +59,24 @@ public abstract class BaseRules implements Rules {
         String modelOnly = tableConfiguration.getProperty(PropertyRegistry.TABLE_MODEL_ONLY);
         isModelOnly = StringUtility.isTrue(modelOnly);
 
-        String generateCONT = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_GENERATE_CONTROLLER, PropertyScope.any, "false");
-        isGenerateCont = StringUtility.isTrue(generateCONT);
+        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
+        isGenerateCont = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isGenerate();
 
-        String generateHTML = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_HTML_GENERATE, PropertyScope.any, "false");
-        isGenerateHtml = StringUtility.isTrue(generateHTML);
+        //TODO isGenerateHtml html
+        isGenerateHtml = introspectedTable.getHtmlDescriptors()!=null && introspectedTable.getHtmlDescriptors().isGenerate();
 
-        String generateSERV = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_SERVICE_GENERATE, PropertyScope.any, "false");
-        isGenerateService = StringUtility.isTrue(generateSERV);
+        JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
+        isGenerateService = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isGenerate();
 
-        String generateDAO = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_DAO_GENERATE, PropertyScope.any, "false");
-        isGenerateDao = StringUtility.isTrue(generateDAO);
+        JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration();
+        isGenerateDao = javaClientGeneratorConfiguration!=null && javaClientGeneratorConfiguration.isGenerate();
 
         String noMetaAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION, PropertyScope.any, "false");
         isNoMetaAnnotation = StringUtility.isTrue(noMetaAnnotation);
 
-        String noSwaggerAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION, PropertyScope.any, "false");
-        isNoSwaggerAnnotation = StringUtility.isTrue(noSwaggerAnnotation);
+        isNoSwaggerAnnotation = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isNoSwaggerAnnotation();
 
-        String noServiceAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_SERVICE_NOT_SERVICE_ANNOTATION, PropertyScope.any, "false");
-        isNoServiceAnnotation = StringUtility.isTrue(noServiceAnnotation);
+        isNoServiceAnnotation = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isNoServiceAnnotation();
     }
 
     public boolean generateController(){
@@ -513,15 +508,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateRelationMap(){
-        Properties properties = tableConfiguration.getProperties();
-        String javaModelAssociationProperties = properties.getProperty("javaModelAssociationProperties");
-        if (!javaModelAssociationProperties.isEmpty()) {
-            return true;
-        }
-        String javaModelCollectionProperties = properties.getProperty("javaModelCollectionProperties");
-        if (!javaModelCollectionProperties.isEmpty()) {
-            return true;
-        }
-        return false;
+        long count = tableConfiguration.getRelationPropertyHolders().stream().filter(RelationPropertyHolder::isSubSelected).count();
+        return count>0;
     }
 }

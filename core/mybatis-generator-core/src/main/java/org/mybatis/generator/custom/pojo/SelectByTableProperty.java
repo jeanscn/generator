@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.pojo;
 
 public class SelectByTableProperty {
 

@@ -51,25 +51,16 @@ public class PropertyRegistry {
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
     //定制属性
     public static final String TABLE_GENERATE_CONTROLLER = "generateController";
-    public static final String TABLE_HTML_GENERATE = "generateHtml";
     public static final String TABLE_SERVICE_GENERATE = "generateService";
     public static final String TABLE_DAO_GENERATE = "generateDao";
     public static final String TABLE_VIEW_PATH = "viewPath";
-    public static final String TABLE_HTML_UI_FRAME = "htmlUiFrame";
-    public static final String TABLE_HTML_PAGE_COLUMNS = "htmlPageColumns";
-    public static final String TABLE_HTML_TOOLBAR_POSITION = "htmlBarPosition";
     public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
+    public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
     public static final String TABLE_MODEL_NOT_META_ANNOTATION = "noMetaAnnotation";
     public static final String TABLE_SERVICE_NOT_SERVICE_ANNOTATION = "noServiceAnnotation";
     public static final String TABLE_MODEL_NOT_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
-    public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY = "javaModelAdditionProperty";
-    public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY_TYPE = "javaModelAdditionPropertyType";
-    public static final String TABLE_JAVA_MODEL_ADDITION_PROPERTY_NAME = "javaModelAdditionPropertyName";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
     public static final String TABLE_GENERATE_CUSTOM_METHODS = "generateCustomMethods";
-    public static final String TABLE_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
-    public static final String TABLE_HTML_ELEMENT_REQUIRED = "htmlElementRequired";
-    public static final String TABLE_HTML_PAGE_LOADING_TYPE = "htmlPageLoadingType";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$
