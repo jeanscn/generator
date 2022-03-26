@@ -15,15 +15,20 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.internal.util.StringUtility;
+
 import java.util.List;
 
 public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean noSwaggerAnnotation;
 
-    public JavaControllerGeneratorConfiguration() {
+    public JavaControllerGeneratorConfiguration(Context context) {
         super();
         noSwaggerAnnotation = false;
+        targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
+        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
+        targetPackage = String.join(".", baseTargetPackage,"controller");
     }
 
     public boolean isNoSwaggerAnnotation() {

@@ -16,6 +16,7 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.custom.pojo.HtmlElementDescriptor;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,13 +48,15 @@ public class HtmlMapGeneratorConfiguration extends AbstractGeneratorConfiguratio
 
     private List<HtmlElementDescriptor> elementDescriptors;
 
-    public HtmlMapGeneratorConfiguration() {
+    public HtmlMapGeneratorConfiguration(Context context) {
         super();
-        targetProject = "src/main/resources/templates";
-        loadingFrameType = "full";
-        uiFrameType = "layui";
-        pageColumnsNum = 2;
-        barPosition = "bottom";
+        targetPackage = context.getProperty("htmlTargetPackage");
+        targetProject = StringUtility.stringHasValue(context.getProperty("htmlTargetProject"))?context.getProperty("htmlTargetProject"):"src/main/resources/templates";
+        baseTargetPackage = "";
+        loadingFrameType = StringUtility.stringHasValue(context.getProperty("htmlLoadingFrameType"))?context.getProperty("htmlLoadingFrameType"):"full";
+        uiFrameType = StringUtility.stringHasValue(context.getProperty("htmlUiFrame"))?context.getProperty("htmlUiFrame"):"layui";
+        pageColumnsNum = StringUtility.stringHasValue(context.getProperty("htmlPageColumnsNum"))?Integer.parseInt(context.getProperty("htmlPageColumnsNum")):2;
+        barPosition = StringUtility.stringHasValue(context.getProperty("htmlBarPosition"))?context.getProperty("htmlBarPosition"):"bottom";
         hiddenColumns = new ArrayList<>();
         elementRequired = new ArrayList<>();
         elementDescriptors = new ArrayList<>();

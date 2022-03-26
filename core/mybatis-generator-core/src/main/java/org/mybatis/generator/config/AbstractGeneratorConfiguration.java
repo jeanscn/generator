@@ -10,9 +10,11 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
     protected String targetPackage;
     protected String targetProject;
     protected boolean generate;
+    protected String baseTargetPackage;
 
     public AbstractGeneratorConfiguration() {
         super();
+        generate = false;
     }
 
     public String getTargetPackage() {
@@ -39,7 +41,15 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
         this.generate = generate;
     }
 
-    public void validate(List<String> errors, String contextId,String funcKey){
+    public String getBaseTargetPackage() {
+        return baseTargetPackage;
+    }
+
+    public void setBaseTargetPackage(String baseTargetPackage) {
+        this.baseTargetPackage = baseTargetPackage;
+    }
+
+    public void validate(List<String> errors, String contextId, String funcKey){
         if (!stringHasValue(targetProject)) {
             errors.add(getString("ValidationError.0", contextId));
         }

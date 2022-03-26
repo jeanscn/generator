@@ -6,19 +6,17 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.HtmlConstants;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.PropertyScope;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
-import org.mybatis.generator.custom.pojo.*;
+import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,27 +31,12 @@ import java.util.Optional;
  */
 public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
-    private static final Logger logger = LoggerFactory.getLogger(JavaClientGeneratePlugins.class);
-
     private static final String INTERFACE_SHOW_IN_VIEW = "com.vgosoft.core.entity.IShowInView";
     private static final String tableMeta = "com.vgosoft.core.annotation.TableMeta";
     private static final String apiModel = "io.swagger.annotations.ApiModel";
     private static final String apiModelProperty = "io.swagger.annotations.ApiModelProperty";
     private static final String columnMeta = "com.vgosoft.core.annotation.ColumnMeta";
     private static final String iPersistenceBasic = "com.vgosoft.core.entity.IPersistenceBasic";
-    //private static final String abstractEntity = "com.vgosoft.core.entity.AbstractEntity";
-
-    public static final String vStringUtil = "com.vgosoft.tool.core.VStringUtil";
-    //service实现抽象父类
-    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGService";
-    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBaseService";
-    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobFileService";
-    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBytesService";
-    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobStringService";
-    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractMybatisServiceBusiness";
-    private static final String abstractBlobFileServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobFileServiceBusiness";
-    private static final String abstractBlobBytesServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
-    private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
 
     //mapper接口
     public static final String mBGMapperInterface = "com.vgosoft.mybatis.inf.MBGMapperInterface";
@@ -61,8 +44,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
     private static final String repositoryAnnotation = "org.springframework.stereotype.Repository";
 
-    private static final String bizSubPackage = "service";
-    private static final String implSubPackage = "impl";
     public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
     public static final String PROP_NAME_VIEW_PATH = "viewPath";
 
@@ -75,52 +56,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     public void setContext(Context context) {
         super.setContext(context);
     }
-
-    /**
-     * 生成Service接口，Service实现和Controller文件
-     */
-    @Override
-    public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles() {
-        Context context = this.getContext();
-        CommentGenerator commentGenerator = context.getCommentGenerator();
-        String targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-        List<GeneratedJavaFile> list = new ArrayList<>();
-
-        StringBuilder sb = new StringBuilder();
-        for (IntrospectedTable introspectedTable : context.getIntrospectedTables()) {
-            /*实体类名*/
-            FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-            /*service接口类全名*/
-            sb.append(StringUtility.substringBeforeLast(entityType.getPackageName(), "."));
-            sb.append(".").append(bizSubPackage);
-            String StrBizPackage = sb.toString();
-            sb.setLength(0);
-            sb.append(StrBizPackage).append(".").append("I").append(entityType.getShortName());
-            String infName = sb.toString();
-            /*service实现类名*/
-            String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
-            FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(StrBizPackage + "." + implSubPackage + "." + implClazzName);
-        }
-        return list;
-    }
-
-    private void addJavaMapper(IntrospectedTable introspectedTable, TopLevelClass bizClazzImpl) {
-        long mapper1 = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
-        if (mapper1 == 0) {
-            Field mapperProperty = getMapperProperty(introspectedTable);
-            bizClazzImpl.addField(mapperProperty);
-            bizClazzImpl.addImportedType(mapperProperty.getType());
-        }
-    }
-
-    private Field getMapperProperty(IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
-        Field mapper = new Field("mapper", mapperType);
-        mapper.setFinal(true);
-        mapper.setVisibility(JavaVisibility.PRIVATE);
-        return mapper;
-    }
-
 
 
     /**
@@ -145,7 +80,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
         interFace.getMethods().clear();
         //增加relation方法
-        //long count = introspectedTable.getRelationProperties().stream().filter(RelationPropertyHolder::isSubSelected).count();
         if (introspectedTable.getRules().generateRelationMap()) {
             Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
                     exampleType, "example", true, "查询条件对象");
@@ -154,33 +88,33 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             interFace.addImportedType(entityType);
         }
         //增加by外键
-        if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-            for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                if (selectByColumnProperty.isReturnPrimaryKey()) {
-                    addAbstractMethodByColumn(interFace, FullyQualifiedJavaType.getStringInstance(), selectByColumnProperty);
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+            for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+                if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
+                    addAbstractMethodByColumn(interFace, FullyQualifiedJavaType.getStringInstance(), selectByColumnGeneratorConfiguration);
                 }else{
-                    addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty);
+                    addAbstractMethodByColumn(interFace, entityType, selectByColumnGeneratorConfiguration);
                 }
             }
         }
         //增加
         if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
                 && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            addAbstractMethodByColumn(interFace, entityType, customMethodProperty.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
+            CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+            addAbstractMethodByColumn(interFace, entityType, customMethodGeneratorConfiguration.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
         }
 
-        if (introspectedTable.getSelectByTableProperties().size()>0) {
-            for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size()>0) {
+            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
                 Method selectByTable;
-                if (selectByTableProperty.isReturnPrimaryKey()) {
-                    selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
-                            FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
+                    selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
+                            FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), true,
                             "中间表中来自其他表的查询键值");
                     interFace.addImportedType(FullyQualifiedJavaType.getStringInstance());
                 }else{
-                    selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                            FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                    selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), entityType,
+                            FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), true,
                             "中间表中来自其他表的查询键值");
                 }
                 interFace.addMethod(selectByTable);
@@ -191,8 +125,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return true;
     }
 
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnProperty selectByColumnProperty) {
-        addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty.getColumn(), selectByColumnProperty.getMethodName());
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
+        addAbstractMethodByColumn(interFace, entityType, selectByColumnGeneratorConfiguration.getColumn(), selectByColumnGeneratorConfiguration.getMethodName());
     }
 
 
@@ -358,10 +292,13 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", getTableBeanName(introspectedTable)));
         }
 
-        HtmlDescriptor htmlDescriptors = introspectedTable.getHtmlDescriptors();
-        if (htmlDescriptors!=null && !StringUtility.isEmpty(htmlDescriptors.getViewPath())) {
+        HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration = null;
+        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+            htmlMapGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
+        }
+        if (htmlMapGeneratorConfiguration!=null && !StringUtility.isEmpty(htmlMapGeneratorConfiguration.getViewPath())) {
 
-            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";",PROP_NAME_VIEW_PATH, htmlDescriptors.getTargetPackage()+"/"+htmlDescriptors.getViewPath()));
+            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";",PROP_NAME_VIEW_PATH, htmlMapGeneratorConfiguration.getTargetPackage()+"/"+htmlMapGeneratorConfiguration.getViewPath()));
             //判断是否需要实现ShowInView接口
             boolean assignable = JavaBeansUtil.isAssignableCurrent(INTERFACE_SHOW_IN_VIEW, topLevelClass, introspectedTable);
             if (!assignable) {
@@ -410,15 +347,15 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     }
 
     @Override
-    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable) {
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable,HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
         HtmlDocumentGenerator htmlDocumentGenerated;
-        String uiFrame = introspectedTable.getHtmlDescriptors().getUiFrameType();
+        String uiFrame = htmlMapGeneratorConfiguration.getUiFrameType();
         if (HtmlConstants.HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable);
+            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable,htmlMapGeneratorConfiguration);
         } else if (HtmlConstants.HTML_UI_FRAME_ZUI.equals(uiFrame)) {
-            htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable);
+            htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable,htmlMapGeneratorConfiguration);
         } else {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable);
+            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable,htmlMapGeneratorConfiguration);
         }
         return htmlDocumentGenerated.htmlMapDocumentGenerated();
     }
@@ -503,10 +440,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 sb.append(column.getLength());
                 sb.append(",order = ").append((i + 20));
 
-                if (GenerateUtils.isHiddenColumn(column) || introspectedTable.getRules().isNoMetaAnnotation()) {
-                    sb.append(",summary = false");
-                }
-
                 if (!"VARCHAR".equals(column.getJdbcTypeName())) {
                     sb.append(",type = JDBCType.").append(column.getJdbcTypeName());
                     topLevelClass.addImportedType("java.sql.JDBCType");
@@ -571,7 +504,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             return "";
         }
     }
-
 
     /**
      * 获得mapper接口

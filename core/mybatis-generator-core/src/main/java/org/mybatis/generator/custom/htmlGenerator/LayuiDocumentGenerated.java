@@ -8,6 +8,7 @@ import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.HtmlElementDescriptor;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -36,11 +37,8 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private final Map<String, HtmlElement> body;
 
-    private final String input_subject_id = "subject";
-    private final String form_verify_id = "btn_form_verify";
-
-    public LayuiDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
-        super(document, introspectedTable);
+    public LayuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+        super(document, introspectedTable,htmlMapGeneratorConfiguration);
         this.introspectedTable = introspectedTable;
         this.document = document;
         this.rootElement = document.getRootElement();
@@ -60,7 +58,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         addSubjectInput(form);
         /*表单验证button*/
         addVerifyButton(form);
-        /** 查看状态*/
+        /* 查看状态*/
         // if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
         HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
         viewStatus.addAttribute(new Attribute("th:value", "${viewStatus}?:1"));
@@ -72,6 +70,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     }
 
     private void addVerifyButton(HtmlElement parent) {
+        String form_verify_id = "btn_form_verify";
         HtmlElement btn = new HtmlElement("button");
         btn.addAttribute(new Attribute("type", "submit"));
         btn.addAttribute(new Attribute("id", form_verify_id));
@@ -104,12 +103,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
         for (IntrospectedColumn baseColumn : columns) {
-            if (GenerateUtils.isHiddenColumn(baseColumn)) {
+            if (GenerateUtils.isHiddenColumn(baseColumn,htmlMapGeneratorConfiguration)) {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);
                 //指定一些列的默认生成的样式
-                for (HtmlElementDescriptor htmlElementDescriptor : introspectedTable.getHtmlDescriptors().getElementDescriptors()) {
+                for (HtmlElementDescriptor htmlElementDescriptor : htmlMapGeneratorConfiguration.getElementDescriptors()) {
                     if (htmlElementDescriptor.getName().equals(baseColumn.getActualColumnName())) {
                         htmlElementDescriptor.setColumn(baseColumn);
                         waitRenderMap.put(baseColumn.getActualColumnName().toUpperCase(), baseColumn);
@@ -218,7 +217,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     //生成页面dropdownlist、switch、radio、checkbox、date及其它元素
     private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, String entityKey, HtmlElement parent, HtmlElement td) {
-        List<HtmlElementDescriptor> collect = introspectedTable.getHtmlDescriptors().getElementDescriptors().stream()
+        List<HtmlElementDescriptor> collect = htmlMapGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName()))
                 .collect(Collectors.toList());
         if (collect.size() > 0) {
@@ -458,7 +457,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     }
 
     private void addElementRequired(String columnName, HtmlElement element) {
-        List<String> htmlElementInputRequired = introspectedTable.getHtmlDescriptors().getHiddenColumns();
+        List<String> htmlElementInputRequired = htmlMapGeneratorConfiguration.getElementRequired();
         if (htmlElementInputRequired.contains(columnName)) {
             element.addAttribute(new Attribute("lay-verify", "required"));
         }
@@ -483,7 +482,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (!HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
             addClassNameToElement(btnClose, "footer-btn");
-            if (introspectedTable.getHtmlDescriptors().getLoadingFrameType().equals("inner")) {
+            if (htmlMapGeneratorConfiguration.getLoadingFrameType().equals("inner")) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
                 addClassNameToElement(btnReset, "footer-btn");
             }
@@ -519,7 +518,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     }
 
     private HtmlElement addLayJavaScriptFragment(HtmlElement parent) {
-        boolean innerWindow = introspectedTable.getHtmlDescriptors().getLoadingFrameType().equals("inner");
+        boolean innerWindow = htmlMapGeneratorConfiguration.getLoadingFrameType().equals("inner");
         final boolean workflow = GenerateUtils.isWorkflowInstance(introspectedTable);
 
         StringBuilder sb = new StringBuilder();

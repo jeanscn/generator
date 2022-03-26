@@ -5,10 +5,10 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.CustomMethodProperty;
+import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
-import org.mybatis.generator.custom.pojo.SelectByColumnProperty;
-import org.mybatis.generator.custom.pojo.SelectByTableProperty;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
@@ -83,21 +83,22 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 addJavaMapper(introspectedTable, bizClazzImpl);
             }
         }
-        if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-            for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                IntrospectedColumn foreignKeyColumn = selectByColumnProperty.getColumn();
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()!=null
+                && introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+            for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+                IntrospectedColumn foreignKeyColumn = selectByColumnGeneratorConfiguration.getColumn();
                 Method methodByColumn;
-                if (selectByColumnProperty.isReturnPrimaryKey()) {
-                    methodByColumn = getMethodByColumn(FullyQualifiedJavaType.getStringInstance(), foreignKeyColumn,selectByColumnProperty.getMethodName(), false);
+                if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
+                    methodByColumn = getMethodByColumn(FullyQualifiedJavaType.getStringInstance(), foreignKeyColumn, selectByColumnGeneratorConfiguration.getMethodName(), false);
                     bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());
                 }else{
-                    methodByColumn = getMethodByColumn(entityType, foreignKeyColumn,selectByColumnProperty.getMethodName(), false);
+                    methodByColumn = getMethodByColumn(entityType, foreignKeyColumn, selectByColumnGeneratorConfiguration.getMethodName(), false);
                 }
                 methodByColumn.addAnnotation("@Override");
                 addJavaMapper(introspectedTable, bizClazzImpl);
                 sb.setLength(0);
                 sb.append("return mapper.");
-                sb.append(selectByColumnProperty.getMethodName());
+                sb.append(selectByColumnGeneratorConfiguration.getMethodName());
                 sb.append("(");
                 sb.append(foreignKeyColumn.getJavaProperty());
                 sb.append(");");
@@ -111,33 +112,33 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         //增加selectTreeByParentId
         if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
                 && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            Method methodByColumn = getMethodByColumn(entityType, customMethodProperty.getParentIdColumn(),
-                    customMethodProperty.getMethodName(), false);
+            CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+            Method methodByColumn = getMethodByColumn(entityType, customMethodGeneratorConfiguration.getParentIdColumn(),
+                    customMethodGeneratorConfiguration.getMethodName(), false);
             methodByColumn.addAnnotation("@Override");
             addJavaMapper(introspectedTable, bizClazzImpl);
             sb.setLength(0);
             sb.append("return mapper.");
-            sb.append(customMethodProperty.getMethodName());
+            sb.append(customMethodGeneratorConfiguration.getMethodName());
             sb.append("(");
-            sb.append(customMethodProperty.getParentIdColumn().getJavaProperty());
+            sb.append(customMethodGeneratorConfiguration.getParentIdColumn().getJavaProperty());
             sb.append(");");
             methodByColumn.addBodyLine(sb.toString());
             bizClazzImpl.addMethod(methodByColumn);
             bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            bizClazzImpl.addImportedType(customMethodProperty.getParentIdColumn().getFullyQualifiedJavaType());
+            bizClazzImpl.addImportedType(customMethodGeneratorConfiguration.getParentIdColumn().getFullyQualifiedJavaType());
         }
 
         //增加selectByTable方法
-        for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+        for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
             Method selectByTable;
-            if (selectByTableProperty.isReturnPrimaryKey()) {
-                selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
-                        FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), false,
+            if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
+                selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
+                        FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), false,
                         "中间表中来自其他表的查询键值");
             }else{
-                selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                        FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), false,
+                selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), entityType,
+                        FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), false,
                         "中间表中来自其他表的查询键值");
             }
             selectByTable.setVisibility(JavaVisibility.PUBLIC);
@@ -145,9 +146,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             addJavaMapper(introspectedTable, bizClazzImpl);
             sb.setLength(0);
             sb.append("return mapper.");
-            sb.append(selectByTableProperty.getMethodName());
+            sb.append(selectByTableGeneratorConfiguration.getMethodName());
             sb.append("(");
-            sb.append(selectByTableProperty.getParameterName());
+            sb.append(selectByTableGeneratorConfiguration.getParameterName());
             sb.append(");");
             selectByTable.addBodyLine(sb.toString());
             bizClazzImpl.addMethod(selectByTable);

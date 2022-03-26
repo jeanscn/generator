@@ -2,10 +2,10 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
 import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 
@@ -18,7 +18,6 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 public class JavaControllerGenerator  extends AbstractJavaGenerator {
 
     private static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
-    private static final String SERVICE_RESULT = "com.vgosoft.core.adapter.ServiceResult";
 
     public JavaControllerGenerator(String project) {
         super(project);
@@ -29,7 +28,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
 
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.48", table.toString()));
-        Plugin plugins = context.getPlugins();
+        //Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
@@ -70,8 +69,10 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setFinal(true);
         conTopClazz.addField(field);
-
-        String viewpath = introspectedTable.getHtmlDescriptors()!=null ? introspectedTable.getHtmlDescriptors().getViewPath():null;
+        String viewpath = null;
+        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+            viewpath = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath();
+        }
         if (viewpath != null) {
             addViewElement(conTopClazz);
         }
@@ -93,7 +94,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
     }
 
     private void addViewElement(TopLevelClass parentElement) {
-        if (introspectedTable.getHtmlDescriptors()!=null && stringHasValue(introspectedTable.getHtmlDescriptors().getViewPath())) {
+        List<HtmlMapGeneratorConfiguration> htmlMapGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+        if (htmlMapGeneratorConfigurations.size()>0 && stringHasValue(htmlMapGeneratorConfigurations.get(0).getViewPath())) {
             AbstractControllerElementGenerator elementGenerator = new ViewElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

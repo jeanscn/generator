@@ -150,8 +150,9 @@
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
         -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
+                ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
                 schema CDATA #IMPLIED
                 tableName CDATA #REQUIRED
@@ -344,12 +345,12 @@
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
                 viewPath CDATA #REQUIRED
-                targetProject CDATA #IMPLIED
+                targetPackage  CDATA #IMPLIED
                 loadingFrameType (full|inner|pop) #IMPLIED
+                pageColumnsNum CDATA #IMPLIED
                 barPosition (bottom|top) #IMPLIED
                 uiFrameType (layui|zui) #IMPLIED
-                pageColumnsNum CDATA #IMPLIED
-                targetPackage  CDATA #IMPLIED>
+                targetProject CDATA #IMPLIED>
 
         <!--
             页面元素生成描述
@@ -380,12 +381,14 @@
         <!ELEMENT generateController (property*)>
         <!ATTLIST generateController
                 generate (true|false) #REQUIRED
-                noSwaggerAnnotation (false|true) #IMPLIED>
+                noSwaggerAnnotation (false|true) #IMPLIED
+                targetSubPackage CDATA #IMPLIED>
 
         <!ELEMENT generateModel (property*)>
         <!ATTLIST generateModel
                 generate (true|false) #REQUIRED
-                noMetaAnnotation (false|true) #IMPLIED>
+                noMetaAnnotation (false|true) #IMPLIED
+                targetSubPackage CDATA #IMPLIED>
 
         <!ELEMENT generateSqlMap (property*)>
         <!ATTLIST generateSqlMap

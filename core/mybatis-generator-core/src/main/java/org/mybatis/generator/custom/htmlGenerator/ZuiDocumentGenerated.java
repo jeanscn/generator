@@ -1,18 +1,3 @@
-/**
- * Copyright 2006-2020 the original author or authors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.mybatis.generator.custom.htmlGenerator;
 
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -22,6 +7,7 @@ import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,20 +24,20 @@ import java.util.stream.Stream;
  */
 public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
-    private IntrospectedTable introspectedTable;
+    private final IntrospectedTable introspectedTable;
 
-    private Document document;
+    private final Document document;
 
-    private HtmlElement rootElement;
+    private final HtmlElement rootElement;
 
-    private HtmlElement head;
+    private final HtmlElement head;
 
-    private Map<String,HtmlElement>  body;
+    private final Map<String,HtmlElement>  body;
 
     private HtmlElement content;
 
-    public ZuiDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
-        super(document, introspectedTable);
+    public ZuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+        super(document, introspectedTable,htmlMapGeneratorConfiguration);
         this.introspectedTable = introspectedTable;
         this.document = document;
         this.rootElement = document.getRootElement();
@@ -87,7 +73,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         for (IntrospectedColumn baseColumn : columns) {
-            if (GenerateUtils.isHiddenColumn(baseColumn)) {
+            if (GenerateUtils.isHiddenColumn(baseColumn,htmlMapGeneratorConfiguration)) {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);

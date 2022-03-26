@@ -1,18 +1,3 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.codegen.mybatis3;
 
 import org.mybatis.generator.api.*;
@@ -64,7 +49,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         calculateJavaModelGenerators(warnings, progressCallback);
         AbstractJavaClientGenerator javaClientGenerator = calculateClientGenerators(warnings, progressCallback);
         calculateXmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
-        calculateHtmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
+        calculateHtmlMapperGenerator(warnings, progressCallback);
     }
 
     protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,
@@ -80,17 +65,12 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         initializeAbstractGenerator(xmlMapperGenerator, warnings,progressCallback);
     }
 
-    protected void calculateHtmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,
-                                               List<String> warnings,
+    protected void calculateHtmlMapperGenerator(List<String> warnings,
                                                ProgressCallback progressCallback) {
-        if (javaClientGenerator == null) {
-            if (context.getHtmlMapGeneratorConfiguration() != null) {
-                htmlMapperGenerator = new HTMLMapperGenerator();
-            }
-        } else {
-            htmlMapperGenerator = javaClientGenerator.getMatchedHTMLGenerator();
+        if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+            htmlMapperGenerator = new HTMLMapperGenerator();
+            initializeAbstractGenerator(htmlMapperGenerator, warnings,progressCallback);
         }
-        initializeAbstractGenerator(htmlMapperGenerator, warnings,progressCallback);
     }
 
     protected AbstractJavaClientGenerator calculateClientGenerators(List<String> warnings,
@@ -245,7 +225,9 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     public List<GeneratedXmlFile> getGeneratedXmlFiles() {
         List<GeneratedXmlFile> answer = new ArrayList<>();
 
-        if (xmlMapperGenerator != null) {
+        if (xmlMapperGenerator != null
+                && xmlMapperGenerator.getIntrospectedTable().getTableConfiguration().getSqlMapGeneratorConfiguration()!=null
+                && xmlMapperGenerator.getIntrospectedTable().getTableConfiguration().getSqlMapGeneratorConfiguration().isGenerate()) {
             Document document = xmlMapperGenerator.getDocument();
             GeneratedXmlFile gxf = new GeneratedXmlFile(document,
                     getMyBatis3XmlMapperFileName(), getMyBatis3XmlMapperPackage(),
@@ -262,8 +244,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     @Override
     public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
         GenerateHtmlFiles generateHtmlFiles = new GenerateHtmlFiles(context,this,htmlMapperGenerator);
-        List<GeneratedHtmlFile> answer = generateHtmlFiles.getGeneratedHtmlFiles();
-        return answer;
+        return generateHtmlFiles.getGeneratedHtmlFiles();
     }
 
     @Override

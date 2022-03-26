@@ -94,15 +94,9 @@ public abstract class IntrospectedTable {
 
     protected List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
-    protected List<SelectByTableProperty> selectByTableProperties = new ArrayList<>();
-
-    protected List<SelectByColumnProperty> selectByColumnProperties = new ArrayList<>();
-
     protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
 
-    protected Map<String, CustomMethodProperty> customAddtionalSelectMethods = new HashMap<>();
-
-    protected HtmlDescriptor htmlDescriptors;
+    protected Map<String, CustomMethodGeneratorConfiguration> customAddtionalSelectMethods = new HashMap<>();
 
     /**
      * Attributes may be used by plugins to capture table related state between
@@ -403,61 +397,47 @@ public abstract class IntrospectedTable {
         }
     }
 
-    public HtmlDescriptor getHtmlDescriptors() {
-        return htmlDescriptors;
-    }
-
-    public void setHtmlDescriptors(HtmlDescriptor htmlDescriptors) {
-        this.htmlDescriptors = htmlDescriptors;
-    }
-
-    public List<SelectByColumnProperty> getSelectByColumnProperties() {
-        return selectByColumnProperties;
-    }
-
     protected void calculateGenerateCustomMethod(){
         //先看看是否生成selectTreeByParentIdMethod
-        if (tableConfiguration.getCustomMethodProperties().size()>0) {
-            for (CustomMethodProperty customMethodProperty : tableConfiguration.getCustomMethodProperties()) {
-                this.customAddtionalSelectMethods.put(customMethodProperty.getMethodName(), customMethodProperty);
+        if (tableConfiguration.getCustomMethodGeneratorConfigurations().size()>0) {
+            for (CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration : tableConfiguration.getCustomMethodGeneratorConfigurations()) {
+                this.customAddtionalSelectMethods.put(customMethodGeneratorConfiguration.getMethodName(), customMethodGeneratorConfiguration);
             }
         }else{
             String propertyValue = this.getConfigPropertyValue("generateSelectChildIdsByFunctionResult", PropertyScope.table);
             if (stringHasValue(propertyValue)) {
                 String[][] propertyValueArray = StringUtility.parsePropertyValue(propertyValue);
                 for (String[] strings : propertyValueArray) {
-                    CustomMethodProperty customMethodProperty = new CustomMethodProperty();
-                    customMethodProperty.setMethodName(this.getSelectTreeByParentIdStatementId());
-                    customMethodProperty.setSqlMethod(strings[0]);
+                    CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = new CustomMethodGeneratorConfiguration();
+                    customMethodGeneratorConfiguration.setMethodName(this.getSelectTreeByParentIdStatementId());
+                    customMethodGeneratorConfiguration.setSqlMethod(strings[0]);
                     String columnName = "PARENT_ID";
                     if (strings.length>1) {
                         columnName = strings[1];
                     }
                     this.getColumn(columnName).ifPresent(c->{
-                        customMethodProperty.setParentIdColumn(c);
+                        customMethodGeneratorConfiguration.setParentIdColumn(c);
                         if (this.getPrimaryKeyColumns().size()>0) {
-                            customMethodProperty.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
-                            this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(), customMethodProperty);
+                            customMethodGeneratorConfiguration.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
+                            this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(), customMethodGeneratorConfiguration);
                         }
                     });
                 }
             }
         }
         //生成基于关系表主键的查询方法
-        if (tableConfiguration.getSelectByTableProperties().size()>0) {
-            this.selectByTableProperties.addAll(tableConfiguration.getSelectByTableProperties());
-            for (SelectByTableProperty selectByTableProperty : this.selectByTableProperties) {
-                selectByTableProperty.setParameterName(JavaBeansUtil.getCamelCaseString(selectByTableProperty.getOtherPrimaryKeyColumn(),false));
+        if (tableConfiguration.getSelectByTableGeneratorConfiguration().size()>0) {
+            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : tableConfiguration.getSelectByTableGeneratorConfiguration()) {
+                selectByTableGeneratorConfiguration.setParameterName(JavaBeansUtil.getCamelCaseString(selectByTableGeneratorConfiguration.getOtherPrimaryKeyColumn(),false));
             }
         }
 
         //生成selectByColumn查询方法
-        if (tableConfiguration.getSelectByColumnProperties().size()>0) {
-            this.selectByColumnProperties.addAll(tableConfiguration.getSelectByColumnProperties());
-            for (SelectByColumnProperty selectByColumnProperty : this.selectByColumnProperties) {
-                getColumn(selectByColumnProperty.getColumnName()).ifPresent(c->{
-                    selectByColumnProperty.setColumn(c);
-                    selectByColumnProperty.setMethodName(JavaBeansUtil.byColumnMethodName(c));
+        if (tableConfiguration.getSelectByColumnGeneratorConfigurations().size()>0) {
+            for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : tableConfiguration.getSelectByColumnGeneratorConfigurations()) {
+                getColumn(selectByColumnGeneratorConfiguration.getColumnName()).ifPresent(c->{
+                    selectByColumnGeneratorConfiguration.setColumn(c);
+                    selectByColumnGeneratorConfiguration.setMethodName(JavaBeansUtil.byColumnMethodName(c));
                 });
             }
         }
@@ -470,15 +450,15 @@ public abstract class IntrospectedTable {
             if (this.getPrimaryKeyColumns().size()==1) {
                 String actualColumnName = this.getPrimaryKeyColumns().get(0).getActualColumnName();
                 long count = 0;
-                if (this.selectByColumnProperties.size()>0) {
-                    count = this.getSelectByColumnProperties().stream().filter(t -> t.getMethodName().equals(selectBaseByPrimaryKeyStatementId)).count();
+                if (tableConfiguration.getSelectByColumnGeneratorConfigurations().size()>0) {
+                    count = tableConfiguration.getSelectByColumnGeneratorConfigurations().stream().filter(t -> t.getMethodName().equals(selectBaseByPrimaryKeyStatementId)).count();
                 }
                 if (count==0) {
-                    SelectByColumnProperty selectByColumnProperty = new SelectByColumnProperty(actualColumnName);
-                    selectByColumnProperty.setColumn(this.getPrimaryKeyColumns().get(0));
-                    selectByColumnProperty.setMethodName(selectBaseByPrimaryKeyStatementId);
-                    selectByColumnProperty.setReturnType(1);
-                    this.selectByColumnProperties.add(selectByColumnProperty);
+                    SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration(actualColumnName);
+                    selectByColumnGeneratorConfiguration.setColumn(this.getPrimaryKeyColumns().get(0));
+                    selectByColumnGeneratorConfiguration.setMethodName(selectBaseByPrimaryKeyStatementId);
+                    selectByColumnGeneratorConfiguration.setReturnType(1);
+                    tableConfiguration.getSelectByColumnGeneratorConfigurations().add(selectByColumnGeneratorConfiguration);
                 }
             }
         }
@@ -502,31 +482,14 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateHtmlAttributes() {
-        if (tableConfiguration.getHtmlDescriptor() != null) {
-            this.setHtmlDescriptors(tableConfiguration.getHtmlDescriptor());
-            HtmlDescriptor htmlDescriptors = this.getHtmlDescriptors();
-            if (!StringUtility.stringHasValue(htmlDescriptors.getViewPath())) {
-                String domainName = this.getTableConfiguration().getDomainObjectName().toLowerCase();
-                htmlDescriptors.setViewPath(domainName);
-            }
+        for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : tableConfiguration.getHtmlMapGeneratorConfigurations()) {
             //附加全局配置隐藏
             String hiddenColumns = context.getProperty(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS);
             if (stringHasValue(hiddenColumns)) {
                 List<String> collect = Arrays.stream(hiddenColumns.split(",")).map(String::toUpperCase).collect(Collectors.toList());
-                htmlDescriptors.getHiddenColumns().addAll(collect);
+                htmlMapGeneratorConfiguration.getHiddenColumns().addAll(collect);
             }
-            //html包路径
-            if (htmlDescriptors.getTargetPackage() == null) {
-                String targetPackage = context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE);
-                if (stringHasValue(targetPackage)) {
-                    htmlDescriptors.setTargetPackage(targetPackage);
-                }else{
-                    String modelTarget = context.getJavaModelGeneratorConfiguration().getTargetProject();
-                    htmlDescriptors.setTargetPackage(StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."),"."));
-                }
-            }
-            //HtmlFileName
-            htmlDescriptors.setHtmlFileName(htmlDescriptors.getViewPath()+".html");
+            htmlMapGeneratorConfiguration.setHtmlFileName(htmlMapGeneratorConfiguration.getViewPath()+".html");
         }
     }
 
@@ -889,8 +852,7 @@ public abstract class IntrospectedTable {
 
     protected String calculateSqlMapPackage() {
         StringBuilder sb = new StringBuilder();
-        SqlMapGeneratorConfiguration config = context
-                .getSqlMapGeneratorConfiguration();
+        SqlMapGeneratorConfiguration config = context.getSqlMapGeneratorConfiguration();
 
         // config can be null if the Java client does not require XML
         if (config != null) {
@@ -906,7 +868,6 @@ public abstract class IntrospectedTable {
                 sb.append('.').append(fullyQualifiedTable.getDomainObjectSubPackage());
             }
         }
-
         return sb.toString();
     }
 
@@ -1186,16 +1147,12 @@ public abstract class IntrospectedTable {
         return relationProperties;
     }
 
-    public Map<String, CustomMethodProperty> getCustomAddtionalSelectMethods() {
+    public Map<String, CustomMethodGeneratorConfiguration> getCustomAddtionalSelectMethods() {
         return customAddtionalSelectMethods;
     }
 
-    public List<SelectByTableProperty> getSelectByTableProperties() {
-        return selectByTableProperties;
-    }
-
-    public void addCustomAddtionalSelectMethods(String methodName, CustomMethodProperty customMethodProperty) {
-        this.customAddtionalSelectMethods.put(methodName, customMethodProperty);
+    public void addCustomAddtionalSelectMethods(String methodName, CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration) {
+        this.customAddtionalSelectMethods.put(methodName, customMethodGeneratorConfiguration);
     }
 
     /**
@@ -1233,13 +1190,6 @@ public abstract class IntrospectedTable {
 
     private String propertyRegistryDefaultValue(String propertyRegistry){
         switch (propertyRegistry){
-            case PropertyRegistry.TABLE_GENERATE_CONTROLLER:
-            case PropertyRegistry.TABLE_SERVICE_GENERATE:
-            case PropertyRegistry.TABLE_DAO_GENERATE:
-            case PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION:
-            case PropertyRegistry.TABLE_MODEL_NOT_SWAGGER_ANNOTATION:
-            case PropertyRegistry.TABLE_SERVICE_NOT_SERVICE_ANNOTATION:
-                return "false";
             case PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT:
                 return "src/main/resources/templates";
             case PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE:
@@ -1248,6 +1198,7 @@ public abstract class IntrospectedTable {
             case PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE:
                 return "bytes";
             case PropertyRegistry.TABLE_VIEW_PATH:
+                return this.getTableConfiguration().getTableName().toLowerCase();
             default:
                 return null;
         }

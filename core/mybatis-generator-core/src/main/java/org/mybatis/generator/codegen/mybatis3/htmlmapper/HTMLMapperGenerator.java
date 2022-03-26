@@ -22,7 +22,7 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
-
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -53,13 +53,13 @@ public class HTMLMapperGenerator extends AbstractHtmlGenerator {
     }
 
     @Override
-    public Document getDocument() {
+    public Document getDocument(HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
         Document document = new Document(
                 HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_TH,
                 HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_SEC);
         document.setRootElement(getHtmlMapElement());
 
-        if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable)) {
+        if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable,htmlMapGeneratorConfiguration)) {
             document = null;
         }
         return document;

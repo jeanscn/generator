@@ -52,9 +52,9 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewStatus).orElse(\"1\"));");
         sb.setLength(0);
         sb.append("String viewName = VStringUtil.format(\"");
-        sb.append(htmlDescriptor.getTargetPackage()).append("/");
+        sb.append(this.htmlMapGeneratorConfiguration.getTargetPackage()).append("/");
         sb.append("{0}");
-        sb.append(htmlDescriptor.getViewPath());
+        sb.append(this.htmlMapGeneratorConfiguration.getViewPath());
         sb.append("\",Optional.ofNullable(prefix).orElse(\"\"));");
         method.addBodyLine(sb.toString());
         method.addBodyLine("mv.setViewName(viewName);");

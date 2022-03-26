@@ -23,6 +23,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         StringBuilder sb = new StringBuilder();
 
         method.addParameter(entityParameter);
+        entityParameter.addAnnotation("@RequestBody");
         method.setReturnType(responseSimple);
         addControllerMapping(method, "", "post");
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");

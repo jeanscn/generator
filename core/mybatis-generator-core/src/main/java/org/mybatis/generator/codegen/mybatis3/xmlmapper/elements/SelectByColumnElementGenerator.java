@@ -21,7 +21,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.custom.pojo.SelectByColumnProperty;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.stream.Collectors;
@@ -35,31 +35,22 @@ public class SelectByColumnElementGenerator extends
 
     @Override
     public void addElements(XmlElement parentElement) {
-        if (introspectedTable.getSelectByColumnProperties().size() == 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() == 0) {
             return;
         }
-        for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
+        for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
             XmlElement answer = new XmlElement("select");
-            answer.addAttribute(new Attribute("id", selectByColumnProperty.getMethodName()));
-            /*if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-                answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
-            } else {
-                if (introspectedTable.getRelationProperties().size() > 0) {
-                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
-                } else {
-                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
-                }
-            }*/
-            if (selectByColumnProperty.isReturnPrimaryKey()) {
+            answer.addAttribute(new Attribute("id", selectByColumnGeneratorConfiguration.getMethodName()));
+            if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
                 answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             }else{
                 answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
             }
-            answer.addAttribute(new Attribute("parameterType", selectByColumnProperty.getColumn().getFullyQualifiedJavaType().getFullyQualifiedName()));
+            answer.addAttribute(new Attribute("parameterType", selectByColumnGeneratorConfiguration.getColumn().getFullyQualifiedJavaType().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
 
             answer.addElement(new TextElement("select "));
-            if (selectByColumnProperty.isReturnPrimaryKey()) {
+            if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
                 String collect = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
                 answer.addElement(new TextElement(collect));
             }else{
@@ -77,12 +68,12 @@ public class SelectByColumnElementGenerator extends
             //条件
             sb.setLength(0);
             sb.append("where ");
-            sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(selectByColumnProperty.getColumn()));
+            sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(selectByColumnGeneratorConfiguration.getColumn()));
             sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(selectByColumnProperty.getColumn()));
+            sb.append(MyBatis3FormattingUtilities.getParameterClause(selectByColumnGeneratorConfiguration.getColumn()));
             answer.addElement(new TextElement(sb.toString()));
-            if (StringUtility.propertyValueValid(selectByColumnProperty.getOrderByClause())) {
-                answer.addElement(new TextElement("order by "+selectByColumnProperty.getOrderByClause()));
+            if (StringUtility.propertyValueValid(selectByColumnGeneratorConfiguration.getOrderByClause())) {
+                answer.addElement(new TextElement("order by "+ selectByColumnGeneratorConfiguration.getOrderByClause()));
             }
             parentElement.addElement(answer);
         }

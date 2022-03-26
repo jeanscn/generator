@@ -1,18 +1,3 @@
-/**
- * Copyright 2006-2019 the original author or authors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -20,7 +5,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.custom.pojo.SelectByTableProperty;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.stream.Collectors;
@@ -34,13 +19,13 @@ public class SelectByTableElementGenerator extends
 
     @Override
     public void addElements(XmlElement parentElement) {
-        if (introspectedTable.getSelectByTableProperties().size() == 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() == 0) {
             return;
         }
-        for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+        for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
             XmlElement answer = new XmlElement("select");
-            answer.addAttribute(new Attribute("id", selectByTableProperty.getMethodName()));
-            if (selectByTableProperty.isReturnPrimaryKey()) {
+            answer.addAttribute(new Attribute("id", selectByTableGeneratorConfiguration.getMethodName()));
+            if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
                 answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             }else{
                 answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
@@ -48,7 +33,7 @@ public class SelectByTableElementGenerator extends
             answer.addAttribute(new Attribute("parameterType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("select "));
-            if (selectByTableProperty.isReturnPrimaryKey()) {
+            if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
                 String collect = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
                 answer.addElement(new TextElement(collect));
             }else{
@@ -61,24 +46,24 @@ public class SelectByTableElementGenerator extends
             answer.addElement(new TextElement(sb.toString()));
             sb.setLength(0);
             sb.append("left join ");
-            sb.append(selectByTableProperty.getTableName()).append(" RT on RT.");
-            sb.append(selectByTableProperty.getPrimaryKeyColumn());
+            sb.append(selectByTableGeneratorConfiguration.getTableName()).append(" RT on RT.");
+            sb.append(selectByTableGeneratorConfiguration.getPrimaryKeyColumn());
             sb.append(" = ");
             IntrospectedColumn introspectedColumn = introspectedTable.getPrimaryKeyColumns().get(0);
             sb.append(introspectedColumn.getTableAlias()).append(".");
             sb.append(introspectedColumn.getActualColumnName());
-            if (StringUtility.propertyValueValid(selectByTableProperty.getAdditionCondition())) {
-                sb.append(" and ").append(selectByTableProperty.getAdditionCondition());
+            if (StringUtility.propertyValueValid(selectByTableGeneratorConfiguration.getAdditionCondition())) {
+                sb.append(" and ").append(selectByTableGeneratorConfiguration.getAdditionCondition());
             }
             answer.addElement(new TextElement(sb.toString()));
             sb.setLength(0);
-            sb.append("where ").append("RT.").append(selectByTableProperty.getOtherPrimaryKeyColumn());
+            sb.append("where ").append("RT.").append(selectByTableGeneratorConfiguration.getOtherPrimaryKeyColumn());
             sb.append(" = #{");
-            sb.append(selectByTableProperty.getParameterName());
+            sb.append(selectByTableGeneratorConfiguration.getParameterName());
             sb.append(",jdbcType=VARCHAR} ");
             answer.addElement(new TextElement(sb.toString()));
-            if (StringUtility.propertyValueValid(selectByTableProperty.getOrderByClause())) {
-                answer.addElement(new TextElement("order by "+selectByTableProperty.getOrderByClause()));
+            if (StringUtility.propertyValueValid(selectByTableGeneratorConfiguration.getOrderByClause())) {
+                answer.addElement(new TextElement("order by "+ selectByTableGeneratorConfiguration.getOrderByClause()));
             }
             parentElement.addElement(answer);
         }

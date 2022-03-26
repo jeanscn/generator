@@ -38,6 +38,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
+        List<CompilationUnit> answer = new ArrayList<>();
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration()==null
+                || !introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerate()) {
+            return answer;
+        }
+
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.8", table.toString())); //$NON-NLS-1$
         Plugin plugins = context.getPlugins();
@@ -112,8 +118,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 }
             }
         }
-
-        List<CompilationUnit> answer = new ArrayList<>();
         if (context.getPlugins().modelBaseRecordClassGenerated(
                 topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);

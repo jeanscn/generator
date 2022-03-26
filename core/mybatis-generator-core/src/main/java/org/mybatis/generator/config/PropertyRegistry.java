@@ -1,18 +1,3 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.config;
 
 /**
@@ -50,17 +35,10 @@ public class PropertyRegistry {
     public static final String TABLE_MODEL_ONLY = "modelOnly"; //$NON-NLS-1$
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
     //定制属性
-    public static final String TABLE_GENERATE_CONTROLLER = "generateController";
-    public static final String TABLE_SERVICE_GENERATE = "generateService";
-    public static final String TABLE_DAO_GENERATE = "generateDao";
     public static final String TABLE_VIEW_PATH = "viewPath";
     public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
     public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
-    public static final String TABLE_MODEL_NOT_META_ANNOTATION = "noMetaAnnotation";
-    public static final String TABLE_SERVICE_NOT_SERVICE_ANNOTATION = "noServiceAnnotation";
-    public static final String TABLE_MODEL_NOT_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
-    public static final String TABLE_GENERATE_CUSTOM_METHODS = "generateCustomMethods";
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$

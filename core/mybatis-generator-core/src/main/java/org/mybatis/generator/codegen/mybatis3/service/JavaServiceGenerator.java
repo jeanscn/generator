@@ -5,9 +5,9 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.CustomMethodProperty;
-import org.mybatis.generator.custom.pojo.SelectByColumnProperty;
-import org.mybatis.generator.custom.pojo.SelectByTableProperty;
+import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,32 +71,34 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         //增加selectTreeByParentId
         if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
                 && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodProperty customMethodProperty = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            addAbstractMethodByColumn(bizINF, entityType, customMethodProperty.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
+            CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+            addAbstractMethodByColumn(bizINF, entityType, customMethodGeneratorConfiguration.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
         }
 
-        if (introspectedTable.getSelectByColumnProperties().size() > 0) {
-            for (SelectByColumnProperty selectByColumnProperty : introspectedTable.getSelectByColumnProperties()) {
-                if (selectByColumnProperty.isReturnPrimaryKey()) {
-                    addAbstractMethodByColumn(bizINF, FullyQualifiedJavaType.getStringInstance(), selectByColumnProperty);
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()!=null
+                && introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+            for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+                if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
+                    addAbstractMethodByColumn(bizINF, FullyQualifiedJavaType.getStringInstance(), selectByColumnGeneratorConfiguration);
                     bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
                 }else{
-                    addAbstractMethodByColumn(bizINF, entityType, selectByColumnProperty);
+                    addAbstractMethodByColumn(bizINF, entityType, selectByColumnGeneratorConfiguration);
                 }
             }
         }
 
-        if (introspectedTable.getSelectByTableProperties().size()>0) {
-            for (SelectByTableProperty selectByTableProperty : introspectedTable.getSelectByTableProperties()) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()!=null
+                && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size()>0) {
+            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
                 Method selectByTable;
-                if (selectByTableProperty.isReturnPrimaryKey()) {
-                    selectByTable = getMethodByType(selectByTableProperty.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
-                            FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
+                    selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
+                            FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), true,
                             "中间表中来自其他表的查询键值");
                     bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
                 }else{
-                    selectByTable = getMethodByType(selectByTableProperty.getMethodName(), entityType,
-                            FullyQualifiedJavaType.getStringInstance(), selectByTableProperty.getParameterName(), true,
+                    selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), entityType,
+                            FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), true,
                             "中间表中来自其他表的查询键值");
                     bizINF.addImportedType(entityType);
                 }
@@ -131,8 +133,8 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         return mBGServiceInterface;
     }
 
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnProperty selectByColumnProperty) {
-        addAbstractMethodByColumn(interFace, entityType, selectByColumnProperty.getColumn(), selectByColumnProperty.getMethodName());
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
+        addAbstractMethodByColumn(interFace, entityType, selectByColumnGeneratorConfiguration.getColumn(), selectByColumnGeneratorConfiguration.getMethodName());
     }
 
     private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn parameterColumn, String methodName) {

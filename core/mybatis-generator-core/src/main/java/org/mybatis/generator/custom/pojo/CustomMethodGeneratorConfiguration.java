@@ -2,7 +2,7 @@ package org.mybatis.generator.custom.pojo;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 
-public class CustomMethodProperty {
+public class CustomMethodGeneratorConfiguration {
 
     private String methodName;
 

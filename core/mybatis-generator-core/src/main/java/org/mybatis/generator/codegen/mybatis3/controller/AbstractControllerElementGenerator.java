@@ -3,8 +3,8 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.HtmlDescriptor;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -26,7 +26,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected Parameter entityParameter;
 
-    protected HtmlDescriptor htmlDescriptor;
+    protected HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
 
     protected FullyQualifiedJavaType responseSimple;
 
@@ -42,7 +42,9 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         commentGenerator = context.getCommentGenerator();
         serviceBeanName = introspectedTable.getControllerBeanName();
         entityNameKey = GenerateUtils.isWorkflowInstance(introspectedTable)?"business":"entity";
-        htmlDescriptor = introspectedTable.getHtmlDescriptors();
+        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+            htmlMapGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
+        }
         entityParameter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         responseSimple = new FullyQualifiedJavaType(RESPONSE_SIMPLE);
         entityFirstLowerShortName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
@@ -61,7 +63,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         sb.append("@").append(mappingPrefix).append("Mapping(value = \"");
         sb.append(this.serviceBeanName);
         if (StringUtility.stringHasValue(otherKey)) {
-            sb.append("/" + otherKey + "\")");
+            sb.append("/").append(otherKey).append("\")");
         } else {
             sb.append("\")");
         }

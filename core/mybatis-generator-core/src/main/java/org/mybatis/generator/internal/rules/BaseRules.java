@@ -1,18 +1,3 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.internal.rules;
 
 import org.mybatis.generator.api.IntrospectedTable;
@@ -40,7 +25,7 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean isGenerateCont;
 
-    protected final boolean isGenerateHtml;
+    protected boolean isGenerateHtml = false;
 
     protected final boolean isGenerateService;
 
@@ -62,8 +47,12 @@ public abstract class BaseRules implements Rules {
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
         isGenerateCont = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isGenerate();
 
-        //TODO isGenerateHtml html
-        isGenerateHtml = introspectedTable.getHtmlDescriptors()!=null && introspectedTable.getHtmlDescriptors().isGenerate();
+        for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
+            if (htmlMapGeneratorConfiguration.isGenerate()) {
+                isGenerateHtml = true;
+                break;
+            }
+        }
 
         JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
         isGenerateService = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isGenerate();
@@ -71,8 +60,8 @@ public abstract class BaseRules implements Rules {
         JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration();
         isGenerateDao = javaClientGeneratorConfiguration!=null && javaClientGeneratorConfiguration.isGenerate();
 
-        String noMetaAnnotation = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_MODEL_NOT_META_ANNOTATION, PropertyScope.any, "false");
-        isNoMetaAnnotation = StringUtility.isTrue(noMetaAnnotation);
+        JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration();
+        isNoMetaAnnotation = javaModelGeneratorConfiguration!=null && javaModelGeneratorConfiguration.isNoMetaAnnotation();
 
         isNoSwaggerAnnotation = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isNoSwaggerAnnotation();
 
@@ -91,20 +80,6 @@ public abstract class BaseRules implements Rules {
             return false;
         }
         return isGenerateService;
-    }
-
-    public boolean generateDao(){
-        if (isModelOnly) {
-            return false;
-        }
-        return isGenerateDao;
-    }
-
-    public boolean generateHtml(){
-        if (isModelOnly) {
-            return false;
-        }
-        return isGenerateHtml;
     }
 
     public boolean isNoMetaAnnotation(){
@@ -422,11 +397,6 @@ public abstract class BaseRules implements Rules {
             // this is a model only context - don't generate the example class
             return false;
         }
-
-        /*if (isModelOnly) {
-            return false;
-        }*/
-
         return tableConfiguration.isSelectByExampleStatementEnabled()
                 || tableConfiguration.isDeleteByExampleStatementEnabled()
                 || tableConfiguration.isCountByExampleStatementEnabled()
@@ -500,10 +470,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateJavaClient() {
-        if (isModelOnly || !this.isGenerateDao) {
-            return false;
-        }
-        return true;
+        return !isModelOnly && this.isGenerateDao;
     }
 
     @Override

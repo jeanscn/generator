@@ -1,6 +1,6 @@
 package org.mybatis.generator.custom.pojo;
 
-public class SelectByTableProperty {
+public class SelectByTableGeneratorConfiguration {
 
     private String tableName;
 

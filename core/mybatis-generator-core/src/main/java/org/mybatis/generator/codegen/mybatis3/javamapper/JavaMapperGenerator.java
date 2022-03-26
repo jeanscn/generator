@@ -47,6 +47,11 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
+        List<CompilationUnit> answer = new ArrayList<>();
+        if (introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration()==null
+                || !introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().isGenerate()) {
+            return answer;
+        }
         progressCallback.startTask(getString("Progress.17", //$NON-NLS-1$
                 introspectedTable.getFullyQualifiedTable().toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
@@ -86,7 +91,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addUpdateByPrimaryKeyWithBLOBsMethod(interfaze);
         addUpdateByPrimaryKeyWithoutBLOBsMethod(interfaze);
 
-        List<CompilationUnit> answer = new ArrayList<>();
         if (context.getPlugins().clientGenerated(interfaze, introspectedTable)) {
             answer.add(interfaze);
         }

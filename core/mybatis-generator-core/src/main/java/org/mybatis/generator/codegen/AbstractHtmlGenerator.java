@@ -16,7 +16,8 @@
 package org.mybatis.generator.codegen;
 
 import org.mybatis.generator.api.dom.html.Document;
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
 
 public abstract class AbstractHtmlGenerator extends AbstractGenerator {
-    public abstract Document getDocument();
+    public abstract Document getDocument(HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration);
 }

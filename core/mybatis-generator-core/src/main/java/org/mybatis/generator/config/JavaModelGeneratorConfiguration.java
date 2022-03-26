@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.internal.util.StringUtility;
+
 import java.util.List;
 
 public class JavaModelGeneratorConfiguration extends AbstractGeneratorConfiguration {
@@ -23,7 +25,14 @@ public class JavaModelGeneratorConfiguration extends AbstractGeneratorConfigurat
 
     public JavaModelGeneratorConfiguration() {
         super();
+    }
+
+    public JavaModelGeneratorConfiguration(Context context) {
+        super();
         noMetaAnnotation = false;
+        targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
+        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
+        targetPackage = String.join(".",baseTargetPackage,"entity");
     }
 
     public boolean isNoMetaAnnotation() {

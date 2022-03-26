@@ -278,7 +278,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByForeignKeyElement(XmlElement parentElement){
-        if (introspectedTable.getSelectByColumnProperties().size() > 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             AbstractXmlElementGenerator elementGenerator = new SelectByColumnElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -286,7 +286,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByTableElement(XmlElement parentElement){
-        if (introspectedTable.getSelectByTableProperties().size()>0) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size()>0) {
             SelectByTableElementGenerator elementGenerator = new SelectByTableElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
 

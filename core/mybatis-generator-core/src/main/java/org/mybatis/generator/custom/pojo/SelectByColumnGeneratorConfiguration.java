@@ -3,7 +3,7 @@ package org.mybatis.generator.custom.pojo;
 import org.mybatis.generator.api.IntrospectedColumn;
 
 
-public class SelectByColumnProperty {
+public class SelectByColumnGeneratorConfiguration {
     private String columnName;
     private String orderByClause;
     //方法返回列表的泛型参数，主键primaryKey或者model默认model
@@ -16,7 +16,7 @@ public class SelectByColumnProperty {
      * */
     private int returnType = 0;
 
-    public SelectByColumnProperty(String columnName) {
+    public SelectByColumnGeneratorConfiguration(String columnName) {
         this.columnName = columnName;
     }
 

@@ -15,7 +15,6 @@
  */
 package org.mybatis.generator.config.xml;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.XMLParserException;
@@ -211,17 +210,16 @@ public class ConfigurationParser {
             String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
             javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
             context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
-
+/*
             //生成html配置
-            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration = Optional.ofNullable(context.getHtmlMapGeneratorConfiguration())
-                    .orElseGet(HtmlMapGeneratorConfiguration::new);
+            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration =context.getHtmlMapGeneratorConfiguration()==null?new HtmlMapGeneratorConfiguration(context):context.getHtmlMapGeneratorConfiguration();
             htmlMapGeneratorConfiguration.setTargetProject(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
                     .orElse("src/main/resources/templates"));
             String modelPackage = javaModelGeneratorConfiguration.getTargetPackage();
             String p = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(modelPackage, "."), ".");
             htmlMapGeneratorConfiguration.setTargetPackage(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
                     .orElse(p));
-            context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);
+            context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);*/
         }
     }
 }

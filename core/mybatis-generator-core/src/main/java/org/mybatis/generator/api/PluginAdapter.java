@@ -15,10 +15,6 @@
  */
 package org.mybatis.generator.api;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
@@ -26,17 +22,22 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This class includes no-operation methods for almost every method in the
  * Plugin interface. Clients may extend this class to implement some or all of
  * the methods in a plugin.
- * 
+ *
  * <p>This adapter does not implement the <code>validate</code> method - all plugins
  * must perform validation.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public abstract class PluginAdapter implements Plugin {
     protected Context context;
@@ -368,7 +369,7 @@ public abstract class PluginAdapter implements Plugin {
     }
 
     @Override
-    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document,IntrospectedTable introspectedTable) {
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
         return true;
     }
 
@@ -386,7 +387,7 @@ public abstract class PluginAdapter implements Plugin {
 
     @Override
     public boolean htmlMapGenerated(GeneratedHtmlFile htmlMap,
-                                   IntrospectedTable introspectedTable) {
+                                    IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
         return true;
     }
 

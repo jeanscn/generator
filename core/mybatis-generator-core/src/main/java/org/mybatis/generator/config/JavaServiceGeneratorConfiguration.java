@@ -15,12 +15,18 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.internal.util.StringUtility;
+
 import java.util.List;
 
 public class JavaServiceGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
-    public JavaServiceGeneratorConfiguration() {
+    public JavaServiceGeneratorConfiguration(Context context) {
         super();
+        targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
+        String modelTargetPackage= context.getJavaModelGeneratorConfiguration().getTargetPackage();
+        baseTargetPackage = StringUtility.substringBeforeLast(modelTargetPackage, ".");
+        targetPackage = String.join(".", baseTargetPackage, "service");
     }
 
     @Override
