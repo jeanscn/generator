@@ -23,6 +23,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "list";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
         StringBuilder sb = new StringBuilder();
 
         method.addParameter(new Parameter(entityType, entityFirstLowerShortName));

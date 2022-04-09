@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.pojo;
 
-public class SelectByTableGeneratorConfiguration {
+import org.mybatis.generator.config.PropertyHolder;
+
+public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     private String tableName;
 
@@ -17,6 +19,10 @@ public class SelectByTableGeneratorConfiguration {
     private String additionCondition;
 
     private String returnTypeParam = "model";
+
+    public SelectByTableGeneratorConfiguration() {
+        super();
+    }
 
     public String getParameterName() {
         return parameterName;

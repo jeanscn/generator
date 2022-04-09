@@ -4,7 +4,7 @@ import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
-public class RelationPropertyHolder extends PropertyHolder {
+public class RelationGeneratorConfiguration extends PropertyHolder {
 
     /* 关系类型：association、collection
     * */
@@ -21,6 +21,10 @@ public class RelationPropertyHolder extends PropertyHolder {
     private String javaType;
 
     private String columnRemark;
+
+    public RelationGeneratorConfiguration() {
+        super();
+    }
 
     public String getColumnRemark() {
         return columnRemark;

@@ -185,7 +185,7 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean generateRelationMap() {
+    public boolean generateRelationWithSubSelected() {
         return false;
     }
 

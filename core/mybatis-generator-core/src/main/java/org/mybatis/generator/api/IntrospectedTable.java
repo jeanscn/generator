@@ -94,7 +94,7 @@ public abstract class IntrospectedTable {
 
     protected List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
-    protected List<RelationPropertyHolder> relationProperties = new ArrayList<>();
+    protected List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
     protected Map<String, CustomMethodGeneratorConfiguration> customAddtionalSelectMethods = new HashMap<>();
 
@@ -392,7 +392,7 @@ public abstract class IntrospectedTable {
     protected void calculateRelationProperty(){
         TableConfiguration tableConfiguration = this.getTableConfiguration();
         if (tableConfiguration.getRelationPropertyHolders().size()>0) {
-            this.getRelationProperties().addAll(tableConfiguration.getRelationPropertyHolders());
+            this.getRelationGeneratorConfigurations().addAll(tableConfiguration.getRelationPropertyHolders());
 
         }
     }
@@ -443,7 +443,7 @@ public abstract class IntrospectedTable {
         }
 
         //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
-        long relationCount = this.getRelationProperties().stream().filter(RelationPropertyHolder::isSubSelected).count();
+        long relationCount = this.getRelationGeneratorConfigurations().stream().filter(RelationGeneratorConfiguration::isSubSelected).count();
         if (relationCount>0) {
             internalAttributes.put(InternalAttribute.ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID, "selectBaseByPrimaryKey");
             String selectBaseByPrimaryKeyStatementId = this.getSelectBaseByPrimaryKeyStatementId();
@@ -482,6 +482,7 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateHtmlAttributes() {
+
         for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : tableConfiguration.getHtmlMapGeneratorConfigurations()) {
             //附加全局配置隐藏
             String hiddenColumns = context.getProperty(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS);
@@ -491,6 +492,20 @@ public abstract class IntrospectedTable {
             }
             htmlMapGeneratorConfiguration.setHtmlFileName(htmlMapGeneratorConfiguration.getViewPath()+".html");
         }
+
+        //重新计算不为空字段，追加数据库表不允许空的字段
+        if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+            for (IntrospectedColumn column : this.getAllColumns()) {
+                if (!column.isNullable()) {
+                    for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : this.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
+                        if (!htmlMapGeneratorConfiguration.getElementRequired().contains(column.actualColumnName)) {
+                            htmlMapGeneratorConfiguration.getElementRequired().add(column.actualColumnName);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     protected void calculateXmlAttributes() {
@@ -1143,8 +1158,8 @@ public abstract class IntrospectedTable {
         this.tableType = tableType;
     }
 
-    public List<RelationPropertyHolder> getRelationProperties() {
-        return relationProperties;
+    public List<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
+        return relationGeneratorConfigurations;
     }
 
     public Map<String, CustomMethodGeneratorConfiguration> getCustomAddtionalSelectMethods() {

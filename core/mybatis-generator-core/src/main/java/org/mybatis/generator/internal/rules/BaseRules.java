@@ -5,7 +5,7 @@ import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
+import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 /**
@@ -474,8 +474,8 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean generateRelationMap(){
-        long count = tableConfiguration.getRelationPropertyHolders().stream().filter(RelationPropertyHolder::isSubSelected).count();
+    public boolean generateRelationWithSubSelected(){
+        long count = tableConfiguration.getRelationPropertyHolders().stream().filter(RelationGeneratorConfiguration::isSubSelected).count();
         return count>0;
     }
 }

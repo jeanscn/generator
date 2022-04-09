@@ -20,6 +20,8 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "update";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         StringBuilder sb = new StringBuilder();
 
         method.addParameter(entityParameter);

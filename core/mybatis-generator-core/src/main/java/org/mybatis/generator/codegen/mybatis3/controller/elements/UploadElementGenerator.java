@@ -29,6 +29,8 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "upload";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
         Parameter multipartFileParameter = new Parameter(multipartFile, "file");
         multipartFileParameter.addAnnotation("@RequestPart(\"file\")");

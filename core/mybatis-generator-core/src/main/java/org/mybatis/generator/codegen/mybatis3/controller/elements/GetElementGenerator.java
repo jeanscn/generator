@@ -23,6 +23,8 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "get";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         StringBuilder sb = new StringBuilder();
         Parameter parameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");
         parameter.addAnnotation("@PathVariable");

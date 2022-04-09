@@ -20,7 +20,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
-        StringBuilder sb = new StringBuilder();
+        addSystemLogAnnotation(method,parentElement);
 
         method.addParameter(entityParameter);
         entityParameter.addAnnotation("@RequestBody");

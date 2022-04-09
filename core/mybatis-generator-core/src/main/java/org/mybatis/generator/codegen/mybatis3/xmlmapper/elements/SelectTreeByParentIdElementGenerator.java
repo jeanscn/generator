@@ -43,7 +43,7 @@ public class SelectTreeByParentIdElementGenerator extends AbstractXmlElementGene
             if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
                 answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
             } else {
-                if (introspectedTable.getRelationProperties().size() > 0) {
+                if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
                     answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
                 } else {
                     answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));

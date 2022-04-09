@@ -12,7 +12,7 @@ import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
 import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
+import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -80,7 +80,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
 
         interFace.getMethods().clear();
         //增加relation方法
-        if (introspectedTable.getRules().generateRelationMap()) {
+        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
             Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
                     exampleType, "example", true, "查询条件对象");
             interFace.addMethod(example);
@@ -250,8 +250,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         //根据新参数添加
-        if (introspectedTable.getRelationProperties().size() > 0) {
-            for (RelationPropertyHolder relationProperty : introspectedTable.getRelationProperties()) {
+        if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
+            for (RelationGeneratorConfiguration relationProperty : introspectedTable.getRelationGeneratorConfigurations()) {
                 FullyQualifiedJavaType returnType;
                 Field field;
                 FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());

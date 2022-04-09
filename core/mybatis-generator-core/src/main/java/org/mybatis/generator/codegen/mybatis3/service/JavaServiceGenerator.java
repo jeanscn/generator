@@ -8,6 +8,7 @@ import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,10 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-        String interfaceClassShortName = getInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackage(), entityType.getShortName());
-        Interface bizINF = new Interface(interfaceClassShortName);
+
+        Interface bizINF = new Interface(
+                getInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackage(),
+                        entityType.getShortName()));
         commentGenerator.addJavaFileComment(bizINF);
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
@@ -50,21 +53,12 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizINF.addImportedType(exampleType);
         bizINF.setVisibility(JavaVisibility.PUBLIC);
         bizINF.addSuperInterface(infSuperType);
-        /*
-        //类名
-        FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        TopLevelClass topLevelClass = new TopLevelClass(type);
-        topLevelClass.setVisibility(JavaVisibility.PUBLIC);
-        //类文件注释
-        commentGenerator.addJavaFileComment(topLevelClass);
-        //类注释
-        commentGenerator.addModelClassComment(topLevelClass, introspectedTable);*/
 
         //增加selectByExampleWithRelation接口方法
-        if (introspectedTable.getRules().generateRelationMap()) {
-            Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
+        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
+            Method method = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
                     exampleType, "example", true, "查询条件example对象");
-            bizINF.addMethod(example);
+            bizINF.addMethod(method);
             bizINF.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         }
 
@@ -75,9 +69,9 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             addAbstractMethodByColumn(bizINF, entityType, customMethodGeneratorConfiguration.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
         }
 
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()!=null
-                && introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+
                 if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
                     addAbstractMethodByColumn(bizINF, FullyQualifiedJavaType.getStringInstance(), selectByColumnGeneratorConfiguration);
                     bizINF.addImportedType(FullyQualifiedJavaType.getStringInstance());
@@ -108,7 +102,9 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
-        answer.add(bizINF);
+        if (plugins.serviceGenerated(bizINF, introspectedTable)) {
+            answer.add(bizINF);
+        }
         return answer;
     }
 
@@ -133,15 +129,19 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         return mBGServiceInterface;
     }
 
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
-        addAbstractMethodByColumn(interFace, entityType, selectByColumnGeneratorConfiguration.getColumn(), selectByColumnGeneratorConfiguration.getMethodName());
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType returnType, SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
+        addAbstractMethodByColumn(interFace, returnType, selectByColumnGeneratorConfiguration.getColumn(), selectByColumnGeneratorConfiguration.getMethodName());
     }
 
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn parameterColumn, String methodName) {
-        Method method = getMethodByColumn(entityType, parameterColumn, methodName, true);
+    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType returnType, IntrospectedColumn parameterColumn, String methodName) {
+        if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(methodName)) {
+            interFace.addImportedType(new FullyQualifiedJavaType(SERVICE_RESULT));
+        }
+        Method method = getMethodByColumn(returnType, parameterColumn, methodName, true);
         interFace.addMethod(method);
         interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         interFace.addImportedType(parameterColumn.getFullyQualifiedJavaType());
     }
+
 
 }

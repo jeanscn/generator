@@ -20,6 +20,8 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "delete";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         StringBuilder sb = new StringBuilder();
 
         Parameter parameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");

@@ -50,9 +50,6 @@ public class PropertyRegistry {
     public static final String CONTEXT_TARGET_JAVA8 = "targetJava8"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FORMATTER = "kotlinFormatter"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FILE_ENCODING = "kotlinFileEncoding"; //$NON-NLS-1$
-    //定制属性
-    public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";
-    public static final String CONTEXT_HTML_TARGET_PACKAGE = "htmlTargetPackage";
 
     public static final String CLIENT_USE_LEGACY_BUILDER = "useLegacyBuilder"; //$NON-NLS-1$
 
@@ -67,4 +64,9 @@ public class PropertyRegistry {
     public static final String COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS = "suppressAllComments"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_ADD_REMARK_COMMENTS = "addRemarkComments"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_DATE_FORMAT = "dateFormat"; //$NON-NLS-1$
+
+    //定制属性
+    public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";
+    public static final String CONTEXT_HTML_TARGET_PACKAGE = "htmlTargetPackage";
+    public static final String CONTROLLER_ENABLE_SYSLOG_ANNOTATION = "enableSysLogAnnotation";
 }

@@ -3,7 +3,7 @@ package org.mybatis.generator.config.xml;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.pojo.HtmlElementDescriptor;
-import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
+import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.exception.XMLParserException;
@@ -535,13 +535,13 @@ public class MyBatisGeneratorConfigurationParser {
         String whereColumn = attributes.getProperty("whereColumn"); //$NON-NLS-1$
         String modelType = attributes.getProperty("modelType"); //$NON-NLS-1$
         String mapperMethod = attributes.getProperty("mapperMethod"); //$NON-NLS-1$
-        RelationPropertyHolder relationPropertyHolder = new RelationPropertyHolder();
-        relationPropertyHolder.setPropertyName(fieldName);
-        relationPropertyHolder.setColumn(whereColumn);
-        relationPropertyHolder.setModelTye(modelType);
-        relationPropertyHolder.setSelect(mapperMethod);
-        relationPropertyHolder.setType(relationTypeEnum);
-        tc.addRelationPropertyHolders(relationPropertyHolder);
+        RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
+        relationGeneratorConfiguration.setPropertyName(fieldName);
+        relationGeneratorConfiguration.setColumn(whereColumn);
+        relationGeneratorConfiguration.setModelTye(modelType);
+        relationGeneratorConfiguration.setSelect(mapperMethod);
+        relationGeneratorConfiguration.setType(relationTypeEnum);
+        tc.addRelationPropertyHolders(relationGeneratorConfiguration);
     }
 
     private void parseGenerateHtml(Context context,TableConfiguration tc, Node node) {

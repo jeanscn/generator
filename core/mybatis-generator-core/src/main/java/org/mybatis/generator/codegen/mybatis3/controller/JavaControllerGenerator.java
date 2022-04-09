@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
+import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
@@ -28,7 +29,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
 
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.48", table.toString()));
-        //Plugin plugins = context.getPlugins();
+        Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
@@ -89,7 +90,9 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
-        answer.add(conTopClazz);
+        if (plugins.ControllerGenerated(conTopClazz, introspectedTable)) {
+            answer.add(conTopClazz);
+        }
         return answer;
     }
 

@@ -29,6 +29,8 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
 
         final String methodPrefix = "download";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         Parameter idParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");
         idParameter.addAnnotation("@PathVariable");
         method.addParameter(idParameter);

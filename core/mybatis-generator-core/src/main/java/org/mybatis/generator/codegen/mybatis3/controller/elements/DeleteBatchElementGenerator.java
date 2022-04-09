@@ -22,6 +22,8 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
 
         final String methodPrefix = "deleteBatch";
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "ids");
         parameter.addAnnotation("@RequestBody");
         method.addParameter(parameter);

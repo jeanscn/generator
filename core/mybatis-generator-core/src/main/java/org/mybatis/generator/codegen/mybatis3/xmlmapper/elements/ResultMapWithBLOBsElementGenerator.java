@@ -49,7 +49,7 @@ public class ResultMapWithBLOBsElementGenerator extends
                 returnType));
 
         if (!introspectedTable.isConstructorBased()) {
-            if (introspectedTable.getRelationProperties().size()>0) {
+            if (introspectedTable.getRelationGeneratorConfigurations().size()>0) {
                 answer.addAttribute(new Attribute("extends",introspectedTable.getRelationResultMapId()));
             }else{
                 answer.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));

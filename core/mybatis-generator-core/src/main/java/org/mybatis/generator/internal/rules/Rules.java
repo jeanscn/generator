@@ -243,5 +243,5 @@ public interface Rules {
 
     IntrospectedTable getIntrospectedTable();
 
-    boolean generateRelationMap();
+    boolean generateRelationWithSubSelected();
 }

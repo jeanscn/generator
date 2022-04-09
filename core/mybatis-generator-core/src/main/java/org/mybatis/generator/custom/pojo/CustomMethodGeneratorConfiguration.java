@@ -1,8 +1,9 @@
 package org.mybatis.generator.custom.pojo;
 
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.config.PropertyHolder;
 
-public class CustomMethodGeneratorConfiguration {
+public class CustomMethodGeneratorConfiguration extends PropertyHolder {
 
     private String methodName;
 
@@ -11,6 +12,10 @@ public class CustomMethodGeneratorConfiguration {
     private IntrospectedColumn parentIdColumn;
 
     private IntrospectedColumn primaryKeyColumn;
+
+    public CustomMethodGeneratorConfiguration() {
+        super();
+    }
 
     public IntrospectedColumn getParentIdColumn() {
         return parentIdColumn;

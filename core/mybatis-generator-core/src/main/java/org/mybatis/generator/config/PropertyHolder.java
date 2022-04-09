@@ -15,11 +15,11 @@
  */
 package org.mybatis.generator.config;
 
-import java.util.Enumeration;
-import java.util.Properties;
-
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+
+import java.util.Enumeration;
+import java.util.Properties;
 
 public abstract class PropertyHolder {
     private Properties properties;

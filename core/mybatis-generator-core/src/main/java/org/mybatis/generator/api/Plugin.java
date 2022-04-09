@@ -1747,4 +1747,15 @@ public interface Plugin {
         return true;
     }
 
+    default boolean serviceGenerated(Interface interfaze,IntrospectedTable introspectedTable){
+        return true;
+    }
+
+    default boolean serviceImplGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
+        return true;
+    }
+
+    default boolean ControllerGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
+        return true;
+    }
 }

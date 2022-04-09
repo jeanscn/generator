@@ -1,12 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.RelationPropertyHolder;
+import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -30,6 +31,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
 
     private static final String serviceAnnotation = "org.springframework.stereotype.Service";
+    public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.enums.ServiceCodeEnum";
 
     public JavaServiceImplGenerator(String project) {
         super(project);
@@ -41,6 +43,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.38", table.toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
+        Plugin plugins = context.getPlugins();
 
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
@@ -67,8 +70,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         StringBuilder sb = new StringBuilder();
         //增加selectByExampleWithRelation接口实现方法
-        if (introspectedTable.getRelationProperties().size() > 0) {
-            long count = introspectedTable.getRelationProperties().stream().filter(RelationPropertyHolder::isSubSelected).count();
+        if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
+            long count = introspectedTable.getRelationGeneratorConfigurations().stream().filter(RelationGeneratorConfiguration::isSubSelected).count();
             if (count>0) {
                 Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(),
                         entityType, exampleType, "example", false, "查询条件example对象");
@@ -83,8 +86,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 addJavaMapper(introspectedTable, bizClazzImpl);
             }
         }
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()!=null
-                && introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 IntrospectedColumn foreignKeyColumn = selectByColumnGeneratorConfiguration.getColumn();
                 Method methodByColumn;
@@ -96,15 +98,33 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 }
                 methodByColumn.addAnnotation("@Override");
                 addJavaMapper(introspectedTable, bizClazzImpl);
-                sb.setLength(0);
-                sb.append("return mapper.");
-                sb.append(selectByColumnGeneratorConfiguration.getMethodName());
-                sb.append("(");
-                sb.append(foreignKeyColumn.getJavaProperty());
-                sb.append(");");
-                methodByColumn.addBodyLine(sb.toString());
+                if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(selectByColumnGeneratorConfiguration.getMethodName())) {
+                    bizClazzImpl.addImportedType(SERVICE_RESULT);
+                    bizClazzImpl.addImportedType(SERVICE_CODE_ENUM);
+                    String entityVar = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+                    methodByColumn.addBodyLine("try{");
+                    String format = VStringUtil.format("{0} {1} = mapper.selectBaseByPrimaryKey({2});",entityType.getShortName(), entityVar, foreignKeyColumn.getJavaProperty());
+                    methodByColumn.addBodyLine(format);
+                    sb.setLength(0);
+                    sb.append("if (").append(entityVar).append("!=null) {");
+                    methodByColumn.addBodyLine(sb.toString());
+                    methodByColumn.addBodyLine(VStringUtil.format("return ServiceResult.success({0});",entityVar));
+                    methodByColumn.addBodyLine("}");
+                    methodByColumn.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
+                    methodByColumn.addBodyLine("} catch (Exception e) {");
+                    methodByColumn.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.RUNTIME_ERROR,e);");
+                    methodByColumn.addBodyLine("}");
+                }else{
+                    sb.setLength(0);
+                    sb.append("return mapper.");
+                    sb.append(selectByColumnGeneratorConfiguration.getMethodName());
+                    sb.append("(");
+                    sb.append(foreignKeyColumn.getJavaProperty());
+                    sb.append(");");
+                    methodByColumn.addBodyLine(sb.toString());
+                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                }
                 bizClazzImpl.addMethod(methodByColumn);
-                bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                 bizClazzImpl.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
             }
         }
@@ -167,7 +187,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
-        answer.add(bizClazzImpl);
+        if (plugins.serviceImplGenerated(bizClazzImpl, introspectedTable)) {
+            answer.add(bizClazzImpl);
+        }
         return answer;
     }
 

@@ -4,6 +4,8 @@ import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -80,5 +82,44 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         method.addBodyLine("setExceptionResponse(responseSimple, e);");
         method.addBodyLine("}");
         method.addBodyLine("return responseSimple;");
+    }
+
+    protected void addSystemLogAnnotation(Method method,TopLevelClass parentElement){
+        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
+        String property = javaControllerGeneratorConfiguration.getProperty(PropertyRegistry.CONTROLLER_ENABLE_SYSLOG_ANNOTATION);
+        if (StringUtility.stringHasValue(property)) {
+            if (Boolean.parseBoolean(property)) {
+                StringBuilder sb = new StringBuilder();
+                FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+                sb.append(introspectedTable.getRemarks()).append("：");
+                if(("view"+record.getShortName()).equals(method.getName())){
+                    sb.append("通过表单查看或创建记录！");
+                }else if(("get"+record.getShortName()).equals(method.getName())){
+                    sb.append("根据主键查询单条！");
+                }else if(("list"+record.getShortName()).equals(method.getName())){
+                    sb.append("查看数据列表！");
+                }else if(("create"+record.getShortName()).equals(method.getName())){
+                    sb.append("添加了一条记录！");
+                }else if(("upload"+record.getShortName()).equals(method.getName())){
+                    sb.append("上传记录！");
+                }else if(("download"+record.getShortName()).equals(method.getName())){
+                    sb.append("下载数据！");
+                }else if(("update"+record.getShortName()).equals(method.getName())){
+                    sb.append("更新了一条记录！");
+                }else if(("delete"+record.getShortName()).equals(method.getName())){
+                    sb.append("删除了一条记录！");
+                }else if(("deleteBatch"+record.getShortName()).equals(method.getName())){
+                    sb.append("删除了一条或多条记录！");
+                }else{
+                    sb.append("执行操作！");
+                }
+                method.addAnnotation("@SystemLog(value=\""+ sb +"\")");
+                parentElement.addImportedType("com.vgosoft.core.annotation.SystemLog");
+                //增加事务
+                method.addAnnotation("@Transactional");
+                parentElement.addImportedType("org.springframework.transaction.annotation.Transactional");
+
+            }
+        }
     }
 }

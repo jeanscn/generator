@@ -24,6 +24,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "view";
         StringBuilder sb = new StringBuilder();
         Method method = createMethod(methodPrefix);
+        addSystemLogAnnotation(method,parentElement);
+
         Parameter parameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");
         parameter.addAnnotation("@RequestParam(required = false)");
         method.addParameter(parameter);

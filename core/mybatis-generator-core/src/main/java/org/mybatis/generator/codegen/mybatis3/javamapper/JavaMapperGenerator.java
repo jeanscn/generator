@@ -153,7 +153,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     protected void addSelectByExampleWithRelationMethod(Interface interfaze){
-        if (introspectedTable.getRelationProperties().size()>0) {
+        if (introspectedTable.getRelationGeneratorConfigurations().size()>0) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithRelationMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }

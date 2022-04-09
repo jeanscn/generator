@@ -446,4 +446,8 @@ public class JavaBeansUtil {
             javaType.addAnnotation(annotation);
         }
     }
+
+    public static boolean isSelectBaseByPrimaryKeyMethod(String methodName){
+        return "selectBaseByPrimaryKey".equalsIgnoreCase(methodName);
+    }
 }

@@ -271,7 +271,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByExampleWithRelationElement(XmlElement parentElement){
-        if (introspectedTable.getRules().generateRelationMap()) {
+        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
             AbstractXmlElementGenerator elementGenerator = new SelectByExampleWithRelationElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

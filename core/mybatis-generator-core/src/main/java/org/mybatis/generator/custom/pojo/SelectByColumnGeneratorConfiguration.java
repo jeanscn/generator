@@ -1,9 +1,10 @@
 package org.mybatis.generator.custom.pojo;
 
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.config.PropertyHolder;
 
 
-public class SelectByColumnGeneratorConfiguration {
+public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     private String columnName;
     private String orderByClause;
     //方法返回列表的泛型参数，主键primaryKey或者model默认model
@@ -15,6 +16,10 @@ public class SelectByColumnGeneratorConfiguration {
      * 主要为了标识selectBaseByPrimaryKey方法，返回model
      * */
     private int returnType = 0;
+
+    public SelectByColumnGeneratorConfiguration() {
+        super();
+    }
 
     public SelectByColumnGeneratorConfiguration(String columnName) {
         this.columnName = columnName;

@@ -91,7 +91,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private List<CustomMethodGeneratorConfiguration> customMethodGeneratorConfigurations;
 
-    private List<RelationPropertyHolder> relationPropertyHolders;
+    private List<RelationGeneratorConfiguration> relationGeneratorConfigurations;
 
     private List<HtmlMapGeneratorConfiguration> htmlMapGeneratorConfigurations;
 
@@ -128,7 +128,7 @@ public class TableConfiguration extends PropertyHolder {
         selectByTableGeneratorConfigurations = new ArrayList<>();
         selectByColumnGeneratorConfigurations =new ArrayList<>();
         customMethodGeneratorConfigurations = new ArrayList<>();
-        relationPropertyHolders = new ArrayList<>();
+        relationGeneratorConfigurations = new ArrayList<>();
         htmlMapGeneratorConfigurations = new ArrayList<>();
     }
 
@@ -528,13 +528,13 @@ public class TableConfiguration extends PropertyHolder {
         return this.customMethodGeneratorConfigurations;
     }
 
-    public List<RelationPropertyHolder> getRelationPropertyHolders() {
-        return relationPropertyHolders;
+    public List<RelationGeneratorConfiguration> getRelationPropertyHolders() {
+        return relationGeneratorConfigurations;
     }
 
-    public List<RelationPropertyHolder> addRelationPropertyHolders(RelationPropertyHolder relationPropertyHolder) {
-       this.relationPropertyHolders.add(relationPropertyHolder);
-       return this.relationPropertyHolders;
+    public List<RelationGeneratorConfiguration> addRelationPropertyHolders(RelationGeneratorConfiguration relationGeneratorConfiguration) {
+       this.relationGeneratorConfigurations.add(relationGeneratorConfiguration);
+       return this.relationGeneratorConfigurations;
     }
 
     public List<HtmlMapGeneratorConfiguration> getHtmlMapGeneratorConfigurations() {
