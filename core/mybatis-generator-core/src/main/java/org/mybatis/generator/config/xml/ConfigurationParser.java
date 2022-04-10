@@ -211,7 +211,6 @@ public class ConfigurationParser {
             for (TableConfiguration tableConfiguration : context.getTableConfigurations()) {
                 tableConfiguration.setConfiguredModelType("flat");
             }
-            context.setDefaultModelType(ModelType.FLAT);
 
             //类型转换
             JavaTypeResolverConfiguration javaTypeResolverConfiguration = Optional.ofNullable(context.getJavaTypeResolverConfiguration())

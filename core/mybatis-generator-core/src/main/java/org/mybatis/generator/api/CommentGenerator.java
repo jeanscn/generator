@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -211,6 +211,8 @@ public interface CommentGenerator {
      */
     default void addRootComment(XmlElement rootElement) {}
 
+    void addRootComment(HtmlElement rootElement);
+
     /**
      * Adds a @Generated annotation to a method.
      *
@@ -289,6 +291,8 @@ public interface CommentGenerator {
      */
     default void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable,
             Set<FullyQualifiedJavaType> imports) {}
+
+    default void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){};
 
     /**
      * This method is called to add a file level comment to a generated Kotlin file. This method

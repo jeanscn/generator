@@ -168,7 +168,6 @@ public class ExampleGenerator extends AbstractJavaGenerator {
 
         topLevelClass.addInnerClass(getCriterionInnerClass());
 
-        List<CompilationUnit> answer = new ArrayList<>();
         if (context.getPlugins().modelExampleClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
         }

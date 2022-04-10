@@ -49,8 +49,6 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
     protected final List<AbstractJavaGenerator> javaGenerators = new ArrayList<>();
 
-    protected List<AbstractJavaGenerator> javaGenerators = new ArrayList<>();
-
     protected final List<AbstractKotlinGenerator> kotlinGenerators = new ArrayList<>();
 
     protected AbstractXmlGenerator xmlMapperGenerator;
@@ -70,6 +68,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 calculateClientGenerators(warnings, progressCallback);
 
         calculateXmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
+        calculateHtmlMapperGenerator(warnings, progressCallback);
     }
 
     protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,

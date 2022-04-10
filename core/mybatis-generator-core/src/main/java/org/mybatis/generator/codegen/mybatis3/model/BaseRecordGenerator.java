@@ -49,7 +49,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
-        FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         //类名
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         TopLevelClass topLevelClass = new TopLevelClass(type);
@@ -124,7 +123,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
     private FullyQualifiedJavaType getSuperClass() {
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
-            superClass = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
             return new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
             String rootClass = getRootClass();

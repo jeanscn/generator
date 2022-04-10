@@ -409,6 +409,7 @@ public class JavaBeansUtil {
             }
             Class<?> pClazz = Class.forName(parentClassName);
             Class<?> cClazz = Class.forName(childClassName);
+
             return ClassUtils.isAssignable(cClazz, pClazz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

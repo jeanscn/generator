@@ -81,7 +81,7 @@ public class HtmlElement implements VisitableElement {
     public String getName() {
         return name;
     }
-    
+
     public boolean hasChildren() {
         return !elements.isEmpty();
     }

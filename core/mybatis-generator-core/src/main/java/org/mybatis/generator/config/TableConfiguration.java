@@ -16,8 +16,7 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.custom.pojo.*;
-import org.mybatis.generator.internal.util.EqualsUtil;
-import org.mybatis.generator.internal.util.HashCodeUtil;
+
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
+
 import org.mybatis.generator.internal.util.messages.Messages;
 
 public class TableConfiguration extends PropertyHolder {
@@ -85,9 +85,6 @@ public class TableConfiguration extends PropertyHolder {
     private String mapperName;
     private String sqlProviderName;
 
-    private List<IgnoredColumnPattern> ignoredColumnPatterns;
-
-
     private List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations;
 
     private List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations;
@@ -109,6 +106,7 @@ public class TableConfiguration extends PropertyHolder {
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
+
     private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
 
     public TableConfiguration(Context context) {
@@ -118,8 +116,6 @@ public class TableConfiguration extends PropertyHolder {
 
         columnOverrides = new ArrayList<>();
         ignoredColumns = new HashMap<>();
-
-        ignoredColumnPatterns = new ArrayList<>();
 
         insertStatementEnabled = true;
         selectByPrimaryKeyStatementEnabled = true;

@@ -34,13 +34,13 @@ public abstract class AbstractDynamicSqlMapperGenerator extends AbstractJavaClie
 
     // record type for insert, select, update
     protected FullyQualifiedJavaType recordType;
-    
+
     // id to use for the common result map
     protected String resultMapId;
-    
+
     // name of the field containing the table in the support class
     protected String tableFieldName;
-    
+
     protected FragmentGenerator fragmentGenerator;
 
     public AbstractDynamicSqlMapperGenerator(String project) {

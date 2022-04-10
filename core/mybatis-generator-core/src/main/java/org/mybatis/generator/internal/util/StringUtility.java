@@ -15,8 +15,6 @@
  */
 package org.mybatis.generator.internal.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -155,9 +153,8 @@ public class StringUtility {
      * @return 字符串
      */
     public static String remarkLeft(String remark) {
-        return StringUtils.chomp(
-                StringUtils.substringBefore(
-                        StringUtils.substringBefore(remark, "("), "（"));
+        return StringUtility.substringBefore(
+                StringUtility.substringBefore(remark, "("), "（");
     }
 
     public static boolean isBlank(CharSequence cs) {

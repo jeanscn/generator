@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,9 @@ import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
+import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
+import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
+import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
@@ -55,7 +58,6 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
     public DefaultCommentGenerator() {
         super();
-        properties = new Properties();
         suppressDate = false;
         suppressAllComments = false;
         addRemarkComments = false;
@@ -101,14 +103,8 @@ public class DefaultCommentGenerator implements CommentGenerator {
     }
 
     @Override
-    public void addConfigurationProperties(Properties props) {
-        this.properties.putAll(props);
     public void addRootComment(XmlElement rootElement) {
         // add no document level comments by default
-    }
-
-    @Override
-    public void addRootComment(HtmlElement rootElement) {
 
     }
 
@@ -384,10 +380,10 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
         method.addJavaDocLine(" *"); //$NON-NLS-1$
 
-        Parameter parm = method.getParameters().get(0);
+        Parameter param = method.getParameters().get(0);
         sb.setLength(0);
         sb.append(" * @param "); //$NON-NLS-1$
-        sb.append(parm.getName());
+        sb.append(param.getName());
         sb.append(" the value for "); //$NON-NLS-1$
         sb.append(introspectedTable.getFullyQualifiedTable());
         sb.append('.');
@@ -521,5 +517,31 @@ public class DefaultCommentGenerator implements CommentGenerator {
                     + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
         }
         kotlinFile.addFileCommentLine(" */"); //$NON-NLS-1$
+    }
+
+    /**
+     * Adds a comment for a model class.
+     *
+     * @param modelClass        the generated KotlinType for the model
+     * @param introspectedTable 内省类
+     */
+    @Override
+    public void addModelClassComment(KotlinType modelClass, IntrospectedTable introspectedTable) {
+        CommentGenerator.super.addModelClassComment(modelClass, introspectedTable);
+    }
+
+    @Override
+    public void addRootComment(HtmlElement rootElement) {
+
+    }
+
+    @Override
+    public void addGeneralFunctionComment(KotlinFunction kf, IntrospectedTable introspectedTable, Set<String> imports) {
+        CommentGenerator.super.addGeneralFunctionComment(kf, introspectedTable, imports);
+    }
+
+    @Override
+    public void addGeneralPropertyComment(KotlinProperty property, IntrospectedTable introspectedTable, Set<String> imports) {
+        CommentGenerator.super.addGeneralPropertyComment(property, introspectedTable, imports);
     }
 }

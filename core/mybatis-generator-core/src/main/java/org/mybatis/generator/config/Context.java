@@ -93,10 +93,6 @@ public class Context extends PropertyHolder {
         pluginConfigurations = new ArrayList<>();
     }
 
-    public void setDefaultModelType(ModelType defaultModelType) {
-        this.defaultModelType = defaultModelType;
-    }
-
     public void addTableConfiguration(TableConfiguration tc) {
         tableConfigurations.add(tc);
     }
@@ -475,6 +471,7 @@ public class Context extends PropertyHolder {
         // items in the configuration.
         for (IntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
+
             introspectedTable.initialize();
             introspectedTable.calculateGenerators(warnings, callback);
         }
@@ -485,6 +482,8 @@ public class Context extends PropertyHolder {
                     .getGeneratedJavaFiles());
             generatedXmlFiles.addAll(introspectedTable
                     .getGeneratedXmlFiles());
+            generatedHtmlFiles.addAll(introspectedTable
+                    .getGeneratedHtmlFiles());
             generatedKotlinFiles.addAll(introspectedTable
                     .getGeneratedKotlinFiles());
 
@@ -492,6 +491,8 @@ public class Context extends PropertyHolder {
                     .contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator
                     .contextGenerateAdditionalXmlFiles(introspectedTable));
+            generatedHtmlFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalHtmlFiles(introspectedTable));
             generatedKotlinFiles.addAll(pluginAggregator
                     .contextGenerateAdditionalKotlinFiles(introspectedTable));
             otherGeneratedFiles.addAll(pluginAggregator
@@ -502,25 +503,14 @@ public class Context extends PropertyHolder {
                 .contextGenerateAdditionalJavaFiles());
         generatedXmlFiles.addAll(pluginAggregator
                 .contextGenerateAdditionalXmlFiles());
+        generatedHtmlFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalHtmlFiles());
         generatedKotlinFiles.addAll(pluginAggregator
                 .contextGenerateAdditionalKotlinFiles());
         otherGeneratedFiles.addAll(pluginAggregator
                 .contextGenerateAdditionalFiles());
     }
 
-        generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles());
-        generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles());
-        generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles());
-        generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
-        generatedJavaFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalJavaFiles());
-        generatedXmlFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalXmlFiles());
-        generatedKotlinFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalKotlinFiles());
-        otherGeneratedFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalFiles());
-    }
 
     /**
      * This method creates a new JDBC connection from the values specified in the configuration file.

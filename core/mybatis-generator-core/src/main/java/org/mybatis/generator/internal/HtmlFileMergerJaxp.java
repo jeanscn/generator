@@ -37,7 +37,7 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * This class handles the task of merging changes into an existing XML file.
- * 
+ *
  * @author Jeff Butler
  */
 public class HtmlFileMergerJaxp {
@@ -71,7 +71,7 @@ public class HtmlFileMergerJaxp {
                     existingFile.getName()), e);
         }
     }
-    
+
     public static String getMergedSource(InputSource newFile,
             InputSource existingFile, String existingFileName) throws IOException, SAXException,
             ParserConfigurationException, ShellException {
@@ -177,10 +177,10 @@ public class HtmlFileMergerJaxp {
         if (id != null) {
             return MergeConstants.idStartsWithPrefix(id);
         }
-        
+
         return false;
     }
-    
+
     private static boolean isNewFormatNode(Node node) {
         // check for new node format - if the first non-whitespace node
         // is an XML comment, and the comment includes
@@ -195,10 +195,10 @@ public class HtmlFileMergerJaxp {
                 return MergeConstants.commentContainsTag(commentData);
             }
         }
-        
+
         return false;
     }
-    
+
     private static boolean isWhiteSpace(Node node) {
         boolean rc = false;
 

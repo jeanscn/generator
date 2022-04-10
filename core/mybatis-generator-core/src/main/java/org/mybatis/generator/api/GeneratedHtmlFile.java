@@ -60,6 +60,11 @@ public class GeneratedHtmlFile extends GeneratedFile {
         return isMergeable;
     }
 
+    @Override
+    public String getFileEncoding() {
+        return "UTF-8";
+    }
+
     public void setMergeable(boolean isMergeable) {
         this.isMergeable = isMergeable;
     }

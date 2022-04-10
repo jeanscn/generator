@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class ElementRenderer implements ElementVisitor<Stream<String>> {
-    
+
     private AttributeRenderer attributeRenderer = new AttributeRenderer();
 
     @Override

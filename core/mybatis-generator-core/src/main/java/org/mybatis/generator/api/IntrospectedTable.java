@@ -17,10 +17,7 @@ package org.mybatis.generator.api;
 
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.pojo.*;
-import org.mybatis.generator.internal.rules.BaseRules;
-import org.mybatis.generator.internal.rules.ConditionalModelRules;
-import org.mybatis.generator.internal.rules.FlatModelRules;
-import org.mybatis.generator.internal.rules.HierarchicalModelRules;
+import org.mybatis.generator.internal.rules.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -85,6 +82,7 @@ public abstract class IntrospectedTable {
         ATTR_MYBATIS3_SQL_PROVIDER_TYPE,
         ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE,
         ATTR_KOTLIN_RECORD_TYPE,
+        ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME,
         /*CONTROLLER相关*/
         ATTR_CONTROL_BASE_REQUEST_MAPPING,
         ATTR_CONTROL_BEAN_NAME,
@@ -92,8 +90,6 @@ public abstract class IntrospectedTable {
         ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID,
         ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID,
         ATTR_SELECT_TREE_BY_PARENT_ID_STATEMENT_ID
-        ATTR_KOTLIN_RECORD_TYPE,
-        ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME
     }
 
     protected TableConfiguration tableConfiguration;
@@ -102,15 +98,15 @@ public abstract class IntrospectedTable {
 
     protected Context context;
 
-    protected Rules rules;
+    protected BaseRules rules;
+
+    protected TargetRuntime targetRuntime;
 
     protected final List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
 
     protected final List<IntrospectedColumn> baseColumns = new ArrayList<>();
 
     protected final List<IntrospectedColumn> blobColumns = new ArrayList<>();
-
-    protected TargetRuntime targetRuntime;
 
     protected List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
@@ -121,6 +117,7 @@ public abstract class IntrospectedTable {
      * the different plugin calls.
      */
     protected final Map<String, Object> attributes = new HashMap<>();
+
 
     /** Internal attributes are used to store commonly accessed items by all code generators. */
     protected final Map<IntrospectedTable.InternalAttribute, String> internalAttributes =
@@ -258,7 +255,7 @@ public abstract class IntrospectedTable {
         return !baseColumns.isEmpty();
     }
 
-    public Rules getRules() {
+    public BaseRules getRules() {
         return rules;
     }
 
@@ -678,7 +675,11 @@ public abstract class IntrospectedTable {
                 InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID, s);
     }
 
-    public String getBlobColumnListId() {
+    public String getControllerBeanName() {
+        return internalAttributes.get(InternalAttribute.ATTR_CONTROL_BEAN_NAME);
+    }
+
+    public String getControllerSimplePackage() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING);
     }
@@ -1087,7 +1088,7 @@ public abstract class IntrospectedTable {
      * @param rules
      *            the new rules
      */
-    public void setRules(Rules rules) {
+    public void setRules(BaseRules rules) {
         this.rules = rules;
     }
 
