@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -27,10 +29,9 @@ import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
-public class ResultMapWithoutBLOBsElementGenerator extends
-        AbstractXmlElementGenerator {
+public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGenerator {
 
-    private boolean isSimple;
+    private final boolean isSimple;
 
     public ResultMapWithoutBLOBsElementGenerator(boolean isSimple) {
         super();
@@ -40,7 +41,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("resultMap"); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("id",introspectedTable.getBaseResultMapId()));
+        answer.addAttribute(new Attribute("id", introspectedTable.getBaseResultMapId())); //$NON-NLS-1$
 
         String returnType;
         if (isSimple) {
@@ -53,7 +54,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
             }
         }
 
-        answer.addAttribute(new Attribute("type",returnType));
+        answer.addAttribute(new Attribute("type", returnType)); //$NON-NLS-1$
 
         context.getCommentGenerator().addComment(answer);
 
@@ -63,8 +64,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
             addResultMapElements(answer);
         }
 
-        if (context.getPlugins().sqlMapResultMapWithoutBLOBsElementGenerated(
-                answer, introspectedTable)) {
+        if (context.getPlugins().sqlMapResultMapWithoutBLOBsElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
 
@@ -105,23 +105,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
     }
 
     private void addResultMapElements(XmlElement answer) {
-        for (IntrospectedColumn introspectedColumn : introspectedTable
-                .getPrimaryKeyColumns()) {
-            XmlElement resultElement = new XmlElement("id"); //$NON-NLS-1$
-
-            resultElement.addAttribute(generateColumnAttribute(introspectedColumn));
-            resultElement.addAttribute(new Attribute(
-                    "property", introspectedColumn.getJavaProperty())); //$NON-NLS-1$
-            resultElement.addAttribute(new Attribute("jdbcType", //$NON-NLS-1$
-                    introspectedColumn.getJdbcTypeName()));
-
-            if (stringHasValue(introspectedColumn.getTypeHandler())) {
-                resultElement.addAttribute(new Attribute(
-                        "typeHandler", introspectedColumn.getTypeHandler())); //$NON-NLS-1$
-            }
-
-            answer.addElement(resultElement);
-        }
+        buildResultMapItems(ResultElementType.ID, introspectedTable.getPrimaryKeyColumns()).forEach(answer::addElement);
 
         List<IntrospectedColumn> columns;
         if (isSimple) {
@@ -129,25 +113,12 @@ public class ResultMapWithoutBLOBsElementGenerator extends
         } else {
             columns = introspectedTable.getBaseColumns();
         }
-        for (IntrospectedColumn introspectedColumn : columns) {
-            XmlElement resultElement = new XmlElement("result"); //$NON-NLS-1$
 
-            resultElement.addAttribute(generateColumnAttribute(introspectedColumn));
-            resultElement.addAttribute(new Attribute(
-                    "property", introspectedColumn.getJavaProperty())); //$NON-NLS-1$
-            resultElement.addAttribute(new Attribute("jdbcType", //$NON-NLS-1$
-                    introspectedColumn.getJdbcTypeName()));
-
-            if (stringHasValue(introspectedColumn.getTypeHandler())) {
-                resultElement.addAttribute(new Attribute(
-                        "typeHandler", introspectedColumn.getTypeHandler())); //$NON-NLS-1$
-            }
-
-            answer.addElement(resultElement);
-        }
+        buildResultMapItems(ResultElementType.RESULT, columns).forEach(answer::addElement);
     }
 
     private void addResultMapConstructorElements(XmlElement answer) {
+        answer.addElement(buildConstructorElement(isSimple));
         XmlElement constructor = new XmlElement("constructor"); //$NON-NLS-1$
 
         for (IntrospectedColumn introspectedColumn : introspectedTable

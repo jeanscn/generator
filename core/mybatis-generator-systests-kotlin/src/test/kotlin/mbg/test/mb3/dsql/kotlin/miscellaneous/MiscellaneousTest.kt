@@ -1,40 +1,38 @@
-/**
- * Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2022 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package mbg.test.mb3.dsql.kotlin.miscellaneous
 
 import mbg.test.common.FirstName
 import mbg.test.common.MyTime
+import mbg.test.common.util.TestUtilities.datesAreEqual
 import mbg.test.mb3.common.TestEnum
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.EnumtestRecord
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.MyObjectRecord
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.RegexrenameRecord
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.MyObjectMapper
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.*
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.MyObjectDynamicSqlSupport.myObject
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.Enumordinaltest
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.Enumtest
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.MyObject
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.Regexrename
 import org.apache.ibatis.session.RowBounds
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
 import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider
-
-import java.util.*
-
-import mbg.test.common.util.TestUtilities.datesAreEqual
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.*
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.MyObjectDynamicSqlSupport.MyObject
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
-import org.mybatis.dynamic.sql.SqlBuilder.*
-
+import java.util.Date
 
 /**
  * @author Jeff Butler
@@ -42,10 +40,10 @@ import org.mybatis.dynamic.sql.SqlBuilder.*
 class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
     @Test
-    fun testMyObjectInsertMyObjectRecord() {
+    fun testMyObjectInsertMyObject() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            val record = MyObjectRecord()
+            val record = MyObject()
             record.startDate = Date()
             record.decimal100field = 10L
             record.decimal155field = 15.12345
@@ -68,7 +66,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             val returnedRecord = mapper.selectByPrimaryKey(2, 1)
 
-            assertThat(returnedRecord).isNotNull()
+            assertThat(returnedRecord).isNotNull
             if (returnedRecord != null) {
                 assertTrue(datesAreEqual(record.startDate, returnedRecord.startDate))
                 assertEquals(record.decimal100field!!, returnedRecord.decimal100field)
@@ -88,7 +86,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectUpdateByPrimaryKey() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            val record = MyObjectRecord()
+            val record = MyObject()
             var fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -104,11 +102,11 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.lastname = "Jones"
 
             val rows = mapper.updateByPrimaryKey(record)
-            assertEquals(1, rows)
+            assertThat(rows).isEqualTo(1)
 
             val record2 = mapper.selectByPrimaryKey(2, 1)
 
-            assertThat(record2).isNotNull()
+            assertThat(record2).isNotNull
             if (record2 != null) {
                 assertEquals(record.firstname, record2.firstname)
                 assertEquals(record.lastname, record2.lastname)
@@ -122,7 +120,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectUpdateByPrimaryKeySelective() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            val record = MyObjectRecord()
+            val record = MyObject()
             var fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -133,7 +131,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             mapper.insert(record)
 
-            val newRecord = MyObjectRecord()
+            val newRecord = MyObject()
             newRecord.id1 = 1
             newRecord.id2 = 2
             fn = FirstName()
@@ -146,7 +144,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             val returnedRecord = mapper.selectByPrimaryKey(2, 1)
 
-            assertThat(returnedRecord).isNotNull()
+            assertThat(returnedRecord).isNotNull
             if (returnedRecord != null) {
                 assertTrue(datesAreEqual(newRecord.startDate, returnedRecord.startDate))
                 assertEquals(record.decimal100field, returnedRecord.decimal100field)
@@ -166,7 +164,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectDeleteByPrimaryKey() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            val record = MyObjectRecord()
+            val record = MyObject()
             val fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -188,7 +186,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectDeleteByExample() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -197,7 +195,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bob"
             record.firstname = fn
@@ -210,7 +208,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             var answer = mapper.select { allRows() }
             assertEquals(2, answer.size)
 
-            val rows = mapper.delete { where(MyObject.lastname, isLike("J%")) }
+            val rows = mapper.delete { where { myObject.lastname isLike "J%" } }
 
             assertEquals(1, rows)
 
@@ -223,7 +221,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByPrimaryKey() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            val record = MyObjectRecord()
+            val record = MyObject()
             var fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -232,7 +230,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            val record1 = MyObjectRecord()
+            val record1 = MyObject()
             fn = FirstName()
             fn.value = "Bob"
             record1.firstname = fn
@@ -243,7 +241,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             val newRecord = mapper.selectByPrimaryKey(4, 3)
 
-            assertThat(newRecord).isNotNull()
+            assertThat(newRecord).isNotNull
             if (newRecord != null) {
                 assertEquals(record1.firstname, newRecord.firstname)
                 assertEquals(record1.lastname, newRecord.lastname)
@@ -257,7 +255,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByExampleLike() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Fred"
             record.firstname = fn
@@ -266,7 +264,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Wilma"
             record.firstname = fn
@@ -275,7 +273,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Pebbles"
             record.firstname = fn
@@ -284,7 +282,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 3
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Barney"
             record.firstname = fn
@@ -293,7 +291,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Betty"
             record.firstname = fn
@@ -302,7 +300,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bamm Bamm"
             record.firstname = fn
@@ -315,8 +313,8 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             fn1.value = "B%"
 
             val answer = mapper.select {
-                where(MyObject.firstname, isLike(fn1))
-                orderBy(MyObject.id1, MyObject.id2)
+                where { myObject.firstname isLike fn1 }
+                orderBy(myObject.id1, myObject.id2)
             }
 
             assertEquals(3, answer.size)
@@ -336,7 +334,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByExampleNotLike() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Fred"
             record.firstname = fn
@@ -345,7 +343,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Wilma"
             record.firstname = fn
@@ -354,7 +352,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Pebbles"
             record.firstname = fn
@@ -363,7 +361,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 3
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Barney"
             record.firstname = fn
@@ -372,7 +370,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Betty"
             record.firstname = fn
@@ -381,7 +379,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bamm Bamm"
             record.firstname = fn
@@ -394,8 +392,8 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             fn1.value = "B%"
 
             val answer = mapper.select {
-                where(MyObject.firstname, isNotLike(fn1))
-                orderBy(MyObject.id1, MyObject.id2)
+                where { myObject.firstname isNotLike fn1 }
+                orderBy(myObject.id1, myObject.id2)
             }
 
             assertEquals(3, answer.size)
@@ -418,27 +416,27 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             var fn = FirstName()
             fn.value = "Fred"
-            mapper.insert(MyObjectRecord(id1 = 1, id2 = 1, firstname = fn, lastname = "Flintstone"))
+            mapper.insert(MyObject(id1 = 1, id2 = 1, firstname = fn, lastname = "Flintstone"))
 
             fn = FirstName()
             fn.value = "Wilma"
-            mapper.insert(MyObjectRecord(id1 = 1, id2 = 2, firstname = fn, lastname = "Flintstone"))
+            mapper.insert(MyObject(id1 = 1, id2 = 2, firstname = fn, lastname = "Flintstone"))
 
             fn = FirstName()
             fn.value = "Pebbles"
-            mapper.insert(MyObjectRecord(id1 = 1, id2 = 3, firstname = fn, lastname = "Flintstone"))
+            mapper.insert(MyObject(id1 = 1, id2 = 3, firstname = fn, lastname = "Flintstone"))
 
             fn = FirstName()
             fn.value = "Barney"
-            mapper.insert(MyObjectRecord(id1 = 2, id2 = 1, firstname = fn, lastname = "Rubble"))
+            mapper.insert(MyObject(id1 = 2, id2 = 1, firstname = fn, lastname = "Rubble"))
 
             fn = FirstName()
             fn.value = "Betty"
-            mapper.insert(MyObjectRecord(id1 = 2, id2 = 2, firstname = fn, lastname = "Rubble"))
+            mapper.insert(MyObject(id1 = 2, id2 = 2, firstname = fn, lastname = "Rubble"))
 
             fn = FirstName()
             fn.value = "Bamm Bamm"
-            mapper.insert(MyObjectRecord(id1 = 2, id2 = 3, firstname = fn, lastname = "Rubble"))
+            mapper.insert(MyObject(id1 = 2, id2 = 3, firstname = fn, lastname = "Rubble"))
 
             val fn1 = FirstName()
             fn1.value = "B%"
@@ -446,11 +444,12 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             fn2.value = "W%"
 
             val answer = mapper.select {
-                where(MyObject.firstname, isLike(fn1)) {
-                    and(MyObject.id2, isEqualTo(3))
+                where {
+                    myObject.firstname isLike fn1
+                    and { myObject.id2 isEqualTo 3 }
                 }
-                or(MyObject.firstname, isLike(fn2))
-                orderBy(MyObject.id1, MyObject.id2)
+                or { myObject.firstname isLike fn2 }
+                orderBy(myObject.id1, myObject.id2)
             }
 
             assertEquals(2, answer.size)
@@ -467,7 +466,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByExampleIn() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Fred"
             record.firstname = fn
@@ -476,7 +475,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Wilma"
             record.firstname = fn
@@ -485,7 +484,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Pebbles"
             record.firstname = fn
@@ -494,7 +493,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 3
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Barney"
             record.firstname = fn
@@ -503,7 +502,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Betty"
             record.firstname = fn
@@ -512,7 +511,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bamm Bamm"
             record.firstname = fn
@@ -521,13 +520,11 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 3
             mapper.insert(record)
 
-            val ids = ArrayList<Int>()
-            ids.add(1)
-            ids.add(3)
+            val ids = listOf(1, 3)
 
             val answer = mapper.select {
-                where(MyObject.id2, isIn(ids))
-                orderBy(MyObject.id1, MyObject.id2)
+                where { myObject.id2 isIn ids }
+                orderBy(myObject.id1, myObject.id2)
             }
             assertEquals(4, answer.size)
             var returnedRecord = answer[0]
@@ -556,7 +553,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByExampleBetween() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Fred"
             record.firstname = fn
@@ -565,7 +562,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Wilma"
             record.firstname = fn
@@ -574,7 +571,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Pebbles"
             record.firstname = fn
@@ -583,7 +580,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 3
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Barney"
             record.firstname = fn
@@ -592,7 +589,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Betty"
             record.firstname = fn
@@ -601,7 +598,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bamm Bamm"
             record.firstname = fn
@@ -611,8 +608,8 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             mapper.insert(record)
 
             val answer = mapper.select {
-                where(MyObject.id2, isBetween(1).and(3))
-                orderBy(MyObject.id1, MyObject.id2)
+                where { myObject.id2 isBetween 1 and 3 }
+                orderBy(myObject.id1, myObject.id2)
             }
             assertEquals(6, answer.size)
         }
@@ -622,7 +619,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByExampleTimeEquals() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            val record = MyObjectRecord()
+            val record = MyObject()
             record.startDate = Date()
             record.decimal100field = 10L
             record.decimal155field = 15.12345
@@ -643,7 +640,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             mapper.insert(record)
 
-            val results = mapper.select { where(MyObject.timefield, isEqualTo(myTime)) }
+            val results = mapper.select { where { myObject.timefield isEqualTo myTime } }
             assertEquals(1, results.size)
 
             val returnedRecord = results[0]
@@ -662,14 +659,14 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
     @Test
     fun testFieldIgnored() {
-        assertThrows(NoSuchFieldException::class.java) { MyObject::class.java.getDeclaredField("decimal30field") }
+        assertThrows(NoSuchFieldException::class.java) { myObject::class.java.getDeclaredField("decimal30field") }
     }
 
     @Test
     fun testMyObjectUpdateByExampleSelective() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -678,7 +675,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bob"
             record.firstname = fn
@@ -688,7 +685,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             mapper.insert(record)
 
-            val newRecord = MyObjectRecord()
+            val newRecord = MyObject()
             newRecord.lastname = "Barker"
 
             val fn1 = FirstName()
@@ -696,11 +693,11 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             val rows = mapper.update {
                 updateSelectiveColumns(newRecord)
-                where(MyObject.firstname, isLike(fn1))
+                where { myObject.firstname isLike fn1 }
             }
             assertEquals(1, rows)
 
-            val answer = mapper.select { where(MyObject.firstname, isLike(fn1)) }
+            val answer = mapper.select { where { myObject.firstname isLike fn1 } }
             assertEquals(1, answer.size)
 
             val returnedRecord = answer[0]
@@ -715,7 +712,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectUpdateByExample() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Jeff"
             record.firstname = fn
@@ -724,7 +721,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bob"
             record.firstname = fn
@@ -734,22 +731,24 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             mapper.insert(record)
 
-            val newRecord = MyObjectRecord()
+            val newRecord = MyObject()
             newRecord.lastname = "Barker"
             newRecord.id1 = 3
             newRecord.id2 = 4
 
             val rows = mapper.update {
                 updateAllColumns(newRecord)
-                where(MyObject.id1, isEqualTo(3)) {
-                    and(MyObject.id2, isEqualTo(4))
+                where {
+                    myObject.id1 isEqualTo 3
+                    and { myObject.id2 isEqualTo 4 }
                 }
             }
             assertEquals(1, rows)
 
             val answer = mapper.select {
-                where(MyObject.id1, isEqualTo(3)) {
-                    and(MyObject.id2, isEqualTo(4))
+                where {
+                    myObject.id1 isEqualTo 3
+                    and { myObject.id2 isEqualTo 4 }
                 }
             }
             assertEquals(1, answer.size)
@@ -804,7 +803,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testRegexRenameInsert() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(RegexrenameMapper::class.java)
-            val record = RegexrenameRecord()
+            val record = Regexrename()
             record.address = "123 Main Street"
             record.name = "Fred"
             record.zipCode = "99999"
@@ -815,7 +814,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             val returnedRecord = mapper.selectByPrimaryKey(1)
 
-            assertThat(returnedRecord).isNotNull()
+            assertThat(returnedRecord).isNotNull
             if(returnedRecord != null) {
                 assertEquals(record.address, returnedRecord.address)
                 assertEquals(1, returnedRecord.id)
@@ -829,7 +828,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testRegexRenameInsertSelective() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(RegexrenameMapper::class.java)
-            val record = RegexrenameRecord()
+            val record = Regexrename()
             record.zipCode = "99999"
 
             mapper.insertSelective(record)
@@ -837,7 +836,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
 
             val returnedRecord = mapper.selectByPrimaryKey(1)
 
-            assertThat(returnedRecord).isNotNull()
+            assertThat(returnedRecord).isNotNull
             if(returnedRecord != null) {
                 assertNull(returnedRecord.address)
                 assertEquals(record.id, returnedRecord.id)
@@ -851,7 +850,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testMyObjectSelectByExampleLikeInsensitive() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(MyObjectMapper::class.java)
-            var record = MyObjectRecord()
+            var record = MyObject()
             var fn = FirstName()
             fn.value = "Fred"
             record.firstname = fn
@@ -860,7 +859,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Wilma"
             record.firstname = fn
@@ -869,7 +868,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Pebbles"
             record.firstname = fn
@@ -878,7 +877,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 3
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Barney"
             record.firstname = fn
@@ -887,7 +886,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 1
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Betty"
             record.firstname = fn
@@ -896,7 +895,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             record.id2 = 2
             mapper.insert(record)
 
-            record = MyObjectRecord()
+            record = MyObject()
             fn = FirstName()
             fn.value = "Bamm Bamm"
             record.firstname = fn
@@ -906,12 +905,12 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
             mapper.insert(record)
 
             var answer = mapper.select {
-                where(MyObject.lastname, isLike("RU%"))
-                orderBy(MyObject.id1, MyObject.id2)
+                where { myObject.lastname isLike "RU%" }
+                orderBy(myObject.id1, myObject.id2)
             }
             assertEquals(0, answer.size)
 
-            answer = mapper.select { where(MyObject.lastname, isLikeCaseInsensitive("RU%")) }
+            answer = mapper.select { where { myObject.lastname isLikeCaseInsensitive "RU%" } }
             assertEquals(3, answer.size)
 
             var returnedRecord = answer[0]
@@ -931,7 +930,7 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(EnumtestMapper::class.java)
 
-            val enumTest = EnumtestRecord()
+            val enumTest = Enumtest()
             enumTest.id = 1
             enumTest.name = TestEnum.FRED
             val rows = mapper.insert(enumTest)
@@ -950,17 +949,65 @@ class MiscellaneousTest : AbstractAnnotatedMiscellaneousTest() {
     fun testEnumInsertMultiple() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(EnumtestMapper::class.java)
-            val records = mutableListOf<EnumtestRecord>()
+            val records = listOf(
+                Enumtest().apply {
+                    id = 1
+                    name = TestEnum.FRED
+                },
+                Enumtest().apply {
+                    id = 2
+                    name = TestEnum.BARNEY
+                }
+            )
 
-            var enumTest = EnumtestRecord()
+            val rows = mapper.insertMultiple(records)
+            assertEquals(2, rows)
+
+            val returnedRecords = mapper.select { allRows() }
+            assertEquals(2, returnedRecords.size)
+
+            val returnedRecord = returnedRecords[0]
+            assertEquals(1, returnedRecord.id)
+            assertEquals(TestEnum.FRED, returnedRecord.name)
+        }
+    }
+
+    @Test
+    fun testEnumOrdinal() {
+        openSession().use { sqlSession ->
+            val mapper = sqlSession.getMapper(EnumordinaltestMapper::class.java)
+
+
+            val enumTest = Enumordinaltest()
             enumTest.id = 1
             enumTest.name = TestEnum.FRED
-            records.add(enumTest)
 
-            enumTest = EnumtestRecord()
-            enumTest.id = 2
-            enumTest.name = TestEnum.BARNEY
-            records.add(enumTest)
+            val rows = mapper.insert(enumTest)
+            assertEquals(1, rows)
+
+            val returnedRecords = mapper.select { allRows() }
+            assertEquals(1, returnedRecords.size)
+
+            val returnedRecord = returnedRecords[0]
+            assertEquals(1, returnedRecord.id)
+            assertEquals(TestEnum.FRED, returnedRecord.name)
+        }
+    }
+
+    @Test
+    fun testEnumOrdinalInsertMultiple() {
+        openSession().use { sqlSession ->
+            val mapper = sqlSession.getMapper(EnumordinaltestMapper::class.java)
+            val records = listOf(
+                Enumordinaltest().apply {
+                    id = 1
+                    name = TestEnum.FRED
+                },
+                Enumordinaltest().apply {
+                    id = 2
+                    name = TestEnum.BARNEY
+                }
+            )
 
             val rows = mapper.insertMultiple(records)
             assertEquals(2, rows)

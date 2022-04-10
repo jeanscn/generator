@@ -1,17 +1,17 @@
-/**
- * Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2022 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package mbg.test.mb3.dsql.kotlin.miscellaneous
 
@@ -20,10 +20,9 @@ import mbg.test.common.util.TestUtilities.generateRandomBlob
 import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.*
 import org.junit.jupiter.api.Test
 
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.GeneratedalwaystestRecord
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.GeneratedalwaystestDynamicSqlSupport.Generatedalwaystest
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.Generatedalwaystest
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.GeneratedalwaystestDynamicSqlSupport.generatedalwaystest
 import org.junit.jupiter.api.Assertions.*
-import org.mybatis.dynamic.sql.SqlBuilder.isEqualTo
 
 class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
 
@@ -32,7 +31,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55
@@ -58,7 +57,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55
@@ -83,7 +82,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55 // should be ignored
@@ -99,14 +98,14 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
 
             rows = mapper.update {
                 updateAllColumns(gaTest)
-                where(Generatedalwaystest.idPlus1, isEqualTo(2))
-                and(Generatedalwaystest.idPlus2, isEqualTo(3))
+                where { generatedalwaystest.idPlus1 isEqualTo 2 }
+                and { generatedalwaystest.idPlus2 isEqualTo 3 }
             }
             assertEquals(1, rows)
 
             val returnedRecords = mapper.select {
-                where(Generatedalwaystest.idPlus1, isEqualTo(2))
-                and(Generatedalwaystest.idPlus2, isEqualTo(3))
+                where { generatedalwaystest.idPlus1 isEqualTo 2 }
+                and { generatedalwaystest.idPlus2 isEqualTo 3 }
             }
             assertEquals(1, returnedRecords.size)
 
@@ -125,7 +124,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55 // should be ignored
@@ -141,14 +140,14 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
 
             rows = mapper.update {
                 updateSelectiveColumns(gaTest)
-                where(Generatedalwaystest.idPlus1, isEqualTo(2))
-                and(Generatedalwaystest.idPlus2, isEqualTo(3))
+                where { generatedalwaystest.idPlus1 isEqualTo 2 }
+                and { generatedalwaystest.idPlus2  isEqualTo 3 }
             }
             assertEquals(1, rows)
 
             val returnedRecords = mapper.select {
-                where(Generatedalwaystest.idPlus1, isEqualTo(2))
-                and(Generatedalwaystest.idPlus2, isEqualTo(3))
+                where { generatedalwaystest.idPlus1 isEqualTo 2 }
+                and { generatedalwaystest.idPlus2  isEqualTo 3 }
             }
             assertEquals(1, returnedRecords.size)
 
@@ -166,7 +165,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55 // should be ignored
@@ -182,14 +181,14 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
 
             rows = mapper.update {
                 updateAllColumns(gaTest)
-                where(Generatedalwaystest.idPlus1, isEqualTo(2))
-                and(Generatedalwaystest.idPlus2, isEqualTo(3))
+                where { generatedalwaystest.idPlus1 isEqualTo 2 }
+                and { generatedalwaystest.idPlus2 isEqualTo 3 }
             }
             assertEquals(1, rows)
 
             val returnedRecords = mapper.select {
-                where(Generatedalwaystest.idPlus1, isEqualTo(2))
-                and(Generatedalwaystest.idPlus2, isEqualTo(3))
+                where { generatedalwaystest.idPlus1 isEqualTo 2 }
+                and { generatedalwaystest.idPlus2 isEqualTo 3 }
             }
             assertEquals(1, returnedRecords.size)
 
@@ -207,7 +206,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55 // should be ignored
@@ -240,7 +239,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55 // should be ignored
@@ -273,7 +272,7 @@ class GeneratedAlwaysTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestMapper::class.java)
 
-            val gaTest = GeneratedalwaystestRecord()
+            val gaTest = Generatedalwaystest()
             gaTest.id = 1
             gaTest.name = "fred"
             gaTest.idPlus1 = 55 // should be ignored

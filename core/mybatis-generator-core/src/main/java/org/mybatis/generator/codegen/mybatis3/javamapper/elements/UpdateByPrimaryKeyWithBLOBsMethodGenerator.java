@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,12 +20,9 @@ import java.util.TreeSet;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
 
-public class UpdateByPrimaryKeyWithBLOBsMethodGenerator extends
-        AbstractJavaMapperMethodGenerator {
+public class UpdateByPrimaryKeyWithBLOBsMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     public UpdateByPrimaryKeyWithBLOBsMethodGenerator() {
         super();
@@ -35,33 +32,20 @@ public class UpdateByPrimaryKeyWithBLOBsMethodGenerator extends
     public void addInterfaceElements(Interface interfaze) {
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         FullyQualifiedJavaType parameterType;
-
         if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable
-                    .getRecordWithBLOBsType());
+            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBLOBsType());
         } else {
-            parameterType = new FullyQualifiedJavaType(introspectedTable
-                    .getBaseRecordType());
+            parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         }
-
+        String statementId = introspectedTable.getUpdateByPrimaryKeyWithBLOBsStatementId();
         importedTypes.add(parameterType);
 
-        Method method = new Method(introspectedTable
-                .getUpdateByPrimaryKeyWithBLOBsStatementId());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-
-        method.addParameter(new Parameter(parameterType, "record")); //$NON-NLS-1$
-
-        context.getCommentGenerator().addGeneralMethodComment(method,
-                introspectedTable);
+        Method method = buildBasicUpdateByPrimaryKeyMethod(statementId, parameterType);
 
         addMapperAnnotations(method);
 
         if (context.getPlugins()
-                .clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(method,
-                        interfaze, introspectedTable)) {
+                .clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);

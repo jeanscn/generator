@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,10 +15,15 @@
  */
 package org.mybatis.generator.api;
 
+import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.DomainObjectRenamingRule;
-import org.mybatis.generator.internal.util.EqualsUtil;
-import org.mybatis.generator.internal.util.HashCodeUtil;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.regex.Matcher;
@@ -29,19 +34,19 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class FullyQualifiedTable {
 
-    private String introspectedCatalog;
-    private String introspectedSchema;
-    private String introspectedTableName;
-    private String runtimeCatalog;
-    private String runtimeSchema;
-    private String runtimeTableName;
+    private final String introspectedCatalog;
+    private final String introspectedSchema;
+    private final String introspectedTableName;
+    private final String runtimeCatalog;
+    private final String runtimeSchema;
+    private final String runtimeTableName;
     private String domainObjectName;
     private String domainObjectSubPackage;
-    private String alias;
-    private boolean ignoreQualifiersAtRuntime;
-    private String beginningDelimiter;
-    private String endingDelimiter;
-    private DomainObjectRenamingRule domainObjectRenamingRule;
+    private final String alias;
+    private final boolean ignoreQualifiersAtRuntime;
+    private final String beginningDelimiter;
+    private final String endingDelimiter;
+    private final DomainObjectRenamingRule domainObjectRenamingRule;
 
     /**
      * This object is used to hold information related to the table itself, not the columns in the
@@ -224,19 +229,14 @@ public class FullyQualifiedTable {
 
         FullyQualifiedTable other = (FullyQualifiedTable) obj;
 
-        return EqualsUtil.areEqual(this.introspectedTableName, other.introspectedTableName)
-                && EqualsUtil.areEqual(this.introspectedCatalog, other.introspectedCatalog)
-                && EqualsUtil.areEqual(this.introspectedSchema, other.introspectedSchema);
+        return Objects.equals(this.introspectedTableName, other.introspectedTableName)
+                && Objects.equals(this.introspectedCatalog, other.introspectedCatalog)
+                && Objects.equals(this.introspectedSchema, other.introspectedSchema);
     }
 
     @Override
     public int hashCode() {
-        int result = HashCodeUtil.SEED;
-        result = HashCodeUtil.hash(result, introspectedTableName);
-        result = HashCodeUtil.hash(result, introspectedCatalog);
-        result = HashCodeUtil.hash(result, introspectedSchema);
-
-        return result;
+        return Objects.hash(introspectedTableName, introspectedCatalog, introspectedCatalog);
     }
 
     @Override
@@ -281,6 +281,8 @@ public class FullyQualifiedTable {
                 sb.append(introspectedSchema.toLowerCase());
             }
         }
+
+        // TODO - strip characters that are not valid in package names
         return sb.toString();
     }
 

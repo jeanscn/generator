@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -52,13 +52,12 @@ public class SelectByExampleWithBLOBsMethodGenerator extends
         method.setReturnType(returnType);
         method.addParameter(new Parameter(type, "example")); //$NON-NLS-1$
 
-        context.getCommentGenerator().addGeneralMethodComment(method,introspectedTable);
+        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
         addMapperAnnotations(interfaze, method);
 
         if (context.getPlugins()
-                .clientSelectByExampleWithBLOBsMethodGenerated(method, interfaze,
-                        introspectedTable)) {
+                .clientSelectByExampleWithBLOBsMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);

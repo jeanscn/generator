@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.codegen.mybatis3;
 
+import java.util.List;
+
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
@@ -23,8 +25,6 @@ import org.mybatis.generator.codegen.mybatis3.javamapper.SimpleJavaClientGenerat
 import org.mybatis.generator.codegen.mybatis3.model.SimpleModelGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.SimpleXMLMapperGenerator;
 import org.mybatis.generator.internal.ObjectFactory;
-
-import java.util.List;
 
 /**
  * Introspected table implementation for generating simple MyBatis3 artifacts (no "by example" methods,
@@ -50,8 +50,7 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
             xmlMapperGenerator = javaClientGenerator.getMatchedXMLGenerator();
         }
 
-        initializeAbstractGenerator(xmlMapperGenerator, warnings,
-                progressCallback);
+        initializeAbstractGenerator(xmlMapperGenerator, warnings, progressCallback);
     }
 
     @Override
@@ -77,12 +76,10 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
     }
 
     @Override
-    protected void calculateJavaModelGenerators(List<String> warnings,
-            ProgressCallback progressCallback) {
+    protected void calculateJavaModelGenerators(List<String> warnings, ProgressCallback progressCallback) {
 
         AbstractJavaGenerator javaGenerator = new SimpleModelGenerator(getModelProject());
-        initializeAbstractGenerator(javaGenerator, warnings,
-                progressCallback);
+        initializeAbstractGenerator(javaGenerator, warnings, progressCallback);
         javaGenerators.add(javaGenerator);
     }
 }

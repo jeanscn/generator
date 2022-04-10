@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class KotlinNamedItem {
-    private String name;
-    private List<KotlinModifier> modifiers = new ArrayList<>();
-    private List<String> annotations = new ArrayList<>();
+    private final String name;
+    private final List<KotlinModifier> modifiers = new ArrayList<>();
+    private final List<String> annotations = new ArrayList<>();
 
     protected KotlinNamedItem(AbstractBuilder<?> builder) {
         name = builder.name;
         modifiers.addAll(builder.modifiers);
         annotations.addAll(builder.annotations);
     }
-    
+
     public String getName() {
         return name;
     }
@@ -48,9 +48,9 @@ public abstract class KotlinNamedItem {
     public abstract <R> R accept(KotlinNamedItemVisitor<R> visitor);
 
     public abstract static class AbstractBuilder<T extends AbstractBuilder<T>> {
-        private String name;
-        private List<KotlinModifier> modifiers = new ArrayList<>();
-        private List<String> annotations = new ArrayList<>();
+        private final String name;
+        private final List<KotlinModifier> modifiers = new ArrayList<>();
+        private final List<String> annotations = new ArrayList<>();
 
         protected AbstractBuilder(String name) {
             this.name = name;

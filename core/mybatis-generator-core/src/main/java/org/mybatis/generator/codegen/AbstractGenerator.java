@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2017 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,36 +27,20 @@ public abstract class AbstractGenerator {
     protected List<String> warnings;
     protected ProgressCallback progressCallback;
 
-    public AbstractGenerator() {
+    protected AbstractGenerator() {
         super();
-    }
-
-    public Context getContext() {
-        return context;
     }
 
     public void setContext(Context context) {
         this.context = context;
     }
 
-    public IntrospectedTable getIntrospectedTable() {
-        return introspectedTable;
-    }
-
     public void setIntrospectedTable(IntrospectedTable introspectedTable) {
         this.introspectedTable = introspectedTable;
     }
 
-    public List<String> getWarnings() {
-        return warnings;
-    }
-
     public void setWarnings(List<String> warnings) {
         this.warnings = warnings;
-    }
-
-    public ProgressCallback getProgressCallback() {
-        return progressCallback;
     }
 
     public void setProgressCallback(ProgressCallback progressCallback) {

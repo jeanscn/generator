@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class KotlinNamedItemContainer extends KotlinNamedItem {
-    private List<KotlinNamedItem> namedItems = new ArrayList<>();
+    private final List<KotlinNamedItem> namedItems = new ArrayList<>();
 
-    public KotlinNamedItemContainer(NamedItemContainerBuilder<?> builder) {
+    protected KotlinNamedItemContainer(NamedItemContainerBuilder<?> builder) {
         super(builder);
         namedItems.addAll(builder.namedItems);
     }
@@ -29,7 +29,7 @@ public abstract class KotlinNamedItemContainer extends KotlinNamedItem {
     public void addNamedItem(KotlinNamedItem namedItem) {
         namedItems.add(namedItem);
     }
-    
+
     public List<KotlinNamedItem> getNamedItems() {
         return namedItems;
     }
@@ -37,7 +37,7 @@ public abstract class KotlinNamedItemContainer extends KotlinNamedItem {
     public abstract static class NamedItemContainerBuilder<T extends NamedItemContainerBuilder<T>>
             extends AbstractBuilder<T> {
 
-        private List<KotlinNamedItem> namedItems = new ArrayList<>();
+        private final List<KotlinNamedItem> namedItems = new ArrayList<>();
 
         protected NamedItemContainerBuilder(String name) {
             super(name);

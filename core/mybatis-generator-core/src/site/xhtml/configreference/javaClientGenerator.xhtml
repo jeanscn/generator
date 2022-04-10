@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2019 the original author or authors.
+       Copyright 2006-2021 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -110,10 +110,7 @@ specify this element, then MyBatis Generator (MBG) will not generate Java client
         If "enableSubPackages" is false (the default) then the calculated package will be
         exactly what is specified in the targetPackage attribute.
         MBG will create folders as required for the generated
-        packages.
-        <p><b>Note:</b> the package for implementation classes may
-        be overridden by specifying the optional <code>implementationPackage</code>
-        attribute as shown below.</p></td>
+        packages.</td>
   </tr>
   <tr>
     <td valign="top">targetProject</td>
@@ -141,6 +138,16 @@ specified with the <a href="property.html">&lt;property&gt;</a> child element:</
     <th>Property Values</th>
   </tr>
   <tr>
+      <td valign="top">dynamicSqlSupportPackage</td>
+      <td>This property is only applicable to target runtimes <b>MyBatis3DynamicSql</b> or <b>MyBatis3Kotlin</b>.
+          Use this property to set the package where generated MyBatis Dynamic SQL Support classes will be placed.
+          The calculated package can be modified by the "enableSubPackages" property in the same way as the
+          "targetPackage".
+          If not specified, the package will be the same as "targetPackage" specified above.
+          <p>Since version 1.4.1</p>
+      </td>
+  </tr>
+  <tr>
     <td valign="top">enableSubPackages</td>
     <td>This property is used to select whether MBG will generate different
         Java packages for the objects based on the catalog and schema of the
@@ -155,20 +162,14 @@ specified with the <a href="property.html">&lt;property&gt;</a> child element:</
   </tr>
   <tr>
     <td valign="top">rootInterface</td>
-    <td>This property can be used to specify a super interface for all generated
+    <td><i>This property is ignored if the target runtime is "MyBatis3Kotlin"</i><br/>
+        This property can be used to specify a super interface for all generated
       interface objects.  This value may be overridden by specifying
       the <code>rootInterface</code> property on a Table configuration.
       <p><b>Important:</b> MBG does not verify that the interface exists, or is a
        valid Java interface.</p>
       <p>If specified, the value of this property should be a fully qualified
        interface name (like com.mycompany.MyRootInterface).</p></td>
-  </tr>
-  <tr>
-    <td valign="top">useLegacyBuilder</td>
-    <td>If true, then annotated clients will use the SqlBuilder from MyBatis to generate
-        dynamic SQL.  With MyBatis 3.2 and later, that builder was deprecated in favor of
-        the new SQL class.  If false, MBG will generate clients that use the new SQL builder.
-        <p><i>The default value is false.</i></p></td>
   </tr>
 </table>
 

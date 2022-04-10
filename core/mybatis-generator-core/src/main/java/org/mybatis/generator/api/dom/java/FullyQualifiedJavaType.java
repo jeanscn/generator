@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.util.StringTokenizer;
 
 public class FullyQualifiedJavaType implements
         Comparable<FullyQualifiedJavaType> {
-    
+
     private static final String JAVA_LANG = "java.lang"; //$NON-NLS-1$
 
     private static FullyQualifiedJavaType intInstance = null;
@@ -57,7 +57,7 @@ public class FullyQualifiedJavaType implements
 
     private PrimitiveTypeWrapper primitiveTypeWrapper;
 
-    private List<FullyQualifiedJavaType> typeArguments;
+    private final List<FullyQualifiedJavaType> typeArguments;
 
     // the following three values are used for dealing with wildcard types
     private boolean wildcardType;
@@ -141,11 +141,8 @@ public class FullyQualifiedJavaType implements
             } else {
                 // an inner class is specified, only import the top
                 // level class
-                StringBuilder sb = new StringBuilder();
-                sb.append(packageName);
-                sb.append('.');
-                sb.append(calculateActualImport(baseShortName.substring(0, index)));
-                answer.add(sb.toString());
+                String sb = packageName + '.' + calculateActualImport(baseShortName.substring(0, index));
+                answer.add(sb);
             }
         }
 
@@ -243,7 +240,7 @@ public class FullyQualifiedJavaType implements
         return primitiveTypeWrapper;
     }
 
-    public static final FullyQualifiedJavaType getIntInstance() {
+    public static FullyQualifiedJavaType getIntInstance() {
         if (intInstance == null) {
             intInstance = new FullyQualifiedJavaType("int"); //$NON-NLS-1$
         }
@@ -251,32 +248,27 @@ public class FullyQualifiedJavaType implements
         return intInstance;
     }
 
-    public static final FullyQualifiedJavaType getNewMapInstance() {
-        // always return a new instance because the type may be parameterized
-        return new FullyQualifiedJavaType("java.util.Map"); //$NON-NLS-1$
-    }
-
-    public static final FullyQualifiedJavaType getNewListInstance() {
+    public static FullyQualifiedJavaType getNewListInstance() {
         // always return a new instance because the type may be parameterized
         return new FullyQualifiedJavaType("java.util.List"); //$NON-NLS-1$
     }
 
-    public static final FullyQualifiedJavaType getNewHashMapInstance() {
+    public static FullyQualifiedJavaType getNewHashMapInstance() {
         // always return a new instance because the type may be parameterized
         return new FullyQualifiedJavaType("java.util.HashMap"); //$NON-NLS-1$
     }
 
-    public static final FullyQualifiedJavaType getNewArrayListInstance() {
+    public static FullyQualifiedJavaType getNewArrayListInstance() {
         // always return a new instance because the type may be parameterized
         return new FullyQualifiedJavaType("java.util.ArrayList"); //$NON-NLS-1$
     }
 
-    public static final FullyQualifiedJavaType getNewIteratorInstance() {
+    public static FullyQualifiedJavaType getNewIteratorInstance() {
         // always return a new instance because the type may be parameterized
         return new FullyQualifiedJavaType("java.util.Iterator"); //$NON-NLS-1$
     }
 
-    public static final FullyQualifiedJavaType getStringInstance() {
+    public static FullyQualifiedJavaType getStringInstance() {
         if (stringInstance == null) {
             stringInstance = new FullyQualifiedJavaType("java.lang.String"); //$NON-NLS-1$
         }
@@ -284,7 +276,7 @@ public class FullyQualifiedJavaType implements
         return stringInstance;
     }
 
-    public static final FullyQualifiedJavaType getBooleanPrimitiveInstance() {
+    public static FullyQualifiedJavaType getBooleanPrimitiveInstance() {
         if (booleanPrimitiveInstance == null) {
             booleanPrimitiveInstance = new FullyQualifiedJavaType("boolean"); //$NON-NLS-1$
         }
@@ -292,7 +284,7 @@ public class FullyQualifiedJavaType implements
         return booleanPrimitiveInstance;
     }
 
-    public static final FullyQualifiedJavaType getObjectInstance() {
+    public static FullyQualifiedJavaType getObjectInstance() {
         if (objectInstance == null) {
             objectInstance = new FullyQualifiedJavaType("java.lang.Object"); //$NON-NLS-1$
         }
@@ -300,7 +292,7 @@ public class FullyQualifiedJavaType implements
         return objectInstance;
     }
 
-    public static final FullyQualifiedJavaType getDateInstance() {
+    public static FullyQualifiedJavaType getDateInstance() {
         if (dateInstance == null) {
             dateInstance = new FullyQualifiedJavaType("java.util.Date"); //$NON-NLS-1$
         }
@@ -308,7 +300,7 @@ public class FullyQualifiedJavaType implements
         return dateInstance;
     }
 
-    public static final FullyQualifiedJavaType getCriteriaInstance() {
+    public static FullyQualifiedJavaType getCriteriaInstance() {
         if (criteriaInstance == null) {
             criteriaInstance = new FullyQualifiedJavaType("Criteria"); //$NON-NLS-1$
         }
@@ -316,7 +308,7 @@ public class FullyQualifiedJavaType implements
         return criteriaInstance;
     }
 
-    public static final FullyQualifiedJavaType getGeneratedCriteriaInstance() {
+    public static FullyQualifiedJavaType getGeneratedCriteriaInstance() {
         if (generatedCriteriaInstance == null) {
             generatedCriteriaInstance = new FullyQualifiedJavaType(
                     "GeneratedCriteria"); //$NON-NLS-1$
@@ -385,46 +377,50 @@ public class FullyQualifiedJavaType implements
                 baseShortName = baseShortName.substring(index + 1);
             }
 
-            if (JAVA_LANG.equals(packageName)) { //$NON-NLS-1$
-                explicitlyImported = false;
-            } else {
-                explicitlyImported = true;
-            }
+            //$NON-NLS-1$
+            explicitlyImported = !JAVA_LANG.equals(packageName);
         } else {
             baseShortName = baseQualifiedName;
             explicitlyImported = false;
             packageName = ""; //$NON-NLS-1$
 
-            if ("byte".equals(baseQualifiedName)) { //$NON-NLS-1$
+            switch (baseQualifiedName) {
+            case "byte":  //$NON-NLS-1$
                 primitive = true;
                 primitiveTypeWrapper = PrimitiveTypeWrapper.getByteInstance();
-            } else if ("short".equals(baseQualifiedName)) { //$NON-NLS-1$
+                break;
+            case "short":  //$NON-NLS-1$
                 primitive = true;
                 primitiveTypeWrapper = PrimitiveTypeWrapper.getShortInstance();
-            } else if ("int".equals(baseQualifiedName)) { //$NON-NLS-1$
+                break;
+            case "int":  //$NON-NLS-1$
                 primitive = true;
-                primitiveTypeWrapper = PrimitiveTypeWrapper
-                        .getIntegerInstance();
-            } else if ("long".equals(baseQualifiedName)) { //$NON-NLS-1$
+                primitiveTypeWrapper = PrimitiveTypeWrapper.getIntegerInstance();
+                break;
+            case "long":  //$NON-NLS-1$
                 primitive = true;
                 primitiveTypeWrapper = PrimitiveTypeWrapper.getLongInstance();
-            } else if ("char".equals(baseQualifiedName)) { //$NON-NLS-1$
+                break;
+            case "char":  //$NON-NLS-1$
                 primitive = true;
-                primitiveTypeWrapper = PrimitiveTypeWrapper
-                        .getCharacterInstance();
-            } else if ("float".equals(baseQualifiedName)) { //$NON-NLS-1$
+                primitiveTypeWrapper = PrimitiveTypeWrapper.getCharacterInstance();
+                break;
+            case "float":  //$NON-NLS-1$
                 primitive = true;
                 primitiveTypeWrapper = PrimitiveTypeWrapper.getFloatInstance();
-            } else if ("double".equals(baseQualifiedName)) { //$NON-NLS-1$
+                break;
+            case "double":  //$NON-NLS-1$
                 primitive = true;
                 primitiveTypeWrapper = PrimitiveTypeWrapper.getDoubleInstance();
-            } else if ("boolean".equals(baseQualifiedName)) { //$NON-NLS-1$
+                break;
+            case "boolean":  //$NON-NLS-1$
                 primitive = true;
-                primitiveTypeWrapper = PrimitiveTypeWrapper
-                        .getBooleanInstance();
-            } else {
+                primitiveTypeWrapper = PrimitiveTypeWrapper.getBooleanInstance();
+                break;
+            default:
                 primitive = false;
                 primitiveTypeWrapper = null;
+                break;
             }
         }
     }
@@ -475,7 +471,7 @@ public class FullyQualifiedJavaType implements
 
     /**
      * Returns the package name of a fully qualified type.
-     * 
+     *
      * <p>This method calculates the package as the part of the fully qualified name up to, but not including, the last
      * element. Therefore, it does not support fully qualified inner classes. Not totally fool proof, but correct in
      * most instances.

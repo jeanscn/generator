@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -213,15 +213,18 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         }
 
         try {
-            ConfigurationParser cp = new ConfigurationParser(project.getProperties(), warnings);
+            ConfigurationParser cp = new ConfigurationParser(
+                    project.getProperties(), warnings);
             Configuration config = cp.parseConfiguration(configurationFile);
             //customConfig(config);
             cp.customConfig(config);
             ShellCallback callback = new MavenShellCallback(this, overwrite);
 
-            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,callback, warnings);
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,
+                    callback, warnings);
 
-            myBatisGenerator.generate(new MavenProgressCallback(getLog(),verbose), contextsToRun, fullyqualifiedTables);
+            myBatisGenerator.generate(new MavenProgressCallback(getLog(),
+                    verbose), contextsToRun, fullyqualifiedTables);
 
         } catch (XMLParserException e) {
             for (String error : e.getErrors()) {

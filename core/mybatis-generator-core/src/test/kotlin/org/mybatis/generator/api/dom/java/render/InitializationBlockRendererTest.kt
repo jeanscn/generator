@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ class InitializationBlockRendererTest {
     fun testStaticBlock() {
         val block = InitializationBlock(true)
 
-	block.addJavaDocLine("/**")
-	block.addJavaDocLine(" * Some Javadoc")
-	block.addJavaDocLine(" */")
-	block.addBodyLine("i = 3;")
+        block.addJavaDocLine("/**")
+        block.addJavaDocLine(" * Some Javadoc")
+        block.addJavaDocLine(" */")
+        block.addBodyLine("i = 3;")
 
         assertThat(toString(block)).isEqualToNormalizingNewlines("""
                 |/**
@@ -44,10 +44,10 @@ class InitializationBlockRendererTest {
     fun testNonStaticBlock() {
         val block = InitializationBlock()
 
-	block.addJavaDocLine("/**")
-	block.addJavaDocLine(" * Some Javadoc")
-	block.addJavaDocLine(" */")
-	block.addBodyLine("i = 3;")
+        block.addJavaDocLine("/**")
+        block.addJavaDocLine(" * Some Javadoc")
+        block.addJavaDocLine(" */")
+        block.addBodyLine("i = 3;")
 
         assertThat(toString(block)).isEqualToNormalizingNewlines("""
                 |/**

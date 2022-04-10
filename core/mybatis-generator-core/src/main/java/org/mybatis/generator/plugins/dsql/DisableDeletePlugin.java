@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
 /**
- * Disables all delete methods in the MyBatisDynamicSQLV2 runtime.
- * 
+ * Disables all delete methods in the MyBatis3DynamicSQL and MyBatis3Kotlin runtimes.
+ *
  * @author Jeff Butler
  *
  */
@@ -35,18 +35,6 @@ public class DisableDeletePlugin extends PluginAdapter {
     @Override
     public boolean validate(List<String> warnings) {
         return true;
-    }
-
-    @Override
-    public boolean clientBasicDeleteMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
-        return false;
-    }
-
-    @Override
-    public boolean clientBasicDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
-        return false;
     }
 
     @Override

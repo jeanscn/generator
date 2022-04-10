@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,14 +29,13 @@ public class AnnotatedCountByExampleMethodGenerator extends CountByExampleMethod
     @Override
     public void addMapperAnnotations(Method method) {
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(introspectedTable.getMyBatis3SqlProviderType());
-        StringBuilder sb = new StringBuilder();
-        sb.append("@SelectProvider(type="); //$NON-NLS-1$
-        sb.append(fqjt.getShortName());
-        sb.append(".class, method=\""); //$NON-NLS-1$
-        sb.append(introspectedTable.getCountByExampleStatementId());
-        sb.append("\")"); //$NON-NLS-1$
 
-        method.addAnnotation(sb.toString());
+        String s = "@SelectProvider(type=" //$NON-NLS-1$
+                + fqjt.getShortName()
+                + ".class, method=\"" //$NON-NLS-1$
+                + introspectedTable.getCountByExampleStatementId()
+                + "\")"; //$NON-NLS-1$
+        method.addAnnotation(s);
     }
 
     @Override

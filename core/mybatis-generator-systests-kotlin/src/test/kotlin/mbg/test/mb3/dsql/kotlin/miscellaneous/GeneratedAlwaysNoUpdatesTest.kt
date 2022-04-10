@@ -1,22 +1,22 @@
-/**
- * Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package mbg.test.mb3.dsql.kotlin.miscellaneous
 
 import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.mapper.*
-import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.GeneratedalwaystestnoupdatesRecord
+import mbg.test.mb3.generated.dsql.kotlin.miscellaneous.model.Generatedalwaystestnoupdates
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -29,7 +29,7 @@ class GeneratedAlwaysNoUpdatesTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestnoupdatesMapper::class.java)
 
-            val gaTest = GeneratedalwaystestnoupdatesRecord()
+            val gaTest = Generatedalwaystestnoupdates()
             gaTest.id = 1
             gaTest.idPlus1 = 55
             gaTest.idPlus2 = 66
@@ -51,7 +51,7 @@ class GeneratedAlwaysNoUpdatesTest : AbstractAnnotatedMiscellaneousTest() {
         openSession().use { sqlSession ->
             val mapper = sqlSession.getMapper(GeneratedalwaystestnoupdatesMapper::class.java)
 
-            val gaTest = GeneratedalwaystestnoupdatesRecord()
+            val gaTest = Generatedalwaystestnoupdates()
             gaTest.id = 1
             val rows = mapper.insertSelective(gaTest)
             assertEquals(1, rows)

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static org.mybatis.generator.internal.util.StringUtility.escapeStringForJ
 
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -31,79 +30,47 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 
-public class ProviderUpdateByExampleWithoutBLOBsMethodGenerator extends
-        AbstractJavaProviderMethodGenerator {
-
-    public ProviderUpdateByExampleWithoutBLOBsMethodGenerator(boolean useLegacyBuilder) {
-        super(useLegacyBuilder);
-    }
+public class ProviderUpdateByExampleWithoutBLOBsMethodGenerator extends AbstractJavaProviderMethodGenerator {
 
     @Override
     public void addClassElements(TopLevelClass topLevelClass) {
-        Set<String> staticImports = new TreeSet<>();
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-
-        if (useLegacyBuilder) {
-            staticImports.add("org.apache.ibatis.jdbc.SqlBuilder.BEGIN"); //$NON-NLS-1$
-            staticImports.add("org.apache.ibatis.jdbc.SqlBuilder.UPDATE"); //$NON-NLS-1$
-            staticImports.add("org.apache.ibatis.jdbc.SqlBuilder.SET"); //$NON-NLS-1$
-            staticImports.add("org.apache.ibatis.jdbc.SqlBuilder.SQL"); //$NON-NLS-1$
-        } else {
-            importedTypes.add(NEW_BUILDER_IMPORT);
-        }
-
-        importedTypes.add(new FullyQualifiedJavaType("java.util.Map")); //$NON-NLS-1$
-
         Method method = new Method(getMethodName());
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addParameter(new Parameter(
                 new FullyQualifiedJavaType("java.util.Map<java.lang.String, java.lang.Object>"), //$NON-NLS-1$
                 "parameter")); //$NON-NLS-1$
-        
-        context.getCommentGenerator().addGeneralMethodComment(method,
-                introspectedTable);
 
-        if (useLegacyBuilder) {
-            method.addBodyLine("BEGIN();"); //$NON-NLS-1$
-        } else {
-            method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
-        }
+        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        method.addBodyLine(String.format("%sUPDATE(\"%s\");", //$NON-NLS-1$
-                builderPrefix,
+        method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
+
+        method.addBodyLine(String.format("sql.UPDATE(\"%s\");", //$NON-NLS-1$
                 escapeStringForJava(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime())));
         method.addBodyLine(""); //$NON-NLS-1$
 
         for (IntrospectedColumn introspectedColumn : ListUtilities.removeGeneratedAlwaysColumns(getColumns())) {
             StringBuilder sb = new StringBuilder();
             sb.append(getParameterClause(introspectedColumn));
-            sb.insert(2, "record."); //$NON-NLS-1$
+            sb.insert(2, "row."); //$NON-NLS-1$
 
-            method.addBodyLine(String.format("%sSET(\"%s = %s\");", //$NON-NLS-1$
-                    builderPrefix,
+            method.addBodyLine(String.format("sql.SET(\"%s = %s\");", //$NON-NLS-1$
                     escapeStringForJava(getAliasedEscapedColumnName(introspectedColumn)),
-                    sb.toString()));
+                    sb));
         }
 
         method.addBodyLine(""); //$NON-NLS-1$
-        
-        FullyQualifiedJavaType example =
-                new FullyQualifiedJavaType(introspectedTable.getExampleType());
+
+        Set<FullyQualifiedJavaType> importedTypes = initializeImportedTypes("java.util.Map"); //$NON-NLS-1$
+        FullyQualifiedJavaType example = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         importedTypes.add(example);
         method.addBodyLine(String.format("%s example = (%s) parameter.get(\"example\");", //$NON-NLS-1$
                 example.getShortName(), example.getShortName()));
 
-        if (useLegacyBuilder) {
-            method.addBodyLine("applyWhere(example, true);"); //$NON-NLS-1$
-            method.addBodyLine("return SQL();"); //$NON-NLS-1$
-        } else {
-            method.addBodyLine("applyWhere(sql, example, true);"); //$NON-NLS-1$
-            method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
-        }
+        method.addBodyLine("applyWhere(sql, example, true);"); //$NON-NLS-1$
+        method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
 
         if (callPlugins(method, topLevelClass)) {
-            topLevelClass.addStaticImports(staticImports);
             topLevelClass.addImportedTypes(importedTypes);
             topLevelClass.addMethod(method);
         }
@@ -118,7 +85,7 @@ public class ProviderUpdateByExampleWithoutBLOBsMethodGenerator extends
     }
 
     public boolean callPlugins(Method method, TopLevelClass topLevelClass) {
-        return context.getPlugins().providerUpdateByExampleWithoutBLOBsMethodGenerated(method, topLevelClass,
-                introspectedTable);
+        return context.getPlugins()
+                .providerUpdateByExampleWithoutBLOBsMethodGenerated(method, topLevelClass, introspectedTable);
     }
 }

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2021 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -111,7 +111,6 @@ public class SqlScriptRunner {
                 connection.close();
             } catch (SQLException e) {
                 // ignore
-                ;
             }
         }
     }
@@ -122,13 +121,13 @@ public class SqlScriptRunner {
                 statement.close();
             } catch (SQLException e) {
                 // ignore
-                ;
             }
         }
     }
 
     private String readStatement(BufferedReader br) throws IOException {
         StringBuilder sb = new StringBuilder();
+
         String line;
 
         while ((line = br.readLine()) != null) {
@@ -136,12 +135,12 @@ public class SqlScriptRunner {
                 continue;
             }
 
-            if (line == null || line.length() == 0) {
+            if (line.length() == 0) {
                 continue;
             }
 
             if (line.endsWith(";")) { //$NON-NLS-1$
-                sb.append(line.substring(0, line.length() - 1));
+                sb.append(line, 0, line.length() - 1);
                 break;
             } else {
                 sb.append(' ');

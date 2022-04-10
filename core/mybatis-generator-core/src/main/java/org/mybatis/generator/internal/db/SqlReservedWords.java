@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.db;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,16 +24,16 @@ import java.util.Set;
  * Since different databases have different reserved words, this list is
  * inclusive of many different databases - so it may include words that are not
  * reserved in some databases.
- * 
+ *
  * <p>This list is based on the list from Drupal Handbook:
  * http://drupal.org/node/141051 With additions for DB2
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public class SqlReservedWords {
 
-    private static Set<String> reservedWords;
+    private static final Set<String> reservedWords;
 
     static {
         String[] words = { "A", //$NON-NLS-1$
@@ -952,9 +953,7 @@ public class SqlReservedWords {
 
         reservedWords = new HashSet<>(words.length);
 
-        for (String word : words) {
-            reservedWords.add(word);
-        }
+        reservedWords.addAll(Arrays.asList(words));
     }
 
     public static boolean containsWord(String word) {

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.mybatis.generator.logging.Log;
 
 public class Jdk14LoggingImpl implements Log {
 
-    private Logger log;
+    private final Logger log;
 
     public Jdk14LoggingImpl(Class<?> clazz) {
         log = Logger.getLogger(clazz.getName());

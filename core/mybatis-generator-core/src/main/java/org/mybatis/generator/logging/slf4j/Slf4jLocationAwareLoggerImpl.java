@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class Slf4jLocationAwareLoggerImpl implements Log {
 
     private static final String FQCN = Slf4jImpl.class.getName();
 
-    private LocationAwareLogger logger;
+    private final LocationAwareLogger logger;
 
     Slf4jLocationAwareLoggerImpl(LocationAwareLogger logger) {
         this.logger = logger;

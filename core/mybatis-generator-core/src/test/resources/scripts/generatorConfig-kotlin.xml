@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2019 the original author or authors.
+       Copyright 2006-2022 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 -->
 <!DOCTYPE generatorConfiguration PUBLIC
  "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
- "mybatis-generator-config_1_4_7.dtd">
+ "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
 
@@ -48,6 +48,7 @@
     </table>
     <table tableName="PKFields" alias="B" >
       <property name="selectAllOrderByClause" value="ID1, ID2"/>
+      <property name="dynamicSqlTableObjectName" value="Pkfieldstable"/>
       <columnOverride column="wierd$Field" delimitedColumnName="true"/>
       <columnOverride column="stringBoolean" javaType="boolean" typeHandler="mbg.test.mb3.common.StringBooleanTypeHandler"/>
     </table>
@@ -119,10 +120,11 @@
   <context id="kotlin-miscellaneousTests_Annotated" targetRuntime="MyBatis3Kotlin">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
     <plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
-
-    <commentGenerator>
-      <property name="suppressAllComments" value="true"/>
-    </commentGenerator>
+    <plugin type="org.mybatis.generator.plugins.CacheNamespacePlugin" >
+      <property name="cache_readWrite" value="true"/>
+      <property name="cache_implementation" value="org.apache.ibatis.cache.impl.PerpetualCache"/>
+      <property name="cache_eviction" value="org.apache.ibatis.cache.decorators.LruCache"/>
+    </plugin>
 
     <jdbcConnection driverClass="org.hsqldb.jdbcDriver"
         connectionURL="jdbc:hsqldb:mem:aname"
@@ -149,11 +151,18 @@
       <columnOverride column="wierd$Field" delimitedColumnName="true"/>
     </table>
     <table tableName="RegexRename">
+      <property name="cache_skip" value="true"/>
       <generatedKey column="CUST_ID" sqlStatement="call next value for TestSequence" />
       <columnRenamingRule searchString="^CUST" />
     </table>
     <table tableName="EnumTest">
       <columnOverride column="name" javaType="mbg.test.mb3.common.TestEnum"/>
+    </table>
+    <table tableName="EnumOrdinalTest">
+      <columnOverride column="name" javaType="mbg.test.mb3.common.TestEnum" jdbcType="INTEGER"
+                      typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" >
+        <property name="forceJavaTypeIntoMapping" value="true" />
+      </columnOverride>
     </table>
     <table tableName="GeneratedAlwaysTest" >
       <columnOverride column="ID_PLUS1" isGeneratedAlways="true" />
@@ -167,6 +176,7 @@
 
   <context id="kotlin-modelonly" targetRuntime="MyBatis3Kotlin">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
+    <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
 
     <jdbcConnection driverClass="org.hsqldb.jdbcDriver"
         connectionURL="jdbc:hsqldb:mem:aname"

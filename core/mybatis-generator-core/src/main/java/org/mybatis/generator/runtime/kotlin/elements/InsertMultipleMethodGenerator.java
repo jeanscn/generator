@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,18 +23,18 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
-import org.mybatis.generator.runtime.dynamic.sql.elements.v2.Utils;
+import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerator {
-    private FullyQualifiedKotlinType recordType;
-    private String mapperName;
-    private String tableFieldImport;
-    
+    private final FullyQualifiedKotlinType recordType;
+    private final String mapperName;
+    private final String supportObjectImport;
+
     private InsertMultipleMethodGenerator(Builder builder) {
         super(builder);
         recordType = builder.recordType;
         mapperName = builder.mapperName;
-        tableFieldImport = builder.tableFieldImport;
+        supportObjectImport = builder.supportObjectImport;
     }
 
     @Override
@@ -42,12 +42,20 @@ public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerat
         if (!Utils.generateMultipleRowInsert(introspectedTable)) {
             return null;
         }
-        
+
         // Kotlin type inference gets lost if we don't name the helper method something different from the
         // regular mapper method
-        String mapperMethod = Utils.generateMultipleRowInsertHelper(introspectedTable)
-                ? "insertMultipleHelper" : "insertMultiple"; //$NON-NLS-1$ //$NON-NLS-2$
-        
+        String functionImport;
+        String functionShortName;
+        if (Utils.canRetrieveMultiRowGeneratedKeys(introspectedTable)) {
+            functionImport =
+                    "org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultipleWithGeneratedKeys"; //$NON-NLS-1$
+            functionShortName = "insertMultipleWithGeneratedKeys"; //$NON-NLS-1$
+        } else {
+            functionImport = "org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultiple"; //$NON-NLS-1$
+            functionShortName = "insertMultiple"; //$NON-NLS-1$
+        }
+
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
                 KotlinFunction.newOneLineFunction(mapperName + ".insertMultiple") //$NON-NLS-1$
                 .withArgument(KotlinArg.newArg("records") //$NON-NLS-1$
@@ -56,31 +64,33 @@ public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerat
                                 + ">") //$NON-NLS-1$
                         .build())
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.*") //$NON-NLS-1$
+                .withImport(functionImport)
                 .withImports(recordType.getImportList())
                 .build();
 
         addFunctionComment(functionAndImports);
-        
+
         KotlinFunction function = functionAndImports.getFunction();
-        
-        function.addCodeLine("insertMultiple(this::" + mapperMethod //$NON-NLS-1$
+
+        function.addCodeLine(functionShortName + "(this::insertMultiple" //$NON-NLS-1$
                 + ", records, " + tableFieldName //$NON-NLS-1$
                 + ") {"); //$NON-NLS-1$
-        
+
         List<IntrospectedColumn> columns =
                 ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
         for (IntrospectedColumn column : columns) {
-            String fieldName = column.getJavaProperty();
-            functionAndImports.getImports().add(tableFieldImport + "." + fieldName); //$NON-NLS-1$
-            
-            function.addCodeLine("    map(" + fieldName //$NON-NLS-1$
-                    + ").toProperty(\"" + column.getJavaProperty() //$NON-NLS-1$
-                    + "\")"); //$NON-NLS-1$
+            AbstractKotlinFunctionGenerator.FieldNameAndImport fieldNameAndImport =
+                    AbstractKotlinFunctionGenerator.calculateFieldNameAndImport(tableFieldName,
+                            supportObjectImport, column);
+            functionAndImports.getImports().add(fieldNameAndImport.importString());
+
+            function.addCodeLine("    map(" + fieldNameAndImport.fieldName() //$NON-NLS-1$
+                    + ") toProperty \"" + column.getJavaProperty() //$NON-NLS-1$
+                    + "\""); //$NON-NLS-1$
         }
-        
+
         function.addCodeLine("}"); //$NON-NLS-1$
-        
+
         return functionAndImports;
     }
 
@@ -89,32 +99,31 @@ public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerat
         return context.getPlugins().clientInsertMultipleMethodGenerated(kotlinFunction, kotlinFile, introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, InsertMultipleMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private FullyQualifiedKotlinType recordType;
         private String mapperName;
-        private String tableFieldImport;
-        
+        private String supportObjectImport;
+
         public Builder withRecordType(FullyQualifiedKotlinType recordType) {
             this.recordType = recordType;
             return this;
         }
-        
+
         public Builder withMapperName(String mapperName) {
             this.mapperName = mapperName;
             return this;
         }
-        
-        public Builder withTableFieldImport(String tableFieldImport) {
-            this.tableFieldImport = tableFieldImport;
+
+        public Builder withSupportObjectImport(String supportObjectImport) {
+            this.supportObjectImport = supportObjectImport;
             return this;
         }
-        
+
         @Override
         public Builder getThis() {
             return this;
         }
 
-        @Override
         public InsertMultipleMethodGenerator build() {
             return new InsertMultipleMethodGenerator(this);
         }

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ class KotlinFunctionTest {
                 .build()
 
         val renderedFunction = KotlinFunctionRenderer().render(kf).stream()
-                .collect(Collectors.joining(System.getProperty("line.separator"))); //$NON-NLS-1$
+                .collect(Collectors.joining(System.getProperty("line.separator")))
 
         assertThat(renderedFunction).isEqualToNormalizingNewlines("""
             |fun add(a: Int, b: Int): Int {
@@ -54,7 +54,7 @@ class KotlinFunctionTest {
                 .build()
 
         val renderedFunction = KotlinFunctionRenderer().render(kf).stream()
-                .collect(Collectors.joining(System.getProperty("line.separator"))); //$NON-NLS-1$
+                .collect(Collectors.joining(System.getProperty("line.separator")))
 
         assertThat(renderedFunction).isEqualToNormalizingNewlines("""
             |fun add(a: Int = 1, b: Int = 2): Int {
@@ -77,7 +77,7 @@ class KotlinFunctionTest {
                 .build()
 
         val renderedFunction = KotlinFunctionRenderer().render(kf).stream()
-                .collect(Collectors.joining(System.getProperty("line.separator"))); //$NON-NLS-1$
+                .collect(Collectors.joining(System.getProperty("line.separator")))
 
         assertThat(renderedFunction).isEqualToNormalizingNewlines("""
             |fun add(@Param("a") a: Int = 1, b: Int = 2): Int {

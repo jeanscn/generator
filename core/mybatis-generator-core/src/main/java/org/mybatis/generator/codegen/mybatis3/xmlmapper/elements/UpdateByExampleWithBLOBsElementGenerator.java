@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,13 +20,8 @@ import org.mybatis.generator.api.dom.OutputUtilities;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.codegen.mybatis3.ListUtilities;
-import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
-import java.util.Iterator;
-
-public class UpdateByExampleWithBLOBsElementGenerator extends
-        AbstractXmlElementGenerator {
+public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElementGenerator {
 
     public UpdateByExampleWithBLOBsElementGenerator() {
         super();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2019 the original author or authors.
+       Copyright 2006-2020 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -156,29 +156,6 @@ databases, or with different generation parameters, in the same run of MyBatis G
             generated with these generators support many JSE 5.0 features including
             parameterized types and annotations.</td>
         </tr>
-        <tr>
-          <th valign="top">MyBatis3DynamicSqlV1</th>
-          <td>
-            <b>Important:</b> this runtime is deprecated and will be removed in a future version.
-            <p>With the value, MBG will generate objects that are compatible
-            with MyBatis versions 3.4.2 and higher, and Java 8 and higher (e.g. the
-            Java model and mapper interfaces will use generic types and other Java 8
-            features like default methods in interfaces).</p>
-            <p><b>Important:</b> The Java code generated with this target runtime is dependent on the 
-            "MyBatis Dynamic SQL" support library.</p>
-            <p>Other important information:</p>
-            <ul>
-              <li>The model objects are generated in the "FLAT" style regardless of what is specified
-                  for the "defaultModelType".  This also means that there are no "with BLOBs" and
-                  "without BLOBs" methods.</li>
-              <li>The mappers are generated as annotated mappers regardless of what is specified
-                  for the "type" of &lt;javaClientGenerator&gt;.</li>
-              <li>No XML will be generated. &lt;sqlMapGenerator&gt; is not required and will be ignored if specified.</li>
-              <li>MyBatis Dynamic SQL supports table aliases in a "per query" manner rather than the "all or nothing"
-                  manner of the other runtimes.  For this reason, configured table aliases are ignored.</li>
-            </ul>
-          </td>
-        </tr>
       </table>
       <p>If you want to create a different code generator in entirety,
          then use this value to specify the fully qualified name of a
@@ -268,14 +245,6 @@ specified with the <a href="property.html">&lt;property&gt;</a> child element:</
         and must have a default (no argument) constructor.  Each context holds a single instance
         of the Java formatter.  The default Java formatter is
         <code>org.mybatis.generator.api.dom.DefaultJavaFormatter</code>.
-    </td>
-  </tr>
-  <tr>
-    <td valign="top">targetJava8</td>
-    <td>Use this property to specify that the generated code can use Java 8+ features. For example,
-        the diamond operator for collection instantiation.
-        <p/>
-        <p>Valid values are <code>true</code> or <code>false</code>. The default value is <code>true</code>.</p>
     </td>
   </tr>
   <tr>

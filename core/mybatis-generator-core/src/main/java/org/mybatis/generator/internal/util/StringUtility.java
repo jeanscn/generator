@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,21 +84,6 @@ public class StringUtility {
                 sb.append("\\\""); //$NON-NLS-1$
             } else if ("$".equals(token)) { //$NON-NLS-1$
                 sb.append("\\$"); //$NON-NLS-1$
-            } else {
-                sb.append(token);
-            }
-        }
-
-        return sb.toString();
-    }
-
-    public static String escapeStringForXml(String s) {
-        StringTokenizer st = new StringTokenizer(s, "\"", true); //$NON-NLS-1$
-        StringBuilder sb = new StringBuilder();
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            if ("\"".equals(token)) { //$NON-NLS-1$
-                sb.append("&quot;"); //$NON-NLS-1$
             } else {
                 sb.append(token);
             }

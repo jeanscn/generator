@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.runtime.dynamic.sql.elements.v2.Utils;
+import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGenerator {
-    
-    private FullyQualifiedKotlinType recordType;
-    
+
+    private final FullyQualifiedKotlinType recordType;
+
     private BasicMultipleInsertMethodGenerator(Builder builder) {
         super(builder);
         recordType = builder.recordType;
@@ -36,47 +36,17 @@ public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGe
         if (!Utils.generateMultipleRowInsert(introspectedTable)) {
             return null;
         }
-        
-        GeneratedKey gk = introspectedTable.getGeneratedKey();
-        if (gk == null) {
-            return generateMethodWithoutGeneratedKeys();
-        } else {
-            return generateMethodWithGeneratedKeys(gk);
-        }
-    }
-    
-    private KotlinFunctionAndImports generateMethodWithoutGeneratedKeys() {
-        
-        KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction("insertMultiple") //$NON-NLS-1$
-                .withExplicitReturnType("Int") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("multipleInsertStatement") //$NON-NLS-1$
-                        .withDataType("MultiRowInsertStatementProvider<" //$NON-NLS-1$
-                                + recordType.getShortNameWithTypeArguments()
-                                + ">") //$NON-NLS-1$
-                        .build())
-                .withAnnotation("@InsertProvider(type=SqlProviderAdapter::class," //$NON-NLS-1$
-                        + " method=\"insertMultiple\")") //$NON-NLS-1$
-                .build())
-                .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter") //$NON-NLS-1$
-                .withImport("org.apache.ibatis.annotations.InsertProvider") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider") //$NON-NLS-1$
-                .withImports(recordType.getImportList())
-                .build();
-        
-        addFunctionComment(functionAndImports);
 
-        return functionAndImports;
+        return introspectedTable.getGeneratedKey().map(this::generateMethodWithGeneratedKeys).orElse(null);
     }
 
     private KotlinFunctionAndImports generateMethodWithGeneratedKeys(GeneratedKey gk) {
-        
+
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
                 KotlinFunction.newOneLineFunction("insertMultiple") //$NON-NLS-1$
                 .withExplicitReturnType("Int") //$NON-NLS-1$
-                .withAnnotation("@Insert(") //$NON-NLS-1$
-                .withAnnotation("    \"\\${insertStatement}\"") //$NON-NLS-1$
-                .withAnnotation(")") //$NON-NLS-1$
+                .withAnnotation("@InsertProvider(type = SqlProviderAdapter::class," //$NON-NLS-1$
+                        + " method = \"insertMultipleWithGeneratedKeys\")") //$NON-NLS-1$
                 .withArgument(KotlinArg.newArg("insertStatement") //$NON-NLS-1$
                         .withAnnotation("@Param(\"insertStatement\")") //$NON-NLS-1$
                         .withDataType("String") //$NON-NLS-1$
@@ -88,23 +58,23 @@ public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGe
                                 + ">") //$NON-NLS-1$
                         .build())
                 .build())
-                .withImport("org.apache.ibatis.annotations.Insert") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter") //$NON-NLS-1$
+                .withImport("org.apache.ibatis.annotations.InsertProvider") //$NON-NLS-1$
                 .withImport("org.apache.ibatis.annotations.Param") //$NON-NLS-1$
                 .withImports(recordType.getImportList())
                 .build();
-                
+
         addFunctionComment(functionAndImports);
-                
-                
+
         KotlinFunctionParts functionParts = getGeneratedKeyAnnotation(gk);
         acceptParts(functionAndImports, functionParts);
-        
+
         return functionAndImports;
     }
 
     private KotlinFunctionParts getGeneratedKeyAnnotation(GeneratedKey gk) {
         KotlinFunctionParts.Builder builder = new KotlinFunctionParts.Builder();
-        
+
         StringBuilder sb = new StringBuilder();
         introspectedTable.getColumn(gk.getColumn()).ifPresent(introspectedColumn -> {
             if (gk.isJdbcStandard()) {
@@ -116,7 +86,7 @@ public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGe
                 builder.withAnnotation(sb.toString());
             }
         });
-        
+
         return builder.build();
     }
 
@@ -126,21 +96,20 @@ public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGe
                 introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, BasicMultipleInsertMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
 
         private FullyQualifiedKotlinType recordType;
-        
+
         public Builder withRecordType(FullyQualifiedKotlinType recordType) {
             this.recordType = recordType;
             return this;
         }
-        
+
         @Override
         public Builder getThis() {
             return this;
         }
 
-        @Override
         public BasicMultipleInsertMethodGenerator build() {
             return new BasicMultipleInsertMethodGenerator(this);
         }

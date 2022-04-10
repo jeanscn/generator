@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.dom.java.render.InnerClassRenderer;
 
-public class InnerClassTest {
+class InnerClassTest {
 
     private static final String LF = System.getProperty("line.separator");
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertNotNull(clazz);
@@ -62,7 +62,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddFields() {
+    void testAddFields() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getFields().size());
@@ -73,7 +73,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testSetSuperClass() {
+    void testSetSuperClass() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertFalse(clazz.getSuperClass().isPresent());
@@ -83,7 +83,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddInnerClasses() {
+    void testAddInnerClasses() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getInnerClasses().size());
@@ -94,7 +94,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddInnerEnum() {
+    void testAddInnerEnum() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getInnerEnums().size());
@@ -105,7 +105,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddTypeParameter() {
+    void testAddTypeParameter() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getTypeParameters().size());
@@ -116,7 +116,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddInitializationBlock() {
+    void testAddInitializationBlock() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getInitializationBlocks().size());
@@ -127,7 +127,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddSuperInterface() {
+    void testAddSuperInterface() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getSuperInterfaceTypes().size());
@@ -138,7 +138,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testAddMethod() {
+    void testAddMethod() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertEquals(0, clazz.getMethods().size());
@@ -149,7 +149,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testSetAbstract() {
+    void testSetAbstract() {
         InnerClass clazz = new InnerClass("com.foo.UserClass");
 
         assertFalse(clazz.isAbstract());
@@ -158,7 +158,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void testGetFormattedContent() {
+    void testGetFormattedContent() {
         InnerClass innerClass = new InnerClass("com.foo.UserClass");
         innerClass.addField(new Field("test", FullyQualifiedJavaType.getStringInstance()));
         innerClass.setSuperClass("com.hoge.SuperClass");
@@ -168,7 +168,7 @@ public class InnerClassTest {
         innerClass.addTypeParameter(new TypeParameter("U"));
         innerClass.addInitializationBlock(new InitializationBlock(false));
         innerClass.addSuperInterface(new FullyQualifiedJavaType("com.hoge.UserInterface"));
-        
+
         Method method = new Method("method1");
         method.setAbstract(true);
         innerClass.addMethod(method);

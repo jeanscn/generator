@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2006-2022 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          https://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+
+-->
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ant.core.antTasks">
+      <antTask
+            class="org.mybatis.generator.eclipse.ui.ant.GeneratorAntTask"
+            library="lib/antsupport.jar"
+            name="mybatis.generate">
+      </antTask>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.mybatis.generator.eclipse.ui.category"
+            name="MyBatis">
+      </category>
+      <wizard
+            category="org.mybatis.generator.eclipse.ui.category"
+            class="org.mybatis.generator.eclipse.ui.wizards.NewConfigFileWizard"
+            icon="icons/mybatis.png"
+            id="org.mybatis.generator.eclipse.ui.NewConfigFileWizard"
+            name="MyBatis Generator Configuration File">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.wst.xml.core.catalogContributions">
+      <catalogContribution
+            id="default">
+         <public
+               publicId="-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+               uri="dtds/mybatis-generator-config_1_0.dtd">
+         </public>
+      </catalogContribution>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            properties="isGeneratorConfigurationFile"
+            namespace="org.mybatis.generator.eclipse.ui"
+            type="org.eclipse.core.resources.IFile"
+            class="org.mybatis.generator.eclipse.ui.content.GeneratorPropertyTester"
+            id="org.mybatis.generator.eclipse.ui.propertyTester1">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+         name="MyBatis Generator"
+         delegate="org.mybatis.generator.eclipse.ui.launcher.GeneratorLaunchConfigurationDelegate"
+         modes="run, debug"
+         id="org.mybatis.generator.eclipse.launching.LaunchConfigurationType">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+         icon="icons/mybatis.png"
+         configTypeID="org.mybatis.generator.eclipse.launching.LaunchConfigurationType"
+         id="org.mybatis.generator.eclipse.launching.LaunchConfigurationTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+         type="org.mybatis.generator.eclipse.launching.LaunchConfigurationType"
+         class="org.mybatis.generator.eclipse.ui.launcher.GeneratorTabGroup"
+         id="org.mybatis.generator.eclipse.launching.LaunchConfigurationTabGroup">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="org.mybatis.generator.eclipse.ui.launcher.GeneratorLaunchShortcut"
+            icon="icons/mybatis.png"
+            id="org.mybatis.generator.eclipse.ui.launching.LaunchShortcut"
+            label="Run MyBatis Generator"
+            modes="run, debug">
+         <description
+               description="Generates MyBatis Artifacts"
+               mode="run">
+         </description>
+         <description
+               description="Generates MyBatis Artifacts"
+               mode="debug">
+         </description>
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+               	  <iterate>
+	                 <adapt
+                        type="org.eclipse.core.resources.IFile">
+                        <test
+                            property="org.mybatis.generator.eclipse.ui.isGeneratorConfigurationFile">
+                        </test>
+                     </adapt>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+         <configurationType
+               id="org.mybatis.generator.eclipse.launching.LaunchConfigurationType">
+         </configurationType>
+      </shortcut>
+   </extension>
+</plugin>

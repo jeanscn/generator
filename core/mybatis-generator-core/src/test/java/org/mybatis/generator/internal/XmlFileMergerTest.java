@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,11 @@
  */
 package org.mybatis.generator.internal;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.StringReader;
+import java.util.Properties;
+
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.GeneratedXmlFile;
@@ -28,11 +33,6 @@ import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.xml.sax.InputSource;
 
-import java.io.StringReader;
-import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /**
  * This test is related to issue #87 where XML files are slightly different
  * after running through the XML merger.
@@ -40,10 +40,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Jeff Butler
  *
  */
-public class XmlFileMergerTest {
+class XmlFileMergerTest {
 
     @Test
-    public void testThatFilesAreTheSameAfterMerge() throws Exception {
+    void testThatFilesAreTheSameAfterMerge() throws Exception {
         DefaultXmlFormatter xmlFormatter = new DefaultXmlFormatter();
         Properties p = new Properties();
         p.setProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, "true");
@@ -68,7 +68,7 @@ public class XmlFileMergerTest {
     }
 
     @Test
-    public void testThatOldElementsAreDeleted() throws Exception {
+    void testThatOldElementsAreDeleted() throws Exception {
 
         Document existingDocument = new Document(XmlConstants.MYBATIS3_MAPPER_PUBLIC_ID,
                 XmlConstants.MYBATIS3_MAPPER_SYSTEM_ID);

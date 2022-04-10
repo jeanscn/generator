@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class KotlinFileRendererTest {
                 |import org.junit.jupiter.api.Test
                 |import org.mybatis.generator.api.dom.kotlin.KotlinFile
                 """.trimMargin())
-        assertThat(kf.getFileName()).isEqualTo("TestFile.kt")
+        assertThat(kf.fileName).isEqualTo("TestFile.kt")
     }
 
     @Test
@@ -155,6 +155,6 @@ class KotlinFileRendererTest {
         val renderedKf = KotlinFileRenderer().render(kf)
 
         assertThat(renderedKf).isEqualTo("")
-        assertThat(kf.getFileName()).isEqualTo("TestFile.kt")
+        assertThat(kf.fileName).isEqualTo("TestFile.kt")
     }
 }

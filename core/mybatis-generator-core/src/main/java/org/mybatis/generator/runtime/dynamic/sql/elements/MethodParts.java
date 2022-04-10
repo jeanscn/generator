@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,52 +25,47 @@ import org.mybatis.generator.api.dom.java.Parameter;
 
 public class MethodParts {
 
-    private List<String> annotations;
-    private List<String> bodyLines;
-    private Set<FullyQualifiedJavaType> imports;
-    private List<Parameter> parameters;
-    
+    private final List<String> annotations;
+    private final List<String> bodyLines;
+    private final Set<FullyQualifiedJavaType> imports;
+    private final List<Parameter> parameters;
+
     private MethodParts(Builder builder) {
         imports = builder.imports;
         bodyLines = builder.bodyLines;
         parameters = builder.parameters;
         annotations = builder.annotations;
     }
-    
+
     public Set<FullyQualifiedJavaType> getImports() {
         return imports;
     }
-    
+
     public List<String> getAnnotations() {
         return annotations;
     }
-    
+
     public List<String> getBodyLines() {
         return bodyLines;
     }
-    
+
     public List<Parameter> getParameters() {
         return parameters;
     }
-    
+
     public static class Builder {
-        private List<String> bodyLines = new ArrayList<>();
-        private Set<FullyQualifiedJavaType> imports = new HashSet<>();
-        private List<Parameter> parameters = new ArrayList<>();
-        private List<String> annotations = new ArrayList<>();
-        
+        private final List<String> bodyLines = new ArrayList<>();
+        private final Set<FullyQualifiedJavaType> imports = new HashSet<>();
+        private final List<Parameter> parameters = new ArrayList<>();
+        private final List<String> annotations = new ArrayList<>();
+
         public Builder withAnnotation(String annotation) {
             annotations.add(annotation);
             return this;
         }
-        
+
         public Builder withBodyLine(String bodyLine) {
             this.bodyLines.add(bodyLine);
-            return this;
-        }
-        
-        public Builder withBodyLines(List<String> bodyLines) {
-            this.bodyLines.addAll(bodyLines);
             return this;
         }
 
@@ -78,17 +73,17 @@ public class MethodParts {
             this.imports.add(importedType);
             return this;
         }
-        
+
         public Builder withImports(Set<FullyQualifiedJavaType> imports) {
             this.imports.addAll(imports);
             return this;
         }
-        
+
         public Builder withParameter(Parameter parameter) {
             parameters.add(parameter);
             return this;
         }
-        
+
         public MethodParts build() {
             return new MethodParts(this);
         }

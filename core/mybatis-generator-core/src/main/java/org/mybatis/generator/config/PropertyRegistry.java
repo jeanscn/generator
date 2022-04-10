@@ -1,3 +1,18 @@
+/*
+ *    Copyright 2006-2022 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package org.mybatis.generator.config;
 
 /**
@@ -34,6 +49,8 @@ public class PropertyRegistry {
     public static final String TABLE_RUNTIME_TABLE_NAME = "runtimeTableName"; //$NON-NLS-1$
     public static final String TABLE_MODEL_ONLY = "modelOnly"; //$NON-NLS-1$
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
+    public static final String TABLE_DYNAMIC_SQL_SUPPORT_CLASS_NAME = "dynamicSqlSupportClassName"; //$NON-NLS-1$
+    public static final String TABLE_DYNAMIC_SQL_TABLE_OBJECT_NAME = "dynamicSqlTableObjectName"; //$NON-NLS-1$
     //定制属性
     public static final String TABLE_VIEW_PATH = "viewPath";
     public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
@@ -51,6 +68,8 @@ public class PropertyRegistry {
     public static final String CONTEXT_KOTLIN_FORMATTER = "kotlinFormatter"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FILE_ENCODING = "kotlinFileEncoding"; //$NON-NLS-1$
 
+    public static final String CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE = "dynamicSqlSupportPackage"; //$NON-NLS-1$
+
     public static final String CLIENT_USE_LEGACY_BUILDER = "useLegacyBuilder"; //$NON-NLS-1$
 
     public static final String TYPE_RESOLVER_FORCE_BIG_DECIMALS = "forceBigDecimals"; //$NON-NLS-1$
@@ -64,6 +83,10 @@ public class PropertyRegistry {
     public static final String COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS = "suppressAllComments"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_ADD_REMARK_COMMENTS = "addRemarkComments"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_DATE_FORMAT = "dateFormat"; //$NON-NLS-1$
+    public static final String COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION =
+            "useLegacyGeneratedAnnotation"; //$NON-NLS-1$
+
+    public static final String COLUMN_OVERRIDE_FORCE_JAVA_TYPE = "forceJavaTypeIntoMapping"; //$NON-NLS-1$
 
     //定制属性
     public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";

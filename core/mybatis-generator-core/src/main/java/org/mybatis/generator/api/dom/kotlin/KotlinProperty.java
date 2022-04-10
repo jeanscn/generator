@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,15 +20,15 @@ import java.util.Optional;
 
 public class KotlinProperty extends KotlinNamedItem {
 
-    private String dataType;
-    private String initializationString;
-    private Type type;
+    private final String dataType;
+    private final String initializationString;
+    private final Type type;
 
     public enum Type {
         VAL("val"), //$NON-NLS-1$
         VAR("var"); //$NON-NLS-1$
 
-        private String value;
+        private final String value;
 
         Type(String value) {
             this.value = value;
@@ -38,18 +38,18 @@ public class KotlinProperty extends KotlinNamedItem {
             return value;
         }
     }
-    
+
     private KotlinProperty(Builder builder) {
         super(builder);
         dataType = builder.dataType;
         initializationString = builder.initializationString;
         type = Objects.requireNonNull(builder.type);
     }
-    
+
     public Optional<String> getInitializationString() {
         return Optional.ofNullable(initializationString);
     }
-    
+
     public Optional<String> getDataType() {
         return Optional.ofNullable(dataType);
     }
@@ -74,7 +74,7 @@ public class KotlinProperty extends KotlinNamedItem {
     public static class Builder extends AbstractBuilder<Builder> {
         private String dataType;
         private String initializationString;
-        private Type type;
+        private final Type type;
 
         private Builder(Type type, String name) {
             super(name);

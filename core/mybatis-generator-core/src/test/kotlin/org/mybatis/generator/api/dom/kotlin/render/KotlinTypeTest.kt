@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@ package org.mybatis.generator.api.dom.kotlin.render
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mybatis.generator.api.dom.kotlin.*
+import org.mybatis.generator.api.dom.kotlin.KotlinArg
+import org.mybatis.generator.api.dom.kotlin.KotlinFile
+import org.mybatis.generator.api.dom.kotlin.KotlinFunction
+import org.mybatis.generator.api.dom.kotlin.KotlinModifier
+import org.mybatis.generator.api.dom.kotlin.KotlinProperty
+import org.mybatis.generator.api.dom.kotlin.KotlinType
 import java.util.stream.Collectors
 
 class KotlinTypeTest {
@@ -48,6 +53,40 @@ class KotlinTypeTest {
             |    var id: Int? = null,
             |    var streetAddress: String? = null
             |)
+            """.trimMargin())
+    }
+
+    @Test
+    fun testSerializableDataClass() {
+        val obj = KotlinType.newClass("AddressRecord")
+            .withModifier(KotlinModifier.DATA)
+            .withConstructorProperty(KotlinProperty.newVar("id")
+                .withDataType("Int?")
+                .withInitializationString("null")
+                .build())
+            .withConstructorProperty(KotlinProperty.newVar("streetAddress")
+                .withDataType("String?")
+                .withInitializationString("null")
+                .build())
+            .withSuperType("Serializable")
+            .build()
+
+        val kf = KotlinFile("AddressRecord")
+        kf.setPackage("com.foo.bar")
+        kf.addNamedItem(obj)
+        kf.addImport("java.io.Serializable")
+
+        val renderedKf = KotlinFileRenderer().render(kf)
+
+        assertThat(renderedKf).isEqualToNormalizingNewlines("""
+            |package com.foo.bar
+            |
+            |import java.io.Serializable
+            |
+            |data class AddressRecord(
+            |    var id: Int? = null,
+            |    var streetAddress: String? = null
+            |) : Serializable
             """.trimMargin())
     }
 
@@ -219,7 +258,7 @@ class KotlinTypeTest {
                 .build()
 
         val renderedType = KotlinTypeRenderer().render(obj).stream()
-                .collect(Collectors.joining(System.getProperty("line.separator"))); //$NON-NLS-1$
+                .collect(Collectors.joining(System.getProperty("line.separator")))
 
         assertThat(renderedType).isEqualToNormalizingNewlines("""
             |class Adder(
@@ -233,15 +272,58 @@ class KotlinTypeTest {
     }
 
     @Test
+    fun testRegularClassSerializable() {
+        val obj = KotlinType.newClass("Adder")
+            .withConstructorProperty(KotlinProperty.newVal("a")
+                .withDataType("Int")
+                .build())
+            .withConstructorProperty(KotlinProperty.newVal("b")
+                .withDataType("Int")
+                .build())
+            .withNamedItem(KotlinFunction.newOneLineFunction("sum")
+                .withCodeLine("a + b")
+                .build())
+            .withSuperType("Serializable")
+            .build()
+
+        val renderedType = KotlinTypeRenderer().render(obj).stream()
+            .collect(Collectors.joining(System.getProperty("line.separator")))
+
+        assertThat(renderedType).isEqualToNormalizingNewlines("""
+            |class Adder(
+            |    val a: Int,
+            |    val b: Int
+            |) : Serializable {
+            |    fun sum() =
+            |        a + b
+            |}
+            """.trimMargin())
+    }
+
+    @Test
     fun testEmptyClass() {
         val obj = KotlinType.newClass("Adder")
                 .build()
 
         val renderedType = KotlinTypeRenderer().render(obj).stream()
-                .collect(Collectors.joining(System.getProperty("line.separator"))); //$NON-NLS-1$
+                .collect(Collectors.joining(System.getProperty("line.separator")))
 
         assertThat(renderedType).isEqualToNormalizingNewlines("""
             |class Adder
+            """.trimMargin())
+    }
+
+    @Test
+    fun testEmptyClassSerializable() {
+        val obj = KotlinType.newClass("Adder")
+            .withSuperType("Serializable")
+            .build()
+
+        val renderedType = KotlinTypeRenderer().render(obj).stream()
+            .collect(Collectors.joining(System.getProperty("line.separator")))
+
+        assertThat(renderedType).isEqualToNormalizingNewlines("""
+            |class Adder : Serializable
             """.trimMargin())
     }
 }

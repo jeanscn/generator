@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,18 +24,16 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.dom.java.render.TopLevelInterfaceRenderer;
 
-public class InterfaceTest {
+class InterfaceTest {
 
     @Test
-    public void testConstructor() {
-
+    void testConstructor() {
         Interface interfaze = new Interface("com.foo.UserInterface");
         assertNotNull(interfaze);
     }
 
     @Test
-    public void testAddImportedType() {
-
+    void testAddImportedType() {
         Interface interfaze = new Interface("com.foo.UserInterface");
         FullyQualifiedJavaType arrayList = FullyQualifiedJavaType.getNewArrayListInstance();
         interfaze.addImportedType(arrayList);
@@ -46,8 +44,7 @@ public class InterfaceTest {
     }
 
     @Test
-    public void testAddImportedTypes() {
-
+    void testAddImportedTypes() {
         Interface interfaze = new Interface("com.foo.UserInterface");
         Set<FullyQualifiedJavaType> importedTypes = new HashSet<>();
 
@@ -65,8 +62,7 @@ public class InterfaceTest {
     }
 
     @Test
-    public void testAddFileCommentLine() {
-
+    void testAddFileCommentLine() {
         Interface interfaze = new Interface("com.foo.UserInterface");
         interfaze.addFileCommentLine("test");
 
@@ -76,8 +72,7 @@ public class InterfaceTest {
     }
 
     @Test
-    public void testAddStaticImport() {
-
+    void testAddStaticImport() {
         Interface interfaze = new Interface("com.foo.UserInterface");
         interfaze.addStaticImport("com.foo.StaticUtil");
 
@@ -87,8 +82,7 @@ public class InterfaceTest {
     }
 
     @Test
-    public void testAddStaticImports() {
-
+    void testAddStaticImports() {
         Interface interfaze = new Interface("com.foo.UserInterface");
         Set<String> staticImports = new HashSet<>();
         staticImports.add("com.foo.StaticUtil1");
@@ -102,7 +96,7 @@ public class InterfaceTest {
     }
 
     @Test
-    public void testInterfaceFields() {
+    void testInterfaceFields() {
         Interface interfaze = new Interface("foo.Bar");
         interfaze.setVisibility(JavaVisibility.PUBLIC);
 
@@ -113,7 +107,7 @@ public class InterfaceTest {
         field = new Field("ONE", FullyQualifiedJavaType.getStringInstance());
         field.setInitializationString("\"one\"");
         interfaze.addField(field);
-        
+
         String expected = "package foo;" + System.getProperty("line.separator")
             + System.getProperty("line.separator")
             + "public interface Bar {" + System.getProperty("line.separator")

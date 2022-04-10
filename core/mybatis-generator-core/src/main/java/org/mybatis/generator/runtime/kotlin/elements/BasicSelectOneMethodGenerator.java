@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,15 +22,17 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
 public class BasicSelectOneMethodGenerator extends AbstractKotlinFunctionGenerator {
 
-    private FullyQualifiedKotlinType recordType;
-    private String resultMapId;
-    private KotlinFragmentGenerator fragmentGenerator;
+    private final FullyQualifiedKotlinType recordType;
+    private final String resultMapId;
+    private final KotlinFragmentGenerator fragmentGenerator;
+    private final boolean reuseResultMap;
 
     private BasicSelectOneMethodGenerator(Builder builder) {
         super(builder);
         recordType = builder.recordType;
         resultMapId = builder.resultMapId;
         fragmentGenerator = builder.fragmentGenerator;
+        reuseResultMap = builder.reuseResultMap;
     }
 
     @Override
@@ -52,9 +54,6 @@ public class BasicSelectOneMethodGenerator extends AbstractKotlinFunctionGenerat
 
         addFunctionComment(functionAndImports);
 
-        boolean reuseResultMap = introspectedTable.getRules().generateSelectByExampleWithBLOBs()
-                || introspectedTable.getRules().generateSelectByExampleWithoutBLOBs();
-
         if (reuseResultMap) {
             functionAndImports.getImports().add("org.apache.ibatis.annotations.ResultMap"); //$NON-NLS-1$
             functionAndImports.getFunction().addAnnotation("@ResultMap(\"" //$NON-NLS-1$
@@ -73,11 +72,12 @@ public class BasicSelectOneMethodGenerator extends AbstractKotlinFunctionGenerat
         return context.getPlugins().clientBasicSelectOneMethodGenerated(kotlinFunction, kotlinFile, introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, BasicSelectOneMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
 
         private FullyQualifiedKotlinType recordType;
         private String resultMapId;
         private KotlinFragmentGenerator fragmentGenerator;
+        private boolean reuseResultMap;
 
         public Builder withRecordType(FullyQualifiedKotlinType recordType) {
             this.recordType = recordType;
@@ -94,12 +94,16 @@ public class BasicSelectOneMethodGenerator extends AbstractKotlinFunctionGenerat
             return this;
         }
 
+        public Builder withReuseResultMap(boolean reuseResultMap) {
+            this.reuseResultMap = reuseResultMap;
+            return this;
+        }
+
         @Override
         public Builder getThis() {
             return this;
         }
 
-        @Override
         public BasicSelectOneMethodGenerator build() {
             return new BasicSelectOneMethodGenerator(this);
         }

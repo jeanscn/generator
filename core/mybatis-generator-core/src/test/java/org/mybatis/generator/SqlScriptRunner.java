@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,11 +33,11 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * @author Jeff Butler
  */
 public class SqlScriptRunner {
-    private String driver;
-    private String url;
-    private String userid;
-    private String password;
-    private InputStream sourceFile;
+    private final String driver;
+    private final String url;
+    private final String userid;
+    private final String password;
+    private final InputStream sourceFile;
 
     public SqlScriptRunner(InputStream sourceFile, String driver, String url,
             String userId, String password) throws Exception {
@@ -83,29 +83,12 @@ public class SqlScriptRunner {
         }
     }
 
-    public String getDriver() {
-        return driver;
-    }
-
-    public void setDriver(String driver) {
-        this.driver = driver;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     private void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
                 // ignore
-                ;
             }
         }
     }
@@ -116,16 +99,17 @@ public class SqlScriptRunner {
                 statement.close();
             } catch (SQLException e) {
                 // ignore
-                ;
             }
         }
     }
 
     private String readStatement(BufferedReader br) throws IOException {
         StringBuilder sb = new StringBuilder();
+
         String line;
+
         while ((line = br.readLine()) != null) {
-            if (line.startsWith("--")) {
+            if (line.startsWith("--")) { //$NON-NLS-1$
                 continue;
             }
 
@@ -133,9 +117,8 @@ public class SqlScriptRunner {
                 continue;
             }
 
-            //$NON-NLS-1$
-            if (line.endsWith(";")) {
-                sb.append(line.substring(0, line.length() - 1));
+            if (line.endsWith(";")) { //$NON-NLS-1$
+                sb.append(line, 0, line.length() - 1);
                 break;
             } else {
                 sb.append(' ');

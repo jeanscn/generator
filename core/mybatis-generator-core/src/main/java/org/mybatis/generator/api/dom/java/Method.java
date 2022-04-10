@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public class Method extends JavaElement {
 
-    private List<String> bodyLines = new ArrayList<>();
+    private final List<String> bodyLines = new ArrayList<>();
 
     private boolean constructor;
 
@@ -30,11 +30,11 @@ public class Method extends JavaElement {
 
     private String name;
 
-    private List<TypeParameter> typeParameters = new ArrayList<>();
+    private final List<TypeParameter> typeParameters = new ArrayList<>();
 
-    private List<Parameter> parameters = new ArrayList<>();
+    private final List<Parameter> parameters = new ArrayList<>();
 
-    private List<FullyQualifiedJavaType> exceptions = new ArrayList<>();
+    private final List<FullyQualifiedJavaType> exceptions = new ArrayList<>();
 
     private boolean isSynchronized;
 
@@ -43,9 +43,9 @@ public class Method extends JavaElement {
     private boolean isDefault;
 
     private boolean isAbstract;
-    
+
     private boolean isFinal;
-    
+
     public Method(String name) {
         this.name = name;
     }

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,8 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
+import org.mybatis.generator.internal.util.messages.Messages;
 
 public class TableConfiguration extends PropertyHolder {
 
@@ -45,9 +48,9 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean updateByExampleStatementEnabled;
 
-    private List<ColumnOverride> columnOverrides;
+    private final List<ColumnOverride> columnOverrides;
 
-    private Map<IgnoredColumn, Boolean> ignoredColumns;
+    private final Map<IgnoredColumn, Boolean> ignoredColumns;
 
     private GeneratedKey generatedKey;
 
@@ -106,6 +109,7 @@ public class TableConfiguration extends PropertyHolder {
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
+    private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
 
     public TableConfiguration(Context context) {
         super();
@@ -209,19 +213,14 @@ public class TableConfiguration extends PropertyHolder {
 
         TableConfiguration other = (TableConfiguration) obj;
 
-        return EqualsUtil.areEqual(this.catalog, other.catalog)
-                && EqualsUtil.areEqual(this.schema, other.schema)
-                && EqualsUtil.areEqual(this.tableName, other.tableName);
+        return Objects.equals(this.catalog, other.catalog)
+                && Objects.equals(this.schema, other.schema)
+                && Objects.equals(this.tableName, other.tableName);
     }
 
     @Override
     public int hashCode() {
-        int result = HashCodeUtil.SEED;
-        result = HashCodeUtil.hash(result, catalog);
-        result = HashCodeUtil.hash(result, schema);
-        result = HashCodeUtil.hash(result, tableName);
-
-        return result;
+        return Objects.hash(catalog, schema, tableName);
     }
 
     public boolean isSelectByExampleStatementEnabled() {
@@ -256,8 +255,8 @@ public class TableConfiguration extends PropertyHolder {
         return null;
     }
 
-    public GeneratedKey getGeneratedKey() {
-        return generatedKey;
+    public Optional<GeneratedKey> getGeneratedKey() {
+        return Optional.ofNullable(generatedKey);
     }
 
     public String getSelectByExampleQueryId() {
@@ -499,6 +498,14 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setSqlProviderName(String sqlProviderName) {
         this.sqlProviderName = sqlProviderName;
+    }
+
+    public String getDynamicSqlSupportClassName() {
+        return getProperty(PropertyRegistry.TABLE_DYNAMIC_SQL_SUPPORT_CLASS_NAME);
+    }
+
+    public String getDynamicSqlTableObjectName() {
+        return getProperty(PropertyRegistry.TABLE_DYNAMIC_SQL_TABLE_OBJECT_NAME);
     }
 
     public List<SelectByTableGeneratorConfiguration> getSelectByTableGeneratorConfiguration() {

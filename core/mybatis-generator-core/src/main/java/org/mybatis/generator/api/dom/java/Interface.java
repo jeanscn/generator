@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Interface extends InnerInterface implements CompilationUnit {
-    
-    private Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
 
-    private Set<String> staticImports = new TreeSet<>();
+    private final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
 
-    private List<String> fileCommentLines = new ArrayList<>();
+    private final Set<String> staticImports = new TreeSet<>();
+
+    private final List<String> fileCommentLines = new ArrayList<>();
 
     public Interface(FullyQualifiedJavaType type) {
         super(type);

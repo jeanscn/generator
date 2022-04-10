@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,11 @@
  */
 package org.mybatis.generator;
 
-import org.junit.jupiter.api.Disabled;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mybatis.generator.api.GeneratedKotlinFile;
@@ -23,11 +27,6 @@ import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This test executes the same generator configuration that is in the mybatis-generator-systests-kotlin
@@ -38,23 +37,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Jeff Butler
  *
  */
-@Disabled
-public class KotlinCodeGenerationTest {
+class KotlinCodeGenerationTest {
 
     @ParameterizedTest
     @MethodSource("generateKotlinFiles")
-    public void testKotlinParse(GeneratedKotlinFile generatedKotlinFile) {
+    void testKotlinParse(GeneratedKotlinFile generatedKotlinFile) {
         // for now, just let the test pass. if we find a good Kotlin parser, then mimic the
         // function of the Java test by trying to parse generated code
         assertTrue(true);
     }
 
-    public static List<GeneratedKotlinFile> generateKotlinFiles() throws Exception {
+    static List<GeneratedKotlinFile> generateKotlinFiles() throws Exception {
         JavaCodeGenerationTest.createDatabase();
         return generateKotlinFiles("/scripts/generatorConfig-kotlin.xml");
     }
 
-    private static List<GeneratedKotlinFile> generateKotlinFiles(String configFile) throws Exception {
+    static List<GeneratedKotlinFile> generateKotlinFiles(String configFile) throws Exception {
         List<String> warnings = new ArrayList<>();
         ConfigurationParser cp = new ConfigurationParser(warnings);
         Configuration config = cp.parseConfiguration(KotlinCodeGenerationTest.class.getResourceAsStream(configFile));

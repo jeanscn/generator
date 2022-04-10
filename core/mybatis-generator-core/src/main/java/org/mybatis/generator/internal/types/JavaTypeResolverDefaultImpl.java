@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -34,15 +34,15 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
 
     protected List<String> warnings;
 
-    protected Properties properties;
+    protected final Properties properties;
 
     protected Context context;
 
     protected boolean forceBigDecimals;
     protected boolean useJSR310Types;
 
-    protected Map<Integer, JdbcTypeInformation> typeMap;
-    
+    protected final Map<Integer, JdbcTypeInformation> typeMap;
+
     public JavaTypeResolverDefaultImpl() {
         super();
         properties = new Properties();
@@ -149,7 +149,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
 
         return answer;
     }
-    
+
     protected FullyQualifiedJavaType overrideDefaultType(IntrospectedColumn column,
             FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer = defaultType;
@@ -177,41 +177,41 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
 
         return answer;
     }
-    
+
     protected FullyQualifiedJavaType calculateDateType(IntrospectedColumn column, FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
-        
+
         if (useJSR310Types) {
             answer = new FullyQualifiedJavaType("java.time.LocalDate"); //$NON-NLS-1$
         } else {
             answer = defaultType;
         }
-        
+
         return answer;
     }
 
     protected FullyQualifiedJavaType calculateTimeType(IntrospectedColumn column, FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
-        
+
         if (useJSR310Types) {
             answer = new FullyQualifiedJavaType("java.time.LocalTime"); //$NON-NLS-1$
         } else {
             answer = defaultType;
         }
-        
+
         return answer;
     }
 
     protected FullyQualifiedJavaType calculateTimestampType(IntrospectedColumn column,
             FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
-        
+
         if (useJSR310Types) {
             answer = new FullyQualifiedJavaType("java.time.LocalDateTime"); //$NON-NLS-1$
         } else {
             answer = defaultType;
         }
-        
+
         return answer;
     }
 
@@ -227,7 +227,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
 
         return answer;
     }
-    
+
     protected FullyQualifiedJavaType calculateBigDecimalReplacement(IntrospectedColumn column,
             FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
@@ -269,9 +269,9 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
     }
 
     public static class JdbcTypeInformation {
-        private String jdbcTypeName;
+        private final String jdbcTypeName;
 
-        private FullyQualifiedJavaType fullyQualifiedJavaType;
+        private final FullyQualifiedJavaType fullyQualifiedJavaType;
 
         public JdbcTypeInformation(String jdbcTypeName,
                 FullyQualifiedJavaType fullyQualifiedJavaType) {

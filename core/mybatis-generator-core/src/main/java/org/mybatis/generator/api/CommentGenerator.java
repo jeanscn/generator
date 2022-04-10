@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -59,9 +59,9 @@ public interface CommentGenerator {
      * @param introspectedColumn
      *            the introspected column
      */
-    void addFieldComment(Field field,
+    default void addFieldComment(Field field,
             IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn);
+            IntrospectedColumn introspectedColumn) {}
 
     /**
      * Adds the field comment.
@@ -71,7 +71,7 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      */
-    void addFieldComment(Field field, IntrospectedTable introspectedTable);
+    default void addFieldComment(Field field, IntrospectedTable introspectedTable) {}
 
     /**
      * Adds a comment for a model class.  The Java code merger should
@@ -88,8 +88,8 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      */
-    void addModelClassComment(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable);
+    default void addModelClassComment(TopLevelClass topLevelClass,
+            IntrospectedTable introspectedTable) {}
 
     /**
      * Adds a comment for a model class.
@@ -110,8 +110,8 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      */
-    void addClassComment(InnerClass innerClass,
-            IntrospectedTable introspectedTable);
+    default void addClassComment(InnerClass innerClass,
+            IntrospectedTable introspectedTable) {}
 
     /**
      * Adds the inner class comment.
@@ -123,8 +123,8 @@ public interface CommentGenerator {
      * @param markAsDoNotDelete
      *            the mark as do not delete
      */
-    void addClassComment(InnerClass innerClass,
-            IntrospectedTable introspectedTable, boolean markAsDoNotDelete);
+    default void addClassComment(InnerClass innerClass,
+            IntrospectedTable introspectedTable, boolean markAsDoNotDelete) {}
 
     /**
      * Adds the enum comment.
@@ -134,8 +134,8 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      */
-    void addEnumComment(InnerEnum innerEnum,
-            IntrospectedTable introspectedTable);
+    default void addEnumComment(InnerEnum innerEnum,
+            IntrospectedTable introspectedTable) {}
 
     /**
      * Adds the getter comment.
@@ -147,9 +147,9 @@ public interface CommentGenerator {
      * @param introspectedColumn
      *            the introspected column
      */
-    void addGetterComment(Method method,
+    default void addGetterComment(Method method,
             IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn);
+            IntrospectedColumn introspectedColumn) {}
 
     /**
      * Adds the setter comment.
@@ -161,9 +161,9 @@ public interface CommentGenerator {
      * @param introspectedColumn
      *            the introspected column
      */
-    void addSetterComment(Method method,
+    default void addSetterComment(Method method,
             IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn);
+            IntrospectedColumn introspectedColumn) {}
 
     /**
      * Adds the general method comment.
@@ -173,8 +173,8 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      */
-    void addGeneralMethodComment(Method method,
-            IntrospectedTable introspectedTable);
+    default void addGeneralMethodComment(Method method,
+            IntrospectedTable introspectedTable) {}
 
     /**
      * This method is called to add a file level comment to a generated java file. This method
@@ -187,7 +187,7 @@ public interface CommentGenerator {
      * @param compilationUnit
      *            the compilation unit
      */
-    void addJavaFileComment(CompilationUnit compilationUnit);
+    default void addJavaFileComment(CompilationUnit compilationUnit) {}
 
     /**
      * This method should add a suitable comment as a child element of the specified xmlElement to warn users that the
@@ -196,7 +196,7 @@ public interface CommentGenerator {
      * @param xmlElement
      *            the xml element
      */
-    void addComment(XmlElement xmlElement);
+    default void addComment(XmlElement xmlElement) {}
 
     /**
      * This method is called to add a comment as the first child of the root element. This method
@@ -209,9 +209,7 @@ public interface CommentGenerator {
      * @param rootElement
      *            the root element
      */
-    void addRootComment(XmlElement rootElement);
-
-    void addRootComment(HtmlElement rootElement);
+    default void addRootComment(XmlElement rootElement) {}
 
     /**
      * Adds a @Generated annotation to a method.
@@ -221,12 +219,12 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      * @param imports
-     *   the comment generator may add a required imported type to this list
+     *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
-            Set<FullyQualifiedJavaType> imports);
+    default void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
+            Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * Adds a @Generated annotation to a method.
@@ -238,12 +236,12 @@ public interface CommentGenerator {
      * @param introspectedColumn
      *     thr introspected column
      * @param imports
-     *   the comment generator may add a required imported type to this list
+     *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports);
+    default void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
+            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * Adds a @Generated annotation to a field.
@@ -253,12 +251,12 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      * @param imports
-     *   the comment generator may add a required imported type to this list
+     *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
-            Set<FullyQualifiedJavaType> imports);
+    default void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
+            Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * Adds a @Generated annotation to a field.
@@ -270,12 +268,12 @@ public interface CommentGenerator {
      * @param introspectedColumn
      *            the introspected column
      * @param imports
-     *   the comment generator may add a required imported type to this list
+     *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports);
+    default void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
+            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * Adds a @Generated annotation to a class.
@@ -285,14 +283,12 @@ public interface CommentGenerator {
      * @param introspectedTable
      *            the introspected table
      * @param imports
-     *   the comment generator may add a required imported type to this list
+     *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable,
-            Set<FullyQualifiedJavaType> imports);
-
-    void addMethodJavaDocLine(Method method,boolean singleLine,String...comments);
+    default void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable,
+            Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * This method is called to add a file level comment to a generated Kotlin file. This method

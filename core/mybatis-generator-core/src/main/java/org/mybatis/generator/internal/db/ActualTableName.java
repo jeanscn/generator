@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,16 +20,16 @@ import static org.mybatis.generator.internal.util.StringUtility.composeFullyQual
 /**
  * This class holds the actual catalog, schema, and table name returned from the
  * database introspection.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public class ActualTableName {
 
-    private String tableName;
-    private String catalog;
-    private String schema;
-    private String fullName;
+    private final String tableName;
+    private final String catalog;
+    private final String schema;
+    private final String fullName;
 
     public ActualTableName(String catalog, String schema, String tableName) {
         this.catalog = catalog;

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ import org.mybatis.generator.api.dom.xml.Document;
 
 public class GeneratedXmlFile extends GeneratedFile {
 
-    private Document document;
+    private final Document document;
 
-    private String fileName;
+    private final String fileName;
 
-    private String targetPackage;
+    private final String targetPackage;
 
     private boolean isMergeable;
 
-    private XmlFormatter xmlFormatter;
+    private final XmlFormatter xmlFormatter;
 
     public GeneratedXmlFile(Document document, String fileName,
             String targetPackage, String targetProject, boolean isMergeable,
@@ -62,5 +62,10 @@ public class GeneratedXmlFile extends GeneratedFile {
 
     public void setMergeable(boolean isMergeable) {
         this.isMergeable = isMergeable;
+    }
+
+    @Override
+    public String getFileEncoding() {
+        return "UTF-8"; //$NON-NLS-1$
     }
 }

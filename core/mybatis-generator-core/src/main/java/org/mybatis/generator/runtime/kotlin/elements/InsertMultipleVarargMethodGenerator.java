@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ import org.mybatis.generator.api.dom.kotlin.FullyQualifiedKotlinType;
 import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
-import org.mybatis.generator.runtime.dynamic.sql.elements.v2.Utils;
+import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 public class InsertMultipleVarargMethodGenerator extends AbstractKotlinFunctionGenerator {
-    private FullyQualifiedKotlinType recordType;
-    private String mapperName;
-    
+    private final FullyQualifiedKotlinType recordType;
+    private final String mapperName;
+
     private InsertMultipleVarargMethodGenerator(Builder builder) {
         super(builder);
         recordType = builder.recordType;
@@ -36,7 +36,7 @@ public class InsertMultipleVarargMethodGenerator extends AbstractKotlinFunctionG
         if (!Utils.generateMultipleRowInsert(introspectedTable)) {
             return null;
         }
-        
+
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
                 KotlinFunction.newOneLineFunction(mapperName + ".insertMultiple") //$NON-NLS-1$
                 .withArgument(KotlinArg.newArg("vararg records") //$NON-NLS-1$
@@ -57,26 +57,25 @@ public class InsertMultipleVarargMethodGenerator extends AbstractKotlinFunctionG
                 introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, InsertMultipleVarargMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private FullyQualifiedKotlinType recordType;
         private String mapperName;
-        
+
         public Builder withRecordType(FullyQualifiedKotlinType recordType) {
             this.recordType = recordType;
             return this;
         }
-        
+
         public Builder withMapperName(String mapperName) {
             this.mapperName = mapperName;
             return this;
         }
-        
+
         @Override
         public Builder getThis() {
             return this;
         }
 
-        @Override
         public InsertMultipleVarargMethodGenerator build() {
             return new InsertMultipleVarargMethodGenerator(this);
         }

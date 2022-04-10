@@ -1,3 +1,18 @@
+/*
+ *    Copyright 2006-2022 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package org.mybatis.generator.api;
 
 import org.mybatis.generator.config.*;
@@ -21,6 +36,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * Base class for all code generator implementations. This class provides many
  * of the housekeeping methods needed to implement a code generator, with only
  * the actual code generation methods left unimplemented.
+ *
  * 所有代码生成器实现的基类。这个类提供了实现代码生成器所需的许多内务管理方法，只有实际的代码生成方法没有实现。
  *
  * @author Jeff Butler
@@ -76,6 +92,8 @@ public abstract class IntrospectedTable {
         ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID,
         ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID,
         ATTR_SELECT_TREE_BY_PARENT_ID_STATEMENT_ID
+        ATTR_KOTLIN_RECORD_TYPE,
+        ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME
     }
 
     protected TableConfiguration tableConfiguration;
@@ -84,15 +102,15 @@ public abstract class IntrospectedTable {
 
     protected Context context;
 
-    protected BaseRules rules;
+    protected Rules rules;
+
+    protected final List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
+
+    protected final List<IntrospectedColumn> baseColumns = new ArrayList<>();
+
+    protected final List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
     protected TargetRuntime targetRuntime;
-
-    protected List<IntrospectedColumn> primaryKeyColumns = new ArrayList<>();
-
-    protected List<IntrospectedColumn> baseColumns = new ArrayList<>();
-
-    protected List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
     protected List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
@@ -102,11 +120,10 @@ public abstract class IntrospectedTable {
      * Attributes may be used by plugins to capture table related state between
      * the different plugin calls.
      */
-    protected Map<String, Object> attributes = new HashMap<>();
-
+    protected final Map<String, Object> attributes = new HashMap<>();
 
     /** Internal attributes are used to store commonly accessed items by all code generators. */
-    protected Map<IntrospectedTable.InternalAttribute, String> internalAttributes =
+    protected final Map<IntrospectedTable.InternalAttribute, String> internalAttributes =
             new EnumMap<>(InternalAttribute.class);
     /**
      * Table remarks retrieved from database metadata.
@@ -118,8 +135,7 @@ public abstract class IntrospectedTable {
      */
     protected String tableType;
 
-    public IntrospectedTable(TargetRuntime targetRuntime) {
-        super();
+    protected IntrospectedTable(TargetRuntime targetRuntime) {
         this.targetRuntime = targetRuntime;
     }
 
@@ -135,7 +151,7 @@ public abstract class IntrospectedTable {
         return tableConfiguration.getSelectByPrimaryKeyQueryId();
     }
 
-    public GeneratedKey getGeneratedKey() {
+    public Optional<GeneratedKey> getGeneratedKey() {
         return tableConfiguration.getGeneratedKey();
     }
 
@@ -242,7 +258,7 @@ public abstract class IntrospectedTable {
         return !baseColumns.isEmpty();
     }
 
-    public BaseRules getRules() {
+    public Rules getRules() {
         return rules;
     }
 
@@ -511,7 +527,9 @@ public abstract class IntrospectedTable {
     protected void calculateXmlAttributes() {
         setMyBatis3XmlMapperFileName(calculateMyBatis3XmlMapperFileName());
         setMyBatis3XmlMapperPackage(calculateSqlMapPackage());
+
         setMyBatis3FallbackSqlMapNamespace(calculateMyBatis3FallbackSqlMapNamespace());
+
         setSqlMapFullyQualifiedRuntimeTableName(calculateSqlMapFullyQualifiedRuntimeTableName());
         setSqlMapAliasedFullyQualifiedRuntimeTableName(calculateSqlMapAliasedFullyQualifiedRuntimeTableName());
 
@@ -522,7 +540,6 @@ public abstract class IntrospectedTable {
         setInsertSelectiveStatementId("insertSelective"); //$NON-NLS-1$
         setSelectAllStatementId("selectAll"); //$NON-NLS-1$
         setSelectByExampleStatementId("selectByExample"); //$NON-NLS-1$
-        setSelectByExampleWithRelationStatementId("selectByExampleWithRelation");
         setSelectByExampleWithBLOBsStatementId("selectByExampleWithBLOBs"); //$NON-NLS-1$
         setSelectByPrimaryKeyStatementId("selectByPrimaryKey"); //$NON-NLS-1$
         setUpdateByExampleStatementId("updateByExample"); //$NON-NLS-1$
@@ -538,6 +555,7 @@ public abstract class IntrospectedTable {
         setBaseColumnListId("Base_Column_List"); //$NON-NLS-1$
         setBlobColumnListId("Blob_Column_List"); //$NON-NLS-1$
         setMyBatis3UpdateByExampleWhereClauseId("Update_By_Example_Where_Clause");
+        setSelectByExampleWithRelationStatementId("selectByExampleWithRelation");
         setSelectTreeByParentIdStatementId("selectChildIdsByFunctionResult");
     }
 
@@ -550,15 +568,19 @@ public abstract class IntrospectedTable {
     }
 
     public void setExampleWhereClauseId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_EXAMPLE_WHERE_CLAUSE_ID,s);
+        internalAttributes.put(InternalAttribute.ATTR_EXAMPLE_WHERE_CLAUSE_ID,
+                s);
     }
 
     public void setMyBatis3UpdateByExampleWhereClauseId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID,s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID,
+                s);
     }
 
     public void setResultMapWithBLOBsId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID,s);
+        internalAttributes.put(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID,
+                s);
     }
 
     public void setBaseResultMapId(String s) {
@@ -578,35 +600,50 @@ public abstract class IntrospectedTable {
     }
 
     public void setUpdateByPrimaryKeySelectiveStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_SELECTIVE_STATEMENT_ID,s);
+        internalAttributes
+                .put(
+                        InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_SELECTIVE_STATEMENT_ID,
+                        s);
     }
 
     public void setUpdateByPrimaryKeyStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_STATEMENT_ID, s);
     }
 
     public void setUpdateByExampleWithBLOBsStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,
+                s);
     }
 
     public void setUpdateByExampleSelectiveStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID,s);
+        internalAttributes
+                .put(
+                        InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID,
+                        s);
     }
 
     public void setUpdateByExampleStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_STATEMENT_ID, s);
     }
 
     public void setSelectByPrimaryKeyStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID, s);
     }
 
     public void setSelectByExampleWithBLOBsStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,s);
+        internalAttributes
+                .put(
+                        InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,
+                        s);
     }
 
     public void setSelectAllStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_SELECT_ALL_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_SELECT_ALL_STATEMENT_ID, s);
     }
 
     public void setSelectByExampleStatementId(String s) {
@@ -618,7 +655,8 @@ public abstract class IntrospectedTable {
     }
 
     public void setInsertSelectiveStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_INSERT_SELECTIVE_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_INSERT_SELECTIVE_STATEMENT_ID, s);
     }
 
     public void setInsertStatementId(String s) {
@@ -626,22 +664,21 @@ public abstract class IntrospectedTable {
     }
 
     public void setDeleteByPrimaryKeyStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID, s);
     }
 
     public void setDeleteByExampleStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID, s);
     }
 
     public void setCountByExampleStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID, s);
+        internalAttributes.put(
+                InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID, s);
     }
 
-    public String getControllerBeanName() {
-        return internalAttributes.get(InternalAttribute.ATTR_CONTROL_BEAN_NAME);
-    }
-
-    public String getControllerSimplePackage() {
+    public String getBlobColumnListId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING);
     }
@@ -651,19 +688,23 @@ public abstract class IntrospectedTable {
     }
 
     public String getBaseColumnListId() {
-        return internalAttributes.get(InternalAttribute.ATTR_BASE_COLUMN_LIST_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_BASE_COLUMN_LIST_ID);
     }
 
     public String getExampleWhereClauseId() {
-        return internalAttributes.get(InternalAttribute.ATTR_EXAMPLE_WHERE_CLAUSE_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_EXAMPLE_WHERE_CLAUSE_ID);
     }
 
     public String getMyBatis3UpdateByExampleWhereClauseId() {
-        return internalAttributes.get(InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID);
     }
 
     public String getResultMapWithBLOBsId() {
-        return internalAttributes.get(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID);
     }
 
     public String getBaseResultMapId() {
@@ -675,11 +716,13 @@ public abstract class IntrospectedTable {
     }
 
     public String getUpdateByPrimaryKeyWithBLOBsStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);
     }
 
     public String getUpdateByPrimaryKeySelectiveStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_SELECTIVE_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_SELECTIVE_STATEMENT_ID);
     }
 
     public String getUpdateByPrimaryKeyStatementId() {
@@ -688,15 +731,18 @@ public abstract class IntrospectedTable {
     }
 
     public String getUpdateByExampleWithBLOBsStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
     }
 
     public String getUpdateByExampleSelectiveStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_SELECTIVE_STATEMENT_ID);
     }
 
     public String getUpdateByExampleStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_STATEMENT_ID);
     }
 
     public String getSelectByPrimaryKeyStatementId() {
@@ -708,11 +754,13 @@ public abstract class IntrospectedTable {
     }
 
     public String getSelectByExampleWithBLOBsStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
     }
 
     public String getSelectAllStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_SELECT_ALL_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_SELECT_ALL_STATEMENT_ID);
     }
 
     public String getSelectByExampleStatementId() {
@@ -728,23 +776,36 @@ public abstract class IntrospectedTable {
     }
 
     public String getInsertSelectiveStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_INSERT_SELECTIVE_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_INSERT_SELECTIVE_STATEMENT_ID);
     }
 
     public String getInsertStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_INSERT_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_INSERT_STATEMENT_ID);
     }
 
     public String getDeleteByPrimaryKeyStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_DELETE_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
     public String getDeleteByExampleStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_DELETE_BY_EXAMPLE_STATEMENT_ID);
     }
 
     public String getCountByExampleStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID);
+        return internalAttributes
+                .get(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID);
+    }
+
+    public String getMyBatisDynamicSQLTableObjectName() {
+        return internalAttributes.get(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME);
+    }
+
+    public void setMyBatisDynamicSQLTableObjectName(String name) {
+        internalAttributes.put(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME, name);
     }
 
     private boolean isSubPackagesEnabled(PropertyHolder propertyHolder) {
@@ -752,17 +813,36 @@ public abstract class IntrospectedTable {
     }
 
     protected String calculateJavaClientInterfacePackage() {
-        JavaClientGeneratorConfiguration config = context.getJavaClientGeneratorConfiguration();
+        JavaClientGeneratorConfiguration config = context
+                .getJavaClientGeneratorConfiguration();
         if (config == null) {
             return null;
         }
-        return config.getTargetPackage() + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+
+        return config.getTargetPackage()
+                + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+    }
+
+    protected String calculateDynamicSqlSupportPackage() {
+        JavaClientGeneratorConfiguration config = context
+                .getJavaClientGeneratorConfiguration();
+        if (config == null) {
+            return null;
+        }
+
+        String packkage = config.getProperty(PropertyRegistry.CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE);
+        if (stringHasValue(packkage)) {
+            return packkage + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+        } else {
+            return calculateJavaClientInterfacePackage();
+        }
     }
 
     protected void calculateJavaClientAttributes() {
         if (context.getJavaClientGeneratorConfiguration() == null) {
             return;
         }
+
         StringBuilder sb = new StringBuilder();
         sb.append(calculateJavaClientInterfacePackage());
         sb.append('.');
@@ -794,46 +874,59 @@ public abstract class IntrospectedTable {
         setMyBatis3SqlProviderType(sb.toString());
 
         sb.setLength(0);
-        sb.append(calculateJavaClientInterfacePackage());
+        sb.append(calculateDynamicSqlSupportPackage());
         sb.append('.');
-        sb.append(fullyQualifiedTable.getDomainObjectName());
-        sb.append("DynamicSqlSupport"); //$NON-NLS-1$
+        if (stringHasValue(tableConfiguration.getDynamicSqlSupportClassName())) {
+            sb.append(tableConfiguration.getDynamicSqlSupportClassName());
+        } else {
+            if (stringHasValue(fullyQualifiedTable.getDomainObjectSubPackage())) {
+                sb.append(fullyQualifiedTable.getDomainObjectSubPackage());
+                sb.append('.');
+            }
+            sb.append(fullyQualifiedTable.getDomainObjectName());
+            sb.append("DynamicSqlSupport"); //$NON-NLS-1$
+        }
         setMyBatisDynamicSqlSupportType(sb.toString());
+
+        if (stringHasValue(tableConfiguration.getDynamicSqlTableObjectName())) {
+            setMyBatisDynamicSQLTableObjectName(tableConfiguration.getDynamicSqlTableObjectName());
+        } else {
+            setMyBatisDynamicSQLTableObjectName(fullyQualifiedTable.getDomainObjectName());
+        }
     }
 
     protected String calculateJavaModelPackage() {
         JavaModelGeneratorConfiguration config = context
                 .getJavaModelGeneratorConfiguration();
 
-        return config.getTargetPackage() +
-                fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
+        return config.getTargetPackage()
+                + fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
     }
 
     protected void calculateModelAttributes() {
-        String modelPackage = calculateJavaModelPackage();
+        String pakkage = calculateJavaModelPackage();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(modelPackage);
+        sb.append(pakkage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         sb.append("Key"); //$NON-NLS-1$
         setPrimaryKeyType(sb.toString());
 
         sb.setLength(0);
-        sb.append(modelPackage);
+        sb.append(pakkage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         setBaseRecordType(sb.toString());
 
         sb.setLength(0);
-        sb.append(modelPackage);
+        sb.append(pakkage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
-        sb.append("Record"); //$NON-NLS-1$
         setKotlinRecordType(sb.toString());
 
         sb.setLength(0);
-        sb.append(modelPackage);
+        sb.append(pakkage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         sb.append("WithBLOBs"); //$NON-NLS-1$
@@ -861,13 +954,14 @@ public abstract class IntrospectedTable {
             return calculateJavaModelPackage();
         }
 
-        return exampleTargetPackage +
-                fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
+        return exampleTargetPackage
+                + fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
     }
 
     protected String calculateSqlMapPackage() {
         StringBuilder sb = new StringBuilder();
-        SqlMapGeneratorConfiguration config = context.getSqlMapGeneratorConfiguration();
+        SqlMapGeneratorConfiguration config = context
+                .getSqlMapGeneratorConfiguration();
 
         // config can be null if the Java client does not require XML
         if (config != null) {
@@ -883,6 +977,7 @@ public abstract class IntrospectedTable {
                 sb.append('.').append(fullyQualifiedTable.getDomainObjectSubPackage());
             }
         }
+
         return sb.toString();
     }
 
@@ -967,6 +1062,7 @@ public abstract class IntrospectedTable {
      */
     public abstract List<GeneratedXmlFile> getGeneratedXmlFiles();
 
+
     public abstract List<GeneratedHtmlFile> getGeneratedHtmlFiles();
 
     /**
@@ -991,7 +1087,7 @@ public abstract class IntrospectedTable {
      * @param rules
      *            the new rules
      */
-    public void setRules(BaseRules rules) {
+    public void setRules(Rules rules) {
         this.rules = rules;
     }
 

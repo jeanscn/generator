@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,15 +36,13 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  */
 public class RootClassInfo {
 
-    private static Map<String, RootClassInfo> rootClassInfoMap;
+    private static final Map<String, RootClassInfo> rootClassInfoMap;
 
     static {
-        rootClassInfoMap = Collections
-                .synchronizedMap(new HashMap<String, RootClassInfo>());
+        rootClassInfoMap = Collections.synchronizedMap(new HashMap<>());
     }
 
-    public static RootClassInfo getInstance(String className,
-            List<String> warnings) {
+    public static RootClassInfo getInstance(String className, List<String> warnings) {
         return rootClassInfoMap.computeIfAbsent(className, k -> new RootClassInfo(k, warnings));
     }
 
@@ -60,8 +58,8 @@ public class RootClassInfo {
     }
 
     private PropertyDescriptor[] propertyDescriptors;
-    private String className;
-    private List<String> warnings;
+    private final String className;
+    private final List<String> warnings;
     private boolean genericMode = false;
 
     private RootClassInfo(String className, List<String> warnings) {
@@ -127,11 +125,9 @@ public class RootClassInfo {
         String introspectedPropertyType = propertyDescriptor.getPropertyType().getTypeName();
         if (genericMode && introspectedPropertyType.equals("java.lang.Object")) { //$NON-NLS-1$
             // OK - but add a warning
-            warnings.add(getString("Warning.28", //$NON-NLS-1$
-                    propertyName, className));
+            warnings.add(getString("Warning.28", propertyName, className)); //$NON-NLS-1$
         } else if (!introspectedPropertyType.equals(propertyType)) {
-            warnings.add(getString("Warning.21", //$NON-NLS-1$
-                    propertyName, className, propertyType));
+            warnings.add(getString("Warning.21", propertyName, className, propertyType)); //$NON-NLS-1$
             return false;
         }
 
@@ -140,8 +136,7 @@ public class RootClassInfo {
 
     private boolean hasGetter(String propertyName, PropertyDescriptor propertyDescriptor) {
         if (propertyDescriptor.getReadMethod() == null) {
-            warnings.add(getString("Warning.22", //$NON-NLS-1$
-                    propertyName, className));
+            warnings.add(getString("Warning.22", propertyName, className)); //$NON-NLS-1$
             return false;
         }
 
@@ -150,8 +145,7 @@ public class RootClassInfo {
 
     private boolean hasSetter(String propertyName, PropertyDescriptor propertyDescriptor) {
         if (propertyDescriptor.getWriteMethod() == null) {
-            warnings.add(getString("Warning.23", //$NON-NLS-1$
-                    propertyName, className));
+            warnings.add(getString("Warning.23", propertyName, className)); //$NON-NLS-1$
             return false;
         }
 

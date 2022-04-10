@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,6 +14,21 @@
  *    limitations under the License.
  */
 package org.mybatis.generator.config.xml;
+
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.config.*;
@@ -40,9 +55,9 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class ConfigurationParser {
 
-    private List<String> warnings;
-    private List<String> parseErrors;
-    private Properties extraProperties;
+    private final List<String> warnings;
+    private final List<String> parseErrors;
+    private final Properties extraProperties;
 
     public ConfigurationParser(List<String> warnings) {
         this(null, warnings);
@@ -109,6 +124,8 @@ public class ConfigurationParser {
             throws IOException, XMLParserException {
         parseErrors.clear();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         factory.setValidating(true);
 
         try {

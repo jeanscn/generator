@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import org.mybatis.generator.api.dom.DefaultJavaFormatter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 
-public class GeneratedJavaFileTest {
+class GeneratedJavaFileTest {
 
     @Test
-    public void testReqularInterface() {
+    void testReqularInterface() {
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType("org.mybatis.test.TestInterface");
         Interface ifc = new Interface(fqjt);
         JavaFormatter jf = new DefaultJavaFormatter();
@@ -36,7 +36,7 @@ public class GeneratedJavaFileTest {
     }
 
     @Test
-    public void testGenericInterface() {
+    void testGenericInterface() {
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType("org.mybatis.test.TestInterface");
         fqjt.addTypeArgument(new FullyQualifiedJavaType("T"));
         Interface ifc = new Interface(fqjt);

@@ -1,3 +1,18 @@
+/*
+ *    Copyright 2006-2021 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package org.mybatis.generator.internal.db;
 
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -22,15 +37,15 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class DatabaseIntrospector {
 
-    private DatabaseMetaData databaseMetaData;
+    private final DatabaseMetaData databaseMetaData;
 
-    private JavaTypeResolver javaTypeResolver;
+    private final JavaTypeResolver javaTypeResolver;
 
-    private List<String> warnings;
+    private final List<String> warnings;
 
-    private Context context;
+    private final Context context;
 
-    private Log logger;
+    private final Log logger;
 
     public DatabaseIntrospector(Context context,
                                 DatabaseMetaData databaseMetaData,
@@ -44,9 +59,9 @@ public class DatabaseIntrospector {
         logger = LogFactory.getLog(getClass());
     }
 
-
-    private void calculatePrimaryKey(FullyQualifiedTable table,IntrospectedTable introspectedTable) {
-        ResultSet rs = null;
+    private void calculatePrimaryKey(FullyQualifiedTable table,
+            IntrospectedTable introspectedTable) {
+        ResultSet rs;
 
         try {
             rs = databaseMetaData.getPrimaryKeys(
@@ -54,7 +69,6 @@ public class DatabaseIntrospector {
                             .getIntrospectedSchema(), table
                             .getIntrospectedTableName());
         } catch (SQLException e) {
-            closeResultSet(rs);
             warnings.add(getString("Warning.15")); //$NON-NLS-1$
             return;
         }
@@ -108,17 +122,17 @@ public class DatabaseIntrospector {
                     string, table.toString()));
         }
 
-        GeneratedKey generatedKey = tableConfiguration.getGeneratedKey();
-        if (generatedKey != null
-                && !introspectedTable.getColumn(generatedKey.getColumn()).isPresent()) {
-            if (generatedKey.isIdentity()) {
-                warnings.add(getString("Warning.5", //$NON-NLS-1$
-                        generatedKey.getColumn(), table.toString()));
-            } else {
-                warnings.add(getString("Warning.6", //$NON-NLS-1$
-                        generatedKey.getColumn(), table.toString()));
+        tableConfiguration.getGeneratedKey().ifPresent(generatedKey -> {
+            if (!introspectedTable.getColumn(generatedKey.getColumn()).isPresent()) {
+                if (generatedKey.isIdentity()) {
+                    warnings.add(getString("Warning.5", //$NON-NLS-1$
+                            generatedKey.getColumn(), table.toString()));
+                } else {
+                    warnings.add(getString("Warning.6", //$NON-NLS-1$
+                            generatedKey.getColumn(), table.toString()));
+                }
             }
-        }
+        });
 
         for (IntrospectedColumn ic : introspectedTable.getAllColumns()) {
             if (JavaReservedWords.containsWord(ic.getJavaProperty())) {
@@ -271,11 +285,7 @@ public class DatabaseIntrospector {
                             .calculateJdbcTypeName(introspectedColumn));
                 } else {
                     // type cannot be resolved. Check for ignored or overridden
-                    boolean warn = true;
-                    if (tc.isColumnIgnored(introspectedColumn
-                            .getActualColumnName())) {
-                        warn = false;
-                    }
+                    boolean warn = !tc.isColumnIgnored(introspectedColumn.getActualColumnName());
 
                     ColumnOverride co = tc.getColumnOverride(introspectedColumn
                             .getActualColumnName());
@@ -315,26 +325,21 @@ public class DatabaseIntrospector {
 
     private void calculateIdentityColumns(TableConfiguration tc,
                                           Map<ActualTableName, List<IntrospectedColumn>> columns) {
-        GeneratedKey gk = tc.getGeneratedKey();
-        if (gk == null) {
-            // no generated key, then no identity or sequence columns
-            return;
-        }
-
-        for (Map.Entry<ActualTableName, List<IntrospectedColumn>> entry : columns
-                .entrySet()) {
-            for (IntrospectedColumn introspectedColumn : entry.getValue()) {
-                if (isMatchedColumn(introspectedColumn, gk)) {
-                    if (gk.isIdentity() || gk.isJdbcStandard()) {
-                        introspectedColumn.setIdentity(true);
-                        introspectedColumn.setSequenceColumn(false);
-                    } else {
-                        introspectedColumn.setIdentity(false);
-                        introspectedColumn.setSequenceColumn(true);
+        tc.getGeneratedKey().ifPresent(gk -> {
+            for (Map.Entry<ActualTableName, List<IntrospectedColumn>> entry : columns.entrySet()) {
+                for (IntrospectedColumn introspectedColumn : entry.getValue()) {
+                    if (isMatchedColumn(introspectedColumn, gk)) {
+                        if (gk.isIdentity() || gk.isJdbcStandard()) {
+                            introspectedColumn.setIdentity(true);
+                            introspectedColumn.setSequenceColumn(false);
+                        } else {
+                            introspectedColumn.setIdentity(false);
+                            introspectedColumn.setSequenceColumn(true);
+                        }
                     }
                 }
             }
-        }
+        });
     }
 
     private boolean isMatchedColumn(IntrospectedColumn introspectedColumn, GeneratedKey gk) {
@@ -420,15 +425,13 @@ public class DatabaseIntrospector {
                     .toLowerCase();
             localSchema = tc.getSchema() == null ? null : tc.getSchema()
                     .toLowerCase();
-            localTableName = tc.getTableName() == null ? null : tc
-                    .getTableName().toLowerCase();
+            localTableName = tc.getTableName().toLowerCase();
         } else if (databaseMetaData.storesUpperCaseIdentifiers()) {
             localCatalog = tc.getCatalog() == null ? null : tc.getCatalog()
                     .toUpperCase();
             localSchema = tc.getSchema() == null ? null : tc.getSchema()
                     .toUpperCase();
-            localTableName = tc.getTableName() == null ? null : tc
-                    .getTableName().toUpperCase();
+            localTableName = tc.getTableName().toUpperCase();
         } else {
             localCatalog = tc.getCatalog();
             localSchema = tc.getSchema();
@@ -438,32 +441,11 @@ public class DatabaseIntrospector {
         if (tc.isWildcardEscapingEnabled()) {
             String escapeString = databaseMetaData.getSearchStringEscape();
 
-            StringBuilder sb = new StringBuilder();
-            StringTokenizer st;
             if (localSchema != null) {
-                st = new StringTokenizer(localSchema, "_%", true); //$NON-NLS-1$
-                while (st.hasMoreTokens()) {
-                    String token = st.nextToken();
-                    if (token.equals("_") //$NON-NLS-1$
-                            || token.equals("%")) { //$NON-NLS-1$
-                        sb.append(escapeString);
-                    }
-                    sb.append(token);
-                }
-                localSchema = sb.toString();
+                localSchema = escapeName(localSchema, escapeString);
             }
 
-            sb.setLength(0);
-            st = new StringTokenizer(localTableName, "_%", true); //$NON-NLS-1$
-            while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-                if (token.equals("_") //$NON-NLS-1$
-                        || token.equals("%")) { //$NON-NLS-1$
-                    sb.append(escapeString);
-                }
-                sb.append(token);
-            }
-            localTableName = sb.toString();
+            localTableName = escapeName(localTableName, escapeString);
         }
 
         Map<ActualTableName, List<IntrospectedColumn>> answer = new HashMap<>();
@@ -531,6 +513,7 @@ public class DatabaseIntrospector {
                     rs.getString("TABLE_NAME")); //$NON-NLS-1$
 
             List<IntrospectedColumn> columns = answer.computeIfAbsent(atn, k -> new ArrayList<>());
+
             columns.add(introspectedColumn);
 
             if (logger.isDebugEnabled()) {
@@ -568,6 +551,20 @@ public class DatabaseIntrospector {
         }
 
         return answer;
+    }
+
+    private String escapeName(String localName, String escapeString) {
+        StringTokenizer st = new StringTokenizer(localName, "_%", true); //$NON-NLS-1$
+        StringBuilder sb = new StringBuilder();
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.equals("_") //$NON-NLS-1$
+                    || token.equals("%")) { //$NON-NLS-1$
+                sb.append(escapeString);
+            }
+            sb.append(token);
+        }
+        return sb.toString();
     }
 
     private List<IntrospectedTable> calculateIntrospectedTables(

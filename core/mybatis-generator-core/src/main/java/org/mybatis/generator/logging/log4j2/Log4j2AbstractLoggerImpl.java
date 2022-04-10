@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class Log4j2AbstractLoggerImpl implements Log {
 
     private static final String FQCN = Log4j2Impl.class.getName();
 
-    private ExtendedLoggerWrapper log;
+    private final ExtendedLoggerWrapper log;
 
     public Log4j2AbstractLoggerImpl(AbstractLogger abstractLogger) {
         log = new ExtendedLoggerWrapper(abstractLogger, abstractLogger.getName(), abstractLogger.getMessageFactory());

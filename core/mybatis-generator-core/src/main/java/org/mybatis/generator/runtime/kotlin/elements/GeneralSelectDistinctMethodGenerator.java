@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
 public class GeneralSelectDistinctMethodGenerator extends AbstractKotlinFunctionGenerator {
-    private String mapperName;
-    
+    private final String mapperName;
+
     private GeneralSelectDistinctMethodGenerator(Builder builder) {
         super(builder);
         mapperName = builder.mapperName;
@@ -37,8 +37,8 @@ public class GeneralSelectDistinctMethodGenerator extends AbstractKotlinFunction
                 .withCodeLine("selectDistinct(this::selectMany, columnList, " + tableFieldName //$NON-NLS-1$
                         + ", completer)") //$NON-NLS-1$
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.*") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.*") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.SelectCompleter") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.selectDistinct") //$NON-NLS-1$
                 .build();
 
         addFunctionComment(functionAndImports);
@@ -51,20 +51,19 @@ public class GeneralSelectDistinctMethodGenerator extends AbstractKotlinFunction
                 introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, GeneralSelectDistinctMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private String mapperName;
-        
+
         public Builder withMapperName(String mapperName) {
             this.mapperName = mapperName;
             return this;
         }
-        
+
         @Override
         public Builder getThis() {
             return this;
         }
 
-        @Override
         public GeneralSelectDistinctMethodGenerator build() {
             return new GeneralSelectDistinctMethodGenerator(this);
         }

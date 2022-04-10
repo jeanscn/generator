@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.mybatis.generator.exception.ShellException;
 
 public class DefaultShellCallback implements ShellCallback {
 
-    private boolean overwrite;
+    private final boolean overwrite;
 
     public DefaultShellCallback(boolean overwrite) {
         super();
@@ -68,24 +68,7 @@ public class DefaultShellCallback implements ShellCallback {
     }
 
     @Override
-    public void refreshProject(String project) {
-        // nothing to do in the default shell callback
-    }
-
-    @Override
-    public boolean isMergeSupported() {
-        return false;
-    }
-
-    @Override
     public boolean isOverwriteEnabled() {
         return overwrite;
-    }
-
-    @Override
-    public String mergeJavaFile(String newFileSource,
-            File existingFile, String[] javadocTags, String fileEncoding)
-            throws ShellException {
-        throw new UnsupportedOperationException();
     }
 }

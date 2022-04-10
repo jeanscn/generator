@@ -1,3 +1,18 @@
+/*
+ *    Copyright 2006-2022 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.*;
@@ -33,13 +48,13 @@ public class Context extends PropertyHolder {
 
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
-    private ArrayList<TableConfiguration> tableConfigurations;
+    private final ArrayList<TableConfiguration> tableConfigurations;
 
-    private ModelType defaultModelType;
+    private final ModelType defaultModelType;
 
-    private String beginningDelimiter = "\"";
+    private String beginningDelimiter = "\""; //$NON-NLS-1$
 
-    private String endingDelimiter = "\"";
+    private String endingDelimiter = "\""; //$NON-NLS-1$
 
     private CommentGeneratorConfiguration commentGeneratorConfiguration;
 
@@ -47,7 +62,7 @@ public class Context extends PropertyHolder {
 
     private PluginAggregator pluginAggregator;
 
-    private List<PluginConfiguration> pluginConfigurations;
+    private final List<PluginConfiguration> pluginConfigurations;
 
     private String targetRuntime;
 
@@ -328,7 +343,7 @@ public class Context extends PropertyHolder {
     // 4. generateFiles()
     //
 
-    private List<IntrospectedTable> introspectedTables = new ArrayList<>();
+    private final List<IntrospectedTable> introspectedTables = new ArrayList<>();
 
     /**
      * This method could be useful for users that use the library for introspection only
@@ -442,6 +457,7 @@ public class Context extends PropertyHolder {
             List<GeneratedXmlFile> generatedXmlFiles,
             List<GeneratedHtmlFile> generatedHtmlFiles,
             List<GeneratedKotlinFile> generatedKotlinFiles,
+            List<GeneratedFile> otherGeneratedFiles,
             List<String> warnings)
             throws InterruptedException {
 
@@ -455,29 +471,67 @@ public class Context extends PropertyHolder {
             }
         }
 
+        // initialize everything first before generating. This allows plugins to know about other
+        // items in the configuration.
         for (IntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
-
             introspectedTable.initialize();
             introspectedTable.calculateGenerators(warnings, callback);
-            generatedJavaFiles.addAll(introspectedTable.getGeneratedJavaFiles());
-            generatedXmlFiles.addAll(introspectedTable.getGeneratedXmlFiles());
-            generatedHtmlFiles.addAll(introspectedTable.getGeneratedHtmlFiles());
-            generatedKotlinFiles.addAll(introspectedTable.getGeneratedKotlinFiles());
-
-            generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
-            generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
-            generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles(introspectedTable));
-            generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
         }
+
+        for (IntrospectedTable introspectedTable : introspectedTables) {
+            callback.checkCancel();
+            generatedJavaFiles.addAll(introspectedTable
+                    .getGeneratedJavaFiles());
+            generatedXmlFiles.addAll(introspectedTable
+                    .getGeneratedXmlFiles());
+            generatedKotlinFiles.addAll(introspectedTable
+                    .getGeneratedKotlinFiles());
+
+            generatedJavaFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalJavaFiles(introspectedTable));
+            generatedXmlFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalXmlFiles(introspectedTable));
+            generatedKotlinFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalKotlinFiles(introspectedTable));
+            otherGeneratedFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalFiles(introspectedTable));
+        }
+
+        generatedJavaFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalJavaFiles());
+        generatedXmlFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalXmlFiles());
+        generatedKotlinFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalKotlinFiles());
+        otherGeneratedFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalFiles());
+    }
 
         generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles());
         generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles());
         generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles());
         generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
+        generatedJavaFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalJavaFiles());
+        generatedXmlFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalXmlFiles());
+        generatedKotlinFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalKotlinFiles());
+        otherGeneratedFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalFiles());
     }
 
-    private Connection getConnection() throws SQLException {
+    /**
+     * This method creates a new JDBC connection from the values specified in the configuration file.
+     * If you call this method, then you are responsible
+     * for closing the connection (See {@link Context#closeConnection(Connection)}). If you do not
+     * close the connection, then there could be connection leaks.
+     *
+     * @return a new connection created from the values in the configuration file
+     * @throws SQLException if any error occurs while creating the connection
+     */
+    public Connection getConnection() throws SQLException {
         ConnectionFactory connectionFactory;
         if (jdbcConnectionConfiguration != null) {
             connectionFactory = new JDBCConnectionFactory(jdbcConnectionConfiguration);
@@ -490,7 +544,13 @@ public class Context extends PropertyHolder {
         return connectionFactory.getConnection();
     }
 
-    private void closeConnection(Connection connection) {
+    /**
+     * This method closes a JDBC connection and ignores any errors. If the passed connection is null,
+     * then the method does nothing.
+     *
+     * @param connection a JDBC connection to close, may be null
+     */
+    public void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
@@ -501,7 +561,8 @@ public class Context extends PropertyHolder {
     }
 
     public boolean autoDelimitKeywords() {
-        return autoDelimitKeywords != null && autoDelimitKeywords;
+        return autoDelimitKeywords != null
+                && autoDelimitKeywords;
     }
 
     public ConnectionFactoryConfiguration getConnectionFactoryConfiguration() {

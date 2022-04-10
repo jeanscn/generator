@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public enum DatabaseDialects {
     DB2_MF("SELECT IDENTITY_VAL_LOCAL() FROM SYSIBM.SYSDUMMY1"), //$NON-NLS-1$
     INFORMIX("select dbinfo('sqlca.sqlerrd1') from systables where tabid=1"); //$NON-NLS-1$
 
-    private String identityRetrievalStatement;
+    private final String identityRetrievalStatement;
 
     DatabaseDialects(String identityRetrievalStatement) {
         this.identityRetrievalStatement = identityRetrievalStatement;

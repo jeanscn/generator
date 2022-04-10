@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2018 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,16 +15,12 @@
  */
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.XmlElement;
-
-import java.util.Enumeration;
 import java.util.Properties;
 
 public abstract class PropertyHolder {
-    private Properties properties;
+    private final Properties properties;
 
-    public PropertyHolder() {
+    protected PropertyHolder() {
         super();
         properties = new Properties();
     }
@@ -39,18 +35,5 @@ public abstract class PropertyHolder {
 
     public Properties getProperties() {
         return properties;
-    }
-
-    protected void addPropertyXmlElements(XmlElement xmlElement) {
-        Enumeration<?> enumeration = properties.propertyNames();
-        while (enumeration.hasMoreElements()) {
-            String propertyName = (String) enumeration.nextElement();
-
-            XmlElement propertyElement = new XmlElement("property"); //$NON-NLS-1$
-            propertyElement.addAttribute(new Attribute("name", propertyName)); //$NON-NLS-1$
-            propertyElement.addAttribute(new Attribute(
-                    "value", properties.getProperty(propertyName))); //$NON-NLS-1$
-            xmlElement.addElement(propertyElement);
-        }
     }
 }

@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
 public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerator {
-    private String mapperName;
-    
+    private final String mapperName;
+
     private GeneralUpdateMethodGenerator(Builder builder) {
         super(builder);
         this.mapperName = builder.mapperName;
@@ -36,8 +36,8 @@ public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerato
                         .build())
                 .withCodeLine("update(this::update, " + tableFieldName + ", completer)") //$NON-NLS-1$ //$NON-NLS-2$
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.*") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.*") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.update") //$NON-NLS-1$
                 .build();
 
         addFunctionComment(functionAndImports);
@@ -49,20 +49,19 @@ public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerato
         return context.getPlugins().clientGeneralUpdateMethodGenerated(kotlinFunction, kotlinFile, introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, GeneralUpdateMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private String mapperName;
 
         public Builder withMapperName(String mapperName) {
             this.mapperName = mapperName;
             return this;
         }
-        
+
         @Override
         public Builder getThis() {
             return this;
         }
 
-        @Override
         public GeneralUpdateMethodGenerator build() {
             return new GeneralUpdateMethodGenerator(this);
         }

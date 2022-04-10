@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * This class contains a list of Java reserved words.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public class JavaReservedWords {
 
-    private static Set<String> reservedWords;
+    private static final Set<String> reservedWords;
 
     static {
         String[] words = { "abstract", //$NON-NLS-1$
@@ -83,9 +84,7 @@ public class JavaReservedWords {
 
         reservedWords = new HashSet<>(words.length);
 
-        for (String word : words) {
-            reservedWords.add(word);
-        }
+        reservedWords.addAll(Arrays.asList(words));
     }
 
     public static boolean containsWord(String word) {

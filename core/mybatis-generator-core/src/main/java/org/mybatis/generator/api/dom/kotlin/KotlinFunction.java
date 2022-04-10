@@ -1,5 +1,5 @@
-/**
- *    Copyright 2006-2019 the original author or authors.
+/*
+ *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class KotlinFunction extends KotlinNamedItem {
-    private List<KotlinArg> arguments = new ArrayList<>();
-    private List<String> codeLines = new ArrayList<>();
-    private String explicitReturnType;
-    private boolean isOneLineFunction;
+    private final List<KotlinArg> arguments = new ArrayList<>();
+    private final List<String> codeLines = new ArrayList<>();
+    private final String explicitReturnType;
+    private final boolean isOneLineFunction;
 
     private KotlinFunction(Builder builder) {
         super(builder);
@@ -75,9 +75,9 @@ public class KotlinFunction extends KotlinNamedItem {
     }
 
     public static class Builder extends AbstractBuilder<Builder> {
-        private boolean isOneLineFunction;
-        private List<KotlinArg> arguments = new ArrayList<>();
-        private List<String> codeLines = new ArrayList<>();
+        private final boolean isOneLineFunction;
+        private final List<KotlinArg> arguments = new ArrayList<>();
+        private final List<String> codeLines = new ArrayList<>();
         private String explicitReturnType;
 
         private Builder(String name, boolean isOneLineFunction) {

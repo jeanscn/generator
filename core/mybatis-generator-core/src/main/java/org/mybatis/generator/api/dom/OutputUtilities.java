@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2006-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ public class OutputUtilities {
     /**
      * Utility method that indents the buffer by the default amount for Java
      * (four spaces per indent level).
-     * 
+     *
      * @param sb
      *            a StringBuilder to append to
      * @param indentLevel
@@ -42,7 +42,7 @@ public class OutputUtilities {
     /**
      * Utility method that indents the buffer by the default amount for Kotlin
      * (four spaces per indent level).
-     * 
+     *
      * @param sb
      *            a StringBuilder to append to
      * @param indentLevel
@@ -55,7 +55,7 @@ public class OutputUtilities {
     /**
      * Utility method that indents the buffer by the default amount for XML (two
      * spaces per indent level).
-     * 
+     *
      * @param sb
      *            a StringBuilder to append to
      * @param indentLevel
@@ -63,7 +63,7 @@ public class OutputUtilities {
      */
     public static void xmlIndent(StringBuilder sb, int indentLevel) {
         for (int i = 0; i < indentLevel; i++) {
-            sb.append("    "); //$NON-NLS-1$
+            sb.append("  "); //$NON-NLS-1$
         }
     }
 }
