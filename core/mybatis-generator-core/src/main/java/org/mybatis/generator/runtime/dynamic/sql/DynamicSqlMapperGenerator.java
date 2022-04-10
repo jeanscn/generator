@@ -27,6 +27,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -450,6 +451,11 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
 
     @Override
     public AbstractXmlGenerator getMatchedXMLGenerator() {
+        return null;
+    }
+
+    @Override
+    public AbstractHtmlGenerator getMatchedHTMLGenerator() {
         return null;
     }
 }
