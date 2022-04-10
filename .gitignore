@@ -3,3 +3,8 @@
 /core/mybatis-generator-systests-domtests/target/
 /core/mybatis-generator-systests-mybatis3/target/
 /core/mybatis-generator-core/target/
+demo-mybatisplus/src/main/java/com/vgosoft/demomybatisplus/config/SwaggerGenerate.java
+demo-mybatisplus/src/main/java/com/vgosoft/demomybatisplus/DemoMybatisplusApplication.java
+demo-mybatisplus/src/main/resources/application.yml
+demo-mybatisplus/src/main/resources/generatorConfig.xml
+demo-mybatisplus/src/test/java/com/vgosoft/demomybatisplus/DemoMybatisplusApplicationTests.java
