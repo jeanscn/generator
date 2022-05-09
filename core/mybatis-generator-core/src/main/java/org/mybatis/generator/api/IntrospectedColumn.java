@@ -163,10 +163,8 @@ public class IntrospectedColumn {
     public boolean isBLOBColumn() {
         String typeName = getJdbcTypeName();
 
-        return "BINARY".equals(typeName) || "BLOB".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$
-                || "CLOB".equals(typeName) || "LONGNVARCHAR".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$
-                || "LONGVARBINARY".equals(typeName) || "LONGVARCHAR".equals(typeName) //$NON-NLS-1$ //$NON-NLS-2$
-                || "NCLOB".equals(typeName) || "VARBINARY".equals(typeName); //$NON-NLS-1$ //$NON-NLS-2$
+        return "BINARY".equals(typeName) || "BLOB".equals(typeName) || "CLOB".equals(typeName) || "LONGNVARCHAR".equals(typeName)
+                || "LONGVARBINARY".equals(typeName) || "NCLOB".equals(typeName) || "VARBINARY".equals(typeName);
     }
 
     public boolean isStringColumn() {
@@ -199,19 +197,16 @@ public class IntrospectedColumn {
 
     public boolean isJDBCDateColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType
-                .getDateInstance())
-                && "DATE".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
+                .getDateInstance()) && "DATE".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
     }
 
     public boolean isJDBCTimeColumn() {
-        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType
-                .getDateInstance())
+        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
                 && "TIME".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
     }
 
     public boolean isJDBCTimeStampColumn(){
-        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType
-                .getDateInstance())
+        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
                 && "TIMESTAMP".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
     }
 

@@ -119,7 +119,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
 
     private void addResultMapConstructorElements(XmlElement answer) {
         answer.addElement(buildConstructorElement(isSimple));
-        XmlElement constructor = new XmlElement("constructor"); //$NON-NLS-1$
+        /*XmlElement constructor = new XmlElement("constructor"); //$NON-NLS-1$
 
         for (IntrospectedColumn introspectedColumn : introspectedTable
                 .getPrimaryKeyColumns()) {
@@ -164,7 +164,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
             constructor.addElement(resultElement);
         }
 
-        answer.addElement(constructor);
+        answer.addElement(constructor);*/
     }
 
     private Attribute generateColumnAttribute(IntrospectedColumn introspectedColumn) {

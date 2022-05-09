@@ -51,12 +51,6 @@ public class PropertyRegistry {
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
     public static final String TABLE_DYNAMIC_SQL_SUPPORT_CLASS_NAME = "dynamicSqlSupportClassName"; //$NON-NLS-1$
     public static final String TABLE_DYNAMIC_SQL_TABLE_OBJECT_NAME = "dynamicSqlTableObjectName"; //$NON-NLS-1$
-    //定制属性
-    public static final String TABLE_VIEW_PATH = "viewPath";
-    public static final String TABLE_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
-    public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
-    public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
-
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$
     public static final String CONTEXT_AUTO_DELIMIT_KEYWORDS = "autoDelimitKeywords"; //$NON-NLS-1$
@@ -67,29 +61,46 @@ public class PropertyRegistry {
     public static final String CONTEXT_TARGET_JAVA8 = "targetJava8"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FORMATTER = "kotlinFormatter"; //$NON-NLS-1$
     public static final String CONTEXT_KOTLIN_FILE_ENCODING = "kotlinFileEncoding"; //$NON-NLS-1$
-
     public static final String CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE = "dynamicSqlSupportPackage"; //$NON-NLS-1$
-
     public static final String CLIENT_USE_LEGACY_BUILDER = "useLegacyBuilder"; //$NON-NLS-1$
-
     public static final String TYPE_RESOLVER_FORCE_BIG_DECIMALS = "forceBigDecimals"; //$NON-NLS-1$
     public static final String TYPE_RESOLVER_USE_JSR310_TYPES = "useJSR310Types"; //$NON-NLS-1$
-
     public static final String MODEL_GENERATOR_TRIM_STRINGS = "trimStrings"; //$NON-NLS-1$
     public static final String MODEL_GENERATOR_EXAMPLE_PACKAGE = "exampleTargetPackage"; //$NON-NLS-1$
     public static final String MODEL_GENERATOR_EXAMPLE_PROJECT = "exampleTargetProject"; //$NON-NLS-1$
-
     public static final String COMMENT_GENERATOR_SUPPRESS_DATE = "suppressDate"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS = "suppressAllComments"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_ADD_REMARK_COMMENTS = "addRemarkComments"; //$NON-NLS-1$
     public static final String COMMENT_GENERATOR_DATE_FORMAT = "dateFormat"; //$NON-NLS-1$
-    public static final String COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION =
-            "useLegacyGeneratedAnnotation"; //$NON-NLS-1$
-
+    public static final String COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION = "useLegacyGeneratedAnnotation"; //$NON-NLS-1$
     public static final String COLUMN_OVERRIDE_FORCE_JAVA_TYPE = "forceJavaTypeIntoMapping"; //$NON-NLS-1$
 
     //定制属性
     public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";
     public static final String CONTEXT_HTML_TARGET_PACKAGE = "htmlTargetPackage";
+    public static final String CONTEXT_HTML_UI_FRAME = "htmlUiFrame";
+    public static final String CONTEXT_HTML_BAR_POSITION = "htmlBarPosition";
+    public static final String CONTEXT_HTML_PAGE_COLUMNS_NUM = "htmlPageColumnsNum";
+    public static final String CONTEXT_HTML_LOADING_FRAME_TYPE = "htmlLoadingFrameType";
+
+    public static final String ANY_GENERATE = "generate";
+    public static final String ANY_TARGET_PROJECT = "targetProject";
+    public static final String ANY_TARGET_PACKAGE = "targetPackage";
+    public static final String ANY_TARGET_SUB_PACKAGE = "targetSubPackage";
+    public static final String ANY_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
+
     public static final String CONTROLLER_ENABLE_SYSLOG_ANNOTATION = "enableSysLogAnnotation";
+    public static final String ANY_NO_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
+    public static final String SERVICE_NO_SERVICE_ANNOTATION = "noServiceAnnotation";
+    public static final String ANY_NO_META_ANNOTATION = "noMetaAnnotation";
+
+    public static final String TABLE_VIEW_PATH = "viewPath";
+    public static final String TABLE_HTML_FIE_SUFFIX = "html";
+
+    public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
+    public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
+
+    public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
+
+
 }

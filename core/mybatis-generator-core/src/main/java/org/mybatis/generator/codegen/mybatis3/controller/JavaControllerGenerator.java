@@ -13,12 +13,12 @@ import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.ABSTRACT_BASE_CONTROLLER;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-public class JavaControllerGenerator  extends AbstractJavaGenerator {
+public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
-    private static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
 
     public JavaControllerGenerator(String project) {
         super(project);
@@ -29,7 +29,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
 
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.48", table.toString()));
-        Plugin plugins = context.getPlugins();
+
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
@@ -54,15 +54,9 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
         conTopClazz.addImportedType(supClazzType);
         conTopClazz.addImportedType("lombok.RequiredArgsConstructor");
         conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
-        conTopClazz.addImportedType("io.swagger.annotations.Api");
-        conTopClazz.addImportedType("io.swagger.annotations.ApiOperation");
         conTopClazz.addAnnotation("@RequiredArgsConstructor");
         conTopClazz.addAnnotation("@RestController");
 
-        sb.setLength(0);
-        sb.append("@Api(tags = \"");
-        sb.append(introspectedTable.getRemarks()).append("\")");
-        conTopClazz.addAnnotation(sb.toString());
         conTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
 
         FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
@@ -90,7 +84,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
-        if (plugins.ControllerGenerated(conTopClazz, introspectedTable)) {
+        if (context.getPlugins().ControllerGenerated(conTopClazz, introspectedTable)) {
             answer.add(conTopClazz);
         }
         return answer;

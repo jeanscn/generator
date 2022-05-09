@@ -1,5 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
@@ -15,14 +18,13 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType("com.vgosoft.core.adapter.ServiceResult");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimple");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
+        parentElement.addImportedType(SERVICE_RESULT);
+        parentElement.addImportedType(RESPONSE_SIMPLE);
+        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
         parentElement.addImportedType(entityType);
         parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
         parentElement.addImportedType("org.springframework.web.multipart.MultipartFile");
         parentElement.addImportedType("org.springframework.http.MediaType");
-        parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
         parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
         parentElement.addImportedType("org.springframework.util.Assert");
         parentElement.addImportedType("org.apache.commons.lang3.BooleanUtils");
@@ -44,17 +46,17 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(sb.toString());
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
         method.addBodyLine("try {");
-        method.addBodyLine("initBlobEntityFromMultipartFile(" + entityFirstLowerShortName + ",file);");
-        method.addBodyLine("int rows;");
-        method.addBodyLine("if (StringUtils.isNotBlank(" + entityFirstLowerShortName + ".getId())) {");
-        method.addBodyLine("rows = " + serviceBeanName + ".updateByPrimaryKey(" + entityFirstLowerShortName + ");");
+        method.addBodyLine(format("ServiceResult<{0}> serviceResult;",entityType.getShortName()));
+        method.addBodyLine(format("initBlobEntityFromMultipartFile({0},file);",entityFirstLowerShortName));
+        method.addBodyLine(format("if (StringUtils.isNotBlank({0}.getId())) '{'",entityFirstLowerShortName));
+        method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKey({1});",serviceBeanName,entityFirstLowerShortName));
         method.addBodyLine("} else {");
-        method.addBodyLine("rows = " + serviceBeanName + ".insert(" + entityFirstLowerShortName + ");");
+        method.addBodyLine(format("serviceResult = {0}.insert({1});",serviceBeanName,entityFirstLowerShortName));
         method.addBodyLine("}");
-        method.addBodyLine("if (rows < 1) {");
-        method.addBodyLine("responseSimple.setMessage(\"上传失败！\");");
+        method.addBodyLine("if (!serviceResult.isSuccess()) {");
+        method.addBodyLine("responseSimple.setStatus(1);");
+        method.addBodyLine("responseSimple.setMessage(serviceResult.getMessage());");
         method.addBodyLine(" } else {");
-        method.addBodyLine("responseSimple.addAttribute(\"rows\", String.valueOf(rows));");
         method.addBodyLine("responseSimple.addAttribute(\"id\"," + entityFirstLowerShortName + ".getId());");
         method.addBodyLine("responseSimple.setMessage(\"上传成功！\");");
         method.addBodyLine("}");

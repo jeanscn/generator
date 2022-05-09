@@ -5,6 +5,8 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
+
 public class UpdateElementGenerator extends AbstractControllerElementGenerator {
 
     public UpdateElementGenerator() {
@@ -13,9 +15,9 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType("com.vgosoft.core.adapter.ServiceResult");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimple");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
+        parentElement.addImportedType(SERVICE_RESULT);
+        parentElement.addImportedType(RESPONSE_SIMPLE);
+        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
         parentElement.addImportedType(entityType);
 
         final String methodPrefix = "update";

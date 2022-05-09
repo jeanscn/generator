@@ -439,11 +439,11 @@ public class MyBatisGenerator {
         File targetFile;
         String source;
         try {
-            File htmlDirector = new File(ghf.getTargetProject());
+            File htmlDirector = new File(ghf.getTargetProject()+File.separator+ghf.getTargetPackage());
             if (!htmlDirector.isDirectory()) {
                 final boolean mkDirs = htmlDirector.mkdirs();
                 if(!mkDirs){
-                    warnings.add(getString("Warning.3",ghf.getTargetProject()));
+                    warnings.add(getString("Warning.3",ghf.getTargetProject()+File.separator+ghf.getTargetPackage()));
                 }
             }
             File directory = shellCallback.getDirectory(ghf.getTargetProject(), ghf.getTargetPackage());

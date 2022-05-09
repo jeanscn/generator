@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE_IMPL;
+
 public class DeleteBatchElementGenerator extends AbstractControllerElementGenerator {
 
     public DeleteBatchElementGenerator() {
@@ -14,8 +17,8 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimple");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
+        parentElement.addImportedType(RESPONSE_SIMPLE);
+        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addImportedType(entityType);
         parentElement.addImportedType(exampleType);

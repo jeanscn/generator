@@ -13,16 +13,11 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class JavaServiceGenerator extends AbstractServiceGenerator {
 
-    //service接口父类
-    private static final String mBGServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGService";
-    private static final String mBGBlobServiceInterface = "com.vgosoft.mybatis.inf.IMybatisBGBlobService";
-    private static final String mBGBlobFileService = "com.vgosoft.mybatis.inf.IMybatisBGBlobFileService";
-    private static final String mBGBlobBytesService = "com.vgosoft.mybatis.inf.IMybatisBGBlobBytesService";
-    private static final String mBGBlobStringService = "com.vgosoft.mybatis.inf.IMybatisBGBlobStringService";
 
     public JavaServiceGenerator(String project) {
         super(project);
@@ -118,15 +113,15 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
             switch (steamOutType) {
                 case "bytes":
-                    return mBGBlobBytesService;
+                    return MBG_BLOB_BYTES_SERVICE;
                 case "file":
-                    return mBGBlobFileService;
+                    return MBG_BLOB_FILE_SERVICE;
                 case "string":
-                    return mBGBlobStringService;
+                    return MBG_BLOB_STRING_SERVICE;
             }
-            return mBGBlobServiceInterface;
+            return MBG_BLOB_SERVICE_INTERFACE;
         }
-        return mBGServiceInterface;
+        return MBG_SERVICE_INTERFACE;
     }
 
     private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType returnType, SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {

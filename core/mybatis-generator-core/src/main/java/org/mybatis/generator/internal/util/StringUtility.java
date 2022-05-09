@@ -153,8 +153,7 @@ public class StringUtility {
      * @return 字符串
      */
     public static String remarkLeft(String remark) {
-        return StringUtility.substringBefore(
-                StringUtility.substringBefore(remark, "("), "（");
+        return remark.split("[(（]")[0];
     }
 
     public static boolean isBlank(CharSequence cs) {

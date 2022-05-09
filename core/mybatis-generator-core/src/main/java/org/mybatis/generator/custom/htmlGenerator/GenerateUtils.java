@@ -23,6 +23,8 @@ import org.mybatis.generator.config.PropertyRegistry;
 
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
+
 /**
  *  工具类
  * @author <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
@@ -74,7 +76,7 @@ public class GenerateUtils {
         try {
             if (rootClass != null) {
                 Class<?> aClass = Class.forName(rootClass);
-                Class<?> pClass = Class.forName("com.vgosoft.core.entity.IWorkflowBaseEntity");
+                Class<?> pClass = Class.forName(I_WORK_FLOW_BASE_ENTITY);
                 return  ClassUtils.isAssignable(aClass,pClass);
             }
         } catch (ClassNotFoundException e) {
@@ -98,7 +100,7 @@ public class GenerateUtils {
         try {
             if (rootClass != null) {
                 Class<?> aClass = Class.forName(rootClass);
-                Class<?> pClass = Class.forName("com.vgosoft.core.entity.IPersistenceBlob");
+                Class<?> pClass = Class.forName(I_PERSISTENCE_BLOB);
                 return  ClassUtils.isAssignable(aClass,pClass);
             }
         } catch (ClassNotFoundException e) {
@@ -118,7 +120,7 @@ public class GenerateUtils {
         try {
             if (rootClass != null) {
                 Class<?> aClass = Class.forName(rootClass);
-                Class<?> pClass = Class.forName("com.vgosoft.core.entity.IBusinessEntity");
+                Class<?> pClass = Class.forName(I_BUSINESS_ENTITY);
                 return  ClassUtils.isAssignable(aClass,pClass);
             }
         } catch (ClassNotFoundException e) {
@@ -126,5 +128,9 @@ public class GenerateUtils {
             return false;
         }
         return false;
+    }
+
+    public static Boolean isLongVarchar(IntrospectedColumn introspectedColumn){
+        return introspectedColumn.getJdbcType()==-1 || introspectedColumn.getJdbcType()==-16;
     }
 }

@@ -111,8 +111,7 @@
         <!ELEMENT javaModelGenerator (property*)>
         <!ATTLIST javaModelGenerator
                 targetPackage CDATA #REQUIRED
-                targetProject CDATA #REQUIRED
-                noMetaAnnotation (false|true) #IMPLIED>
+                targetProject CDATA #REQUIRED>
 
         <!--
           The javaTypeResolver element is used to define properties of the Java Type Resolver.
@@ -267,7 +266,7 @@
           5、sortColumn 结果培训语句 如：SORT_ desc
           6、returnType 返回（泛型参数）类型（primaryKey或model,默认model）
         -->
-        <!ELEMENT selectByTable (property*)>
+        <!ELEMENT selectByTable EMPTY>
         <!ATTLIST selectByTable
                 table CDATA #REQUIRED
                 thisColumn CDATA #REQUIRED
@@ -285,7 +284,7 @@
           2、orderByClause 排序语句
           3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
         -->
-        <!ELEMENT selectByColumn (property*)>
+        <!ELEMENT selectByColumn EMPTY>
         <!ATTLIST selectByColumn
                 column CDATA #REQUIRED
                 orderByClause CDATA #IMPLIED
@@ -302,7 +301,7 @@
         3、whereColumn 条件字段列名
         4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByPrimaryKey或也可以返回单个实体的查询方法）
     -->
-        <!ELEMENT javaModelAssociation (property*)>
+        <!ELEMENT javaModelAssociation EMPTY>
         <!ATTLIST javaModelAssociation
                 fieldName CDATA #REQUIRED
                 modelType CDATA #REQUIRED
@@ -322,7 +321,7 @@
             3、whereColumn 条件字段列名
             4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
         -->
-        <!ELEMENT javaModelCollection (property*)>
+        <!ELEMENT javaModelCollection EMPTY>
         <!ATTLIST javaModelCollection
                 fieldName CDATA #REQUIRED
                 modelType CDATA #REQUIRED

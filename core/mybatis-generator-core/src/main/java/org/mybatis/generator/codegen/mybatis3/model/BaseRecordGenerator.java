@@ -89,15 +89,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     Plugin.ModelClassType.BASE_RECORD)) {
                 topLevelClass.addField(field);
                 topLevelClass.addImportedType(field.getType());
-                //添加日期序列化格式注解
-                if (introspectedColumn.isJDBCDateColumn()) {
-                    field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"yyyy-MM-dd\")");
-                    topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
-                }
-                if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn()) {
-                    field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"yyyy-MM-dd HH:mm:ss\")");
-                    topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
-                }
             }
 
             Method method = getJavaBeansGetter(introspectedColumn, context, introspectedTable);

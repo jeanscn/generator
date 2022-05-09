@@ -15,21 +15,6 @@
  */
 package org.mybatis.generator.config.xml;
 
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.XMLParserException;
@@ -187,10 +172,24 @@ public class ConfigurationParser {
         List<Context> contexts = config.getContexts();
         for (Context context : contexts) {
             context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+
             //添加generator plugin
-            PluginConfiguration pluginConfiguration = new PluginConfiguration();
-            pluginConfiguration.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
-            context.addPluginConfiguration(pluginConfiguration);
+            PluginConfiguration javaClientGeneratePlugins = new PluginConfiguration();
+            javaClientGeneratePlugins.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
+            context.addPluginConfiguration(javaClientGeneratePlugins);
+            PluginConfiguration fieldJsonFormatPlugin = new PluginConfiguration();
+            fieldJsonFormatPlugin.setConfigurationType("org.mybatis.generator.plugins.FieldJsonFormatPlugin");
+            context.addPluginConfiguration(fieldJsonFormatPlugin);
+            PluginConfiguration serializablePlugin = new PluginConfiguration();
+            serializablePlugin.setConfigurationType("org.mybatis.generator.plugins.SerializablePlugin");
+            serializablePlugin.addProperty("suppressJavaInterface", "false");
+            context.addPluginConfiguration(serializablePlugin);
+            PluginConfiguration swaggerApiPlugin = new PluginConfiguration();
+            swaggerApiPlugin.setConfigurationType("org.mybatis.generator.plugins.SwaggerApiPlugin");
+            context.addPluginConfiguration(swaggerApiPlugin);
+            PluginConfiguration tableMetaAnnotationPlugin = new PluginConfiguration();
+            tableMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.TableMetaAnnotationPlugin");
+            context.addPluginConfiguration(tableMetaAnnotationPlugin);
 
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())
@@ -221,21 +220,21 @@ public class ConfigurationParser {
             //generator Model 配置
             JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = Optional.ofNullable(context.getJavaModelGeneratorConfiguration())
                     .orElseGet(JavaModelGeneratorConfiguration::new);
+            Properties properties = javaModelGeneratorConfiguration.getProperties();
             javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
-            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "false");
+            if (!properties.containsKey(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS)) {
+                properties.put(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
+            }
+            if (!properties.containsKey(PropertyRegistry.ANY_CONSTRUCTOR_BASED)) {
+                properties.put(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "false");
+            }
             String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
-            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
+            if (!properties.containsKey(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE)) {
+                properties.put(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
+            }else{
+                properties.put(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + "."+properties.get(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE));
+            }
             context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
-/*
-            //生成html配置
-            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration =context.getHtmlMapGeneratorConfiguration()==null?new HtmlMapGeneratorConfiguration(context):context.getHtmlMapGeneratorConfiguration();
-            htmlMapGeneratorConfiguration.setTargetProject(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
-                    .orElse("src/main/resources/templates"));
-            String modelPackage = javaModelGeneratorConfiguration.getTargetPackage();
-            String p = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(modelPackage, "."), ".");
-            htmlMapGeneratorConfiguration.setTargetPackage(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
-                    .orElse(p));
-            context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);*/
         }
     }
 }

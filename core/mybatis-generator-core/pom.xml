@@ -179,8 +179,8 @@
   <dependencies>
     <dependency>
       <groupId>com.vgosoft</groupId>
-      <artifactId>vgosoft-web2</artifactId>
-      <version>3.8.2-SNAPSHOT</version>
+      <artifactId>vgosoft-mybatis</artifactId>
+      <version>3.9.1-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
     <dependency>

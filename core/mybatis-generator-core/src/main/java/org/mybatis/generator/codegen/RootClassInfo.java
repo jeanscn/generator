@@ -94,8 +94,7 @@ public class RootClassInfo {
 
         boolean found = false;
         String propertyName = introspectedColumn.getJavaProperty();
-        String propertyType = introspectedColumn.getFullyQualifiedJavaType()
-                .getFullyQualifiedName();
+        String propertyType = introspectedColumn.getFullyQualifiedJavaType().getFullyQualifiedName();
 
         // get method names from class and check against this column definition.
         // better yet, have a map of method Names. check against it.

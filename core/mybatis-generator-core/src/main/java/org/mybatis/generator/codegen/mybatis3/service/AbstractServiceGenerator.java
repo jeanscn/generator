@@ -8,9 +8,10 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+
 public abstract class AbstractServiceGenerator extends AbstractJavaGenerator {
 
-    protected final static String SERVICE_RESULT="com.vgosoft.core.adapter.ServiceResult";
 
     public AbstractServiceGenerator(String project) {
         super(project);

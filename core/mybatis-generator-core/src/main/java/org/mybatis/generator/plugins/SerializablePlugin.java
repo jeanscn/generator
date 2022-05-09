@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinType;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 /**
  * This plugin adds the java.io.Serializable marker interface to all generated
@@ -86,27 +87,25 @@ public class SerializablePlugin extends PluginAdapter {
         return true;
     }
 
-    protected void makeSerializable(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+    protected void makeSerializable(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
         if (addGWTInterface) {
             topLevelClass.addImportedType(gwtSerializable);
             topLevelClass.addSuperInterface(gwtSerializable);
         }
 
         if (!suppressJavaInterface) {
-            topLevelClass.addImportedType(serializable);
-            topLevelClass.addSuperInterface(serializable);
-
-            Field field = new Field("serialVersionUID", //$NON-NLS-1$
-                    new FullyQualifiedJavaType("long")); //$NON-NLS-1$
+            if (!JavaBeansUtil.isAssignableCurrent(serializable.getFullyQualifiedName(),topLevelClass,introspectedTable)) {
+                topLevelClass.addSuperInterface(serializable);
+                topLevelClass.addImportedType(serializable);
+            }
+            Field field = new Field("serialVersionUID",new FullyQualifiedJavaType("long"));
             field.setFinal(true);
             field.setInitializationString("1L"); //$NON-NLS-1$
             field.setStatic(true);
             field.setVisibility(JavaVisibility.PRIVATE);
 
             if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
-                context.getCommentGenerator().addFieldAnnotation(field, introspectedTable,
-                        topLevelClass.getImportedTypes());
+                context.getCommentGenerator().addFieldAnnotation(field, introspectedTable,topLevelClass.getImportedTypes());
             } else {
                 context.getCommentGenerator().addFieldComment(field, introspectedTable);
             }

@@ -10,9 +10,11 @@ import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
+
 public abstract class AbstractControllerElementGenerator  extends AbstractGenerator {
 
-    private static final String RESPONSE_SIMPLE = "com.vgosoft.web.respone.ResponseSimple";
+
 
     protected FullyQualifiedJavaType entityType;
 
@@ -114,10 +116,10 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                     sb.append("执行操作！");
                 }
                 method.addAnnotation("@SystemLog(value=\""+ sb +"\")");
-                parentElement.addImportedType("com.vgosoft.core.annotation.SystemLog");
+                parentElement.addImportedType(ANNOTATION_SYSTEM_LOG);
                 //增加事务
                 method.addAnnotation("@Transactional");
-                parentElement.addImportedType("org.springframework.transaction.annotation.Transactional");
+                parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
 
             }
         }

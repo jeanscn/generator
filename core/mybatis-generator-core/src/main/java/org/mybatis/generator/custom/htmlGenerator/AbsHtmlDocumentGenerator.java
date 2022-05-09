@@ -157,10 +157,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     protected void addLocalStaticResource(HtmlElement head) {
-        String p = htmlMapGeneratorConfiguration.getTargetPackage();
-        if (p.lastIndexOf(".") > 0) {
-            p = p.substring(0, p.lastIndexOf("."));
-        }
+        String p = introspectedTable.getControllerSimplePackage();
         addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
         addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(p, p));
     }

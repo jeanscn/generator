@@ -1,5 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
@@ -15,9 +18,9 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType("com.vgosoft.core.adapter.ServiceResult");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimple");
-        parentElement.addImportedType("com.vgosoft.web.respone.ResponseSimpleImpl");
+        parentElement.addImportedType(SERVICE_RESULT);
+        parentElement.addImportedType(RESPONSE_SIMPLE);
+        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
         parentElement.addImportedType(entityType);
         parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
         parentElement.addImportedType("org.springframework.web.multipart.MultipartFile");
@@ -46,14 +49,11 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addAnnotation(sb.toString());
         method.addBodyLine("try {");
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");
-        sb.setLength(0);
-        sb.append(entityType.getShortName()).append(" ");
-        sb.append(entityFirstLowerShortName).append("=");
-        sb.append(this.serviceBeanName).append(".selectByPrimaryKey(id);");
-        method.addBodyLine(sb.toString());
-        method.addBodyLine(String.format("Assert.notNull(%s, \"获取文件失败！\");", entityFirstLowerShortName));
-        method.addBodyLine(String.format("byte[] bytes = %s.getBytes();", entityFirstLowerShortName));
-        method.addBodyLine(String.format("String fileName = %s.getName() == null ? id : %s.getName();", entityFirstLowerShortName, entityFirstLowerShortName));
+        method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));
+        method.addBodyLine(format("{0} {1} = serviceResult.getResult();", entityType.getShortName(),entityFirstLowerShortName));
+        method.addBodyLine(format("Assert.notNull({0}, \"获取文件失败！\");", entityFirstLowerShortName));
+        method.addBodyLine(format("byte[] bytes = {0}.getBytes();", entityFirstLowerShortName));
+        method.addBodyLine(format("String fileName = {0}.getName() == null ? id : {1}.getName();", entityFirstLowerShortName, entityFirstLowerShortName));
         method.addBodyLine("setResponseContent(fileName, response, bytes, BooleanUtils.toBoolean(type));");
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("response.setStatus(404);");

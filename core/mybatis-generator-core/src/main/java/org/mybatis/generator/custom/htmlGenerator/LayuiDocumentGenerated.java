@@ -84,7 +84,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement head = generateHtmlHead();
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiRequired");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiForm");
-        long count = introspectedTable.getBaseColumns().stream().filter(c -> c.getLength() > 1500).count();
+        long count = introspectedTable.getBaseColumns().stream().filter(GenerateUtils::isLongVarchar).count();
         if (count > 0) {
             addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::neditorRequired");
         }
@@ -142,7 +142,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     if (rowIntrospectedColumns.size() == 1 && rowIntrospectedColumns.get(0).getLength() > 255) {
                         td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
                     }
-                    if (introspectedColumn.getLength() > 1500) {
+                    if (GenerateUtils.isLongVarchar(introspectedColumn)) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, block);
                     } else {
@@ -173,7 +173,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     drawLabel(introspectedColumn, formItem);
                     //input
                     HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block");
-                    if (introspectedColumn.getLength() > 1500) {
+                    if (GenerateUtils.isLongVarchar(introspectedColumn)) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
                     } else {

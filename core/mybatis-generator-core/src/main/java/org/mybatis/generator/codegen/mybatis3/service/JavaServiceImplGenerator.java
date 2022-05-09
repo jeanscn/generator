@@ -15,23 +15,11 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
-    //service实现抽象父类
-    private static final String abstractMBGServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGService";
-    private static final String abstractMBGBlobServiceInterface = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBaseService";
-    private static final String abstractMBGBlobFileService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobFileService";
-    private static final String abstractMBGBlobBytesService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBytesService";
-    private static final String abstractMBGBlobStringService = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobStringService";
-    private static final String abstractServiceBusiness = "com.vgosoft.mybatis.abs.AbstractMybatisServiceBusiness";
-    private static final String abstractBlobFileServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobFileServiceBusiness";
-    private static final String abstractBlobBytesServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
-    private static final String abstractBlobStringServiceBusiness = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
-
-    private static final String serviceAnnotation = "org.springframework.stereotype.Service";
-    public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.enums.ServiceCodeEnum";
 
     public JavaServiceImplGenerator(String project) {
         super(project);
@@ -49,7 +37,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
 
 
-        FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(serviceAnnotation);
+        FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(ANNOTATION_SERVICE);
         FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType, introspectedTable);
         String interfaceClassShortName = getInterfaceClassShortName(introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration().getTargetPackage(), entityType.getShortName());
 
@@ -215,26 +203,26 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             if (GenerateUtils.isBusinessInstance(introspectedTable)) {
                 switch (steamOutType) {
                     case "bytes":
-                        return abstractBlobBytesServiceBusiness;
+                        return ABSTRACT_BLOB_BYTES_SERVICE_BUSINESS;
                     case "file":
-                        return abstractBlobFileServiceBusiness;
+                        return ABSTRACT_BLOB_FILE_SERVICE_BUSINESS;
                     case "string":
-                        return abstractBlobStringServiceBusiness;
+                        return ABSTRACT_BLOB_STRING_SERVICE_BUSINESS;
                 }
-                return abstractServiceBusiness;
+                return ABSTRACT_SERVICE_BUSINESS;
             } else {
                 switch (steamOutType) {
                     case "bytes":
-                        return abstractMBGBlobBytesService;
+                        return ABSTRACT_MBG_BLOB_BYTES_SERVICE;
                     case "file":
-                        return abstractMBGBlobFileService;
+                        return ABSTRACT_MBG_BLOB_FILE_SERVICE;
                     case "string":
-                        return abstractMBGBlobStringService;
+                        return ABSTRACT_MBG_BLOB_STRING_SERVICE;
                 }
-                return abstractMBGBlobServiceInterface;
+                return ABSTRACT_MBG_BLOB_SERVICE_INTERFACE;
             }
         }
-        return abstractMBGServiceInterface;
+        return ABSTRACT_MBG_SERVICE_INTERFACE;
     }
 
     private void addJavaMapper(IntrospectedTable introspectedTable, TopLevelClass bizClazzImpl) {

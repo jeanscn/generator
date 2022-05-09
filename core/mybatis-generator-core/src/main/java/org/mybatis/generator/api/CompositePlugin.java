@@ -1005,7 +1005,7 @@ public abstract class CompositePlugin implements Plugin {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -1472,9 +1472,7 @@ public abstract class CompositePlugin implements Plugin {
                 return false;
             }
         }
-
         return true;
-
     }
 
     @Override
@@ -1485,8 +1483,36 @@ public abstract class CompositePlugin implements Plugin {
                 return false;
             }
         }
-
         return true;
+    }
 
+    @Override
+    public boolean serviceGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.serviceGenerated(interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean serviceImplGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.serviceImplGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean ControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.ControllerGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

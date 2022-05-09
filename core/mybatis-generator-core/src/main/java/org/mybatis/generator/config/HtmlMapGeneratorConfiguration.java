@@ -27,10 +27,6 @@ public class HtmlMapGeneratorConfiguration extends AbstractGeneratorConfiguratio
 
     private String htmlFileName;
 
-    private String targetProject = "src/main/resources/templates";
-
-    private String targetPackage;
-
     //指定页面打开方式：pop-小弹窗，inner-页面嵌入，full-全屏弹窗，默认full
     private String loadingFrameType;
 
@@ -48,18 +44,12 @@ public class HtmlMapGeneratorConfiguration extends AbstractGeneratorConfiguratio
 
     private List<HtmlElementDescriptor> elementDescriptors;
 
-    public HtmlMapGeneratorConfiguration(Context context) {
+    public HtmlMapGeneratorConfiguration(Context context,TableConfiguration tc) {
         super();
-        targetPackage = context.getProperty("htmlTargetPackage");
-        targetProject = StringUtility.stringHasValue(context.getProperty("htmlTargetProject"))?context.getProperty("htmlTargetProject"):"src/main/resources/templates";
-        baseTargetPackage = "";
-        loadingFrameType = StringUtility.stringHasValue(context.getProperty("htmlLoadingFrameType"))?context.getProperty("htmlLoadingFrameType"):"full";
-        uiFrameType = StringUtility.stringHasValue(context.getProperty("htmlUiFrame"))?context.getProperty("htmlUiFrame"):"layui";
-        pageColumnsNum = StringUtility.stringHasValue(context.getProperty("htmlPageColumnsNum"))?Integer.parseInt(context.getProperty("htmlPageColumnsNum")):2;
-        barPosition = StringUtility.stringHasValue(context.getProperty("htmlBarPosition"))?context.getProperty("htmlBarPosition"):"bottom";
         hiddenColumns = new ArrayList<>();
         elementRequired = new ArrayList<>();
         elementDescriptors = new ArrayList<>();
+        targetProject = "src/main/resources/templates";
     }
 
     @Override

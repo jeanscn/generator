@@ -22,10 +22,12 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
+import org.mybatis.generator.custom.ConstantsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.I_SORTABLE_ENTITY;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -107,7 +109,7 @@ public class SimpleModelGenerator extends AbstractJavaGenerator {
         String rootClass = getRootClass();
         if (rootClass != null) {
             superClass = new FullyQualifiedJavaType(rootClass);
-            boolean assignable = isAssignable(iSortableEntity, rootClass,introspectedTable);
+            boolean assignable = isAssignable(I_SORTABLE_ENTITY, rootClass,introspectedTable);
             if (assignable) {
                 superClass.addTypeArgument(new FullyQualifiedJavaType(introspectedTable.getBaseRecordType()));
             }

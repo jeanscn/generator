@@ -7,10 +7,11 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolder{
 
+    protected boolean generate;
     protected String targetPackage;
     protected String targetProject;
-    protected boolean generate;
     protected String baseTargetPackage;
+    protected String subTargetPackage;
 
     public AbstractGeneratorConfiguration() {
         super();
@@ -39,6 +40,14 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
 
     public void setGenerate(boolean generate) {
         this.generate = generate;
+    }
+
+    public String getSubTargetPackage() {
+        return subTargetPackage;
+    }
+
+    public void setSubTargetPackage(String subTargetPackage) {
+        this.subTargetPackage = subTargetPackage;
     }
 
     public String getBaseTargetPackage() {

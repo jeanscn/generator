@@ -172,9 +172,7 @@ public class ObjectFactory {
 
             answer = clazz.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(getString(
-                    "RuntimeError.6", type), e); //$NON-NLS-1$
-
+            throw new RuntimeException(getString("RuntimeError.6", type), e); //$NON-NLS-1$
         }
 
         return answer;

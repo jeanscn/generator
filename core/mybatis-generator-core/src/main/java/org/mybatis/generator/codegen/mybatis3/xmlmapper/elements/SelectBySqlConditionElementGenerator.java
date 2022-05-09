@@ -7,9 +7,10 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import static org.mybatis.generator.custom.ConstantsUtil.COM_SEL_SQL_PARAMETER;
+
 public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGenerator{
 
-    private static final String comSelSqlParameter = "com.vgosoft.core.entity.ComSelSqlParameter";
 
     private final boolean isSub;
 
@@ -22,7 +23,7 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
     public void addElements(XmlElement parentElement) {
         StringBuilder sb = new StringBuilder();
         //追加selectBySqlCondition or selectBySqlConditionSub方法
-        FullyQualifiedJavaType sqlParam = new FullyQualifiedJavaType(comSelSqlParameter);
+        FullyQualifiedJavaType sqlParam = new FullyQualifiedJavaType(COM_SEL_SQL_PARAMETER);
         XmlElement selectBySqlCondition = new XmlElement("select");
         if (isSub) {
             selectBySqlCondition.addAttribute(new Attribute("id", "selectBySqlConditionSub"));

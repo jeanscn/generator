@@ -26,8 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import static org.mybatis.generator.internal.util.StringUtility.*;
 
 /**
  * Base class for all code generator implementations. This class provides many
@@ -481,12 +480,10 @@ public abstract class IntrospectedTable {
 
     protected void calculateControllerAttributes(){
         //base Package
-        String htmlTargetPackage = getConfigPropertyValue(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE);
-        if (htmlTargetPackage == null || "".equals(htmlTargetPackage)) {
-            String modelTargetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
-            htmlTargetPackage = StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTargetPackage,"."),".");
-        }
-        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, htmlTargetPackage);
+        String htmlBaseTargetPackage = Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
+                .orElse(substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), "."))
+                .toLowerCase();
+        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, htmlBaseTargetPackage);
         if (fullyQualifiedTable.getDomainObjectName() != null) {
             String entityName = JavaBeansUtil.getFirstCharacterLowercase(fullyQualifiedTable.getDomainObjectName());
             String beanName = entityName+"Impl";
@@ -495,30 +492,13 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateHtmlAttributes() {
-
-        for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : tableConfiguration.getHtmlMapGeneratorConfigurations()) {
-            //附加全局配置隐藏
-            String hiddenColumns = context.getProperty(PropertyRegistry.TABLE_HTML_HIDDEN_COLUMNS);
-            if (stringHasValue(hiddenColumns)) {
-                List<String> collect = Arrays.stream(hiddenColumns.split(",")).map(String::toUpperCase).collect(Collectors.toList());
-                htmlMapGeneratorConfiguration.getHiddenColumns().addAll(collect);
-            }
-            htmlMapGeneratorConfiguration.setHtmlFileName(htmlMapGeneratorConfiguration.getViewPath()+".html");
+        //重新计算不为空字段，根据数据库字段不为空属性，追加数据库表不允许空的字段
+        final List<IntrospectedColumn> noNullableColumns = this.getAllColumns().stream().filter(c -> !c.isNullable()).collect(Collectors.toList());
+        if (noNullableColumns.size()>0) {
+            List<String> noNullableColumnNames = noNullableColumns.stream().map(c -> c.getActualColumnName().toUpperCase()).collect(Collectors.toList());
+            this.getTableConfiguration().getHtmlMapGeneratorConfigurations()
+                    .forEach(htmlConfiguration-> htmlConfiguration.getElementRequired().addAll(noNullableColumnNames));
         }
-
-        //重新计算不为空字段，追加数据库表不允许空的字段
-        if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
-            for (IntrospectedColumn column : this.getAllColumns()) {
-                if (!column.isNullable()) {
-                    for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : this.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
-                        if (!htmlMapGeneratorConfiguration.getElementRequired().contains(column.actualColumnName)) {
-                            htmlMapGeneratorConfiguration.getElementRequired().add(column.actualColumnName);
-                        }
-                    }
-                }
-            }
-        }
-
     }
 
     protected void calculateXmlAttributes() {
@@ -680,8 +660,7 @@ public abstract class IntrospectedTable {
     }
 
     public String getControllerSimplePackage() {
-        return internalAttributes
-                .get(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING);
+        return internalAttributes.get(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING);
     }
 
     public String getBlobColumnListId() {
@@ -831,9 +810,9 @@ public abstract class IntrospectedTable {
             return null;
         }
 
-        String packkage = config.getProperty(PropertyRegistry.CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE);
-        if (stringHasValue(packkage)) {
-            return packkage + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+        String cds_package = config.getProperty(PropertyRegistry.CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE);
+        if (stringHasValue(cds_package)) {
+            return cds_package + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
         } else {
             return calculateJavaClientInterfacePackage();
         }
@@ -905,29 +884,29 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateModelAttributes() {
-        String pakkage = calculateJavaModelPackage();
+        String jm_package = calculateJavaModelPackage();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(pakkage);
+        sb.append(jm_package);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         sb.append("Key"); //$NON-NLS-1$
         setPrimaryKeyType(sb.toString());
 
         sb.setLength(0);
-        sb.append(pakkage);
+        sb.append(jm_package);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         setBaseRecordType(sb.toString());
 
         sb.setLength(0);
-        sb.append(pakkage);
+        sb.append(jm_package);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         setKotlinRecordType(sb.toString());
 
         sb.setLength(0);
-        sb.append(pakkage);
+        sb.append(jm_package);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         sb.append("WithBLOBs"); //$NON-NLS-1$
@@ -1309,8 +1288,6 @@ public abstract class IntrospectedTable {
                 return StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."),".");
             case PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE:
                 return "bytes";
-            case PropertyRegistry.TABLE_VIEW_PATH:
-                return this.getTableConfiguration().getTableName().toLowerCase();
             default:
                 return null;
         }

@@ -16,12 +16,14 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.*;
+import org.mybatis.generator.custom.db.ValidateDatabaseTables;
 import org.mybatis.generator.internal.JDBCConnectionFactory;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.PluginAggregator;
 import org.mybatis.generator.internal.db.DatabaseIntrospector;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +41,6 @@ public class Context extends PropertyHolder {
     private ConnectionFactoryConfiguration connectionFactoryConfiguration;
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
-
-    private HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
 
     private JavaTypeResolverConfiguration javaTypeResolverConfiguration;
 
@@ -117,12 +117,7 @@ public class Context extends PropertyHolder {
         return sqlMapGeneratorConfiguration;
     }
 
-    public HtmlMapGeneratorConfiguration getHtmlMapGeneratorConfiguration() {
-        return htmlMapGeneratorConfiguration;
-    }
-
-    public void addPluginConfiguration(
-            PluginConfiguration pluginConfiguration) {
+    public void addPluginConfiguration(PluginConfiguration pluginConfiguration) {
         pluginConfigurations.add(pluginConfiguration);
     }
 
@@ -221,11 +216,6 @@ public class Context extends PropertyHolder {
     public void setSqlMapGeneratorConfiguration(
             SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration) {
         this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
-    }
-
-    public void setHtmlMapGeneratorConfiguration(
-            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
-        this.htmlMapGeneratorConfiguration = htmlMapGeneratorConfiguration;
     }
 
     public ModelType getDefaultModelType() {
@@ -391,13 +381,11 @@ public class Context extends PropertyHolder {
      * @throws InterruptedException
      *             if the progress callback reports a cancel
      */
-    public void introspectTables(ProgressCallback callback,
-            List<String> warnings, Set<String> fullyQualifiedTableNames)
+    public void introspectTables(ProgressCallback callback,List<String> warnings, Set<String> fullyQualifiedTableNames)
             throws SQLException, InterruptedException {
 
         introspectedTables.clear();
-        JavaTypeResolver javaTypeResolver = ObjectFactory
-                .createJavaTypeResolver(this, warnings);
+        JavaTypeResolver javaTypeResolver = ObjectFactory.createJavaTypeResolver(this, warnings);
 
         Connection connection = null;
 
@@ -409,8 +397,7 @@ public class Context extends PropertyHolder {
                     this, connection.getMetaData(), javaTypeResolver, warnings);
 
             for (TableConfiguration tc : tableConfigurations) {
-                String tableName = composeFullyQualifiedTableName(tc.getCatalog(), tc
-                                .getSchema(), tc.getTableName(), '.');
+                String tableName = composeFullyQualifiedTableName(tc.getCatalog(), tc.getSchema(), tc.getTableName(), '.');
 
                 if (fullyQualifiedTableNames != null
                         && !fullyQualifiedTableNames.isEmpty()
@@ -424,13 +411,13 @@ public class Context extends PropertyHolder {
                 }
 
                 callback.startTask(getString("Progress.1", tableName)); //$NON-NLS-1$
-                List<IntrospectedTable> tables = databaseIntrospector
-                        .introspectTables(tc);
+                List<IntrospectedTable> tables = databaseIntrospector.introspectTables(tc);
 
                 if (tables != null) {
                     introspectedTables.addAll(tables);
                 }
-
+                ValidateDatabaseTables validateDatabaseTables = new ValidateDatabaseTables(tables, connection,warnings);
+                validateDatabaseTables.executeUpdate();
                 callback.checkCancel();
             }
         } finally {
@@ -576,5 +563,18 @@ public class Context extends PropertyHolder {
 
     public void setSqlServe(boolean sqlServe) {
         isSqlServe = sqlServe;
+    }
+
+    public boolean getAnyPropertyBoolean(String propertyName,String defaultVale,PropertyHolder...propertyHolder){
+        return Boolean.parseBoolean(getAnyPropertyValue(propertyName,defaultVale,propertyHolder));
+    }
+
+    public String getAnyPropertyValue(String propertyName,String defaultVale,PropertyHolder...propertyHolder){
+        for (PropertyHolder holder : propertyHolder) {
+            if (holder.getProperties().containsKey(propertyName)) {
+                return holder.getProperty(propertyName);
+            }
+        }
+        return defaultVale;
     }
 }

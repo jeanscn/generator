@@ -25,8 +25,6 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodN
 
 public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
-    protected static final String iSortableEntity = "com.vgosoft.core.entity.ISortableEntity";
-
     public abstract List<CompilationUnit> getCompilationUnits();
 
     private final String project;
