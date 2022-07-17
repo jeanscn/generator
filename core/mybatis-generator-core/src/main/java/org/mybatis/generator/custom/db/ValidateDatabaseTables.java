@@ -212,6 +212,8 @@ public class ValidateDatabaseTables {
         introspectedColumn.setGeneratedColumn(false);
         introspectedColumn.setGeneratedAlways(false);
 
+        introspectedColumn.setPosition(columnMeta.position());
+
         return introspectedColumn;
     }
 
@@ -225,9 +227,15 @@ public class ValidateDatabaseTables {
             String sqlTableName = StringUtility.composeFullyQualifiedTableName(tc.getCatalog(), tc.getSchema(), tc.getTableName(), '.');
             if (addMap.containsKey(tc.getTableName()) || updMap.containsKey(tc.getTableName())) {
                 if (addMap.containsKey(tc.getTableName())) {
-                    sb.append(getColumnSql(addMap.get(tc.getTableName()), "ADD"));
+                    List<IntrospectedColumn> introspectedColumns = addMap.get(tc.getTableName());
+                    String collect = introspectedColumns.stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+                    warnings.add(VStringUtil.format("需要添加的字段：{0}->{1}",tc.getTableName(),collect));
+                    sb.append(getColumnSql(introspectedColumns, "ADD"));
                 }
                 if (updMap.containsKey(tc.getTableName())) {
+                    List<IntrospectedColumn> introspectedColumns = updMap.get(tc.getTableName());
+                    String collect = introspectedColumns.stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+                    warnings.add(VStringUtil.format("需要更新的字段：{0}->{1}",tc.getTableName(),collect));
                     if (sb.length()>0) {
                         sb.append(",\n");
                     }
@@ -246,6 +254,7 @@ public class ValidateDatabaseTables {
                         .filter(t -> !pkColumnName.contains(t))
                         .collect(Collectors.toList());
                 if (collect.size()>0) {
+                    warnings.add(VStringUtil.format("需要设置为主键的字段：{0}->{1}", tc.getTableName(),String.join(",", collect)));
                     if (sb.length()>0) sb.append(",\n");
                     sb.append("ADD PRIMARY KEY (");
                     for (int i = 0; i < collect.size(); i++) {
@@ -276,9 +285,19 @@ public class ValidateDatabaseTables {
             sb_length.setLength(0);
             not_null.setLength(0);
             //长度
-            sb_length.append(col.getLength());
-            if (col.getScale()>0) {
-                sb_length.append(",").append(col.getScale());
+            if (JDBCType.DATE.getVendorTypeNumber() != col.getJdbcType()) {
+                sb_length.append("(");
+                if (JDBCType.TIMESTAMP.getVendorTypeNumber()==col.getJdbcType()) {
+                    sb_length.append("0");
+                }else{
+                    sb_length.append(col.getLength());
+                }
+                if (col.getScale()>0) {
+                    sb_length.append(",").append(col.getScale());
+                }
+                sb_length.append(") ");
+            }else{
+                sb_length.append(" ");
             }
             //不允许空
             if (!col.isNullable() || stringHasValue(col.getDefaultValue())) {
@@ -300,6 +319,7 @@ public class ValidateDatabaseTables {
             DatabaseDDLDialects databaseDialect = DatabaseDDLDialects.getDatabaseDialect(this.databaseProductName);
             String COLUMN_STATEMENT = databaseDialect.getColumnModifyStatement();
             String character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
+            String position = stringHasValue(col.getPosition())?" "+col.getPosition():"";
             String onAddRow = VStringUtil.format(COLUMN_STATEMENT,
                     actionKey,
                     col.getActualColumnName(),
@@ -308,7 +328,7 @@ public class ValidateDatabaseTables {
                     character,
                     not_null.toString(),
                     col.getRemarks(),
-                    "");
+                    position);
             if (sb.length()>0) {
                 sb.append(",").append("\n");
             }

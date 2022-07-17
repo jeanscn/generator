@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.util;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -200,6 +201,23 @@ public class StringUtility {
 
     public static boolean propertyValueValid(String value){
         return StringUtility.stringHasValue(value) && !"_".equals(value);
+    }
+
+    public static String packageToDir(String targetPackage){
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(targetPackage, ".");
+        while (st.hasMoreTokens()) {
+            sb.append(st.nextToken());
+            sb.append(File.separatorChar);
+        }
+        return sb.toString();
+    }
+
+    public static String getTargetProject(String targetProject){
+        if (targetProject.toUpperCase().contains("$PROJECT_DIR$")) {
+            targetProject =  targetProject.replace("$PROJECT_DIR$", StringUtility.substringBeforeLast(System.getProperty("user.dir"),"\\"));
+        }
+        return targetProject;
     }
 
 }

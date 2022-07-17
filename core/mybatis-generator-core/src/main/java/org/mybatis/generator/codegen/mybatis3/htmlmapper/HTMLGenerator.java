@@ -22,19 +22,19 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-public class HTMLMapperGenerator extends AbstractHtmlGenerator {
+public class HTMLGenerator extends AbstractHtmlGenerator {
 
-    public HTMLMapperGenerator() {
+    public HTMLGenerator() {
         super();
     }
 
-    protected HtmlElement getHtmlMapElement() {
+    protected HtmlElement getHtmlMapElement(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString("Progress.121", table.toString())); //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.121", table.toString(), htmlGeneratorConfiguration.getHtmlFileName())); //$NON-NLS-1$
         HtmlElement answer = new HtmlElement("html"); //$NON-NLS-1$
         answer.addAttribute(new Attribute("xmlns:th",HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_TH));
         answer.addAttribute(new Attribute("xmlns:sec",HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_SEC));
@@ -53,13 +53,13 @@ public class HTMLMapperGenerator extends AbstractHtmlGenerator {
     }
 
     @Override
-    public Document getDocument(HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+    public Document getDocument(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         Document document = new Document(
                 HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_TH,
                 HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_SEC);
-        document.setRootElement(getHtmlMapElement());
+        document.setRootElement(getHtmlMapElement(htmlGeneratorConfiguration));
 
-        if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable,htmlMapGeneratorConfiguration)) {
+        if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable, htmlGeneratorConfiguration)) {
             document = null;
         }
         return document;

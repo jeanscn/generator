@@ -1,9 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -35,7 +37,9 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("setExceptionResponse(responseSimple, insert.getException());");
         method.addBodyLine("}else{");
         method.addBodyLine("responseSimple.addAttribute(\"id\", insert.getResult().getId());");
-        method.addBodyLine("responseSimple.addAttribute(\"version\", insert.getResult().getVersion());");
+        if (JavaBeansUtil.isAssignable("com.vgosoft.core.entity.IPersistenceLock",entityType.getFullyQualifiedName(), introspectedTable)) {
+            method.addBodyLine("responseSimple.addAttribute(\"version\", insert.getResult().getVersion());");
+        }
         method.addBodyLine("}");
         method.addBodyLine("return responseSimple;");
 

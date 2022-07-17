@@ -20,16 +20,16 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GenerateHtmlFiles {
 
-    private AbstractHtmlGenerator htmlMapperGenerator;
-    private Context context;
-    private IntrospectedTable introspectedTable;
+    private final AbstractHtmlGenerator htmlMapperGenerator;
+    private final Context context;
+    private final IntrospectedTable introspectedTable;
 
     public GenerateHtmlFiles(Context context,IntrospectedTable introspectedTable,AbstractHtmlGenerator htmlMapperGenerator) {
        this.context = context;
@@ -38,17 +38,17 @@ public class GenerateHtmlFiles {
     }
     public List<GeneratedHtmlFile> getGeneratedHtmlFiles(){
         List<GeneratedHtmlFile> answer = new ArrayList<>();
-        for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
-            if (htmlMapGeneratorConfiguration.isGenerate()) {
-                String targetProject = htmlMapGeneratorConfiguration.getTargetProject();
-                Document document = htmlMapperGenerator.getDocument(htmlMapGeneratorConfiguration);
+        for (HtmlGeneratorConfiguration htmlGeneratorConfiguration : introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
+            if (htmlGeneratorConfiguration.isGenerate()) {
+                String targetProject = htmlGeneratorConfiguration.getTargetProject();
+                Document document = htmlMapperGenerator.getDocument(htmlGeneratorConfiguration);
                 GeneratedHtmlFile ghf = new GeneratedHtmlFile(document,
-                        htmlMapGeneratorConfiguration.getHtmlFileName(),
-                        htmlMapGeneratorConfiguration.getTargetPackage(),
+                        htmlGeneratorConfiguration.getHtmlFileName(),
+                        htmlGeneratorConfiguration.getTargetPackage(),
                         targetProject,
                         false,
                         context.getHtmlFormatter());
-                if (context.getPlugins().htmlMapGenerated(ghf, introspectedTable,htmlMapGeneratorConfiguration)) {
+                if (context.getPlugins().htmlMapGenerated(ghf, introspectedTable, htmlGeneratorConfiguration)) {
                     answer.add(ghf);
                 }
             }

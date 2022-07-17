@@ -28,6 +28,7 @@ import java.util.Properties;
  * @author Jeff Butler
  */
 public class IntrospectedColumn {
+
     protected String actualColumnName;
 
     protected int jdbcType;
@@ -89,6 +90,13 @@ public class IntrospectedColumn {
      * Constructs a Column definition. This object holds all the information
      * about a column that is required to generate Java objects and SQL maps;
      */
+
+    /**
+     * 额外增加：位置标识
+     * 列在表格中的位置，在创建或编辑列时使用
+     * */
+    protected String position;
+
     public IntrospectedColumn() {
         super();
         properties = new Properties();
@@ -344,5 +352,26 @@ public class IntrospectedColumn {
 
     public void setActualTypeName(String actualTypeName) {
         this.actualTypeName = actualTypeName;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getDatePattern(){
+        switch (jdbcTypeName.toUpperCase()){
+            case "DATE":
+                return "yyyy-MM-dd";
+            case "TIME":
+                return "HH:mm:ss";
+            case "TIMESTAMP":
+                return "yyyy-MM-dd HH:mm:ss.SSS";
+            default:
+                return "";
+        }
     }
 }

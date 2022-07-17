@@ -35,7 +35,7 @@ public class DocumentRenderer {
         return Stream.of("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
     }
 
-    private Stream<String> renderDocType(Document document) {
+    private Stream<String>   renderDocType(Document document) {
         return Stream.of("<!DOCTYPE " //$NON-NLS-1$
                 + document.getRootElement().getName()
                 + ">"); //$NON-NLS-1$

@@ -23,9 +23,14 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     private boolean noSwaggerAnnotation;
 
+    private boolean generateUnitTest;
+
+    private String springBootApplicationClass;
+
     public JavaControllerGeneratorConfiguration(Context context) {
         super();
         noSwaggerAnnotation = false;
+        generateUnitTest = true;
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
         targetPackage = String.join(".", baseTargetPackage,"controller");
@@ -37,6 +42,22 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     public void setNoSwaggerAnnotation(boolean noSwaggerAnnotation) {
         this.noSwaggerAnnotation = noSwaggerAnnotation;
+    }
+
+    public boolean isGenerateUnitTest() {
+        return generateUnitTest;
+    }
+
+    public void setGenerateUnitTest(boolean generateUnitTest) {
+        this.generateUnitTest = generateUnitTest;
+    }
+
+    public String getSpringBootApplicationClass() {
+        return springBootApplicationClass;
+    }
+
+    public void setSpringBootApplicationClass(String springBootApplicationClass) {
+        this.springBootApplicationClass = springBootApplicationClass;
     }
 
     @Override

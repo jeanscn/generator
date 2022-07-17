@@ -18,6 +18,7 @@ package org.mybatis.generator.config.xml;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.XMLParserException;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
@@ -172,6 +173,10 @@ public class ConfigurationParser {
         List<Context> contexts = config.getContexts();
         for (Context context : contexts) {
             context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+            String mybatisPlus = context.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
+            if (!StringUtility.stringHasValue(mybatisPlus)) {
+                context.addProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS, "true");
+            }
 
             //添加generator plugin
             PluginConfiguration javaClientGeneratePlugins = new PluginConfiguration();
@@ -190,6 +195,9 @@ public class ConfigurationParser {
             PluginConfiguration tableMetaAnnotationPlugin = new PluginConfiguration();
             tableMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.TableMetaAnnotationPlugin");
             context.addPluginConfiguration(tableMetaAnnotationPlugin);
+            PluginConfiguration mybatisPlusAnnotationPlugin = new PluginConfiguration();
+            mybatisPlusAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.MybatisPlusAnnotationPlugin");
+            context.addPluginConfiguration(mybatisPlusAnnotationPlugin);
 
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())

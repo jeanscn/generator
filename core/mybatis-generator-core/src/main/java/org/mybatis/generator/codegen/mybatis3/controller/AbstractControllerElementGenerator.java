@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
@@ -30,7 +30,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected Parameter entityParameter;
 
-    protected HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
+    protected HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
     protected FullyQualifiedJavaType responseSimple;
 
@@ -47,7 +47,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         serviceBeanName = introspectedTable.getControllerBeanName();
         entityNameKey = GenerateUtils.isWorkflowInstance(introspectedTable)?"business":"entity";
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
-            htmlMapGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
+            htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
         }
         entityParameter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         responseSimple = new FullyQualifiedJavaType(RESPONSE_SIMPLE);

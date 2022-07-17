@@ -2,11 +2,10 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 
@@ -91,8 +90,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
     }
 
     private void addViewElement(TopLevelClass parentElement) {
-        List<HtmlMapGeneratorConfiguration> htmlMapGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
-        if (htmlMapGeneratorConfigurations.size()>0 && stringHasValue(htmlMapGeneratorConfigurations.get(0).getViewPath())) {
+        List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+        if (htmlGeneratorConfigurations.size()>0 && stringHasValue(htmlGeneratorConfigurations.get(0).getViewPath())) {
             AbstractControllerElementGenerator elementGenerator = new ViewElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

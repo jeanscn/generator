@@ -5,7 +5,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
@@ -27,17 +27,17 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     protected final String btn_close_id = "btn_close";
     protected final String btn_reset_id = "btn_reset";
     protected final String input_subject_id = "subject";
-    protected final HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
+    protected final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
-    public AbsHtmlDocumentGenerator(Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+    public AbsHtmlDocumentGenerator(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.document = document;
         this.introspectedTable = introspectedTable;
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        this.htmlMapGeneratorConfiguration = htmlMapGeneratorConfiguration;
+        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
 
     public int getPageColumnsConfig() {
-        int c = htmlMapGeneratorConfiguration.getPageColumnsNum();
+        int c = htmlGeneratorConfiguration.getPageColumnsNum();
         if (c > 12) {
             c = 12;
         } else if (c <= 0) {
@@ -51,7 +51,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public String getHtmlBarPositionConfig() {
-        return htmlMapGeneratorConfiguration.getBarPosition();
+        return htmlGeneratorConfiguration.getBarPosition();
     }
 
     public abstract boolean htmlMapDocumentGenerated();
@@ -95,7 +95,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         HtmlElement out = addDivWithClassToParent(body, "container");
         answer.put("body", body);
         answer.put("out", out);
-        switch (htmlMapGeneratorConfiguration.getLoadingFrameType()) {
+        switch (htmlGeneratorConfiguration.getLoadingFrameType()) {
             case "pop":
                 addClassNameToElement(out, "popContainer");
                 body.addAttribute(new Attribute("style", "background-color: #FFFFFF;"));
@@ -164,7 +164,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     //TODO 计划第一次生成js文件，并初始化
     protected boolean isEntityTypeJsFileExist() {
-        String filePath = GenerateUtils.getLocalJsFilePath(htmlMapGeneratorConfiguration.getTargetProject(), getEntityType().getShortName().toLowerCase());
+        String filePath = GenerateUtils.getLocalJsFilePath(htmlGeneratorConfiguration.getTargetProject(), getEntityType().getShortName().toLowerCase());
 
         return false;
     }

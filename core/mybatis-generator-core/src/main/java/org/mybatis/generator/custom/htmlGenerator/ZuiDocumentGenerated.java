@@ -7,7 +7,7 @@ import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.HtmlConstants;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +36,8 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private HtmlElement content;
 
-    public ZuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
-        super(document, introspectedTable,htmlMapGeneratorConfiguration);
+    public ZuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(document, introspectedTable, htmlGeneratorConfiguration);
         this.introspectedTable = introspectedTable;
         this.document = document;
         this.rootElement = document.getRootElement();
@@ -73,7 +73,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         for (IntrospectedColumn baseColumn : columns) {
-            if (GenerateUtils.isHiddenColumn(baseColumn,htmlMapGeneratorConfiguration)) {
+            if (GenerateUtils.isHiddenColumn(baseColumn, htmlGeneratorConfiguration)) {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);

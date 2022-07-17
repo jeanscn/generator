@@ -2,24 +2,31 @@ package org.mybatis.generator.custom.db;
 
 public enum DatabaseDDLDialects {
 
-    DB2(""),
-    MYSQL("{0} COLUMN `{1}` {2}({3}){4}{5}COMMENT ''{6}''{7}"),
-    SQLSERVER(""),
-    CLOUDSCAPE(""),
-    DERBY(""),
-    HSQLDB(""),
-    SYBASE(""),
-    DB2_MF(""),
-    INFORMIX("");
+    DB2("",""),
+    MYSQL("{0} COLUMN `{1}` {2}{3}{4}{5}COMMENT ''{6}''{7}","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''"),
+    SQLSERVER("",""),
+    CLOUDSCAPE("",""),
+    DERBY("",""),
+    HSQLDB("",""),
+    SYBASE("",""),
+    DB2_MF("",""),
+    H2("","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''"),
+    INFORMIX("","");
 
     private final String columnModifyStatement;
+    private final String createStatement;
 
-    DatabaseDDLDialects(String columnModifyStatement) {
+    DatabaseDDLDialects(String columnModifyStatement,String createStatement) {
         this.columnModifyStatement = columnModifyStatement;
+        this.createStatement = createStatement;
     }
 
     public String getColumnModifyStatement() {
         return columnModifyStatement;
+    }
+
+    public String getCreateStatement() {
+        return createStatement;
     }
 
     /**
@@ -51,6 +58,8 @@ public enum DatabaseDDLDialects {
             returnValue = DB2_MF;
         } else if ("Informix".equalsIgnoreCase(database)) {
             returnValue = INFORMIX;
+        } else if("H2".equalsIgnoreCase(database)) {
+            returnValue = H2;
         }
         return returnValue;
     }

@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -78,6 +79,10 @@ public class Method extends JavaElement {
 
     public void addBodyLine(String line) {
         bodyLines.add(line);
+    }
+
+    public void addBodyLine(String pattern, Object ... arguments){
+        addBodyLine(MessageFormat.format(pattern, arguments));
     }
 
     public void addBodyLine(int index, String line) {

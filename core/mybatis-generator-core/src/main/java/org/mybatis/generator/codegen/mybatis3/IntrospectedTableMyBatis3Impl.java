@@ -22,7 +22,7 @@ import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
 import org.mybatis.generator.codegen.mybatis3.controller.JavaControllerGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateHtmlFiles;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLMapperGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.AnnotatedClientGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.JavaMapperGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.MixedClientGenerator;
@@ -32,12 +32,21 @@ import org.mybatis.generator.codegen.mybatis3.model.PrimaryKeyGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.RecordWithBLOBsGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
+import org.mybatis.generator.codegen.mybatis3.unittest.JavaControllerUnitTestGenerator;
+import org.mybatis.generator.codegen.mybatis3.unittest.JavaServiceUnitTestGenerator;
+import org.mybatis.generator.codegen.mybatis3.vo.ViewObjectClassGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
+import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
+import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,7 +62,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
     protected AbstractXmlGenerator xmlMapperGenerator;
 
-    protected AbstractHtmlGenerator htmlMapperGenerator;
+    protected AbstractHtmlGenerator htmlGenerator;
 
     public IntrospectedTableMyBatis3Impl() {
         super(TargetRuntime.MYBATIS3);
@@ -86,11 +95,10 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 progressCallback);
         }
 
-    protected void calculateHtmlMapperGenerator(List<String> warnings,
-                                               ProgressCallback progressCallback) {
+    protected void calculateHtmlMapperGenerator(List<String> warnings,ProgressCallback progressCallback) {
         if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
-            htmlMapperGenerator = new HTMLMapperGenerator();
-            initializeAbstractGenerator(htmlMapperGenerator, warnings,progressCallback);
+            htmlGenerator = new HTMLGenerator();
+            initializeAbstractGenerator(htmlGenerator, warnings,progressCallback);
         }
     }
 
@@ -116,8 +124,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             return null;
         }
 
-        String type = context.getJavaClientGeneratorConfiguration()
-                .getConfigurationType();
+        String type = context.getJavaClientGeneratorConfiguration().getConfigurationType();
 
         AbstractJavaClientGenerator javaGenerator;
         if ("XMLMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
@@ -135,8 +142,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         return javaGenerator;
     }
 
-    protected void calculateJavaModelGenerators(List<String> warnings,
-            ProgressCallback progressCallback) {
+    protected void calculateJavaModelGenerators(List<String> warnings,ProgressCallback progressCallback) {
         if (getRules().generateExampleClass()) {
             AbstractJavaGenerator javaGenerator = new ExampleGenerator(getExampleProject());
             initializeAbstractGenerator(javaGenerator, warnings, progressCallback);
@@ -168,12 +174,40 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             JavaServiceImplGenerator javaServiceImplGenerator = new JavaServiceImplGenerator(getServiceProject());
             initializeAbstractGenerator(javaServiceImplGenerator, warnings,progressCallback);
             javaGenerators.add(javaServiceImplGenerator);
+
+            if (getRules().isGenerateServiceUnitTest()) {
+                JavaServiceUnitTestGenerator javaServiceUnitTestGenerator = new JavaServiceUnitTestGenerator("src/test/java");
+                initializeAbstractGenerator(javaServiceUnitTestGenerator, warnings,progressCallback);
+                javaGenerators.add(javaServiceUnitTestGenerator);
+            }
+            if (getRules().isGenerateBaseVO()) {
+                ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
+                initializeAbstractGenerator(viewObjectClassGenerator, warnings,progressCallback);
+                javaGenerators.add(viewObjectClassGenerator);
+            }
         }
         if (getRules().generateController()) {
-            JavaControllerGenerator javaControllerGenerator = new JavaControllerGenerator(getClientProject());
+            JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = this.getTableConfiguration().getJavaControllerGeneratorConfiguration();
+            String project = StringUtility.stringHasValue(javaControllerGeneratorConfiguration.getTargetProject())?
+                    javaControllerGeneratorConfiguration.getTargetProject():getClientProject();
+            project = StringUtility.getTargetProject(project);
+            JavaControllerGenerator javaControllerGenerator = new JavaControllerGenerator(project);
             initializeAbstractGenerator(javaControllerGenerator, warnings,progressCallback);
             javaGenerators.add(javaControllerGenerator);
+
+            if (getRules().isGenerateControllerUnitTest()) {
+                String targetProject = "src/test/java";
+                String property = this.getContext().getProperty(PropertyRegistry.CONTEXT_ROOT_MODULE_NAME);
+                if (StringUtility.stringHasValue(property)) {
+                    String tmpStr = StringUtility.getTargetProject("$PROJECT_DIR$\\"+property);
+                   targetProject = tmpStr+"\\"+targetProject;
+                }
+                JavaControllerUnitTestGenerator javaControllerUnitTestGenerator = new JavaControllerUnitTestGenerator(targetProject);
+                initializeAbstractGenerator(javaControllerUnitTestGenerator, warnings,progressCallback);
+                javaGenerators.add(javaControllerUnitTestGenerator);
+            }
         }
+
     }
 
     protected void initializeAbstractGenerator(AbstractGenerator abstractGenerator, List<String> warnings,
@@ -269,9 +303,36 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
     @Override
     public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
-        GenerateHtmlFiles generateHtmlFiles = new GenerateHtmlFiles(context,this,htmlMapperGenerator);
+        GenerateHtmlFiles generateHtmlFiles = new GenerateHtmlFiles(context,this, htmlGenerator);
         return generateHtmlFiles.getGeneratedHtmlFiles();
     }
+
+    @Override
+    public List<GeneratedSqlSchemaFile> getGeneratedSqlSchemaFiles() {
+        List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
+        SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration = this.getTableConfiguration().getSqlSchemaGeneratorConfiguration();
+        if (sqlSchemaGeneratorConfiguration == null) {
+            sqlSchemaGeneratorConfiguration = new SqlSchemaGeneratorConfiguration(this.context,this.tableConfiguration);
+            sqlSchemaGeneratorConfiguration.setGenerate(true);
+        }
+        if (sqlSchemaGeneratorConfiguration.isGenerate()) {
+            String fileName = this.getTableConfiguration().getTableName().toLowerCase();
+            if (StringUtility.stringHasValue(sqlSchemaGeneratorConfiguration.getFilePrefix())) {
+                fileName = sqlSchemaGeneratorConfiguration.getFilePrefix()+fileName;
+            }
+            List<String> dbType = Arrays.asList("h2", "mysql");
+            for (String type : dbType) {
+                GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName+".sql",
+                        type,
+                        sqlSchemaGeneratorConfiguration.getTargetProject(),
+                        this,
+                        new SqlScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect(type.toUpperCase())));
+                answer.add(generatedSqlSchemaFile);
+            }
+        }
+        return answer;
+    }
+
 
     @Override
     public int getGenerationSteps() {

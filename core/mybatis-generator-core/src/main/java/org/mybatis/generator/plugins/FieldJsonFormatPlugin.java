@@ -5,6 +5,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
@@ -25,20 +26,14 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         //添加日期序列化格式注解
-        try {
-            if (introspectedColumn.isJDBCDateColumn()) {
-                field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"yyyy-MM-dd\")");
-                topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
-            }
-            if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn()) {
-                field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"yyyy-MM-dd HH:mm:ss\")");
-                topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        String datePattern = introspectedColumn.getDatePattern();
+        if (StringUtility.stringHasValue(datePattern)) {
+            topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
+            field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\""+datePattern+"\")");
+            topLevelClass.addImportedType("com.alibaba.fastjson.annotation.JSONField");
+            field.addAnnotation("@JSONField(format=\""+datePattern+"\")");
         }
+        return true;
     }
 
 }

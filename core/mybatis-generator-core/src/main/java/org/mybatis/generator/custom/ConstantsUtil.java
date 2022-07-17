@@ -1,5 +1,9 @@
 package org.mybatis.generator.custom;
 
+import com.vgosoft.mybatis.abs.AbstractMybatisBGService;
+
+import java.util.EnumSet;
+
 /**
  * 集中管理常量，如引用的类路径等
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -40,10 +44,10 @@ public class ConstantsUtil {
     public static final String ABSTRACT_BLOB_STRING_SERVICE_BUSINESS =  "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
 
     //对象类
-    public static final String RESPONSE_SIMPLE =        "com.vgosoft.web.respone.ResponseSimple";
-    public static final String RESPONSE_SIMPLE_IMPL =   "com.vgosoft.web.respone.ResponseSimpleImpl";
-    public static final String RESPONSE_LIST =          "com.vgosoft.web.respone.ResponseList";
-    public static final String RESPONSE_SIMPLE_LIST =   "com.vgosoft.web.respone.ResponseSimpleList";
+    public static final String RESPONSE_SIMPLE =        "com.vgosoft.core.adapter.web.respone.ResponseSimple";
+    public static final String RESPONSE_SIMPLE_IMPL =   "com.vgosoft.core.adapter.web.respone.ResponseSimpleImpl";
+    public static final String RESPONSE_LIST =          "com.vgosoft.core.adapter.web.respone.ResponseList";
+    public static final String RESPONSE_SIMPLE_LIST =   "com.vgosoft.core.adapter.web.respone.ResponseSimpleList";
     public final static String SERVICE_RESULT=          "com.vgosoft.core.adapter.ServiceResult";
 
    //枚举
@@ -67,4 +71,43 @@ public class ConstantsUtil {
     //属性名
     public static final String PROP_NAME_REST_BASE_PATH =   "restBasePath";
     public static final String PROP_NAME_VIEW_PATH =        "viewPath";
+
+    //参数名称
+    public static final String PARAM_NAME_PERSISTENCE_STATUS = "persistenceStatus";
+
+    //测试类名
+    public static final String TEST_ABSTRACT_MYBATIS_BG_SERVICE_TEST = "com.vgosoft.test.abs.service.AbstractMybatisBGServiceTest";
+
+    public static final String TEST_MOCKITO_WHEN = "org.mockito.Mockito.when";
+    public static final String TEST_ASSERTIONS_ASSERT_THAT = "org.assertj.core.api.Assertions.assertThat";
+
+    public static String getTestClass(String superClass){
+        TestClassMap testClassMap = TestClassMap.ofSuperClass(superClass);
+        if (testClassMap != null) {
+            return testClassMap.testClass;
+        }
+        return null;
+    }
+
+    enum TestClassMap{
+
+        AbstractMybatisBGService(ABSTRACT_MBG_SERVICE_INTERFACE,TEST_ABSTRACT_MYBATIS_BG_SERVICE_TEST);
+
+        private final String superClass;
+        private final String testClass;
+
+        TestClassMap(final String superClass,final String testClass){
+            this.superClass = superClass;
+            this.testClass = testClass;
+        }
+
+        public String getSuperClass(){return superClass;}
+        public String getTestClass(){return testClass;}
+
+        public static TestClassMap ofSuperClass(final String superClass){
+            return EnumSet.allOf(TestClassMap.class).stream()
+                    .filter(e->e.superClass.equals(superClass))
+                    .findFirst().orElse(null);
+        }
+    }
 }

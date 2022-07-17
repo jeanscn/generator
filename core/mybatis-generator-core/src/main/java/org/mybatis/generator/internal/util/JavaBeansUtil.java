@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.util;
 
+import com.vgosoft.core.db.util.JDBCUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -22,7 +23,9 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.internal.ObjectFactory;
 
+import java.sql.JDBCType;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -38,13 +41,11 @@ public class JavaBeansUtil {
      * Computes a getter method name.  Warning - does not check to see that the property is a valid
      * property.  Call getValidPropertyName first.
      *
-     * @param property
-     *            the property
-     * @param fullyQualifiedJavaType
-     *            the fully qualified java type
+     * @param property               the property
+     * @param fullyQualifiedJavaType the fully qualified java type
      * @return the getter method name
      */
-    public static String getGetterMethodName(String property,FullyQualifiedJavaType fullyQualifiedJavaType) {
+    public static String getGetterMethodName(String property, FullyQualifiedJavaType fullyQualifiedJavaType) {
         StringBuilder sb = new StringBuilder(getMethodName(property));
         if (fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getBooleanPrimitiveInstance())) {
             sb.insert(0, "is"); //$NON-NLS-1$
@@ -67,8 +68,7 @@ public class JavaBeansUtil {
      * Computes a setter method name.  Warning - does not check to see that the property is a valid
      * property.  Call getValidPropertyName first.
      *
-     * @param property
-     *            the property
+     * @param property the property
      * @return the setter method name
      */
     public static String getSetterMethodName(String property) {
@@ -78,11 +78,11 @@ public class JavaBeansUtil {
     }
 
     public static String getFirstCharacterUppercase(String inputString) {
-        if (inputString!=null) {
+        if (inputString != null) {
             StringBuilder sb = new StringBuilder(inputString);
             sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
             return sb.toString();
-        }else{
+        } else {
             return null;
         }
 
@@ -93,13 +93,13 @@ public class JavaBeansUtil {
             StringBuilder sb = new StringBuilder(inputString);
             sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
             return sb.toString();
-        }else{
+        } else {
             return null;
         }
     }
 
     public static String getCamelCaseString(String inputString,
-            boolean firstCharacterUppercase) {
+                                            boolean firstCharacterUppercase) {
         StringBuilder sb = new StringBuilder();
 
         boolean nextUpperCase = false;
@@ -107,27 +107,27 @@ public class JavaBeansUtil {
             char c = inputString.charAt(i);
 
             switch (c) {
-            case '_':
-            case '-':
-            case '@':
-            case '$':
-            case '#':
-            case ' ':
-            case '/':
-            case '&':
-                if (sb.length() > 0) {
-                    nextUpperCase = true;
-                }
-                break;
+                case '_':
+                case '-':
+                case '@':
+                case '$':
+                case '#':
+                case ' ':
+                case '/':
+                case '&':
+                    if (sb.length() > 0) {
+                        nextUpperCase = true;
+                    }
+                    break;
 
-            default:
-                if (nextUpperCase) {
-                    sb.append(Character.toUpperCase(c));
-                    nextUpperCase = false;
-                } else {
-                    sb.append(Character.toLowerCase(c));
-                }
-                break;
+                default:
+                    if (nextUpperCase) {
+                        sb.append(Character.toUpperCase(c));
+                        nextUpperCase = false;
+                    } else {
+                        sb.append(Character.toLowerCase(c));
+                    }
+                    break;
             }
         }
 
@@ -162,8 +162,7 @@ public class JavaBeansUtil {
      *   <li>Yaxis &gt; yaxis</li>
      * </ul>
      *
-     * @param inputString
-     *            the input string
+     * @param inputString the input string
      * @return the valid property name
      */
     public static String getValidPropertyName(String inputString) {
@@ -187,30 +186,29 @@ public class JavaBeansUtil {
     }
 
     public static Method getJavaBeansGetter(IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable) {
+                                            Context context,
+                                            IntrospectedTable introspectedTable) {
         Method method = getBasicJavaBeansGetter(introspectedColumn);
         addGeneratedGetterJavaDoc(method, introspectedColumn, context, introspectedTable);
         return method;
     }
 
     public static Method getJavaBeansGetterWithGeneratedAnnotation(IntrospectedColumn introspectedColumn,
-            Context context, IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
+                                                                   Context context, IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
         Method method = getBasicJavaBeansGetter(introspectedColumn);
         addGeneratedGetterAnnotation(method, introspectedColumn, context, introspectedTable, compilationUnit);
         return method;
     }
 
-    public static Method getBasicJavaBeansGetter(String cloumnJavaProperty,FullyQualifiedJavaType parameter) {
-        Method method = new Method(getGetterMethodName(cloumnJavaProperty, parameter));
+    public static Method getBasicJavaBeansGetter(String columnJavaProperty, FullyQualifiedJavaType parameter) {
+        Method method = new Method(getGetterMethodName(columnJavaProperty, parameter));
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(parameter);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("return "); //$NON-NLS-1$
-        sb.append(cloumnJavaProperty);
-        sb.append(';');
-        method.addBodyLine(sb.toString());
+        String sb = "return " +
+                columnJavaProperty +
+                ';';
+        method.addBodyLine(sb);
 
         return method;
     }
@@ -231,30 +229,30 @@ public class JavaBeansUtil {
     }
 
     private static void addGeneratedGetterJavaDoc(Method method, IntrospectedColumn introspectedColumn,
-            Context context, IntrospectedTable introspectedTable) {
+                                                  Context context, IntrospectedTable introspectedTable) {
         context.getCommentGenerator().addGetterComment(method,
                 introspectedTable, introspectedColumn);
     }
 
     private static void addGeneratedGetterAnnotation(Method method, IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
+                                                     Context context,
+                                                     IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, introspectedColumn,
                 compilationUnit.getImportedTypes());
     }
 
     public static Field getJavaBeansField(IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable) {
+                                          Context context,
+                                          IntrospectedTable introspectedTable) {
         Field field = getBasicJavaBeansField(introspectedColumn);
         addGeneratedJavaDoc(field, context, introspectedColumn, introspectedTable);
         return field;
     }
 
     public static Field getJavaBeansFieldWithGeneratedAnnotation(IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable,
-            CompilationUnit compilationUnit) {
+                                                                 Context context,
+                                                                 IntrospectedTable introspectedTable,
+                                                                 CompilationUnit compilationUnit) {
         Field field = getBasicJavaBeansField(introspectedColumn);
         addGeneratedAnnotation(field, context, introspectedColumn, introspectedTable, compilationUnit);
         return field;
@@ -272,53 +270,53 @@ public class JavaBeansUtil {
     }
 
     private static void addGeneratedJavaDoc(Field field, Context context, IntrospectedColumn introspectedColumn,
-            IntrospectedTable introspectedTable) {
+                                            IntrospectedTable introspectedTable) {
         context.getCommentGenerator().addFieldComment(field,
                 introspectedTable, introspectedColumn);
     }
 
     private static void addGeneratedAnnotation(Field field, Context context, IntrospectedColumn introspectedColumn,
-            IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
+                                               IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
         context.getCommentGenerator().addFieldAnnotation(field, introspectedTable, introspectedColumn,
                 compilationUnit.getImportedTypes());
     }
 
     public static Method getJavaBeansSetter(IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable) {
+                                            Context context,
+                                            IntrospectedTable introspectedTable) {
         Method method = getBasicJavaBeansSetter(introspectedColumn);
         addGeneratedSetterJavaDoc(method, introspectedColumn, context, introspectedTable);
         return method;
     }
 
     public static Method getJavaBeansSetterWithGeneratedAnnotation(IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
+                                                                   Context context,
+                                                                   IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
         Method method = getBasicJavaBeansSetter(introspectedColumn);
         addGeneratedSetterAnnotation(method, introspectedColumn, context, introspectedTable, compilationUnit);
         return method;
     }
 
-    public static Method getBasicJavaBeanSetter(String cloumnJavaProperty,boolean isStringReturn,FullyQualifiedJavaType parameter) {
-        Method method = new Method(getSetterMethodName(cloumnJavaProperty));
+    public static Method getBasicJavaBeanSetter(String columnJavaProperty, boolean isStringReturn, FullyQualifiedJavaType parameter) {
+        Method method = new Method(getSetterMethodName(columnJavaProperty));
         method.setVisibility(JavaVisibility.PUBLIC);
-        method.addParameter(new Parameter(parameter, cloumnJavaProperty));
+        method.addParameter(new Parameter(parameter, columnJavaProperty));
 
         StringBuilder sb = new StringBuilder();
         if (isStringReturn) {
             sb.append("this."); //$NON-NLS-1$
-            sb.append(cloumnJavaProperty);
+            sb.append(columnJavaProperty);
             sb.append(" = "); //$NON-NLS-1$
-            sb.append(cloumnJavaProperty);
+            sb.append(columnJavaProperty);
             sb.append(" == null ? null : "); //$NON-NLS-1$
-            sb.append(cloumnJavaProperty);
+            sb.append(columnJavaProperty);
             sb.append(".trim();"); //$NON-NLS-1$
             method.addBodyLine(sb.toString());
         } else {
             sb.append("this."); //$NON-NLS-1$
-            sb.append(cloumnJavaProperty);
+            sb.append(columnJavaProperty);
             sb.append(" = "); //$NON-NLS-1$
-            sb.append(cloumnJavaProperty);
+            sb.append(columnJavaProperty);
             sb.append(';');
             method.addBodyLine(sb.toString());
         }
@@ -357,14 +355,14 @@ public class JavaBeansUtil {
     }
 
     private static void addGeneratedSetterJavaDoc(Method method, IntrospectedColumn introspectedColumn, Context context,
-            IntrospectedTable introspectedTable) {
+                                                  IntrospectedTable introspectedTable) {
         context.getCommentGenerator().addSetterComment(method,
                 introspectedTable, introspectedColumn);
     }
 
     private static void addGeneratedSetterAnnotation(Method method, IntrospectedColumn introspectedColumn,
-            Context context,
-            IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
+                                                     Context context,
+                                                     IntrospectedTable introspectedTable, CompilationUnit compilationUnit) {
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, introspectedColumn,
                 compilationUnit.getImportedTypes());
     }
@@ -395,38 +393,49 @@ public class JavaBeansUtil {
     }
 
     //是否某个类的子类
-    public static boolean isAssignable(String parentClassName,String childClassName,IntrospectedTable introspectedTable){
+    public static boolean isAssignable(String parentClassName, String childClassName, IntrospectedTable introspectedTable) {
         try {
-            //TODO 处理生成key类未加载的问题
+            //处理生成key类未加载的问题
             FullyQualifiedJavaType childClassNameType = new FullyQualifiedJavaType(childClassName);
-            FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-            if (childClassNameType.getShortName().equals(entityType.getShortName()+"Key")) {
+            //FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+            Class<?> cClazz = getClass(childClassName);
+            //if (childClassNameType.getShortName().equals(entityType.getShortName() + "Key")) {
+            if (cClazz == null) {
                 childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
                 if (childClassName == null) {
                     Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
                     childClassName = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
                 }
+                cClazz = Class.forName(childClassName);
             }
+            //}
             Class<?> pClazz = Class.forName(parentClassName);
-            Class<?> cClazz = Class.forName(childClassName);
-
             return ClassUtils.isAssignable(cClazz, pClazz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }
     }
-    public static boolean isAssignableCurrent(String parentClassName,TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
+
+    private static Class<?> getClass(String className)  {
+        try {
+            return ObjectFactory.internalClassForName(className);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    public static boolean isAssignableCurrent(String parentClassName, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (topLevelClass.getSuperClass().isPresent()) {
             FullyQualifiedJavaType fullyQualifiedJavaType = topLevelClass.getSuperClass().get();
             String fullyQualifiedName = fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters();
-            boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName,introspectedTable);
+            boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName, introspectedTable);
             if (assignable) {
                 return true;
             }
         }
         for (FullyQualifiedJavaType superInterfaceType : topLevelClass.getSuperInterfaceTypes()) {
-            boolean assignableCurrent = JavaBeansUtil.isAssignable(parentClassName, superInterfaceType.getFullyQualifiedName(),introspectedTable);
+            boolean assignableCurrent = JavaBeansUtil.isAssignable(parentClassName, superInterfaceType.getFullyQualifiedName(), introspectedTable);
             if (assignableCurrent) {
                 return true;
             }
@@ -434,19 +443,31 @@ public class JavaBeansUtil {
         return false;
     }
 
-    public static String byColumnMethodName(IntrospectedColumn column){
+    public static String byColumnMethodName(IntrospectedColumn column) {
         String javaProperty = column.getJavaProperty();
         return "selectByColumn" + getFirstCharacterUppercase(javaProperty);
     }
 
-    public static void addAnnotation(AbstractJavaType javaType,String annotation){
-        long count = javaType.getAnnotations().stream().filter(t->t.equals(annotation)).count();
-        if (count==0) {
+    public static void addAnnotation(AbstractJavaType javaType, String annotation) {
+        long count = javaType.getAnnotations().stream().filter(t -> t.equals(annotation)).count();
+        if (count == 0) {
             javaType.addAnnotation(annotation);
         }
     }
 
-    public static boolean isSelectBaseByPrimaryKeyMethod(String methodName){
+    public static boolean isSelectBaseByPrimaryKeyMethod(String methodName) {
         return "selectBaseByPrimaryKey".equalsIgnoreCase(methodName);
+    }
+
+    public static String getColumnExampleValue(IntrospectedColumn introspectedColumn) {
+        String defaultValue = JDBCUtil.getJDBCTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+        String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
+        if (introspectedColumn.getJavaProperty().equals("active")) {
+            return "1";
+        } else if (javaTypeName.equals("String")) {
+            return "\"" + introspectedColumn.getJavaProperty() + "\"";
+        } else {
+            return defaultValue;
+        }
     }
 }

@@ -15,12 +15,15 @@
  */
 package org.mybatis.generator.codegen;
 
+import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 
 import java.util.List;
 import java.util.Properties;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
 
 public abstract class AbstractJavaGenerator extends AbstractGenerator {
@@ -64,6 +67,48 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
     protected void addDefaultConstructorWithGeneratedAnnotation(TopLevelClass topLevelClass) {
         topLevelClass.addMethod(getDefaultConstructorWithGeneratedAnnotation(topLevelClass));
+    }
+
+    /**
+     * 获得service类的抽象实现类
+     *
+     * @param introspectedTable 生成基类
+     */
+    protected String getAbstractService(IntrospectedTable introspectedTable) {
+        if (GenerateUtils.isBlobInstance(introspectedTable)) {
+            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
+            if (GenerateUtils.isBusinessInstance(introspectedTable)) {
+                switch (steamOutType) {
+                    case "bytes":
+                        return ABSTRACT_BLOB_BYTES_SERVICE_BUSINESS;
+                    case "file":
+                        return ABSTRACT_BLOB_FILE_SERVICE_BUSINESS;
+                    case "string":
+                        return ABSTRACT_BLOB_STRING_SERVICE_BUSINESS;
+                }
+                return ABSTRACT_SERVICE_BUSINESS;
+            } else {
+                switch (steamOutType) {
+                    case "bytes":
+                        return ABSTRACT_MBG_BLOB_BYTES_SERVICE;
+                    case "file":
+                        return ABSTRACT_MBG_BLOB_FILE_SERVICE;
+                    case "string":
+                        return ABSTRACT_MBG_BLOB_STRING_SERVICE;
+                }
+                return ABSTRACT_MBG_BLOB_SERVICE_INTERFACE;
+            }
+        }
+        return ABSTRACT_MBG_SERVICE_INTERFACE;
+    }
+
+    protected Field builderSerialVersionUID(){
+        Field field = new Field("serialVersionUID",new FullyQualifiedJavaType("long"));
+        field.setFinal(true);
+        field.setInitializationString("1L");
+        field.setStatic(true);
+        field.setVisibility(JavaVisibility.PRIVATE);
+        return field;
     }
 
     private Method getDefaultConstructor(TopLevelClass topLevelClass) {

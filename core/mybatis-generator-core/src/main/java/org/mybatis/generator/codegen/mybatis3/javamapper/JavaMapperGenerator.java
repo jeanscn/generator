@@ -23,7 +23,7 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLMapperGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -227,6 +227,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     @Override
     public AbstractHtmlGenerator getMatchedHTMLGenerator() {
-        return new HTMLMapperGenerator();
+        return new HTMLGenerator();
     }
 }

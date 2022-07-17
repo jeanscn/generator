@@ -82,6 +82,9 @@ public class PropertyRegistry {
     public static final String CONTEXT_HTML_BAR_POSITION = "htmlBarPosition";
     public static final String CONTEXT_HTML_PAGE_COLUMNS_NUM = "htmlPageColumnsNum";
     public static final String CONTEXT_HTML_LOADING_FRAME_TYPE = "htmlLoadingFrameType";
+    public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
+    public static final String CONTEXT_ROOT_MODULE_NAME = "rootModuleName";
+    public static final String CONTEXT_SPRING_BOOT_APPLICATION_CLASS = "springBootApplicationClass";
 
     public static final String ANY_GENERATE = "generate";
     public static final String ANY_TARGET_PROJECT = "targetProject";
@@ -102,5 +105,5 @@ public class PropertyRegistry {
 
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
 
-
+    public static final String ELEMENT_IGNORE_COLUMNS = "ignoreColumns";
 }

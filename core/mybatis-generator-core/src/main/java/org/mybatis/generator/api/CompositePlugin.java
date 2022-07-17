@@ -27,7 +27,7 @@ import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -887,6 +887,17 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean modelGetterMethodGenerated(Method method, TopLevelClass topLevelClass,
                                               IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,
                                               ModelClassType modelClassType) {
@@ -935,9 +946,17 @@ public abstract class CompositePlugin implements Plugin {
                 return false;
             }
         }
-
         return true;
+    }
 
+    @Override
+    public boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -988,9 +1007,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         for (Plugin plugin : plugins) {
-            if (!plugin.htmlMapDocumentGenerated(document, introspectedTable, htmlMapGeneratorConfiguration)) {
+            if (!plugin.htmlMapDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration)) {
                 return false;
             }
         }
@@ -999,9 +1018,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean htmlMapGenerated(GeneratedHtmlFile htmlMap, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+    public boolean htmlMapGenerated(GeneratedHtmlFile htmlMap, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         for (Plugin plugin : plugins) {
-            if (!plugin.htmlMapGenerated(htmlMap, introspectedTable, htmlMapGeneratorConfiguration)) {
+            if (!plugin.htmlMapGenerated(htmlMap, introspectedTable, htmlGeneratorConfiguration)) {
                 return false;
             }
         }
@@ -1510,6 +1529,16 @@ public abstract class CompositePlugin implements Plugin {
     public boolean ControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.ControllerGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean serviceUnitTestGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.serviceUnitTestGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }

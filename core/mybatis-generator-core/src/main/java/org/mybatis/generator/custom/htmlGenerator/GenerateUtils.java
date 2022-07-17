@@ -18,7 +18,7 @@ package org.mybatis.generator.custom.htmlGenerator;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 
 import java.util.List;
@@ -34,11 +34,11 @@ import static org.mybatis.generator.custom.ConstantsUtil.*;
 public class GenerateUtils {
 
     /*判断当前属性是否为隐藏属性*/
-     public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration){
-         if (htmlMapGeneratorConfiguration == null) {
+     public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration){
+         if (htmlGeneratorConfiguration == null) {
              return false;
          }
-        List<String> hiddenColumn = htmlMapGeneratorConfiguration.getHiddenColumns();
+        List<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumns();
         return hiddenColumn.contains(introspectedColumn.getActualColumnName().toUpperCase());
     };
 

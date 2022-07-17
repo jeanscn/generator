@@ -189,6 +189,14 @@ public class RulesDelegate implements Rules {
         return false;
     }
 
+    /**
+     * 是否集成MybatisPlus
+     */
+    @Override
+    public boolean isIntegrateMybatisPlus() {
+        return false;
+    }
+
     @Override
     public boolean generateBaseColumnList() {
         return rules.generateBaseColumnList();
@@ -202,5 +210,20 @@ public class RulesDelegate implements Rules {
     @Override
     public boolean generateJavaClient() {
         return rules.generateJavaClient();
+    }
+
+    @Override
+    public boolean isGenerateServiceUnitTest() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateControllerUnitTest() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateBaseVO() {
+        return false;
     }
 }

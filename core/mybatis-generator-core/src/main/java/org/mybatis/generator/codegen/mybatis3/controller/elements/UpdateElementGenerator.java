@@ -1,9 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -34,7 +36,9 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKey({2});",
                 entityType.getShortName(),serviceBeanName,entityFirstLowerShortName));
         method.addBodyLine("if (serviceResult.isSuccess()) {");
-        method.addBodyLine("responseSimple.addAttribute(\"version\", serviceResult.getResult().getVersion());");
+        if (JavaBeansUtil.isAssignable("com.vgosoft.core.entity.IPersistenceLock",entityType.getFullyQualifiedName(), introspectedTable)) {
+            method.addBodyLine("responseSimple.addAttribute(\"version\", serviceResult.getResult().getVersion());");
+        }
         method.addBodyLine(VStringUtil.format("responseSimple.addAttribute(\"{0}\",serviceResult.getResult());",this.entityNameKey));
         method.addBodyLine("}else{");
         method.addBodyLine("responseSimple.setStatus(1);");

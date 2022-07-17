@@ -55,6 +55,14 @@ public class SwaggerApiPlugin extends PluginAdapter {
         }
     }
 
+    @Override
+    public boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        String apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        topLevelClass.addAnnotation(apiModelAnnotation);
+        topLevelClass.addImportedType("io.swagger.annotations.ApiModel");
+        return true;
+    }
+
     /**
      * 属性注解@ApiModelProperty
      */
@@ -79,6 +87,16 @@ public class SwaggerApiPlugin extends PluginAdapter {
             e.printStackTrace();
             return true;
         }
+    }
+
+    @Override
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        String apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
+        if (StringUtility.stringHasValue(apiModelPropertyAnnotation)) {
+            field.addAnnotation(apiModelPropertyAnnotation);
+            topLevelClass.addImportedType("io.swagger.annotations.ApiModelProperty");
+        }
+        return true;
     }
 
     /**

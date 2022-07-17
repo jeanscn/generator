@@ -370,8 +370,8 @@ public class MyBatisGenerator {
         File targetFile;
         String source;
         try {
-            File directory = shellCallback.getDirectory(gf
-                    .getTargetProject(), gf.getTargetPackage());
+            checkFileDir(gf);
+            File directory = shellCallback.getDirectory(gf.getTargetProject(), gf.getTargetPackage());
             targetFile = new File(directory, gf.getFileName());
             if (targetFile.exists()) {
                 if (shellCallback.isOverwriteEnabled()) {
@@ -395,6 +395,16 @@ public class MyBatisGenerator {
             writeFile(targetFile, source, gf.getFileEncoding());
         } catch (ShellException e) {
             warnings.add(e.getMessage());
+        }
+    }
+
+    private void checkFileDir(GeneratedFile gf) {
+        File gfDirector = new File(gf.getTargetProject()+File.separator+gf.getTargetPackage());
+        if (!gfDirector.isDirectory()) {
+            final boolean mkDirs = gfDirector.mkdirs();
+            if(!mkDirs){
+                warnings.add(getString("Warning.10",gf.getTargetProject()+File.separator+gf.getTargetPackage()));
+            }
         }
     }
 
@@ -439,13 +449,7 @@ public class MyBatisGenerator {
         File targetFile;
         String source;
         try {
-            File htmlDirector = new File(ghf.getTargetProject()+File.separator+ghf.getTargetPackage());
-            if (!htmlDirector.isDirectory()) {
-                final boolean mkDirs = htmlDirector.mkdirs();
-                if(!mkDirs){
-                    warnings.add(getString("Warning.3",ghf.getTargetProject()+File.separator+ghf.getTargetPackage()));
-                }
-            }
+            checkFileDir(ghf);
             File directory = shellCallback.getDirectory(ghf.getTargetProject(), ghf.getTargetPackage());
             targetFile = new File(directory, ghf.getFileName());
             if (targetFile.exists()) {

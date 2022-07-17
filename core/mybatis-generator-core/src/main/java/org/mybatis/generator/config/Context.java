@@ -474,6 +474,8 @@ public class Context extends PropertyHolder {
             generatedKotlinFiles.addAll(introspectedTable
                     .getGeneratedKotlinFiles());
 
+            otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
+
             generatedJavaFiles.addAll(pluginAggregator
                     .contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator

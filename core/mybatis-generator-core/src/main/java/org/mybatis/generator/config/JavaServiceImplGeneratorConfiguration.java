@@ -6,9 +6,12 @@ public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorC
 
     private boolean noServiceAnnotation;
 
+    private boolean generateUnitTest;
+
     public JavaServiceImplGeneratorConfiguration(Context context) {
         super(context);
         noServiceAnnotation = false;
+        generateUnitTest = true;
         baseTargetPackage = targetPackage;
         targetPackage = String.join(".",getTargetPackage(),"impl");
     }
@@ -19,6 +22,14 @@ public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorC
 
     public void setNoServiceAnnotation(boolean noServiceAnnotation) {
         this.noServiceAnnotation = noServiceAnnotation;
+    }
+
+    public boolean isGenerateUnitTest() {
+        return generateUnitTest;
+    }
+
+    public void setGenerateUnitTest(boolean generateUnitTest) {
+        this.generateUnitTest = generateUnitTest;
     }
 
     @Override

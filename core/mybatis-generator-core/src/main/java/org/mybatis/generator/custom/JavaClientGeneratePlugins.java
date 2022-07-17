@@ -5,7 +5,7 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.HtmlMapGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
@@ -163,12 +163,16 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         JavaBeansUtil.addAnnotation(topLevelClass, "@Repository");
 
         //添加@Setter,@Getter
-        String aSetter = "lombok.Setter";
-        String aGetter = "lombok.Getter";
-        topLevelClass.addImportedType(new FullyQualifiedJavaType(aSetter));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType(aGetter));
-        topLevelClass.addAnnotation("@Setter");
-        topLevelClass.addAnnotation("@Getter");
+        topLevelClass.addImportedType("lombok.*");
+        topLevelClass.addAnnotation("@Data");
+        topLevelClass.addAnnotation("@NoArgsConstructor");
+        if (topLevelClass.getSuperClass().isPresent()) {
+            topLevelClass.addAnnotation("@EqualsAndHashCode(callSuper = true)");
+            topLevelClass.addAnnotation("@ToString(callSuper = true)");
+        }else{
+            topLevelClass.addAnnotation("@EqualsAndHashCode");
+            topLevelClass.addAnnotation("@ToString");
+        }
 
         //添加静态代码块
         String beanName = introspectedTable.getControllerBeanName();
@@ -178,7 +182,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         boolean assignable1 = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
         if (assignable1) {
             Method method = new Method(topLevelClass.getType().getShortName());
-            method.addParameter(new Parameter(new FullyQualifiedJavaType("int"), "persistenceStatus"));
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getIntInstance(), PARAM_NAME_PERSISTENCE_STATUS));
             method.setVisibility(JavaVisibility.PUBLIC);
             method.setConstructor(true);
             addConstructorBodyLine(method, true, topLevelClass, introspectedTable);
@@ -211,6 +215,10 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                         returnType = fullyQualifiedJavaType;
                         field = new Field(relationProperty.getPropertyName(), returnType);
                     }
+                    if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+                        field.addAnnotation("@TableField(exist = false)");
+                        topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
+                    }
                     addField(topLevelClass, field);
                     topLevelClass.addImportedType(fullyQualifiedJavaType);
                 }
@@ -223,14 +231,18 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                 field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
             }
+            if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+                field.addAnnotation("@TableField(exist = false)");
+                topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
+            }
         }
 
         /*
          * 静态代码初始化
          * restBasePath、persistenceBeanName、viewPath
          */
-        List<HtmlMapGeneratorConfiguration> htmlMapGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
-        if (htmlMapGeneratorConfigurations.size() > 0) {
+        List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+        if (htmlGeneratorConfigurations.size() > 0) {
             initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_REST_BASE_PATH, introspectedTable.getControllerSimplePackage()));
         }
         if (!StringUtility.isEmpty(beanName) && assignable1) {
@@ -253,6 +265,10 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                             if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                                 viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
                             }
+                            if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+                                viewPath.addAnnotation("@TableField(exist = false)");
+                                topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
+                            }
                         }
                     }
                 });
@@ -264,15 +280,15 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     }
 
     @Override
-    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         HtmlDocumentGenerator htmlDocumentGenerated;
-        String uiFrame = htmlMapGeneratorConfiguration.getUiFrameType();
+        String uiFrame = htmlGeneratorConfiguration.getUiFrameType();
         if (HtmlConstants.HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlMapGeneratorConfiguration);
+            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
         } else if (HtmlConstants.HTML_UI_FRAME_ZUI.equals(uiFrame)) {
-            htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable, htmlMapGeneratorConfiguration);
+            htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
         } else {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlMapGeneratorConfiguration);
+            htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
         }
         return htmlDocumentGenerated.htmlMapDocumentGenerated();
     }

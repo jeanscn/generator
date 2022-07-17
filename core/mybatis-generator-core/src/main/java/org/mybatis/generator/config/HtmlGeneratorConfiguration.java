@@ -21,7 +21,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HtmlMapGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private String viewPath;
 
@@ -44,7 +44,7 @@ public class HtmlMapGeneratorConfiguration extends AbstractGeneratorConfiguratio
 
     private List<HtmlElementDescriptor> elementDescriptors;
 
-    public HtmlMapGeneratorConfiguration(Context context,TableConfiguration tc) {
+    public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
         hiddenColumns = new ArrayList<>();
         elementRequired = new ArrayList<>();

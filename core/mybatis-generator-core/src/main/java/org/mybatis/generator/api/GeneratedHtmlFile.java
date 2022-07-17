@@ -19,15 +19,15 @@ import org.mybatis.generator.api.dom.html.Document;
 
 public class GeneratedHtmlFile extends GeneratedFile {
 
-    private Document document;
+    private final Document document;
 
-    private String fileName;
+    private final String fileName;
 
-    private String targetPackage;
+    private final String targetPackage;
 
     private boolean isMergeable;
 
-    private HtmlFormatter htmlFormatter;
+    private final HtmlFormatter htmlFormatter;
 
     public GeneratedHtmlFile(Document document, String fileName,
                              String targetPackage, String targetProject, boolean isMergeable,

@@ -20,6 +20,7 @@ import java.util.List;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public abstract class AbstractGenerator {
     protected Context context;

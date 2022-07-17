@@ -28,8 +28,6 @@ import java.util.Optional;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 
-import org.mybatis.generator.internal.util.messages.Messages;
-
 public class TableConfiguration extends PropertyHolder {
 
     private boolean insertStatementEnabled;
@@ -93,7 +91,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private List<RelationGeneratorConfiguration> relationGeneratorConfigurations;
 
-    private List<HtmlMapGeneratorConfiguration> htmlMapGeneratorConfigurations;
+    private List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations;
 
     private JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration;
 
@@ -105,7 +103,11 @@ public class TableConfiguration extends PropertyHolder {
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
+    private BaseVOGeneratorConfiguration baseVOGeneratorConfiguration;
+
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
+
+    private SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration;
 
     private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
 
@@ -129,7 +131,7 @@ public class TableConfiguration extends PropertyHolder {
         selectByColumnGeneratorConfigurations =new ArrayList<>();
         customMethodGeneratorConfigurations = new ArrayList<>();
         relationGeneratorConfigurations = new ArrayList<>();
-        htmlMapGeneratorConfigurations = new ArrayList<>();
+        htmlGeneratorConfigurations = new ArrayList<>();
     }
 
     public boolean isDeleteByPrimaryKeyStatementEnabled() {
@@ -540,13 +542,13 @@ public class TableConfiguration extends PropertyHolder {
        return this.relationGeneratorConfigurations;
     }
 
-    public List<HtmlMapGeneratorConfiguration> getHtmlMapGeneratorConfigurations() {
-        return htmlMapGeneratorConfigurations;
+    public List<HtmlGeneratorConfiguration> getHtmlMapGeneratorConfigurations() {
+        return htmlGeneratorConfigurations;
     }
 
-    public List<HtmlMapGeneratorConfiguration> addHtmlMapGeneratorConfigurations(HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration) {
-        this.htmlMapGeneratorConfigurations.add(htmlMapGeneratorConfiguration);
-        return htmlMapGeneratorConfigurations;
+    public List<HtmlGeneratorConfiguration> addHtmlMapGeneratorConfigurations(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        this.htmlGeneratorConfigurations.add(htmlGeneratorConfiguration);
+        return htmlGeneratorConfigurations;
     }
 
     public JavaServiceGeneratorConfiguration getJavaServiceGeneratorConfiguration() {
@@ -589,11 +591,27 @@ public class TableConfiguration extends PropertyHolder {
         this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
     }
 
+    public BaseVOGeneratorConfiguration getBaseVOGeneratorConfiguration() {
+        return baseVOGeneratorConfiguration;
+    }
+
+    public void setBaseVOGeneratorConfiguration(BaseVOGeneratorConfiguration baseVOGeneratorConfiguration) {
+        this.baseVOGeneratorConfiguration = baseVOGeneratorConfiguration;
+    }
+
     public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
         return javaClientGeneratorConfiguration;
     }
 
     public void setJavaClientGeneratorConfiguration(JavaClientGeneratorConfiguration javaClientGeneratorConfiguration) {
         this.javaClientGeneratorConfiguration = javaClientGeneratorConfiguration;
+    }
+
+    public SqlSchemaGeneratorConfiguration getSqlSchemaGeneratorConfiguration() {
+        return sqlSchemaGeneratorConfiguration;
+    }
+
+    public void setSqlSchemaGeneratorConfiguration(SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration) {
+        this.sqlSchemaGeneratorConfiguration = sqlSchemaGeneratorConfiguration;
     }
 }

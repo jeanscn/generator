@@ -88,12 +88,14 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
                     sb.append(",type = JDBCType.").append(column.getJdbcTypeName());
                     topLevelClass.addImportedType("java.sql.JDBCType");
                 }
-                if ("DATE".equals(column.getJdbcTypeName())) {
-                    sb.append(",dataFormat =\"yyyy-MM-dd\"");
-                } else if ("TIME".equals(column.getJdbcTypeName())) {
-                    sb.append(",dataFormat =\"HH:mm:ss\"");
-                } else if ("TIMESTAMP".equals(column.getJdbcTypeName())) {
-                    sb.append(",dataFormat =\"yyyy-MM-dd HH:mm:ss\"");
+                String datePattern = column.getDatePattern();
+                if (column.getJdbcTypeName().equals("TIMESTAMP")) {
+                    datePattern = "yyyy-MM-dd HH:mm:ss";
+                }
+                if (StringUtility.stringHasValue(datePattern)) {
+                    sb.append(",dataFormat =\"");
+                    sb.append(datePattern);
+                    sb.append("\"");
                 }
                 sb.append(")");
                 return sb.toString();

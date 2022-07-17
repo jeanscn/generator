@@ -244,4 +244,15 @@ public interface Rules {
     IntrospectedTable getIntrospectedTable();
 
     boolean generateRelationWithSubSelected();
+
+    /**
+     * 是否集成MybatisPlus
+     * */
+    boolean isIntegrateMybatisPlus();
+
+    boolean isGenerateServiceUnitTest();
+
+    boolean isGenerateControllerUnitTest();
+
+    boolean isGenerateBaseVO();
 }

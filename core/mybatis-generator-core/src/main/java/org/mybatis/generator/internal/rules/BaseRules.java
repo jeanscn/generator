@@ -42,15 +42,19 @@ public abstract class BaseRules implements Rules {
 
     protected boolean isGenerateHtml = false;
 
-    protected final boolean isGenerateService;
+    protected final boolean generateService;
 
-    protected final boolean isGenerateDao;
+    protected final boolean generateDao;
 
-    protected final boolean isNoMetaAnnotation;
+    protected final boolean noMetaAnnotation;
 
-    protected final boolean isNoSwaggerAnnotation;
+    protected final boolean noSwaggerAnnotation;
 
-    protected final boolean isNoServiceAnnotation;
+    protected final boolean noServiceAnnotation;
+
+    protected final boolean integrateMybatisPlus;
+
+    protected final boolean generateUnitTest;
 
     public BaseRules(IntrospectedTable introspectedTable) {
         super();
@@ -62,25 +66,30 @@ public abstract class BaseRules implements Rules {
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
         isGenerateCont = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isGenerate();
 
-        for (HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration : introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
-            if (htmlMapGeneratorConfiguration.isGenerate()) {
+        for (HtmlGeneratorConfiguration htmlGeneratorConfiguration : introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()) {
+            if (htmlGeneratorConfiguration.isGenerate()) {
                 isGenerateHtml = true;
                 break;
             }
         }
 
         JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
-        isGenerateService = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isGenerate();
+        generateService = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isGenerate();
 
         JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration();
-        isGenerateDao = javaClientGeneratorConfiguration!=null && javaClientGeneratorConfiguration.isGenerate();
+        generateDao = javaClientGeneratorConfiguration!=null && javaClientGeneratorConfiguration.isGenerate();
 
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration();
-        isNoMetaAnnotation = javaModelGeneratorConfiguration!=null && javaModelGeneratorConfiguration.isNoMetaAnnotation();
+        noMetaAnnotation = javaModelGeneratorConfiguration!=null && javaModelGeneratorConfiguration.isNoMetaAnnotation();
 
-        isNoSwaggerAnnotation = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isNoSwaggerAnnotation();
+        noSwaggerAnnotation = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isNoSwaggerAnnotation();
 
-        isNoServiceAnnotation = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isNoServiceAnnotation();
+        noServiceAnnotation = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isNoServiceAnnotation();
+
+        String integrateMybatisPlus = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
+        this.integrateMybatisPlus = StringUtility.stringHasValue(integrateMybatisPlus) && Boolean.parseBoolean(integrateMybatisPlus);
+
+        this.generateUnitTest = true;
     }
 
     public boolean generateController(){
@@ -94,19 +103,19 @@ public abstract class BaseRules implements Rules {
         if (isModelOnly) {
             return false;
         }
-        return isGenerateService;
+        return generateService;
     }
 
     public boolean isNoMetaAnnotation(){
-        return isNoMetaAnnotation;
+        return noMetaAnnotation;
     }
 
     public boolean isNoSwaggerAnnotation(){
-        return isNoSwaggerAnnotation;
+        return noSwaggerAnnotation;
     }
 
     public boolean isNoServiceAnnotation(){
-        return isNoServiceAnnotation;
+        return noServiceAnnotation;
     }
 
     /**
@@ -485,12 +494,35 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateJavaClient() {
-        return !isModelOnly && this.isGenerateDao;
+        return !isModelOnly && this.generateDao;
     }
 
     @Override
     public boolean generateRelationWithSubSelected(){
         long count = tableConfiguration.getRelationPropertyHolders().stream().filter(RelationGeneratorConfiguration::isSubSelected).count();
         return count>0;
+    }
+
+    @Override
+    public boolean isIntegrateMybatisPlus() {
+        return integrateMybatisPlus;
+    }
+
+    @Override
+    public boolean isGenerateServiceUnitTest() {
+        JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tableConfiguration.getJavaServiceImplGeneratorConfiguration();
+        return javaServiceImplGeneratorConfiguration.isGenerate() && javaServiceImplGeneratorConfiguration.isGenerateUnitTest();
+    }
+
+    @Override
+    public boolean isGenerateControllerUnitTest() {
+        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = tableConfiguration.getJavaControllerGeneratorConfiguration();
+        return javaControllerGeneratorConfiguration != null && javaControllerGeneratorConfiguration.isGenerate() && javaControllerGeneratorConfiguration.isGenerateUnitTest();
+    }
+
+    @Override
+    public boolean isGenerateBaseVO() {
+        BaseVOGeneratorConfiguration baseVOGeneratorConfiguration = tableConfiguration.getBaseVOGeneratorConfiguration();
+        return baseVOGeneratorConfiguration != null && baseVOGeneratorConfiguration.isGenerate();
     }
 }

@@ -33,12 +33,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         CommentGenerator commentGenerator = context.getCommentGenerator();
         Plugin plugins = context.getPlugins();
 
+        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
 
 
         FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(ANNOTATION_SERVICE);
-        FullyQualifiedJavaType implSuperType = getServiceSupperType(entityType, exampleType, introspectedTable);
+        FullyQualifiedJavaType implSuperType = getServiceSupperType(mapperType,entityType, exampleType, introspectedTable);
         String interfaceClassShortName = getInterfaceClassShortName(introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration().getTargetPackage(), entityType.getShortName());
 
         Interface bizINF = new Interface(interfaceClassShortName);
@@ -50,11 +51,18 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         bizClazzImpl.addImportedType(entityType);
         bizClazzImpl.addImportedType(exampleType);
         bizClazzImpl.addImportedType(bizINF.getType());
-        bizClazzImpl.addImportedType("lombok.RequiredArgsConstructor");
+        bizClazzImpl.addImportedType(mapperType);
         bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
         bizClazzImpl.setSuperClass(implSuperType);
         bizClazzImpl.addSuperInterface(bizINF.getType());
-        bizClazzImpl.addAnnotation("@RequiredArgsConstructor");
+        //增加构造器
+        Method constructor = new Method(bizClazzImpl.getType().getShortName());
+        constructor.setVisibility(JavaVisibility.PUBLIC);
+        constructor.setConstructor(true);
+        constructor.addParameter(new Parameter(mapperType, "mapper"));
+        constructor.addBodyLine("super(mapper);");
+        constructor.addBodyLine("this.mapper = mapper;");
+        bizClazzImpl.addMethod(constructor);
 
         StringBuilder sb = new StringBuilder();
         //增加selectByExampleWithRelation接口实现方法
@@ -172,6 +180,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             sb.setLength(0);
             sb = new StringBuilder("@Service(\"").append(getTableBeanName(introspectedTable)).append("\")");
             bizClazzImpl.addAnnotation(sb.toString());
+            bizClazzImpl.addImportedType("org.springframework.context.annotation.Primary");
+            bizClazzImpl.addAnnotation("@Primary");
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
@@ -185,49 +195,17 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      * 内部类
      * 获得Service抽象类父类
      */
-    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType, IntrospectedTable introspectedTable) {
+    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType mapperType,FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType, IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(getAbstractService(introspectedTable));
+        supperType.addTypeArgument(mapperType);
         supperType.addTypeArgument(entityType);
         supperType.addTypeArgument(exampleType);
         return supperType;
     }
 
-    /**
-     * 获得service类的抽象实现类
-     *
-     * @param introspectedTable 生成基类
-     */
-    private String getAbstractService(IntrospectedTable introspectedTable) {
-        if (GenerateUtils.isBlobInstance(introspectedTable)) {
-            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
-            if (GenerateUtils.isBusinessInstance(introspectedTable)) {
-                switch (steamOutType) {
-                    case "bytes":
-                        return ABSTRACT_BLOB_BYTES_SERVICE_BUSINESS;
-                    case "file":
-                        return ABSTRACT_BLOB_FILE_SERVICE_BUSINESS;
-                    case "string":
-                        return ABSTRACT_BLOB_STRING_SERVICE_BUSINESS;
-                }
-                return ABSTRACT_SERVICE_BUSINESS;
-            } else {
-                switch (steamOutType) {
-                    case "bytes":
-                        return ABSTRACT_MBG_BLOB_BYTES_SERVICE;
-                    case "file":
-                        return ABSTRACT_MBG_BLOB_FILE_SERVICE;
-                    case "string":
-                        return ABSTRACT_MBG_BLOB_STRING_SERVICE;
-                }
-                return ABSTRACT_MBG_BLOB_SERVICE_INTERFACE;
-            }
-        }
-        return ABSTRACT_MBG_SERVICE_INTERFACE;
-    }
-
     private void addJavaMapper(IntrospectedTable introspectedTable, TopLevelClass bizClazzImpl) {
-        long mapper1 = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
-        if (mapper1 == 0) {
+        long mapper = bizClazzImpl.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("mapper")).count();
+        if (mapper == 0) {
             Field mapperProperty = getMapperProperty(introspectedTable);
             bizClazzImpl.addField(mapperProperty);
             bizClazzImpl.addImportedType(mapperProperty.getType());

@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.api;
 
+import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.internal.rules.*;
@@ -1044,6 +1045,8 @@ public abstract class IntrospectedTable {
 
 
     public abstract List<GeneratedHtmlFile> getGeneratedHtmlFiles();
+
+    public abstract List<GeneratedSqlSchemaFile> getGeneratedSqlSchemaFiles();
 
     /**
      * This method should return a list of generated Kotlin files related to this
