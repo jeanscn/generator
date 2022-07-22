@@ -15,16 +15,19 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
-public class BaseVOGeneratorConfiguration extends AbstractGeneratorConfiguration {
-    public BaseVOGeneratorConfiguration() {
+public class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
+
+
+    public VOGeneratorConfiguration() {
         super();
     }
 
-    public BaseVOGeneratorConfiguration(Context context) {
+    public VOGeneratorConfiguration(Context context) {
         super();
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");

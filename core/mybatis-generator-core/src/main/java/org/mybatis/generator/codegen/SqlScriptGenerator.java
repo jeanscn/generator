@@ -2,13 +2,11 @@ package org.mybatis.generator.codegen;
 
 import com.vgosoft.core.constant.Empty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
-import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
-import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
 
 import java.sql.JDBCType;
 import java.util.ArrayList;

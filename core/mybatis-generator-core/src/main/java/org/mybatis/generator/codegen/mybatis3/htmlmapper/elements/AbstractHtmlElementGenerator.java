@@ -25,7 +25,7 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator {
      * @return the selectKey element
      */
     protected HtmlElement getSelectKey(IntrospectedColumn introspectedColumn,
-            GeneratedKey generatedKey) {
+                                       GeneratedKey generatedKey) {
         String identityColumnType = introspectedColumn
                 .getFullyQualifiedJavaType().getFullyQualifiedName();
 

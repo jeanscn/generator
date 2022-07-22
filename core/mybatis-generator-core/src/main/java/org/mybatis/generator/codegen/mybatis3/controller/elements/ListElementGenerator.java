@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -42,11 +43,12 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         sb.append(entityFirstLowerShortName).append("s");
         sb.append(" = ").append(serviceBeanName).append(".selectByExample(example);");
         method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        sb.append("responseSimple.setList(").append(entityFirstLowerShortName).append("s);");
-        method.addBodyLine(sb.toString());
+        method.addBodyLine(VStringUtil.format("responseSimple.setList(mappings.to{0}s({1}s));",
+                entityVoType.getShortName(),entityType.getShortNameFirstLowCase()));
         addExceptionAndReturn(method);
 
         parentElement.addMethod(method);
+        parentElement.addImportedType(entityVoType);
+        parentElement.addImportedType(entityMappings);
     }
 }

@@ -254,5 +254,5 @@ public interface Rules {
 
     boolean isGenerateControllerUnitTest();
 
-    boolean isGenerateBaseVO();
+    boolean isGenerateVO();
 }

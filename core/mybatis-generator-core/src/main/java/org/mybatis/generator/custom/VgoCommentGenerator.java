@@ -138,6 +138,9 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         if(("deleteBatch"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据ids批量删除记录");
         }
+        if(("getDefaultView"+record.getShortName()).equals(method.getName())){
+            addMethodJavaDocLine(method,"获取默认数据视图配置");
+        }
     }
 
     @Override

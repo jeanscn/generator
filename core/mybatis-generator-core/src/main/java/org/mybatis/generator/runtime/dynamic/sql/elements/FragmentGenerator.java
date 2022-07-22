@@ -267,19 +267,19 @@ public class FragmentGenerator {
     }
 
     public List<String> getSetEqualLines(List<IntrospectedColumn> columnList, String firstLinePrefix,
-            String subsequentLinePrefix, boolean terminate) {
+                                         String subsequentLinePrefix, boolean terminate) {
         return getSetLines(columnList, firstLinePrefix, subsequentLinePrefix, terminate,
                 "equalTo"); //$NON-NLS-1$
     }
 
     public List<String> getSetEqualWhenPresentLines(List<IntrospectedColumn> columnList, String firstLinePrefix,
-            String subsequentLinePrefix, boolean terminate) {
+                                                    String subsequentLinePrefix, boolean terminate) {
         return getSetLines(columnList, firstLinePrefix, subsequentLinePrefix, terminate,
                 "equalToWhenPresent"); //$NON-NLS-1$
     }
 
     private List<String> getSetLines(List<IntrospectedColumn> columnList, String firstLinePrefix,
-                                 String subsequentLinePrefix, boolean terminate, String fragment) {
+                                     String subsequentLinePrefix, boolean terminate, String fragment) {
         List<String> lines = new ArrayList<>();
         List<IntrospectedColumn> columns = ListUtilities.removeIdentityAndGeneratedAlwaysColumns(columnList);
         Iterator<IntrospectedColumn> iter = columns.iterator();

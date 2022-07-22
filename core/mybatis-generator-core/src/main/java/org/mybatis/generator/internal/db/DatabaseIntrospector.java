@@ -450,6 +450,7 @@ public class DatabaseIntrospector {
         }
 
         Map<String, String> remarks = getSqlServerRemarks(localTableName);
+        int order = 10;
         while (rs.next()) {
             IntrospectedColumn introspectedColumn = ObjectFactory.createIntrospectedColumn(context);
 
@@ -487,7 +488,11 @@ public class DatabaseIntrospector {
 
             List<IntrospectedColumn> columns = answer.computeIfAbsent(atn, k -> new ArrayList<>());
 
+            introspectedColumn.setOrder(order);
+
             columns.add(introspectedColumn);
+
+            order++;
 
             if (logger.isDebugEnabled()) {
                 logger.debug(getString(

@@ -113,7 +113,7 @@ public class DynamicSqlSupportClassGenerator {
     }
 
     private void handleColumn(TopLevelClass topLevelClass, InnerClass innerClass,
-            IntrospectedColumn column, String tableFieldName) {
+                              IntrospectedColumn column, String tableFieldName) {
         topLevelClass.addImportedType(column.getFullyQualifiedJavaType());
 
         FullyQualifiedJavaType javaType;

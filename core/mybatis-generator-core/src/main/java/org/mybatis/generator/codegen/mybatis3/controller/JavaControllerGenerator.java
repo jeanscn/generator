@@ -63,6 +63,20 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setFinal(true);
         conTopClazz.addField(field);
+        //增加Mappings属性
+        String voTargetPackage = introspectedTable.getTableConfiguration()
+                .getVOGeneratorConfiguration()
+                .getTargetPackage();
+        FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(
+                String.join(".",
+                        voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
+        Field mappings = new Field("mappings", entityMappings);
+        mappings.setFinal(true);
+        mappings.setInitializationString(String.join(".", entityMappings.getShortName(),"INSTANCE"));
+        mappings.setVisibility(JavaVisibility.PRIVATE);
+        conTopClazz.addField(mappings);
+        conTopClazz.addImportedType(entityMappings);
+
         String viewpath = null;
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
             viewpath = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath();
@@ -76,6 +90,10 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         addUpdateElement(conTopClazz);
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
+
+        if (introspectedTable.getRules().isGenerateVO()) {
+            addGetDefaultViewElement(conTopClazz);
+        }
 
         if (introspectedTable.hasBLOBColumns()) {
             addUploadElement(conTopClazz);
@@ -134,6 +152,11 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
     private void addDownloadElement(TopLevelClass parentElement) {
         AbstractControllerElementGenerator elementGenerator = new DownloadElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
+    private void addGetDefaultViewElement(TopLevelClass parentElement){
+        AbstractControllerElementGenerator elementGenerator = new GetDefaultViewElementGenerator();
         initializeAndExecuteGenerator(elementGenerator, parentElement);
     }
 

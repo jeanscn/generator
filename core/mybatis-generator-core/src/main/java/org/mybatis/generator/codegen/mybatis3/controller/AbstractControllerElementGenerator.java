@@ -28,6 +28,10 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected String entityFirstLowerShortName;
 
+    protected FullyQualifiedJavaType entityMappings;
+
+    protected FullyQualifiedJavaType entityVoType;
+
     protected Parameter entityParameter;
 
     protected HtmlGeneratorConfiguration htmlGeneratorConfiguration;
@@ -52,6 +56,11 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         entityParameter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         responseSimple = new FullyQualifiedJavaType(RESPONSE_SIMPLE);
         entityFirstLowerShortName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+        String voTargetPackage = introspectedTable.getTableConfiguration()
+                .getVOGeneratorConfiguration()
+                .getTargetPackage();
+        entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
+        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
     }
 
     protected Method createMethod(String methodPrefix) {
@@ -95,23 +104,25 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                 FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
                 sb.append(introspectedTable.getRemarks()).append("：");
                 if(("view"+record.getShortName()).equals(method.getName())){
-                    sb.append("通过表单查看或创建记录！");
+                    sb.append("通过表单查看或创建记录");
                 }else if(("get"+record.getShortName()).equals(method.getName())){
-                    sb.append("根据主键查询单条！");
+                    sb.append("根据主键查询单条");
                 }else if(("list"+record.getShortName()).equals(method.getName())){
-                    sb.append("查看数据列表！");
+                    sb.append("查看数据列表");
                 }else if(("create"+record.getShortName()).equals(method.getName())){
-                    sb.append("添加了一条记录！");
+                    sb.append("添加了一条记录");
                 }else if(("upload"+record.getShortName()).equals(method.getName())){
-                    sb.append("上传记录！");
+                    sb.append("上传记录");
                 }else if(("download"+record.getShortName()).equals(method.getName())){
-                    sb.append("下载数据！");
+                    sb.append("下载数据");
                 }else if(("update"+record.getShortName()).equals(method.getName())){
-                    sb.append("更新了一条记录！");
+                    sb.append("更新了一条记录");
                 }else if(("delete"+record.getShortName()).equals(method.getName())){
-                    sb.append("删除了一条记录！");
+                    sb.append("删除了一条记录");
                 }else if(("deleteBatch"+record.getShortName()).equals(method.getName())){
-                    sb.append("删除了一条或多条记录！");
+                    sb.append("删除了一条或多条记录");
+                }else if(("getDefaultView"+record.getShortName()).equals(method.getName())){
+                    sb.append("查看设备信息表默认视图");
                 }else{
                     sb.append("执行操作！");
                 }

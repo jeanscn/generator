@@ -1164,9 +1164,21 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                             IntrospectedColumn introspectedColumn,
+                                             IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass,
-                                        IntrospectedColumn introspectedColumn,
-                                        IntrospectedTable introspectedTable) {
+                                             IntrospectedColumn introspectedColumn,
+                                             IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                          IntrospectedColumn introspectedColumn,
+                                          IntrospectedTable introspectedTable) {
         return true;
     }
 

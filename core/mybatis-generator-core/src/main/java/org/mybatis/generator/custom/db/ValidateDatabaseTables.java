@@ -121,7 +121,7 @@ public class ValidateDatabaseTables {
         }
     }
 
-    private void copyColumnProperty(IntrospectedColumn source,IntrospectedColumn target){
+    private void copyColumnProperty(IntrospectedColumn source, IntrospectedColumn target){
         target.setIdentity(source.isIdentity());
         target.setLength(source.getLength());
         target.setRemarks(source.getRemarks());
@@ -183,7 +183,7 @@ public class ValidateDatabaseTables {
         }
     }
 
-    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver,Field declaredField,IntrospectedTable table){
+    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, IntrospectedTable table){
         JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
         jdbcTypeInformation.setColumnLength(columnMeta.size());
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();
@@ -277,7 +277,7 @@ public class ValidateDatabaseTables {
         return ret.toString();
     }
 
-    private String getColumnSql(List<IntrospectedColumn> columns,String actionKey){
+    private String getColumnSql(List<IntrospectedColumn> columns, String actionKey){
         StringBuilder sb = new StringBuilder();
         StringBuilder not_null = new StringBuilder();
         StringBuilder sb_length = new StringBuilder();

@@ -48,6 +48,7 @@ public class ConstantsUtil {
     public static final String RESPONSE_SIMPLE_IMPL =   "com.vgosoft.core.adapter.web.respone.ResponseSimpleImpl";
     public static final String RESPONSE_LIST =          "com.vgosoft.core.adapter.web.respone.ResponseList";
     public static final String RESPONSE_SIMPLE_LIST =   "com.vgosoft.core.adapter.web.respone.ResponseSimpleList";
+    public static final String RESPONSE_VIEW_CONFIG =   "com.vgosoft.web.plugins.datatables.ResponseViewConfig";
     public final static String SERVICE_RESULT=          "com.vgosoft.core.adapter.ServiceResult";
 
    //枚举

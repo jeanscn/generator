@@ -22,7 +22,6 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
-import org.mybatis.generator.custom.ConstantsUtil;
 
 import java.util.ArrayList;
 import java.util.List;

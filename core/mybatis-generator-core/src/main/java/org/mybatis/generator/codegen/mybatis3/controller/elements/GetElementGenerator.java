@@ -38,12 +38,15 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
                 entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.isSuccess()) {");
-        method.addBodyLine(VStringUtil.format("responseSimple.addAttribute(\"{0}\",serviceResult.getResult());",this.entityNameKey));
+        method.addBodyLine(VStringUtil.format("responseSimple.addAttribute(\"{0}\",mappings.to{1}VO(serviceResult.getResult()));",
+                this.entityNameKey,entityType.getShortName()));
         method.addBodyLine("}else{");
         method.addBodyLine("responseSimple.addAttribute(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");
         method.addBodyLine("return responseSimple;");
 
         parentElement.addMethod(method);
+        parentElement.addImportedType(entityVoType);
+        parentElement.addImportedType(entityMappings);
     }
 }

@@ -3,6 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -24,15 +25,18 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method,parentElement);
 
-        method.addParameter(entityParameter);
-        entityParameter.addAnnotation("@RequestBody");
+        Parameter parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
+        parameter.addAnnotation("@RequestBody");
+        parameter.addAnnotation("@Valid");
+        method.addParameter(parameter);
         method.setReturnType(responseSimple);
+
+        addSystemLogAnnotation(method,parentElement);
         addControllerMapping(method, "", "post");
         method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
-        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> insert = {1}.insert({2});",
-                entityType.getShortName(),serviceBeanName, entityFirstLowerShortName));
+        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> insert = {1}.insert(mappings.from{2}({3}));",
+                entityType.getShortName(),serviceBeanName, entityVoType.getShortName(),entityVoType.getShortNameFirstLowCase()));
         method.addBodyLine("if (!insert.isSuccess()) {");
         method.addBodyLine("setExceptionResponse(responseSimple, insert.getException());");
         method.addBodyLine("}else{");
@@ -44,5 +48,8 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("return responseSimple;");
 
         parentElement.addMethod(method);
+        parentElement.addImportedType(entityVoType);
+        parentElement.addImportedType(entityMappings);
+        parentElement.addImportedType("javax.validation.Valid");
     }
 }

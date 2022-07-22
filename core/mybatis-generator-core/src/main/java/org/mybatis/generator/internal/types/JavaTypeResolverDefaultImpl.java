@@ -113,7 +113,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
     }
 
     protected FullyQualifiedJavaType overrideDefaultType(IntrospectedColumn column,
-            FullyQualifiedJavaType defaultType) {
+                                                         FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer = defaultType;
 
         switch (column.getJdbcType()) {
@@ -165,7 +165,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
     }
 
     protected FullyQualifiedJavaType calculateTimestampType(IntrospectedColumn column,
-            FullyQualifiedJavaType defaultType) {
+                                                            FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
 
         if (useJSR310Types) {
@@ -178,7 +178,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
     }
 
     protected FullyQualifiedJavaType calculateBitReplacement(IntrospectedColumn column,
-            FullyQualifiedJavaType defaultType) {
+                                                             FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
 
         if (column.getLength() > 1) {
@@ -191,7 +191,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
     }
 
     protected FullyQualifiedJavaType calculateBigDecimalReplacement(IntrospectedColumn column,
-            FullyQualifiedJavaType defaultType) {
+                                                                    FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer;
 
         if (column.getScale() > 0 || column.getLength() > 18 || forceBigDecimals) {

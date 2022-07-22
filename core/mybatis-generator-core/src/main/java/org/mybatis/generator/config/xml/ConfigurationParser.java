@@ -198,6 +198,12 @@ public class ConfigurationParser {
             PluginConfiguration mybatisPlusAnnotationPlugin = new PluginConfiguration();
             mybatisPlusAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.MybatisPlusAnnotationPlugin");
             context.addPluginConfiguration(mybatisPlusAnnotationPlugin);
+            PluginConfiguration viewMetaAnnotationPlugin  = new PluginConfiguration();
+            viewMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.ViewMetaAnnotationPlugin");
+            context.addPluginConfiguration(viewMetaAnnotationPlugin);
+            PluginConfiguration validatorPlugin  = new PluginConfiguration();
+            validatorPlugin.setConfigurationType("org.mybatis.generator.plugins.ValidatorPlugin");
+            context.addPluginConfiguration(validatorPlugin);
 
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())

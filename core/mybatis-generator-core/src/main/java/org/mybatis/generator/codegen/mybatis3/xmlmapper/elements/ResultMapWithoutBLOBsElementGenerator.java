@@ -24,10 +24,7 @@ import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
 
-import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGenerator {
 

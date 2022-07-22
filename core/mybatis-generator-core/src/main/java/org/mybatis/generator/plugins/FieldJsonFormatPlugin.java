@@ -25,15 +25,28 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+       return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+    }
+
+    @Override
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+    }
+
+    @Override
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+    }
+
+    private boolean addJsonFieldFormat(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
         //添加日期序列化格式注解
         String datePattern = introspectedColumn.getDatePattern();
         if (StringUtility.stringHasValue(datePattern)) {
             topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
-            field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\""+datePattern+"\")");
+            field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"" + datePattern + "\")");
             topLevelClass.addImportedType("com.alibaba.fastjson.annotation.JSONField");
-            field.addAnnotation("@JSONField(format=\""+datePattern+"\")");
+            field.addAnnotation("@JSONField(format=\"" + datePattern + "\")");
         }
         return true;
     }
-
 }

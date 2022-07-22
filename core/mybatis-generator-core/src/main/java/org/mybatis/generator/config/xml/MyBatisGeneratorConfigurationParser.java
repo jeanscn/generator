@@ -828,11 +828,11 @@ public class MyBatisGeneratorConfigurationParser {
 
     private void parseGenerateVO(Context context, TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
-        BaseVOGeneratorConfiguration baseVOGeneratorConfiguration = new BaseVOGeneratorConfiguration(context);
+        VOGeneratorConfiguration vOGeneratorConfiguration = new VOGeneratorConfiguration(context);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
-        baseVOGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
-        parseChildNodeOnlyProperty(baseVOGeneratorConfiguration, node);
-        tc.setBaseVOGeneratorConfiguration(baseVOGeneratorConfiguration);
+        vOGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
+        parseChildNodeOnlyProperty(vOGeneratorConfiguration, node);
+        tc.setVOGeneratorConfiguration(vOGeneratorConfiguration);
     }
 
     private void parseGenerateModel(Context context, TableConfiguration tc, Node node) {

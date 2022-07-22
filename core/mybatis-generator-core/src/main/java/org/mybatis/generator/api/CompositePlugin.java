@@ -887,13 +887,33 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voAbstractFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voModelFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
                 return false;
             }
         }
+        return true;
+    }
 
+    @Override
+    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voViewFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
         return true;
     }
 

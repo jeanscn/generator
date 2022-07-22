@@ -243,7 +243,7 @@ public interface CommentGenerator {
      * @since 1.3.6
      */
     default void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
+                                            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * Adds a @Generated annotation to a field.
@@ -275,7 +275,7 @@ public interface CommentGenerator {
      * @since 1.3.6
      */
     default void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
+                                    IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
 
     /**
      * Adds a @Generated annotation to a class.

@@ -52,7 +52,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
      * @return the selectKey element
      */
     protected XmlElement getSelectKey(IntrospectedColumn introspectedColumn,
-            GeneratedKey generatedKey) {
+                                      GeneratedKey generatedKey) {
         String identityColumnType = introspectedColumn.getFullyQualifiedJavaType().getFullyQualifiedName();
 
         XmlElement answer = new XmlElement("selectKey"); //$NON-NLS-1$

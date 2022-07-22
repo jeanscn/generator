@@ -405,7 +405,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
     @Override
     public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+                                           IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
         imports.add(generatedImport);
         String comment = "Source field: " //$NON-NLS-1$
                 + introspectedTable.getFullyQualifiedTable().toString() + "." //$NON-NLS-1$
@@ -423,7 +423,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
     @Override
     public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
-            IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+                                   IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
         imports.add(generatedImport);
         String comment = "Source field: " //$NON-NLS-1$
                 + introspectedTable.getFullyQualifiedTable().toString() + "." //$NON-NLS-1$

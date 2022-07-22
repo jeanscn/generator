@@ -44,7 +44,6 @@ import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -180,7 +179,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 initializeAbstractGenerator(javaServiceUnitTestGenerator, warnings,progressCallback);
                 javaGenerators.add(javaServiceUnitTestGenerator);
             }
-            if (getRules().isGenerateBaseVO()) {
+            if (getRules().isGenerateVO()) {
                 ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
                 initializeAbstractGenerator(viewObjectClassGenerator, warnings,progressCallback);
                 javaGenerators.add(viewObjectClassGenerator);

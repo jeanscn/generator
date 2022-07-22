@@ -97,6 +97,8 @@ public class IntrospectedColumn {
      * */
     protected String position;
 
+    protected int order = 10;
+
     public IntrospectedColumn() {
         super();
         properties = new Properties();
@@ -373,5 +375,13 @@ public class IntrospectedColumn {
             default:
                 return "";
         }
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }

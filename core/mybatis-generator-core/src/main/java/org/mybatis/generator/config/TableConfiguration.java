@@ -103,7 +103,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
-    private BaseVOGeneratorConfiguration baseVOGeneratorConfiguration;
+    private VOGeneratorConfiguration vOGeneratorConfiguration;
 
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
@@ -591,12 +591,12 @@ public class TableConfiguration extends PropertyHolder {
         this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
     }
 
-    public BaseVOGeneratorConfiguration getBaseVOGeneratorConfiguration() {
-        return baseVOGeneratorConfiguration;
+    public VOGeneratorConfiguration getVOGeneratorConfiguration() {
+        return vOGeneratorConfiguration;
     }
 
-    public void setBaseVOGeneratorConfiguration(BaseVOGeneratorConfiguration baseVOGeneratorConfiguration) {
-        this.baseVOGeneratorConfiguration = baseVOGeneratorConfiguration;
+    public void setVOGeneratorConfiguration(VOGeneratorConfiguration vOGeneratorConfiguration) {
+        this.vOGeneratorConfiguration = vOGeneratorConfiguration;
     }
 
     public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {

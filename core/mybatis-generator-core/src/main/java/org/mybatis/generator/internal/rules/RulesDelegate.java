@@ -223,7 +223,7 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean isGenerateBaseVO() {
+    public boolean isGenerateVO() {
         return false;
     }
 }

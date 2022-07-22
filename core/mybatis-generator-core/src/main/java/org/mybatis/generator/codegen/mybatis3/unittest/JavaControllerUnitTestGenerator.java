@@ -211,14 +211,21 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});",
                 entityType.getShortName(),
                 entityInstanceVar);
+        method.addBodyLine("{0} {1} = {3}Mappings.INSTANCE.to{0}({2});",
+                entityType.getShortName()+"VO",
+                entityType.getShortNameFirstLowCase()+"VO",
+                entityType.getShortNameFirstLowCase(),
+                entityType.getShortName());
         method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
                 mockServiceImpl);
         method.addBodyLine("mockMvc.perform({0}\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n" +
                         "                .andExpect(responseBody()\n" +
                         "                        .containsObjectAsJson({1}, {2}.class, ResponseSimpleImpl.class));",
-                requestUri, entityInstanceVar, entityType.getShortName());
-
+                requestUri, entityInstanceVar+"VO", entityType.getShortName()+"VO");
+        String targetPackage = introspectedTable.getTableConfiguration().getVOGeneratorConfiguration().getTargetPackage();
+        testClazz.addImportedType(targetPackage+".vo."+entityType.getShortName()+"VO");
+        testClazz.addImportedType(targetPackage+".maps."+entityType.getShortName()+"Mappings");
         //getXXX，服务返回失败的测试方法
         methodName = "get" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, testClazz,"获取记录-服务层返回失败结果");
@@ -300,9 +307,9 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         methodName = "update" + entityType.getShortName();
         method = createMethod(methodName, testClazz,"更新数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.updateByPrimaryKey()方法有返回值");
+        addMethodComment(method, true, "被调用的service.updateByPrimaryKeySelective()方法有返回值");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({3});\n" +
-                "        when({2}.updateByPrimaryKey(any({1})))\n" +
+                "        when({2}.updateByPrimaryKeySelective(any({1})))\n" +
                 "                .thenReturn(serviceResult);",
                 entityType.getShortName(),entityType.getShortName()+".class",mockServiceImpl,entityInstanceVar);
         method.addBodyLine("mockMvc.perform({0}\n" +
@@ -316,11 +323,11 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         methodName = "update" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, testClazz,"更新数据-服务层返回失败结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.updateByPrimaryKey()方法返回失败");
+        addMethodComment(method, true, "被调用的service.updateByPrimaryKeySelective()方法返回失败");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,\n" +
                         "                \"error message\");",
                 entityType.getShortName());
-        method.addBodyLine(" when({0}.updateByPrimaryKey(any({1}))).thenReturn(serviceResult);\n" +
+        method.addBodyLine(" when({0}.updateByPrimaryKeySelective(any({1}))).thenReturn(serviceResult);\n" +
                 "        final MockHttpServletResponse response = mockMvc.perform({2}\n" +
                 "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
                 "                        .accept(MediaType.APPLICATION_JSON))\n" +
