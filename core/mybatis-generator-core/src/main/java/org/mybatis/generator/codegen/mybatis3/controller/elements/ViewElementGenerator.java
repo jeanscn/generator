@@ -48,12 +48,14 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
                 entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.isSuccess()) {");
-        method.addBodyLine(format("mv.addObject(\"{0}\",serviceResult.getResult());",this.entityNameKey));
+        method.addBodyLine(format("mv.addObject(\"{0}\",{1});",this.entityNameKey,
+                isGenerateVoModel()?"mappings.to"+entityVoType.getShortName()+"(serviceResult.getResult())":"serviceResult.getResult()"));
         method.addBodyLine("}else{");
         method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");
         method.addBodyLine("}else{");
-        method.addBodyLine(format("mv.addObject(\"{0}\", new {1}(0));", this.entityNameKey,entityType.getShortName()));
+        method.addBodyLine(format("mv.addObject(\"{0}\", new {1});",
+                this.entityNameKey,isGenerateVoModel()?this.entityVoType.getShortName()+"()":entityType.getShortName()+"(0)"));
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewStatus).orElse(\"1\"));");
         sb.setLength(0);

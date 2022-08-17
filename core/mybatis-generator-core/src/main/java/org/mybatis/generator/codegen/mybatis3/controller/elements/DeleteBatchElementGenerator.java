@@ -6,8 +6,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 
-import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE;
-import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE_IMPL;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 public class DeleteBatchElementGenerator extends AbstractControllerElementGenerator {
 
@@ -17,35 +16,27 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType(RESPONSE_SIMPLE);
-        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addImportedType(entityType);
         parentElement.addImportedType(exampleType);
-
         final String methodPrefix = "deleteBatch";
         Method method = createMethod(methodPrefix);
         addSystemLogAnnotation(method,parentElement);
-
         Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "ids");
         parameter.addAnnotation("@RequestBody");
         method.addParameter(parameter);
-        method.setReturnType(responseSimple);
+        FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
+        response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
+        method.setReturnType(response);
         addControllerMapping(method, null, "delete");
-        method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
-        StringBuilder sb = new StringBuilder();
-        sb.append(exampleType.getShortName()).append(" example = new ");
-        sb.append(exampleType.getShortName()).append("();");
-        method.addBodyLine(sb.toString());
+        method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
-        method.addBodyLine("try {");
-        sb.setLength(0);
-        sb.append("int rows =  ").append(serviceBeanName).append(".deleteByExample(example);");
-        method.addBodyLine(sb.toString());
-        sb.setLength(0);
-        sb.append("responseSimple.addAttribute(\"rows\", String.valueOf(rows));");
-        method.addBodyLine(sb.toString());
-        addExceptionAndReturn(method);
+        method.addBodyLine("int rows =  {0}.deleteByExample(example);",serviceBeanName);
+        method.addBodyLine("if (rows > 0) {");
+        method.addBodyLine("return success((long) rows);");
+        method.addBodyLine("} else {");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
+        method.addBodyLine("}");
         parentElement.addMethod(method);
     }
 }

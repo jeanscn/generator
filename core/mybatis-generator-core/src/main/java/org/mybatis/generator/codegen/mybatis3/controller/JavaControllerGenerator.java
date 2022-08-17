@@ -5,14 +5,13 @@ import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
-import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
+import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mybatis.generator.custom.ConstantsUtil.ABSTRACT_BASE_CONTROLLER;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -53,6 +52,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         conTopClazz.addImportedType(supClazzType);
         conTopClazz.addImportedType("lombok.RequiredArgsConstructor");
         conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
+        conTopClazz.addStaticImport(RESPONSE_RESULT+".*");
+        conTopClazz.addImportedType(API_CODE_ENUM);
         conTopClazz.addAnnotation("@RequiredArgsConstructor");
         conTopClazz.addAnnotation("@RestController");
 
@@ -64,18 +65,20 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         field.setFinal(true);
         conTopClazz.addField(field);
         //增加Mappings属性
-        String voTargetPackage = introspectedTable.getTableConfiguration()
-                .getVOGeneratorConfiguration()
-                .getTargetPackage();
-        FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(
-                String.join(".",
-                        voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
-        Field mappings = new Field("mappings", entityMappings);
-        mappings.setFinal(true);
-        mappings.setInitializationString(String.join(".", entityMappings.getShortName(),"INSTANCE"));
-        mappings.setVisibility(JavaVisibility.PRIVATE);
-        conTopClazz.addField(mappings);
-        conTopClazz.addImportedType(entityMappings);
+        if (isGenerateVoModel()) {
+            String voTargetPackage = introspectedTable.getTableConfiguration()
+                    .getVoGeneratorConfiguration()
+                    .getTargetPackage();
+            FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(
+                    String.join(".",
+                            voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
+            Field mappings = new Field("mappings", entityMappings);
+            mappings.setFinal(true);
+            mappings.setInitializationString(String.join(".", entityMappings.getShortName(),"INSTANCE"));
+            mappings.setVisibility(JavaVisibility.PRIVATE);
+            conTopClazz.addField(mappings);
+            conTopClazz.addImportedType(entityMappings);
+        }
 
         String viewpath = null;
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
@@ -91,13 +94,18 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
 
-        if (introspectedTable.getRules().isGenerateVO()) {
+        if (isGenerateVoView()) {
+            addGetDefaultViewConfigElement(conTopClazz);
             addGetDefaultViewElement(conTopClazz);
         }
 
         if (introspectedTable.hasBLOBColumns()) {
             addUploadElement(conTopClazz);
             addDownloadElement(conTopClazz);
+        }
+
+        if (introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().size()>0) {
+            addOptionElement(conTopClazz);
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
@@ -109,7 +117,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
     private void addViewElement(TopLevelClass parentElement) {
         List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
-        if (htmlGeneratorConfigurations.size()>0 && stringHasValue(htmlGeneratorConfigurations.get(0).getViewPath())) {
+        long count = htmlGeneratorConfigurations.stream().filter(h->h.isGenerate() && stringHasValue(h.getViewPath())).count();
+        if (count>0) {
             AbstractControllerElementGenerator elementGenerator = new ViewElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -160,6 +169,18 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         initializeAndExecuteGenerator(elementGenerator, parentElement);
     }
 
+    private void addGetDefaultViewConfigElement(TopLevelClass parentElement){
+        AbstractControllerElementGenerator elementGenerator = new GetDefaultViewConfigElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
+    private void addOptionElement(TopLevelClass parentElement) {
+        for (FormOptionGeneratorConfiguration formOptionGeneratorConfiguration : introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations()) {
+            AbstractControllerElementGenerator elementGenerator = new OptionElementGenerator(formOptionGeneratorConfiguration);
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
     protected void initializeAndExecuteGenerator(
             AbstractControllerElementGenerator elementGenerator,
             TopLevelClass parentElement) {
@@ -169,5 +190,15 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         elementGenerator.setWarnings(warnings);
         elementGenerator.initGenerator();
         elementGenerator.addElements(parentElement);
+    }
+
+    protected boolean isGenerateVoModel(){
+        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+        return voGeneratorConfiguration!=null && voGeneratorConfiguration.isGenerate();
+    }
+
+    protected boolean isGenerateVoView(){
+        VOViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoViewGeneratorConfiguration();
+        return voViewGeneratorConfiguration!=null && voViewGeneratorConfiguration.isGenerate();
     }
 }

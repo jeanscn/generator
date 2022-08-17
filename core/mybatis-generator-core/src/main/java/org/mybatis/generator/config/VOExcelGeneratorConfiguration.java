@@ -15,21 +15,17 @@
  */
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
-public class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public class VOExcelGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
-    private VOViewGeneratorConfiguration voViewGeneratorConfiguration;
-
-
-    public VOGeneratorConfiguration() {
+    public VOExcelGeneratorConfiguration() {
         super();
     }
 
-    public VOGeneratorConfiguration(Context context) {
+    public VOExcelGeneratorConfiguration(Context context) {
         super();
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
@@ -38,6 +34,6 @@ public class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOGeneratorConfiguration");
+        super.validate(errors, contextId, "VOExcelGeneratorConfiguration");
     }
 }

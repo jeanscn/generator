@@ -15,8 +15,10 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfiguration {
@@ -26,6 +28,8 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
     private boolean generateUnitTest;
 
     private String springBootApplicationClass;
+
+    private List<FormOptionGeneratorConfiguration> formOptionGeneratorConfigurations = new ArrayList<>();
 
     public JavaControllerGeneratorConfiguration(Context context) {
         super();
@@ -58,6 +62,14 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     public void setSpringBootApplicationClass(String springBootApplicationClass) {
         this.springBootApplicationClass = springBootApplicationClass;
+    }
+
+    public List<FormOptionGeneratorConfiguration> getFormOptionGeneratorConfigurations() {
+        return formOptionGeneratorConfigurations;
+    }
+
+    public void addFormOptionGeneratorConfigurations(FormOptionGeneratorConfiguration formOptionGeneratorConfigurations) {
+        this.formOptionGeneratorConfigurations.add(formOptionGeneratorConfigurations);
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
@@ -34,11 +35,6 @@ public class SwaggerApiPlugin extends PluginAdapter {
         return true;
     }
 
-    @Override
-    public void setContext(Context context) {
-        super.setContext(context);
-    }
-
     /**
      * model类的@apiModel
      */
@@ -54,7 +50,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
 
     @Override
-    public boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
         topLevelClass.addAnnotation(apiModelAnnotation);
         topLevelClass.addImportedType(API_MODEL);
@@ -206,34 +202,30 @@ public class SwaggerApiPlugin extends PluginAdapter {
         if (("view" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                     "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图");
-        }
-        if (("get" + record.getShortName()).equals(method.getName())) {
+        }else if (("get" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "获得单条记录", "根据给定id获取单个实体");
-        }
-        if (("list" + record.getShortName()).equals(method.getName())) {
+        }else if (("list" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "获得数据列表",
                     "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
-        }
-        if (("create" + record.getShortName()).equals(method.getName())) {
+        }else if (("create" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "新增一条记录", "新增一条记录,返回json，包含影响条数及消息");
-        }
-        if (("upload" + record.getShortName()).equals(method.getName())) {
+        }else if (("upload" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "单个文件上传", "单个文件上传接口");
-        }
-        if (("download" + record.getShortName()).equals(method.getName())) {
+        }else if (("download" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "单个文件下载", "单个文件下载接口");
-        }
-        if (("update" + record.getShortName()).equals(method.getName())) {
+        }else if (("update" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "更新一条记录", "根据主键更新实体对象");
-        }
-        if (("delete" + record.getShortName()).equals(method.getName())) {
+        }else if (("delete" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "单条记录删除", "根据给定的id删除一条记录");
-        }
-        if (("deleteBatch" + record.getShortName()).equals(method.getName())) {
+        }else if (("deleteBatch" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "批量记录删除", "根据给定的一组id删除多条记录");
-        }
-        if (("getDefaultView" + record.getShortName()).equals(method.getName())) {
+        }else if (("getDefaultViewConfig" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "默认数据视图配置", "获取默认数据视图配置");
+        }else if (("getDefaultView" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "默认数据视图显示", "显示默认数据视图");
+        }else if (VStringUtil.contains(method.getName(), "option")) {
+            String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
+            buildSwaggerApiAnnotation(method, "获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表", "根据给定条件获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表，可以根据需要传入属性同名参数、前段选中的值");
         }
     }
 

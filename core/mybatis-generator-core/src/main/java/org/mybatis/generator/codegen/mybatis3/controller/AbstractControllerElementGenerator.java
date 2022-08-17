@@ -6,6 +6,7 @@ import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -32,6 +33,10 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected FullyQualifiedJavaType entityVoType;
 
+    protected FullyQualifiedJavaType entityViewVoType;
+
+    protected FullyQualifiedJavaType responseResult;
+
     protected Parameter entityParameter;
 
     protected HtmlGeneratorConfiguration htmlGeneratorConfiguration;
@@ -55,12 +60,14 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         }
         entityParameter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         responseSimple = new FullyQualifiedJavaType(RESPONSE_SIMPLE);
+        responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         entityFirstLowerShortName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
         String voTargetPackage = introspectedTable.getTableConfiguration()
-                .getVOGeneratorConfiguration()
+                .getVoGeneratorConfiguration()
                 .getTargetPackage();
         entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
+        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
     }
 
     protected Method createMethod(String methodPrefix) {
@@ -88,12 +95,12 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
      * 生成Controller时添加方法的catch和return语句
      *
      */
-    protected void addExceptionAndReturn(Method method) {
+   /* protected void addExceptionAndReturn(Method method) {
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("setExceptionResponse(responseSimple, e);");
         method.addBodyLine("}");
         method.addBodyLine("return responseSimple;");
-    }
+    }*/
 
     protected void addSystemLogAnnotation(Method method,TopLevelClass parentElement){
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
@@ -104,7 +111,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                 FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
                 sb.append(introspectedTable.getRemarks()).append("：");
                 if(("view"+record.getShortName()).equals(method.getName())){
-                    sb.append("通过表单查看或创建记录");
+                    sb.append("通过表单查看或创建").append(introspectedTable.getRemarks()).append("记录");
                 }else if(("get"+record.getShortName()).equals(method.getName())){
                     sb.append("根据主键查询单条");
                 }else if(("list"+record.getShortName()).equals(method.getName())){
@@ -122,7 +129,9 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                 }else if(("deleteBatch"+record.getShortName()).equals(method.getName())){
                     sb.append("删除了一条或多条记录");
                 }else if(("getDefaultView"+record.getShortName()).equals(method.getName())){
-                    sb.append("查看设备信息表默认视图");
+                    sb.append("查看").append(introspectedTable.getRemarks()).append("表默认视图");
+                }else if(("getDefaultViewConfig"+record.getShortName()).equals(method.getName())){
+                    sb.append("查看").append(introspectedTable.getRemarks()).append("表默认视图配置");
                 }else{
                     sb.append("执行操作！");
                 }
@@ -134,5 +143,40 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
             }
         }
+    }
+
+    protected boolean isGenerateVoModel(){
+        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+        return voGeneratorConfiguration!=null && voGeneratorConfiguration.isGenerate();
+    }
+
+    protected FullyQualifiedJavaType getResponseResult(boolean isListResult) {
+        FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
+        FullyQualifiedJavaType result = new FullyQualifiedJavaType(isGenerateVoModel()
+                ?entityVoType.getFullyQualifiedName():entityType.getFullyQualifiedName());
+        if (isListResult) {
+            FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+            listInstance.addTypeArgument(result);
+            response.addTypeArgument(listInstance);
+        }else{
+            response.addTypeArgument(result);
+        }
+        return response;
+    }
+
+    protected Parameter buildMethodParameter(boolean isValid,boolean isRequestBody){
+        Parameter parameter;
+        if (isGenerateVoModel()) {
+            parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
+        }else{
+            parameter = new Parameter(entityType,entityType.getShortNameFirstLowCase());
+        }
+        if (isValid) {
+            parameter.addAnnotation("@Valid");
+        }
+        if (isRequestBody) {
+            parameter.addAnnotation("@RequestBody");
+        }
+        return parameter;
     }
 }

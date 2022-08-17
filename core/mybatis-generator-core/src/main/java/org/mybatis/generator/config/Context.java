@@ -16,14 +16,13 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.*;
-import org.mybatis.generator.custom.db.ValidateDatabaseTables;
+import org.mybatis.generator.custom.db.ValidateDatabaseTable;
 import org.mybatis.generator.internal.JDBCConnectionFactory;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.PluginAggregator;
 import org.mybatis.generator.internal.db.DatabaseIntrospector;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -415,9 +414,13 @@ public class Context extends PropertyHolder {
 
                 if (tables != null) {
                     introspectedTables.addAll(tables);
+                    for (IntrospectedTable table : tables) {
+                        if (!table.getTableConfiguration().isIgnore()) {
+                            ValidateDatabaseTable validateDatabaseTables = new ValidateDatabaseTable(table, connection,warnings);
+                            validateDatabaseTables.executeUpdate();
+                        }
+                    }
                 }
-                ValidateDatabaseTables validateDatabaseTables = new ValidateDatabaseTables(tables, connection,warnings);
-                validateDatabaseTables.executeUpdate();
                 callback.checkCancel();
             }
         } finally {

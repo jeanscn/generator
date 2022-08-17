@@ -1,5 +1,6 @@
 package org.mybatis.generator.plugins;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -25,7 +26,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         String s = buildViewColumnMetaAnnotation(introspectedColumn);
         if (StringUtility.stringHasValue(s)) {
             field.addAnnotation(s);
-            topLevelClass.addImportedType("com.vgosoft.core.annotation.ViewColumnMeta");
+            topLevelClass.addMultipleImports("ViewColumnMeta");
         }
         return true;
     }
@@ -38,7 +39,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         String s = buildViewColumnMetaAnnotation(introspectedColumn);
         if (StringUtility.stringHasValue(s)) {
             field.addAnnotation(s);
-            topLevelClass.addImportedType("com.vgosoft.core.annotation.ViewColumnMeta");
+            topLevelClass.addMultipleImports("ViewColumnMeta");
         }
         return true;
     }
@@ -47,18 +48,15 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
      * 构造注解@ViewColumnMeta
      */
     private String buildViewColumnMetaAnnotation(IntrospectedColumn introspectedColumn) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("@ViewColumnMeta(").append("value = \"");
-        sb.append(introspectedColumn.getJavaProperty()).append("\"");
-        sb.append(",title = \"");
-        if (StringUtils.isNotEmpty(introspectedColumn.getRemarks())) {
-            sb.append(StringUtility.remarkLeft(introspectedColumn.getRemarks()));
-        } else {
-            sb.append(introspectedColumn.getActualColumnName());
+        String value = VStringUtil.format("value = \"{0}\"", introspectedColumn.getJavaProperty());
+        String title = VStringUtil.format("title = \"{0}\""
+                , StringUtils.isNotEmpty(introspectedColumn.getRemarks())?introspectedColumn.getRemarks():introspectedColumn.getActualColumnName());
+        String order = VStringUtil.format("order = {0}", introspectedColumn.getOrder());
+        if (introspectedColumn.getOrder()!=20) {
+            return VStringUtil.format("@ViewColumnMeta({0})",String.join(",", value,title,order));
+        }else{
+            return VStringUtil.format("@ViewColumnMeta({0})",String.join(",", value,title));
         }
-        sb.append("\"");
-        sb.append(")");
-        return sb.toString();
     }
 
 }

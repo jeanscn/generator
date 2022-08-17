@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.custom;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -22,6 +23,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -109,38 +111,46 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         if(("view"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据主键获取单个业务实例",""
                     ,"@param id 可选参数，存在时查询数据；否则直接返回视图，用于打开表单。");
-        }
-        if(("get"+record.getShortName()).equals(method.getName())){
+        }else if(("get"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据主键获取单个实体");
-        }
-        if(("list"+record.getShortName()).equals(method.getName())){
-            FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-            String firstCharacterLowercase = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+        }else if(("list"+record.getShortName()).equals(method.getName())){
+            String param = getEntityParam(introspectedTable);
             addMethodJavaDocLine(method,"获取条件实体对象列表",""
-                    ,"@param "+firstCharacterLowercase+" 用于接收属性同名参数");
-        }
-        if(("create"+record.getShortName()).equals(method.getName())){
+                    ,"@param "+param+" 用于接收属性同名参数");
+        }else if(("create"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"新增一条记录");
-        }
-        if(("upload"+record.getShortName()).equals(method.getName())){
+        }else if(("upload"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"单个文件上传");
-        }
-        if(("download"+record.getShortName()).equals(method.getName())){
+        }else if(("download"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"文件下载","","@param id 路径参数，资源标识id"
                     ,"@param type 路径参数，下载方式：1-下载或另存 0-直接在浏览器中打开");
-        }
-        if(("update"+record.getShortName()).equals(method.getName())){
+        }else if(("update"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据主键更新实体对象");
-        }
-        if(("delete"+record.getShortName()).equals(method.getName())){
+        }else if(("delete"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"删除一条记录");
-        }
-        if(("deleteBatch"+record.getShortName()).equals(method.getName())){
+        }else if(("deleteBatch"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据ids批量删除记录");
-        }
-        if(("getDefaultView"+record.getShortName()).equals(method.getName())){
+        }else if(("getDefaultViewConfig"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"获取默认数据视图配置");
+        }else if(("getDefaultView"+record.getShortName()).equals(method.getName())){
+            addMethodJavaDocLine(method,"获取默认数据视图");
+        }else if (VStringUtil.contains(method.getName(), "option")) {
+            String param = getEntityParam(introspectedTable);
+            String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
+            addMethodJavaDocLine(method,"获取Options-"+JavaBeansUtil.getFirstCharacterLowercase(property)+"选项列表",""
+                    ,"@param "+param+" 用于接收属性同名参数","@param selected 选中的值");
         }
+    }
+
+    private String getEntityParam(IntrospectedTable introspectedTable) {
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        String firstCharacterLowercase = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+        String param = firstCharacterLowercase;
+        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+        if (voGeneratorConfiguration != null && voGeneratorConfiguration.isGenerate()) {
+            param = firstCharacterLowercase + "VO";
+        }
+        return param;
     }
 
     @Override

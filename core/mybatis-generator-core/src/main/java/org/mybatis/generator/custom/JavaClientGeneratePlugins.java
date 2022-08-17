@@ -4,7 +4,6 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.HtmlConstants;
-import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
@@ -17,10 +16,6 @@ import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +35,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return true;
     }
 
-    @Override
-    public void setContext(Context context) {
-        super.setContext(context);
-    }
-
-
     /*
      * dao接口文件生成后，进行符合性调整
      *
@@ -63,8 +52,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
         infSuperType.addTypeArgument(exampleType);
-        interFace.addImportedType(infSuperType);
         interFace.addSuperInterface(infSuperType);
+        interFace.addImportedType(infSuperType);
+
         JavaBeansUtil.addAnnotation(interFace, "@Mapper");
 
         interFace.getMethods().clear();
@@ -165,7 +155,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         //添加@Setter,@Getter
         topLevelClass.addImportedType("lombok.*");
         topLevelClass.addAnnotation("@Data");
-        topLevelClass.addAnnotation("@NoArgsConstructor");
+        if (!introspectedTable.isConstructorBased()) {
+            topLevelClass.addAnnotation("@NoArgsConstructor");
+        }
         if (topLevelClass.getSuperClass().isPresent()) {
             topLevelClass.addAnnotation("@EqualsAndHashCode(callSuper = true)");
             topLevelClass.addAnnotation("@ToString(callSuper = true)");
@@ -202,7 +194,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 FullyQualifiedJavaType returnType;
                 Field field;
                 FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());
-                if (!isPropertyExist(topLevelClass, relationProperty.getPropertyName())) {
+                if (!topLevelClass.isContainField(relationProperty.getPropertyName())) {
                     if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
                         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
                         topLevelClass.addImportedType(listType);
@@ -219,6 +211,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                         field.addAnnotation("@TableField(exist = false)");
                         topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
                     }
+                    field.setVisibility(JavaVisibility.PRIVATE);
                     addField(topLevelClass, field);
                     topLevelClass.addImportedType(fullyQualifiedJavaType);
                 }
@@ -226,7 +219,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         }
 
         //追加respBasePath属性
-        Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
+        /*Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
+        field.setVisibility(JavaVisibility.PRIVATE);
         if (addField(topLevelClass, field)) {
             if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                 field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
@@ -235,21 +229,21 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                 field.addAnnotation("@TableField(exist = false)");
                 topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
             }
-        }
+        }*/
 
         /*
          * 静态代码初始化
          * restBasePath、persistenceBeanName、viewPath
          */
-        List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+        /*List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
         if (htmlGeneratorConfigurations.size() > 0) {
             initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_REST_BASE_PATH, introspectedTable.getControllerSimplePackage()));
-        }
+        }*/
         if (!StringUtility.isEmpty(beanName) && assignable1) {
             initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", introspectedTable.getControllerBeanName()));
         }
 
-        introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
+       /* introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
                 .findFirst().filter(t -> StringUtility.stringHasValue(t.getViewPath())).ifPresent(htmlConfig -> {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_VIEW_PATH, htmlConfig.getViewPath()));
                     //判断是否需要实现ShowInView接口
@@ -261,6 +255,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                         topLevelClass.addSuperInterface(showInView);
                         //添加viewpath的属性及方法
                         Field viewPath = new Field(PROP_NAME_VIEW_PATH, FullyQualifiedJavaType.getStringInstance());
+                        viewPath.setVisibility(JavaVisibility.PRIVATE);
                         if (addField(topLevelClass, viewPath)) {
                             if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                                 viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
@@ -271,7 +266,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                             }
                         }
                     }
-                });
+                });*/
 
         if (initializationBlock.getBodyLines().size() > 0) {
             topLevelClass.addInitializationBlock(initializationBlock);
@@ -298,24 +293,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return new ArrayList<>();
     }
 
-    private boolean addField(AbstractJavaType javaType, Field field) {
-        return addField(javaType, field, null, JavaVisibility.PRIVATE);
-    }
-
-    private boolean addField(AbstractJavaType javaType, Field field, Integer index, JavaVisibility javaVisibility) {
-        field.setVisibility(javaVisibility);
-        long count = javaType.getFields().stream()
-                .filter(t -> t.getName().equalsIgnoreCase(field.getName()))
-                .count();
-        if (count == 0) {
-            if (index != null && javaType.getFields().size() > 0) {
-                javaType.getFields().add(index, field);
-            } else {
-                javaType.addField(field);
-            }
-            return true;
-        }
-        return false;
+    private boolean addField(TopLevelClass topLevelClass, Field field) {
+        return topLevelClass.addField(field, null,true);
     }
 
     /**
@@ -325,9 +304,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
      * @param existParameters 是否有参
      */
     private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
+        boolean assignable = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
         if (existParameters) {
-            if (assignable1) {
+            if (assignable) {
                 method.addBodyLine("super(persistenceStatus);");
             } else {
                 method.addBodyLine("this.persistenceStatus = persistenceStatus;");
@@ -343,32 +322,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             return MBG_MAPPER_BLOB_INTERFACE;
         }
         return MBG_MAPPER_INTERFACE;
-    }
-
-    private Boolean isPropertyExist(TopLevelClass topLevelClass,String propertyName){
-        boolean found = false;
-        for (Field topLevelClassField : topLevelClass.getFields()) {
-            if (topLevelClassField.getName().equalsIgnoreCase(propertyName)) {
-                found = true;
-                break;
-            }
-        }
-        if (topLevelClass.getSuperClass().isPresent()) {
-            String superClassName = topLevelClass.getSuperClass().get().getFullyQualifiedNameWithoutTypeParameters();
-            try {
-                BeanInfo beanInfo = Introspector.getBeanInfo(Class.forName(superClassName));
-                for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-                    if (propertyDescriptor.getName().equalsIgnoreCase(propertyName)) {
-                        found = true;
-                        break;
-                    }
-                }
-
-            } catch (ClassNotFoundException | IntrospectionException e) {
-                e.printStackTrace();
-            }
-        }
-        return found;
     }
 
 }

@@ -149,7 +149,7 @@
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
         -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateViewVO?,generateExcelVO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
                 ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
@@ -404,7 +404,7 @@
             property配置：
             1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用是同时增加@Transactional注解
         -->
-        <!ELEMENT generateController (property*)>
+        <!ELEMENT generateController (property*, generateOptions*)>
         <!ATTLIST generateController
                 generate (true|false) #REQUIRED
                 generateUnitTest (true|false) #IMPLIED
@@ -412,6 +412,16 @@
                 targetSubPackage CDATA #IMPLIED
                 targetProject CDATA #IMPLIED
                 targetPackage CDATA #IMPLIED>
+
+        <!--
+                   表单选项接口生成描述
+                   属性信息：
+                   默认以id为选项的key值
+                   1、nameColumn 指定用于显示名称（value）的列名。
+                -->
+        <!ELEMENT generateOptions EMPTY>
+        <!ATTLIST generateOptions
+                nameColumn CDATA #REQUIRED>
 
         <!--
             Model PO类对象生成描述
@@ -450,8 +460,39 @@
             1、generate 是否生成,true生成（VO抽象父类每次生成、vo类mappings类不存在是生成）,false忽略。
             property配置：
             1、ignoreColumns:抽象父类忽略的字段名,多值使用","。
-            当不配置该属性时，默认忽略entity父类属性对应的字段。
+            当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
         -->
         <!ELEMENT generateVO (property*)>
         <!ATTLIST generateVO
+                generate (true|false) #REQUIRED>
+
+        <!--
+           默认视图配置的生成描述
+           属性信息：
+           1、generate 是否生成,true生成（ViewVO类不存时生成，如果存在则不再覆盖）,false忽略。
+           property配置：
+           1、includeColumns:视图包含的字段名,多值使用","。
+           2、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效。
+           3、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
+           4、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
+           5、queryColumns:应用复合查询的字段名,多值使用","。
+        -->
+        <!ELEMENT generateViewVO (property*)>
+        <!ATTLIST generateViewVO
+                generate (true|false) #REQUIRED
+                includeColumns CDATA #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
+                actionColumn CDATA #IMPLIED
+                queryColumns CDATA #IMPLIED>
+
+        <!--
+           Excel导入导出模型配置的生成描述
+           属性信息：
+           1、generate 是否生成,true生成（ExcelVO类不存时生成，如果存在则不再覆盖）,false忽略。
+           property配置：
+           1、
+        -->
+        <!ELEMENT generateExcelVO (property*)>
+        <!ATTLIST generateExcelVO
                 generate (true|false) #REQUIRED>

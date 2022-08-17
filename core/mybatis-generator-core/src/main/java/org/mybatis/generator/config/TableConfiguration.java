@@ -52,6 +52,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private GeneratedKey generatedKey;
 
+    private boolean ignore;
+
     private String selectByPrimaryKeyQueryId;
 
     private String selectByExampleQueryId;
@@ -103,7 +105,11 @@ public class TableConfiguration extends PropertyHolder {
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
-    private VOGeneratorConfiguration vOGeneratorConfiguration;
+    private VOGeneratorConfiguration voGeneratorConfiguration;
+
+    private VOExcelGeneratorConfiguration voExcelGeneratorConfiguration;
+
+    private VOViewGeneratorConfiguration voViewGeneratorConfiguration;
 
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
@@ -591,12 +597,28 @@ public class TableConfiguration extends PropertyHolder {
         this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
     }
 
-    public VOGeneratorConfiguration getVOGeneratorConfiguration() {
-        return vOGeneratorConfiguration;
+    public VOGeneratorConfiguration getVoGeneratorConfiguration() {
+        return voGeneratorConfiguration;
     }
 
-    public void setVOGeneratorConfiguration(VOGeneratorConfiguration vOGeneratorConfiguration) {
-        this.vOGeneratorConfiguration = vOGeneratorConfiguration;
+    public void setVoGeneratorConfiguration(VOGeneratorConfiguration voGeneratorConfiguration) {
+        this.voGeneratorConfiguration = voGeneratorConfiguration;
+    }
+
+    public VOExcelGeneratorConfiguration getVoExcelGeneratorConfiguration() {
+        return voExcelGeneratorConfiguration;
+    }
+
+    public void setVoExcelGeneratorConfiguration(VOExcelGeneratorConfiguration voExcelGeneratorConfiguration) {
+        this.voExcelGeneratorConfiguration = voExcelGeneratorConfiguration;
+    }
+
+    public VOViewGeneratorConfiguration getVoViewGeneratorConfiguration() {
+        return voViewGeneratorConfiguration;
+    }
+
+    public void setVoViewGeneratorConfiguration(VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
+        this.voViewGeneratorConfiguration = voViewGeneratorConfiguration;
     }
 
     public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
@@ -613,5 +635,13 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setSqlSchemaGeneratorConfiguration(SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration) {
         this.sqlSchemaGeneratorConfiguration = sqlSchemaGeneratorConfiguration;
+    }
+
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        this.ignore = ignore;
     }
 }

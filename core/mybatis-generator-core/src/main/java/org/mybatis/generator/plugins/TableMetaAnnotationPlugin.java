@@ -32,9 +32,9 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
      */
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (!isNoMetaAnnotation(introspectedTable)) {
-            //添加实体对象元数据注解
-            String tableMetaAnnotation = buildTableMetaAnnotation(introspectedTable, topLevelClass);
+        //添加实体对象元数据注解
+        String tableMetaAnnotation = buildTableMetaAnnotation(introspectedTable, topLevelClass);
+        if (stringHasValue(tableMetaAnnotation)) {
             topLevelClass.addAnnotation(tableMetaAnnotation);
             topLevelClass.addImportedType(ANNOTATION_TABLE_META);
         }
@@ -43,26 +43,36 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        if (!isNoMetaAnnotation(introspectedTable)) {
-            String columnMetaAnnotation = buildColumnMetaAnnotation(field, introspectedTable, topLevelClass);
-            if (stringHasValue(columnMetaAnnotation)) {
-                field.addAnnotation(columnMetaAnnotation);
-                topLevelClass.addImportedType(ANNOTATION_COLUMN_META);
-            }
+        String columnMetaAnnotation = buildColumnMetaAnnotation(field, introspectedTable, topLevelClass);
+        if (stringHasValue(columnMetaAnnotation)) {
+            field.addAnnotation(columnMetaAnnotation);
+            topLevelClass.addImportedType(ANNOTATION_COLUMN_META);
         }
         return true;
     }
 
     @Override
-    public boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         String tableMetaAnnotation = buildTableMetaAnnotation(introspectedTable, topLevelClass);
-        topLevelClass.addAnnotation(tableMetaAnnotation);
-        topLevelClass.addImportedType(ANNOTATION_TABLE_META);
+        if (stringHasValue(tableMetaAnnotation)) {
+            topLevelClass.addAnnotation(tableMetaAnnotation);
+            topLevelClass.addImportedType(ANNOTATION_TABLE_META);
+        }
         return true;
     }
 
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        String columnMetaAnnotation = buildColumnMetaAnnotation(field, introspectedTable, topLevelClass);
+        if (stringHasValue(columnMetaAnnotation)) {
+            field.addAnnotation(columnMetaAnnotation);
+            topLevelClass.addImportedType(ANNOTATION_COLUMN_META);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         String columnMetaAnnotation = buildColumnMetaAnnotation(field, introspectedTable, topLevelClass);
         if (stringHasValue(columnMetaAnnotation)) {
             field.addAnnotation(columnMetaAnnotation);
@@ -84,6 +94,9 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
      */
     private String buildColumnMetaAnnotation(Field field, IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         StringBuilder sb = new StringBuilder();
+        if (isNoMetaAnnotation(introspectedTable)) {
+            return sb.toString();
+        }
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
             if (column.getJavaProperty().equals(field.getName())) {
                 sb.append("@ColumnMeta(").append("value = \"");
@@ -95,8 +108,10 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
                     sb.append(column.getActualColumnName());
                 }
                 sb.append("\"");
-                sb.append(",size =");
-                sb.append(column.getLength());
+                if (column.getLength() != 255) {
+                    sb.append(",size =");
+                    sb.append(column.getLength());
+                }
                 sb.append(",order = ").append(column.getOrder());
 
                 if (!"VARCHAR".equals(column.getJdbcTypeName())) {
@@ -128,6 +143,9 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
      */
     private String buildTableMetaAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         StringBuilder sb = new StringBuilder();
+        if (isNoMetaAnnotation(introspectedTable)) {
+            return sb.toString();
+        }
         TableConfiguration tableConfiguration = introspectedTable.getTableConfiguration();
         sb.append("@TableMeta(value = \"").append(tableConfiguration.getTableName()).append("\"");
 

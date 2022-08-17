@@ -1176,9 +1176,21 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voModelGetterMethodGenerated(Method method,
+                                               TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
+                                               IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass,
                                           IntrospectedColumn introspectedColumn,
                                           IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                         IntrospectedColumn introspectedColumn,
+                                         IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -1288,8 +1300,23 @@ public interface Plugin {
         return true;
     }
 
-    default boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass,
+    default boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass,
                                                   IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelRecordClassGenerated(TopLevelClass topLevelClass,
+                                                  IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelViewClassGenerated(TopLevelClass topLevelClass,
+                                                IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelExcelClassGenerated(TopLevelClass topLevelClass,
+                                              IntrospectedTable introspectedTable) {
         return true;
     }
 

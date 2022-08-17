@@ -204,6 +204,12 @@ public class ConfigurationParser {
             PluginConfiguration validatorPlugin  = new PluginConfiguration();
             validatorPlugin.setConfigurationType("org.mybatis.generator.plugins.ValidatorPlugin");
             context.addPluginConfiguration(validatorPlugin);
+            PluginConfiguration easyExcelAnnotationPlugin  = new PluginConfiguration();
+            easyExcelAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.EasyExcelAnnotationPlugin");
+            context.addPluginConfiguration(easyExcelAnnotationPlugin);
+            PluginConfiguration modelWebPropertiesPlugin  = new PluginConfiguration();
+            modelWebPropertiesPlugin.setConfigurationType("org.mybatis.generator.plugins.ModelWebPropertiesPlugin");
+            context.addPluginConfiguration(modelWebPropertiesPlugin);
 
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())

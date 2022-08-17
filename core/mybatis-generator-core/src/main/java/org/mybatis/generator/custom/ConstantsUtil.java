@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom;
 
+import com.sun.media.sound.SF2Sample;
 import com.vgosoft.mybatis.abs.AbstractMybatisBGService;
 
 import java.util.EnumSet;
@@ -48,11 +49,14 @@ public class ConstantsUtil {
     public static final String RESPONSE_SIMPLE_IMPL =   "com.vgosoft.core.adapter.web.respone.ResponseSimpleImpl";
     public static final String RESPONSE_LIST =          "com.vgosoft.core.adapter.web.respone.ResponseList";
     public static final String RESPONSE_SIMPLE_LIST =   "com.vgosoft.core.adapter.web.respone.ResponseSimpleList";
-    public static final String RESPONSE_VIEW_CONFIG =   "com.vgosoft.web.plugins.datatables.ResponseViewConfig";
+    public static final String DATATABLES_VIEW_CONFIG =   "com.vgosoft.web.plugins.datatables.DataTablesViewConfig";
     public final static String SERVICE_RESULT=          "com.vgosoft.core.adapter.ServiceResult";
-
+    public final static String RESPONSE_RESULT=         "com.vgosoft.core.adapter.web.respone.ResponseResult";
+    public static final String MODEL_AND_VIEW =         "org.springframework.web.servlet.ModelAndView";
+    public static final String VIEW_DT_TABLE=             "com.vgosoft.web.entity.ViewDtTable";
    //枚举
     public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.ServiceCodeEnum";
+    public static final String API_CODE_ENUM = "com.vgosoft.core.constant.enums.ApiCodeEnum";
 
     //annotation
     public static final String ANNOTATION_SYSTEM_LOG =      "com.vgosoft.core.annotation.SystemLog";
@@ -81,6 +85,9 @@ public class ConstantsUtil {
 
     public static final String TEST_MOCKITO_WHEN = "org.mockito.Mockito.when";
     public static final String TEST_ASSERTIONS_ASSERT_THAT = "org.assertj.core.api.Assertions.assertThat";
+
+    //easyExcel
+    public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
 
     public static String getTestClass(String superClass){
         TestClassMap testClassMap = TestClassMap.ofSuperClass(superClass);

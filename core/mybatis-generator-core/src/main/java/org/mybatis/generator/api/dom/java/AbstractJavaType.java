@@ -76,6 +76,8 @@ public abstract class AbstractJavaType extends JavaElement {
         fields.add(field);
     }
 
+
+
     public List<Method> getMethods() {
         return methods;
     }
@@ -95,4 +97,5 @@ public abstract class AbstractJavaType extends JavaElement {
     public Set<FullyQualifiedJavaType> getSuperInterfaceTypes() {
         return superInterfaceTypes;
     }
+
 }

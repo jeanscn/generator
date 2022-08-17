@@ -1,14 +1,10 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
 public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
@@ -19,37 +15,32 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
-        parentElement.addImportedType(RESPONSE_SIMPLE);
-        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
-        parentElement.addImportedType(entityType);
+         parentElement.addImportedType(entityType);
+        if (isGenerateVoModel()) {
+            parentElement.addImportedType(entityVoType);
+            parentElement.addImportedType(entityMappings);
+        }
+        parentElement.addImportedType("javax.validation.Valid");
 
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
-
-        Parameter parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
-        parameter.addAnnotation("@RequestBody");
-        parameter.addAnnotation("@Valid");
-        method.addParameter(parameter);
-        method.setReturnType(responseSimple);
-
+        method.addParameter(buildMethodParameter(true,true));
+        method.setReturnType(getResponseResult(false));
         addSystemLogAnnotation(method,parentElement);
         addControllerMapping(method, "", "post");
-        method.addBodyLine("ResponseSimple responseSimple = new ResponseSimpleImpl();");
-        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> insert = {1}.insert(mappings.from{2}({3}));",
-                entityType.getShortName(),serviceBeanName, entityVoType.getShortName(),entityVoType.getShortNameFirstLowCase()));
-        method.addBodyLine("if (!insert.isSuccess()) {");
-        method.addBodyLine("setExceptionResponse(responseSimple, insert.getException());");
+        method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.insert({2});"
+                ,entityType.getShortName()
+                ,serviceBeanName
+                , isGenerateVoModel()
+                        ?"mappings.from"+entityVoType.getShortName()+"("+entityVoType.getShortNameFirstLowCase()+")"
+                        :entityType.getShortNameFirstLowCase());
+        method.addBodyLine("if (!serviceResult.isSuccess()) {");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}else{");
-        method.addBodyLine("responseSimple.addAttribute(\"id\", insert.getResult().getId());");
-        if (JavaBeansUtil.isAssignable("com.vgosoft.core.entity.IPersistenceLock",entityType.getFullyQualifiedName(), introspectedTable)) {
-            method.addBodyLine("responseSimple.addAttribute(\"version\", insert.getResult().getVersion());");
-        }
+        method.addBodyLine("return success({0});"
+        , isGenerateVoModel()?"mappings.to"+entityVoType.getShortName() +"(serviceResult.getResult())":"serviceResult.getResult()");
         method.addBodyLine("}");
-        method.addBodyLine("return responseSimple;");
-
         parentElement.addMethod(method);
-        parentElement.addImportedType(entityVoType);
-        parentElement.addImportedType(entityMappings);
-        parentElement.addImportedType("javax.validation.Valid");
+
     }
 }

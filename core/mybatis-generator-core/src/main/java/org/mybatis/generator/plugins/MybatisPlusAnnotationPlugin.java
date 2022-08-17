@@ -25,11 +25,6 @@ public class MybatisPlusAnnotationPlugin extends PluginAdapter {
         return true;
     }
 
-    @Override
-    public void setContext(Context context) {
-        super.setContext(context);
-    }
-
     /**
      * model类的@apiModel
      */

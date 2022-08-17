@@ -1,17 +1,23 @@
 package org.mybatis.generator.custom.htmlGenerator;
 
+import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.tool.core.VArrayUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
@@ -324,5 +330,18 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         js.addAttribute(new Attribute("type", "text/javascript"));
         parent.addElement(js);
         return js;
+    }
+
+    protected boolean isIgnore(IntrospectedColumn introspectedColumn, VOGeneratorConfiguration configuration) {
+        List<String> innerFields = EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields();
+        List<String> allFields = new ArrayList<>(innerFields);
+        allFields.add("tenantId");
+        String property = configuration.getProperty(PropertyRegistry.ELEMENT_IGNORE_COLUMNS);
+        boolean ret = false;
+        if (stringHasValue(property)) {
+            ret = VArrayUtil.contains(property.split(","), introspectedColumn.getActualColumnName());
+        }
+        return ret || allFields.contains(introspectedColumn.getJavaProperty());
+
     }
 }

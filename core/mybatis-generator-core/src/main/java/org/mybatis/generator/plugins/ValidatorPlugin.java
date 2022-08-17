@@ -13,6 +13,7 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import javax.validation.constraints.NotNull;
 import java.sql.JDBCType;
 import java.util.List;
 import java.util.Optional;
@@ -32,48 +33,24 @@ public class ValidatorPlugin extends PluginAdapter {
     }
 
     @Override
-    public void setContext(Context context) {
-        super.setContext(context);
-    }
-
-    @Override
-    public boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean voModelGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        addNotNullValidate(method,topLevelClass,introspectedColumn);
         return true;
     }
 
-
-    @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addNotNullValidate(field, topLevelClass, introspectedColumn);
-        return true;
-    }
-
-    @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addNotNullValidate(field, topLevelClass, introspectedColumn);
-        return true;
-    }
-
-    private void addNotNullValidate(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
+    private void addNotNullValidate(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
         if (!introspectedColumn.isNullable()) {
             String message = introspectedColumn.getRemarks() + "不能为空";
             if (JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(introspectedColumn.getJdbcType()))
                     .equals(JDBCTypeTypeEnum.CHARACTER)) {
-                field.addAnnotation("@NotEmpty(message = \"" + message + "\")");
+                method.addAnnotation("@NotEmpty(groups = {ValidateInsert.class},message = \""+message+"\")");
                 topLevelClass.addImportedType("javax.validation.constraints.NotEmpty");
             } else {
-                field.addAnnotation("@NotNull(message = \"" + message + "\")");
+                method.addAnnotation("@NotNull(groups = {ValidateInsert.class},message = \""+message+"\")");
                 topLevelClass.addImportedType("javax.validation.constraints.NotNull");
             }
+            topLevelClass.addImportedType("com.vgosoft.web.valid.ValidateInsert");
         }
-    }
-
-    /**
-     * controller及方法注解@Api、@ApiOperation
-     */
-    @Override
-    public boolean ControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        return true;
     }
 
 }

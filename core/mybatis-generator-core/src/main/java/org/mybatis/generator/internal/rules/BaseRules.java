@@ -522,7 +522,11 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isGenerateVO() {
-        VOGeneratorConfiguration vOGeneratorConfiguration = tableConfiguration.getVOGeneratorConfiguration();
-        return vOGeneratorConfiguration != null && vOGeneratorConfiguration.isGenerate();
+        VOGeneratorConfiguration vOGeneratorConfiguration = tableConfiguration.getVoGeneratorConfiguration();
+        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tableConfiguration.getVoExcelGeneratorConfiguration();
+        VOViewGeneratorConfiguration voViewGeneratorConfiguration = tableConfiguration.getVoViewGeneratorConfiguration();
+        return (vOGeneratorConfiguration != null && vOGeneratorConfiguration.isGenerate())
+                ||(voExcelGeneratorConfiguration!=null && voExcelGeneratorConfiguration.isGenerate())
+                ||(voViewGeneratorConfiguration!=null && voViewGeneratorConfiguration.isGenerate());
     }
 }

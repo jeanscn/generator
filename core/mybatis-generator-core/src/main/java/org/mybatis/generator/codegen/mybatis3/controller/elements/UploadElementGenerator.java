@@ -60,7 +60,10 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("responseSimple.addAttribute(\"id\"," + entityFirstLowerShortName + ".getId());");
         method.addBodyLine("responseSimple.setMessage(\"上传成功！\");");
         method.addBodyLine("}");
-        addExceptionAndReturn(method);
+        method.addBodyLine("} catch (Exception e) {");
+        method.addBodyLine("setExceptionResponse(responseSimple, e);");
+        method.addBodyLine("}");
+        method.addBodyLine("return responseSimple;");
 
         parentElement.addMethod(method);
     }

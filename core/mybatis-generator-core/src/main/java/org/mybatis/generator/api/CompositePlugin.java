@@ -908,9 +908,33 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voModelGetterMethodGenerated(Method method,
+                                                 TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
+                                                 IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voViewFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                          IntrospectedColumn introspectedColumn,
+                                          IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voExcelFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
                 return false;
             }
         }
@@ -970,9 +994,39 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean voModelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.voModelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
+            if (!plugin.voModelAbstractClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelRecordClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelViewClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelExcelClassGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }

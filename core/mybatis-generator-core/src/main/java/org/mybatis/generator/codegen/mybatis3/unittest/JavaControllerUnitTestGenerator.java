@@ -14,6 +14,7 @@ import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +112,9 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         setup.addBodyLine("");
         setup.addBodyLine("{0}= new {1}(0);", entityInstanceVar,entityType.getShortName());
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+            if (column.getJdbcType()== Types.DECIMAL) {
+                testClazz.addImportedType("java.math.BigDecimal");
+            }
             setup.addBodyLine("{0}.set{1}({2});", entityInstanceVar,
                     JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()),
                     JavaBeansUtil.getColumnExampleValue(column));
@@ -223,7 +227,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                         "                .andExpect(responseBody()\n" +
                         "                        .containsObjectAsJson({1}, {2}.class, ResponseSimpleImpl.class));",
                 requestUri, entityInstanceVar+"VO", entityType.getShortName()+"VO");
-        String targetPackage = introspectedTable.getTableConfiguration().getVOGeneratorConfiguration().getTargetPackage();
+        String targetPackage = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getTargetPackage();
         testClazz.addImportedType(targetPackage+".vo."+entityType.getShortName()+"VO");
         testClazz.addImportedType(targetPackage+".maps."+entityType.getShortName()+"Mappings");
         //getXXX，服务返回失败的测试方法

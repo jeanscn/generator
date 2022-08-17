@@ -15,6 +15,9 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import com.vgosoft.core.util.VReflectionUtil;
+import org.mybatis.generator.internal.ObjectFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -87,5 +90,36 @@ public class InnerClass extends AbstractJavaType {
 
     public void setFinal(boolean isFinal) {
         this.isFinal = isFinal;
+    }
+
+    public boolean isContainField(String fieldName){
+        long count = this.getFields().stream().filter(f-> f.getName().equals(fieldName)).count();
+        if (count>0) {
+            return true;
+        }
+        if (this.getSuperClass().isPresent()) {
+            try {
+                Class<?> aClass = ObjectFactory.internalClassForName(this.getSuperClass().get().getFullyQualifiedName());
+                java.lang.reflect.Field field = VReflectionUtil.getField(aClass, fieldName);
+                return field!=null;
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public boolean addField(org.mybatis.generator.api.dom.java.Field field, Integer index, boolean checkUnique) {
+        if (index == null) index = getFields().size();
+        if (getFields().size()==0) {
+            getFields().add(index,field);
+            return true;
+        }else if (checkUnique) {
+            if (!isContainField(field.getName())) {
+                getFields().add(index,field);
+                return true;
+            }
+        }
+        return false;
     }
 }

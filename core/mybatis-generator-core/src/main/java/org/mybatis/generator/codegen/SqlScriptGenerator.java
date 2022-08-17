@@ -35,7 +35,7 @@ public class SqlScriptGenerator extends AbstractGenerator {
         List<String> ret = new ArrayList<>();
 
         SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration = this.introspectedTable.getTableConfiguration().getSqlSchemaGeneratorConfiguration();
-        String tableName = introspectedTable.getTableConfiguration().getTableName().toUpperCase();
+        String tableName = introspectedTable.getTableConfiguration().getTableName();
         String COLUMN_STATEMENT = databaseDDLDialects.getCreateStatement();
 
         List<String> columnSql = new ArrayList<>();

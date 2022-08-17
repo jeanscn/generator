@@ -15,6 +15,9 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import org.mybatis.generator.internal.util.JavaBeansUtil;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +53,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
         if (importedType != null
                 && importedType.isExplicitlyImported()
                 && !importedType.getPackageName().equals(
-                        getType().getPackageName())
+                getType().getPackageName())
                 && !importedType.getShortName().equals(getType().getShortName())) {
             importedTypes.add(importedType);
         }
@@ -89,5 +92,42 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
     @Override
     public <R> R accept(CompilationUnitVisitor<R> visitor) {
         return visitor.visit(this);
+    }
+
+    public void addMultipleImports(String... types) {
+        for (String type : types) {
+            switch (type) {
+                case "lombok":
+                    this.addImportedType("lombok.*");
+                    this.addAnnotation("@Data");
+                    this.addAnnotation("@EqualsAndHashCode(callSuper = true)");
+                    this.addAnnotation("@ToString(callSuper = true)");
+                    break;
+                case "ApiModel":
+                    this.addImportedType("io.swagger.annotations.ApiModel");
+                    break;
+                case "ApiModelProperty":
+                    this.addImportedType("io.swagger.annotations.ApiModelProperty");
+                    break;
+                case "ExcelProperty":
+                    this.addImportedType("com.alibaba.excel.annotation.ExcelProperty");
+                    break;
+                case "ViewTableMeta":
+                    this.addImportedType("com.vgosoft.core.annotation.ViewTableMeta");
+                    break;
+                case "ViewColumnMeta":
+                    this.addImportedType("com.vgosoft.core.annotation.ViewColumnMeta");
+                    break;
+                case "TableField":
+                    this.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
+                    break;
+                case "Valid":
+                    this.addImportedType("javax.validation.Valid");
+                    break;
+                case "ResponseResult":
+                    this.addStaticImport("com.vgosoft.core.adapter.web.respone.ResponseResult.*");
+                    break;
+            }
+        }
     }
 }

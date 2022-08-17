@@ -46,6 +46,7 @@ public class PropertyRegistry {
     public static final String TABLE_IGNORE_QUALIFIERS_AT_RUNTIME = "ignoreQualifiersAtRuntime"; //$NON-NLS-1$
     public static final String TABLE_RUNTIME_CATALOG = "runtimeCatalog"; //$NON-NLS-1$
     public static final String TABLE_RUNTIME_SCHEMA = "runtimeSchema"; //$NON-NLS-1$
+    public static final String TABLE_IGNORE = "ignore";
     public static final String TABLE_RUNTIME_TABLE_NAME = "runtimeTableName"; //$NON-NLS-1$
     public static final String TABLE_MODEL_ONLY = "modelOnly"; //$NON-NLS-1$
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
