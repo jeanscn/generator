@@ -36,7 +36,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType(exampleType);
         parentElement.addImportedType("java.util.Comparator");
         parentElement.addImportedType("java.util.stream.Collectors");
-        if (isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
         }else{
             parentElement.addImportedType(entityType);
@@ -67,6 +67,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("        .map(t -> new FormSelectOption(t.getId(), t.{0}(), selected))",getterMethodName);
         method.addBodyLine("        .distinct().collect(Collectors.toList());");
         method.addBodyLine("return success(options);");
+
         parentElement.addMethod(method);
     }
 }

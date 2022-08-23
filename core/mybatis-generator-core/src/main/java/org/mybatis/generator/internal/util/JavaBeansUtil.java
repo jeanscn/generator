@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.util;
 
+import com.sun.jna.platform.win32.WinNT;
 import com.vgosoft.core.db.util.JDBCUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -25,11 +26,13 @@ import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
 
+import java.io.File;
 import java.sql.JDBCType;
 import java.util.Locale;
 import java.util.Properties;
 
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
 
 public class JavaBeansUtil {
 
@@ -469,5 +472,22 @@ public class JavaBeansUtil {
         } else {
             return defaultValue;
         }
+    }
+
+    public static boolean javaFileExist(String targetProject,String targetPackage, String fileName) {
+        File project = new File(targetProject);
+        if (!project.isDirectory()) {
+            return false;
+        }
+        File directory = new File(project, packageToDir(targetPackage));
+        if (!directory.isDirectory()) {
+            return false;
+        }
+        File file = new File(directory, fileName + ".java");
+        return file.exists();
+    }
+
+    public static boolean javaFileNotExist(String targetProject,String targetPackage, String fileName){
+        return !javaFileExist(targetProject,targetPackage,fileName);
     }
 }

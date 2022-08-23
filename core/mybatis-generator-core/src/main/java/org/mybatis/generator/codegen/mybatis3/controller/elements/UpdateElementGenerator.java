@@ -16,7 +16,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
-        if (isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }
@@ -31,15 +31,16 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKeySelective({2});"
                 ,entityType.getShortName()
                 ,serviceBeanName
-                , isGenerateVoModel()
+                , introspectedTable.getRules().isGenerateVoModel()
                         ?"mappings.from"+entityVoType.getShortName()+"("+entityVoType.getShortNameFirstLowCase()+")"
                         :entityType.getShortNameFirstLowCase());
         method.addBodyLine("if (serviceResult.isSuccess()) {");
         method.addBodyLine("return success({0});"
-                , isGenerateVoModel()?"mappings.to"+entityVoType.getShortName() +"(serviceResult.getResult())":"serviceResult.getResult()");
+                , introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName() +"(serviceResult.getResult())":"serviceResult.getResult()");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}");
+
         parentElement.addMethod(method);
     }
 }

@@ -38,6 +38,7 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
         targetPackage = String.join(".", baseTargetPackage,"controller");
+        targetPackageGen = String.join(".", baseTargetPackage,"codegen","controller");
     }
 
     public boolean isNoSwaggerAnnotation() {

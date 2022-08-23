@@ -54,6 +54,7 @@ public class ConstantsUtil {
     public final static String RESPONSE_RESULT=         "com.vgosoft.core.adapter.web.respone.ResponseResult";
     public static final String MODEL_AND_VIEW =         "org.springframework.web.servlet.ModelAndView";
     public static final String VIEW_DT_TABLE=             "com.vgosoft.web.entity.ViewDtTable";
+
    //枚举
     public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.ServiceCodeEnum";
     public static final String API_CODE_ENUM = "com.vgosoft.core.constant.enums.ApiCodeEnum";

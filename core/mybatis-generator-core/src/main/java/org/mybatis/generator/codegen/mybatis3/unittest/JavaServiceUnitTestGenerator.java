@@ -41,6 +41,7 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
 
         FullyQualifiedJavaType topClassType = new FullyQualifiedJavaType(serviceImplType.getFullyQualifiedName()+"Test");
         TopLevelClass testClazz = new TopLevelClass(topClassType);
+        testClazz.setVisibility(JavaVisibility.PUBLIC);
         FullyQualifiedJavaType serviceUnitTestSupperType = getServiceUnitTestSupperType(serviceImplType, mapperType, entityType, exampleType, testClazz);
         if (serviceUnitTestSupperType != null) {
             testClazz.setSuperClass(serviceUnitTestSupperType);

@@ -560,6 +560,8 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             if (introspectedColumn.isJdbcCharacterColumn()) {
                 answer.addMethod(getSetLikeMethod(introspectedColumn));
                 answer.addMethod(getSetNotLikeMethod(introspectedColumn));
+                answer.addMethod(getSetEmptyMethod(introspectedColumn));
+                answer.addMethod(getSetNotEmptyMethod(introspectedColumn));
             }
 
             answer.addMethod(getSetInOrNotInMethod(introspectedColumn, true));
@@ -609,6 +611,14 @@ public class ExampleGenerator extends AbstractJavaGenerator {
 
     private Method getSetNotLikeMethod(IntrospectedColumn introspectedColumn) {
         return getSingleValueMethod(introspectedColumn, "NotLike", "not like"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private Method getSetNotEmptyMethod(IntrospectedColumn introspectedColumn) {
+        return getNotEmptyMethod(introspectedColumn, "NotEmpty", "!= ''");
+    }
+
+    private Method getSetEmptyMethod(IntrospectedColumn introspectedColumn) {
+        return getEmptyMethod(introspectedColumn, "IsEmpty", "= ''");
     }
 
     private Method getSingleValueMethod(IntrospectedColumn introspectedColumn, String nameFragment, String operator) {
@@ -766,6 +776,58 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         sb.append(' ');
         sb.append(operator);
         sb.append("\");"); //$NON-NLS-1$
+        method.addBodyLine(sb.toString());
+        method.addBodyLine("return (Criteria) this;"); //$NON-NLS-1$
+
+        return method;
+    }
+
+    private Method getEmptyMethod(IntrospectedColumn introspectedColumn, String nameFragment, String operator) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(initializeAndMethodName(introspectedColumn));
+        sb.append(nameFragment);
+        Method method = new Method(sb.toString());
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+
+        sb.setLength(0);
+        sb.append("addCriterion(\"("); //$NON-NLS-1$
+        sb.append(MyBatis3FormattingUtilities.getAliasedActualColumnName(introspectedColumn));
+        sb.append(" ");
+        sb.append("is null");
+        sb.append(" OR ");
+        sb.append("trim(");
+        sb.append(MyBatis3FormattingUtilities.getAliasedActualColumnName(introspectedColumn));
+        sb.append(")");
+        sb.append(' ');
+        sb.append(operator);
+        sb.append(")\");"); //$NON-NLS-1$
+        method.addBodyLine(sb.toString());
+        method.addBodyLine("return (Criteria) this;"); //$NON-NLS-1$
+
+        return method;
+    }
+
+    private Method getNotEmptyMethod(IntrospectedColumn introspectedColumn, String nameFragment, String operator) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(initializeAndMethodName(introspectedColumn));
+        sb.append(nameFragment);
+        Method method = new Method(sb.toString());
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+
+        sb.setLength(0);
+        sb.append("addCriterion(\"("); //$NON-NLS-1$
+        sb.append(MyBatis3FormattingUtilities.getAliasedActualColumnName(introspectedColumn));
+        sb.append(" ");
+        sb.append("is not null");
+        sb.append(" AND ");
+        sb.append("trim(");
+        sb.append(MyBatis3FormattingUtilities.getAliasedActualColumnName(introspectedColumn));
+        sb.append(")");
+        sb.append(' ');
+        sb.append(operator);
+        sb.append(")\");"); //$NON-NLS-1$
         method.addBodyLine(sb.toString());
         method.addBodyLine("return (Criteria) this;"); //$NON-NLS-1$
 

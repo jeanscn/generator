@@ -55,7 +55,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         interFace.addSuperInterface(infSuperType);
         interFace.addImportedType(infSuperType);
 
-        JavaBeansUtil.addAnnotation(interFace, "@Mapper");
+        //JavaBeansUtil.addAnnotation(interFace, "@Mapper");
 
         interFace.getMethods().clear();
         //增加relation方法

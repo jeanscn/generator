@@ -238,7 +238,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapper"));
             mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.factory.Mappers"));
             mappingsInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            mappingsInterface.addAnnotation("@Mapper");
+            mappingsInterface.addAnnotation("@Mapper(componentModel = \"spring\")");
             Field instance = new Field("INSTANCE", new FullyQualifiedJavaType(mappingsType));
             instance.setInitializationString(VStringUtil.format("Mappers.getMapper({0}.class)", mappingsInterface.getType().getShortName()));
             mappingsInterface.addField(instance);

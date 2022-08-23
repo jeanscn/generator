@@ -37,7 +37,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
 
         Interface bizINF = new Interface(
-                getInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackage(),
+                getGenInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackageGen(),
                         entityType.getShortName()));
         commentGenerator.addJavaFileComment(bizINF);
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
@@ -100,6 +100,24 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         if (plugins.serviceGenerated(bizINF, introspectedTable)) {
             answer.add(bizINF);
         }
+
+        //生成子接口
+        Interface bizSubINF = new Interface(
+                getInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackage(),
+                        entityType.getShortName()));
+        commentGenerator.addJavaFileComment(bizSubINF);
+        bizSubINF.setVisibility(JavaVisibility.PUBLIC);
+        bizSubINF.addSuperInterface(bizINF.getType());
+        bizSubINF.addImportedType(bizINF.getType());
+
+        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
+        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceGeneratorConfiguration.getTargetProject(), javaServiceGeneratorConfiguration.getTargetPackage(), "I"+entityType.getShortName());
+        if (forceGenerateScalableElement || fileNotExist) {
+            if (plugins.subServiceGenerated(bizSubINF, introspectedTable)){
+                answer.add(bizSubINF);
+            }
+        }
+
         return answer;
     }
 

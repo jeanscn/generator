@@ -27,6 +27,7 @@ public class JavaServiceGeneratorConfiguration extends AbstractGeneratorConfigur
         String modelTargetPackage= context.getJavaModelGeneratorConfiguration().getTargetPackage();
         baseTargetPackage = StringUtility.substringBeforeLast(modelTargetPackage, ".");
         targetPackage = String.join(".", baseTargetPackage, "service");
+        targetPackageGen = String.join(".", baseTargetPackage, "codegen.service");
     }
 
     @Override

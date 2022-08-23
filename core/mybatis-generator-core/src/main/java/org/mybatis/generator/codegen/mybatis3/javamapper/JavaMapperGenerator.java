@@ -26,7 +26,9 @@ import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
+import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,8 +57,11 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         progressCallback.startTask(getString("Progress.17", //$NON-NLS-1$
                 introspectedTable.getFullyQualifiedTable().toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
+        String targetPackageGen = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().getTargetPackageGen();
+        String mapperFullName = String.join(".", targetPackageGen, "Gen"+introspectedTable.getTableConfiguration().getDomainObjectName()+"Mapper");
 
-        FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
+        FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
+        //FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(interfaze);
@@ -96,6 +101,25 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         List<CompilationUnit> extraCompilationUnits = getExtraCompilationUnits();
         if (extraCompilationUnits != null) {
             answer.addAll(extraCompilationUnits);
+        }
+
+        //生成子类
+        JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration();
+        String daoName = introspectedTable.getTableConfiguration().getDomainObjectName() + "Mapper";
+        String sb = javaClientGeneratorConfiguration.getTargetPackage() + "." +  daoName;
+        Interface subInterface = new Interface(sb);
+        subInterface.setVisibility(JavaVisibility.PUBLIC);
+        subInterface.addAnnotation("@Mapper");
+        subInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
+        subInterface.addSuperInterface(type);
+        subInterface.addImportedType(type);
+
+        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
+        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
+        if (forceGenerateScalableElement || fileNotExist) {
+            if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)){
+                answer.add(subInterface);
+            }
         }
 
         return answer;

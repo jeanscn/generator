@@ -145,14 +145,9 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         }
     }
 
-    protected boolean isGenerateVoModel(){
-        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
-        return voGeneratorConfiguration!=null && voGeneratorConfiguration.isGenerate();
-    }
-
     protected FullyQualifiedJavaType getResponseResult(boolean isListResult) {
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
-        FullyQualifiedJavaType result = new FullyQualifiedJavaType(isGenerateVoModel()
+        FullyQualifiedJavaType result = new FullyQualifiedJavaType(introspectedTable.getRules().isGenerateVoModel()
                 ?entityVoType.getFullyQualifiedName():entityType.getFullyQualifiedName());
         if (isListResult) {
             FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
@@ -166,7 +161,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected Parameter buildMethodParameter(boolean isValid,boolean isRequestBody){
         Parameter parameter;
-        if (isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateVoModel()) {
             parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
         }else{
             parameter = new Parameter(entityType,entityType.getShortNameFirstLowCase());

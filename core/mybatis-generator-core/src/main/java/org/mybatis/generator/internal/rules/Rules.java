@@ -254,5 +254,16 @@ public interface Rules {
 
     boolean isGenerateControllerUnitTest();
 
+    /**
+     * 是生成VO对象
+     * */
+    boolean isGenerateVoModel();
+
+    boolean isGenerateViewVO();
+
+    boolean isGenerateExcelVO();
+
     boolean isGenerateVO();
+
+    boolean isForceGenerateScalableElement();
 }

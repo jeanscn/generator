@@ -226,4 +226,27 @@ public class RulesDelegate implements Rules {
     public boolean isGenerateVO() {
         return false;
     }
+
+    @Override
+    public boolean isGenerateViewVO() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateExcelVO() {
+        return false;
+    }
+
+    @Override
+    public boolean isForceGenerateScalableElement() {
+        return false;
+    }
+
+    /**
+     * 是生成VO对象
+     */
+    @Override
+    public boolean isGenerateVoModel() {
+        return false;
+    }
 }

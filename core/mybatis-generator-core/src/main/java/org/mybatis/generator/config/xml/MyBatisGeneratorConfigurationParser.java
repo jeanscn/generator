@@ -15,11 +15,13 @@
  */
 package org.mybatis.generator.config.xml;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -200,6 +202,13 @@ public class MyBatisGeneratorConfigurationParser {
         TableConfiguration tc = new TableConfiguration(context);
         Properties attributes = parseAttributes(node);
         String ignore = attributes.getProperty("ignore");
+        String domainObjectName = attributes.getProperty("domainObjectName");
+        if (!stringHasValue(ignore) && stringHasValue(domainObjectName)) {
+            JavaModelGeneratorConfiguration gc = context.getJavaModelGeneratorConfiguration();
+            if (JavaBeansUtil.javaFileExist(gc.getTargetProject(), gc.getTargetPackage(), domainObjectName)) {
+                return;
+            }
+        }
         tc.setIgnore(isTrue(ignore));
         if (Boolean.parseBoolean(ignore)) {
             return;
@@ -219,8 +228,6 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(tableName)) {
             tc.setTableName(tableName);
         }
-
-        String domainObjectName = attributes.getProperty("domainObjectName"); //$NON-NLS-1$
         if (stringHasValue(domainObjectName)) {
             tc.setDomainObjectName(domainObjectName);
         }
@@ -695,8 +702,13 @@ public class MyBatisGeneratorConfigurationParser {
     protected void parseJavaModelGenerator(Context context, Node node) {
         Properties attributes = parseAttributes(node);
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
+        javaModelGeneratorConfiguration.setTargetPackage(attributes.getProperty(PropertyRegistry.ANY_TARGET_PROJECT));
+        String targetPackage = attributes.getProperty(PropertyRegistry.ANY_TARGET_PACKAGE);
+        javaModelGeneratorConfiguration.setTargetPackage(targetPackage);
+        String baseTargetPackage = StringUtility.substringBeforeLast(targetPackage, ".");
+        javaModelGeneratorConfiguration.setBaseTargetPackage(baseTargetPackage);
+        javaModelGeneratorConfiguration.setTargetPackageGen(String.join(baseTargetPackage, "codegen.entity"));
         context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
-
         parseAbstractConfigAttributes(attributes, javaModelGeneratorConfiguration, node);
     }
 
@@ -897,15 +909,14 @@ public class MyBatisGeneratorConfigurationParser {
     }
 
     private void parseGenerateModel(Context context, TableConfiguration tc, Node node) {
+        JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
         Properties attributes = parseAttributes(node);
-        JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration(context);
+        String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
+        javaModelGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
         String noMetaAnnotation = attributes.getProperty(PropertyRegistry.ANY_NO_META_ANNOTATION);
         if (stringHasValue(noMetaAnnotation)) {
             javaModelGeneratorConfiguration.setNoMetaAnnotation(Boolean.parseBoolean(noMetaAnnotation));
         }
-        javaModelGeneratorConfiguration.setTargetProject(context.getJavaModelGeneratorConfiguration().getTargetProject());
-        javaModelGeneratorConfiguration.setTargetPackage(context.getJavaModelGeneratorConfiguration().getTargetPackage());
-        javaModelGeneratorConfiguration.setBaseTargetPackage(context.getJavaModelGeneratorConfiguration().getTargetPackage());
         tc.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
         parseAbstractConfigAttributes(attributes, javaModelGeneratorConfiguration, node);
     }

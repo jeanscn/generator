@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.internal.util.StringUtility;
+
 import java.util.List;
 
 public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorConfiguration {
@@ -12,8 +14,10 @@ public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorC
         super(context);
         noServiceAnnotation = false;
         generateUnitTest = true;
-        baseTargetPackage = targetPackage;
-        targetPackage = String.join(".",getTargetPackage(),"impl");
+        String modelTargetPackage= context.getJavaModelGeneratorConfiguration().getTargetPackage();
+        baseTargetPackage = StringUtility.substringBeforeLast(modelTargetPackage, ".");
+        targetPackage = String.join(".",baseTargetPackage,"service.impl");
+        targetPackageGen = String.join(".",baseTargetPackage,"codegen.service.impl");
     }
 
     public boolean isNoServiceAnnotation() {

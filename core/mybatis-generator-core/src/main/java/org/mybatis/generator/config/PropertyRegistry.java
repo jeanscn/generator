@@ -86,6 +86,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
     public static final String CONTEXT_ROOT_MODULE_NAME = "rootModuleName";
     public static final String CONTEXT_SPRING_BOOT_APPLICATION_CLASS = "springBootApplicationClass";
+    public static final String CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT = "forceGenerateScalableElement";
 
     public static final String ANY_GENERATE = "generate";
     public static final String ANY_TARGET_PROJECT = "targetProject";

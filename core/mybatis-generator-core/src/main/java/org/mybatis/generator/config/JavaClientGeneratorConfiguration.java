@@ -30,6 +30,7 @@ public class JavaClientGeneratorConfiguration  extends AbstractGeneratorConfigur
         targetProject = context.getJavaClientGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaClientGeneratorConfiguration().getTargetPackage(), ".");
         targetPackage = String.join(".", baseTargetPackage,"dao");
+        targetPackageGen = String.join(".", baseTargetPackage,"codegen.dao");
     }
 
     @Override

@@ -49,6 +49,13 @@
         <!--
           The context element is used to describe a context for generating files, and the source
           tables.
+          可能的property配置：
+          1、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
+          2、htmlUiFrame 页面模板名称 默认值：bottom
+          3、htmlBarPosition 页面操作条位置。默认值：bottom
+          4、htmlPageColumnsNum 页面列数 默认值：2
+          5、htmlLoadingFrameType 页面加载方式 默认值：full（pop,full,inner）
+          6、forceGenerateScalableElement 是否强制覆盖可扩展自定义的元素（controller、dao、service及service接口）
         -->
         <!ELEMENT context (property*, plugin*, commentGenerator?, (connectionFactory | jdbcConnection), javaTypeResolver?,
                 javaModelGenerator, sqlMapGenerator?, javaClientGenerator?, table+)>

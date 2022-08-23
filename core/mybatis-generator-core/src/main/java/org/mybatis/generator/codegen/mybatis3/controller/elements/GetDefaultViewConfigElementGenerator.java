@@ -30,6 +30,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL,e);");
         method.addBodyLine("}");
+
         parentElement.addMethod(method);
     }
 }

@@ -30,9 +30,6 @@ public class JavaModelGeneratorConfiguration extends AbstractGeneratorConfigurat
     public JavaModelGeneratorConfiguration(Context context) {
         super();
         noMetaAnnotation = false;
-        targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
-        targetPackage = String.join(".",baseTargetPackage,"entity");
     }
 
     public boolean isNoMetaAnnotation() {

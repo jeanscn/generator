@@ -45,6 +45,7 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
         method.addBodyLine("e.printStackTrace();");
         method.addBodyLine("}");
         method.addBodyLine("return modelAndView;");
+
         parentElement.addMethod(method);
     }
 }

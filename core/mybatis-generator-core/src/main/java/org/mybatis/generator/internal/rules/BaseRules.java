@@ -520,13 +520,35 @@ public abstract class BaseRules implements Rules {
         return javaControllerGeneratorConfiguration != null && javaControllerGeneratorConfiguration.isGenerate() && javaControllerGeneratorConfiguration.isGenerateUnitTest();
     }
 
+    public boolean isGenerateVoModel(){
+        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+        return voGeneratorConfiguration!=null && voGeneratorConfiguration.isGenerate();
+    }
+
+    @Override
+    public boolean isGenerateExcelVO() {
+        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tableConfiguration.getVoExcelGeneratorConfiguration();
+        return voExcelGeneratorConfiguration!=null && voExcelGeneratorConfiguration.isGenerate();
+    }
+
+    @Override
+    public boolean isGenerateViewVO() {
+        VOViewGeneratorConfiguration voViewGeneratorConfiguration = tableConfiguration.getVoViewGeneratorConfiguration();
+        return voViewGeneratorConfiguration!=null && voViewGeneratorConfiguration.isGenerate();
+    }
+
     @Override
     public boolean isGenerateVO() {
-        VOGeneratorConfiguration vOGeneratorConfiguration = tableConfiguration.getVoGeneratorConfiguration();
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tableConfiguration.getVoExcelGeneratorConfiguration();
-        VOViewGeneratorConfiguration voViewGeneratorConfiguration = tableConfiguration.getVoViewGeneratorConfiguration();
-        return (vOGeneratorConfiguration != null && vOGeneratorConfiguration.isGenerate())
-                ||(voExcelGeneratorConfiguration!=null && voExcelGeneratorConfiguration.isGenerate())
-                ||(voViewGeneratorConfiguration!=null && voViewGeneratorConfiguration.isGenerate());
+        return isGenerateVoModel() || isGenerateExcelVO() || isGenerateViewVO();
+    }
+
+    @Override
+    public boolean isForceGenerateScalableElement() {
+        String property = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT);
+        if (StringUtility.stringHasValue(property)) {
+            return Boolean.parseBoolean(property);
+        }else{
+            return false;
+        }
     }
 }

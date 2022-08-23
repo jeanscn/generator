@@ -27,6 +27,13 @@ public abstract class AbstractServiceGenerator extends AbstractJavaGenerator {
         return sb.toString();
     }
 
+    protected String getGenInterfaceClassShortName(String targetPackage,String entityTypeShortName){
+        StringBuilder sb = new StringBuilder();
+        sb.append(targetPackage);
+        sb.append(".").append("IGen").append(entityTypeShortName);
+        return sb.toString();
+    }
+
     protected Method getMethodByColumn(FullyQualifiedJavaType returnType, IntrospectedColumn parameterColumn, String methodName, boolean isAbstract) {
         return getMethodByType(methodName, returnType, parameterColumn.getFullyQualifiedJavaType(),parameterColumn.getJavaProperty(), isAbstract, parameterColumn.getRemarks());
     }

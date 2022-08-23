@@ -33,6 +33,7 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("} else {");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}");
+
         parentElement.addMethod(method);
     }
 }

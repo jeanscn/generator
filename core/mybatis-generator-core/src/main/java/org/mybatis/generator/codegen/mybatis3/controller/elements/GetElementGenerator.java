@@ -19,7 +19,7 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
-        if (isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }
@@ -37,7 +37,7 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
                 entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.isSuccess()) {");
         method.addBodyLine("return success({0});",
-                isGenerateVoModel()?"mappings.to"+entityVoType.getShortName()+"(serviceResult.getResult())":"serviceResult.getResult()");
+                introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName()+"(serviceResult.getResult())":"serviceResult.getResult()");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_NOT_FOUND);");
         method.addBodyLine("}");

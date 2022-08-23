@@ -227,6 +227,10 @@ public interface Plugin {
         return true;
     }
 
+    default boolean subClientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     /**
      * This method is no longer called.
      *
@@ -2122,11 +2126,23 @@ public interface Plugin {
         return true;
     }
 
+    default boolean subServiceGenerated(Interface interfaze,IntrospectedTable introspectedTable){
+        return true;
+    }
+
     default boolean serviceImplGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
         return true;
     }
 
-    default boolean ControllerGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
+    default boolean subServiceImplGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
+        return true;
+    }
+
+    default boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable){
+        return true;
+    }
+
+    default boolean subControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable){
         return true;
     }
 

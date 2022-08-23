@@ -97,7 +97,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      * controller及方法注解@Api、@ApiOperation
      */
     @Override
-    public boolean ControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
             topLevelClass.addAnnotation(VStringUtil.format("@Api(tags = \"{0}\")", StringUtility.remarkLeft(introspectedTable.getRemarks())));
             for (Method method : topLevelClass.getMethods()) {

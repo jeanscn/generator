@@ -4,14 +4,9 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
-import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
-import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
+import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.*;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.sql.Types;
@@ -37,59 +32,61 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        JavaControllerGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
-        JavaServiceGeneratorConfiguration serviceGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
-
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        JavaControllerGeneratorConfiguration configuration = tc.getJavaControllerGeneratorConfiguration();
+        JavaServiceGeneratorConfiguration serviceGeneratorConfiguration = tc.getJavaServiceGeneratorConfiguration();
         progressCallback.startTask(getString("Progress.68", table.toString()));
         Plugin plugins = context.getPlugins();
 
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         FullyQualifiedJavaType serviceImplType = getServiceImplType();
         FullyQualifiedJavaType controllerType = getControllerType();
 
         String mockServiceImpl = "mock" + serviceImplType.getShortName();
         String entityInstanceVar = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
-        String serviceImplVar = JavaBeansUtil.getFirstCharacterLowercase(serviceImplType.getShortName());
-
         String viewpath = null;
-        String basePath = "";
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
             HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
             viewpath = htmlGeneratorConfiguration.getViewPath();
-            basePath = htmlGeneratorConfiguration.getTargetPackage();
         }
 
         FullyQualifiedJavaType topClassType = new FullyQualifiedJavaType(controllerType.getFullyQualifiedName() + "Test");
         TopLevelClass testClazz = new TopLevelClass(topClassType);
+        testClazz.setVisibility(JavaVisibility.PUBLIC);
         if (configuration.getSpringBootApplicationClass() != null) {
             FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(configuration.getSpringBootApplicationClass());
             testClazz.addAnnotation(VStringUtil.format("@SpringBootTest(classes = {0})", fullyQualifiedJavaType.getShortName() + ".class"));
             testClazz.addImportedType(fullyQualifiedJavaType.getFullyQualifiedName());
         } else testClazz.addAnnotation("@SpringBootTest");
         testClazz.addImportedType("org.springframework.boot.test.context.SpringBootTest");
+
         //添加属性
+        testClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
+        testClazz.addImportedType("org.springframework.boot.test.mock.mockito.MockBean");
         addField(WEB_APPLICATION_CONTEXT,
                 "org.springframework.web.context.WebApplicationContext",
                 "@Autowired", testClazz);
-        testClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
+        if (introspectedTable.getRules().isGenerateVO()) {
+            String voTargetPackage = tc.getJavaModelGeneratorConfiguration().getBaseTargetPackage()+".pojo";
+            FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
+            addField("mappings",
+                    entityMappings.getFullyQualifiedName(),
+                    "@Autowired", testClazz);
+            testClazz.addImportedType(entityMappings);
+        }
+
         addField(MOCK_MVC_PROPERTY_NAME,
                 "org.springframework.test.web.servlet.MockMvc",
                 null, testClazz);
         addField("mockSysLogExceptionImpl",
                 "com.vgosoft.system.service.impl.SysLogExceptionImpl",
                 "@MockBean", testClazz);
-        testClazz.addImportedType("org.springframework.boot.test.mock.mockito.MockBean");
         addField("mockSysLogInfoImpl",
                 "com.vgosoft.system.service.impl.SysLogInfoImpl",
                 "@MockBean", testClazz);
         addField("mockOrganizationMgr",
                 "com.vgosoft.core.adapter.organization.OrganizationMgr",
                 "@MockBean", testClazz);
-        addField("requestBody",
-                "java.lang.String",
-                null, testClazz);
-
         addField(mockServiceImpl,
                 serviceGeneratorConfiguration.getTargetPackage() + ".I" + entityType.getShortName(),
                 "@MockBean", testClazz);
@@ -99,39 +96,49 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         addField("id",
                 "java.lang.String",
                 null, testClazz);
-
-        testClazz.addImportedType(entityType);
-        testClazz.addImportedType(exampleType);
-
+        addField("requestBody",
+                "java.lang.String",
+                null, testClazz);
         //增加测试配置方法
+        testClazz.addImportedType("org.junit.jupiter.api.BeforeEach");
+        testClazz.addImportedType("org.springframework.test.web.servlet.setup.MockMvcBuilders");
         Method setup = new Method("setUp");
         setup.addAnnotation("@BeforeEach");
-        testClazz.addImportedType("org.junit.jupiter.api.BeforeEach");
         setup.addBodyLine("mockMvc = MockMvcBuilders.webAppContextSetup({0}).build();", WEB_APPLICATION_CONTEXT);
         //创建测试实例对象实例
         setup.addBodyLine("");
-        setup.addBodyLine("{0}= new {1}(0);", entityInstanceVar,entityType.getShortName());
+        setup.addBodyLine("{0}= new {1}(0);", entityInstanceVar, entityType.getShortName());
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
-            if (column.getJdbcType()== Types.DECIMAL) {
+            if (column.getJdbcType() == Types.DECIMAL) {
                 testClazz.addImportedType("java.math.BigDecimal");
+            }
+            if (column.isJDBCDateColumn() || column.isJDBCTimeColumn() || column.isJDBCTimeStampColumn()) {
+                testClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
             }
             setup.addBodyLine("{0}.set{1}({2});", entityInstanceVar,
                     JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()),
                     JavaBeansUtil.getColumnExampleValue(column));
         }
         if (viewpath != null) {
-            setup.addBodyLine("{0}.setViewPath(\"{1}\");",entityInstanceVar,viewpath);
+            setup.addBodyLine("{0}.setViewPath(\"{1}\");", entityInstanceVar, viewpath);
         }
-        setup.addBodyLine("/* {0} = RandomUtils.randomPojo({1}.class,o->'{'",entityInstanceVar,entityType.getShortName());
+        setup.addBodyLine("/* {0} = RandomUtils.randomPojo({1}.class,o->'{'", entityInstanceVar, entityType.getShortName());
         if (viewpath != null) {
-            setup.addBodyLine("o.setViewPath(\"{0}\");",viewpath);
+            setup.addBodyLine("o.setViewPath(\"{0}\");", viewpath);
         }
         setup.addBodyLine("}); */");
         setup.addBodyLine("");
-        setup.addBodyLine("id = {0}.getId();",entityInstanceVar);
+        setup.addBodyLine("id = {0}.getId();", entityInstanceVar);
         setup.addBodyLine("");
         setup.addBodyLine("requestBody = JSONObject.toJSONString({0});", JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         setup.addBodyLine("");
+        //组织机构相关mock
+        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IUser");
+        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IOrganization");
+        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IDepartment");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooDepartment");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooOrganization");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooUserInfo");
         setup.addBodyLine("final IUser fooUser = new FooUserInfo();\n" +
                 "        final IOrganization fooOrganization = new FooOrganization();\n" +
                 "        final IDepartment fooDepartment = new FooDepartment();\n" +
@@ -140,250 +147,82 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 "        when(mockOrganizationMgr.getDepartment(any())).thenReturn(fooDepartment);");
         testClazz.addMethod(setup);
 
-        testClazz.addImportedType("org.springframework.test.web.servlet.setup.MockMvcBuilders");
-        testClazz.addImportedType("com.alibaba.fastjson.JSONObject");
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IUser");
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IOrganization");
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IDepartment");
-        testClazz.addImportedType("com.vgosoft.organ.foo.FooDepartment");
-        testClazz.addImportedType("com.vgosoft.organ.foo.FooOrganization");
-        testClazz.addImportedType("com.vgosoft.organ.foo.FooUserInfo");
+        //各方法通用引入内容
         testClazz.addStaticImport("org.mockito.Mockito.when");
         testClazz.addStaticImport("org.mockito.ArgumentMatchers.any");
-        testClazz.addStaticImport("org.assertj.core.api.Assertions.assertThat");
-        testClazz.addStaticImport("com.vgosoft.test.util.ResponseBodyMatchers.responseBody");
         testClazz.addStaticImport("org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*");
-        testClazz.addImportedType("com.vgosoft.core.adapter.ServiceResult");
-        testClazz.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
-        testClazz.addImportedType("com.vgosoft.core.constant.enums.ServiceCodeEnum");
-        testClazz.addImportedType("org.springframework.http.HttpStatus");
-        testClazz.addImportedType("org.springframework.http.MediaType");
-        testClazz.addImportedType("com.vgosoft.core.adapter.web.respone.ResponseSimpleImpl");
-        testClazz.addImportedType("com.vgosoft.core.adapter.web.respone.ResponseSimpleList");
-        testClazz.addImportedType("java.nio.charset.StandardCharsets");
-        testClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
+        testClazz.addImportedType("org.junit.jupiter.api.Test");
         testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
+        testClazz.addImportedType("com.alibaba.fastjson.JSONObject");
+        testClazz.addImportedType("org.springframework.http.MediaType");
 
-        String methodName;
-        Method method;
-        String requestUri;
         if (viewpath != null) {
-            //viewXXX，预期返回测试方法
-            requestUri = VStringUtil.format("get(\"/{0}/{1}/view\")", basePath,serviceImplVar) ;
-            methodName = "view" + entityType.getShortName();
-            method = createMethod(methodName, testClazz,"显示或创建一条记录-服务层返回逾期结果");
-            method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-            addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法有返回值");
-            method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});",
-                    entityType.getShortName(),
-                    entityInstanceVar);
-            method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
-                    mockServiceImpl);
-            method.addBodyLine(" final MockHttpServletResponse response = {0}.perform({1}\n" +
-                    "                        .param(\"id\", id)\n" +
-                    "                        .param(\"viewStatus\", \"0\")\n" +
-                    "                        .accept(MediaType.TEXT_HTML))\n" +
-                    "                .andReturn().getResponse();", MOCK_MVC_PROPERTY_NAME, requestUri);
-            method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());");
-            method.addBodyLine("assertThat(response.getContentAsString().contains(\"{0}\")).isTrue();", introspectedTable.getRemarks());
-
-            //viewXXX，服务返回失败的测试方法
-            methodName = "view" + entityType.getShortName() + "_ReturnsFailure";
-            method = createMethod(methodName, testClazz,"显示或创建一条记录-服务层返回失败结果");
-            method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-            addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法返回失败");
-            method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,new Exception(\"err message\"));",
-                    entityType.getShortName());
-            method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
-                    mockServiceImpl);
-            method.addBodyLine("final MockHttpServletResponse response = {0}.perform({1}\n" +
-                            "                        .param(\"id\", id)\n" +
-                            "                        .param(\"viewStatus\", \"1\")\n" +
-                            "                        .accept(MediaType.TEXT_HTML))\n" +
-                            "                .andReturn().getResponse();\n" +
-                            "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                            "        assertThat(response.getContentAsString().contains(\"{2}\")).isTrue();",
-                    MOCK_MVC_PROPERTY_NAME, requestUri, introspectedTable.getRemarks());
+            /* 1、viewXXX，预期返回测试方法 2、viewXXX，服务返回失败的测试方法 */
+            addControllerViewElement(testClazz);
         }
 
-        //getXXX，预期返回测试方法
-        requestUri = VStringUtil.format("get(\"/{0}/{1}/'{id}'\", id)", basePath,serviceImplVar) ;
-        methodName = "get" + entityType.getShortName();
-        method = createMethod(methodName, testClazz,"获取记录-服务层返回预期结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法有返回值");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});",
-                entityType.getShortName(),
-                entityInstanceVar);
-        method.addBodyLine("{0} {1} = {3}Mappings.INSTANCE.to{0}({2});",
-                entityType.getShortName()+"VO",
-                entityType.getShortNameFirstLowCase()+"VO",
-                entityType.getShortNameFirstLowCase(),
-                entityType.getShortName());
-        method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
-                mockServiceImpl);
-        method.addBodyLine("mockMvc.perform({0}\n" +
-                        "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                        "                .andExpect(responseBody()\n" +
-                        "                        .containsObjectAsJson({1}, {2}.class, ResponseSimpleImpl.class));",
-                requestUri, entityInstanceVar+"VO", entityType.getShortName()+"VO");
-        String targetPackage = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getTargetPackage();
-        testClazz.addImportedType(targetPackage+".vo."+entityType.getShortName()+"VO");
-        testClazz.addImportedType(targetPackage+".maps."+entityType.getShortName()+"Mappings");
-        //getXXX，服务返回失败的测试方法
-        methodName = "get" + entityType.getShortName() + "_ReturnsFailure";
-        method = createMethod(methodName, testClazz,"获取记录-服务层返回失败结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法返回失败");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,new Exception(\"err message\"));",
-                entityType.getShortName());
-        method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
-                mockServiceImpl);
-        method.addBodyLine("final MockHttpServletResponse response = mockMvc.perform({0}\n" +
-                        "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                        "                .andReturn()\n" +
-                        "                .getResponse();\n" +
-                        "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                        "        ResponseSimpleImpl responseSimple = JSONObject.parseObject(response.getContentAsString(StandardCharsets.UTF_8), ResponseSimpleImpl.class);\n" +
-                        "        assertThat(responseSimple.getAttributes().get(\"error\")).isEqualTo(ServiceCodeEnum.FAIL.codeName());",
-                requestUri);
+        /* 1、getXXX，预期返回测试方法  2、getXXX，服务返回失败的测试方法 */
+        addControllerGetElement(testClazz);
 
-        //listXXX，预期返回测试方法
-        requestUri = VStringUtil.format("get(\"/{0}/{1}\")", basePath,serviceImplVar);
-        methodName = "list" + entityType.getShortName();
-        method = createMethod(methodName, testClazz,"获取列表-服务层返回预期结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByExample()方法有返回值");
-        method.addBodyLine("when({0}.selectByExample(any({1}.class)))\n" +
-                        "                .thenReturn(Collections.emptyList());",
-                mockServiceImpl,exampleType.getShortName());
-        method.addBodyLine("final MockHttpServletResponse response = mockMvc.perform({0}\n" +
-                        "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                        "                .andReturn().getResponse();\n" +
-                        "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                        "        ResponseSimpleList responseSimpleList = JSONObject.parseObject(response.getContentAsString(StandardCharsets.UTF_8), ResponseSimpleList.class);\n" +
-                        "        assertThat(responseSimpleList.getList()).isEqualTo(Collections.emptyList());",
-                requestUri);
-        testClazz.addImportedType("java.util.Collections");
+        /*listXXX，预期返回测试方法*/
+        addControllerListElement(testClazz);
 
-        //createXXX，预期返回测试方法
-        requestUri = VStringUtil.format("post(\"/{0}/{1}\")", basePath,serviceImplVar) ;
-        methodName = "create" + entityType.getShortName();
-        method = createMethod(methodName, testClazz,"添加数据-服务层返回预期结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.insert()方法有返回值");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});\n" +
-                        "        when({2}.insert(any({0}.class)))\n" +
-                        "                .thenReturn(serviceResult);",
-                entityType.getShortName(),
-                entityInstanceVar,mockServiceImpl);
-        method.addBodyLine("final MockHttpServletResponse response = mockMvc.perform({0}\n" +
-                        "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
-                        "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                        "                .andReturn().getResponse();",
-                requestUri);
-        method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseSimpleImpl responseSimple = JSONObject.parseObject(contentAsString, ResponseSimpleImpl.class);\n" +
-                "        assertThat(responseSimple.getAttributes().get(\"id\")).isEqualTo(id);");
+        /*1、createXXX，预期返回测试方法  2、createXXX，服务返回失败的测试方法*/
+        addControllerCreateElement(testClazz);
 
-        //createXXX，服务返回失败的测试方法
-        methodName = "create" + entityType.getShortName() + "_ReturnsFailure";
-        method = createMethod(methodName, testClazz,"添加数据-服务层返回失败结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.insert()方法返回失败");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,\n" +
-                "                \"error message\");",
-                entityType.getShortName());
-        method.addBodyLine("when({0}.insert(any({1}))).thenReturn(serviceResult);\n" +
-                "        final MockHttpServletResponse response = mockMvc.perform({2}\n" +
-                "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
-                "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                "                .andReturn().getResponse();",
-                mockServiceImpl,entityType.getShortName()+".class",requestUri);
-        method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseSimpleImpl responseSimple = JSONObject.parseObject(contentAsString, ResponseSimpleImpl.class);\n" +
-                "        assertThat(responseSimple.getStatus()).isEqualTo(1);");
+        /*1、updateXXX，预期返回测试方法   2、updateXXX，服务返回失败的测试方法*/
+        addControllerUpdateElement(testClazz);
 
-        //updateXXX，预期返回测试方法
-        requestUri = VStringUtil.format("put(\"/{0}/{1}\")", basePath,serviceImplVar) ;
-        methodName = "update" + entityType.getShortName();
-        method = createMethod(methodName, testClazz,"更新数据-服务层返回预期结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.updateByPrimaryKeySelective()方法有返回值");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({3});\n" +
-                "        when({2}.updateByPrimaryKeySelective(any({1})))\n" +
-                "                .thenReturn(serviceResult);",
-                entityType.getShortName(),entityType.getShortName()+".class",mockServiceImpl,entityInstanceVar);
-        method.addBodyLine("mockMvc.perform({0}\n" +
-                "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
-                "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                "                .andExpect(responseBody()\n" +
-                "                        .containsObjectAsJson({1}, {2}.class, ResponseSimpleImpl.class));",
-                requestUri,entityInstanceVar,entityType.getShortName());
-
-        //updateXXX，服务返回失败的测试方法
-        methodName = "update" + entityType.getShortName() + "_ReturnsFailure";
-        method = createMethod(methodName, testClazz,"更新数据-服务层返回失败结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.updateByPrimaryKeySelective()方法返回失败");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,\n" +
-                        "                \"error message\");",
-                entityType.getShortName());
-        method.addBodyLine(" when({0}.updateByPrimaryKeySelective(any({1}))).thenReturn(serviceResult);\n" +
-                "        final MockHttpServletResponse response = mockMvc.perform({2}\n" +
-                "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
-                "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                "                .andReturn().getResponse();",
-                mockServiceImpl,entityType.getShortName()+".class",requestUri);
-        method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseSimpleImpl responseSimple = JSONObject.parseObject(contentAsString, ResponseSimpleImpl.class);\n" +
-                "        assertThat(responseSimple.getStatus()).isEqualTo(1);");
-
-        //deleteXXX，预期返回测试方法
-        requestUri = VStringUtil.format("delete(\"/{0}/{1}/'{id}'\", id)", basePath,serviceImplVar) ;
-        methodName = "delete" + entityType.getShortName();
-        method = createMethod(methodName, testClazz,"删除一条记录-服务层返回预期结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.deleteByPrimaryKey(id)方法有返回值");
-        method.addBodyLine("int exceptResult = 2;\n" +
-                "        when({0}.deleteByPrimaryKey(id)).thenReturn(exceptResult);\n" +
-                "        final MockHttpServletResponse response = mockMvc.perform({1}\n" +
-                "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                "                .andReturn().getResponse();",
-                mockServiceImpl,requestUri);
-        method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseSimpleImpl responseSimple = JSONObject.parseObject(contentAsString, ResponseSimpleImpl.class);\n" +
-                "        assertThat(responseSimple.getAttributes().get(\"rows\")).isEqualTo(String.valueOf(exceptResult));");
-
-        //deleteBatchXXX，预期返回测试方法
-        requestUri = VStringUtil.format("delete(\"/{0}/{1}\")", basePath,serviceImplVar) ;
-        methodName = "deleteBatch" + entityType.getShortName();
-        method = createMethod(methodName, testClazz,"批量删除数据-服务层返回预期结果");
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.deleteByExample()方法有返回值");
-        method.addBodyLine("String ids = JSONObject.toJSONString(List.of(id));\n" +
-                        "        int exceptResult = 2;\n" +
-                        "        when({0}.deleteByExample(any({1}.class))).thenReturn(exceptResult);\n" +
-                        "        final MockHttpServletResponse response = mockMvc.perform({2}\n" +
-                        "                        .content(ids).contentType(MediaType.APPLICATION_JSON)\n" +
-                        "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                        "                .andReturn().getResponse();",
-                mockServiceImpl,exampleType.getShortName(),requestUri);
-        method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseSimpleImpl responseSimple = JSONObject.parseObject(contentAsString, ResponseSimpleImpl.class);\n" +
-                "        assertThat(responseSimple.getAttributes().get(\"rows\")).isEqualTo(String.valueOf(exceptResult));");
-        testClazz.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+        /*1、deleteXXX，预期返回测试方法   2、deleteBatchXXX，预期返回测试方法*/
+        addControllerDeleteElement(testClazz);
 
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceImplGenerated(testClazz, introspectedTable)) {
             answer.add(testClazz);
         }
         return answer;
+    }
+
+    private void addControllerViewElement(TopLevelClass testClazz) {
+        AbstractUnitTestElementGenerator elementGenerator = new ControllerViewElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, testClazz);
+    }
+
+    private void addControllerGetElement(TopLevelClass testClazz) {
+        AbstractUnitTestElementGenerator elementGenerator = new ControllerGetElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, testClazz);
+
+    }
+
+    private void addControllerListElement(TopLevelClass testClazz) {
+        AbstractUnitTestElementGenerator elementGenerator = new ControllerListElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, testClazz);
+    }
+
+    private void addControllerCreateElement(TopLevelClass testClazz) {
+        AbstractUnitTestElementGenerator elementGenerator = new ControllerCreateElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, testClazz);
+    }
+
+    private void addControllerUpdateElement(TopLevelClass testClazz) {
+        AbstractUnitTestElementGenerator elementGenerator = new ControllerUpdateElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, testClazz);
+    }
+
+    private void addControllerDeleteElement(TopLevelClass testClazz) {
+        AbstractUnitTestElementGenerator elementGenerator = new ControllerDeleteElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, testClazz);
+    }
+
+    protected void initializeAndExecuteGenerator(
+            AbstractUnitTestElementGenerator elementGenerator,
+            TopLevelClass parentElement) {
+        elementGenerator.setContext(context);
+        elementGenerator.setIntrospectedTable(introspectedTable);
+        elementGenerator.setProgressCallback(progressCallback);
+        elementGenerator.setWarnings(warnings);
+        elementGenerator.initGenerator();
+        elementGenerator.addElements(parentElement);
     }
 
     /**

@@ -9,6 +9,7 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
 
     protected boolean generate;
     protected String targetPackage;
+    protected String targetPackageGen;
     protected String targetProject;
     protected String baseTargetPackage;
     protected String subTargetPackage;
@@ -56,6 +57,14 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
 
     public void setBaseTargetPackage(String baseTargetPackage) {
         this.baseTargetPackage = baseTargetPackage;
+    }
+
+    public String getTargetPackageGen() {
+        return targetPackageGen;
+    }
+
+    public void setTargetPackageGen(String targetPackageGen) {
+        this.targetPackageGen = targetPackageGen;
     }
 
     public void validate(List<String> errors, String contextId, String funcKey){

@@ -17,7 +17,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType(entityType);
         parentElement.addImportedType(exampleType);
         parentElement.addImportedType(responseResult);
-        if (isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }
@@ -35,9 +35,10 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("List<{0}> {1} = {2}.selectByExample(example);",
                 entityType.getShortName(),listEntityVar,serviceBeanName);
         method.addBodyLine("return success({0});",
-                isGenerateVoModel()
+                introspectedTable.getRules().isGenerateVoModel()
                         ?"mappings.to"+entityVoType.getShortName()+"s("+listEntityVar+")"
                         :listEntityVar);
+
         parentElement.addMethod(method);
     }
 }

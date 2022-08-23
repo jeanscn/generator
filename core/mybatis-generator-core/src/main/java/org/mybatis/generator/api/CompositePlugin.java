@@ -166,6 +166,17 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean subClientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.subClientGenerated(interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean clientBasicCountMethodGenerated(Method method, Interface interfaze,
                                                    IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
@@ -1590,6 +1601,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean subServiceGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.subServiceGenerated(interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean serviceImplGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.serviceImplGenerated(topLevelClass, introspectedTable)) {
@@ -1600,9 +1621,29 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean ControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean subServiceImplGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.ControllerGenerated(topLevelClass, introspectedTable)) {
+            if (!plugin.subServiceImplGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.controllerGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean subControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.subControllerGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }

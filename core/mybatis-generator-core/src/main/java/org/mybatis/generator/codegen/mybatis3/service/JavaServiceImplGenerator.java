@@ -4,6 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
@@ -31,36 +32,36 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         CommentGenerator commentGenerator = context.getCommentGenerator();
         Plugin plugins = context.getPlugins();
 
-        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
+        String targetPackage = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().getTargetPackage();
+        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(targetPackage + "." + introspectedTable.getTableConfiguration().getDomainObjectName()+"Mapper");
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
 
-
         FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(ANNOTATION_SERVICE);
         FullyQualifiedJavaType implSuperType = getServiceSupperType(mapperType,entityType, exampleType, introspectedTable);
-        String interfaceClassShortName = getInterfaceClassShortName(introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration().getTargetPackage(), entityType.getShortName());
+        String interfaceClassShortName = getGenInterfaceClassShortName(introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration().getTargetPackageGen(), entityType.getShortName());
 
         Interface bizINF = new Interface(interfaceClassShortName);
-        String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
-        FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(javaServiceImplGeneratorConfiguration.getTargetPackage() + "." + implClazzName);
-        TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
-        commentGenerator.addJavaFileComment(bizClazzImpl);
-        bizClazzImpl.addImportedType(implSuperType);
-        bizClazzImpl.addImportedType(entityType);
-        bizClazzImpl.addImportedType(exampleType);
-        bizClazzImpl.addImportedType(bizINF.getType());
-        bizClazzImpl.addImportedType(mapperType);
-        bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
-        bizClazzImpl.setSuperClass(implSuperType);
-        bizClazzImpl.addSuperInterface(bizINF.getType());
+        String implGenClazzName = JavaBeansUtil.getFirstCharacterUppercase("Gen"+introspectedTable.getTableConfiguration().getDomainObjectName()+"Impl");
+        FullyQualifiedJavaType bizGenClazzImplType = new FullyQualifiedJavaType(javaServiceImplGeneratorConfiguration.getTargetPackageGen() + "." + implGenClazzName);
+        TopLevelClass bizGenClazzImpl = new TopLevelClass(bizGenClazzImplType);
+        bizGenClazzImpl.setVisibility(JavaVisibility.PUBLIC);
+        commentGenerator.addJavaFileComment(bizGenClazzImpl);
+        bizGenClazzImpl.addImportedType(entityType);
+        bizGenClazzImpl.addImportedType(exampleType);
+        bizGenClazzImpl.addImportedType(mapperType);
+        bizGenClazzImpl.addImportedType(implSuperType);
+        bizGenClazzImpl.setSuperClass(implSuperType);
+        bizGenClazzImpl.addImportedType(bizINF.getType());
+        bizGenClazzImpl.addSuperInterface(bizINF.getType());
         //增加构造器
-        Method constructor = new Method(bizClazzImpl.getType().getShortName());
+        Method constructor = new Method(bizGenClazzImpl.getType().getShortName());
         constructor.setVisibility(JavaVisibility.PUBLIC);
         constructor.setConstructor(true);
         constructor.addParameter(new Parameter(mapperType, "mapper"));
         constructor.addBodyLine("super(mapper);");
         constructor.addBodyLine("this.mapper = mapper;");
-        bizClazzImpl.addMethod(constructor);
+        bizGenClazzImpl.addMethod(constructor);
 
         StringBuilder sb = new StringBuilder();
         //增加selectByExampleWithRelation接口实现方法
@@ -75,9 +76,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 sb.append(introspectedTable.getSelectByExampleWithRelationStatementId());
                 sb.append("(example);");
                 example.addBodyLine(sb.toString());
-                bizClazzImpl.addMethod(example);
-                bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                addJavaMapper(introspectedTable, bizClazzImpl);
+                bizGenClazzImpl.addMethod(example);
+                bizGenClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                addJavaMapper(introspectedTable, bizGenClazzImpl);
             }
         }
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
@@ -86,15 +87,15 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 Method methodByColumn;
                 if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
                     methodByColumn = getMethodByColumn(FullyQualifiedJavaType.getStringInstance(), foreignKeyColumn, selectByColumnGeneratorConfiguration.getMethodName(), false);
-                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());
+                    bizGenClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance());
                 }else{
                     methodByColumn = getMethodByColumn(entityType, foreignKeyColumn, selectByColumnGeneratorConfiguration.getMethodName(), false);
                 }
                 methodByColumn.addAnnotation("@Override");
-                addJavaMapper(introspectedTable, bizClazzImpl);
+                addJavaMapper(introspectedTable, bizGenClazzImpl);
                 if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(selectByColumnGeneratorConfiguration.getMethodName())) {
-                    bizClazzImpl.addImportedType(SERVICE_RESULT);
-                    bizClazzImpl.addImportedType(SERVICE_CODE_ENUM);
+                    bizGenClazzImpl.addImportedType(SERVICE_RESULT);
+                    bizGenClazzImpl.addImportedType(SERVICE_CODE_ENUM);
                     String entityVar = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
                     methodByColumn.addBodyLine("try{");
                     String format = VStringUtil.format("{0} {1} = mapper.selectBaseByPrimaryKey({2});",entityType.getShortName(), entityVar, foreignKeyColumn.getJavaProperty());
@@ -116,10 +117,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                     sb.append(foreignKeyColumn.getJavaProperty());
                     sb.append(");");
                     methodByColumn.addBodyLine(sb.toString());
-                    bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                    bizGenClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                 }
-                bizClazzImpl.addMethod(methodByColumn);
-                bizClazzImpl.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
+                bizGenClazzImpl.addMethod(methodByColumn);
+                bizGenClazzImpl.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
             }
         }
 
@@ -130,7 +131,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             Method methodByColumn = getMethodByColumn(entityType, customMethodGeneratorConfiguration.getParentIdColumn(),
                     customMethodGeneratorConfiguration.getMethodName(), false);
             methodByColumn.addAnnotation("@Override");
-            addJavaMapper(introspectedTable, bizClazzImpl);
+            addJavaMapper(introspectedTable, bizGenClazzImpl);
             sb.setLength(0);
             sb.append("return mapper.");
             sb.append(customMethodGeneratorConfiguration.getMethodName());
@@ -138,9 +139,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             sb.append(customMethodGeneratorConfiguration.getParentIdColumn().getJavaProperty());
             sb.append(");");
             methodByColumn.addBodyLine(sb.toString());
-            bizClazzImpl.addMethod(methodByColumn);
-            bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            bizClazzImpl.addImportedType(customMethodGeneratorConfiguration.getParentIdColumn().getFullyQualifiedJavaType());
+            bizGenClazzImpl.addMethod(methodByColumn);
+            bizGenClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+            bizGenClazzImpl.addImportedType(customMethodGeneratorConfiguration.getParentIdColumn().getFullyQualifiedJavaType());
         }
 
         //增加selectByTable方法
@@ -157,7 +158,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             }
             selectByTable.setVisibility(JavaVisibility.PUBLIC);
             selectByTable.addAnnotation("@Override");
-            addJavaMapper(introspectedTable, bizClazzImpl);
+            addJavaMapper(introspectedTable, bizGenClazzImpl);
             sb.setLength(0);
             sb.append("return mapper.");
             sb.append(selectByTableGeneratorConfiguration.getMethodName());
@@ -165,11 +166,29 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             sb.append(selectByTableGeneratorConfiguration.getParameterName());
             sb.append(");");
             selectByTable.addBodyLine(sb.toString());
-            bizClazzImpl.addMethod(selectByTable);
-            bizClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            bizClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance());
+            bizGenClazzImpl.addMethod(selectByTable);
+            bizGenClazzImpl.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+            bizGenClazzImpl.addImportedType(FullyQualifiedJavaType.getStringInstance());
         }
 
+        List<CompilationUnit> answer = new ArrayList<>();
+        if (plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable)) {
+            answer.add(bizGenClazzImpl);
+        }
+
+        //生成子类
+        String interfaceSubShortName = getInterfaceClassShortName(introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration().getTargetPackage(), entityType.getShortName());
+        Interface superINF = new Interface(interfaceSubShortName);
+        String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
+        FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(javaServiceImplGeneratorConfiguration.getTargetPackage() + "." + implClazzName);
+        TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
+        commentGenerator.addJavaFileComment(bizClazzImpl);
+        bizClazzImpl.addImportedType(bizGenClazzImpl.getType());
+        bizClazzImpl.addImportedType(superINF.getType());
+        bizClazzImpl.addImportedType(mapperType);
+        bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
+        bizClazzImpl.setSuperClass(bizGenClazzImpl.getType());
+        bizClazzImpl.addSuperInterface(superINF.getType());
 
         /*是否添加@Service注解*/
         boolean noServiceAnnotation = introspectedTable.getRules().isNoServiceAnnotation();
@@ -181,11 +200,23 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             bizClazzImpl.addImportedType("org.springframework.context.annotation.Primary");
             bizClazzImpl.addAnnotation("@Primary");
         }
+        //构造器
+        Method conMethod = new Method(implClazzName);
+        conMethod.addParameter(new Parameter(mapperType, "mapper"));
+        bizClazzImpl.addImportedType(mapperType);
+        conMethod.setConstructor(true);
+        conMethod.setVisibility(JavaVisibility.PUBLIC);
+        conMethod.addBodyLine("super(mapper);");
+        bizClazzImpl.addMethod(conMethod);
 
-        List<CompilationUnit> answer = new ArrayList<>();
-        if (plugins.serviceImplGenerated(bizClazzImpl, introspectedTable)) {
-            answer.add(bizClazzImpl);
+        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
+        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceImplGeneratorConfiguration.getTargetProject(), javaServiceImplGeneratorConfiguration.getTargetPackage(), implClazzName);
+        if (forceGenerateScalableElement || fileNotExist) {
+            if (plugins.subServiceImplGenerated(bizGenClazzImpl, introspectedTable)){
+                answer.add(bizClazzImpl);
+            }
         }
+
         return answer;
     }
 
@@ -211,7 +242,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     }
 
     private Field getMapperProperty(IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        String targetPackage = tc.getJavaClientGeneratorConfiguration().getTargetPackage();
+        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(String.join(".", targetPackage,tc.getDomainObjectName()+"Mapper"));
         Field mapper = new Field("mapper", mapperType);
         mapper.setFinal(true);
         mapper.setVisibility(JavaVisibility.PRIVATE);
