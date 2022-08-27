@@ -953,6 +953,18 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                         IntrospectedColumn introspectedColumn,
+                                         IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voRequestFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean modelGetterMethodGenerated(Method method, TopLevelClass topLevelClass,
                                               IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,
                                               ModelClassType modelClassType) {
@@ -1038,6 +1050,16 @@ public abstract class CompositePlugin implements Plugin {
     public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voModelExcelClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelRequestClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelRequestClassGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }

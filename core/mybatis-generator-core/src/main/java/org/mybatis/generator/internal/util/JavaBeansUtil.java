@@ -490,4 +490,13 @@ public class JavaBeansUtil {
     public static boolean javaFileNotExist(String targetProject,String targetPackage, String fileName){
         return !javaFileExist(targetProject,targetPackage,fileName);
     }
+
+    public static String getRootClass(IntrospectedTable introspectedTable) {
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        if (rootClass == null) {
+            Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
+            rootClass = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        }
+        return rootClass;
+    }
 }

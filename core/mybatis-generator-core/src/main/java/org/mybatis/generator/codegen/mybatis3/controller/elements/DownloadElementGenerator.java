@@ -19,16 +19,11 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
-        parentElement.addImportedType(RESPONSE_SIMPLE);
-        parentElement.addImportedType(RESPONSE_SIMPLE_IMPL);
         parentElement.addImportedType(entityType);
-        parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
-        parentElement.addImportedType("org.springframework.web.multipart.MultipartFile");
-        parentElement.addImportedType("org.springframework.http.MediaType");
-        parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
         parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
         parentElement.addImportedType("org.springframework.util.Assert");
         parentElement.addImportedType("org.apache.commons.lang3.BooleanUtils");
+        parentElement.addImportedType("org.springframework.http.MediaType");
 
         final String methodPrefix = "download";
         Method method = createMethod(methodPrefix);
@@ -42,24 +37,20 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addParameter(typeParameter);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse");
         method.addParameter(new Parameter(response, "response"));
-        StringBuilder sb = new StringBuilder();
-        sb.append("@GetMapping(value = \"");
-        sb.append(StringUtils.lowerCase(this.serviceBeanName));
-        sb.append("/download/{type}/{id}\",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)");
-        method.addAnnotation(sb.toString());
-        method.addBodyLine("try {");
+        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
+
+        String sb = "@GetMapping(value = \"" +
+                StringUtils.lowerCase(this.serviceBeanName) +
+                "/download/{type}/{id}\",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)";
+        method.addAnnotation(sb);
+
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));
-        method.addBodyLine(format("{0} {1} = serviceResult.getResult();", entityType.getShortName(),entityFirstLowerShortName));
-        method.addBodyLine(format("Assert.notNull({0}, \"获取文件失败！\");", entityFirstLowerShortName));
-        method.addBodyLine(format("byte[] bytes = {0}.getBytes();", entityFirstLowerShortName));
-        method.addBodyLine(format("String fileName = {0}.getName() == null ? id : {1}.getName();", entityFirstLowerShortName, entityFirstLowerShortName));
+        method.addBodyLine(format("{0} {1} = serviceResult.getResult();", entityType.getShortName(),entityType.getShortNameFirstLowCase()));
+        method.addBodyLine(format("Assert.notNull({0}, \"获取文件失败！\");", entityType.getShortNameFirstLowCase()));
+        method.addBodyLine(format("byte[] bytes = {0}.getBytes();", entityType.getShortNameFirstLowCase()));
+        method.addBodyLine(format("String fileName = {0}.getName() == null ? id : {0}.getName();", entityType.getShortNameFirstLowCase()));
         method.addBodyLine("setResponseContent(fileName, response, bytes, BooleanUtils.toBoolean(type));");
-        method.addBodyLine("} catch (Exception e) {");
-        method.addBodyLine("response.setStatus(404);");
-        method.addBodyLine("e.printStackTrace();");
-        method.addBodyLine("}");
-
         parentElement.addMethod(method);
     }
 }

@@ -15,12 +15,16 @@
  */
 package org.mybatis.generator.api;
 
+import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.sql.JDBCType;
 import java.sql.Types;
 import java.util.Properties;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * This class holds information about an introspected column.
@@ -383,5 +387,36 @@ public class IntrospectedColumn {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public String getSqlFragmentLength(){
+        StringBuilder sb_length = new StringBuilder();
+        if (!(this.isJDBCDateColumn() || this.isJDBCTimeColumn() || this.isJDBCTimeStampColumn() || this.isBLOBColumn())) {
+            sb_length.append("(");
+            sb_length.append(this.length);
+            if (this.scale > 0) {
+                sb_length.append(",").append(this.scale);
+            }
+            sb_length.append(") ");
+        } else {
+            sb_length.append(" ");
+        }
+        return sb_length.toString();
+    }
+
+    public String getSqlFragmentNotNull(){
+        StringBuilder not_null = new StringBuilder();
+        if (!this.isNullable() || stringHasValue(this.getDefaultValue())) {
+            not_null.append("NOT NULL ");
+            if (stringHasValue(this.defaultValue)) {
+                JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
+                if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
+                    not_null.append(" DEFAULT '").append(this.defaultValue).append("' ");
+                } else {
+                    not_null.append(" DEFAULT ").append(this.defaultValue).append(" ");
+                }
+            }
+        }
+        return not_null.toString();
     }
 }

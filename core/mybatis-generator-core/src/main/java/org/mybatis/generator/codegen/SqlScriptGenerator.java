@@ -45,38 +45,7 @@ public class SqlScriptGenerator extends AbstractGenerator {
         ret.add("");
         ret.add(VStringUtil.format("CREATE TABLE IF NOT EXISTS `{0}`  (", tableName));
 
-        StringBuilder not_null = new StringBuilder();
-        StringBuilder sb_length = new StringBuilder();
         for (IntrospectedColumn col : this.introspectedTable.getAllColumns()) {
-            sb_length.setLength(0);
-            not_null.setLength(0);
-            //长度
-            if (JDBCType.DATE.getVendorTypeNumber() != col.getJdbcType()) {
-                sb_length.append("(");
-                if (JDBCType.TIMESTAMP.getVendorTypeNumber()==col.getJdbcType()) {
-                    sb_length.append("0");
-                }else{
-                    sb_length.append(col.getLength());
-                }
-                if (col.getScale()>0) {
-                    sb_length.append(",").append(col.getScale());
-                }
-                sb_length.append(") ");
-            }else{
-                sb_length.append(" ");
-            }
-            //不允许空
-            if (!col.isNullable() || stringHasValue(col.getDefaultValue())) {
-                not_null.append("NOT NULL ");
-                if (stringHasValue(col.getDefaultValue())) {
-                    JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType()));
-                    if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                        not_null.append(" DEFAULT '").append(col.getDefaultValue()).append("' ");
-                    }else{
-                        not_null.append(" DEFAULT ").append(col.getDefaultValue()).append(" ");
-                    }
-                }
-            }
 
             String character = Empty.EMPTY_STRING;
             if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL)) {
@@ -85,9 +54,9 @@ public class SqlScriptGenerator extends AbstractGenerator {
             String rowSql = VStringUtil.format(COLUMN_STATEMENT,
                     col.getActualColumnName(),
                     col.getActualTypeName(),
-                    sb_length.toString(),
+                    col.getSqlFragmentLength(),
                     character,
-                    not_null.toString(),
+                    col.getSqlFragmentNotNull(),
                     col.getRemarks());
             columnSql.add(rowSql);
         }

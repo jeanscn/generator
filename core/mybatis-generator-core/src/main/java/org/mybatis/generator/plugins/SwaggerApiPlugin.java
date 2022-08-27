@@ -93,6 +93,11 @@ public class SwaggerApiPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+    }
+
     /**
      * controller及方法注解@Api、@ApiOperation
      */
@@ -205,7 +210,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
         }else if (("get" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "获得单条记录", "根据给定id获取单个实体");
         }else if (("list" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "获得数据列表",
+            buildSwaggerApiAnnotation(method, "获得数据"+(introspectedTable.getRules().isGenerateRequestVO()?"分页数据":"数据")+"列表",
                     "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
         }else if (("create" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "新增一条记录", "新增一条记录,返回json，包含影响条数及消息");
@@ -225,7 +230,12 @@ public class SwaggerApiPlugin extends PluginAdapter {
             buildSwaggerApiAnnotation(method, "默认数据视图显示", "显示默认数据视图");
         }else if (VStringUtil.contains(method.getName(), "option")) {
             String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
-            buildSwaggerApiAnnotation(method, "获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表", "根据给定条件获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表，可以根据需要传入属性同名参数、前段选中的值");
+            if (introspectedTable.getRules().isGenerateRequestVO()) {
+                buildSwaggerApiAnnotation(method, "获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表"+(introspectedTable.getRules().isGenerateRequestVO()?"分页数据":"数据"),
+                        "根据给定条件获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表，可以根据需要传入属性同名参数、消费端选中的值");
+            }else{
+                buildSwaggerApiAnnotation(method, "获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表", "根据给定条件获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表，可以根据需要传入属性同名参数、消费端选中的值");
+            }
         }
     }
 

@@ -156,7 +156,7 @@
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
         -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateViewVO?,generateExcelVO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateViewVO?,generateExcelVO?,generateRequestVO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
                 ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
@@ -503,3 +503,14 @@
         <!ELEMENT generateExcelVO (property*)>
         <!ATTLIST generateExcelVO
                 generate (true|false) #REQUIRED>
+
+        <!--
+                   请求参数配置的生成描述
+                   属性信息：
+                   1、generate 是否生成,true生成（RequestVO类不存时生成，如果存在则不再覆盖）,false忽略。
+                   2、是否包含分页参数。true包含
+                -->
+        <!ELEMENT generateRequestVO (property*)>
+        <!ATTLIST generateRequestVO
+                generate (true|false) #REQUIRED
+                includePageParam (true|false) #REQUIRED>

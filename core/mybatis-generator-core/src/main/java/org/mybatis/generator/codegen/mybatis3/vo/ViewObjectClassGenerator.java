@@ -53,6 +53,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
     private TopLevelClass viewVOClass;
     private String exportVoType;
     private TopLevelClass exportVoClass;
+    private String requestVoType;
+    private TopLevelClass requestVoClass;
     private boolean generated = false;
 
     public ViewObjectClassGenerator(String project) {
@@ -171,9 +173,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
         }
 
-        /*
-         * 生成ExportVO
-         * */
+        /* 生成ExportVO */
         VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tableConfiguration.getVoExcelGeneratorConfiguration();
         if (voExcelGeneratorConfiguration != null && voExcelGeneratorConfiguration.isGenerate()) {
             generated = true;
@@ -191,7 +191,49 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
         }
 
-        //生成AbstractVo
+        /*生成RequestVO*/
+        VORequestGeneratorConfiguration voRequestGeneratorConfiguration = tableConfiguration.getVoRequestGeneratorConfiguration();
+        if (voRequestGeneratorConfiguration != null && voRequestGeneratorConfiguration.isGenerate()) {
+            generated = true;
+            targetPackage = voRequestGeneratorConfiguration.getTargetPackage();
+            targetProject = voRequestGeneratorConfiguration.getTargetProject();
+            abstractVoType = String.join(".", voRequestGeneratorConfiguration.getTargetPackage(), subPackageAbs, abstractName);
+            String voRequestName = entityType.getShortName() + "RequestVO";
+            requestVoType = String.join(".", targetPackage, subPackageVo, voRequestName);
+            requestVoClass = createTopLevelClass(requestVoType, abstractVoType);
+            requestVoClass.addMultipleImports("lombok", "ApiModel","ApiModelProperty");
+            requestVoClass.addAnnotation(getApiModel(voRequestName));
+            requestVoClass.addField(builderSerialVersionUID());
+            //分页属性
+            if (voRequestGeneratorConfiguration.isIncludePageParam()) {
+                FullyQualifiedJavaType pageType = new FullyQualifiedJavaType("com.vgosoft.core.pojo.IPage");
+                requestVoClass.addSuperInterface(pageType);
+                requestVoClass.addImportedType(pageType);
+                Field pNo = new Field("pageNo", FullyQualifiedJavaType.getIntInstance());
+                pNo.addAnnotation("@ApiModelProperty(value = \"页码\")");
+                pNo.setVisibility(JavaVisibility.PRIVATE);
+                requestVoClass.addField(pNo);
+                Field pSize = new Field("pageSize", FullyQualifiedJavaType.getIntInstance());
+                pSize.addAnnotation("@ApiModelProperty(value = \"每页数据数量\")");
+                pSize.setVisibility(JavaVisibility.PRIVATE);
+                requestVoClass.addField(pSize);
+            }
+            //增加cascade开关
+            if (introspectedTable.getRules().generateRelationWithSubSelected()) {
+                Field cascade = new Field("cascadeResult", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+                cascade.addAnnotation("@ApiModelProperty(value = \"结果是否包含子级\")");
+                cascade.setVisibility(JavaVisibility.PRIVATE);
+                requestVoClass.addField(cascade);
+            }
+
+            if (fileNotExist(subPackageVo, voRequestName)) {
+                if (context.getPlugins().voModelRequestClassGenerated(requestVoClass, introspectedTable)) {
+                    answer.add(requestVoClass);
+                }
+            }
+
+        }
+        /*生成AbstractVo*/
         if (generated) {
             TopLevelClass abstractVo = new TopLevelClass(abstractVoType);
             abstractVo.setAbstract(true);
@@ -258,6 +300,10 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType(viewVOType));
                 mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), false));
                 mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), true));
+            }
+            if (stringHasValue(requestVoType)) {
+                mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
+                mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(),entityType, false));
             }
             if (fileNotExist(subPackageMaps, mappingsName)) {
                 answer.add(mappingsInterface);

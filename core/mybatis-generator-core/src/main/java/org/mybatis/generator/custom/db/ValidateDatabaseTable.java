@@ -24,7 +24,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
@@ -244,10 +243,10 @@ public class ValidateDatabaseTable {
             List<String> collect1 = Stream.of(addColumns.stream(), updateColumns.stream())
                     .flatMap(Function.identity())
                     .filter(IntrospectedColumn::isIdentity)
-                    .map(t->t.getActualColumnName().toUpperCase())
+                    .map(t -> t.getActualColumnName().toUpperCase())
                     .collect(Collectors.toList());
             List<String> pkColumnName = table.getPrimaryKeyColumns().stream()
-                    .map(t->t.getActualColumnName().toUpperCase())
+                    .map(t -> t.getActualColumnName().toUpperCase())
                     .collect(Collectors.toList());
             List<String> collect = collect1.stream()
                     .filter(t -> !pkColumnName.contains(t))
@@ -278,39 +277,7 @@ public class ValidateDatabaseTable {
 
     private String getColumnSql(List<IntrospectedColumn> columns, String actionKey) {
         StringBuilder sb = new StringBuilder();
-        StringBuilder not_null = new StringBuilder();
-        StringBuilder sb_length = new StringBuilder();
         for (IntrospectedColumn col : columns) {
-            sb_length.setLength(0);
-            not_null.setLength(0);
-            //长度
-            if (JDBCType.DATE.getVendorTypeNumber() != col.getJdbcType()) {
-                sb_length.append("(");
-                if (JDBCType.TIMESTAMP.getVendorTypeNumber() == col.getJdbcType()) {
-                    sb_length.append("0");
-                } else {
-                    sb_length.append(col.getLength());
-                }
-                if (col.getScale() > 0) {
-                    sb_length.append(",").append(col.getScale());
-                }
-                sb_length.append(") ");
-            } else {
-                sb_length.append(" ");
-            }
-            //不允许空
-            if (!col.isNullable() || stringHasValue(col.getDefaultValue())) {
-                not_null.append("NOT NULL ");
-                if (stringHasValue(col.getDefaultValue())) {
-                    JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType()));
-                    if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                        not_null.append(" DEFAULT '").append(col.getDefaultValue()).append("' ");
-                    } else {
-                        not_null.append(" DEFAULT ").append(col.getDefaultValue()).append(" ");
-                    }
-                }
-            }
-
             /*
              * sql模板
              * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `PARENT_ID`;
@@ -323,9 +290,9 @@ public class ValidateDatabaseTable {
                     actionKey,
                     col.getActualColumnName(),
                     col.getActualTypeName(),
-                    sb_length.toString(),
+                    col.getSqlFragmentLength(),
                     character,
-                    not_null.toString(),
+                    col.getSqlFragmentNotNull(),
                     col.getRemarks(),
                     position);
             if (sb.length() > 0) {

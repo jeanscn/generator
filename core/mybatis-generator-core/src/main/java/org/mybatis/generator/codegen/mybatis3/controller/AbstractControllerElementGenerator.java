@@ -3,15 +3,13 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.VOGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
 
 public abstract class AbstractControllerElementGenerator  extends AbstractGenerator {
 
@@ -27,21 +25,25 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected String entityNameKey;
 
-    protected String entityFirstLowerShortName;
-
     protected FullyQualifiedJavaType entityMappings;
 
     protected FullyQualifiedJavaType entityVoType;
 
     protected FullyQualifiedJavaType entityViewVoType;
 
+    protected FullyQualifiedJavaType entityRequestVoType;
+
     protected FullyQualifiedJavaType responseResult;
+
+    protected FullyQualifiedJavaType responsePagehelperResult;
 
     protected Parameter entityParameter;
 
     protected HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
     protected FullyQualifiedJavaType responseSimple;
+
+    protected TableConfiguration tc;
 
     public abstract void addElements(TopLevelClass parentElement);
 
@@ -50,6 +52,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
     }
 
     protected void initGenerator(){
+        tc = introspectedTable.getTableConfiguration();
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         commentGenerator = context.getCommentGenerator();
@@ -61,18 +64,19 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         entityParameter = new Parameter(entityType, JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         responseSimple = new FullyQualifiedJavaType(RESPONSE_SIMPLE);
         responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
-        entityFirstLowerShortName = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+        responsePagehelperResult = new FullyQualifiedJavaType(RESPONSE_PAGEHELPER_RESULT);
         String voTargetPackage = introspectedTable.getTableConfiguration()
                 .getVoGeneratorConfiguration()
                 .getTargetPackage();
         entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
         entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
+        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"RequestVO"));
     }
 
     protected Method createMethod(String methodPrefix) {
         Method method = new Method(methodPrefix + entityType.getShortName());
-        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setVisibility(JavaVisibility.PROTECTED);
         commentGenerator.addGeneralMethodComment(method, introspectedTable);
         return method;
     }
@@ -173,5 +177,31 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
             parameter.addAnnotation("@RequestBody");
         }
         return parameter;
+    }
+
+    protected void selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
+        String listEntityVar = entityType.getShortNameFirstLowCase()+"s";
+        method.addBodyLine("{0} example = buildExample(actionType,{1});",
+                exampleType.getShortName(),
+                introspectedTable.getRules().isGenerateRequestVO()?entityRequestVoType.getShortNameFirstLowCase():
+                        introspectedTable.getRules().isGenerateVoModel()?entityVoType.getShortNameFirstLowCase():entityType.getShortNameFirstLowCase());
+        if (introspectedTable.getRules().isGenerateRequestVO()) {
+            method.addBodyLine("PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());",entityRequestVoType.getShortNameFirstLowCase());
+            parentElement.addImportedType("com.github.pagehelper.PageHelper");
+        }
+        if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
+            method.addBodyLine("List<{0}> {1};\n" +
+                            "        if ({3}.isCascadeResult()) '{'\n" +
+                            "            {1} = {2}.selectByExampleWithRelation(example);\n" +
+                            "        '}'else'{'\n" +
+                            "            {1} = {2}.selectByExample(example);\n" +
+                            "        '}'",
+                    entityType.getShortName(), listEntityVar,serviceBeanName,entityRequestVoType.getShortNameFirstLowCase());
+        }else{
+            method.addBodyLine("List<{0}> {1} = {2}.selectByExample(example);",
+                    entityType.getShortName(), listEntityVar,serviceBeanName);
+        }
+        method.addBodyLine("Page<{0}> page = (Page<{0}>){1};",entityType.getShortName(), listEntityVar);
+        parentElement.addImportedType("com.github.pagehelper.Page");
     }
 }

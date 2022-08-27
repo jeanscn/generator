@@ -22,6 +22,7 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -78,9 +79,8 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             }
         }
 
-        String rootClass = getRootClass();
         for (IntrospectedColumn introspectedColumn : introspectedColumns) {
-            if (RootClassInfo.getInstance(rootClass, warnings).containsProperty(introspectedColumn)) {
+            if (RootClassInfo.getInstance(getRootClass(), warnings).containsProperty(introspectedColumn)) {
                 continue;
             }
 
@@ -116,7 +116,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             return new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
-            String rootClass = getRootClass();
+            String rootClass = JavaBeansUtil.getRootClass(introspectedTable);
             if (rootClass != null) {
                 return new FullyQualifiedJavaType(rootClass);
             }

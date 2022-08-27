@@ -147,7 +147,9 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         String firstCharacterLowercase = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
         String param = firstCharacterLowercase;
         VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
-        if (voGeneratorConfiguration != null && voGeneratorConfiguration.isGenerate()) {
+        if (introspectedTable.getRules().isGenerateRequestVO()) {
+            param = firstCharacterLowercase + "RequestVO";
+        }else if (introspectedTable.getRules().isGenerateVoModel()) {
             param = firstCharacterLowercase + "VO";
         }
         return param;

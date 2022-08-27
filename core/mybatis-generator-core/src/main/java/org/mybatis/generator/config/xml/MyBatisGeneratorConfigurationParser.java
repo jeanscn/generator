@@ -15,7 +15,6 @@
  */
 package org.mybatis.generator.config.xml;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.pojo.*;
@@ -385,6 +384,8 @@ public class MyBatisGeneratorConfigurationParser {
                 parseGenerateViewVO(context, tc, childNode);
             } else if ("generateExcelVO".equals(childNode.getNodeName())) {
                 parseGenerateExcelVO(context, tc, childNode);
+            }else if ("generateRequestVO".equals(childNode.getNodeName())) {
+                getParseGenerateRequestVO(context, tc, childNode);
             }
         }
     }
@@ -906,6 +907,18 @@ public class MyBatisGeneratorConfigurationParser {
         }
         parseChildNodeOnlyProperty(voViewGeneratorConfiguration, node);
         tc.setVoViewGeneratorConfiguration(voViewGeneratorConfiguration);
+    }
+
+
+    private void getParseGenerateRequestVO(Context context, TableConfiguration tc, Node node) {
+        VORequestGeneratorConfiguration voRequestGeneratorConfiguration = new VORequestGeneratorConfiguration(context);
+        Properties attributes = parseAttributes(node);
+        String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
+        voRequestGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
+        String includePageParam = attributes.getProperty("includePageParam");
+        voRequestGeneratorConfiguration.setGenerate(Boolean.parseBoolean(includePageParam));
+        parseChildNodeOnlyProperty(voRequestGeneratorConfiguration, node);
+        tc.setVoRequestGeneratorConfiguration(voRequestGeneratorConfiguration);
     }
 
     private void parseGenerateModel(Context context, TableConfiguration tc, Node node) {

@@ -263,6 +263,8 @@ public interface Rules {
 
     boolean isGenerateExcelVO();
 
+    boolean isGenerateRequestVO();
+
     boolean isGenerateVO();
 
     boolean isForceGenerateScalableElement();

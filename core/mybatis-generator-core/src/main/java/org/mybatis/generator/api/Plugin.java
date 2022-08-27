@@ -1198,6 +1198,12 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                          IntrospectedColumn introspectedColumn,
+                                          IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     /**
      * This method is called after the getter, or accessor, method is generated
      * for a specific column in a table.
@@ -1321,6 +1327,11 @@ public interface Plugin {
 
     default boolean voModelExcelClassGenerated(TopLevelClass topLevelClass,
                                               IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelRequestClassGenerated(TopLevelClass topLevelClass,
+                                               IntrospectedTable introspectedTable) {
         return true;
     }
 

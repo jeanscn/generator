@@ -15,7 +15,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
-         parentElement.addImportedType(entityType);
+        parentElement.addImportedType(entityType);
         if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
@@ -24,21 +24,21 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
-        method.addParameter(buildMethodParameter(true,true));
+        method.addParameter(buildMethodParameter(true, true));
         method.setReturnType(getResponseResult(false));
-        addSystemLogAnnotation(method,parentElement);
+        addSystemLogAnnotation(method, parentElement);
         addControllerMapping(method, "", "post");
         method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.insert({2});"
-                ,entityType.getShortName()
-                ,serviceBeanName
+                , entityType.getShortName()
+                , serviceBeanName
                 , introspectedTable.getRules().isGenerateVoModel()
-                        ?"mappings.from"+entityVoType.getShortName()+"("+entityVoType.getShortNameFirstLowCase()+")"
-                        :entityType.getShortNameFirstLowCase());
+                        ? "mappings.from" + entityVoType.getShortName() + "(" + entityVoType.getShortNameFirstLowCase() + ")"
+                        : entityType.getShortNameFirstLowCase());
         method.addBodyLine("if (!serviceResult.isSuccess()) {");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}else{");
         method.addBodyLine("return success({0});"
-        , introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName() +"(serviceResult.getResult())":"serviceResult.getResult()");
+                , introspectedTable.getRules().isGenerateVoModel() ? "mappings.to" + entityVoType.getShortName() + "(serviceResult.getResult())" : "serviceResult.getResult()");
         method.addBodyLine("}");
 
         parentElement.addMethod(method);

@@ -238,6 +238,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateRequestVO() {
+        return false;
+    }
+
+    @Override
     public boolean isForceGenerateScalableElement() {
         return false;
     }

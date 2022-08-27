@@ -18,26 +18,28 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
-
     public JavaControllerGenerator(String project) {
         super(project);
-    }
+          }
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
-        List<CompilationUnit> answer = new ArrayList<>();
 
+        String voTargetPackage = context.getJavaModelGeneratorConfiguration()
+                .getBaseTargetPackage()+".pojo";
+        FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
+        FullyQualifiedJavaType entityType1 = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        FullyQualifiedJavaType entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType1.getShortName() + "VO"));
+        FullyQualifiedJavaType entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType1.getShortName() + "RequestVO"));
+
+        List<CompilationUnit> answer = new ArrayList<>();
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.48", table.toString()));
-
         CommentGenerator commentGenerator = context.getCommentGenerator();
-
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
         JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-
         String controllerName = "Gen"+ entityType.getShortName() + "Controller";
-
         StringBuilder sb = new StringBuilder();
         sb.append(javaControllerGeneratorConfiguration.getTargetPackageGen());
         sb.append(".").append(controllerName);
@@ -54,15 +56,9 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         String infName = sb.toString();
         conTopClazz.addImportedType(infName);
         conTopClazz.addImportedType(supClazzType);
-        //conTopClazz.addImportedType("lombok.RequiredArgsConstructor");
         conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conTopClazz.addStaticImport(RESPONSE_RESULT+".*");
         conTopClazz.addImportedType(API_CODE_ENUM);
-        //conTopClazz.addAnnotation("@RequiredArgsConstructor");
-        //conTopClazz.addAnnotation("@RestController");
-
-        //conTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
-
         FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
         Field field = new Field(introspectedTable.getControllerBeanName(), bizInfType);
         field.setVisibility(JavaVisibility.PRIVATE);
@@ -76,9 +72,6 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addBodyLine("this.{0} = {0};",introspectedTable.getControllerBeanName());
         //增加Mappings属性
-        String voTargetPackage = introspectedTable.getTableConfiguration()
-                .getVoGeneratorConfiguration()
-                .getTargetPackage();
         FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(
                 String.join(".",
                         voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
@@ -122,8 +115,22 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
             addOptionElement(conTopClazz);
         }
 
-        //追加到列表
+        //追加一个example构造方法
+        Method buildExample = new Method("buildExample");
+        buildExample.setVisibility(JavaVisibility.PROTECTED);
+        buildExample.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType"));
+        if (introspectedTable.getRules().isGenerateRequestVO()) {
+            buildExample.addParameter(new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase()));
+        }else if(introspectedTable.getRules().isGenerateVoModel()){
+            buildExample.addParameter(new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase()));
+        }else{
+            buildExample.addParameter(new Parameter(entityType,entityType.getShortNameFirstLowCase()));
+        }
+        buildExample.setReturnType(exampleType);
+        buildExample.addBodyLine("return new {0}();", exampleType.getShortName());
+        conTopClazz.addMethod(buildExample);
 
+        //追加到列表
         if (context.getPlugins().controllerGenerated(conTopClazz, introspectedTable)) {
             answer.add(conTopClazz);
         }

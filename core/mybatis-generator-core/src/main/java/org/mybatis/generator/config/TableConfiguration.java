@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.pojo.*;
 
 import org.mybatis.generator.internal.util.messages.Messages;
@@ -111,11 +112,15 @@ public class TableConfiguration extends PropertyHolder {
 
     private VOViewGeneratorConfiguration voViewGeneratorConfiguration;
 
+    private VORequestGeneratorConfiguration voRequestGeneratorConfiguration;
+
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
     private SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration;
 
     private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
+
+    private FullyQualifiedJavaType rootClassType;
 
     public TableConfiguration(Context context) {
         super();
@@ -621,6 +626,14 @@ public class TableConfiguration extends PropertyHolder {
         this.voViewGeneratorConfiguration = voViewGeneratorConfiguration;
     }
 
+    public VORequestGeneratorConfiguration getVoRequestGeneratorConfiguration() {
+        return voRequestGeneratorConfiguration;
+    }
+
+    public void setVoRequestGeneratorConfiguration(VORequestGeneratorConfiguration voRequestGeneratorConfiguration) {
+        this.voRequestGeneratorConfiguration = voRequestGeneratorConfiguration;
+    }
+
     public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
         return javaClientGeneratorConfiguration;
     }
@@ -643,5 +656,13 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setIgnore(boolean ignore) {
         this.ignore = ignore;
+    }
+
+    public FullyQualifiedJavaType getRootClassType() {
+        return rootClassType;
+    }
+
+    public void setRootClassType(FullyQualifiedJavaType rootClassType) {
+        this.rootClassType = rootClassType;
     }
 }
