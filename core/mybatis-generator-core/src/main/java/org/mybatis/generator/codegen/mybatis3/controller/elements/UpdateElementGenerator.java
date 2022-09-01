@@ -25,7 +25,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "update";
         Method method = createMethod(methodPrefix);
         addSystemLogAnnotation(method,parentElement);
-        method.addParameter(buildMethodParameter(true,true));
+        method.addParameter(buildMethodParameter(true,true,parentElement));
         method.setReturnType(getResponseResult(false));
         addControllerMapping(method, "", "put");
         method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKeySelective({2});"

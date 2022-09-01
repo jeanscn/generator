@@ -21,14 +21,14 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOExcelGeneratorConfiguration extends VOGeneratorConfiguration {
+public class VOModelGeneratorConfiguration extends VOGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
-    public VOExcelGeneratorConfiguration(Context context,TableConfiguration tc) {
+    public VOModelGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
         targetPackage = String.join(".", baseTargetPackage,"vo");
-        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ExcelVO"));
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"VO"));
     }
 
     public List<String> getIncludeColumns() {
@@ -41,6 +41,6 @@ public class VOExcelGeneratorConfiguration extends VOGeneratorConfiguration {
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOExcelGeneratorConfiguration");
+        super.validate(errors, contextId, "VOModelGeneratorConfiguration");
     }
 }

@@ -104,7 +104,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
         for (IntrospectedColumn baseColumn : columns) {
             if (introspectedTable.getRules().isGenerateVO()) {
-                if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration())
+                if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoModelGeneratorConfiguration())
                         && !baseColumn.isIdentity()
                         && !baseColumn.getActualColumnName().equalsIgnoreCase("VERSION_")) {
                     continue;

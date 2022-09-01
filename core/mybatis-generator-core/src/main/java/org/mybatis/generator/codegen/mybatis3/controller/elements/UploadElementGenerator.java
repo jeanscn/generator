@@ -42,7 +42,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addParameter(new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase()));
         }else{
-            method.addParameter(new Parameter(entityType, entityVoType.getShortNameFirstLowCase()));
+            method.addParameter(new Parameter(entityType, entityType.getShortNameFirstLowCase()));
         }
         responseResult.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         method.setReturnType(responseResult);
@@ -64,7 +64,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (!serviceResult.isSuccess()) {");
         method.addBodyLine("return ResponseResult.failure(ApiCodeEnum.FAIL,serviceResult.getMessage());");
         method.addBodyLine("} else {");
-        method.addBodyLine(format("return ResponseResult.success(orgTeam.getId(),\"上传成功！\");",entityType.getShortNameFirstLowCase()));
+        method.addBodyLine(format("return ResponseResult.success({0}.getId(),\"上传成功！\");",entityType.getShortNameFirstLowCase()));
         method.addBodyLine("}");
         parentElement.addMethod(method);
     }

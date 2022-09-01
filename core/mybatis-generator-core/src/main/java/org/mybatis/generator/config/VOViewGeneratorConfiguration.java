@@ -17,16 +17,15 @@ package org.mybatis.generator.config;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import jdk.nashorn.internal.objects.annotations.Getter;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOViewGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public class VOViewGeneratorConfiguration extends VOGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
-
-    private  List<String> excludeColumns = new ArrayList<>();
 
     private String indexColumn = "";
 
@@ -34,36 +33,15 @@ public class VOViewGeneratorConfiguration extends AbstractGeneratorConfiguration
 
     private List<String> queryColumns = new ArrayList<>();
 
-    public VOViewGeneratorConfiguration() {
-        super();
-    }
-
-    public VOViewGeneratorConfiguration(Context context) {
-        super();
-        targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
-        targetPackage = String.join(".",baseTargetPackage,"pojo");
+    public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
+        super(context);
+        targetPackage = String.join(".", baseTargetPackage,"vo");
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ViewVO"));
     }
 
     @Override
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "VOViewGeneratorConfiguration");
-    }
-
-    public List<String> getIncludeColumns() {
-        return includeColumns;
-    }
-
-    public void setIncludeColumns(List<String> includeColumns) {
-        this.includeColumns = includeColumns;
-    }
-
-    public List<String> getExcludeColumns() {
-        return excludeColumns;
-    }
-
-    public void setExcludeColumns(List<String> excludeColumns) {
-        this.excludeColumns = excludeColumns;
     }
 
     public String getIndexColumn() {
@@ -88,5 +66,13 @@ public class VOViewGeneratorConfiguration extends AbstractGeneratorConfiguration
 
     public void setQueryColumns(List<String> queryColumns) {
         this.queryColumns = queryColumns;
+    }
+
+    public List<String> getIncludeColumns() {
+        return includeColumns;
+    }
+
+    public void setIncludeColumns(List<String> includeColumns) {
+        this.includeColumns = includeColumns;
     }
 }

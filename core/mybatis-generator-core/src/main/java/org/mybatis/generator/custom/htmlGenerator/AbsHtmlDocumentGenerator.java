@@ -9,7 +9,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.VOGeneratorConfiguration;
+import org.mybatis.generator.config.VOModelGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
@@ -332,7 +332,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return js;
     }
 
-    protected boolean isIgnore(IntrospectedColumn introspectedColumn, VOGeneratorConfiguration configuration) {
+    protected boolean isIgnore(IntrospectedColumn introspectedColumn, VOModelGeneratorConfiguration configuration) {
         List<String> innerFields = EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields();
         List<String> allFields = new ArrayList<>(innerFields);
         allFields.add("tenantId");

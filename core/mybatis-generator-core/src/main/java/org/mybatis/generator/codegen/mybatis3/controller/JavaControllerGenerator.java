@@ -24,7 +24,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
-
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
         String voTargetPackage = context.getJavaModelGeneratorConfiguration()
                 .getBaseTargetPackage()+".pojo";
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
@@ -36,8 +36,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.48", table.toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
-        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
-        JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
+        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = tc.getJavaControllerGeneratorConfiguration();
+        JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = tc.getJavaServiceGeneratorConfiguration();
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         String controllerName = "Gen"+ entityType.getShortName() + "Controller";
         StringBuilder sb = new StringBuilder();
@@ -88,8 +88,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         conTopClazz.addMethod(method);
 
         String viewpath = null;
-        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
-            viewpath = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath();
+        if (tc.getHtmlMapGeneratorConfigurations().size()>0) {
+            viewpath = tc.getHtmlMapGeneratorConfigurations().get(0).getViewPath();
         }
         if (viewpath != null) {
             addViewElement(conTopClazz);
@@ -110,8 +110,12 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
             addUploadElement(conTopClazz);
             addDownloadElement(conTopClazz);
         }
+        if (tc.getVoExcelGeneratorConfiguration()!=null && tc.getVoExcelGeneratorConfiguration().isGenerate()) {
+            addTemplateElement(conTopClazz);
+            addImportElement(conTopClazz);
+        }
 
-        if (introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().size()>0) {
+        if (tc.getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().size()>0) {
             addOptionElement(conTopClazz);
         }
 
@@ -238,6 +242,16 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         }
     }
 
+    private void addTemplateElement(TopLevelClass parentElement) {
+        AbstractControllerElementGenerator elementGenerator = new TemplateElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
+    private void addImportElement(TopLevelClass parentElement) {
+        AbstractControllerElementGenerator elementGenerator = new ImportElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
     protected void initializeAndExecuteGenerator(
             AbstractControllerElementGenerator elementGenerator,
             TopLevelClass parentElement) {
@@ -250,8 +264,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
     }
 
     protected boolean isGenerateVoModel(){
-        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
-        return voGeneratorConfiguration!=null && voGeneratorConfiguration.isGenerate();
+        VOModelGeneratorConfiguration voModelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoModelGeneratorConfiguration();
+        return voModelGeneratorConfiguration !=null && voModelGeneratorConfiguration.isGenerate();
     }
 
     protected boolean isGenerateVoView(){

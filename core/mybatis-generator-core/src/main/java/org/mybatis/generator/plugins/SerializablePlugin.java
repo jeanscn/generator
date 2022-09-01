@@ -87,7 +87,7 @@ public class SerializablePlugin extends PluginAdapter {
         return true;
     }
 
-    protected void makeSerializable(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+    protected void makeSerializable(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (addGWTInterface) {
             topLevelClass.addImportedType(gwtSerializable);
             topLevelClass.addSuperInterface(gwtSerializable);

@@ -24,7 +24,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
-        method.addParameter(buildMethodParameter(true, true));
+        method.addParameter(buildMethodParameter(true, true,parentElement));
         method.setReturnType(getResponseResult(false));
         addSystemLogAnnotation(method, parentElement);
         addControllerMapping(method, "", "post");

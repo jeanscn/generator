@@ -66,8 +66,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         responsePagehelperResult = new FullyQualifiedJavaType(RESPONSE_PAGEHELPER_RESULT);
         String voTargetPackage = introspectedTable.getTableConfiguration()
-                .getVoGeneratorConfiguration()
-                .getTargetPackage();
+                .getVoModelGeneratorConfiguration()
+                .getBaseTargetPackage();
         entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
         entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
@@ -136,6 +136,10 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                     sb.append("查看").append(introspectedTable.getRemarks()).append("表默认视图");
                 }else if(("getDefaultViewConfig"+record.getShortName()).equals(method.getName())){
                     sb.append("查看").append(introspectedTable.getRemarks()).append("表默认视图配置");
+                }else if(("template"+record.getShortName()).equals(method.getName())) {
+                    sb.append("下载").append(introspectedTable.getRemarks()).append("导入模板");
+                }else if(("import"+record.getShortName()).equals(method.getName())) {
+                    sb.append("Excel").append(introspectedTable.getRemarks()).append("数据导入");
                 }else{
                     sb.append("执行操作！");
                 }
@@ -163,30 +167,37 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         return response;
     }
 
-    protected Parameter buildMethodParameter(boolean isValid,boolean isRequestBody){
+    protected Parameter buildMethodParameter(boolean isValid,boolean isRequestBody,TopLevelClass parentElement){
         Parameter parameter;
         if (introspectedTable.getRules().isGenerateVoModel()) {
             parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
+            parentElement.addImportedType(entityVoType);
         }else{
             parameter = new Parameter(entityType,entityType.getShortNameFirstLowCase());
+            parentElement.addImportedType(entityType);
         }
         if (isValid) {
             parameter.addAnnotation("@Valid");
+            parentElement.addImportedType("javax.validation.Valid");
         }
         if (isRequestBody) {
             parameter.addAnnotation("@RequestBody");
+            parentElement.addImportedType("org.springframework.web.bind.annotation.RequestBody");
         }
         return parameter;
     }
 
     protected void selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
         String listEntityVar = entityType.getShortNameFirstLowCase()+"s";
+        String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = buildExample(actionType,{1});",
                 exampleType.getShortName(),
-                introspectedTable.getRules().isGenerateRequestVO()?entityRequestVoType.getShortNameFirstLowCase():
+                introspectedTable.getRules().isGenerateRequestVO()?requestVOVar:
                         introspectedTable.getRules().isGenerateVoModel()?entityVoType.getShortNameFirstLowCase():entityType.getShortNameFirstLowCase());
         if (introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addBodyLine("PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());",entityRequestVoType.getShortNameFirstLowCase());
+            method.addBodyLine("if ({0}.getPageNo()>0 && {0}.getPageSize()>0) '{'\n" +
+                    "            PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());\n" +
+                    "        '}'",requestVOVar);
             parentElement.addImportedType("com.github.pagehelper.PageHelper");
         }
         if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
@@ -196,7 +207,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                             "        '}'else'{'\n" +
                             "            {1} = {2}.selectByExample(example);\n" +
                             "        '}'",
-                    entityType.getShortName(), listEntityVar,serviceBeanName,entityRequestVoType.getShortNameFirstLowCase());
+                    entityType.getShortName(), listEntityVar,serviceBeanName,requestVOVar);
         }else{
             method.addBodyLine("List<{0}> {1} = {2}.selectByExample(example);",
                     entityType.getShortName(), listEntityVar,serviceBeanName);

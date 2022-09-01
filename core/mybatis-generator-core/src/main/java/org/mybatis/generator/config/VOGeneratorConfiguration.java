@@ -18,12 +18,14 @@ package org.mybatis.generator.config;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public abstract class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
-    private VOViewGeneratorConfiguration voViewGeneratorConfiguration;
+    protected List<String> excludeColumns = new ArrayList<>();
 
+    protected FullyQualifiedJavaType fullyQualifiedJavaType;
 
     public VOGeneratorConfiguration() {
         super();
@@ -32,12 +34,21 @@ public class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
     public VOGeneratorConfiguration(Context context) {
         super();
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".");
-        targetPackage = String.join(".",baseTargetPackage,"pojo");
+        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
+    }
+
+    public List<String> getExcludeColumns() {
+        return excludeColumns;
+    }
+
+    public void setExcludeColumns(List<String> excludeColumns) {
+        this.excludeColumns = excludeColumns;
+    }
+
+    public FullyQualifiedJavaType getFullyQualifiedJavaType() {
+        return fullyQualifiedJavaType;
     }
 
     @Override
-    public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOGeneratorConfiguration");
-    }
+    abstract void validate(List<String> errors, String contextId);
 }

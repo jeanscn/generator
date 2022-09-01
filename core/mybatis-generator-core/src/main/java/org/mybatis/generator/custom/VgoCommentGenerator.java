@@ -23,7 +23,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.VOGeneratorConfiguration;
+import org.mybatis.generator.config.VOModelGeneratorConfiguration;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -146,7 +146,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         String firstCharacterLowercase = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
         String param = firstCharacterLowercase;
-        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+        VOModelGeneratorConfiguration voModelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoModelGeneratorConfiguration();
         if (introspectedTable.getRules().isGenerateRequestVO()) {
             param = firstCharacterLowercase + "RequestVO";
         }else if (introspectedTable.getRules().isGenerateVoModel()) {

@@ -6,8 +6,6 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 
-import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
-
 public class ListElementGenerator extends AbstractControllerElementGenerator {
 
     public ListElementGenerator() {
@@ -32,8 +30,8 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         if (introspectedTable.getRules().isGenerateRequestVO()) {
             method.addParameter(new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase()));
             parentElement.addImportedType(entityRequestVoType);
-        } else {
-            method.addParameter(buildMethodParameter(false, false));
+        } else{
+            method.addParameter(buildMethodParameter(false, false,parentElement));
         }
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");

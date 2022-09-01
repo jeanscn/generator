@@ -76,7 +76,5 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
         }
     };
 
-    protected void validate(List<String> errors, String contextId) {
-        validate(errors,contextId,"GeneratorConfiguration");
-    }
+    abstract void validate(List<String> errors, String contextId);
 }

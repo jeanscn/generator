@@ -57,6 +57,14 @@ public class SwaggerApiPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        String apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        topLevelClass.addAnnotation(apiModelAnnotation);
+        topLevelClass.addImportedType(API_MODEL);
+        return true;
+    }
+
     /**
      * 属性注解@ApiModelProperty
      */
@@ -95,6 +103,11 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     @Override
     public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+    }
+
+    @Override
+    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
     }
 
@@ -185,7 +198,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     private String buildApiModelAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         StringBuilder sb = new StringBuilder();
-        FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        FullyQualifiedJavaType fullyQualifiedJavaType =  topLevelClass.getType();
         sb.append("@ApiModel(value = \"").append(fullyQualifiedJavaType.getShortName()).append("\"");
         if (introspectedTable.getRemarks() != null) {
             sb.append(", description = \"").append(introspectedTable.getRemarks()).append("\"");
@@ -218,6 +231,10 @@ public class SwaggerApiPlugin extends PluginAdapter {
             buildSwaggerApiAnnotation(method, "单个文件上传", "单个文件上传接口");
         }else if (("download" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "单个文件下载", "单个文件下载接口");
+        }else if (("template" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "Excel导入模板", "下载Excel导入模板接口");
+        }else if (("import" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "Excel数据导入", "Excel数据导入接口");
         }else if (("update" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "更新一条记录", "根据主键更新实体对象");
         }else if (("delete" + record.getShortName()).equals(method.getName())) {

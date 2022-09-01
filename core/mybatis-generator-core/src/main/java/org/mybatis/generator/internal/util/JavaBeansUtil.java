@@ -16,20 +16,20 @@
 package org.mybatis.generator.internal.util;
 
 import com.sun.jna.platform.win32.WinNT;
+import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import java.io.File;
 import java.sql.JDBCType;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
@@ -498,5 +498,69 @@ public class JavaBeansUtil {
             rootClass = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
         }
         return rootClass;
+    }
+
+    public static List<IntrospectedColumn> getAbstractVOColumns(IntrospectedTable introspectedTable){
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        List<String> include = new ArrayList<>();
+        List<String> exclude = new ArrayList<>();
+        if (tc.getVoModelGeneratorConfiguration()!=null && tc.getVoModelGeneratorConfiguration().isGenerate()) {
+            VOModelGeneratorConfiguration cfg = tc.getVoModelGeneratorConfiguration();
+            if (cfg.getIncludeColumns().size()>0) {
+                include.addAll(cfg.getIncludeColumns());
+            }
+            if (cfg.getExcludeColumns().size()>0) {
+                exclude.addAll(cfg.getExcludeColumns());
+            }
+        }
+        if (tc.getVoViewGeneratorConfiguration()!=null && tc.getVoViewGeneratorConfiguration().isGenerate()) {
+            VOViewGeneratorConfiguration cfg = tc.getVoViewGeneratorConfiguration();
+            if (cfg.getIncludeColumns().size()>0) {
+                include.retainAll(cfg.getIncludeColumns());
+            }
+            if (cfg.getExcludeColumns().size()>0) {
+                exclude.addAll(cfg.getExcludeColumns());
+            }
+        }
+        if (tc.getVoRequestGeneratorConfiguration()!=null && tc.getVoRequestGeneratorConfiguration().isGenerate()) {
+            VORequestGeneratorConfiguration cfg = tc.getVoRequestGeneratorConfiguration();
+            if (cfg.getExcludeColumns().size()>0) {
+                exclude.addAll(cfg.getExcludeColumns());
+            }
+        }
+        FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));
+        List<String> rootColumns = EntityAbstractParentEnum.ofCode(rootType.getShortName()).columnNames();
+        exclude.addAll(rootColumns);
+        exclude.add("TENANT_ID");
+        List<String> remainColumns = Arrays.asList("SORT_","NAME_","SIZE_");
+        List<String> collect = exclude.stream().filter(t->!remainColumns.contains(t)).collect(Collectors.toList());
+        if (include.size()>0) {
+            return introspectedTable.getAllColumns().stream()
+                    .filter(c->include.contains(c.getActualColumnName()))
+                    .collect(Collectors.toList());
+        }else{
+            return introspectedTable.getAllColumns().stream()
+                    .filter(c->!collect.contains(c.getActualColumnName()))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    public static List<IntrospectedColumn> getExcelVOColumns(IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns;
+        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoExcelGeneratorConfiguration();
+        if (voExcelGeneratorConfiguration.getIncludeColumns().size()>0) {
+            List<String> includeColumns = voExcelGeneratorConfiguration.getIncludeColumns();
+            columns = introspectedTable.getAllColumns().stream()
+                    .filter(c->includeColumns.contains(c.getActualColumnName()))
+                    .collect(Collectors.toList());
+        }else if(voExcelGeneratorConfiguration.getExcludeColumns().size()>0){
+            List<String> excludeColumns = voExcelGeneratorConfiguration.getExcludeColumns();
+            columns = introspectedTable.getAllColumns().stream()
+                    .filter(c->!excludeColumns.contains(c.getActualColumnName()))
+                    .collect(Collectors.toList());
+        }else{
+            columns = JavaBeansUtil.getAbstractVOColumns(introspectedTable);
+        }
+        return columns;
     }
 }

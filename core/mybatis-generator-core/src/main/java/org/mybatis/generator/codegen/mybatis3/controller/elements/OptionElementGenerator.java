@@ -48,8 +48,8 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         if (introspectedTable.getRules().isGenerateRequestVO()) {
             method.addParameter(new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase()));
             parentElement.addImportedType(entityRequestVoType);
-        } else {
-            method.addParameter(buildMethodParameter(false, false));
+        } else{
+            method.addParameter(buildMethodParameter(false, false,parentElement));
         }
         Parameter selected = new Parameter(FullyQualifiedJavaType.getStringInstance(), "selected");
         selected.addAnnotation("@RequestParam(required = false)");

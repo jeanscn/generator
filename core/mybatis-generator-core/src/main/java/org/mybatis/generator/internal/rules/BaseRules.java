@@ -521,8 +521,8 @@ public abstract class BaseRules implements Rules {
     }
 
     public boolean isGenerateVoModel(){
-        VOGeneratorConfiguration voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
-        return voGeneratorConfiguration!=null && voGeneratorConfiguration.isGenerate();
+        VOModelGeneratorConfiguration voModelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoModelGeneratorConfiguration();
+        return voModelGeneratorConfiguration !=null && voModelGeneratorConfiguration.isGenerate();
     }
 
     @Override
