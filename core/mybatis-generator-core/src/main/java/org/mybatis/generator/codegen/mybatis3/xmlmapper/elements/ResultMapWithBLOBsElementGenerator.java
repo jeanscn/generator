@@ -17,6 +17,7 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenerator {
 
@@ -43,8 +44,11 @@ public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenera
         answer.addAttribute(new Attribute("type", returnType)); //$NON-NLS-1$
 
         if (!introspectedTable.isConstructorBased()) {
-            answer.addAttribute(new Attribute("extends", //$NON-NLS-1$
-                    introspectedTable.getBaseResultMapId()));
+            if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
+                answer.addAttribute(new Attribute("extends",introspectedTable.getRelationResultMapId()));
+            }else{
+                answer.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+            }
         }
 
         context.getCommentGenerator().addComment(answer);

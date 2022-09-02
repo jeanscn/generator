@@ -824,9 +824,10 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseGenerateOptions(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration, Node node) {
         Properties attributes = parseAttributes(node);
         String nameColumn = attributes.getProperty("nameColumn");
-        if (stringHasValue(nameColumn)) {
-            javaControllerGeneratorConfiguration.addFormOptionGeneratorConfigurations(new FormOptionGeneratorConfiguration(nameColumn));
-        }
+        FormOptionGeneratorConfiguration formOptionGeneratorConfiguration = new FormOptionGeneratorConfiguration(nameColumn);
+        String type = attributes.getProperty("type");
+        formOptionGeneratorConfiguration.setDataType("tree".equalsIgnoreCase(type)?1:0);
+        javaControllerGeneratorConfiguration.addFormOptionGeneratorConfigurations(formOptionGeneratorConfiguration);
     }
 
     private void parseGenerateDao(Context context, TableConfiguration tc, Node node) {

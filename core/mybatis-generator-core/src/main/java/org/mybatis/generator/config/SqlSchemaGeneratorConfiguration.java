@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import java.util.List;
+
 /**
  * Sql脚本文件生成配置类
  *
@@ -24,5 +26,11 @@ public class SqlSchemaGeneratorConfiguration extends AbstractGeneratorConfigurat
 
     public void setFilePrefix(String filePrefix) {
         this.filePrefix = filePrefix;
+    }
+
+
+    @Override
+    void validate(List<String> errors, String contextId) {
+        super.validate(errors, contextId, "SqlSchemaGeneratorConfiguration");
     }
 }

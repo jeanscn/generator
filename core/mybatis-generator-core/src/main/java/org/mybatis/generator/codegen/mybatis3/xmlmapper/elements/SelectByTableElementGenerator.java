@@ -28,7 +28,13 @@ public class SelectByTableElementGenerator extends
             if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
                 answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             }else{
-                answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+                if(introspectedTable.getRules().generateResultMapWithBLOBs()){
+                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
+                }else if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
+                    answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
+                }else{
+                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+                }
             }
             answer.addAttribute(new Attribute("parameterType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);

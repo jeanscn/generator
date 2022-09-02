@@ -13,9 +13,13 @@ public class FormOptionGeneratorConfiguration  extends PropertyHolder {
 
     private String nameColumn;
 
+    //options的数据类型，0-flat，1-tree
+    private int dataType;
+
     public FormOptionGeneratorConfiguration(String nameColumn) {
         this.idColumn = "ID_";
         this.nameColumn = nameColumn;
+        dataType = 0;
     }
 
     public String getNameColumn() {
@@ -32,5 +36,13 @@ public class FormOptionGeneratorConfiguration  extends PropertyHolder {
 
     public String getIdColumn() {
         return idColumn;
+    }
+
+    public int getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(int dataType) {
+        this.dataType = dataType;
     }
 }

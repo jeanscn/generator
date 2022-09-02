@@ -35,6 +35,7 @@ public class SelectByExampleWithRelationElementGenerator extends
         XmlElement answer = new XmlElement("select");
 
         answer.addAttribute(new Attribute("id",introspectedTable.getSelectByExampleWithRelationStatementId()));
+
         answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
         answer.addAttribute(new Attribute("parameterType", fqjt));
 

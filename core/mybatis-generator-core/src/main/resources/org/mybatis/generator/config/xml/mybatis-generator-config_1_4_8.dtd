@@ -425,10 +425,12 @@
                    属性信息：
                    默认以id为选项的key值
                    1、nameColumn 指定用于显示名称（value）的列名。
+                   2、类型可以选择flat数据扁平，tree数据树，默认flat（当选择tree时，实体需要具有parentId及children属性）
                 -->
         <!ELEMENT generateOptions EMPTY>
         <!ATTLIST generateOptions
-                nameColumn CDATA #REQUIRED>
+                nameColumn CDATA #REQUIRED
+                type (flat|tree) #IMPLIED>
 
         <!--
             Model PO类对象生成描述
