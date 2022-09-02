@@ -57,12 +57,12 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
         method.addParameter(actionType);
-
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
         FullyQualifiedJavaType typeResult = FullyQualifiedJavaType.getNewListInstance();
         typeResult.addTypeArgument(optionType);
         response.addTypeArgument(typeResult);
         method.setReturnType(response);
+        addSecurityPreAuthorize(method,methodPrefix);
 
         addControllerMapping(method, "option/"+JavaBeansUtil.getFirstCharacterLowercase(column.getJavaProperty()), "get");
 

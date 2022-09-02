@@ -29,6 +29,8 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
         method.setReturnType(response);
         addControllerMapping(method, null, "delete");
+        addSecurityPreAuthorize(method,methodPrefix);
+
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
         method.addBodyLine("int rows =  {0}.deleteByExample(example);",serviceBeanName);

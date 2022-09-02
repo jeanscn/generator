@@ -43,6 +43,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
                 StringUtils.lowerCase(this.serviceBeanName) +
                 "/download/{type}/{id}\",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)";
         method.addAnnotation(sb);
+        addSecurityPreAuthorize(method,methodPrefix);
 
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));

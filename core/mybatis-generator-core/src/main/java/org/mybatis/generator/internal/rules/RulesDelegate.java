@@ -197,6 +197,14 @@ public class RulesDelegate implements Rules {
         return false;
     }
 
+    /**
+     * 是否集成spring security。默认为true
+     */
+    @Override
+    public boolean isIntegrateSpringSecurity() {
+        return false;
+    }
+
     @Override
     public boolean generateBaseColumnList() {
         return rules.generateBaseColumnList();

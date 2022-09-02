@@ -263,6 +263,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             abstractVo.addAnnotation("@AllArgsConstructor");
             abstractVo.addImportedType("lombok.*");
             abstractVo.addAnnotation("@SuperBuilder");
+            abstractVo.addImportedType("lombok.experimental.SuperBuilder");
             //添加属性
             for (IntrospectedColumn introspectedColumn : JavaBeansUtil.getAbstractVOColumns(introspectedTable)) {
                 Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);

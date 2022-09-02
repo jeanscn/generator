@@ -54,6 +54,8 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean integrateMybatisPlus;
 
+    protected final boolean integrateSpringSecurity;
+
     protected final boolean generateUnitTest;
 
     public BaseRules(IntrospectedTable introspectedTable) {
@@ -88,6 +90,9 @@ public abstract class BaseRules implements Rules {
 
         String integrateMybatisPlus = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
         this.integrateMybatisPlus = StringUtility.stringHasValue(integrateMybatisPlus) && Boolean.parseBoolean(integrateMybatisPlus);
+
+        String integrateSpringSecurity = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_INTEGRATE_SPRING_SECURITY);
+        this.integrateSpringSecurity = !StringUtility.stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus);
 
         this.generateUnitTest = true;
     }
@@ -506,6 +511,14 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean isIntegrateMybatisPlus() {
         return integrateMybatisPlus;
+    }
+
+    /**
+     * 是否集成spring security。默认为true
+     */
+    @Override
+    public boolean isIntegrateSpringSecurity() {
+        return integrateSpringSecurity;
     }
 
     @Override

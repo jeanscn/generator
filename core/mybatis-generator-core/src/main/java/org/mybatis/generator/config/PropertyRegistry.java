@@ -84,6 +84,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_HTML_PAGE_COLUMNS_NUM = "htmlPageColumnsNum";
     public static final String CONTEXT_HTML_LOADING_FRAME_TYPE = "htmlLoadingFrameType";
     public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
+    public static final String CONTEXT_INTEGRATE_SPRING_SECURITY = "integrateSpringSecurity";
     public static final String CONTEXT_ROOT_MODULE_NAME = "rootModuleName";
     public static final String CONTEXT_SPRING_BOOT_APPLICATION_CLASS = "springBootApplicationClass";
     public static final String CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT = "forceGenerateScalableElement";

@@ -249,6 +249,10 @@ public interface Rules {
      * 是否集成MybatisPlus
      * */
     boolean isIntegrateMybatisPlus();
+    /**
+     * 是否集成spring security。默认为true
+     * */
+    boolean isIntegrateSpringSecurity();
 
     boolean isGenerateServiceUnitTest();
 

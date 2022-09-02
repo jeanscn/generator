@@ -28,6 +28,8 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(buildMethodParameter(true,true,parentElement));
         method.setReturnType(getResponseResult(false));
         addControllerMapping(method, "", "put");
+        addSecurityPreAuthorize(method,methodPrefix);
+
         method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKeySelective({2});"
                 ,entityType.getShortName()
                 ,serviceBeanName

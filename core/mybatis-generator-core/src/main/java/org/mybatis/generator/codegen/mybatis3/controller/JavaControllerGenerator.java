@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
@@ -28,9 +29,10 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         String voTargetPackage = context.getJavaModelGeneratorConfiguration()
                 .getBaseTargetPackage()+".pojo";
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-        FullyQualifiedJavaType entityType1 = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        FullyQualifiedJavaType entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType1.getShortName() + "VO"));
-        FullyQualifiedJavaType entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType1.getShortName() + "RequestVO"));
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        FullyQualifiedJavaType entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
+        FullyQualifiedJavaType entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
+        FullyQualifiedJavaType entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVO"));
 
         List<CompilationUnit> answer = new ArrayList<>();
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
@@ -38,7 +40,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         CommentGenerator commentGenerator = context.getCommentGenerator();
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = tc.getJavaControllerGeneratorConfiguration();
         JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = tc.getJavaServiceGeneratorConfiguration();
-        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+
         String controllerName = "Gen"+ entityType.getShortName() + "Controller";
         StringBuilder sb = new StringBuilder();
         sb.append(javaControllerGeneratorConfiguration.getTargetPackageGen());
@@ -59,6 +61,9 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conTopClazz.addStaticImport(RESPONSE_RESULT+".*");
         conTopClazz.addImportedType(API_CODE_ENUM);
+        if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
+            conTopClazz.addImportedType("org.springframework.security.access.prepost.PreAuthorize");
+        }
         FullyQualifiedJavaType bizInfType = new FullyQualifiedJavaType(infName);
         Field field = new Field(introspectedTable.getControllerBeanName(), bizInfType);
         field.setVisibility(JavaVisibility.PRIVATE);
@@ -113,25 +118,55 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         if (tc.getVoExcelGeneratorConfiguration()!=null && tc.getVoExcelGeneratorConfiguration().isGenerate()) {
             addTemplateElement(conTopClazz);
             addImportElement(conTopClazz);
+            addExportElement(conTopClazz);
         }
 
         if (tc.getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().size()>0) {
             addOptionElement(conTopClazz);
         }
 
+        //追加一个构造导入Excel模板的样例数据方法
+        Method buildTemplateSampleData = new Method("buildTemplateSampleData");
+        buildTemplateSampleData.setVisibility(JavaVisibility.PROTECTED);
+        FullyQualifiedJavaType retType = FullyQualifiedJavaType.getNewListInstance();
+        retType.addTypeArgument(entityExcelVoType);
+        buildTemplateSampleData.setReturnType(retType);
+        commentGenerator.addMethodJavaDocLine(buildTemplateSampleData, false,
+                "[请在子类中重写此方法]","构造导入Excel模板中的样例数据，",
+                "当前方法根据类型生成，请重写该方法，以便于样例数据看起来更真实。","","@return 数据列表对象");
+        buildTemplateSampleData.addBodyLine("return  List.of(",entityExcelVoType.getShortName());
+        buildTemplateSampleData.addBodyLine("        {0}.builder()",entityExcelVoType.getShortName());
+        for (IntrospectedColumn excelVOColumn : JavaBeansUtil.getExcelVOColumns(introspectedTable)) {
+            buildTemplateSampleData.addBodyLine("                .{0}({1})",
+                    excelVOColumn.getJavaProperty(),
+                    JavaBeansUtil.getColumnExampleValue(excelVOColumn));
+        }
+        buildTemplateSampleData.addBodyLine("                .build());");
+        conTopClazz.addMethod(buildTemplateSampleData);
+
         //追加一个example构造方法
+        String p1,p2;
+        p2 = exampleType.getShortName();
         Method buildExample = new Method("buildExample");
         buildExample.setVisibility(JavaVisibility.PROTECTED);
         buildExample.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType"));
         if (introspectedTable.getRules().isGenerateRequestVO()) {
             buildExample.addParameter(new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase()));
+            p1=entityRequestVoType.getShortNameFirstLowCase();
         }else if(introspectedTable.getRules().isGenerateVoModel()){
             buildExample.addParameter(new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase()));
+            p1=entityVoType.getShortNameFirstLowCase();
         }else{
             buildExample.addParameter(new Parameter(entityType,entityType.getShortNameFirstLowCase()));
+            p1=entityType.getShortNameFirstLowCase();
         }
         buildExample.setReturnType(exampleType);
         buildExample.addBodyLine("return new {0}();", exampleType.getShortName());
+        commentGenerator.addMethodJavaDocLine(buildExample, false,
+                "[请在子类中重写此方法]","根据actionType构造不同的查询条件","",
+                "@param actionType 类型标识。尽量使用有表意的字符串，如“byParentId”、“byNameAndNotes”等",
+                "@param "+p1+" 入参对象，传入的条件值",
+                "@return "+p2+"对象");
         conTopClazz.addMethod(buildExample);
 
         //追加到列表
@@ -249,6 +284,11 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
     private void addImportElement(TopLevelClass parentElement) {
         AbstractControllerElementGenerator elementGenerator = new ImportElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
+    private void addExportElement(TopLevelClass parentElement) {
+        AbstractControllerElementGenerator elementGenerator = new ExportElementGenerator();
         initializeAndExecuteGenerator(elementGenerator, parentElement);
     }
 

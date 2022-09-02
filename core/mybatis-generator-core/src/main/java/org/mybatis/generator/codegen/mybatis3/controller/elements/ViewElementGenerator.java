@@ -24,12 +24,10 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType("java.util.Optional");
         parentElement.addImportedType("org.springframework.web.servlet.ModelAndView");
         parentElement.addImportedType(entityType);
-
         final String methodPrefix = "view";
         StringBuilder sb = new StringBuilder();
         Method method = createMethod(methodPrefix);
         addSystemLogAnnotation(method,parentElement);
-
         Parameter parameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");
         parameter.addAnnotation("@RequestParam(required = false)");
         method.addParameter(parameter);
@@ -41,6 +39,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(prefix);
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         addControllerMapping(method, methodPrefix, "get");
+        addSecurityPreAuthorize(method,methodPrefix);
+
         //函数体
         sb.append("ModelAndView mv = new ModelAndView();");
         method.addBodyLine(sb.toString());

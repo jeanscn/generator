@@ -32,6 +32,8 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(parameter);
         method.setReturnType(getResponseResult(false));
         addControllerMapping(method, "{id}", "get");
+        addSecurityPreAuthorize(method,methodPrefix);
+
         //函数体
         method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
                 entityType.getShortName(), serviceBeanName));

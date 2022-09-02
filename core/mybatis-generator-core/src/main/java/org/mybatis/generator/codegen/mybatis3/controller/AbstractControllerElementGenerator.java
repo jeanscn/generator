@@ -140,6 +140,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                     sb.append("下载").append(introspectedTable.getRemarks()).append("导入模板");
                 }else if(("import"+record.getShortName()).equals(method.getName())) {
                     sb.append("Excel").append(introspectedTable.getRemarks()).append("数据导入");
+                }else if(("export"+record.getShortName()).equals(method.getName())) {
+                    sb.append("Excel").append(introspectedTable.getRemarks()).append("数据导出");
                 }else{
                     sb.append("执行操作！");
                 }
@@ -214,5 +216,19 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         }
         method.addBodyLine("Page<{0}> page = (Page<{0}>){1};",entityType.getShortName(), listEntityVar);
         parentElement.addImportedType("com.github.pagehelper.Page");
+    }
+
+    protected void addSecurityPreAuthorize(Method method,String methodPrefix) {
+        if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
+            StringBuilder sb = new StringBuilder("@PreAuthorize(\"");
+            sb.append("@uss.hasPermission('");
+            sb.append(introspectedTable.getControllerSimplePackage().toLowerCase());
+            sb.append(":");
+            sb.append(serviceBeanName.toLowerCase());
+            sb.append(":");
+            sb.append(methodPrefix.toLowerCase());
+            sb.append("')\")");
+            method.addAnnotation(sb.toString());
+        }
     }
 }

@@ -27,6 +27,8 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
         method.setReturnType(response);
         addControllerMapping(method, "{id}", "delete");
+        addSecurityPreAuthorize(method,methodPrefix);
+
         method.addBodyLine("int rows =  {0}.deleteByPrimaryKey(id);",serviceBeanName);
         method.addBodyLine("if (rows > 0) {");
         method.addBodyLine("return success((long) rows);");

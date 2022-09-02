@@ -28,6 +28,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(getResponseResult(false));
         addSystemLogAnnotation(method, parentElement);
         addControllerMapping(method, "", "post");
+        addSecurityPreAuthorize(method,methodPrefix);
         method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.insert({2});"
                 , entityType.getShortName()
                 , serviceBeanName

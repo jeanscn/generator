@@ -27,6 +27,8 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
         addSystemLogAnnotation(method,parentElement);
         method.setReturnType(new FullyQualifiedJavaType(MODEL_AND_VIEW));
         addControllerMapping(method, "dt/viewDefault/show", "get");
+        addSecurityPreAuthorize(method,methodPrefix);
+
         method.addBodyLine("ModelAndView modelAndView = new ModelAndView(\"vgoweb/view/DataTables3\");");
         method.addBodyLine("try {");
         method.addBodyLine("ResponseResult<{0}> defaultView = getDefaultViewConfig{1}();"

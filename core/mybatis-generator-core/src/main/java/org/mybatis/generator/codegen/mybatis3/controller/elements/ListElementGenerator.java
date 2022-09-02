@@ -36,9 +36,9 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
         method.addParameter(actionType);
-
         method.setReturnType(getResponseResult(true));
         addControllerMapping(method, "", "get");
+        addSecurityPreAuthorize(method,methodPrefix);
 
         String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         selectByExampleWithPagehelper(parentElement, method);

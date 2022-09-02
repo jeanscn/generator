@@ -529,10 +529,16 @@ public class JavaBeansUtil {
             }
         }
         FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));
-        List<String> rootColumns = EntityAbstractParentEnum.ofCode(rootType.getShortName()).columnNames();
-        exclude.addAll(rootColumns);
+        EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootType.getShortName());
+        if (entityAbstractParentEnum == null) {
+            entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
+        }
+        if (entityAbstractParentEnum != null) {
+            List<String> rootColumns = EntityAbstractParentEnum.ofCode(rootType.getShortName()).columnNames();
+            exclude.addAll(rootColumns);
+        }
         exclude.add("TENANT_ID");
-        List<String> remainColumns = Arrays.asList("SORT_","NAME_","SIZE_");
+        List<String> remainColumns = Arrays.asList("SORT_","NAME_","SIZE_,OWNER_,NOTES_,FULL_NAME,SHORT_NAME");
         List<String> collect = exclude.stream().filter(t->!remainColumns.contains(t)).collect(Collectors.toList());
         if (include.size()>0) {
             return introspectedTable.getAllColumns().stream()

@@ -235,6 +235,8 @@ public class SwaggerApiPlugin extends PluginAdapter {
             buildSwaggerApiAnnotation(method, "Excel导入模板", "下载Excel导入模板接口");
         }else if (("import" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "Excel数据导入", "Excel数据导入接口");
+        }else if (("export" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "Excel数据导出", "Excel数据导出接口");
         }else if (("update" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "更新一条记录", "根据主键更新实体对象");
         }else if (("delete" + record.getShortName()).equals(method.getName())) {
