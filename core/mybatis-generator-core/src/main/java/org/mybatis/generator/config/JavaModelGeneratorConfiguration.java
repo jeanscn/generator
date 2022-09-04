@@ -23,6 +23,8 @@ public class JavaModelGeneratorConfiguration extends AbstractGeneratorConfigurat
 
     private boolean noMetaAnnotation;
 
+    private boolean enableChildren;
+
     public JavaModelGeneratorConfiguration() {
         super();
     }
@@ -38,6 +40,14 @@ public class JavaModelGeneratorConfiguration extends AbstractGeneratorConfigurat
 
     public void setNoMetaAnnotation(boolean noMetaAnnotation) {
         this.noMetaAnnotation = noMetaAnnotation;
+    }
+
+    public boolean isGenerateChildren() {
+        return enableChildren;
+    }
+
+    public void setGenerateChildren(boolean enableChildren) {
+        this.enableChildren = enableChildren;
     }
 
     @Override

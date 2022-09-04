@@ -5,19 +5,24 @@ import com.vgosoft.core.constant.ViewConstant;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.ViewActionColumnEnum;
 import com.vgosoft.core.constant.enums.ViewIndexColumnEnum;
-
 import com.vgosoft.tool.core.VMD5Util;
+import com.vgosoft.tool.core.VReflectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
@@ -308,6 +313,29 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 mappingsInterface.addMethod(addMappingMethod(entityType, voClass.getType(), false));
                 mappingsInterface.addMethod(addMappingMethod(voClass.getType(), entityType, true));
                 mappingsInterface.addMethod(addMappingMethod(entityType, voClass.getType(), true));
+                Field children = voClass.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("children")).findFirst().orElse(null);
+                if (children!=null) {
+                    String rootClass = JavaBeansUtil.getRootClass(introspectedTable);
+                    try {
+                        Class<?> aClass = ObjectFactory.internalClassForName(rootClass);
+                        java.lang.reflect.Field children1 = VReflectionUtil.getField(aClass, "children");
+                        if (children1 != null) {
+                            if (children1.getDeclaringClass().getSimpleName().equalsIgnoreCase("simpleKVP")) {
+                                //<? extents T>.
+                                List<Class<?>> superClasses = VReflectionUtil.getInterfaces(aClass);
+                                for (Class<?> superClass : superClasses) {
+                                    if (ConstantsUtil.childrenGenericClasses.containsKey(superClass.getSimpleName())) {
+                                        FullyQualifiedJavaType t = new FullyQualifiedJavaType(ConstantsUtil.childrenGenericClasses.get(superClass.getSimpleName()));
+                                        mappingsInterface.addMethod(addMappingMethod(t, voClass.getType(), false));
+                                        mappingsInterface.addImportedType(t);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             if (stringHasValue(excelVoType)) {
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType(excelVoType));
@@ -454,7 +482,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         } else if (entityType.getFullyQualifiedName().equalsIgnoreCase(fromType.getFullyQualifiedName())) {
             methodName = "to" + toType.getShortName();
         } else {
-            methodName = JavaBeansUtil.getFirstCharacterLowercase(fromType.getShortName()) + "To" + toType.getShortName();
+            methodName = "from"+fromType.getShortName() + "To" + toType.getShortName();
         }
         if (isList) {
             methodName = methodName + "s";

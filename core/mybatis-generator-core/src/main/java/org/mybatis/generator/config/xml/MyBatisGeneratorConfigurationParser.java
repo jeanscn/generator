@@ -29,6 +29,7 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
@@ -386,6 +387,34 @@ public class MyBatisGeneratorConfigurationParser {
                 parseGenerateExcelVO(context, tc, childNode);
             }else if ("generateRequestVO".equals(childNode.getNodeName())) {
                 parseGenerateRequestVO(context, tc, childNode);
+            }
+        }
+        //根据所有配置信息，进行调整
+        //1、enableChildren
+        if (tc.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            long childrenCount = tc.getRelationPropertyHolders().stream()
+                    .filter(c -> "children".equalsIgnoreCase(c.getPropertyName()))
+                    .count();
+            long selectByColumnParentIdCount = tc.getSelectByColumnGeneratorConfigurations().stream()
+                    .filter(c -> "PARENT_ID".equalsIgnoreCase(c.getColumnName()))
+                    .count();
+            if (selectByColumnParentIdCount==0) {
+                tc.addSelectByColumnProperties(new SelectByColumnGeneratorConfiguration("PARENT_ID"));
+            }
+            if (childrenCount==0) {
+                RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
+                relationGeneratorConfiguration.setPropertyName("children");
+                relationGeneratorConfiguration.setColumn("ID_");
+                StringBuilder sb = new StringBuilder(tc.getJavaModelGeneratorConfiguration().getTargetPackage());
+                sb.append(".").append(tc.getDomainObjectName());
+                relationGeneratorConfiguration.setModelTye(sb.toString());
+                sb.setLength(0);
+                sb.append(tc.getJavaClientGeneratorConfiguration().getTargetPackage()).append(".");
+                sb.append(tc.getDomainObjectName()).append("Mapper").append(".");
+                sb.append("selectByColumnParentId");
+                relationGeneratorConfiguration.setSelect(sb.toString());
+                relationGeneratorConfiguration.setType(RelationTypeEnum.collection);
+                tc.addRelationPropertyHolders(relationGeneratorConfiguration);
             }
         }
     }
@@ -931,6 +960,9 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(noMetaAnnotation)) {
             javaModelGeneratorConfiguration.setNoMetaAnnotation(Boolean.parseBoolean(noMetaAnnotation));
         }
+        //判断enableChildren
+        javaModelGeneratorConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
+
         tc.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
         parseAbstractConfigAttributes(attributes, javaModelGeneratorConfiguration, node);
     }

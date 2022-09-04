@@ -15,7 +15,7 @@
  */
 package org.mybatis.generator.api.dom.java;
 
-import com.vgosoft.core.util.VReflectionUtil;
+import com.vgosoft.tool.core.VReflectionUtil;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import java.util.ArrayList;

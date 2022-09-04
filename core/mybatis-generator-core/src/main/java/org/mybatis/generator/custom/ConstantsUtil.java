@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom;
 
-import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 集中管理常量，如引用的类路径等
@@ -91,38 +93,17 @@ public class ConstantsUtil {
     //easyExcel
     public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
 
-    public static String getTestClass(String superClass) {
-        TestClassMap testClassMap = TestClassMap.ofSuperClass(superClass);
-        if (testClassMap != null) {
-            return testClassMap.testClass;
-        }
-        return null;
+    public static final Map<String,String> childrenGenericClasses = new HashMap<String,String>();
+
+    static{
+        childrenGenericClasses.put("IDepartment","com.vgosoft.core.adapter.organization.entity.IDepartment");
+        childrenGenericClasses.put("IGroup","com.vgosoft.core.adapter.organization.entity.IGroup");
+        childrenGenericClasses.put("IOrganization","com.vgosoft.core.adapter.organization.entity.IOrganization");
+        childrenGenericClasses.put("IRole","com.vgosoft.core.adapter.organization.entity.IRole");
+        childrenGenericClasses.put("IUser","com.vgosoft.core.adapter.organization.entity.IUser");
     }
 
-    enum TestClassMap {
-
-        AbstractMybatisBGService(ABSTRACT_MBG_SERVICE_INTERFACE, TEST_ABSTRACT_MYBATIS_BG_SERVICE_TEST);
-
-        private final String superClass;
-        private final String testClass;
-
-        TestClassMap(final String superClass, final String testClass) {
-            this.superClass = superClass;
-            this.testClass = testClass;
-        }
-
-        public String getSuperClass() {
-            return superClass;
-        }
-
-        public String getTestClass() {
-            return testClass;
-        }
-
-        public static TestClassMap ofSuperClass(final String superClass) {
-            return EnumSet.allOf(TestClassMap.class).stream()
-                    .filter(e -> e.superClass.equals(superClass))
-                    .findFirst().orElse(null);
-        }
+    public static String getTestClass(String superClass) {
+       return Objects.requireNonNull(TestClassMapEnum.ofSuperClass(superClass).orElse(null)).getTestClass();
     }
 }

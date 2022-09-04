@@ -82,14 +82,14 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
             pMethod.addBodyLine("FormSelectTreeOption formSelectTreeOption = new FormSelectTreeOption({0}.getId(), {0}.{1}(), selected);",
                     entityType.getShortNameFirstLowCase(),getterMethodName);
             commentGenerator.addMethodJavaDocLine(pMethod, true, "内部方法：递归处理用");
-            pMethod.addBodyLine("if ({0}.getChildren().size()>0) '{'\n" +
-                    "            formSelectTreeOption.setParent(true);\n" +
-                    "            List<FormSelectTreeOption> collect = {0}.getChildren().stream()\n" +
-                    "                    .sorted(Comparator.comparing({1}::getSort))\n" +
-                    "                    .map(c -> {2}(c, selected))\n" +
-                    "                    .collect(Collectors.toList());\n" +
-                    "            formSelectTreeOption.setChildren(collect);\n" +
-                    "        '}'", entityType.getShortNameFirstLowCase(),entityType.getShortName(),pMethodName);
+            pMethod.addBodyLine("if ({0}.getChildren().size()>0) '{'",entityType.getShortNameFirstLowCase());
+            pMethod.addBodyLine("formSelectTreeOption.setParent(true);");
+            pMethod.addBodyLine("List<FormSelectTreeOption> collect = {0}.getChildren().stream()",entityType.getShortNameFirstLowCase());
+            pMethod.addBodyLine("        .map(t->({0})t)",entityType.getShortName());
+            pMethod.addBodyLine("        .sorted(Comparator.comparing({0}::getSort))",entityType.getShortName());
+            pMethod.addBodyLine("        .map(c -> {0}(c, selected))",pMethodName);
+            pMethod.addBodyLine("        .collect(Collectors.toList());");
+            pMethod.addBodyLine("formSelectTreeOption.setChildren(collect);}");
             pMethod.addBodyLine("return formSelectTreeOption;");
         }
         method.addBodyLine("        .distinct().collect(Collectors.toList());");

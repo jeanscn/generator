@@ -443,7 +443,8 @@
         <!ATTLIST generateModel
                 generate (true|false) #REQUIRED
                 noMetaAnnotation (false|true) #IMPLIED
-                targetSubPackage CDATA #IMPLIED>
+                targetSubPackage CDATA #IMPLIED
+                enableChildren (false|true) #IMPLIED>
 
         <!--
             sqlMapper XML文件生成描述

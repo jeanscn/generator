@@ -5,7 +5,7 @@ import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.core.db.types.JavaTypeResolver;
 import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
-import com.vgosoft.core.util.VReflectionUtil;
+import com.vgosoft.tool.core.VReflectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;

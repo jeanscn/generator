@@ -5,6 +5,7 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.TestClassMapEnum;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;

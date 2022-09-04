@@ -10,6 +10,8 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+import java.math.BigDecimal;
+import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,6 +142,13 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
             buildTemplateSampleData.addBodyLine("                .{0}({1})",
                     excelVOColumn.getJavaProperty(),
                     JavaBeansUtil.getColumnExampleValue(excelVOColumn));
+            if (excelVOColumn.isJDBCDateColumn() || excelVOColumn.isJDBCTimeColumn() || excelVOColumn.isJDBCDateColumn()) {
+                conTopClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
+            } else if (excelVOColumn.getJdbcType()== JDBCType.DECIMAL.getVendorTypeNumber()) {
+                conTopClazz.addImportedType("java.math.BigDecimal");
+            } else if(excelVOColumn.getJdbcType() == JDBCType.BOOLEAN.getVendorTypeNumber()){
+                conTopClazz.addImportedType("java.lang.Boolean");
+            }
         }
         buildTemplateSampleData.addBodyLine("                .build());");
         conTopClazz.addMethod(buildTemplateSampleData);

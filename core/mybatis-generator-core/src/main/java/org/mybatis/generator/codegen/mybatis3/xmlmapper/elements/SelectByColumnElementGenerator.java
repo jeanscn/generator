@@ -39,6 +39,11 @@ public class SelectByColumnElementGenerator extends
             return;
         }
         for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+            String columnName = selectByColumnGeneratorConfiguration.getColumnName();
+            long count = introspectedTable.getAllColumns().stream().filter(c -> c.getActualColumnName().equalsIgnoreCase(columnName)).count();
+            if (count==0) {
+                continue;
+            }
             XmlElement answer = new XmlElement("select");
             answer.addAttribute(new Attribute("id", selectByColumnGeneratorConfiguration.getMethodName()));
             if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {

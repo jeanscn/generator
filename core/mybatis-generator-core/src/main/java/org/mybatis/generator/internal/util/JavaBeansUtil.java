@@ -534,8 +534,7 @@ public class JavaBeansUtil {
             entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
         }
         if (entityAbstractParentEnum != null) {
-            List<String> rootColumns = EntityAbstractParentEnum.ofCode(rootType.getShortName()).columnNames();
-            exclude.addAll(rootColumns);
+            exclude.addAll(entityAbstractParentEnum.columnNames());
         }
         exclude.add("TENANT_ID");
         List<String> remainColumns = Arrays.asList("SORT_","NAME_","SIZE_,OWNER_,NOTES_,FULL_NAME,SHORT_NAME");
