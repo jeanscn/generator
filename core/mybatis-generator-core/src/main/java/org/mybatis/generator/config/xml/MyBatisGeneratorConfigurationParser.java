@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
@@ -149,6 +148,16 @@ public class MyBatisGeneratorConfigurationParser {
             context.setTargetRuntime(targetRuntime);
         }
 
+        String moduleKeyword = attributes.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD);
+        if (stringHasValue(moduleKeyword)) {
+            context.setModuleKeyword(moduleKeyword);
+        }
+        String integrateMybatisPlus = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
+        context.setIntegrateMybatisPlus(!stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus));
+        String integrateSpringSecurity = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_SPRING_SECURITY);
+        context.setIntegrateSpringSecurity(!stringHasValue(integrateSpringSecurity) || Boolean.parseBoolean(integrateSpringSecurity));
+        String forceUpdateScalableElement = attributes.getProperty(PropertyRegistry.CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT);
+        context.setForceUpdateScalableElement(stringHasValue(forceUpdateScalableElement) && Boolean.parseBoolean(forceUpdateScalableElement));
         configuration.addContext(context);
 
         NodeList nodeList = node.getChildNodes();
@@ -179,6 +188,14 @@ public class MyBatisGeneratorConfigurationParser {
                 parseJavaClientGenerator(context, childNode);
             } else if ("table".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseTable(context, childNode);
+            }
+        }
+        //补充property = "moduleKeyword"到context
+        if (context.getModuleKeyword() == null) {
+            String s = Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD))
+                    .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse(null));
+            if (stringHasValue(s)) {
+                context.setModuleKeyword(s);
             }
         }
     }
@@ -615,8 +632,9 @@ public class MyBatisGeneratorConfigurationParser {
         htmlGeneratorConfiguration.setTargetProject(targetProject);
 
         String htmlTargetPackage = Optional.ofNullable(attributes.getProperty(PropertyRegistry.ANY_TARGET_PACKAGE))
-                .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
-                        .orElse("html"));
+                .orElse(Optional.ofNullable(context.getModuleKeyword())
+                        .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse("html")));
+
         htmlGeneratorConfiguration.setTargetPackage(htmlTargetPackage);
 
         String viewPath = attributes.getProperty(PropertyRegistry.TABLE_VIEW_PATH);
@@ -1048,7 +1066,6 @@ public class MyBatisGeneratorConfigurationParser {
 
         String name = attributes.getProperty("name"); //$NON-NLS-1$
         String value = attributes.getProperty("value"); //$NON-NLS-1$
-
         propertyHolder.addProperty(name, value);
     }
 

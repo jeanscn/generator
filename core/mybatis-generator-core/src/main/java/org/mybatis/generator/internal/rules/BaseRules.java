@@ -88,11 +88,9 @@ public abstract class BaseRules implements Rules {
 
         noServiceAnnotation = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isNoServiceAnnotation();
 
-        String integrateMybatisPlus = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
-        this.integrateMybatisPlus = StringUtility.stringHasValue(integrateMybatisPlus) && Boolean.parseBoolean(integrateMybatisPlus);
+        this.integrateMybatisPlus = introspectedTable.getContext().isIntegrateMybatisPlus();
 
-        String integrateSpringSecurity = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_INTEGRATE_SPRING_SECURITY);
-        this.integrateSpringSecurity = !StringUtility.stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus);
+        this.integrateSpringSecurity = introspectedTable.getContext().isIntegrateSpringSecurity();
 
         this.generateUnitTest = true;
     }
@@ -563,11 +561,6 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isForceGenerateScalableElement() {
-        String property = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT);
-        if (StringUtility.stringHasValue(property)) {
-            return Boolean.parseBoolean(property);
-        }else{
-            return false;
-        }
+        return introspectedTable.getContext().isForceUpdateScalableElement();
     }
 }

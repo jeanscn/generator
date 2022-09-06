@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
@@ -34,6 +35,14 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 public class Context extends PropertyHolder {
 
     private String id;
+
+    private String moduleKeyword;
+
+    private boolean integrateMybatisPlus;
+
+    private boolean integrateSpringSecurity;
+
+    private boolean forceUpdateScalableElement;
 
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
@@ -581,5 +590,39 @@ public class Context extends PropertyHolder {
             }
         }
         return defaultVale;
+    }
+
+    public String getModuleKeyword() {
+        return Optional.ofNullable(moduleKeyword)
+                .orElse(Optional.ofNullable(this.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD))
+                .orElse(Optional.ofNullable(this.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse(null)));
+    }
+
+    public void setModuleKeyword(String moduleKeyword) {
+        this.moduleKeyword = moduleKeyword;
+    }
+
+    public boolean isIntegrateMybatisPlus() {
+        return integrateMybatisPlus;
+    }
+
+    public void setIntegrateMybatisPlus(boolean integrateMybatisPlus) {
+        this.integrateMybatisPlus = integrateMybatisPlus;
+    }
+
+    public boolean isIntegrateSpringSecurity() {
+        return integrateSpringSecurity;
+    }
+
+    public void setIntegrateSpringSecurity(boolean integrateSpringSecurity) {
+        this.integrateSpringSecurity = integrateSpringSecurity;
+    }
+
+    public boolean isForceUpdateScalableElement() {
+        return forceUpdateScalableElement;
+    }
+
+    public void setForceUpdateScalableElement(boolean forceUpdateScalableElement) {
+        this.forceUpdateScalableElement = forceUpdateScalableElement;
     }
 }

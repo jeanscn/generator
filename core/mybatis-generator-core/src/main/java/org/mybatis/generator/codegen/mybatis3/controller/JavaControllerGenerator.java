@@ -210,9 +210,8 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
             conMethod.addBodyLine("super({0});",introspectedTable.getControllerBeanName());
         }
         conSubTopClazz.addMethod(conMethod);
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName);
-        if (forceGenerateScalableElement || fileNotExist) {
+        if (introspectedTable.getRules().isForceGenerateScalableElement() || fileNotExist) {
             if (context.getPlugins().subControllerGenerated(conSubTopClazz, introspectedTable)){
                 answer.add(conSubTopClazz);
             }
