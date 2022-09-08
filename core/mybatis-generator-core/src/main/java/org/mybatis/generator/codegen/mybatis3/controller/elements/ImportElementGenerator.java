@@ -47,7 +47,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         responseResult.addTypeArgument(new FullyQualifiedJavaType("java.lang.Integer"));
         method.setReturnType(responseResult);
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"导入");
 
         //方法体
         method.addBodyLine("int ret=0;");

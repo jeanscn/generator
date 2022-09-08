@@ -16,8 +16,10 @@
 package org.mybatis.generator.internal.util;
 
 import com.sun.jna.platform.win32.WinNT;
+import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -30,9 +32,9 @@ import java.io.File;
 import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
+import static org.mybatis.generator.internal.util.StringUtility.*;
 
 public class JavaBeansUtil {
 
@@ -463,8 +465,13 @@ public class JavaBeansUtil {
     }
 
     public static String getColumnExampleValue(IntrospectedColumn introspectedColumn) {
-        String defaultValue = JDBCUtil.getJDBCTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+        String defaultValue = null;
         String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
+        try {
+            defaultValue = JDBCUtil.getJDBCTypeExample(ObjectFactory.internalClassForName(javaTypeName));
+        } catch (ClassNotFoundException e) {
+            defaultValue = JDBCUtil.getJDBCTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+        }
         if (introspectedColumn.getJavaProperty().equals("active")) {
             return "1";
         } else if (javaTypeName.equals("String")) {
@@ -528,29 +535,26 @@ public class JavaBeansUtil {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
-        FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));
-        EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootType.getShortName());
-        if (entityAbstractParentEnum == null) {
-            entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
-        }
+        EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
         if (entityAbstractParentEnum != null) {
             exclude.addAll(entityAbstractParentEnum.columnNames());
         }
         exclude.add("TENANT_ID");
-        List<String> remainColumns = Arrays.asList("SORT_","NAME_","SIZE_,OWNER_,NOTES_,FULL_NAME,SHORT_NAME");
-        List<String> collect = exclude.stream().filter(t->!remainColumns.contains(t)).collect(Collectors.toList());
+        exclude.add("BYTES_");
         if (include.size()>0) {
             return introspectedTable.getAllColumns().stream()
                     .filter(c->include.contains(c.getActualColumnName()))
+                    .distinct()
                     .collect(Collectors.toList());
         }else{
             return introspectedTable.getAllColumns().stream()
-                    .filter(c->!collect.contains(c.getActualColumnName()))
+                    .filter(c->!exclude.contains(c.getActualColumnName()))
+                    .distinct()
                     .collect(Collectors.toList());
         }
     }
 
-    public static List<IntrospectedColumn> getExcelVOColumns(IntrospectedTable introspectedTable) {
+    public static List<IntrospectedColumn> getAllExcelVOColumns(IntrospectedTable introspectedTable) {
         List<IntrospectedColumn> columns;
         VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoExcelGeneratorConfiguration();
         if (voExcelGeneratorConfiguration.getIncludeColumns().size()>0) {
@@ -567,5 +571,58 @@ public class JavaBeansUtil {
             columns = JavaBeansUtil.getAbstractVOColumns(introspectedTable);
         }
         return columns;
+    }
+
+    public static List<IntrospectedColumn> getVOColumns(IntrospectedTable introspectedTable,List<String> includeColumns,List<String> excludeColumns) {
+        Stream<IntrospectedColumn> allColumnsStream = introspectedTable.getAllColumns().stream();
+        if (includeColumns != null && includeColumns.size()>0) {
+            return allColumnsStream.filter(t->includeColumns.contains(t.getActualColumnName())).distinct().collect(Collectors.toList());
+        }else if(excludeColumns != null && excludeColumns.size()>0) {
+            return allColumnsStream.filter(t->!excludeColumns.contains(t.getActualColumnName())).distinct().collect(Collectors.toList());
+        }else{
+            List<String> abstractVOColumns = JavaBeansUtil.getAbstractVOColumns(introspectedTable).stream()
+                    .map(IntrospectedColumn::getActualColumnName)
+                    .collect(Collectors.toList());
+            EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
+            if (entityAbstractParentEnum != null) {
+                abstractVOColumns.addAll(entityAbstractParentEnum.columnNames());
+            }
+            abstractVOColumns.add("TENANT_ID");
+            abstractVOColumns.add("BYTES_");
+            return allColumnsStream.filter(t->!abstractVOColumns.contains(t.getActualColumnName())).distinct().collect(Collectors.toList());
+        }
+    }
+
+    public static void setPermissionSqlData(IntrospectedTable introspectedTable, Map<String,String> levels){
+        int index = 0;
+        List<String> keys = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (Map.Entry<String, String> entry : levels.entrySet()) {
+            String code = index==0?entry.getKey():keys.get(index-1)+":"+entry.getKey();
+            String id = VMD5Util.MD5(code);
+            keys.add(code);
+            String name = index==0?entry.getValue():names.get(index-1)+":"+entry.getValue();
+            names.add(name);
+            StringBuilder sb = new StringBuilder("INSERT INTO `SYS_PERMISSION`");
+            sb.append("(`ID_`, `SORT_`, `PARENT_ID`, `CODE_`, `NAME_`, `TYPE_`, `SCOPE_`, `STATE_`, `NOTES_`, `CREATED_ID`, `MODIFIED_ID`)");
+            sb.append(" VALUES (");
+            sb.append("'").append(id).append("'");
+            sb.append(",").append(introspectedTable.getPermissionDataScriptLines().size()+1);
+            sb.append(",");
+            if(index>0){
+                sb.append("'").append(VMD5Util.MD5(keys.get(index-1))).append("'");
+            }else{
+                sb.append("NULL");
+            }
+            sb.append(",'").append(code).append("'");
+            sb.append(",'").append(entry.getValue()).append("'");
+            sb.append(",0").append(",0").append(",1");
+            sb.append(",'").append(name==null?"''":name).append("'");
+            sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
+            sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
+            sb.append(");");
+            introspectedTable.addPermissionDataScriptLines(id,sb.toString());
+            index++;
+        }
     }
 }

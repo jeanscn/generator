@@ -43,7 +43,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
         method.addParameter(actionType);
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"导出");
 
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = buildExample(actionType,{1});",

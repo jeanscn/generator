@@ -105,6 +105,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean generateInsertBatch() {
+        return rules.generateInsertBatch();
+    }
+
+    @Override
     public boolean generateInsertSelective() {
         return rules.generateInsertSelective();
     }
@@ -260,6 +265,11 @@ public class RulesDelegate implements Rules {
      */
     @Override
     public boolean isGenerateVoModel() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateCreateVO() {
         return false;
     }
 }

@@ -137,6 +137,15 @@ public abstract class BaseRules implements Rules {
         return tableConfiguration.isInsertStatementEnabled();
     }
 
+    @Override
+    public boolean generateInsertBatch() {
+        if (isModelOnly) {
+            return false;
+        }
+
+        return tableConfiguration.isInsertStatementEnabled();
+    }
+
     /**
      * Implements the rule for generating the insert selective SQL Map element
      * and DAO method. If the insert statement is allowed, then generate the
@@ -536,6 +545,11 @@ public abstract class BaseRules implements Rules {
         return voModelGeneratorConfiguration !=null && voModelGeneratorConfiguration.isGenerate();
     }
 
+    public boolean isGenerateCreateVO(){
+        VOCreateGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getVoCreateGeneratorConfiguration();
+        return configuration !=null && configuration.isGenerate();
+    }
+
     @Override
     public boolean isGenerateExcelVO() {
         VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tableConfiguration.getVoExcelGeneratorConfiguration();
@@ -556,7 +570,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isGenerateVO() {
-        return isGenerateVoModel() || isGenerateExcelVO() || isGenerateViewVO();
+        return isGenerateVoModel() || isGenerateExcelVO() || isGenerateViewVO() || isGenerateCreateVO();
     }
 
     @Override

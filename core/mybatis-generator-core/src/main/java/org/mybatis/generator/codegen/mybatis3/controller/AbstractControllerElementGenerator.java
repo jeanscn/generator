@@ -8,6 +8,10 @@ import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
 
@@ -30,6 +34,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
     protected FullyQualifiedJavaType entityVoType;
 
     protected FullyQualifiedJavaType entityViewVoType;
+
+    protected FullyQualifiedJavaType entityCreateVoType;
 
     protected FullyQualifiedJavaType entityRequestVoType;
 
@@ -72,6 +78,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
         entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
         entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"RequestVO"));
+        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"CreateVO"));
     }
 
     protected Method createMethod(String methodPrefix) {
@@ -122,6 +129,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                     sb.append("查看数据列表");
                 }else if(("create"+record.getShortName()).equals(method.getName())){
                     sb.append("添加了一条记录");
+                }else if(("createBatch"+record.getShortName()).equals(method.getName())){
+                    sb.append("添加了多条记录");
                 }else if(("upload"+record.getShortName()).equals(method.getName())){
                     sb.append("上传记录");
                 }else if(("download"+record.getShortName()).equals(method.getName())){
@@ -218,17 +227,28 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         parentElement.addImportedType("com.github.pagehelper.Page");
     }
 
-    protected void addSecurityPreAuthorize(Method method,String methodPrefix) {
+    protected void addSecurityPreAuthorize(Method method,String methodPrefix,String nameKey) {
         if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
+            String l1 = introspectedTable.getContext().getModuleKeyword().toLowerCase();
+            String l2 = serviceBeanName.toLowerCase();
+            String l3 = methodPrefix.toLowerCase();
+
             StringBuilder sb = new StringBuilder("@PreAuthorize(\"");
             sb.append("@uss.hasPermission('");
-            sb.append(introspectedTable.getControllerSimplePackage().toLowerCase());
+            sb.append(l1);
             sb.append(":");
-            sb.append(serviceBeanName.toLowerCase());
+            sb.append(l2);
             sb.append(":");
-            sb.append(methodPrefix.toLowerCase());
+            sb.append(l3);
             sb.append("')\")");
             method.addAnnotation(sb.toString());
+
+            //构造一条permission插入语句
+            Map<String,String> map = new LinkedHashMap<>();
+            map.put(l1, introspectedTable.getContext().getModuleName());
+            map.put(l2,StringUtility.remarkLeft(introspectedTable.getRemarks()));
+            map.put(l3,nameKey);
+            JavaBeansUtil.setPermissionSqlData(introspectedTable, map);
         }
     }
 }

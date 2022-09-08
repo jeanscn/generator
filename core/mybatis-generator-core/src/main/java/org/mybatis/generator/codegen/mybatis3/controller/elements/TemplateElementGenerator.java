@@ -36,7 +36,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         method.addParameter(new Parameter(response, "response"));
         addControllerMapping(method, "import/template", "get");
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"导入模板");
 
         method.addBodyLine("List<{0}> list = buildTemplateSampleData();",excelVoType.getShortName());
         method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list);",excelVoType.getShortName(),introspectedTable.getRemarks());

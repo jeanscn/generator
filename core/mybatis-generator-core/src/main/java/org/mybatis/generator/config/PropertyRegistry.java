@@ -87,6 +87,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_SPRING_BOOT_APPLICATION_CLASS = "springBootApplicationClass";
 
     public static final String CONTEXT_MODULE_KEYWORD = "moduleKeyword";
+        public static final String CONTEXT_MODULE_NAME = "moduleName";
     public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
     public static final String CONTEXT_INTEGRATE_SPRING_SECURITY = "integrateSpringSecurity";
     public static final String CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT = "forceUpdateScalableElement";

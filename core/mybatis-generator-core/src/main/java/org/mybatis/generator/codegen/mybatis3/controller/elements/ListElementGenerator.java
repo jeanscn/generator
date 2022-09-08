@@ -38,7 +38,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(actionType);
         method.setReturnType(getResponseResult(true));
         addControllerMapping(method, "", "get");
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"数据列表");
 
         String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         selectByExampleWithPagehelper(parentElement, method);

@@ -39,7 +39,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(prefix);
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         addControllerMapping(method, methodPrefix, "get");
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"查看");
 
         //函数体
         sb.append("ModelAndView mv = new ModelAndView();");

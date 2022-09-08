@@ -1192,6 +1192,12 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voCreateGetterMethodGenerated(Method method,
+                                                 TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
+                                                 IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass,
                                           IntrospectedColumn introspectedColumn,
                                           IntrospectedTable introspectedTable) {
@@ -1317,6 +1323,11 @@ public interface Plugin {
 
     default boolean voModelRecordClassGenerated(TopLevelClass topLevelClass,
                                                   IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelCreateClassGenerated(TopLevelClass topLevelClass,
+                                                IntrospectedTable introspectedTable) {
         return true;
     }
 

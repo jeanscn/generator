@@ -119,6 +119,8 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
                     ,"@param "+param+" 用于接收属性同名参数");
         }else if(("create"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"新增一条记录");
+        }else if(("createBatch"+record.getShortName()).equals(method.getName())){
+            addMethodJavaDocLine(method,"新增多条记录");
         }else if(("upload"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"单个文件上传");
         }else if(("download"+record.getShortName()).equals(method.getName())){

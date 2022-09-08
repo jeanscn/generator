@@ -63,6 +63,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addUpdateByPrimaryKeyWithoutBLOBsElement(answer);
 
         //定制追加
+        addInsertBatchElement(answer);
         addBaseBySqlElement(answer);
         addSelectBySqlElement(answer);
         addSelectMapBySqlElement(answer);
@@ -204,6 +205,13 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     protected void addInsertElement(XmlElement parentElement) {
         if (introspectedTable.getRules().generateInsert()) {
             AbstractXmlElementGenerator elementGenerator = new InsertElementGenerator(false);
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    protected void addInsertBatchElement(XmlElement parentElement) {
+        if (introspectedTable.getRules().generateInsertBatch()) {
+            AbstractXmlElementGenerator elementGenerator = new InsertBatchElementGenerator(false);
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

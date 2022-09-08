@@ -119,6 +119,8 @@ public abstract class IntrospectedTable {
 
     protected final List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
+    protected Map<String,String> permissionDataScriptLines = new HashMap<>();
+
     protected List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
     protected Map<String, CustomMethodGeneratorConfiguration> customAddtionalSelectMethods = new HashMap<>();
@@ -498,8 +500,8 @@ public abstract class IntrospectedTable {
         String entityName;
         if (fullyQualifiedTable.getDomainObjectName() != null) {
             entityName = JavaBeansUtil.getFirstCharacterLowercase(fullyQualifiedTable.getDomainObjectName());
-        }else{
-            entityName = JavaBeansUtil.getCamelCaseString(fullyQualifiedTable.getIntrospectedTableName(),true);
+        } else {
+            entityName = JavaBeansUtil.getCamelCaseString(fullyQualifiedTable.getIntrospectedTableName(), true);
         }
         String beanName = entityName + "Impl";
         internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME, beanName);
@@ -1060,6 +1062,10 @@ public abstract class IntrospectedTable {
 
     public abstract List<GeneratedSqlSchemaFile> getGeneratedSqlSchemaFiles();
 
+    public abstract List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles();
+
+    //public abstract List<GeneratedSqlSchemaFile> getGeneratedSysMenuSqlDataFiles();
+
     /**
      * This method should return a list of generated Kotlin files related to this
      * table. This list could include a data classes, a mapper interface, extension methods, etc.
@@ -1293,6 +1299,14 @@ public abstract class IntrospectedTable {
 
     public String getConfigPropertyValue(String propertyRegistry) {
         return getConfigPropertyValue(propertyRegistry, PropertyScope.any, propertyRegistryDefaultValue(propertyRegistry));
+    }
+
+    public Map<String, String> getPermissionDataScriptLines() {
+        return permissionDataScriptLines;
+    }
+
+    public void addPermissionDataScriptLines(String id,String permissionDataScriptLines) {
+        this.permissionDataScriptLines.put(id,permissionDataScriptLines);
     }
 
     private String propertyRegistryDefaultValue(String propertyRegistry) {

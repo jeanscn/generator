@@ -23,7 +23,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         responseResult.addTypeArgument(new FullyQualifiedJavaType(DATATABLES_VIEW_CONFIG));
         method.setReturnType(responseResult);
         addControllerMapping(method, "dt/viewDefault", "post");
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"默认视图配置");
 
         method.addBodyLine("try {");
         method.addBodyLine("DataTablesViewConfig dataTablesViewConfig = DataTablesUtil\n" +

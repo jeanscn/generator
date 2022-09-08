@@ -36,6 +36,8 @@ public interface Rules {
      */
     boolean generateInsert();
 
+    boolean generateInsertBatch();
+
     /**
      * Implements the rule for generating the insert selective SQL Map element
      * and DAO method. If the insert statement is allowed, then generate the
@@ -262,6 +264,8 @@ public interface Rules {
      * 是生成VO对象
      * */
     boolean isGenerateVoModel();
+
+    boolean isGenerateCreateVO();
 
     boolean isGenerateViewVO();
 

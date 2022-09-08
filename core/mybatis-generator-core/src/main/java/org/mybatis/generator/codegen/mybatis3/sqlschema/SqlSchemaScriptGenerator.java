@@ -1,18 +1,17 @@
-package org.mybatis.generator.codegen;
+package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
 import com.vgosoft.core.constant.Empty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.AbstractSqlScriptGenerator;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * sql脚本生成器
@@ -21,16 +20,17 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2022-06-21 18:53
  * @version 3.0
  */
-public class SqlScriptGenerator extends AbstractGenerator {
+public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
     private final IntrospectedTable introspectedTable;
     private final DatabaseDDLDialects databaseDDLDialects;
 
-    public SqlScriptGenerator(IntrospectedTable introspectedTable, DatabaseDDLDialects databaseDDLDialects) {
+    public SqlSchemaScriptGenerator(IntrospectedTable introspectedTable, DatabaseDDLDialects databaseDDLDialects) {
         this.introspectedTable = introspectedTable;
         this.databaseDDLDialects = databaseDDLDialects;
     }
 
+    @Override
     public String getSqlScript() {
         List<String> ret = new ArrayList<>();
 

@@ -27,11 +27,13 @@ public class VOViewGeneratorConfiguration extends VOGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
-    private String indexColumn = "";
+    private String indexColumn;
 
     private List<String> actionColumn = new ArrayList<>();
 
     private List<String> queryColumns = new ArrayList<>();
+
+    private String parentMenuId;
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
@@ -74,5 +76,13 @@ public class VOViewGeneratorConfiguration extends VOGeneratorConfiguration {
 
     public void setIncludeColumns(List<String> includeColumns) {
         this.includeColumns = includeColumns;
+    }
+
+    public String getParentMenuId() {
+        return parentMenuId;
+    }
+
+    public void setParentMenuId(String parentMenuId) {
+        this.parentMenuId = parentMenuId;
     }
 }

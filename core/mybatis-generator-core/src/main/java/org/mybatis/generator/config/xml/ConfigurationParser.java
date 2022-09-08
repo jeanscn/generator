@@ -210,6 +210,10 @@ public class ConfigurationParser {
             PluginConfiguration modelWebPropertiesPlugin  = new PluginConfiguration();
             modelWebPropertiesPlugin.setConfigurationType("org.mybatis.generator.plugins.ModelWebPropertiesPlugin");
             context.addPluginConfiguration(modelWebPropertiesPlugin);
+            PluginConfiguration generateAdditionalFilesPlugin  = new PluginConfiguration();
+            generateAdditionalFilesPlugin.setConfigurationType("org.mybatis.generator.plugins.GenerateAdditionalFilesPlugin");
+            context.addPluginConfiguration(generateAdditionalFilesPlugin);
+
 
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())

@@ -38,6 +38,12 @@ public class ValidatorPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean voCreateGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        addNotNullValidate(method,topLevelClass,introspectedColumn);
+        return true;
+    }
+
     private void addNotNullValidate(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
         if (!introspectedColumn.isNullable()) {
             String message = introspectedColumn.getRemarks() + "不能为空";

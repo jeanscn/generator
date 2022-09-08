@@ -51,7 +51,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
                 StringUtils.lowerCase(this.serviceBeanName) +
                 "/upload\",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)";
         method.addAnnotation(sb);
-        addSecurityPreAuthorize(method,methodPrefix);
+        addSecurityPreAuthorize(method,methodPrefix,"上传");
 
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine(format("{0} {1} = mappings.from{2}({3});", entityType.getShortName(),entityType.getShortNameFirstLowCase(),entityVoType.getShortName(),entityVoType.getShortNameFirstLowCase()));

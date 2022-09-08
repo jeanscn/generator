@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.codegen.SqlScriptGenerator;
 
 /**
  * 生成sql脚本文件
@@ -16,13 +15,13 @@ public class GeneratedSqlSchemaFile extends GeneratedFile {
     private final String fileName;
     private final String targetPackage;
     public final IntrospectedTable introspectedTable;
-    public final SqlScriptGenerator sqlScriptGenerator;
+    public final AbstractSqlScriptGenerator sqlScriptGenerator;
 
     public GeneratedSqlSchemaFile(String fileName,
                                   String targetPackage,
                                   String targetProject,
                                   IntrospectedTable introspectedTable,
-                                  SqlScriptGenerator sqlScriptGenerator) {
+                                  AbstractSqlScriptGenerator sqlScriptGenerator) {
         super(targetProject);
         this.fileName = fileName;
         this.targetPackage = targetPackage;

@@ -10,7 +10,6 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.math.BigDecimal;
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,6 +103,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         addGetElement(conTopClazz);
         addListElement(conTopClazz);
         addCreateElement(conTopClazz);
+        addCreateBatchElement(conTopClazz);
         addUpdateElement(conTopClazz);
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
@@ -138,7 +138,7 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
                 "当前方法根据类型生成，请重写该方法，以便于样例数据看起来更真实。","","@return 数据列表对象");
         buildTemplateSampleData.addBodyLine("return  List.of(",entityExcelVoType.getShortName());
         buildTemplateSampleData.addBodyLine("        {0}.builder()",entityExcelVoType.getShortName());
-        for (IntrospectedColumn excelVOColumn : JavaBeansUtil.getExcelVOColumns(introspectedTable)) {
+        for (IntrospectedColumn excelVOColumn : JavaBeansUtil.getAllExcelVOColumns(introspectedTable)) {
             buildTemplateSampleData.addBodyLine("                .{0}({1})",
                     excelVOColumn.getJavaProperty(),
                     JavaBeansUtil.getColumnExampleValue(excelVOColumn));
@@ -240,6 +240,11 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
 
     private void addCreateElement(TopLevelClass parentElement) {
         AbstractControllerElementGenerator elementGenerator = new CreateElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
+    private void addCreateBatchElement(TopLevelClass parentElement) {
+        AbstractControllerElementGenerator elementGenerator = new CreateBatchElementGenerator();
         initializeAndExecuteGenerator(elementGenerator, parentElement);
     }
 

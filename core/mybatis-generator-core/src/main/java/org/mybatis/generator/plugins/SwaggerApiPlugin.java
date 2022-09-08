@@ -227,6 +227,8 @@ public class SwaggerApiPlugin extends PluginAdapter {
                     "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
         }else if (("create" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "新增一条记录", "新增一条记录,返回json，包含影响条数及消息");
+        }else if (("createBatch" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "新增多条记录", "新增多条记录,返回影响条数及消息");
         }else if (("upload" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "单个文件上传", "单个文件上传接口");
         }else if (("download" + record.getShortName()).equals(method.getName())) {

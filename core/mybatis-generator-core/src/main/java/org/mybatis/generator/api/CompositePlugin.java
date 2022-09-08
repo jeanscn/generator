@@ -931,6 +931,18 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voCreateGetterMethodGenerated(Method method,
+                                                TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
+                                                IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voCreateGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voViewFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
@@ -1030,6 +1042,16 @@ public abstract class CompositePlugin implements Plugin {
     public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voModelRecordClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelCreateClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelCreateClassGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }

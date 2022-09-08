@@ -152,6 +152,11 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(moduleKeyword)) {
             context.setModuleKeyword(moduleKeyword);
         }
+        String moduleName = attributes.getProperty(PropertyRegistry.CONTEXT_MODULE_NAME);
+        if (stringHasValue(moduleName)) {
+            context.setModuleName(moduleName);
+        }
+        context.setParentMenuId(attributes.getProperty("parentMenuId"));
         String integrateMybatisPlus = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
         context.setIntegrateMybatisPlus(!stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus));
         String integrateSpringSecurity = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_SPRING_SECURITY);
@@ -188,14 +193,6 @@ public class MyBatisGeneratorConfigurationParser {
                 parseJavaClientGenerator(context, childNode);
             } else if ("table".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseTable(context, childNode);
-            }
-        }
-        //补充property = "moduleKeyword"到context
-        if (context.getModuleKeyword() == null) {
-            String s = Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD))
-                    .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse(null));
-            if (stringHasValue(s)) {
-                context.setModuleKeyword(s);
             }
         }
     }
@@ -398,6 +395,8 @@ public class MyBatisGeneratorConfigurationParser {
                 parseGenerateSqlSchema(context, tc, childNode);
             } else if ("generateModelVO".equals(childNode.getNodeName())) {
                 parseGenerateModelVO(context, tc, childNode);
+            }else if ("generateCreateVO".equals(childNode.getNodeName())) {
+                parseGenerateCreateVO(context, tc, childNode);
             } else if ("generateViewVO".equals(childNode.getNodeName())) {
                 parseGenerateViewVO(context, tc, childNode);
             } else if ("generateExcelVO".equals(childNode.getNodeName())) {
@@ -922,6 +921,18 @@ public class MyBatisGeneratorConfigurationParser {
         tc.setVoModelGeneratorConfiguration(vOModelGeneratorConfiguration);
     }
 
+    private void parseGenerateCreateVO(Context context, TableConfiguration tc, Node node) {
+        Properties attributes = parseAttributes(node);
+        VOCreateGeneratorConfiguration configuration = new VOCreateGeneratorConfiguration(context,tc);
+        parseColumnsList(attributes, configuration);
+        String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
+        if (stringHasValue(includeColumns)) {
+            configuration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+        }
+        parseChildNodeOnlyProperty(configuration, node);
+        tc.setVoCreateGeneratorConfiguration(configuration);
+    }
+
     private void parseGenerateExcelVO(Context context, TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
         VOExcelGeneratorConfiguration vOExcelGeneratorConfiguration = new VOExcelGeneratorConfiguration(context,tc);
@@ -953,6 +964,10 @@ public class MyBatisGeneratorConfigurationParser {
         String queryColumns = attributes.getProperty("queryColumns");
         if (stringHasValue(queryColumns)) {
             voViewGeneratorConfiguration.setQueryColumns(Arrays.asList(queryColumns.split(",")));
+        }
+        String parentMenuId = attributes.getProperty("parentMenuId");
+        if (stringHasValue(parentMenuId)) {
+            voViewGeneratorConfiguration.setParentMenuId(parentMenuId);
         }
         parseChildNodeOnlyProperty(voViewGeneratorConfiguration, node);
         tc.setVoViewGeneratorConfiguration(voViewGeneratorConfiguration);

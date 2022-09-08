@@ -24,10 +24,7 @@ import org.mybatis.generator.internal.db.DatabaseIntrospector;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -37,6 +34,8 @@ public class Context extends PropertyHolder {
     private String id;
 
     private String moduleKeyword;
+
+    private String moduleName;
 
     private boolean integrateMybatisPlus;
 
@@ -89,6 +88,10 @@ public class Context extends PropertyHolder {
     private boolean isJava8Targeted = true;
 
     private boolean isSqlServe;
+
+    private String parentMenuId;
+
+    protected Map<String,String> sysMenuDataScriptLines = new HashMap<>();
 
     public Context(ModelType defaultModelType) {
         super();
@@ -470,46 +473,33 @@ public class Context extends PropertyHolder {
         // items in the configuration.
         for (IntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
-
             introspectedTable.initialize();
             introspectedTable.calculateGenerators(warnings, callback);
         }
 
         for (IntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
-            generatedJavaFiles.addAll(introspectedTable
-                    .getGeneratedJavaFiles());
-            generatedXmlFiles.addAll(introspectedTable
-                    .getGeneratedXmlFiles());
-            generatedHtmlFiles.addAll(introspectedTable
-                    .getGeneratedHtmlFiles());
-            generatedKotlinFiles.addAll(introspectedTable
-                    .getGeneratedKotlinFiles());
+            generatedJavaFiles.addAll(introspectedTable.getGeneratedJavaFiles());
+            generatedXmlFiles.addAll(introspectedTable.getGeneratedXmlFiles());
+            generatedHtmlFiles.addAll(introspectedTable.getGeneratedHtmlFiles());
+            generatedKotlinFiles.addAll(introspectedTable.getGeneratedKotlinFiles());
 
             otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
+            otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionSqlDataFiles());
+            //otherGeneratedFiles.addAll(introspectedTable.getGeneratedSysMenuSqlDataFiles());
 
-            generatedJavaFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalJavaFiles(introspectedTable));
-            generatedXmlFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalXmlFiles(introspectedTable));
-            generatedHtmlFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalHtmlFiles(introspectedTable));
-            generatedKotlinFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalKotlinFiles(introspectedTable));
-            otherGeneratedFiles.addAll(pluginAggregator
-                    .contextGenerateAdditionalFiles(introspectedTable));
+            generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
+            generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
+            generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles(introspectedTable));
+            generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
+            otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(introspectedTable));
         }
+        generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles());
+        generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles());
+        generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles());
+        generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
+        otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles());
 
-        generatedJavaFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalJavaFiles());
-        generatedXmlFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalXmlFiles());
-        generatedHtmlFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalHtmlFiles());
-        generatedKotlinFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalKotlinFiles());
-        otherGeneratedFiles.addAll(pluginAggregator
-                .contextGenerateAdditionalFiles());
     }
 
 
@@ -602,6 +592,14 @@ public class Context extends PropertyHolder {
         this.moduleKeyword = moduleKeyword;
     }
 
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
     public boolean isIntegrateMybatisPlus() {
         return integrateMybatisPlus;
     }
@@ -624,5 +622,22 @@ public class Context extends PropertyHolder {
 
     public void setForceUpdateScalableElement(boolean forceUpdateScalableElement) {
         this.forceUpdateScalableElement = forceUpdateScalableElement;
+    }
+
+    public String getParentMenuId() {
+        return parentMenuId;
+    }
+
+    public void setParentMenuId(String parentMenuId) {
+        this.parentMenuId = parentMenuId;
+    }
+
+
+    public Map<String, String> getSysMenuDataScriptLines() {
+        return sysMenuDataScriptLines;
+    }
+
+    public void addSysMenuDataScriptLines(String id,String sysMenuDataScriptLine) {
+        this.sysMenuDataScriptLines.put(id,sysMenuDataScriptLine);
     }
 }

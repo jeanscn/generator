@@ -33,6 +33,9 @@ import org.mybatis.generator.codegen.mybatis3.model.RecordWithBLOBsGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataPermissionScriptGenerator;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysMenuScriptGenerator;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlSchemaScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaControllerUnitTestGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaServiceUnitTestGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.ViewObjectClassGenerator;
@@ -325,13 +328,44 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                         type,
                         sqlSchemaGeneratorConfiguration.getTargetProject(),
                         this,
-                        new SqlScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect(type.toUpperCase())));
+                        new SqlSchemaScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect(type.toUpperCase())));
                 answer.add(generatedSqlSchemaFile);
             }
         }
         return answer;
     }
 
+    @Override
+    public List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles() {
+        List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
+        if (this.getPermissionDataScriptLines().size()==0) {
+            return answer;
+        }
+        String fileName = "data-permission-"+this.getTableConfiguration().getTableName().toLowerCase()+".sql";
+        GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
+                "init",
+                "src/main/resources/sql",
+                this,
+                new SqlDataPermissionScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+        answer.add(generatedSqlSchemaFile);
+        return answer;
+    }
+
+    /*@Override
+    public List<GeneratedSqlSchemaFile> getGeneratedSysMenuSqlDataFiles() {
+        List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
+        if (this.getContext().getSysMenuDataScriptLines().size() == 0) {
+            return answer;
+        }
+        String fileName = "data-menu-"+this.getTableConfiguration().getTableName().toLowerCase()+".sql";
+        GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
+                "init",
+                "src/main/resources/sql",
+                null,
+                new SqlDataSysMenuScriptGenerator(DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+        answer.add(generatedSqlSchemaFile);
+        return answer;
+    }*/
 
     @Override
     public int getGenerationSteps() {

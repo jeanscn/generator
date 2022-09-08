@@ -33,6 +33,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean insertStatementEnabled;
 
+    private boolean insertBatchStatementEnabled;
+
     private boolean selectByPrimaryKeyStatementEnabled;
 
     private boolean selectByExampleStatementEnabled;
@@ -108,6 +110,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private VOModelGeneratorConfiguration voModelGeneratorConfiguration;
 
+    private VOCreateGeneratorConfiguration voCreateGeneratorConfiguration;
+
     private VOExcelGeneratorConfiguration voExcelGeneratorConfiguration;
 
     private VOViewGeneratorConfiguration voViewGeneratorConfiguration;
@@ -131,6 +135,9 @@ public class TableConfiguration extends PropertyHolder {
         ignoredColumns = new HashMap<>();
 
         insertStatementEnabled = true;
+
+        insertBatchStatementEnabled = true;
+
         selectByPrimaryKeyStatementEnabled = true;
         selectByExampleStatementEnabled = true;
         updateByPrimaryKeyStatementEnabled = true;
@@ -160,6 +167,14 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setInsertStatementEnabled(boolean insertStatementEnabled) {
         this.insertStatementEnabled = insertStatementEnabled;
+    }
+
+    public boolean isInsertBatchStatementEnabled() {
+        return insertBatchStatementEnabled;
+    }
+
+    public void setInsertBatchStatementEnabled(boolean insertBatchStatementEnabled) {
+        this.insertBatchStatementEnabled = insertBatchStatementEnabled;
     }
 
     public boolean isSelectByPrimaryKeyStatementEnabled() {
@@ -608,6 +623,14 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setVoModelGeneratorConfiguration(VOModelGeneratorConfiguration voModelGeneratorConfiguration) {
         this.voModelGeneratorConfiguration = voModelGeneratorConfiguration;
+    }
+
+    public VOCreateGeneratorConfiguration getVoCreateGeneratorConfiguration() {
+        return voCreateGeneratorConfiguration;
+    }
+
+    public void setVoCreateGeneratorConfiguration(VOCreateGeneratorConfiguration voCreateGeneratorConfiguration) {
+        this.voCreateGeneratorConfiguration = voCreateGeneratorConfiguration;
     }
 
     public VOExcelGeneratorConfiguration getVoExcelGeneratorConfiguration() {
