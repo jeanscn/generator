@@ -61,6 +61,11 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         if (superClass != null) {
             topLevelClass.setSuperClass(superClass);
             topLevelClass.addImportedType(superClass);
+            //泛型
+            List<String> rootClassTypeArguments = getRootClassTypeArguments(introspectedTable);
+            rootClassTypeArguments.forEach(s->{
+                superClass.addTypeArgument(new FullyQualifiedJavaType(s));
+            });
         }
         //类注释
         commentGenerator.addModelClassComment(topLevelClass, introspectedTable);

@@ -15,13 +15,15 @@
  */
 package org.mybatis.generator.codegen;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
@@ -44,8 +46,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         Method method = new Method(getGetterMethodName(field.getName(), field.getType()));
         method.setReturnType(field.getType());
         method.setVisibility(JavaVisibility.PUBLIC);
-        String s = "return " + field.getName() + ';'; //$NON-NLS-1$
-
+        String s = "return " + field.getName() + ';';
         method.addBodyLine(s);
         return method;
     }
@@ -100,15 +101,6 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         return ABSTRACT_MBG_SERVICE_INTERFACE;
     }
 
-    protected Field builderSerialVersionUID(){
-        Field field = new Field("serialVersionUID",new FullyQualifiedJavaType("long"));
-        field.setFinal(true);
-        field.setInitializationString("1L");
-        field.setStatic(true);
-        field.setVisibility(JavaVisibility.PRIVATE);
-        return field;
-    }
-
     private Method getDefaultConstructor(TopLevelClass topLevelClass) {
         Method method = getBasicConstructor(topLevelClass);
         addGeneratedJavaDoc(method);
@@ -136,5 +128,110 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     private void addGeneratedAnnotation(Method method, TopLevelClass topLevelClass) {
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable,
                 topLevelClass.getImportedTypes());
+    }
+
+    /**
+     * 根据给定信息构造类方法
+     *
+     * @param methodName         要构建的方法名称
+     * @param returnType         方法返回类型。l-list、m-model、r-ServiceResult、sl-ServiceResult<List>、sm-ServiceResult<model>
+     * @param returnTypeArgument 返回的参数类型T。
+     *                           returnType为l：List<T>、m：T、r：ServiceResult<T>、sl:ServiceResult<List<T>>、sl:ServiceResult<T>
+     * @param parameterType      方法的参数类型
+     * @param parameterName      方法的参数名称
+     * @param isAbstract         是否为抽象方法
+     * @param parameterRemark             参数的文字说明
+     * @param parentElement      父元素
+     */
+    protected Method getMethodByType(String methodName,
+                                     ReturnTypeEnum returnType,
+                                     FullyQualifiedJavaType returnTypeArgument,
+                                     FullyQualifiedJavaType parameterType,
+                                     String parameterName,
+                                     String parameterRemark,
+                                     boolean isAbstract,
+                                     CompilationUnit parentElement) {
+        Parameter parameter = new Parameter(parameterType, parameterName).setRemark(parameterRemark);
+        return getMethodByType(methodName
+                ,returnType
+                ,returnTypeArgument
+                ,Collections.singletonList(parameter)
+                ,isAbstract
+                ,parentElement);
+    }
+
+    protected Method getMethodByType(String methodName,
+                                     ReturnTypeEnum returnType,
+                                     FullyQualifiedJavaType returnTypeArgument,
+                                     List<Parameter> parameters,
+                                     boolean isAbstract,
+                                     CompilationUnit parentElement) {
+        Method method = new Method(methodName);
+        if (isAbstract) {
+            method.setAbstract(true);
+        } else {
+            method.setVisibility(JavaVisibility.PUBLIC);
+        }
+        method.getParameters().addAll(parameters);
+        parameters.forEach(p->parentElement.addImportedType(p.getType()));
+        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+        FullyQualifiedJavaType serviceResult = new FullyQualifiedJavaType(SERVICE_RESULT);
+        FullyQualifiedJavaType responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
+        switch (ReturnTypeEnum.ofCode(returnType.code())) {
+            case LIST:
+                listType.addTypeArgument(returnTypeArgument);
+                method.setReturnType(listType);
+                parentElement.addImportedType(listType);
+                parentElement.addImportedType(returnTypeArgument);
+                break;
+            case SERVICE_RESULT_MODEL:
+                serviceResult.addTypeArgument(returnTypeArgument);
+                method.setReturnType(serviceResult);
+                parentElement.addImportedType(serviceResult);
+                parentElement.addImportedType(returnTypeArgument);
+                break;
+            case SERVICE_RESULT_LIST:
+                listType.addTypeArgument(returnTypeArgument);
+                serviceResult.addTypeArgument(listType);
+                method.setReturnType(serviceResult);
+                parentElement.addImportedType(serviceResult);
+                parentElement.addImportedType(returnTypeArgument);
+                parentElement.addImportedType(listType);
+                break;
+            case RESPONSE_RESULT_LIST:
+                listType.addTypeArgument(returnTypeArgument);
+                responseResult.addTypeArgument(listType);
+                method.setReturnType(responseResult);
+                parentElement.addImportedType(responseResult);
+                parentElement.addImportedType(returnTypeArgument);
+                parentElement.addImportedType(listType);
+                break;
+            case RESPONSE_RESULT_MODEL:
+                responseResult.addTypeArgument(returnTypeArgument);
+                method.setReturnType(responseResult);
+                parentElement.addImportedType(responseResult);
+                parentElement.addImportedType(returnTypeArgument);
+                break;
+            default:
+                method.setReturnType(returnTypeArgument);
+                parentElement.addImportedType(returnTypeArgument);
+                break;
+        }
+
+        List<String> collect = parameters.stream()
+                .map(p -> "@param " + p.getName() + " " + p.getRemark())
+                .collect(Collectors.toList());
+        collect.add(0,"这个抽象方法通过定制版Mybatis Generator自动生成");
+        collect.add(0,"提示 - @mbg.generated");
+        String[] strings = collect.toArray(new String[0]);
+        context.getCommentGenerator().addMethodJavaDocLine(method, false,strings);
+        return method;
+    }
+
+
+    protected void addCacheConfig(TopLevelClass topLevelClass) {
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("org.springframework.cache.annotation.CacheConfig"));
+        topLevelClass.addStaticImport("com.vgosoft.core.constant.CacheConstant.CACHE_MANAGER_NAME");
+        topLevelClass.addAnnotation("@CacheConfig(cacheManager = CACHE_MANAGER_NAME)");
     }
 }

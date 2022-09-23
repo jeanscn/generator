@@ -83,7 +83,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns);
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
         HtmlElement caption = addDivWithClassToParent(form,"form-title");
-        caption.addElement(new TextElement(introspectedTable.getRemarks()));
+        caption.addElement(new TextElement(introspectedTable.getRemarks(true)));
         /*计算响应式宽度*/
         String colWidth = "col-sm-" + String.valueOf(12 / pageColumnsConfig);
         for (List<IntrospectedColumn> value : baseColumnsRows.values()) {
@@ -139,7 +139,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement label = new HtmlElement("label");
         addClassNameToElement(label, "input-control-label-left");
         label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
-        label.addElement(new TextElement(introspectedColumn.getRemarks()));
+        label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
         parent.addElement(label);
     }
 

@@ -1,5 +1,6 @@
 package org.mybatis.generator.plugins;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -8,6 +9,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -102,8 +104,8 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
                 sb.append("@ColumnMeta(").append("value = \"");
                 sb.append(column.getActualColumnName()).append("\"");
                 sb.append(",description = \"");
-                if (StringUtils.isNotEmpty(column.getRemarks())) {
-                    sb.append(StringUtility.remarkLeft(column.getRemarks()));
+                if (StringUtils.isNotEmpty(column.getRemarks(false))) {
+                    sb.append(column.getRemarks(true));
                 } else {
                     sb.append(column.getActualColumnName());
                 }
@@ -112,7 +114,9 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
                     sb.append(",size =");
                     sb.append(column.getLength());
                 }
-                sb.append(",order = ").append(column.getOrder());
+                if (column.getOrder()!= GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
+                    sb.append(",order = ").append(column.getOrder());
+                }
 
                 if (!"VARCHAR".equals(column.getJdbcTypeName())) {
                     sb.append(",type = JDBCType.").append(column.getJdbcTypeName());
@@ -155,9 +159,9 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
             sb.append(alias);
             sb.append("\"");
         }
-        if (introspectedTable.getRemarks() != null) {
+        if (introspectedTable.getRemarks(true) != null) {
             sb.append(", descript = \"");
-            sb.append(StringUtility.remarkLeft(introspectedTable.getRemarks()));
+            sb.append(introspectedTable.getRemarks(true));
             sb.append("\"");
         } else {
             sb.append(", descript = \"").append("\"");

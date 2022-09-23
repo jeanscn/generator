@@ -15,15 +15,12 @@
  */
 package org.mybatis.generator.config;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOViewGeneratorConfiguration extends VOGeneratorConfiguration {
+public class VOViewGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
@@ -37,6 +34,7 @@ public class VOViewGeneratorConfiguration extends VOGeneratorConfiguration {
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
+        this.generate = false;
         targetPackage = String.join(".", baseTargetPackage,"vo");
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ViewVO"));
     }

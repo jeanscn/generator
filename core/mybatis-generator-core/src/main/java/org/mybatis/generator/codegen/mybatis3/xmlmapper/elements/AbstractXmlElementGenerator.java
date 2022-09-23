@@ -152,6 +152,27 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         return answer;
     }
 
+    protected List<TextElement> buildKeysWhereClause(List<IntrospectedColumn> columns) {
+        List<TextElement> answer = new ArrayList<>();
+        boolean first = true;
+        for (IntrospectedColumn introspectedColumn : columns) {
+            String line;
+            if (first) {
+                line = "where "; //$NON-NLS-1$
+                first = false;
+            } else {
+                line = "  and "; //$NON-NLS-1$
+            }
+
+            line += MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn);
+            line += " = "; //$NON-NLS-1$
+            line += MyBatis3FormattingUtilities.getParameterClause(introspectedColumn);
+            answer.add(new TextElement(line));
+        }
+
+        return answer;
+    }
+
     protected XmlElement buildInitialInsert(String statementId, FullyQualifiedJavaType parameterType) {
         XmlElement answer = new XmlElement("insert"); //$NON-NLS-1$
 
@@ -380,5 +401,13 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         XmlElement answer = new XmlElement("include"); //$NON-NLS-1$
         answer.addAttribute(new Attribute("refid", "Base_By_Sql"));
         return answer;
+    }
+
+    protected TextElement buildOrderByDefault(){
+        IntrospectedColumn column = introspectedTable.getColumn("SORT_").orElse(null);
+        if (column!=null) {
+            return new TextElement("order by "+column.getActualColumnName());
+        }
+        return null;
     }
 }

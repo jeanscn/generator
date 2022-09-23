@@ -46,22 +46,13 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
     }
 
     private void addWebProperties(TopLevelClass topLevelClass, IntrospectedTable introspectedTable,String type) {
-        InitializationBlock initializationBlock;
-        if (topLevelClass.getInitializationBlocks().size()>0) {
-            initializationBlock = topLevelClass.getInitializationBlocks().get(0);
-        }else{
-            initializationBlock = new InitializationBlock();
-        }
         //追加respBasePath属性
-        addRespBasePath(topLevelClass, introspectedTable, initializationBlock,type);
+        addRespBasePath(topLevelClass, introspectedTable, type);
         //追加viewPath
-        addViewPath(topLevelClass, introspectedTable, initializationBlock,type);
-        if (topLevelClass.getInitializationBlocks().size()==0) {
-            topLevelClass.addInitializationBlock(initializationBlock);
-        }
+        addViewPath(topLevelClass, introspectedTable, type);
     }
 
-    private void addViewPath(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, InitializationBlock initializationBlock,String type) {
+    private void addViewPath(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String type) {
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
                 .stream()
                 .filter(t -> stringHasValue(t.getViewPath()))
@@ -69,6 +60,7 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
         if (htmlGeneratorConfiguration != null) {
             Field viewPath = new Field(PROP_NAME_VIEW_PATH, FullyQualifiedJavaType.getStringInstance());
             viewPath.setVisibility(JavaVisibility.PRIVATE);
+            viewPath.setInitializationString("\""+htmlGeneratorConfiguration.getViewPath()+"\"");
             if (topLevelClass.addField(viewPath,null,true)) {
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                     viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
@@ -79,7 +71,6 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
                     topLevelClass.addMultipleImports("TableField");
                 }
             }
-            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_VIEW_PATH, htmlGeneratorConfiguration.getViewPath()));
             boolean assignable = JavaBeansUtil.isAssignableCurrent(ConstantsUtil.I_SHOW_IN_VIEW, topLevelClass, introspectedTable);
             if (!assignable) {
                 FullyQualifiedJavaType showInView = new FullyQualifiedJavaType(I_SHOW_IN_VIEW);
@@ -89,10 +80,11 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
         }
     }
 
-    private void addRespBasePath(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, InitializationBlock initializationBlock,String type) {
+    private void addRespBasePath(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String type) {
         if (stringHasValue(introspectedTable.getControllerSimplePackage())) {
             Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
             field.setVisibility(JavaVisibility.PRIVATE);
+            field.setInitializationString("\""+introspectedTable.getControllerSimplePackage()+"\"");
             if(topLevelClass.addField(field, null, true)){
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                     field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
@@ -101,7 +93,6 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
                     field.addAnnotation("@TableField(exist = false)");
                     topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
                 }
-                initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";",PROP_NAME_REST_BASE_PATH, introspectedTable.getControllerSimplePackage()));
             }
         }
     }

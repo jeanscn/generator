@@ -104,7 +104,8 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
         for (IntrospectedColumn baseColumn : columns) {
             if (introspectedTable.getRules().isGenerateVO()) {
-                if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoModelGeneratorConfiguration())
+                if (isIgnore(baseColumn
+                        , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                         && !baseColumn.isIdentity()
                         && !baseColumn.getActualColumnName().equalsIgnoreCase("VERSION_")) {
                     continue;
@@ -479,7 +480,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         HtmlElement label = new HtmlElement("label");
         addClassNameToElement(label, "layui-form-label");
-        label.addElement(new TextElement(StringUtility.remarkLeft(introspectedColumn.getRemarks())));
+        label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
         parent.addElement(label);
     }
 

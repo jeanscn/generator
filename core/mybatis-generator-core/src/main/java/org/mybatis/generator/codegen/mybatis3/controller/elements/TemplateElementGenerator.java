@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -17,16 +18,11 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoExcelGeneratorConfiguration();
-        if (!voExcelGeneratorConfiguration.isGenerate()) {
-            return;
-        }
-        FullyQualifiedJavaType excelVoType = voExcelGeneratorConfiguration.getFullyQualifiedJavaType();
         parentElement.addImportedType("org.springframework.http.MediaType");
         parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
         parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoEasyExcel");
         parentElement.addImportedType("java.io.IOException");
-        parentElement.addImportedType(excelVoType);
+        parentElement.addImportedType(entityExcelVoType);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
         final String methodPrefix = "template";
@@ -38,8 +34,8 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         addSecurityPreAuthorize(method,methodPrefix,"导入模板");
 
-        method.addBodyLine("List<{0}> list = buildTemplateSampleData();",excelVoType.getShortName());
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list);",excelVoType.getShortName(),introspectedTable.getRemarks());
+        method.addBodyLine("List<{0}> list = buildTemplateSampleData();",entityExcelVoType.getShortName());
+        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list);",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
 
         parentElement.addMethod(method);
     }

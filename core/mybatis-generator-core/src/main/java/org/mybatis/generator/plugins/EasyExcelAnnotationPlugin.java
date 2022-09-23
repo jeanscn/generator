@@ -34,7 +34,7 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     }
 
     private void addExcelAnnotation(TopLevelClass topLevelClass,Field field,IntrospectedColumn introspectedColumn){
-        field.addAnnotation("@ExcelProperty(\""+ StringUtility.remarkLeft(introspectedColumn.getRemarks()) +"\")");
+        field.addAnnotation("@ExcelProperty(\""+ introspectedColumn.getRemarks(true) +"\")");
         topLevelClass.addMultipleImports("ExcelProperty");
     }
 }

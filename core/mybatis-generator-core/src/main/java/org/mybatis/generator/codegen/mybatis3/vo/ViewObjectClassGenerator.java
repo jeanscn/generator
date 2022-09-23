@@ -5,7 +5,6 @@ import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.ViewActionColumnEnum;
 import com.vgosoft.core.constant.enums.ViewIndexColumnEnum;
-import com.vgosoft.tool.core.VDateUtils;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VReflectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
@@ -17,12 +16,14 @@ import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
@@ -42,8 +43,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
     public static final String subPackageMaps = "maps";
     public static final String subPackageAbs = "abs";
 
+    TableConfiguration tc;
     private CommentGenerator commentGenerator;
-    private String targetPackage;
     private String baseTargetPackage;
     private String abstractName;
     private String abstractVoType;
@@ -51,12 +52,16 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
     private TopLevelClass voClass;
     private String createVoType;
     private TopLevelClass createVoClass;
+    private String updateVoType;
+    private TopLevelClass updateVoClass;
     private String viewVOType;
     private TopLevelClass viewVOClass;
     private String excelVoType;
     private TopLevelClass excelVoClass;
     private String requestVoType;
     private TopLevelClass requestVoClass;
+    private String cachePoType;
+    private TopLevelClass cachePoClass;
     private boolean generated = false;
 
     public ViewObjectClassGenerator(String project) {
@@ -71,27 +76,27 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.78", table.toString()));
         Plugin plugins = context.getPlugins();
-        TableConfiguration tableConfiguration = introspectedTable.getTableConfiguration();
+        tc = introspectedTable.getTableConfiguration();
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         abstractName = "Abstract" + entityType.getShortName() + "VO";
 
-        /**
+        VOGeneratorConfiguration voGeneratorConfiguration = tc.getVoGeneratorConfiguration();
+        BaseRules rules = introspectedTable.getRules();
+
+        /*
          * 生成VO类
          * */
-        VOModelGeneratorConfiguration voModelGeneratorConfiguration = tableConfiguration.getVoModelGeneratorConfiguration();
-        if (voModelGeneratorConfiguration != null && voModelGeneratorConfiguration.isGenerate()) {
+        if (rules.isGenerateVoModel()) {
+            VOModelGeneratorConfiguration voModelGeneratorConfiguration = voGeneratorConfiguration.getVoModelConfiguration();
             generated = true;
-            targetPackage = voModelGeneratorConfiguration.getTargetPackage();
             baseTargetPackage = voModelGeneratorConfiguration.getBaseTargetPackage();
             abstractVoType = String.join(".", baseTargetPackage, subPackageAbs, abstractName);
             voType = voModelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
             voClass = createTopLevelClass(voType, abstractVoType);
             voClass.addMultipleImports("lombok", "ApiModel");
-            voClass.addAnnotation("@SuperBuilder");
             voClass.addAnnotation("@NoArgsConstructor");
-            voClass.addImportedType("lombok.experimental.SuperBuilder");
             voClass.addAnnotation(getApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()));
-            voClass.addField(builderSerialVersionUID());
+            voClass.addSerialVersionUID();
             //添加id、version属性
             List<String> fields = Arrays.asList("id", "version");
             for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
@@ -110,16 +115,27 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     }
                 }
             }
+
+            //附加属性
+            List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
+            additionalPropertyConfigurations.addAll(voModelGeneratorConfiguration.getAdditionalPropertyConfigurations());
+            voClass.addAddtionalProperties(additionalPropertyConfigurations);
+
+            //增加映射
+            List<OverridePropertyValueGeneratorConfiguration> overrideColumnConfigurations = voGeneratorConfiguration.getOverridePropertyConfigurations();
+            overrideColumnConfigurations.addAll(voModelGeneratorConfiguration.getOverridePropertyConfigurations());
+            buildOverrideColumn(overrideColumnConfigurations, voClass);
+
+
             voClass.addImportedType(abstractVoType);
             //persistenceBeanName属性
             Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
             persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
-            persistenceBeanName.setInitializationString("\""+introspectedTable.getControllerBeanName()+"\"");
             persistenceBeanName.addAnnotation("@ApiModelProperty(value = \"对象服务java bean名称\")");
             voClass.addField(persistenceBeanName);
 
             //检查是否有定制的新属性
-            if (introspectedTable.getTableConfiguration().getRelationPropertyHolders().size()>0) {
+            if (tc.getRelationGeneratorConfigurations().size() > 0) {
                 /*
                  * 根据联合查询属性配置
                  * 增加相应的属性
@@ -128,23 +144,17 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     for (RelationGeneratorConfiguration relationProperty : introspectedTable.getRelationGeneratorConfigurations()) {
                         FullyQualifiedJavaType returnType;
                         Field field;
-                        FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());
-                        if (entityType.getFullyQualifiedName().equalsIgnoreCase(relationProperty.getModelTye())) {
-                            fullyQualifiedJavaType = new FullyQualifiedJavaType(voType);
-                        }
+                        FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getVoModelTye());
                         if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
-                            FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-                            voClass.addImportedType(listType);
+                            voClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                             returnType = FullyQualifiedJavaType.getNewListInstance();
                             returnType.addTypeArgument(fullyQualifiedJavaType);
-                            field = new Field(relationProperty.getPropertyName(), returnType);
-                            voClass.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
                         } else {
                             returnType = fullyQualifiedJavaType;
-                            field = new Field(relationProperty.getPropertyName(), returnType);
                         }
+                        field = new Field(relationProperty.getPropertyName(), returnType);
                         field.setVisibility(JavaVisibility.PRIVATE);
-                        voClass.addField(field,null, true);
+                        voClass.addField(field, null, true);
                         voClass.addImportedType(fullyQualifiedJavaType);
                     }
                 }
@@ -157,22 +167,20 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
         }
 
-        /**
+        /*
          *  生成createVo类
          *  */
-        VOCreateGeneratorConfiguration voCreateGeneratorConfiguration = tableConfiguration.getVoCreateGeneratorConfiguration();
-        if (voCreateGeneratorConfiguration != null && voCreateGeneratorConfiguration.isGenerate()) {
+        if (rules.isGenerateCreateVO()) {
+            VOCreateGeneratorConfiguration voCreateGeneratorConfiguration = voGeneratorConfiguration.getVoCreateConfiguration();
             generated = true;
-            targetPackage = voCreateGeneratorConfiguration.getTargetPackage();
             baseTargetPackage = voCreateGeneratorConfiguration.getBaseTargetPackage();
             abstractVoType = String.join(".", baseTargetPackage, subPackageAbs, abstractName);
-            createVoType=voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
+            createVoType = voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
             createVoClass = createTopLevelClass(createVoType, abstractVoType);
-            createVoClass.addMultipleImports("lombok", "ApiModel","ApiModelProperty");
+            createVoClass.addMultipleImports("lombok", "ApiModel", "ApiModelProperty");
             createVoClass.addAnnotation(getApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()));
             createVoClass.addImportedType(abstractVoType);
-            createVoClass.addField(builderSerialVersionUID());
-
+            createVoClass.addSerialVersionUID();
             List<IntrospectedColumn> voColumns = JavaBeansUtil.getVOColumns(introspectedTable,
                     voCreateGeneratorConfiguration.getIncludeColumns(),
                     voCreateGeneratorConfiguration.getExcludeColumns());
@@ -181,11 +189,18 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     .findFirst().ifPresent(id -> voColumns.add(0, id));
             for (IntrospectedColumn voColumn : voColumns) {
                 Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
-                field.addAnnotation("@ApiModelProperty(value = \""+voColumn.getRemarks()+"\" ,example = "+JavaBeansUtil.getColumnExampleValue(voColumn)+")");
+                field.addAnnotation("@ApiModelProperty(value = \"" + voColumn.getRemarks(true) + "\")");
 
                 field.setVisibility(JavaVisibility.PRIVATE);
                 createVoClass.addField(field);
                 createVoClass.addImportedType(voColumn.getFullyQualifiedJavaType());
+            }
+
+            if (introspectedTable.getRules().generateInsertOrUpdate()) {
+                Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+                selectiveUpdate.addAnnotation("@ApiModelProperty(value = \"插入时选择性更新\")");
+                selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
+                createVoClass.addField(selectiveUpdate);
             }
 
             for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
@@ -199,6 +214,32 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
             }
 
+            //附加属性
+            List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
+            additionalPropertyConfigurations.addAll(voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations());
+            createVoClass.addAddtionalProperties(additionalPropertyConfigurations);
+
+            //是否有启用insert的JavaCollectionRelation
+            tc.getRelationGeneratorConfigurations().stream()
+                    .filter(RelationGeneratorConfiguration::isEnableInsert).collect(Collectors.toList())
+                    .forEach(c -> {
+                        if (!createVoClass.isContainField(c.getPropertyName())) {
+                            FullyQualifiedJavaType type;
+                            if (c.getType().equals(RelationTypeEnum.collection)) {
+                                type = FullyQualifiedJavaType.getNewListInstance();
+                                type.addTypeArgument(new FullyQualifiedJavaType(c.getVoModelTye()));
+                                createVoClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                            } else {
+                                type = new FullyQualifiedJavaType(c.getVoModelTye());
+                            }
+                            Field field = new Field(c.getPropertyName(), type);
+                            field.setVisibility(JavaVisibility.PRIVATE);
+                            createVoClass.addField(field);
+                            createVoClass.addImportedType(c.getVoModelTye());
+                        }
+                    });
+
+
             if (forceGenerateScalableElement || fileNotExist(subPackageVo, voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName())) {
                 if (context.getPlugins().voModelCreateClassGenerated(createVoClass, introspectedTable)) {
                     answer.add(createVoClass);
@@ -206,13 +247,87 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
         }
 
-        /**
+        /*
+         *  生成updateVo类
+         *  */
+        if (rules.isGenerateUpdateVO()) {
+            VOUpdateGeneratorConfiguration voUpdateGeneratorConfiguration = voGeneratorConfiguration.getVoUpdateConfiguration();
+            generated = true;
+            baseTargetPackage = voUpdateGeneratorConfiguration.getBaseTargetPackage();
+            abstractVoType = String.join(".", baseTargetPackage, subPackageAbs, abstractName);
+            updateVoType = voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
+            updateVoClass = createTopLevelClass(updateVoType, abstractVoType);
+            updateVoClass.addMultipleImports("lombok", "ApiModel", "ApiModelProperty");
+            updateVoClass.addAnnotation(getApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()));
+            updateVoClass.addImportedType(abstractVoType);
+            updateVoClass.addSerialVersionUID();
+
+            List<IntrospectedColumn> voColumns = JavaBeansUtil.getVOColumns(introspectedTable,
+                    voUpdateGeneratorConfiguration.getIncludeColumns(),
+                    voUpdateGeneratorConfiguration.getExcludeColumns());
+            introspectedTable.getAllColumns().stream()
+                    .filter(c -> c.getActualColumnName().equalsIgnoreCase("ID_"))
+                    .findFirst().ifPresent(id -> voColumns.add(0, id));
+            for (IntrospectedColumn voColumn : voColumns) {
+                Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
+
+                field.addAnnotation("@ApiModelProperty(value = \"" + voColumn.getRemarks(true) + "\")");
+                field.setVisibility(JavaVisibility.PRIVATE);
+                if (plugins.voUpdateFieldGenerated(field, updateVoClass, voColumn, introspectedTable)) {
+                    updateVoClass.addField(field);
+                    updateVoClass.addImportedType(voColumn.getFullyQualifiedJavaType());
+                }
+            }
+
+            for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
+                if (!(isAbstractVOColumn(introspectedColumn, introspectedTable) || introspectedColumn.isNullable())) {
+                    //重写getter，添加validate
+                    Method javaBeansGetter = JavaBeansUtil.getJavaBeansGetter(introspectedColumn, context, introspectedTable);
+                    javaBeansGetter.addAnnotation("@Override");
+                    if (plugins.voUpdateGetterMethodGenerated(javaBeansGetter, updateVoClass, introspectedColumn, introspectedTable)) {
+                        updateVoClass.addMethod(javaBeansGetter);
+                    }
+                }
+            }
+
+            //附加属性
+            List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
+            additionalPropertyConfigurations.addAll(voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations());
+            updateVoClass.addAddtionalProperties(additionalPropertyConfigurations);
+
+            //是否有启用update的JavaCollectionRelation
+            tc.getRelationGeneratorConfigurations().stream()
+                    .filter(RelationGeneratorConfiguration::isEnableUpdate).collect(Collectors.toList())
+                    .forEach(c -> {
+                        if (!updateVoClass.isContainField(c.getPropertyName())) {
+                            FullyQualifiedJavaType type;
+                            if (c.getType().equals(RelationTypeEnum.collection)) {
+                                type = FullyQualifiedJavaType.getNewListInstance();
+                                type.addTypeArgument(new FullyQualifiedJavaType(c.getVoModelTye()));
+                                updateVoClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                            } else {
+                                type = new FullyQualifiedJavaType(c.getVoModelTye());
+                            }
+                            Field field = new Field(c.getPropertyName(), type);
+                            field.setVisibility(JavaVisibility.PRIVATE);
+                            updateVoClass.addField(field);
+                            updateVoClass.addImportedType(c.getVoModelTye());
+                        }
+                    });
+
+            if (forceGenerateScalableElement || fileNotExist(subPackageVo, voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName())) {
+                if (context.getPlugins().voModelUpdateClassGenerated(updateVoClass, introspectedTable)) {
+                    answer.add(updateVoClass);
+                }
+            }
+        }
+
+        /*
          * 生成viewVo类
          * */
-        VOViewGeneratorConfiguration voViewGeneratorConfiguration = tableConfiguration.getVoViewGeneratorConfiguration();
-        if (voViewGeneratorConfiguration != null && voViewGeneratorConfiguration.isGenerate()) {
+        if (rules.isGenerateViewVO()) {
+            VOViewGeneratorConfiguration voViewGeneratorConfiguration = voGeneratorConfiguration.getVoViewConfiguration();
             generated = true;
-            targetPackage = voViewGeneratorConfiguration.getTargetPackage();
             baseTargetPackage = voViewGeneratorConfiguration.getBaseTargetPackage();
             abstractVoType = String.join(".", baseTargetPackage, subPackageAbs, abstractName);
 
@@ -220,10 +335,20 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             viewVOClass = createTopLevelClass(viewVOType, abstractVoType);
             viewVOClass.addMultipleImports("lombok", "ApiModel", "ViewTableMeta");
             viewVOClass.addAnnotation(getApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()));
-            String viewMeta = buildViewTableMeta(entityType);
+            String viewMeta = buildViewTableMeta(voViewGeneratorConfiguration);
             viewVOClass.addAnnotation(viewMeta);
             viewVOClass.addImportedType(abstractVoType);
-            viewVOClass.addField(builderSerialVersionUID());
+            viewVOClass.addSerialVersionUID();
+
+            //增加映射
+            List<OverridePropertyValueGeneratorConfiguration> overrideColumnConfigurations = voGeneratorConfiguration.getOverridePropertyConfigurations();
+            overrideColumnConfigurations.addAll(voViewGeneratorConfiguration.getOverridePropertyConfigurations());
+            buildOverrideColumn(overrideColumnConfigurations, viewVOClass);
+
+            //附加属性
+            List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
+            additionalPropertyConfigurations.addAll(voViewGeneratorConfiguration.getAdditionalPropertyConfigurations());
+            viewVOClass.addAddtionalProperties(additionalPropertyConfigurations);
 
             if (forceGenerateScalableElement || fileNotExist(subPackageVo, voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName())) {
                 if (context.getPlugins().voModelViewClassGenerated(viewVOClass, introspectedTable)) {
@@ -236,44 +361,42 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     .orElse(Optional.ofNullable(context.getParentMenuId())
                             .orElse(null));
             if (stringHasValue(parentMenuId)) {
-                int sort = introspectedTable.getContext().getSysMenuDataScriptLines().size()+1;
+                int sort = introspectedTable.getContext().getSysMenuDataScriptLines().size() + 1;
                 String id = VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
-                String title = StringUtility.remarkLeft(introspectedTable.getRemarks());
-                StringBuilder sb = new StringBuilder("INSERT INTO `SYS_MENU`");
-                sb.append(" (ID_,DELETE_FLAG,NAME_,PARENT_ID,SORT_,TITLE_,URL_,ICON_,TYPE_,CONTAIN_TYPE,TARGET_,LEVEL_,STATE_,HIDE_,NOTES_,RIGHT_,VERSION_,CREATED_ID,MODIFIED_ID,TENANT_ID )");
-                sb.append(" VALUES (");
-                sb.append("'").append(id).append("'");
-                sb.append(",").append("0");
-                sb.append(",'").append(title).append("'");
-                sb.append(",'").append(parentMenuId).append("'");
-                sb.append(",").append(sort);
-                sb.append(",'").append(title).append("'");
-                sb.append(",'").append("viewmgr/").append(id).append("/openview'");
-                sb.append(",'pli-list-view'");
-                sb.append(",'link'");
-                sb.append(",'tab'");
-                sb.append(",'iframe',1,1,0");
-                sb.append(",'").append(context.getModuleName()).append("->").append(title).append("默认视图");
-                sb.append("',NULL,1");
-                sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
-                sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
-                sb.append(",'").append(GlobalConstant.DEFAULT_TENANT_ID).append("'");
-                sb.append(");");
-                introspectedTable.getContext().addSysMenuDataScriptLines(id,sb.toString());
+                String title = introspectedTable.getRemarks(true);
+                String sb = "INSERT INTO `SYS_MENU`" + " (ID_,DELETE_FLAG,NAME_,PARENT_ID,SORT_,TITLE_,URL_,ICON_,TYPE_,CONTAIN_TYPE,TARGET_,LEVEL_,STATE_,HIDE_,NOTES_,RIGHT_,VERSION_,CREATED_ID,MODIFIED_ID,TENANT_ID )" +
+                        " VALUES (" +
+                        "'" + id + "'" +
+                        "," + "0" +
+                        ",'" + title + "'" +
+                        ",'" + parentMenuId + "'" +
+                        "," + sort +
+                        ",'" + title + "'" +
+                        ",'" + "viewmgr/" + id + "/openview'" +
+                        ",'pli-list-view'" +
+                        ",'link'" +
+                        ",'tab'" +
+                        ",'iframe',1,1,0" +
+                        ",'" + context.getModuleName() + "->" + title + "默认视图" +
+                        "',NULL,1" +
+                        ",'" + GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID + "'" +
+                        ",'" + GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID + "'" +
+                        ",'" + GlobalConstant.DEFAULT_TENANT_ID + "'" +
+                        ");";
+                introspectedTable.getContext().addSysMenuDataScriptLines(id, sb);
             }
         }
 
-        /**
+        /*
          *  生成ExcelVO
          *  */
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tableConfiguration.getVoExcelGeneratorConfiguration();
-        if (voExcelGeneratorConfiguration != null && voExcelGeneratorConfiguration.isGenerate()) {
+        if (rules.isGenerateExcelVO()) {
+            VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
             generated = true;
-            targetPackage = voExcelGeneratorConfiguration.getTargetPackage();
             baseTargetPackage = voExcelGeneratorConfiguration.getBaseTargetPackage();
             excelVoType = voExcelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
             excelVoClass = createTopLevelClass(excelVoType, null);
-            FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType("com.vgosoft.core.pojo.IBaseDTO");
+            FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);
             excelVoClass.addSuperInterface(superInterface);
             excelVoClass.addImportedType(superInterface);
             excelVoClass.addImportedType("lombok.*");
@@ -282,7 +405,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             excelVoClass.addAnnotation("@NoArgsConstructor");
             excelVoClass.addAnnotation("@AllArgsConstructor");
             excelVoClass.addImportedType("com.alibaba.excel.annotation.ExcelProperty");
-            excelVoClass.addField(builderSerialVersionUID());
+            excelVoClass.addSerialVersionUID();
             //添加属性
             List<IntrospectedColumn> columns = JavaBeansUtil.getAllExcelVOColumns(introspectedTable);
             for (IntrospectedColumn column : columns) {
@@ -294,6 +417,16 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
             }
 
+            //增加映射
+            List<OverridePropertyValueGeneratorConfiguration> overrideColumnConfigurations = voGeneratorConfiguration.getOverridePropertyConfigurations();
+            overrideColumnConfigurations.addAll(voExcelGeneratorConfiguration.getOverridePropertyConfigurations());
+            buildOverrideColumn(overrideColumnConfigurations, excelVoClass);
+
+            //附加属性
+            List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
+            additionalPropertyConfigurations.addAll(voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations());
+            excelVoClass.addAddtionalProperties(additionalPropertyConfigurations);
+
             if (forceGenerateScalableElement || fileNotExist(subPackageVo, voExcelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName())) {
                 if (context.getPlugins().voModelExcelClassGenerated(excelVoClass, introspectedTable)) {
                     answer.add(excelVoClass);
@@ -301,20 +434,18 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
         }
 
-        /**
+        /*
          * 生成RequestVO
          * */
-        VORequestGeneratorConfiguration voRequestGeneratorConfiguration = tableConfiguration.getVoRequestGeneratorConfiguration();
-        if (voRequestGeneratorConfiguration != null && voRequestGeneratorConfiguration.isGenerate()) {
-            generated = true;
-            targetPackage = voRequestGeneratorConfiguration.getTargetPackage();
+        if (introspectedTable.getRules().isGenerateRequestVO()) {
+            VORequestGeneratorConfiguration voRequestGeneratorConfiguration = voGeneratorConfiguration.getVoRequestConfiguration();
             baseTargetPackage = voRequestGeneratorConfiguration.getBaseTargetPackage();
             abstractVoType = String.join(".", baseTargetPackage, subPackageAbs, abstractName);
             requestVoType = voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
             requestVoClass = createTopLevelClass(requestVoType, abstractVoType);
-            requestVoClass.addMultipleImports("lombok", "ApiModel","ApiModelProperty");
+            requestVoClass.addMultipleImports("lombok", "ApiModel", "ApiModelProperty");
             requestVoClass.addAnnotation(getApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()));
-            requestVoClass.addField(builderSerialVersionUID());
+            requestVoClass.addSerialVersionUID();
             //分页属性
             if (voRequestGeneratorConfiguration.isIncludePageParam()) {
                 FullyQualifiedJavaType pageType = new FullyQualifiedJavaType("com.vgosoft.core.pojo.IPage");
@@ -339,28 +470,92 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 requestVoClass.addField(cascade);
             }
 
+            //附加属性
+            List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
+            additionalPropertyConfigurations.addAll(voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations());
+            requestVoClass.addAddtionalProperties(additionalPropertyConfigurations);
+
             if (forceGenerateScalableElement || fileNotExist(subPackageVo, voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName())) {
                 if (context.getPlugins().voModelRequestClassGenerated(requestVoClass, introspectedTable)) {
+                    generated = true;
                     answer.add(requestVoClass);
                 }
             }
 
         }
-        /**
+
+        /*
+         *  生成cachePo类
+         *  */
+        if (introspectedTable.getRules().isGenerateCachePO()) {
+            final VOCacheGeneratorConfiguration config = tc.getVoCacheGeneratorConfiguration();
+            baseTargetPackage = config.getBaseTargetPackage();
+            cachePoType = config.getFullyQualifiedJavaType().getFullyQualifiedName();
+            cachePoClass = createTopLevelClass(cachePoType, "");
+            cachePoClass.addSuperInterface(new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO));
+            cachePoClass.addImportedType(ConstantsUtil.I_BASE_DTO);
+            cachePoClass.addImportedType("lombok.*");
+            cachePoClass.addAnnotation("@Data");
+            cachePoClass.addSerialVersionUID();
+
+            List<IntrospectedColumn> pkColumns = introspectedTable.getPrimaryKeyColumns();
+            List<IntrospectedColumn> oColumns = Stream.of(config.getCodeColumn(), config.getTypeColumn(), config.getValueColumn())
+                    .distinct()
+                    .map(c -> introspectedTable.getColumn(c).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            List<IntrospectedColumn> includeColumns = introspectedTable.getBaseColumns().stream()
+                    .filter(c -> config.getIncludeColumns().contains(c.getActualColumnName()))
+                    .collect(Collectors.toList());
+            List<IntrospectedColumn> allColumns = Stream.of(pkColumns.stream(), oColumns.stream(), includeColumns.stream())
+                    .flatMap(Function.identity())
+                    .distinct()
+                    .collect(Collectors.toList());
+            for (IntrospectedColumn column : allColumns) {
+                Field field = getJavaBeansField(column, context, introspectedTable);
+                cachePoClass.addField(field);
+                cachePoClass.addImportedType(field.getType());
+            }
+
+            //追加dictValueText属性
+            IntrospectedColumn valueColumn = introspectedTable.getColumn(config.getValueColumn()).orElse(null);
+            long dictValueCount = cachePoClass.getFields().stream()
+                    .filter(f -> f.getName().equalsIgnoreCase(ConstantsUtil.PROP_DICT_VALUE_TEXT))
+                    .count();
+            if (dictValueCount == 0 && valueColumn != null) {
+                Field field = new Field(ConstantsUtil.PROP_DICT_VALUE_TEXT, FullyQualifiedJavaType.getStringInstance());
+                field.setVisibility(JavaVisibility.PRIVATE);
+                field.addJavaDocLine("/**");
+                field.addJavaDocLine("* 字典应用的返回值");
+                field.addJavaDocLine("*/");
+                cachePoClass.addField(field);
+            }
+
+            if (context.getPlugins().voModelCacheClassGenerated(cachePoClass, introspectedTable)) {
+                generated = true;
+                answer.add(cachePoClass);
+            }
+        }
+
+        /*
          * 生成AbstractVo
          * */
         if (generated) {
             TopLevelClass abstractVo = new TopLevelClass(abstractVoType);
             abstractVo.setAbstract(true);
             abstractVo.setVisibility(JavaVisibility.PUBLIC);
+            abstractVo.addSuperInterface(new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO));
+            abstractVo.addImportedType(ConstantsUtil.I_BASE_DTO);
             commentGenerator.addJavaFileComment(abstractVo);
             commentGenerator.addModelClassComment(abstractVo, introspectedTable);
             abstractVo.addAnnotation("@Data");
             abstractVo.addAnnotation("@NoArgsConstructor");
             abstractVo.addAnnotation("@AllArgsConstructor");
             abstractVo.addImportedType("lombok.*");
-            abstractVo.addAnnotation("@SuperBuilder");
-            abstractVo.addImportedType("lombok.experimental.SuperBuilder");
+            //abstractVo.addAnnotation("@SuperBuilder(toBuilder = true)");
+            //abstractVo.addImportedType("lombok.experimental.SuperBuilder");
+            abstractVo.addSerialVersionUID();
             //添加属性
             for (IntrospectedColumn introspectedColumn : JavaBeansUtil.getAbstractVOColumns(introspectedTable)) {
                 Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);
@@ -375,7 +570,6 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 answer.add(abstractVo);
             }
         }
-
 
         //生成mapstruct接口
         if (generated) {
@@ -399,43 +593,26 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 mappingsInterface.addMethod(addMappingMethod(entityType, voClass.getType(), false));
                 mappingsInterface.addMethod(addMappingMethod(voClass.getType(), entityType, true));
                 mappingsInterface.addMethod(addMappingMethod(entityType, voClass.getType(), true));
-                Field children = voClass.getFields().stream().filter(f -> f.getName().equalsIgnoreCase("children")).findFirst().orElse(null);
-                if (children!=null) {
-                    String rootClass = JavaBeansUtil.getRootClass(introspectedTable);
-                    try {
-                        Class<?> aClass = ObjectFactory.internalClassForName(rootClass);
-                        java.lang.reflect.Field children1 = VReflectionUtil.getField(aClass, "children");
-                        if (children1 != null) {
-                            if (children1.getDeclaringClass().getSimpleName().equalsIgnoreCase("simpleKVP")) {
-                                //<? extents T>.
-                                List<Class<?>> superClasses = VReflectionUtil.getInterfaces(aClass);
-                                for (Class<?> superClass : superClasses) {
-                                    if (ConstantsUtil.childrenGenericClasses.containsKey(superClass.getSimpleName())) {
-                                        FullyQualifiedJavaType t = new FullyQualifiedJavaType(ConstantsUtil.childrenGenericClasses.get(superClass.getSimpleName()));
-                                        mappingsInterface.addMethod(addMappingMethod(t, voClass.getType(), false));
-                                        mappingsInterface.addImportedType(t);
-                                    }
-                                }
-                            }
-                        }
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
 
             if (stringHasValue(createVoType)) {
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType(createVoType));
-                mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType,false));
-                mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType,true));
+                mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType, false));
+                mappingsInterface.addMethod(addMappingMethod(createVoClass.getType(), entityType, true));
+            }
+
+            if (stringHasValue(updateVoType)) {
+                mappingsInterface.addImportedType(new FullyQualifiedJavaType(updateVoType));
+                mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, false));
+                mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, true));
             }
 
             if (stringHasValue(excelVoType)) {
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType(excelVoType));
                 mappingsInterface.addMethod(addMappingMethod(entityType, excelVoClass.getType(), false));
                 mappingsInterface.addMethod(addMappingMethod(entityType, excelVoClass.getType(), true));
-                mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType,false));
-                mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType,true));
+                mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, false));
+                mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, true));
             }
 
             if (stringHasValue(viewVOType)) {
@@ -445,7 +622,23 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
             if (stringHasValue(requestVoType)) {
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
-                mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(),entityType, false));
+                mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
+            }
+            if (stringHasValue(cachePoType)) {
+                mappingsInterface.addImportedType(new FullyQualifiedJavaType(cachePoType));
+                Method method = addMappingMethod(entityType, cachePoClass.getType(), false);
+                String valueColumn = tc.getVoCacheGeneratorConfiguration().getValueColumn();
+                if (valueColumn != null) {
+                    IntrospectedColumn column = introspectedTable.getColumn(valueColumn).orElse(null);
+                    if (column != null) {
+                        String a = VStringUtil.format("@Mapping(source = \"{0}\",target = \"dictValueText\")"
+                                , column.getJavaProperty());
+                        method.addAnnotation(a);
+                        mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
+                    }
+                }
+                mappingsInterface.addMethod(method);
+                mappingsInterface.addMethod(addMappingMethod(entityType, cachePoClass.getType(), true));
             }
             if (forceGenerateScalableElement || fileNotExist(subPackageMaps, mappingsName)) {
                 answer.add(mappingsInterface);
@@ -454,12 +647,11 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         return answer;
     }
 
-    private String buildViewTableMeta(FullyQualifiedJavaType entityType) {
-        VOViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoViewGeneratorConfiguration();
+    private String buildViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
         //viewId
-        String viewId = "value = \""+ VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX)+"\"";
-        String listName = "listName = \""+introspectedTable.getRemarks()+"\"";
-        String beanName = "beanName = \""+introspectedTable.getControllerBeanName()+"\"";
+        String viewId = "value = \"" + VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX) + "\"";
+        String listName = "listName = \"" + introspectedTable.getRemarks(true) + "\"";
+        String beanName = "beanName = \"" + introspectedTable.getControllerBeanName() + "\"";
         //createUrl
         String createUrl = "";
         FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass());
@@ -480,11 +672,11 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         viewVOClass.addImportedType("com.vgosoft.core.constant.enums.ViewIndexColumnEnum");
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
         if (viewIndexColumnEnum != null) {
-            indexColumn = "indexColumn = ViewIndexColumnEnum."+viewIndexColumnEnum.name();
+            indexColumn = "indexColumn = ViewIndexColumnEnum." + viewIndexColumnEnum.name();
         }
         //actionColumn
         String actionColumn = "";
-        if (voViewGeneratorConfiguration.getActionColumn().size()>0) {
+        if (voViewGeneratorConfiguration.getActionColumn().size() > 0) {
             viewVOClass.addImportedType("com.vgosoft.core.constant.enums.ViewActionColumnEnum");
             String actions = voViewGeneratorConfiguration.getActionColumn().stream()
                     .map(ViewActionColumnEnum::ofCode)
@@ -492,62 +684,62 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     .distinct()
                     .map(e -> "ViewActionColumnEnum." + e.name())
                     .collect(Collectors.joining(","));
-            actionColumn = "actionColumn = {"+actions+"}";
+            actionColumn = "actionColumn = {" + actions + "}";
         }
         //querys
         String querys = "";
-        if (voViewGeneratorConfiguration.getQueryColumns().size()>0) {
+        if (voViewGeneratorConfiguration.getQueryColumns().size() > 0) {
             viewVOClass.addImportedType("com.vgosoft.core.annotation.CompositeQuery");
             String compositeQuery = voViewGeneratorConfiguration.getQueryColumns().stream()
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> VStringUtil.format("@CompositeQuery(value = \"{0}\",description = \"{1}\")", c.getActualColumnName(), c.getRemarks()))
+                    .map(c -> VStringUtil.format("@CompositeQuery(value = \"{0}\",description = \"{1}\")", c.getActualColumnName(), c.getRemarks(true)))
                     .collect(Collectors.joining("\n        , "));
-            querys = "querys = {"+compositeQuery+"}";
+            querys = "querys = {" + compositeQuery + "}";
         }
         //columns
         String columns = "";
-        if (voViewGeneratorConfiguration.getIncludeColumns().size()>0) {
+        if (voViewGeneratorConfiguration.getIncludeColumns().size() > 0) {
             viewVOClass.addImportedType("com.vgosoft.core.annotation.ViewColumnMeta");
             String columns1 = voViewGeneratorConfiguration.getIncludeColumns().stream()
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> VStringUtil.format("@ViewColumnMeta(value = \"{0}\",title = \"{1}\")", c.getJavaProperty(), c.getRemarks()))
+                    .map(c -> VStringUtil.format("@ViewColumnMeta(value = \"{0}\",title = \"{1}\")", c.getJavaProperty(), c.getRemarks(true)))
                     .collect(Collectors.joining("\n        , "));
-            columns = "columns = {"+columns1+"}";
+            columns = "columns = {" + columns1 + "}";
         }
         //ignoreFields
         String ignoreFields = "";
-        if (voViewGeneratorConfiguration.getExcludeColumns().size()>0) {
+        if (voViewGeneratorConfiguration.getExcludeColumns().size() > 0) {
             String columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
                     .map(IntrospectedColumn::getJavaProperty)
                     .collect(Collectors.joining(","));
-            ignoreFields = "ignoreFields = \""+columns2+"\"";
+            ignoreFields = "ignoreFields = \"" + columns2 + "\"";
         }
         //className
-        String className = VStringUtil.format("className = \"{0}\"",viewVOType);
+        String className = VStringUtil.format("className = \"{0}\"", viewVOType);
         //构造ViewTableMeta
-        String[] allItem = {viewId, listName, beanName, createUrl, indexColumn, actionColumn,querys,columns,ignoreFields,className};
+        String[] allItem = {viewId, listName, beanName, createUrl, indexColumn, actionColumn, querys, columns, ignoreFields, className};
         String join = String.join("\n        , ", ArrayUtil.removeBlank(allItem));
-        return VStringUtil.format("@ViewTableMeta({0})",join);
+        return VStringUtil.format("@ViewTableMeta({0})", join);
     }
 
     private String getApiModel(String voModelName) {
         return VStringUtil.format("@ApiModel(value = \"{0}\", description = \"{1}\", parent = {2}.class )", voModelName,
-                introspectedTable.getRemarks(), abstractName);
+                introspectedTable.getRemarks(true), abstractName);
     }
 
     private boolean fileNotExist(String subPackage, String fileName) {
-        File project = new File(baseTargetPackage);
+        File project = new File(getProject());
         if (!project.isDirectory()) {
             return true;
         }
-        File directory = new File(project, packageToDir(String.join(".", targetPackage, subPackage)));
+        File directory = new File(project, packageToDir(String.join(".", baseTargetPackage, subPackage)));
         if (!directory.isDirectory()) {
             return true;
         }
@@ -575,7 +767,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         } else if (entityType.getFullyQualifiedName().equalsIgnoreCase(fromType.getFullyQualifiedName())) {
             methodName = "to" + toType.getShortName();
         } else {
-            methodName = "from"+fromType.getShortName() + "To" + toType.getShortName();
+            methodName = "from" + fromType.getShortName() + "To" + toType.getShortName();
         }
         if (isList) {
             methodName = methodName + "s";
@@ -600,5 +792,86 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         List<String> actualColumnNameList = columnList.stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toList());
         return !actualColumnNameList.contains(introspectedColumn.getActualColumnName());
 
+    }
+
+    private void buildOverrideColumn(List<OverridePropertyValueGeneratorConfiguration> configurations, TopLevelClass topLevelClass) {
+        configurations.stream().filter(c -> {
+            IntrospectedColumn column = introspectedTable.getColumn(c.getSourceColumnName()).orElse(null);
+            return column != null;
+        }).forEach(configuration -> {
+            Field field = null;
+            IntrospectedColumn targetColumn = introspectedTable.getColumn(configuration.getTargetColumnName()).orElse(null);
+            if (targetColumn != null) {
+                field = new Field(targetColumn.getJavaProperty(), targetColumn.getFullyQualifiedJavaType());
+            } else {
+                if (configuration.getTargetPropertyName() != null && configuration.getTargetPropertyType() != null) {
+                    field = new Field(configuration.getTargetPropertyName(), new FullyQualifiedJavaType(configuration.getTargetPropertyType()));
+                }
+            }
+            if (field == null) {
+                IntrospectedColumn column = introspectedTable.getColumn(configuration.getSourceColumnName()).orElse(null);
+                if(column!=null){
+                    field = new Field(column.getJavaProperty(), column.getFullyQualifiedJavaType());
+               }
+            }
+            if (field != null) {
+                field.setVisibility(JavaVisibility.PRIVATE);
+                String annotation = null;
+                if ("DictUser".equals(configuration.getAnnotationType())) {
+                    annotation = configuration.getTypeValue() != null ? "@DictUser(value=\"" + configuration.getTypeValue() + "\")" : "@DictUser";
+                    topLevelClass.addImportedType("com.vgosoft.core.annotation.DictUser");
+                } else if ("DictSys".equals(configuration.getAnnotationType())) {
+                    annotation = configuration.getTypeValue() != null ? "@DictSys(value=\"" + configuration.getTypeValue() + "\")" : "@DictSys";
+                    topLevelClass.addImportedType("com.vgosoft.core.annotation.DictSys");
+                } else if ("Dict".equals(configuration.getAnnotationType()) && configuration.getBeanName() != null) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("@Dict(");
+                    if (configuration.getTypeValue() != null) {
+                        sb.append("value=\"").append(configuration.getTypeValue()).append("\",");
+                    }
+                    sb.append("beanName=\"").append(configuration.getBeanName()).append("\"");
+                    sb.append(")");
+                    annotation = sb.toString();
+                    topLevelClass.addImportedType("com.vgosoft.core.annotation.Dict");
+                }
+
+                final String fieldName = field.getName();
+                List<Field> collect = topLevelClass.getFields()
+                        .stream()
+                        .filter(f -> f.getName().equals(fieldName))
+                        .collect(Collectors.toList());
+                if (collect.size() > 0) {
+                    collect.get(0).addAnnotation(annotation);
+                } else {
+                    field.addAnnotation(annotation);
+                    topLevelClass.addField(field);
+                }
+                //重写getter
+                String getterName;
+                FullyQualifiedJavaType getterType;
+                if (targetColumn != null) {
+                    getterType = targetColumn.getFullyQualifiedJavaType();
+                    getterName = JavaBeansUtil.getGetterMethodName(targetColumn.getJavaProperty(), getterType);
+                } else {
+                    getterType = new FullyQualifiedJavaType(configuration.getTargetPropertyType());
+                    getterName = JavaBeansUtil.getGetterMethodName(configuration.getTargetPropertyName(), getterType);
+                }
+                List<Method> methods = topLevelClass.getMethods().stream()
+                        .filter(m -> m.getName().equals(getterName))
+                        .collect(Collectors.toList());
+                Method method;
+                if (methods.size() > 0) {
+                    method = methods.get(0);
+                    method.getBodyLines().clear();
+                } else {
+                    method = new Method(getterName);
+                    method.setReturnType(getterType);
+                    method.setVisibility(JavaVisibility.PUBLIC);
+                    topLevelClass.addMethod(method);
+                }
+                introspectedTable.getColumn(configuration.getSourceColumnName())
+                        .ifPresent(sc -> method.addBodyLine("return this.{0};", sc.getJavaProperty()));
+            }
+        });
     }
 }

@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom;
 
+import cn.hutool.core.util.ArrayUtil;
+import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
@@ -17,7 +19,9 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -33,113 +37,6 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     @Override
     public boolean validate(List<String> warnings) {
         return true;
-    }
-
-    /*
-     * dao接口文件生成后，进行符合性调整
-     *
-     */
-    @Override
-    public boolean clientGenerated(Interface interFace, IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-        /*调整引入*/
-        interFace.getImportedTypes().clear();
-        interFace.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
-        interFace.addImportedType(entityType);
-        interFace.addImportedType(exampleType);
-
-        FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
-        infSuperType.addTypeArgument(entityType);
-        infSuperType.addTypeArgument(exampleType);
-        interFace.addSuperInterface(infSuperType);
-        interFace.addImportedType(infSuperType);
-
-        //JavaBeansUtil.addAnnotation(interFace, "@Mapper");
-
-        interFace.getMethods().clear();
-        //增加relation方法
-        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-            Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), entityType,
-                    exampleType, "example", true, "查询条件对象");
-            interFace.addMethod(example);
-            interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            interFace.addImportedType(entityType);
-        }
-        //增加by外键
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
-            for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
-                if (selectByColumnGeneratorConfiguration.isReturnPrimaryKey()) {
-                    addAbstractMethodByColumn(interFace, FullyQualifiedJavaType.getStringInstance(), selectByColumnGeneratorConfiguration);
-                } else {
-                    addAbstractMethodByColumn(interFace, entityType, selectByColumnGeneratorConfiguration);
-                }
-            }
-        }
-        //增加
-        if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
-                && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            addAbstractMethodByColumn(interFace, entityType, customMethodGeneratorConfiguration.getParentIdColumn(), introspectedTable.getSelectTreeByParentIdStatementId());
-        }
-
-        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() > 0) {
-            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
-                Method selectByTable;
-                if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
-                    selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), FullyQualifiedJavaType.getStringInstance(),
-                            FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), true,
-                            "中间表中来自其他表的查询键值");
-                    interFace.addImportedType(FullyQualifiedJavaType.getStringInstance());
-                } else {
-                    selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(), entityType,
-                            FullyQualifiedJavaType.getStringInstance(), selectByTableGeneratorConfiguration.getParameterName(), true,
-                            "中间表中来自其他表的查询键值");
-                }
-                interFace.addMethod(selectByTable);
-            }
-            interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            interFace.addImportedType(entityType);
-        }
-        return true;
-    }
-
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
-        addAbstractMethodByColumn(interFace, entityType, selectByColumnGeneratorConfiguration.getColumn(), selectByColumnGeneratorConfiguration.getMethodName());
-    }
-
-
-    private void addAbstractMethodByColumn(Interface interFace, FullyQualifiedJavaType entityType, IntrospectedColumn parameterColumn, String methodName) {
-        Method method = getMethodByColumn(entityType, parameterColumn, methodName, true);
-        interFace.addMethod(method);
-        interFace.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-        interFace.addImportedType(parameterColumn.getFullyQualifiedJavaType());
-    }
-
-    private Method getMethodByColumn(FullyQualifiedJavaType returnType, IntrospectedColumn parameterColumn, String methodName, boolean isAbstract) {
-        return getMethodByType(methodName, returnType, parameterColumn.getFullyQualifiedJavaType(),
-                parameterColumn.getJavaProperty(), isAbstract, parameterColumn.getRemarks());
-    }
-
-    private Method getMethodByType(String methodName, FullyQualifiedJavaType returnType, FullyQualifiedJavaType parameterFullyQualifiedJavaType, String parameterName, boolean isAbstract, String remark) {
-        Method method = new Method(methodName);
-        if (isAbstract) {
-            method.setAbstract(true);
-        } else {
-            method.setVisibility(JavaVisibility.PUBLIC);
-        }
-        method.addParameter(new Parameter(parameterFullyQualifiedJavaType, parameterName));
-        if (methodName.equals("selectBaseByPrimaryKey")) {
-            method.setReturnType(returnType);
-        } else {
-            FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-            listType.addTypeArgument(returnType);
-            method.setReturnType(listType);
-        }
-        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
-                "这个抽象方法通过定制版Mybatis Generator自动生成",
-                VStringUtil.format("@param {0} {1}", parameterName, remark));
-        return method;
     }
 
     /**
@@ -218,55 +115,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             }
         }
 
-        //追加respBasePath属性
-        /*Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
-        field.setVisibility(JavaVisibility.PRIVATE);
-        if (addField(topLevelClass, field)) {
-            if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
-            }
-            if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
-                field.addAnnotation("@TableField(exist = false)");
-                topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
-            }
-        }*/
-
-        /*
-         * 静态代码初始化
-         * restBasePath、persistenceBeanName、viewPath
-         */
-        /*List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
-        if (htmlGeneratorConfigurations.size() > 0) {
-            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_REST_BASE_PATH, introspectedTable.getControllerSimplePackage()));
-        }*/
         if (!StringUtility.isEmpty(beanName) && assignable1) {
             initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", introspectedTable.getControllerBeanName()));
         }
-
-       /* introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
-                .findFirst().filter(t -> StringUtility.stringHasValue(t.getViewPath())).ifPresent(htmlConfig -> {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", PROP_NAME_VIEW_PATH, htmlConfig.getViewPath()));
-                    //判断是否需要实现ShowInView接口
-                    boolean assignable = JavaBeansUtil.isAssignableCurrent(ConstantsUtil.I_SHOW_IN_VIEW, topLevelClass, introspectedTable);
-                    if (!assignable) {
-                        //添加ShowInView接口
-                        FullyQualifiedJavaType showInView = new FullyQualifiedJavaType(I_SHOW_IN_VIEW);
-                        topLevelClass.addImportedType(showInView);
-                        topLevelClass.addSuperInterface(showInView);
-                        //添加viewpath的属性及方法
-                        Field viewPath = new Field(PROP_NAME_VIEW_PATH, FullyQualifiedJavaType.getStringInstance());
-                        viewPath.setVisibility(JavaVisibility.PRIVATE);
-                        if (addField(topLevelClass, viewPath)) {
-                            if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                                viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
-                            }
-                            if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
-                                viewPath.addAnnotation("@TableField(exist = false)");
-                                topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
-                            }
-                        }
-                    }
-                });*/
 
         if (initializationBlock.getBodyLines().size() > 0) {
             topLevelClass.addInitializationBlock(initializationBlock);
@@ -313,15 +164,4 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             }
         }
     }
-
-    /**
-     * 获得mapper接口
-     */
-    private String getMapperInterface(IntrospectedTable introspectedTable) {
-        if (GenerateUtils.isBlobInstance(introspectedTable)) {
-            return MBG_MAPPER_BLOB_INTERFACE;
-        }
-        return MBG_MAPPER_INTERFACE;
-    }
-
 }

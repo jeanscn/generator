@@ -560,6 +560,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             if (introspectedColumn.isJdbcCharacterColumn()) {
                 answer.addMethod(getSetLikeMethod(introspectedColumn));
                 answer.addMethod(getSetNotLikeMethod(introspectedColumn));
+                answer.addMethod(getSetLikeAnyMethod(introspectedColumn));
                 answer.addMethod(getSetLikeLeftMethod(introspectedColumn));
                 answer.addMethod(getSetLikeRightMethod(introspectedColumn));
                 answer.addMethod(getSetEmptyMethod(introspectedColumn));
@@ -611,6 +612,10 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         return getSingleValueMethod(introspectedColumn, "Like", "like"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    private Method getSetLikeAnyMethod(IntrospectedColumn introspectedColumn) {
+        return getSingleValueMethod(introspectedColumn, "LikeAny", "like"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
     private Method getSetLikeLeftMethod(IntrospectedColumn introspectedColumn) {
         return getSingleValueMethod(introspectedColumn, "LikeLeft", "like"); //$NON-NLS-1$ //$NON-NLS-2$
     }
@@ -648,8 +653,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         sb.append(operator);
         sb.append("\", "); //$NON-NLS-1$
         switch(nameFragment){
-            case "Like":
-            case "NotLike":
+            case "LikeAny":
                 sb.append("'%'+value+'%'");
                 break;
             case "LikeRight":

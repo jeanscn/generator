@@ -8,7 +8,6 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -117,7 +116,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            topLevelClass.addAnnotation(VStringUtil.format("@Api(tags = \"{0}\")", StringUtility.remarkLeft(introspectedTable.getRemarks())));
+            topLevelClass.addAnnotation(VStringUtil.format("@Api(tags = \"{0}\")", introspectedTable.getRemarks(true)));
             for (Method method : topLevelClass.getMethods()) {
                 addMethodApiSwaggerAnnotation(method, introspectedTable);
             }
@@ -153,7 +152,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
             if (column.getJavaProperty().equals(field.getName())) {
                 sb.append("@ApiModelProperty(").append("value = \"");
-                sb.append(column.getRemarks()).append("\"");
+                sb.append(column.getRemarks(true)).append("\"");
                 if (type.equals("v")) {
                     switch (field.getType().getShortName().toLowerCase()) {
                         case "string":
@@ -200,14 +199,14 @@ public class SwaggerApiPlugin extends PluginAdapter {
         StringBuilder sb = new StringBuilder();
         FullyQualifiedJavaType fullyQualifiedJavaType =  topLevelClass.getType();
         sb.append("@ApiModel(value = \"").append(fullyQualifiedJavaType.getShortName()).append("\"");
-        if (introspectedTable.getRemarks() != null) {
-            sb.append(", description = \"").append(introspectedTable.getRemarks()).append("\"");
+        if (introspectedTable.getRemarks(true) != null) {
+            sb.append(", description = \"").append(introspectedTable.getRemarks(true)).append("\"");
         } else {
             sb.append(", description = \"").append("\"");
         }
         final Optional<FullyQualifiedJavaType> superClass = topLevelClass.getSuperClass();
         if (superClass.isPresent()) {
-            final String clazz = superClass.get().getShortName() + ".class";
+            final String clazz = superClass.get().getShortNameWithoutTypeArguments() + ".class";
             sb.append(", parent = ");
             sb.append(clazz);
         }
@@ -240,7 +239,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
         }else if (("export" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "Excel数据导出", "Excel数据导出接口");
         }else if (("update" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "更新一条记录", "根据主键更新实体对象");
+            buildSwaggerApiAnnotation(method, "更新一条记录", "根据主键更新数据");
+        }else if (("updateBatch" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "批量更新数据", "根据主键批量更新数据");
         }else if (("delete" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "单条记录删除", "根据给定的id删除一条记录");
         }else if (("deleteBatch" + record.getShortName()).equals(method.getName())) {
@@ -249,6 +250,8 @@ public class SwaggerApiPlugin extends PluginAdapter {
             buildSwaggerApiAnnotation(method, "默认数据视图配置", "获取默认数据视图配置");
         }else if (("getDefaultView" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "默认数据视图显示", "显示默认数据视图");
+        }else if (("getDict" + record.getShortName()).equals(method.getName())) {
+            buildSwaggerApiAnnotation(method, "字典数据查询", "获取字典数据并缓存");
         }else if (VStringUtil.contains(method.getName(), "option")) {
             String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
             if (introspectedTable.getRules().isGenerateRequestVO()) {

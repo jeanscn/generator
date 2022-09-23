@@ -262,7 +262,7 @@ public class DatabaseIntrospector {
                     sb.append(calculatedColumnName);
                     sb.append('_');
                     sb.append(JavaBeansUtil.getCamelCaseString(
-                            introspectedColumn.getRemarks(), true));
+                            introspectedColumn.getRemarks(false), true));
                     introspectedColumn.setJavaProperty(
                             JavaBeansUtil.getValidPropertyName(sb.toString()));
                 } else {

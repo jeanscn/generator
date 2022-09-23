@@ -38,11 +38,26 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         Method method = createMethod(methodName, parentElement, "添加数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         addMethodComment(method, true, "被调用的service.insert()方法有返回值");
-        method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});\n" +
-                        "        when({2}.insert(any({0}.class)))\n" +
-                        "                .thenReturn(serviceResult);",
-                entityType.getShortName(),
-                entityInstanceVar, mockServiceImpl);
+
+        if (introspectedTable.getRules().generateInsertOrUpdate()) {
+            method.addBodyLine("ServiceResult<{0}> serviceResult;",entityType.getShortName());
+            method.addBodyLine("serviceResult = ServiceResult.success({1});\n" +
+                            "        when({2}.insertOrUpdate(any({0}.class)))\n" +
+                            "                .thenReturn(serviceResult);",
+                    entityType.getShortName(),
+                    entityInstanceVar, mockServiceImpl);
+            method.addBodyLine("serviceResult = ServiceResult.success({1});\n" +
+                            "        when({2}.insert(any({0}.class)))\n" +
+                            "                .thenReturn(serviceResult);",
+                    entityType.getShortName(),
+                    entityInstanceVar, mockServiceImpl);
+        }else{
+            method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});\n" +
+                            "        when({2}.insert(any({0}.class)))\n" +
+                            "                .thenReturn(serviceResult);",
+                    entityType.getShortName(),
+                    entityInstanceVar, mockServiceImpl);
+        }
         if (isGenerateVOModel) {
             method.addBodyLine("{0} {1} = mappings.to{0}({2});", entityVoType.getShortName(), entityVoInstanceVar, entityInstanceVar);
         }

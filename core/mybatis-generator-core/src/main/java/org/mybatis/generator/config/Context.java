@@ -91,6 +91,8 @@ public class Context extends PropertyHolder {
 
     private String parentMenuId;
 
+    private int jdkVersion;
+
     protected Map<String,String> sysMenuDataScriptLines = new HashMap<>();
 
     public Context(ModelType defaultModelType) {
@@ -561,6 +563,15 @@ public class Context extends PropertyHolder {
     public void setJava8Targeted(boolean isJava8Targeted) {
         this.isJava8Targeted = isJava8Targeted;
     }
+
+    public int getJdkVersion() {
+        return jdkVersion;
+    }
+
+    public void setJdkVersion(int jdkVersion) {
+        this.jdkVersion = jdkVersion;
+    }
+
     public boolean isSqlServe() {
         return isSqlServe;
     }

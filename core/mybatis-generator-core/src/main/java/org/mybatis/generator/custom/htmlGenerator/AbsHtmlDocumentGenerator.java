@@ -64,7 +64,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     protected HtmlElement generateHtmlHead() {
         HtmlElement head = new HtmlElement("head");
-        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::baseRequired('" + introspectedTable.getRemarks() + "')");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::baseRequired('" + introspectedTable.getRemarks(true) + "')");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::jQueryRequired");
         return head;
     }
@@ -117,7 +117,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         HtmlElement content = addDivWithClassToParent(inner, "content");
         HtmlElement contentHeader = addDivWithClassToParent(content, "content-header");
         HtmlElement headerText = new HtmlElement("span");
-        headerText.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
+        headerText.addElement(new TextElement(introspectedTable.getRemarks(true)));
         contentHeader.addElement(headerText);
         answer.put("content",content);
         return answer;
@@ -290,7 +290,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
             input.addAttribute(new Attribute("id", input_subject_id));
             input.addAttribute(new Attribute("name", input_subject_id));
             input.addAttribute(new Attribute("type", "hidden"));
-            input.addAttribute(new Attribute("value", introspectedTable.getRemarks()));
+            input.addAttribute(new Attribute("value", introspectedTable.getRemarks(true)));
             parent.addElement(input);
         }
     }

@@ -35,6 +35,10 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean insertBatchStatementEnabled;
 
+    private boolean updateBatchStatementEnabled;
+
+    private boolean insertOrUpdateStatementEnabled;
+
     private boolean selectByPrimaryKeyStatementEnabled;
 
     private boolean selectByExampleStatementEnabled;
@@ -88,15 +92,15 @@ public class TableConfiguration extends PropertyHolder {
     private String mapperName;
     private String sqlProviderName;
 
-    private List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations;
+    private List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
 
-    private List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations;
+    private List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations = new ArrayList<>();
 
-    private List<CustomMethodGeneratorConfiguration> customMethodGeneratorConfigurations;
+    private List<CustomMethodGeneratorConfiguration> customMethodGeneratorConfigurations = new ArrayList<>();
 
-    private List<RelationGeneratorConfiguration> relationGeneratorConfigurations;
+    private List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
-    private List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations;
+    private List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = new ArrayList<>();
 
     private JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration;
 
@@ -108,19 +112,13 @@ public class TableConfiguration extends PropertyHolder {
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
-    private VOModelGeneratorConfiguration voModelGeneratorConfiguration;
-
-    private VOCreateGeneratorConfiguration voCreateGeneratorConfiguration;
-
-    private VOExcelGeneratorConfiguration voExcelGeneratorConfiguration;
-
-    private VOViewGeneratorConfiguration voViewGeneratorConfiguration;
-
-    private VORequestGeneratorConfiguration voRequestGeneratorConfiguration;
-
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
     private SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration;
+
+    private VOGeneratorConfiguration voGeneratorConfiguration;
+
+    private VOCacheGeneratorConfiguration voCacheGeneratorConfiguration;
 
     private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
 
@@ -135,8 +133,8 @@ public class TableConfiguration extends PropertyHolder {
         ignoredColumns = new HashMap<>();
 
         insertStatementEnabled = true;
-
         insertBatchStatementEnabled = true;
+        insertOrUpdateStatementEnabled = true;
 
         selectByPrimaryKeyStatementEnabled = true;
         selectByExampleStatementEnabled = true;
@@ -145,11 +143,7 @@ public class TableConfiguration extends PropertyHolder {
         deleteByExampleStatementEnabled = true;
         countByExampleStatementEnabled = true;
         updateByExampleStatementEnabled = true;
-        selectByTableGeneratorConfigurations = new ArrayList<>();
-        selectByColumnGeneratorConfigurations =new ArrayList<>();
-        customMethodGeneratorConfigurations = new ArrayList<>();
-        relationGeneratorConfigurations = new ArrayList<>();
-        htmlGeneratorConfigurations = new ArrayList<>();
+        updateBatchStatementEnabled = true;
     }
 
     public boolean isDeleteByPrimaryKeyStatementEnabled() {
@@ -435,6 +429,22 @@ public class TableConfiguration extends PropertyHolder {
         this.updateByExampleStatementEnabled = updateByExampleStatementEnabled;
     }
 
+    public boolean isUpdateBatchStatementEnabled() {
+        return updateBatchStatementEnabled;
+    }
+
+    public void setUpdateBatchStatementEnabled(boolean updateBatchStatementEnabled) {
+        this.updateBatchStatementEnabled = updateBatchStatementEnabled;
+    }
+
+    public boolean isInsertOrUpdateStatementEnabled() {
+        return insertOrUpdateStatementEnabled;
+    }
+
+    public void setInsertOrUpdateStatementEnabled(boolean insertOrUpdateStatementEnabled) {
+        this.insertOrUpdateStatementEnabled = insertOrUpdateStatementEnabled;
+    }
+
     public void validate(List<String> errors, int listPosition) {
         if (!stringHasValue(tableName)) {
             errors.add(Messages.getString(
@@ -559,11 +569,11 @@ public class TableConfiguration extends PropertyHolder {
         return this.customMethodGeneratorConfigurations;
     }
 
-    public List<RelationGeneratorConfiguration> getRelationPropertyHolders() {
+    public List<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
         return relationGeneratorConfigurations;
     }
 
-    public List<RelationGeneratorConfiguration> addRelationPropertyHolders(RelationGeneratorConfiguration relationGeneratorConfiguration) {
+    public List<RelationGeneratorConfiguration> addRelationGeneratorConfiguration(RelationGeneratorConfiguration relationGeneratorConfiguration) {
        this.relationGeneratorConfigurations.add(relationGeneratorConfiguration);
        return this.relationGeneratorConfigurations;
     }
@@ -617,46 +627,6 @@ public class TableConfiguration extends PropertyHolder {
         this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
     }
 
-    public VOModelGeneratorConfiguration getVoModelGeneratorConfiguration() {
-        return voModelGeneratorConfiguration;
-    }
-
-    public void setVoModelGeneratorConfiguration(VOModelGeneratorConfiguration voModelGeneratorConfiguration) {
-        this.voModelGeneratorConfiguration = voModelGeneratorConfiguration;
-    }
-
-    public VOCreateGeneratorConfiguration getVoCreateGeneratorConfiguration() {
-        return voCreateGeneratorConfiguration;
-    }
-
-    public void setVoCreateGeneratorConfiguration(VOCreateGeneratorConfiguration voCreateGeneratorConfiguration) {
-        this.voCreateGeneratorConfiguration = voCreateGeneratorConfiguration;
-    }
-
-    public VOExcelGeneratorConfiguration getVoExcelGeneratorConfiguration() {
-        return voExcelGeneratorConfiguration;
-    }
-
-    public void setVoExcelGeneratorConfiguration(VOExcelGeneratorConfiguration voExcelGeneratorConfiguration) {
-        this.voExcelGeneratorConfiguration = voExcelGeneratorConfiguration;
-    }
-
-    public VOViewGeneratorConfiguration getVoViewGeneratorConfiguration() {
-        return voViewGeneratorConfiguration;
-    }
-
-    public void setVoViewGeneratorConfiguration(VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
-        this.voViewGeneratorConfiguration = voViewGeneratorConfiguration;
-    }
-
-    public VORequestGeneratorConfiguration getVoRequestGeneratorConfiguration() {
-        return voRequestGeneratorConfiguration;
-    }
-
-    public void setVoRequestGeneratorConfiguration(VORequestGeneratorConfiguration voRequestGeneratorConfiguration) {
-        this.voRequestGeneratorConfiguration = voRequestGeneratorConfiguration;
-    }
-
     public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
         return javaClientGeneratorConfiguration;
     }
@@ -671,6 +641,22 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setSqlSchemaGeneratorConfiguration(SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration) {
         this.sqlSchemaGeneratorConfiguration = sqlSchemaGeneratorConfiguration;
+    }
+
+    public VOGeneratorConfiguration getVoGeneratorConfiguration() {
+        return voGeneratorConfiguration;
+    }
+
+    public void setVoGeneratorConfiguration(VOGeneratorConfiguration voGeneratorConfiguration) {
+        this.voGeneratorConfiguration = voGeneratorConfiguration;
+    }
+
+    public VOCacheGeneratorConfiguration getVoCacheGeneratorConfiguration() {
+        return voCacheGeneratorConfiguration;
+    }
+
+    public void setVoCacheGeneratorConfiguration(VOCacheGeneratorConfiguration voCacheGeneratorConfiguration) {
+        this.voCacheGeneratorConfiguration = voCacheGeneratorConfiguration;
     }
 
     public boolean isIgnore() {

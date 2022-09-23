@@ -419,8 +419,8 @@ public abstract class IntrospectedTable {
 
     protected void calculateRelationProperty() {
         TableConfiguration tableConfiguration = this.getTableConfiguration();
-        if (tableConfiguration.getRelationPropertyHolders().size() > 0) {
-            this.getRelationGeneratorConfigurations().addAll(tableConfiguration.getRelationPropertyHolders());
+        if (tableConfiguration.getRelationGeneratorConfigurations().size() > 0) {
+            this.getRelationGeneratorConfigurations().addAll(tableConfiguration.getRelationGeneratorConfigurations());
 
         }
     }
@@ -766,6 +766,26 @@ public abstract class IntrospectedTable {
 
     public String getSelectByExampleWithRelationStatementId() {
         return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID);
+    }
+
+    public String getInsertBatchStatementId() {
+        return "insertBatch";
+    }
+
+    public String getUpdateBatchStatementId() {
+        return "updateBatchByPrimaryKey";
+    }
+
+    public String getInsertOrUpdateStatementId() {
+        return "insertOrUpdate";
+    }
+
+    public String getSelectByKeysDictStatementId(){
+        return "SelectByKeysDict";
+    }
+
+    public String getUpdateBySqlStatementId(){
+        return "updateBySql";
     }
 
     public String getSelectTreeByParentIdStatementId() {
@@ -1238,8 +1258,14 @@ public abstract class IntrospectedTable {
         return context;
     }
 
-    public String getRemarks() {
-        return remarks;
+    /**
+     * 获得表注释
+     * @param simple 是否格式化为短标签。
+     *               false-获得完整注释
+     *               true-格式为短标签。
+     * */
+    public String getRemarks(boolean simple) {
+        return simple?StringUtility.remarkLeft(remarks):remarks;
     }
 
     public void setRemarks(String remarks) {

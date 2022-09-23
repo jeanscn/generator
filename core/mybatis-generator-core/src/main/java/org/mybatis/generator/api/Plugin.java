@@ -186,7 +186,7 @@ public interface Plugin {
     }
     default List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(){
         return Collections.emptyList();
-    };
+    }
 
     /**
      * This method can be used to generate additional XML files needed by your
@@ -206,7 +206,7 @@ public interface Plugin {
     default List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(
             IntrospectedTable introspectedTable){
         return Collections.emptyList();
-    };
+    }
 
     /**
      * This method is called when the entire client has been generated.
@@ -753,6 +753,11 @@ public interface Plugin {
         return true;
     }
 
+    default boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze,
+                                                IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean clientInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
             IntrospectedTable introspectedTable) {
         return true;
@@ -807,6 +812,11 @@ public interface Plugin {
      */
     default boolean clientInsertSelectiveMethodGenerated(Method method,
             Interface interfaze, IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean clientInsertBatchMethodGenerated(Method method,
+                                                         Interface interfaze, IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -881,6 +891,11 @@ public interface Plugin {
      */
     default boolean clientSelectByPrimaryKeyMethodGenerated(Method method,
             Interface interfaze, IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean clientSelectByKeysDicMethodGenerated(Method method,
+                                                            Interface interfaze, IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -1065,6 +1080,11 @@ public interface Plugin {
         return true;
     }
 
+    default boolean clientUpdateBatchMethodGenerated(Method method,
+                                                     Interface interfaze, IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(KotlinFunction kotlinFunction,
             KotlinFile kotlinFile, IntrospectedTable introspectedTable) {
         return true;
@@ -1180,6 +1200,12 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                          IntrospectedColumn introspectedColumn,
+                                          IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass,
                                           IntrospectedColumn introspectedColumn,
                                           IntrospectedTable introspectedTable) {
@@ -1195,6 +1221,12 @@ public interface Plugin {
     default boolean voCreateGetterMethodGenerated(Method method,
                                                  TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
                                                  IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voUpdateGetterMethodGenerated(Method method,
+                                                  TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
+                                                  IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -1331,6 +1363,11 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voModelUpdateClassGenerated(TopLevelClass topLevelClass,
+                                                IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voModelViewClassGenerated(TopLevelClass topLevelClass,
                                                 IntrospectedTable introspectedTable) {
         return true;
@@ -1343,6 +1380,11 @@ public interface Plugin {
 
     default boolean voModelRequestClassGenerated(TopLevelClass topLevelClass,
                                                IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelCacheClassGenerated(TopLevelClass topLevelClass,
+                                                 IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -1607,6 +1649,11 @@ public interface Plugin {
         return true;
     }
 
+    default boolean sqlMapInsertOrUpdateSelectiveElementGenerated(XmlElement element,
+                                                          IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     /**
      * This method is called when the resultMap with BLOBs element is generated
      * - this resultMap will extend the base resultMap.
@@ -1659,6 +1706,11 @@ public interface Plugin {
      */
     default boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element,
             IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean sqlMapSelectByKeysDictElementGenerated(XmlElement element,
+                                                             IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -1771,6 +1823,11 @@ public interface Plugin {
      *         plugins.
      */
     default boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(
+            XmlElement element, IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean sqlMapUpdateBatchElementGenerated(
             XmlElement element, IntrospectedTable introspectedTable) {
         return true;
     }

@@ -297,8 +297,14 @@ public class IntrospectedColumn {
         this.properties.putAll(properties);
     }
 
-    public String getRemarks() {
-        return remarks;
+    /**
+     * 获得列注释
+     * @param simple 是否格式化为短标签。
+     *               false-获得完整注释
+     *               true-格式为短标签。
+     * */
+    public String getRemarks(boolean simple) {
+        return simple?StringUtility.remarkLeft(remarks):remarks;
     }
 
     public void setRemarks(String remarks) {

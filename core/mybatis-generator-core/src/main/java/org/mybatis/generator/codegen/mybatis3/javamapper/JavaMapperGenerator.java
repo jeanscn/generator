@@ -16,10 +16,8 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper;
 
 import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
@@ -28,16 +26,26 @@ import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
+import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.MBG_MAPPER_BLOB_INTERFACE;
+import static org.mybatis.generator.custom.ConstantsUtil.MBG_MAPPER_INTERFACE;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class JavaMapperGenerator extends AbstractJavaClientGenerator {
+
+    protected FullyQualifiedJavaType entityType;
+    protected FullyQualifiedJavaType exampleType;
 
     public JavaMapperGenerator(String project) {
         this(project, true);
@@ -49,6 +57,10 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
+
+        exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
+        entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+
         List<CompilationUnit> answer = new ArrayList<>();
         if (introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration()==null
                 || !introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().isGenerate()) {
@@ -61,38 +73,52 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         String mapperFullName = String.join(".", targetPackageGen, "Gen"+introspectedTable.getTableConfiguration().getDomainObjectName()+"Mapper");
 
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
-        //FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType());
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(interfaze);
 
+
+
         String rootInterface = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         if (!stringHasValue(rootInterface)) {
-            rootInterface = context.getJavaClientGeneratorConfiguration()
-                    .getProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
+            rootInterface = context.getJavaClientGeneratorConfiguration().getProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         }
 
         if (stringHasValue(rootInterface)) {
             FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(rootInterface);
             interfaze.addSuperInterface(fqjt);
             interfaze.addImportedType(fqjt);
+        }else{
+            FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
+            infSuperType.addTypeArgument(entityType);
+            infSuperType.addTypeArgument(exampleType);
+            interfaze.addSuperInterface(infSuperType);
+            interfaze.addImportedType(infSuperType);
         }
 
-        addCountByExampleMethod(interfaze);
-        addDeleteByExampleMethod(interfaze);
-        addDeleteByPrimaryKeyMethod(interfaze);
-        addInsertMethod(interfaze);
-        addInsertSelectiveMethod(interfaze);
-        addSelectByExampleWithBLOBsMethod(interfaze);
-        addSelectByExampleWithoutBLOBsMethod(interfaze);
+//        addCountByExampleMethod(interfaze);
+//        addDeleteByExampleMethod(interfaze);
+//        addDeleteByPrimaryKeyMethod(interfaze);
+//        addInsertMethod(interfaze);
+//        addInsertSelectiveMethod(interfaze);
+//        addSelectByPrimaryKeyMethod(interfaze);
+//        addUpdateByExampleSelectiveMethod(interfaze);
+//        addUpdateByPrimaryKeySelectiveMethod(interfaze);
+//        addUpdateByExampleWithBLOBsMethod(interfaze);
+//        addSelectByExampleWithBLOBsMethod(interfaze);
+//        addSelectByExampleWithoutBLOBsMethod(interfaze);
+//        addUpdateByPrimaryKeyWithBLOBsMethod(interfaze);
+//        addUpdateByExampleWithoutBLOBsMethod(interfaze);
+//        addUpdateByPrimaryKeyWithoutBLOBsMethod(interfaze);
+
+        addInsertBatchMethod(interfaze);
+        addInsertOrUpdateMethod(interfaze);
         addSelectByExampleWithRelationMethod(interfaze);
-        addSelectByPrimaryKeyMethod(interfaze);
-        addUpdateByExampleSelectiveMethod(interfaze);
-        addUpdateByExampleWithBLOBsMethod(interfaze);
-        addUpdateByExampleWithoutBLOBsMethod(interfaze);
-        addUpdateByPrimaryKeySelectiveMethod(interfaze);
-        addUpdateByPrimaryKeyWithBLOBsMethod(interfaze);
-        addUpdateByPrimaryKeyWithoutBLOBsMethod(interfaze);
+        addUpdateBatchMethod(interfaze);
+        addSelectByColumnMethods(interfaze);
+        addSelectTreeByParentIdMethods(interfaze);
+        addSelectByTableMethods(interfaze);
+        addSelectByKeysDictMethod(interfaze);
 
         if (context.getPlugins().clientGenerated(interfaze, introspectedTable)) {
             answer.add(interfaze);
@@ -123,6 +149,116 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
 
         return answer;
+    }
+
+    protected void addSelectByKeysDictMethod(Interface interfaze) {
+        if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
+            AbstractJavaMapperMethodGenerator methodGenerator = new SelectByKeysDictMethodGenerator();
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void addInsertBatchMethod(Interface interfaze) {
+        if (introspectedTable.getRules().generateInsertBatch()) {
+            AbstractJavaMapperMethodGenerator methodGenerator = new InsertBatchMethodGenerator(false);
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void addInsertOrUpdateMethod(Interface interfaze) {
+        if (introspectedTable.getRules().generateInsertOrUpdate()) {
+            AbstractJavaMapperMethodGenerator methodGenerator = new InsertOrUpdateMethodGenerator(false);
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    //增加relation方法
+    protected void addSelectByExampleWithRelationMethod(Interface interfaze){
+        if (introspectedTable.getRules().generateRelationWithSubSelected()){
+            Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), ReturnTypeEnum.LIST,
+                    entityType,
+                    exampleType, "example",  "查询条件对象",true,interfaze);
+            interfaze.addMethod(example);
+            interfaze.addImportedType(exampleType);
+        }
+    }
+
+    protected void addUpdateBatchMethod(Interface interfaze) {
+        if (introspectedTable.getRules().generateUpdateBatch()) {
+            AbstractJavaMapperMethodGenerator methodGenerator = new UpdateBatchMethodGenerator(false);
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void addSelectByColumnMethods(Interface interfaze) {
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+            for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+                Method method;
+                if (config.isReturnPrimaryKey()) {
+                    method = getMethodByType(config.getMethodName(),
+                            ReturnTypeEnum.LIST,
+                            FullyQualifiedJavaType.getStringInstance(),
+                            FullyQualifiedJavaType.getStringInstance(),
+                            config.getColumn().getJavaProperty(),
+                            config.getColumn().getRemarks(false),
+                            true,
+                            interfaze);
+                } else if(JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName())){
+                    method = getMethodByType(config.getMethodName(),
+                            ReturnTypeEnum.MODEL,
+                            entityType,
+                            FullyQualifiedJavaType.getStringInstance(),
+                            config.getColumn().getJavaProperty(),
+                            config.getColumn().getRemarks(false),
+                            true,
+                            interfaze);
+                }else{
+                    method = getMethodByType(config.getMethodName(),
+                            ReturnTypeEnum.LIST,
+                            entityType,
+                            FullyQualifiedJavaType.getStringInstance(),
+                            config.getColumn().getJavaProperty(),
+                            config.getColumn().getRemarks(false),
+                            true,
+                            interfaze);
+                }
+                interfaze.addMethod(method);
+            }
+        }
+    }
+
+    protected void addSelectTreeByParentIdMethods(Interface interfaze){
+        //增加附加选择方法
+        if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
+                && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
+            CustomMethodGeneratorConfiguration config = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
+            Method method = getMethodByType(introspectedTable.getSelectTreeByParentIdStatementId(),
+                    ReturnTypeEnum.LIST,
+                    entityType,
+                    FullyQualifiedJavaType.getStringInstance(),
+                    config.getParentIdColumn().getJavaProperty(),
+                    config.getParentIdColumn().getRemarks(false),
+                    true,
+                    interfaze);
+            interfaze.addMethod(method);
+        }
+    }
+
+    protected void addSelectByTableMethods(Interface interfaze){
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()!=null
+                && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size()>0) {
+            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
+                Method selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(),
+                        ReturnTypeEnum.LIST,
+                        selectByTableGeneratorConfiguration.isReturnPrimaryKey()?FullyQualifiedJavaType.getStringInstance():entityType,
+                        FullyQualifiedJavaType.getStringInstance(),
+                        selectByTableGeneratorConfiguration.getParameterName(),
+                        "中间表中来自其他表的查询键值",
+                        true,
+                        interfaze);
+                interfaze.addMethod(selectByTable);
+            }
+        }
     }
 
     protected void addCountByExampleMethod(Interface interfaze) {
@@ -170,13 +306,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     protected void addSelectByExampleWithoutBLOBsMethod(Interface interfaze) {
         if (introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithoutBLOBsMethodGenerator();
-            initializeAndExecuteGenerator(methodGenerator, interfaze);
-        }
-    }
-
-    protected void addSelectByExampleWithRelationMethod(Interface interfaze){
-        if (introspectedTable.getRelationGeneratorConfigurations().size()>0) {
-            AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithRelationMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }
@@ -252,5 +381,15 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     @Override
     public AbstractHtmlGenerator getMatchedHTMLGenerator() {
         return new HTMLGenerator();
+    }
+
+    /**
+     * 获得mapper接口
+     */
+    private String getMapperInterface(IntrospectedTable introspectedTable) {
+        if (GenerateUtils.isBlobInstance(introspectedTable)) {
+            return MBG_MAPPER_BLOB_INTERFACE;
+        }
+        return MBG_MAPPER_INTERFACE;
     }
 }

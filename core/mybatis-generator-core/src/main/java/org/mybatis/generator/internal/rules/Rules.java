@@ -38,6 +38,8 @@ public interface Rules {
 
     boolean generateInsertBatch();
 
+    boolean generateInsertOrUpdate();
+
     /**
      * Implements the rule for generating the insert selective SQL Map element
      * and DAO method. If the insert statement is allowed, then generate the
@@ -86,6 +88,8 @@ public interface Rules {
      * @return true if the element and method should be generated
      */
     boolean generateUpdateByPrimaryKeySelective();
+
+    boolean generateUpdateBatch();
 
     /**
      * Implements the rule for generating the delete by primary key SQL Map
@@ -260,12 +264,16 @@ public interface Rules {
 
     boolean isGenerateControllerUnitTest();
 
+    boolean isForceGenerateScalableElement();
+
     /**
      * 是生成VO对象
      * */
     boolean isGenerateVoModel();
 
     boolean isGenerateCreateVO();
+
+    boolean isGenerateUpdateVO();
 
     boolean isGenerateViewVO();
 
@@ -275,5 +283,7 @@ public interface Rules {
 
     boolean isGenerateVO();
 
-    boolean isForceGenerateScalableElement();
+    boolean isGenerateCachePO();
+
+    boolean isGenerateCachePOWithMultiKey();
 }

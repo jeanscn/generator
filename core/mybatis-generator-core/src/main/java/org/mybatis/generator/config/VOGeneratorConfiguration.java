@@ -1,54 +1,87 @@
-/*
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.config;
-
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class VOGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public class VOGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
 
-    protected List<String> excludeColumns = new ArrayList<>();
+    private VOModelGeneratorConfiguration voModelConfiguration;
 
-    protected FullyQualifiedJavaType fullyQualifiedJavaType;
+    private VOCreateGeneratorConfiguration voCreateConfiguration;
 
-    public VOGeneratorConfiguration() {
-        super();
-    }
+    private VOUpdateGeneratorConfiguration voUpdateConfiguration;
 
-    public VOGeneratorConfiguration(Context context) {
-        super();
-        targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-        baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
-    }
+    private VOViewGeneratorConfiguration voViewConfiguration;
 
-    public List<String> getExcludeColumns() {
-        return excludeColumns;
-    }
+    private VOExcelGeneratorConfiguration voExcelConfiguration;
 
-    public void setExcludeColumns(List<String> excludeColumns) {
-        this.excludeColumns = excludeColumns;
-    }
+    private VORequestGeneratorConfiguration voRequestConfiguration;
 
-    public FullyQualifiedJavaType getFullyQualifiedJavaType() {
-        return fullyQualifiedJavaType;
+    private VOCacheGeneratorConfiguration voCacheConfiguration;
+
+    public VOGeneratorConfiguration(Context context,TableConfiguration tc) {
+        super(context);
+        targetPackage = String.join(".", baseTargetPackage,"vo");
     }
 
     @Override
-    abstract void validate(List<String> errors, String contextId);
+    public void validate(List<String> errors, String contextId) {
+        super.validate(errors, contextId, "VOGeneratorConfiguration");
+    }
+
+    public VOModelGeneratorConfiguration getVoModelConfiguration() {
+        return voModelConfiguration;
+    }
+
+    public void setVoModelConfiguration(VOModelGeneratorConfiguration voModelConfiguration) {
+        this.voModelConfiguration = voModelConfiguration;
+    }
+
+    public VOCreateGeneratorConfiguration getVoCreateConfiguration() {
+        return voCreateConfiguration;
+    }
+
+    public void setVoCreateConfiguration(VOCreateGeneratorConfiguration voCreateConfiguration) {
+        this.voCreateConfiguration = voCreateConfiguration;
+    }
+
+    public VOUpdateGeneratorConfiguration getVoUpdateConfiguration() {
+        return voUpdateConfiguration;
+    }
+
+    public void setVoUpdateConfiguration(VOUpdateGeneratorConfiguration voUpdateConfiguration) {
+        this.voUpdateConfiguration = voUpdateConfiguration;
+    }
+
+    public VOViewGeneratorConfiguration getVoViewConfiguration() {
+        return voViewConfiguration;
+    }
+
+    public void setVoViewConfiguration(VOViewGeneratorConfiguration voViewConfiguration) {
+        this.voViewConfiguration = voViewConfiguration;
+    }
+
+    public VOExcelGeneratorConfiguration getVoExcelConfiguration() {
+        return voExcelConfiguration;
+    }
+
+    public void setVoExcelConfiguration(VOExcelGeneratorConfiguration voExcelConfiguration) {
+        this.voExcelConfiguration = voExcelConfiguration;
+    }
+
+    public VORequestGeneratorConfiguration getVoRequestConfiguration() {
+        return voRequestConfiguration;
+    }
+
+    public void setVoRequestConfiguration(VORequestGeneratorConfiguration voRequestConfiguration) {
+        this.voRequestConfiguration = voRequestConfiguration;
+    }
+
+    public VOCacheGeneratorConfiguration getVoCacheConfiguration() {
+        return voCacheConfiguration;
+    }
+
+    public void setVoCacheConfiguration(VOCacheGeneratorConfiguration voCacheConfiguration) {
+        this.voCacheConfiguration = voCacheConfiguration;
+    }
 }

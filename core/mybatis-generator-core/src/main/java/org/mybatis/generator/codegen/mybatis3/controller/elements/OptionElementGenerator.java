@@ -40,12 +40,8 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "option" + methodKey;
         Method method = createMethod(methodPrefix);
-        if (introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addParameter(new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase()));
-            parentElement.addImportedType(entityRequestVoType);
-        } else {
-            method.addParameter(buildMethodParameter(false, false, parentElement));
-        }
+        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
+        method.addParameter(buildMethodParameter(descript));
         Parameter selected = new Parameter(FullyQualifiedJavaType.getStringInstance(), "selected");
         selected.addAnnotation("@RequestParam(required = false)");
         method.addParameter(selected);
@@ -69,8 +65,11 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine("        .sorted(Comparator.comparing({0}::getSort))", entityType.getShortName());
         }
         String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), FullyQualifiedJavaType.getStringInstance());
+        IntrospectedColumn idColumn = introspectedTable.getColumn(formOptionGeneratorConfiguration.getIdColumn()).orElse(null);
+        String idGetterName = idColumn!=null?
+                JavaBeansUtil.getGetterMethodName(idColumn.getJavaProperty(), idColumn.getFullyQualifiedJavaType()):"getId";
         if (formOptionGeneratorConfiguration.getDataType() == 0) {
-            method.addBodyLine("        .map(t -> new FormSelectOption(t.getId(), t.{0}(), selected))", getterMethodName);
+            method.addBodyLine("        .map(t -> new FormSelectOption(t.{1}(), t.{0}(), selected))", getterMethodName,idGetterName);
         } else {
             method.addBodyLine("         .map(c -> {0}(c, selected))",pMethodName);
             //添加一个内部递归方法
@@ -79,13 +78,12 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
             pMethod.addParameter(new Parameter(entityType, entityType.getShortNameFirstLowCase()));
             pMethod.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "selected"));
             pMethod.setReturnType(optionTreeType);
-            pMethod.addBodyLine("FormSelectTreeOption formSelectTreeOption = new FormSelectTreeOption({0}.getId(), {0}.{1}(), selected);",
-                    entityType.getShortNameFirstLowCase(),getterMethodName);
+            pMethod.addBodyLine("FormSelectTreeOption formSelectTreeOption = new FormSelectTreeOption({0}.{2}(), {0}.{1}(), selected);",
+                    entityType.getShortNameFirstLowCase(),getterMethodName,idGetterName);
             commentGenerator.addMethodJavaDocLine(pMethod, true, "内部方法：递归处理用");
             pMethod.addBodyLine("if ({0}.getChildren().size()>0) '{'",entityType.getShortNameFirstLowCase());
             pMethod.addBodyLine("formSelectTreeOption.setParent(true);");
             pMethod.addBodyLine("List<FormSelectTreeOption> collect = {0}.getChildren().stream()",entityType.getShortNameFirstLowCase());
-            pMethod.addBodyLine("        .map(t->({0})t)",entityType.getShortName());
             pMethod.addBodyLine("        .sorted(Comparator.comparing({0}::getSort))",entityType.getShortName());
             pMethod.addBodyLine("        .map(c -> {0}(c, selected))",pMethodName);
             pMethod.addBodyLine("        .collect(Collectors.toList());");

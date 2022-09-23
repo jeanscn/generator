@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +79,27 @@ public class Interface extends InnerInterface implements CompilationUnit {
     @Override
     public void addStaticImports(Set<String> staticImports) {
         this.staticImports.addAll(staticImports);
+    }
+
+    @Override
+    public void addAddtionalProperties(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+        configurations.stream()
+                .filter(c -> !(c.getName() == null || c.getType() == null))
+                .forEach(c -> {
+                    FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
+                    org.mybatis.generator.api.dom.java.Field field = new Field(c.getName(), type);
+                    this.addImportedType(type);
+                    if (c.getTypeArguments().size() > 0) {
+                        for (String typeArgument : c.getTypeArguments()) {
+                            type.addTypeArgument(new FullyQualifiedJavaType(typeArgument));
+                            this.addImportedType(new FullyQualifiedJavaType(typeArgument));
+                        }
+                    }
+                    if (c.getImportedTypes().size() > 0) {
+                        c.getImportedTypes().forEach(i->this.addImportedType(new FullyQualifiedJavaType(i)));
+                    }
+                    this.addField(field);
+                });
     }
 
     @Override

@@ -43,7 +43,8 @@ public class InsertBatchElementGenerator extends AbstractXmlElementGenerator {
         } else {
             parameterType = introspectedTable.getRules().calculateAllFieldsClass();
         }
-        XmlElement answer = buildInitialInsert("insertBatch", parameterType);
+        XmlElement answer = buildInitialInsert(introspectedTable.getInsertBatchStatementId(), parameterType);
+
         StringBuilder insertClause = new StringBuilder();
         insertClause.append("insert into "); //$NON-NLS-1$
         insertClause.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
@@ -53,8 +54,7 @@ public class InsertBatchElementGenerator extends AbstractXmlElementGenerator {
         valuesClause.append("<foreach collection=\"list\" item=\"item\" index=\"index\" separator=\",\">");
         valuesClause.append("(");
         List<String> valuesClauses = new ArrayList<>();
-        List<IntrospectedColumn> columns =
-                ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
+        List<IntrospectedColumn> columns = ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
         for (int i = 0; i < columns.size(); i++) {
             IntrospectedColumn introspectedColumn = columns.get(i);
             insertClause.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
@@ -75,6 +75,7 @@ public class InsertBatchElementGenerator extends AbstractXmlElementGenerator {
         }
 
         insertClause.append(')');
+
         answer.addElement(new TextElement(insertClause.toString()));
         valuesClause.append(')');
         valuesClause.append("</foreach>");

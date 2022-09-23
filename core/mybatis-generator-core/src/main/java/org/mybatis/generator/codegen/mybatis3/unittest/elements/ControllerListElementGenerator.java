@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.unittest.AbstractUnitTestElementGenerator;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
 public class ControllerListElementGenerator extends AbstractUnitTestElementGenerator {
 
@@ -30,15 +29,18 @@ public class ControllerListElementGenerator extends AbstractUnitTestElementGener
         Method method = createMethod(methodName, parentElement, "获取列表-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         addMethodComment(method, true, "被调用的service.selectByExample()方法有返回值");
+        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
+            method.addBodyLine("when({0}.selectByExampleWithRelation(any({1}.class)))\n" +
+                            "                .thenReturn(Collections.emptyList());",
+                    mockServiceImpl, exampleType.getShortName());
+        }
         method.addBodyLine("when({0}.selectByExample(any({1}.class)))\n" +
                         "                .thenReturn(Collections.emptyList());",
                 mockServiceImpl, exampleType.getShortName());
         method.addBodyLine("final MockHttpServletResponse response = mockMvc.perform({0}\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n" +
                         "                .andReturn().getResponse();\n" +
-                        "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                        "        ResponseResult<?> responseSimpleList = JSONObject.parseObject(response.getContentAsString(StandardCharsets.UTF_8), ResponseResult.class);\n" +
-                        "        assertThat(responseSimpleList.getData()).isEqualTo(Collections.emptyList());",
+                        "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());",
                 requestUri);
         parentElement.addMethod(method);
     }

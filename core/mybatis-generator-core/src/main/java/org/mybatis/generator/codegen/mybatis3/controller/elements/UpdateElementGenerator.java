@@ -3,6 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.ReturnTypeEnum;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
@@ -20,24 +21,28 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }
-        parentElement.addImportedType("javax.validation.Valid");
 
         final String methodPrefix = "update";
         Method method = createMethod(methodPrefix);
         addSystemLogAnnotation(method,parentElement);
-        method.addParameter(buildMethodParameter(true,true,parentElement));
-        method.setReturnType(getResponseResult(false));
+        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"put");
+        descript.setValid(true);
+        descript.setRequestBody(true);
+        method.addParameter(buildMethodParameter(descript));
+        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
+                introspectedTable.getRules().isGenerateVoModel()?entityVoType:entityType,
+                parentElement));
         addControllerMapping(method, "", "put");
         addSecurityPreAuthorize(method,methodPrefix,"更新");
 
         method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKeySelective({2});"
                 ,entityType.getShortName()
                 ,serviceBeanName
-                , introspectedTable.getRules().isGenerateVoModel()
-                        ?"mappings.from"+entityVoType.getShortName()+"("+entityVoType.getShortNameFirstLowCase()+")"
-                        :entityType.getShortNameFirstLowCase());
+                ,descript.getReturnFqt().getFullyQualifiedName().equals(entityType.getFullyQualifiedName())
+                        ?entityType.getShortNameFirstLowCase()
+                        :"mappings.from"+descript.getReturnFqt().getShortName()+"("+descript.getReturnFqt().getShortNameFirstLowCase()+")");
         method.addBodyLine("if (serviceResult.isSuccess()) {");
-        method.addBodyLine("return success({0});"
+        method.addBodyLine("return success({0},serviceResult.getAffectedRows());"
                 , introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName() +"(serviceResult.getResult())":"serviceResult.getResult()");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");

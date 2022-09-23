@@ -86,6 +86,11 @@ public class DisableUpdatePlugin extends PluginAdapter {
     }
 
     @Override
+    public boolean clientUpdateBatchMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+        return false;
+    }
+
+    @Override
     public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(KotlinFunction kotlinFunction,
             KotlinFile kotlinFile, IntrospectedTable introspectedTable) {
         return false;

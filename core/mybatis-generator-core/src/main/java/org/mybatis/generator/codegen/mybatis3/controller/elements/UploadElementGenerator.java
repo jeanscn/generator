@@ -35,6 +35,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "upload";
         Method method = createMethod(methodPrefix);
         addSystemLogAnnotation(method, parentElement);
+        addCacheEvictAnnotation(method,parentElement);
 
         Parameter multipartFileParameter = new Parameter(multipartFile, "file");
         multipartFileParameter.addAnnotation("@RequestPart(\"file\")");

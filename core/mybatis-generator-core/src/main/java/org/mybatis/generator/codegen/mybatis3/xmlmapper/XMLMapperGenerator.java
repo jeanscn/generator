@@ -63,6 +63,8 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addUpdateByPrimaryKeyWithoutBLOBsElement(answer);
 
         //定制追加
+        addUpdateBatchByPrimaryKeyElement(answer);
+        addInsertOrUpdateSelectiveElement(answer);
         addInsertBatchElement(answer);
         addBaseBySqlElement(answer);
         addSelectBySqlElement(answer);
@@ -79,8 +81,16 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addSelectByForeignKeyElement(answer);
         addSelectTreeByParentIdElement(answer);
         addSelectByTableElement(answer);
+        addSelectByKeysDictElement(answer);
 
         return answer;
+    }
+
+    protected void addSelectByKeysDictElement(XmlElement parentElement) {
+        if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
+            AbstractXmlElementGenerator elementGenerator = new SelectByKeysDictElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addBaseBySqlElement(XmlElement parentElement) {
@@ -216,6 +226,13 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         }
     }
 
+    protected void addInsertOrUpdateSelectiveElement(XmlElement parentElement) {
+        if (introspectedTable.getRules().generateInsertOrUpdate()) {
+            AbstractXmlElementGenerator elementGenerator = new InsertOrUpdateSelectiveElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
     protected void addInsertSelectiveElement(XmlElement parentElement) {
         if (introspectedTable.getRules().generateInsertSelective()) {
             AbstractXmlElementGenerator elementGenerator = new InsertSelectiveElementGenerator();
@@ -254,6 +271,13 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     protected void addUpdateByPrimaryKeySelectiveElement(XmlElement parentElement) {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()) {
             AbstractXmlElementGenerator elementGenerator = new UpdateByPrimaryKeySelectiveElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    protected void addUpdateBatchByPrimaryKeyElement(XmlElement parentElement) {
+        if (introspectedTable.getRules().generateUpdateBatch()) {
+            AbstractXmlElementGenerator elementGenerator = new UpdateBatchByPrimaryKeySelectiveElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

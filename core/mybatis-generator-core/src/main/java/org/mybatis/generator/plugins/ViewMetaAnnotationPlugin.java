@@ -52,7 +52,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     private String buildViewColumnMetaAnnotation(IntrospectedColumn introspectedColumn) {
         String value = VStringUtil.format("value = \"{0}\"", introspectedColumn.getJavaProperty());
         String title = VStringUtil.format("title = \"{0}\""
-                , StringUtils.isNotEmpty(introspectedColumn.getRemarks())?StringUtility.remarkLeft(introspectedColumn.getRemarks()):introspectedColumn.getActualColumnName());
+                , StringUtils.isNotEmpty(introspectedColumn.getRemarks(true))?introspectedColumn.getRemarks(true):introspectedColumn.getActualColumnName());
         String order = VStringUtil.format("order = {0}", introspectedColumn.getOrder());
         if (introspectedColumn.getOrder()!=20) {
             return VStringUtil.format("@ViewColumnMeta({0})",String.join(",", value,title,order));

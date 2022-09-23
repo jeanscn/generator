@@ -15,9 +15,9 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -87,6 +87,46 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
     @Override
     public void addStaticImports(Set<String> staticImports) {
         this.staticImports.addAll(staticImports);
+    }
+
+    @Override
+    public void addAddtionalProperties(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+        configurations.stream()
+                .filter(c -> !(c.getName() == null || c.getType() == null || this.isContainField(c.getName())))
+                .forEach(c -> {
+                    FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
+                    org.mybatis.generator.api.dom.java.Field field = new Field(c.getName(), type);
+                    this.addImportedType(type);
+                    field.setVisibility(JavaVisibility.ofCode(c.getVisibility()+" "));
+                    if (c.isFinal()) {
+                        field.setFinal(true);
+                    }
+                    if (c.getTypeArguments().size() > 0) {
+                        for (String typeArgument : c.getTypeArguments()) {
+                            type.addTypeArgument(new FullyQualifiedJavaType(typeArgument));
+                            this.addImportedType(typeArgument);
+                        }
+                    }
+                    for (String annotation : c.getAnnotations()) {
+                        field.addAnnotation(annotation);
+                    }
+                    if (c.getInitializationString() != null) {
+                        field.setInitializationString(c.getInitializationString());
+                    }
+                    if (c.getImportedTypes().size() > 0) {
+                        c.getImportedTypes().forEach(this::addImportedType);
+                    }
+                    this.addField(field);
+                });
+    }
+
+    public void addSerialVersionUID() {
+        Field field = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
+        field.setFinal(true);
+        field.setInitializationString("1L");
+        field.setStatic(true);
+        field.setVisibility(JavaVisibility.PRIVATE);
+        this.addField(field);
     }
 
     @Override

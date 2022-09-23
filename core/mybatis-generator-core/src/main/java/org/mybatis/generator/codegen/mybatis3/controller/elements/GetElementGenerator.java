@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.ReturnTypeEnum;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
@@ -30,7 +31,9 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
         Parameter parameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");
         parameter.addAnnotation("@PathVariable");
         method.addParameter(parameter);
-        method.setReturnType(getResponseResult(false));
+        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
+                introspectedTable.getRules().isGenerateVoModel()?entityVoType:entityType,
+                parentElement));
         addControllerMapping(method, "{id}", "get");
         addSecurityPreAuthorize(method,methodPrefix,"查看详情");
 

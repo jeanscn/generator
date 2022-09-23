@@ -16,17 +16,17 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOModelGeneratorConfiguration extends VOGeneratorConfiguration {
+public class VOModelGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
     public VOModelGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
+        this.generate = true;
         targetPackage = String.join(".", baseTargetPackage,"vo");
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"VO"));
     }

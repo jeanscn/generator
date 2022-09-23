@@ -31,9 +31,10 @@ public class PropertyRegistry {
     /**
      * recognized by table and java model generator.
      */
-    public static final String ANY_ROOT_CLASS = "rootClass"; //$NON-NLS-1$
-    public static final String ANY_IMMUTABLE = "immutable"; //$NON-NLS-1$
-    public static final String ANY_CONSTRUCTOR_BASED = "constructorBased"; //$NON-NLS-1$
+    public static final String ANY_ROOT_CLASS = "rootClass";
+    public static final String  ROOT_CLASS_TYPE_ARGUMENTS = "rootClassTypeArguments";
+    public static final String ANY_IMMUTABLE = "immutable";
+    public static final String ANY_CONSTRUCTOR_BASED = "constructorBased";
 
     /**
      * recognized by table and java client generator.
@@ -87,7 +88,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_SPRING_BOOT_APPLICATION_CLASS = "springBootApplicationClass";
 
     public static final String CONTEXT_MODULE_KEYWORD = "moduleKeyword";
-        public static final String CONTEXT_MODULE_NAME = "moduleName";
+    public static final String CONTEXT_MODULE_NAME = "moduleName";
     public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
     public static final String CONTEXT_INTEGRATE_SPRING_SECURITY = "integrateSpringSecurity";
     public static final String CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT = "forceUpdateScalableElement";
@@ -105,13 +106,27 @@ public class PropertyRegistry {
 
     public static final String TABLE_VIEW_PATH = "viewPath";
     public static final String TABLE_HTML_FIE_SUFFIX = "html";
-
     public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
+    public static final String TABLE_ENABLE_UPDATE_BATCH = "enableUpdateBatch";
+    public static final String TABLE_ENABLE_INSERT_BATCH = "enableInsertBatch";
+    public static final String TABLE_ENABLE_INSERT_OR_UPDATE = "enableInsertOrUpdate";
 
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
 
     public static final String ELEMENT_IGNORE_COLUMNS = "ignoreColumns";
     public static final String ELEMENT_EXCLUDE_COLUMNS = "excludeColumns";
     public static final String ELEMENT_INCLUDE_COLUMNS = "includeColumns";
+    public static final String ELEMENT_REQUIRED_COLUMNS = "requiredColumns";
+    public static final String ELEMENT_TYPE_COLUMN = "typeColumn";
+    public static final String ELEMENT_CODE_COLUMN = "codeColumn";
+    public static final String ELEMENT_NAME_COLUMN = "valueColumn";
+
+    public static final String ELEMENT_SOURCE_COLUMN = "sourceColumn";
+    public static final String ELEMENT_TARGET_COLUMN = "targetColumn";
+    public static final String ELEMENT_TARGET_PROPERTY = "targetProperty";
+    public static final String ELEMENT_TARGET_PROPERTY_TYPE = "targetPropertyType";
+    public static final String ELEMENT_ANNOTATION_TYPE = "annotationType";
+    public static final String ELEMENT_ANNOTATION_BEAN_NAME = "beanName";
+    public static final String ELEMENT_TYPE_VALUE = "typeValue";
 }

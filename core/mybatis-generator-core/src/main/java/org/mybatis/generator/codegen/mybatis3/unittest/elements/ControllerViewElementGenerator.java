@@ -46,7 +46,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
                 "                        .accept(MediaType.TEXT_HTML))\n" +
                 "                .andReturn().getResponse();", MOCK_MVC_PROPERTY_NAME, requestUri);
         method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());");
-        method.addBodyLine("assertThat(response.getContentAsString().contains(\"{0}\")).isTrue();", introspectedTable.getRemarks());
+        method.addBodyLine("assertThat(response.getContentAsString().contains(\"{0}\")).isTrue();", introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
 
         //viewXXX，服务返回失败的测试方法
@@ -65,7 +65,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
                         "                .andReturn().getResponse();\n" +
                         "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
                         "        assertThat(response.getContentAsString().contains(\"{2}\")).isTrue();",
-                MOCK_MVC_PROPERTY_NAME, requestUri, introspectedTable.getRemarks());
+                MOCK_MVC_PROPERTY_NAME, requestUri, introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
     }
 }

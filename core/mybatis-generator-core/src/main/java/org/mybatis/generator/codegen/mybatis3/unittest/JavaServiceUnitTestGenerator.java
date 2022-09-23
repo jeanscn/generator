@@ -93,8 +93,8 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
 
             String javaProperty = JavaBeansUtil.getColumnExampleValue(configuration.getColumn());
             if (configuration.getReturnType()==1) {
-                method.addBodyLine("final ServiceResult<{0}> result = serviceImplUnderTest.{1}({2});", entityType.getShortName(),configuration.getMethodName(),javaProperty);
-                method.addBodyLine("assertThat(result.getResult()).isEqualTo(expectedResult);");
+                method.addBodyLine("final {0} result = serviceImplUnderTest.{1}({2});", entityType.getShortName(),configuration.getMethodName(),javaProperty);
+                method.addBodyLine("assertThat(result).isEqualTo(expectedResult);");
                 testClazz.addImportedType(SERVICE_RESULT);
             }else{
                 method.addBodyLine("final List<{0}> result = serviceImplUnderTest.{1}({2});", entityType.getShortName(),configuration.getMethodName(),javaProperty);

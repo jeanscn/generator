@@ -20,12 +20,15 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOCreateGeneratorConfiguration extends VOGeneratorConfiguration {
+public class VOCreateGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
+    private List<String> requiredColumns = new ArrayList<>();
+
     public VOCreateGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
+        this.generate = true;
         targetPackage = String.join(".", baseTargetPackage,"vo");
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"CreateVO"));
     }
@@ -36,6 +39,14 @@ public class VOCreateGeneratorConfiguration extends VOGeneratorConfiguration {
 
     public void setIncludeColumns(List<String> includeColumns) {
         this.includeColumns = includeColumns;
+    }
+
+    public List<String> getRequiredColumns() {
+        return requiredColumns;
+    }
+
+    public void setRequiredColumns(List<String> requiredColumns) {
+        this.requiredColumns = requiredColumns;
     }
 
     @Override

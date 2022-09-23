@@ -57,7 +57,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                     col.getSqlFragmentLength(),
                     character,
                     col.getSqlFragmentNotNull(),
-                    col.getRemarks());
+                    col.getRemarks(false));
             columnSql.add(rowSql);
         }
         for (IntrospectedColumn primaryKeyColumn : introspectedTable.getPrimaryKeyColumns()) {
@@ -69,9 +69,9 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         }
         ret.add(String.join(",\n", columnSql));
         if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL)) {
-            ret.add(") ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '"+introspectedTable.getRemarks()+"' ROW_FORMAT = Dynamic;");
+            ret.add(") ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '"+introspectedTable.getRemarks(false)+"' ROW_FORMAT = Dynamic;");
         } else {
-            ret.add(") COMMENT =  '"+introspectedTable.getRemarks()+"';");
+            ret.add(") COMMENT =  '"+introspectedTable.getRemarks(false)+"';");
         }
         return String.join("\n", ret);
     }

@@ -217,7 +217,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
         topLevelClass.addJavaDocLine("/**"); //$NON-NLS-1$
 
-        String remarks = introspectedTable.getRemarks();
+        String remarks = introspectedTable.getRemarks(false);
         if (addRemarkComments && StringUtility.stringHasValue(remarks)) {
             topLevelClass.addJavaDocLine(" * Database Table Remarks:"); //$NON-NLS-1$
             String[] remarkLines = remarks.split(System.getProperty("line.separator")); //$NON-NLS-1$
@@ -265,7 +265,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
         field.addJavaDocLine("/**"); //$NON-NLS-1$
 
-        String remarks = introspectedColumn.getRemarks();
+        String remarks = introspectedColumn.getRemarks(false);
         if (addRemarkComments && StringUtility.stringHasValue(remarks)) {
             field.addJavaDocLine(" * Database Column Remarks:"); //$NON-NLS-1$
             String[] remarkLines = remarks.split(System.getProperty("line.separator")); //$NON-NLS-1$
@@ -431,7 +431,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
         field.addAnnotation(getGeneratedAnnotation(comment));
 
         if (!suppressAllComments && addRemarkComments) {
-            String remarks = introspectedColumn.getRemarks();
+            String remarks = introspectedColumn.getRemarks(false);
             if (addRemarkComments && StringUtility.stringHasValue(remarks)) {
                 field.addJavaDocLine("/**"); //$NON-NLS-1$
                 field.addJavaDocLine(" * Database Column Remarks:"); //$NON-NLS-1$

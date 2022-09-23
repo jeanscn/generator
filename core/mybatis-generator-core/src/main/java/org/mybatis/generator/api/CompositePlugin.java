@@ -569,6 +569,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientInsertOrUpdateMethodGenerated(method, interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean clientInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
@@ -615,9 +625,18 @@ public abstract class CompositePlugin implements Plugin {
                 return false;
             }
         }
-
         return true;
 
+    }
+
+    @Override
+    public boolean clientInsertBatchMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientInsertBatchMethodGenerated(method, interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -670,6 +689,16 @@ public abstract class CompositePlugin implements Plugin {
 
         return true;
 
+    }
+
+    @Override
+    public boolean clientSelectByKeysDicMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientSelectByKeysDicMethodGenerated(method, interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -830,6 +859,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean clientUpdateBatchMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientUpdateBatchMethodGenerated(method, interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(KotlinFunction kotlinFunction,
                                                                     KotlinFile kotlinFile, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
@@ -919,6 +958,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voUpdateFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean voModelGetterMethodGenerated(Method method,
                                                  TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
                                                  IntrospectedTable introspectedTable) {
@@ -936,6 +985,18 @@ public abstract class CompositePlugin implements Plugin {
                                                 IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voCreateGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voUpdateGetterMethodGenerated(Method method,
+                                                 TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
+                                                 IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voUpdateGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable)) {
                 return false;
             }
         }
@@ -1059,6 +1120,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voModelUpdateClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelUpdateClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voModelViewClassGenerated(topLevelClass, introspectedTable)) {
@@ -1082,6 +1153,16 @@ public abstract class CompositePlugin implements Plugin {
     public boolean voModelRequestClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voModelRequestClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelCacheClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelCacheClassGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }
@@ -1266,6 +1347,18 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean sqlMapInsertOrUpdateSelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.sqlMapInsertOrUpdateSelectiveElementGenerated(element, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    @Override
     public boolean sqlMapResultMapWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.sqlMapResultMapWithBLOBsElementGenerated(element, introspectedTable)) {
@@ -1299,6 +1392,17 @@ public abstract class CompositePlugin implements Plugin {
 
         return true;
 
+    }
+
+    @Override
+    public boolean sqlMapSelectByKeysDictElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.sqlMapSelectByKeysDictElementGenerated(element, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -1371,6 +1475,19 @@ public abstract class CompositePlugin implements Plugin {
                                                                      IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.sqlMapUpdateByPrimaryKeySelectiveElementGenerated(element, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    @Override
+    public boolean sqlMapUpdateBatchElementGenerated(XmlElement element,
+                                                     IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.sqlMapUpdateBatchElementGenerated(element, introspectedTable)) {
                 return false;
             }
         }

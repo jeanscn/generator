@@ -124,7 +124,7 @@ public class ValidateDatabaseTable {
     private void copyColumnProperty(IntrospectedColumn source, IntrospectedColumn target) {
         target.setIdentity(source.isIdentity());
         target.setLength(source.getLength());
-        target.setRemarks(source.getRemarks());
+        target.setRemarks(source.getRemarks(false));
         target.setDefaultValue(source.getDefaultValue());
         target.setJdbcTypeName(source.getJdbcTypeName());
         target.setNullable(source.isNullable());
@@ -159,7 +159,7 @@ public class ValidateDatabaseTable {
                             || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber() //类型
                             || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
                             || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale())) //小数点位数
-                            || !introspectedColumn.getRemarks().equals(remark)
+                            || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
                             || (!columnMeta.nullable() && !columnMeta.pkid()
@@ -293,7 +293,7 @@ public class ValidateDatabaseTable {
                     col.getSqlFragmentLength(),
                     character,
                     col.getSqlFragmentNotNull(),
-                    col.getRemarks(),
+                    col.getRemarks(false),
                     position);
             if (sb.length() > 0) {
                 sb.append(",").append("\n");

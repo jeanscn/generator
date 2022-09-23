@@ -14,6 +14,7 @@ import java.util.Objects;
 public class ConstantsUtil {
 
     //实体接口
+    public static final String I_BASE_DTO = "com.vgosoft.core.pojo.IBaseDTO";
     public static final String I_SHOW_IN_VIEW = "com.vgosoft.core.entity.IShowInView";
     public static final String I_PERSISTENCE_BASIC = "com.vgosoft.core.entity.IPersistenceBasic";
     public static final String I_SORTABLE_ENTITY = "com.vgosoft.core.entity.ISortableEntity";
@@ -57,10 +58,12 @@ public class ConstantsUtil {
     public static final String MODEL_AND_VIEW = "org.springframework.web.servlet.ModelAndView";
     public static final String VIEW_DT_TABLE = "com.vgosoft.web.entity.ViewDtTable";
     public static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
+    public static final String SPRING_CONTEXT_HOLDER = "com.vgosoft.core.util.SpringContextHolder";
 
     //枚举
     public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.ServiceCodeEnum";
     public static final String API_CODE_ENUM = "com.vgosoft.core.constant.enums.ApiCodeEnum";
+    public static final String ACTION_CATE_ENUM = "com.vgosoft.core.constant.enums.ActionCateEnum";
 
     //annotation
     public static final String ANNOTATION_SYSTEM_LOG = "com.vgosoft.core.annotation.SystemLog";
@@ -80,6 +83,7 @@ public class ConstantsUtil {
     //属性名
     public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
     public static final String PROP_NAME_VIEW_PATH = "viewPath";
+    public static final String PROP_DICT_VALUE_TEXT = "dictValueText";
 
     //参数名称
     public static final String PARAM_NAME_PERSISTENCE_STATUS = "persistenceStatus";

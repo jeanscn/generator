@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.ReturnTypeEnum;
 
 public class ListElementGenerator extends AbstractControllerElementGenerator {
 
@@ -27,16 +28,14 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "list";
         Method method = createMethod(methodPrefix);
         addSystemLogAnnotation(method, parentElement);
-        if (introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addParameter(new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase()));
-            parentElement.addImportedType(entityRequestVoType);
-        } else{
-            method.addParameter(buildMethodParameter(false, false,parentElement));
-        }
+        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
+        method.addParameter(buildMethodParameter(descript));
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
         method.addParameter(actionType);
-        method.setReturnType(getResponseResult(true));
+        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
+                introspectedTable.getRules().isGenerateVoModel()?entityVoType:entityType,
+                parentElement));
         addControllerMapping(method, "", "get");
         addSecurityPreAuthorize(method,methodPrefix,"数据列表");
 

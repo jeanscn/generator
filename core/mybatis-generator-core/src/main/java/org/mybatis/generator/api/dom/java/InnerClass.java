@@ -16,6 +16,7 @@
 package org.mybatis.generator.api.dom.java;
 
 import com.vgosoft.tool.core.VReflectionUtil;
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import java.util.ArrayList;
@@ -109,7 +110,7 @@ public class InnerClass extends AbstractJavaType {
         return false;
     }
 
-    public boolean addField(org.mybatis.generator.api.dom.java.Field field, Integer index, boolean checkUnique) {
+    public boolean addField(Field field, Integer index, boolean checkUnique) {
         if (index == null) index = getFields().size();
         if (getFields().size()==0) {
             getFields().add(index,field);

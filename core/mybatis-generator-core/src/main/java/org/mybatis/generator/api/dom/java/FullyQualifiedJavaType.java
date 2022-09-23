@@ -255,6 +255,10 @@ public class FullyQualifiedJavaType implements
         return intInstance;
     }
 
+    public static FullyQualifiedJavaType getIntegerInstance() {
+        return new FullyQualifiedJavaType("java.lang.Integer");
+    }
+
     public static FullyQualifiedJavaType getNewListInstance() {
         // always return a new instance because the type may be parameterized
         return new FullyQualifiedJavaType("java.util.List"); //$NON-NLS-1$

@@ -15,6 +15,10 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import com.vgosoft.core.constant.enums.DDLDefaultValueEnum;
+
+import java.util.EnumSet;
+
 /**
  * Typesafe enum of possible Java visibility settings.
  *
@@ -34,5 +38,11 @@ public enum JavaVisibility {
 
     public String getValue() {
         return value;
+    }
+
+    public static JavaVisibility ofCode(final String value){
+        return EnumSet.allOf(JavaVisibility.class).stream()
+                .filter(e -> e.value.equals(value))
+                .findFirst().orElse(JavaVisibility.DEFAULT);
     }
 }

@@ -15,18 +15,17 @@
  */
 package org.mybatis.generator.internal.util;
 
-import com.sun.jna.platform.win32.WinNT;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VMD5Util;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.rules.BaseRules;
 
 import java.io.File;
 import java.sql.JDBCType;
@@ -34,7 +33,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mybatis.generator.internal.util.StringUtility.*;
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
 
 public class JavaBeansUtil {
 
@@ -507,12 +507,24 @@ public class JavaBeansUtil {
         return rootClass;
     }
 
+    public static List<String> getRootClassTypeArguments(IntrospectedTable introspectedTable) {
+        List<String> ret;
+        String typeArguments = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS_TYPE_ARGUMENTS);
+        if (StringUtility.stringHasValue(typeArguments)) {
+            ret = Arrays.asList(typeArguments.split(","));
+        }else{
+            ret = new ArrayList<>();
+        }
+        return ret;
+    }
+
     public static List<IntrospectedColumn> getAbstractVOColumns(IntrospectedTable introspectedTable){
         TableConfiguration tc = introspectedTable.getTableConfiguration();
+        BaseRules rules = introspectedTable.getRules();
         List<String> include = new ArrayList<>();
         List<String> exclude = new ArrayList<>();
-        if (tc.getVoModelGeneratorConfiguration()!=null && tc.getVoModelGeneratorConfiguration().isGenerate()) {
-            VOModelGeneratorConfiguration cfg = tc.getVoModelGeneratorConfiguration();
+        if (rules.isGenerateVoModel()) {
+            VOModelGeneratorConfiguration cfg = tc.getVoGeneratorConfiguration().getVoModelConfiguration();
             if (cfg.getIncludeColumns().size()>0) {
                 include.addAll(cfg.getIncludeColumns());
             }
@@ -520,8 +532,8 @@ public class JavaBeansUtil {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
-        if (tc.getVoViewGeneratorConfiguration()!=null && tc.getVoViewGeneratorConfiguration().isGenerate()) {
-            VOViewGeneratorConfiguration cfg = tc.getVoViewGeneratorConfiguration();
+        if (rules.isGenerateViewVO()) {
+            VOViewGeneratorConfiguration cfg = tc.getVoGeneratorConfiguration().getVoViewConfiguration();
             if (cfg.getIncludeColumns().size()>0) {
                 include.retainAll(cfg.getIncludeColumns());
             }
@@ -529,8 +541,8 @@ public class JavaBeansUtil {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
-        if (tc.getVoRequestGeneratorConfiguration()!=null && tc.getVoRequestGeneratorConfiguration().isGenerate()) {
-            VORequestGeneratorConfiguration cfg = tc.getVoRequestGeneratorConfiguration();
+        if (rules.isGenerateRequestVO()) {
+            VORequestGeneratorConfiguration cfg = tc.getVoGeneratorConfiguration().getVoRequestConfiguration();
             if (cfg.getExcludeColumns().size()>0) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
@@ -556,7 +568,8 @@ public class JavaBeansUtil {
 
     public static List<IntrospectedColumn> getAllExcelVOColumns(IntrospectedTable introspectedTable) {
         List<IntrospectedColumn> columns;
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoExcelGeneratorConfiguration();
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tc.getVoGeneratorConfiguration().getVoExcelConfiguration();
         if (voExcelGeneratorConfiguration.getIncludeColumns().size()>0) {
             List<String> includeColumns = voExcelGeneratorConfiguration.getIncludeColumns();
             columns = introspectedTable.getAllColumns().stream()

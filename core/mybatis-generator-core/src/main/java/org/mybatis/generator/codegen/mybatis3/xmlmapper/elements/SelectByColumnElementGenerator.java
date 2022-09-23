@@ -85,6 +85,11 @@ public class SelectByColumnElementGenerator extends
             answer.addElement(new TextElement(sb.toString()));
             if (StringUtility.propertyValueValid(selectByColumnGeneratorConfiguration.getOrderByClause())) {
                 answer.addElement(new TextElement("order by "+ selectByColumnGeneratorConfiguration.getOrderByClause()));
+            }else{
+                TextElement defaultOrderBy = buildOrderByDefault();
+                if (defaultOrderBy != null) {
+                    answer.addElement(defaultOrderBy);
+                }
             }
             parentElement.addElement(answer);
         }

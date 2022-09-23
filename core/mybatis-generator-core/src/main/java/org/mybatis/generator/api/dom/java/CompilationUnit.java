@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +41,8 @@ public interface CompilationUnit {
     void addStaticImport(String staticImport);
 
     void addStaticImports(Set<String> staticImports);
+
+    void addAddtionalProperties(List<VoAdditionalPropertyGeneratorConfiguration> configurations);
 
     /**
      * Comments will be written at the top of the file as is, we do not append any start or end comment characters.

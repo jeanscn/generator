@@ -74,7 +74,7 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
         if (!stringHasValue(targetPackage)) {
             errors.add(getString("ValidationError.12",funcKey, contextId));
         }
-    };
+    }
 
     abstract void validate(List<String> errors, String contextId);
 }

@@ -68,6 +68,11 @@ public class DisableInsertPlugin extends PluginAdapter {
     }
 
     @Override
+    public boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+        return false;
+    }
+
+    @Override
     public boolean clientInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
             IntrospectedTable introspectedTable) {
         return false;
@@ -88,6 +93,11 @@ public class DisableInsertPlugin extends PluginAdapter {
     @Override
     public boolean clientInsertSelectiveMethodGenerated(Method method, Interface interfaze,
             IntrospectedTable introspectedTable) {
+        return false;
+    }
+
+    @Override
+    public boolean clientInsertBatchMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
         return false;
     }
 

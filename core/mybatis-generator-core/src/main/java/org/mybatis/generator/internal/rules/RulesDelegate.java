@@ -175,6 +175,16 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean generateInsertOrUpdate() {
+        return rules.generateInsertOrUpdate();
+    }
+
+    @Override
+    public boolean generateUpdateBatch() {
+        return rules.generateUpdateBatch();
+    }
+
+    @Override
     public boolean generateUpdateByPrimaryKeyWithBLOBs() {
         return rules.generateUpdateByPrimaryKeyWithBLOBs();
     }
@@ -256,6 +266,16 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateCachePO() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateCachePOWithMultiKey() {
+        return false;
+    }
+
+    @Override
     public boolean isForceGenerateScalableElement() {
         return false;
     }
@@ -270,6 +290,11 @@ public class RulesDelegate implements Rules {
 
     @Override
     public boolean isGenerateCreateVO() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateUpdateVO() {
         return false;
     }
 }
