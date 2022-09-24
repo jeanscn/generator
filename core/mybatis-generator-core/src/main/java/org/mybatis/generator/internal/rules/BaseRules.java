@@ -536,8 +536,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateRelationWithSubSelected(){
-        long count = tc.getRelationGeneratorConfigurations().stream().filter(RelationGeneratorConfiguration::isSubSelected).count();
-        return count>0;
+        return tc.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isSubSelected);
     }
 
     @Override
@@ -627,5 +626,25 @@ public abstract class BaseRules implements Rules {
     public boolean isGenerateCachePOWithMultiKey() {
         VOCacheGeneratorConfiguration config = tc.getVoCacheGeneratorConfiguration();
         return config!=null && config.isGenerate() && (config.getTypeColumn()!=null || config.getCodeColumn()!=null);
+    }
+
+    @Override
+    public boolean generateSelectByExampleWithRelation() {
+        return false;
+    }
+
+    @Override
+    public boolean generateSelectTreeByParentId() {
+        return introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId());
+    }
+
+    @Override
+    public boolean generateSelectByColumn() {
+        return tc.getSelectByColumnGeneratorConfigurations().size() > 0;
+    }
+
+    @Override
+    public boolean generateSelectByTable() {
+        return tc.getSelectByTableGeneratorConfiguration().size()>0;
     }
 }

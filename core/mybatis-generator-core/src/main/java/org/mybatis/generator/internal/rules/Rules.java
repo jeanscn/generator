@@ -36,10 +36,6 @@ public interface Rules {
      */
     boolean generateInsert();
 
-    boolean generateInsertBatch();
-
-    boolean generateInsertOrUpdate();
-
     /**
      * Implements the rule for generating the insert selective SQL Map element
      * and DAO method. If the insert statement is allowed, then generate the
@@ -88,8 +84,6 @@ public interface Rules {
      * @return true if the element and method should be generated
      */
     boolean generateUpdateByPrimaryKeySelective();
-
-    boolean generateUpdateBatch();
 
     /**
      * Implements the rule for generating the delete by primary key SQL Map
@@ -286,4 +280,22 @@ public interface Rules {
     boolean isGenerateCachePO();
 
     boolean isGenerateCachePOWithMultiKey();
+
+    /**
+     * * 生成方法
+     * * */
+
+    boolean generateInsertBatch();
+
+    boolean generateUpdateBatch();
+
+    boolean generateInsertOrUpdate();
+
+    boolean generateSelectByExampleWithRelation();
+
+    boolean generateSelectTreeByParentId();
+
+    boolean generateSelectByColumn();
+
+    boolean generateSelectByTable();
 }

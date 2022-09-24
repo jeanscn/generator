@@ -24,6 +24,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     TableConfiguration tc;
     FullyQualifiedJavaType entityType;
     FullyQualifiedJavaType exampleType;
+    List<RelationGeneratorConfiguration> relationConfigurations;
 
     public JavaServiceImplGenerator(String project) {
         super(project);
@@ -38,6 +39,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         CommentGenerator commentGenerator = context.getCommentGenerator();
         Plugin plugins = context.getPlugins();
 
+        relationConfigurations = introspectedTable.getRelationGeneratorConfigurations();
         String targetPackage = tc.getJavaClientGeneratorConfiguration().getTargetPackage();
         FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(targetPackage + "." + tc.getDomainObjectName() + "Mapper");
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
@@ -75,6 +77,19 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         constructor.addBodyLine("this.mapper = mapper;");
         bizGenClazzImpl.addMethod(constructor);
 
+        /*
+         * insertBatch
+         * */
+        addInsertBatchElement(bizGenClazzImpl);
+        /*
+         * UpdateBatch
+         * */
+        addUpdateBatchElement(bizGenClazzImpl);
+        /*
+         * insertOrUpdate
+         * */
+        addInsertOrUpdateElement(bizGenClazzImpl);
+
         //selectByExampleWithRelation
         addSelectByExampleWithRelationElement(bizGenClazzImpl);
 
@@ -88,15 +103,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         addSelectByTableElement(bizGenClazzImpl);
 
         addSelectByKeysDictElement(bizGenClazzImpl);
+
         /*
-         * insertBatch
+         *  以下是重写的方法
          * */
-        addInsertBatchElement(bizGenClazzImpl);
-        addUpdateBatchElement(bizGenClazzImpl);
-        /*
-         * insertOrUpdate
-         * */
-        addInsertOrUpdateElement(bizGenClazzImpl);
         //insert
         addInsertElement(bizGenClazzImpl);
         //insertSelective
@@ -169,6 +179,144 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         return answer;
     }
 
+    private void addInsertBatchElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateInsertBatch()) {
+            AbstractServiceElementGenerator elementGenerator = new InsertBatchElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addUpdateBatchElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateUpdateBatch()) {
+            AbstractServiceElementGenerator elementGenerator = new UpdateBatchElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addInsertOrUpdateElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateInsertOrUpdate()) {
+            AbstractServiceElementGenerator elementGenerator = new InsertOrUpdateElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addSelectByExampleWithRelationElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectByExampleWithRelationElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addSelectTreeByParentIdElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateSelectTreeByParentId()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectTreeByParentIdElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addSelectByColumnElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateSelectByColumn()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectByColumnElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addSelectByTableElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateSelectByTable()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectByTableElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    /*
+     *  getSelectByKeysDictMethod
+     * */
+    private void addSelectByKeysDictElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateCachePO()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectByKeysDictElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    /**
+     * * 以下是重写的方法
+     * * */
+    private void addInsertElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateInsert()
+                && relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
+            AbstractServiceElementGenerator elementGenerator = new InsertElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addInsertSelectiveElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateInsert()
+                && relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
+            AbstractServiceElementGenerator elementGenerator = new InsertSelectiveElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addDeleteByExampleElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateDeleteByExample()
+                && (introspectedTable.getRules().isGenerateCachePO()
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete))) {
+            AbstractServiceElementGenerator elementGenerator = new DeleteByExampleElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addDeleteByPrimaryKeyElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateDeleteByPrimaryKey()
+                && (introspectedTable.getRules().isGenerateCachePO()
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete))) {
+            AbstractServiceElementGenerator elementGenerator = new DeleteByPrimaryKeyElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addUpdateByExampleElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateUpdateByExampleSelective()
+                && (introspectedTable.getRules().isGenerateCachePO()
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
+            AbstractServiceElementGenerator elementGenerator = new UpdateByExampleElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
+                && (introspectedTable.getRules().isGenerateCachePO()
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
+            AbstractServiceElementGenerator elementGenerator = new UpdateByPrimaryKeyElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addInnerMethodInsertUpdateElement(TopLevelClass parentElement) {
+        if (relationConfigurations.stream()
+                .anyMatch(c -> c.isEnableDelete() || c.isEnableUpdate() || c.isEnableInsertOrUpdate() || c.isEnableInsert())) {
+            AbstractServiceElementGenerator elementGenerator = new InnerMethodInsertUpdateElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addUpdateBySqlElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateCachePO()) {
+            AbstractServiceElementGenerator elementGenerator = new UpdateBySqlElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    protected void initializeAndExecuteGenerator(AbstractServiceElementGenerator elementGenerator, TopLevelClass parentElement) {
+        elementGenerator.setContext(context);
+        elementGenerator.setIntrospectedTable(introspectedTable);
+        elementGenerator.setProgressCallback(progressCallback);
+        elementGenerator.setWarnings(warnings);
+        elementGenerator.initGenerator();
+        elementGenerator.addElements(parentElement);
+    }
+
     /**
      * 内部类
      * 获得Service抽象类父类
@@ -196,143 +344,5 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private String getTableBeanName(IntrospectedTable introspectedTable) {
         String implClazzName = introspectedTable.getControllerBeanName();
         return JavaBeansUtil.getFirstCharacterLowercase(implClazzName);
-    }
-
-    private void addSelectByExampleWithRelationElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isSubSelected)) {
-            AbstractServiceElementGenerator elementGenerator = new SelectByExampleWithRelationElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addSelectByColumnElement(TopLevelClass parentElement) {
-        if (tc.getSelectByColumnGeneratorConfigurations().size() > 0) {
-            AbstractServiceElementGenerator elementGenerator = new SelectByColumnElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addSelectByTableElement(TopLevelClass parentElement) {
-        if (tc.getSelectByTableGeneratorConfiguration().size() > 0) {
-            AbstractServiceElementGenerator elementGenerator = new SelectByTableElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addSelectTreeByParentIdElement(TopLevelClass parentElement) {
-        if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
-                && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            AbstractServiceElementGenerator elementGenerator = new SelectTreeByParentIdElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addSelectByKeysDictElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
-            AbstractServiceElementGenerator elementGenerator = new SelectByKeysDictElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addInsertBatchElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateInsertBatch()
-                && introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
-            AbstractServiceElementGenerator elementGenerator = new InsertBatchElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addUpdateBatchElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateUpdateBatch()
-                && (introspectedTable.getRules().isGenerateCachePO()
-                || introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
-            AbstractServiceElementGenerator elementGenerator = new UpdateBatchElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addInsertOrUpdateElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateInsertOrUpdate()
-                && (introspectedTable.getRules().isGenerateCachePO()
-                || introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableInsertOrUpdate))) {
-            AbstractServiceElementGenerator elementGenerator = new InsertOrUpdateElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addInsertElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateInsert()
-                && introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
-            AbstractServiceElementGenerator elementGenerator = new InsertElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addInsertSelectiveElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateInsert()
-                && introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
-            AbstractServiceElementGenerator elementGenerator = new InsertSelectiveElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addDeleteByExampleElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateDeleteByExample()
-                && (introspectedTable.getRules().isGenerateCachePO()
-                || introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete))) {
-            AbstractServiceElementGenerator elementGenerator = new DeleteByExampleElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addDeleteByPrimaryKeyElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateDeleteByPrimaryKey()
-                && (introspectedTable.getRules().isGenerateCachePO()
-                || introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete))) {
-            AbstractServiceElementGenerator elementGenerator = new DeleteByPrimaryKeyElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addUpdateByExampleElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateUpdateByExampleSelective()
-                && (introspectedTable.getRules().isGenerateCachePO()
-                || introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
-            AbstractServiceElementGenerator elementGenerator = new UpdateByExampleElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
-                && (introspectedTable.getRules().isGenerateCachePO()
-                || introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
-            AbstractServiceElementGenerator elementGenerator = new UpdateByPrimaryKeyElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addInnerMethodInsertUpdateElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRelationGeneratorConfigurations().stream()
-                .anyMatch(c -> c.isEnableDelete() || c.isEnableUpdate() || c.isEnableInsertOrUpdate() || c.isEnableInsert())) {
-            AbstractServiceElementGenerator elementGenerator = new InnerMethodInsertUpdateElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    private void addUpdateBySqlElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
-            AbstractServiceElementGenerator elementGenerator = new UpdateBySqlElement();
-            initializeAndExecuteGenerator(elementGenerator, parentElement);
-        }
-    }
-
-    protected void initializeAndExecuteGenerator(AbstractServiceElementGenerator elementGenerator, TopLevelClass parentElement) {
-        elementGenerator.setContext(context);
-        elementGenerator.setIntrospectedTable(introspectedTable);
-        elementGenerator.setProgressCallback(progressCallback);
-        elementGenerator.setWarnings(warnings);
-        elementGenerator.initGenerator();
-        elementGenerator.addElements(parentElement);
     }
 }

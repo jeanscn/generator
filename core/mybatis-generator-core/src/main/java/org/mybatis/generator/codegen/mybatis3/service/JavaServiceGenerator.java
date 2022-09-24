@@ -77,9 +77,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         }
 
         //增加selectTreeByParentId
-        Map<String, CustomMethodGeneratorConfiguration> customAddtionalSelectMethodMap = introspectedTable.getCustomAddtionalSelectMethods();
-        if (customAddtionalSelectMethodMap.size() > 0
-                && customAddtionalSelectMethodMap.containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
+        if (introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
             CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
             Method method = getSelectTreeByParentIdMethod(entityType, bizINF, customMethodGeneratorConfiguration, true);
             bizINF.addMethod(method);
@@ -93,16 +91,16 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             }
         }
 
+        //增加selectByTableXXX
         List<SelectByTableGeneratorConfiguration> selectByTableConfiguration = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
-        if (selectByTableConfiguration!=null
-                && selectByTableConfiguration.size()>0) {
+        if (selectByTableConfiguration.size()>0) {
             for (SelectByTableGeneratorConfiguration config : selectByTableConfiguration) {
                 Method selectByTable = getSelectByTableMethod(entityType, bizINF, config,true);
                 bizINF.addMethod(selectByTable);
             }
         }
 
-        /**
+        /*
          *  getSelectByKeysDictMethod
          * */
         if (introspectedTable.getRules().isGenerateCachePO()) {
