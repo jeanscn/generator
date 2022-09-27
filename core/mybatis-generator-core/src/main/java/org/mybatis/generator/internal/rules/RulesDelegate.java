@@ -297,4 +297,29 @@ public class RulesDelegate implements Rules {
     public boolean isGenerateUpdateVO() {
         return false;
     }
+
+    @Override
+    public boolean generateSelectByExampleWithRelation() {
+        return false;
+    }
+
+    @Override
+    public boolean generateSelectTreeByParentId() {
+        return false;
+    }
+
+    @Override
+    public boolean generateSelectByColumn() {
+        return false;
+    }
+
+    @Override
+    public boolean generateSelectByTable() {
+        return false;
+    }
+
+    @Override
+    public boolean generateFileUpload() {
+        return false;
+    }
 }

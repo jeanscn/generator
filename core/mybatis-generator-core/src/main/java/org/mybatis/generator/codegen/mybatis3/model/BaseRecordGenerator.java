@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.codegen.mybatis3.model;
 
+import net.sf.jsqlparser.statement.select.Top;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -23,8 +24,10 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,6 +70,18 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 superClass.addTypeArgument(new FullyQualifiedJavaType(s));
             });
         }
+
+        String superInterface = introspectedTable.getTableConfiguration().getProperty("superInterface");
+        if (StringUtility.stringHasValue(superInterface)) {
+            Arrays.stream(superInterface.split(","))
+                    .map(FullyQualifiedJavaType::new)
+                    .forEach(s->{
+                        topLevelClass.addSuperInterface(s);
+                        topLevelClass.addImportedType(s);
+                    });
+        }
+
+
         //类注释
         commentGenerator.addModelClassComment(topLevelClass, introspectedTable);
 

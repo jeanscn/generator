@@ -273,8 +273,7 @@ public abstract class BaseRules implements Rules {
 
         return tc.isUpdateBatchStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
-                && (introspectedTable.hasBLOBColumns() || introspectedTable
-                .hasBaseColumns());
+                && (introspectedTable.hasBLOBColumns() || introspectedTable.hasBaseColumns());
     }
 
     /**
@@ -576,42 +575,48 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isGenerateVoModel(){
-        return  isGenerateVO()
+        return  tc.getVoGeneratorConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoModelConfiguration()!=null
                 && tc.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateCreateVO(){
-        return  isGenerateVO()
+        return  tc.getVoGeneratorConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoCreateConfiguration()!=null
                 && tc.getVoGeneratorConfiguration().getVoCreateConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateUpdateVO(){
-        return  isGenerateVO()
+        return  tc.getVoGeneratorConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoUpdateConfiguration()!=null
                 && tc.getVoGeneratorConfiguration().getVoUpdateConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateExcelVO() {
-        return  isGenerateVO()
+        return  tc.getVoGeneratorConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoExcelConfiguration()!=null
                 && tc.getVoGeneratorConfiguration().getVoExcelConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateRequestVO() {
-        return  isGenerateVO()
+        return  tc.getVoGeneratorConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoRequestConfiguration()!=null
                 && tc.getVoGeneratorConfiguration().getVoRequestConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateViewVO() {
-        return  isGenerateVO()
+        return  tc.getVoGeneratorConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoViewConfiguration()!=null
                 && tc.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate();
     }
@@ -646,5 +651,10 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean generateSelectByTable() {
         return tc.getSelectByTableGeneratorConfiguration().size()>0;
+    }
+
+    @Override
+    public boolean generateFileUpload() {
+        return tc.isFileUploadStatementEnabled();
     }
 }

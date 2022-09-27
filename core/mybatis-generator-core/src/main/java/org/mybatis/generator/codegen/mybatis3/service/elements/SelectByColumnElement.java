@@ -40,6 +40,7 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
                 String sb = "return mapper." + configuration.getMethodName() +
                         "(" +
                         foreignKeyColumn.getJavaProperty() +
+                        (configuration.isParameterList()?"s":"") +
                         ");";
                 methodByColumn.addBodyLine(sb);
                 parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());

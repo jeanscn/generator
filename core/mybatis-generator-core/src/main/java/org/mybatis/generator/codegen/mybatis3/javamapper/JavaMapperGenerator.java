@@ -194,12 +194,17 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method;
+                boolean isListParam = config.getParameterType().equals("list");
+                FullyQualifiedJavaType paramType = isListParam?FullyQualifiedJavaType.getNewListInstance():config.getColumn().getFullyQualifiedJavaType();
+                if (isListParam) {
+                    paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
+                }
                 if (config.isReturnPrimaryKey()) {
                     method = getMethodByType(config.getMethodName(),
                             ReturnTypeEnum.LIST,
                             FullyQualifiedJavaType.getStringInstance(),
-                            FullyQualifiedJavaType.getStringInstance(),
-                            config.getColumn().getJavaProperty(),
+                            paramType,
+                            config.getColumn().getJavaProperty()+(isListParam?"s":""),
                             config.getColumn().getRemarks(false),
                             true,
                             interfaze);
@@ -207,8 +212,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                     method = getMethodByType(config.getMethodName(),
                             ReturnTypeEnum.MODEL,
                             entityType,
-                            FullyQualifiedJavaType.getStringInstance(),
-                            config.getColumn().getJavaProperty(),
+                            paramType,
+                            config.getColumn().getJavaProperty()+(isListParam?"s":""),
                             config.getColumn().getRemarks(false),
                             true,
                             interfaze);
@@ -216,8 +221,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                     method = getMethodByType(config.getMethodName(),
                             ReturnTypeEnum.LIST,
                             entityType,
-                            FullyQualifiedJavaType.getStringInstance(),
-                            config.getColumn().getJavaProperty(),
+                            paramType,
+                            config.getColumn().getJavaProperty()+(isListParam?"s":""),
                             config.getColumn().getRemarks(false),
                             true,
                             interfaze);

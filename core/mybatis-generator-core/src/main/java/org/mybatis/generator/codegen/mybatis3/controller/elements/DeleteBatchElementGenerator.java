@@ -33,7 +33,7 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
 
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
-        method.addBodyLine("int rows =  {0}.deleteByExample(example);",serviceBeanName);
+        method.addBodyLine("int rows =  {0}.{1}(example);",serviceBeanName,introspectedTable.getDeleteByExampleStatementId());
         method.addBodyLine("if (rows > 0) {");
         method.addBodyLine("return success((long) rows);");
         method.addBodyLine("} else {");

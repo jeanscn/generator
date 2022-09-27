@@ -218,7 +218,9 @@ public class MyBatisGeneratorConfigurationParser {
     protected void parseTable(Context context, Node node) {
         TableConfiguration tc = new TableConfiguration(context);
         Properties attributes = parseAttributes(node);
+
         String ignore = attributes.getProperty("ignore");
+
         String domainObjectName = attributes.getProperty("domainObjectName");
         if (!stringHasValue(ignore) && stringHasValue(domainObjectName)) {
             JavaModelGeneratorConfiguration gc = context.getJavaModelGeneratorConfiguration();
@@ -310,17 +312,22 @@ public class MyBatisGeneratorConfigurationParser {
 
         String enableUpdateBatch = attributes.getProperty(PropertyRegistry.TABLE_ENABLE_UPDATE_BATCH);
         if (stringHasValue(enableUpdateBatch)) {
-            tc.setUpdateBatchStatementEnabled(isTrue(enableUpdateBatch));
+            tc.setUpdateBatchStatementEnabled(Boolean.parseBoolean(enableUpdateBatch));
         }
 
         String enableInsertBatch = attributes.getProperty(PropertyRegistry.TABLE_ENABLE_INSERT_BATCH);
         if (stringHasValue(enableInsertBatch)) {
-            tc.setInsertBatchStatementEnabled(isTrue(enableInsertBatch));
+            tc.setInsertBatchStatementEnabled(Boolean.parseBoolean(enableInsertBatch));
         }
 
         String enableInsertOrUpdate = attributes.getProperty(PropertyRegistry.TABLE_ENABLE_INSERT_OR_UPDATE);
         if (stringHasValue(enableInsertOrUpdate)) {
-            tc.setInsertOrUpdateStatementEnabled(isTrue(enableInsertOrUpdate));
+            tc.setInsertOrUpdateStatementEnabled(Boolean.parseBoolean(enableInsertOrUpdate));
+        }
+
+        String enableFileUpload = attributes.getProperty(PropertyRegistry.TABLE_ENABLE_FILE_UPLOAD);
+        if (stringHasValue(enableFileUpload)) {
+            tc.setFileUploadStatementEnabled(Boolean.parseBoolean(enableFileUpload));
         }
 
         String selectByPrimaryKeyQueryId = attributes
@@ -614,6 +621,10 @@ public class MyBatisGeneratorConfigurationParser {
         selectByColumnGeneratorConfiguration.setOrderByClause(orderByClause);
         if (stringHasValue(returnType)) {
             selectByColumnGeneratorConfiguration.setReturnTypeParam(returnType);
+        }
+        String parameterType = attributes.getProperty("parameterType");
+        if (stringHasValue(parameterType)) {
+            selectByColumnGeneratorConfiguration.setParameterType(parameterType);
         }
         tc.addSelectByColumnProperties(selectByColumnGeneratorConfiguration);
     }
@@ -966,7 +977,7 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseGenerateVO(Context context, TableConfiguration tc, Node node) {
         VOGeneratorConfiguration configuration = new VOGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(node);
-        String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE,"false");
+        String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
         configuration.setGenerate(Boolean.parseBoolean(generate));
 
         NodeList nodeList = node.getChildNodes();

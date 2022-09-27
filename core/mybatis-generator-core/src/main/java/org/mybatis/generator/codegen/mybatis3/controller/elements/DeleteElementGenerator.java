@@ -29,7 +29,7 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         addControllerMapping(method, "{id}", "delete");
         addSecurityPreAuthorize(method,methodPrefix,"删除");
 
-        method.addBodyLine("int rows =  {0}.deleteByPrimaryKey(id);",serviceBeanName);
+        method.addBodyLine("int rows =  {0}.{1}(id);",serviceBeanName,introspectedTable.getDeleteByPrimaryKeyStatementId());
         method.addBodyLine("if (rows > 0) {");
         method.addBodyLine("return success((long) rows);");
         method.addBodyLine("} else {");

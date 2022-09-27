@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.220925001-->
+        <!--version:1.4.8.220927001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -137,6 +137,10 @@
         <!--
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
+          property配置：
+            1、rootClass 指定生成对象的父类全类名
+            2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
+            3、superInterface 对象实现的接口全类名，多值”,“分割
         -->
         <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
@@ -148,17 +152,18 @@
                 domainObjectName CDATA #IMPLIED
                 mapperName CDATA #IMPLIED
                 sqlProviderName CDATA #IMPLIED
-                enableInsert CDATA #IMPLIED
-                enableSelectByPrimaryKey CDATA #IMPLIED
-                enableSelectByExample CDATA #IMPLIED
-                enableUpdateByPrimaryKey CDATA #IMPLIED
-                enableDeleteByPrimaryKey CDATA #IMPLIED
-                enableDeleteByExample CDATA #IMPLIED
-                enableCountByExample CDATA #IMPLIED
-                enableUpdateByExample CDATA #IMPLIED
+                enableInsert (true|false) #IMPLIED
+                enableSelectByPrimaryKey (true|false) #IMPLIED
+                enableSelectByExample (true|false) #IMPLIED
+                enableUpdateByPrimaryKey (true|false) #IMPLIED
+                enableDeleteByPrimaryKey (true|false) #IMPLIED
+                enableDeleteByExample (true|false) #IMPLIED
+                enableCountByExample (true|false) #IMPLIED
+                enableUpdateByExample (true|false) #IMPLIED
                 enableUpdateBatch  (true|false) #IMPLIED
                 enableInsertBatch  (true|false) #IMPLIED
                 enableInsertOrUpdate  (true|false) #IMPLIED
+                enableFileUpLoad  (true|false) #IMPLIED
                 selectByPrimaryKeyQueryId CDATA #IMPLIED
                 selectByExampleQueryId CDATA #IMPLIED
                 modelType CDATA #IMPLIED
@@ -280,7 +285,8 @@
         <!ATTLIST selectByColumn
                 column CDATA #REQUIRED
                 orderByClause CDATA #IMPLIED
-                returnType (model|primaryKey) #IMPLIED>
+                returnType (model|primaryKey) #IMPLIED
+                parameterType (key|list) #IMPLIED>
 
     <!--
         添加一个实体类型的属性，并实现一对一的association查询

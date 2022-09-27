@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
@@ -317,6 +318,18 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
             method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
             method.setVisibility(JavaVisibility.PUBLIC);
+        }
+    }
+
+    protected String getServiceMethodEntityParameter(boolean isMulti,String methodType){
+        if ("create".equals(methodType) && introspectedTable.getRules().isGenerateCreateVO()) {
+            return VStringUtil.format("mappings.from{0}CreateVO{2}({1}CreateVO{2})", entityType.getShortName(),entityType.getShortNameFirstLowCase(),isMulti?"s":"");
+        }if ("update".equals(methodType) && introspectedTable.getRules().isGenerateUpdateVO()) {
+            return VStringUtil.format("mappings.from{0}UpdateVO{2}({1}UpdateVO{2})", entityType.getShortName(),entityType.getShortNameFirstLowCase(),isMulti?"s":"");
+        }else if (introspectedTable.getRules().isGenerateVoModel()){
+            return VStringUtil.format("mappings.from{0}VO{2}({1}VO{2})", entityType.getShortName(),entityType.getShortNameFirstLowCase(),isMulti?"s":"");
+        }else{
+            return entityType.getShortNameFirstLowCase()+(isMulti?"s":"");
         }
     }
 

@@ -76,13 +76,30 @@ public class SelectByColumnElementGenerator extends
             sb.append("from ");
             sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
             answer.addElement(new TextElement(sb.toString()));
-            //条件
+
+            //where
             sb.setLength(0);
             sb.append("where ");
             sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(selectByColumnGeneratorConfiguration.getColumn()));
-            sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(selectByColumnGeneratorConfiguration.getColumn()));
-            answer.addElement(new TextElement(sb.toString()));
+            if ("list".equals(selectByColumnGeneratorConfiguration.getParameterType())) {
+                sb.append(" in ");
+                answer.addElement(new TextElement(sb.toString()));
+                XmlElement foreachListField = new XmlElement("foreach");
+                foreachListField.addAttribute(new Attribute("collection", "list"));
+                foreachListField.addAttribute(new Attribute("item", "item"));
+                foreachListField.addAttribute(new Attribute("index", "index"));
+                foreachListField.addAttribute(new Attribute("separator", ","));
+                foreachListField.addAttribute(new Attribute("open", "("));
+                foreachListField.addAttribute(new Attribute("close", ")"));
+                answer.addElement(foreachListField);
+                foreachListField.addElement(new TextElement("#{item}"));
+            }else{
+                sb.append(" = ");
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(selectByColumnGeneratorConfiguration.getColumn()));
+                answer.addElement(new TextElement(sb.toString()));
+            }
+
+            //order by
             if (StringUtility.propertyValueValid(selectByColumnGeneratorConfiguration.getOrderByClause())) {
                 answer.addElement(new TextElement("order by "+ selectByColumnGeneratorConfiguration.getOrderByClause()));
             }else{

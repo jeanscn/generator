@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
@@ -40,18 +39,15 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
         addSecurityPreAuthorize(method, methodPrefix, "批量更新");
 
         method.addBodyLine("ServiceResult<List<{0}>> result =  {1}.{2}({3});"
-                ,entityType.getShortName()
+                , entityType.getShortName()
                 , serviceBeanName
-                ,introspectedTable.getUpdateBatchStatementId()
-                , descript.getReturnFqt().getFullyQualifiedName().equals(entityType.getFullyQualifiedName())
-                        ? entityType.getShortNameFirstLowCase() + "s"
-                        : "mappings.from" + descript.getReturnFqt().getShortName() + "s(" + descript.getReturnFqt().getShortNameFirstLowCase() + "s)"
-                );
+                , introspectedTable.getUpdateBatchStatementId()
+                , getServiceMethodEntityParameter(true, "update"));
         method.addBodyLine("if (result.isSuccess()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("return success(mappings.to{0}VOs(result.getResult()),result.getAffectedRows());"
-                    ,entityType.getShortName());
-        }else{
+                    , entityType.getShortName());
+        } else {
             method.addBodyLine("return success(result.getResult(),result.getAffectedRows());");
         }
         method.addBodyLine("}else{");

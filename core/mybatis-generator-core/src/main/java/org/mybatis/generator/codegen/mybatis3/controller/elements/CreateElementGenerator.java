@@ -44,34 +44,33 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         addSecurityPreAuthorize(method, methodPrefix, "创建");
 
         if (introspectedTable.getRules().isGenerateCreateVO()) {
+
+        }else if (introspectedTable.getRules().isGenerateCreateVO()){
+
+        }else{
+
+        }
+
+        if (introspectedTable.getRules().isGenerateCreateVO()) {
             method.addBodyLine("ServiceResult<{0}> serviceResult;", entityType.getShortName());
-            method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate()) '{'", entityType.getShortNameFirstLowCase());
-            method.addBodyLine("serviceResult = {0}.insertOrUpdate({1});"
-                    , serviceBeanName
-                    , introspectedTable.getRules().isGenerateCreateVO()
-                            ? "mappings.from" + entityCreateVoType.getShortName() + "(" + entityCreateVoType.getShortNameFirstLowCase() + ")" :
-                            introspectedTable.getRules().isGenerateVoModel()
-                                    ? "mappings.from" + entityVoType.getShortName() + "(" + entityVoType.getShortNameFirstLowCase() + ")"
-                                    : entityType.getShortNameFirstLowCase());
-            method.addBodyLine("}else{");
+
+            if (introspectedTable.getRules().generateInsertOrUpdate()) {
+                method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate())", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("serviceResult = {0}.insertOrUpdate({1});"
+                        , serviceBeanName
+                        , getServiceMethodEntityParameter(false, "create"));
+                method.addBodyLine("else");
+            }
             method.addBodyLine("serviceResult = {1}.insert({2});"
                     , entityType.getShortName()
                     , serviceBeanName
-                    , introspectedTable.getRules().isGenerateCreateVO()
-                            ? "mappings.from" + entityCreateVoType.getShortName() + "(" + entityCreateVoType.getShortNameFirstLowCase() + ")" :
-                            introspectedTable.getRules().isGenerateVoModel()
-                                    ? "mappings.from" + entityVoType.getShortName() + "(" + entityVoType.getShortNameFirstLowCase() + ")"
-                                    : entityType.getShortNameFirstLowCase());
-            method.addBodyLine("}");
+                    , getServiceMethodEntityParameter(false, "create"));
+
         } else {
             method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.insert({2});"
                     , entityType.getShortName()
                     , serviceBeanName
-                    , introspectedTable.getRules().isGenerateCreateVO()
-                            ? "mappings.from" + entityCreateVoType.getShortName() + "(" + entityCreateVoType.getShortNameFirstLowCase() + ")" :
-                            introspectedTable.getRules().isGenerateVoModel()
-                                    ? "mappings.from" + entityVoType.getShortName() + "(" + entityVoType.getShortNameFirstLowCase() + ")"
-                                    : entityType.getShortNameFirstLowCase());
+                    , getServiceMethodEntityParameter(false, "create"));
         }
         method.addBodyLine("if (!serviceResult.isSuccess()) {");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");

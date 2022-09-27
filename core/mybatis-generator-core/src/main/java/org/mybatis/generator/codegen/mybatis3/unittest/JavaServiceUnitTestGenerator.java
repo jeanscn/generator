@@ -87,17 +87,24 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
                 testClazz.addImportedType(FullyQualifiedJavaType.getNewListInstance());
                 testClazz.addImportedType("java.util.Collections");
             }
+
             method.addBodyLine("when(mockMapper.{0}(any())).thenReturn(expectedResult);",configuration.getMethodName());
             testClazz.addStaticImport(TEST_MOCKITO_WHEN);
             testClazz.addStaticImport("org.mockito.ArgumentMatchers.any");
 
             String javaProperty = JavaBeansUtil.getColumnExampleValue(configuration.getColumn());
             if (configuration.getReturnType()==1) {
-                method.addBodyLine("final {0} result = serviceImplUnderTest.{1}({2});", entityType.getShortName(),configuration.getMethodName(),javaProperty);
+                method.addBodyLine("final {0} result = serviceImplUnderTest.{1}({2});"
+                        , entityType.getShortName()
+                        ,configuration.getMethodName()
+                        ,configuration.isParameterList()?"Collections.singletonList("+javaProperty+")":javaProperty);
                 method.addBodyLine("assertThat(result).isEqualTo(expectedResult);");
                 testClazz.addImportedType(SERVICE_RESULT);
             }else{
-                method.addBodyLine("final List<{0}> result = serviceImplUnderTest.{1}({2});", entityType.getShortName(),configuration.getMethodName(),javaProperty);
+                method.addBodyLine("final List<{0}> result = serviceImplUnderTest.{1}({2});"
+                        , entityType.getShortName()
+                        ,configuration.getMethodName()
+                        ,configuration.isParameterList()?"Collections.singletonList("+javaProperty+")":javaProperty);
                 method.addBodyLine("assertThat(result).isEqualTo(expectedResult);");
             }
             testClazz.addStaticImport(TEST_ASSERTIONS_ASSERT_THAT);

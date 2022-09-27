@@ -244,8 +244,10 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
     }
 
     private void addGetElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new GetElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
+            AbstractControllerElementGenerator elementGenerator = new GetElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addGetDictElement(TopLevelClass parentElement) {
@@ -273,8 +275,10 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
     }
 
     private void addUpdateElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new UpdateElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()) {
+            AbstractControllerElementGenerator elementGenerator = new UpdateElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addUpdateBatchElement(TopLevelClass parentElement) {
@@ -285,33 +289,45 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
     }
 
     private void addDeleteElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new DeleteElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().generateDeleteByPrimaryKey()) {
+            AbstractControllerElementGenerator elementGenerator = new DeleteElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addDeleteBatchElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new DeleteBatchElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().generateDeleteByExample()) {
+            AbstractControllerElementGenerator elementGenerator = new DeleteBatchElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addUploadElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new UploadElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().generateFileUpload()) {
+            AbstractControllerElementGenerator elementGenerator = new UploadElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addDownloadElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new DownloadElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().generateFileUpload()) {
+            AbstractControllerElementGenerator elementGenerator = new DownloadElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addGetDefaultViewElement(TopLevelClass parentElement){
-        AbstractControllerElementGenerator elementGenerator = new GetDefaultViewElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateViewVO()) {
+            AbstractControllerElementGenerator elementGenerator = new GetDefaultViewElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addGetDefaultViewConfigElement(TopLevelClass parentElement){
-        AbstractControllerElementGenerator elementGenerator = new GetDefaultViewConfigElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateViewVO()) {
+            AbstractControllerElementGenerator elementGenerator = new GetDefaultViewConfigElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addOptionElement(TopLevelClass parentElement) {
@@ -322,18 +338,24 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
     }
 
     private void addTemplateElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new TemplateElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateExcelVO()) {
+            AbstractControllerElementGenerator elementGenerator = new TemplateElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addImportElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new ImportElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateExcelVO()) {
+            AbstractControllerElementGenerator elementGenerator = new ImportElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addExportElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new ExportElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateExcelVO()) {
+            AbstractControllerElementGenerator elementGenerator = new ExportElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     protected void initializeAndExecuteGenerator(

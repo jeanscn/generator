@@ -24,26 +24,25 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "update";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method,parentElement);
-        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"put");
+        addSystemLogAnnotation(method, parentElement);
+        MethodParameterDescript descript = new MethodParameterDescript(parentElement, "put");
         descript.setValid(true);
         descript.setRequestBody(true);
         method.addParameter(buildMethodParameter(descript));
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
-                introspectedTable.getRules().isGenerateVoModel()?entityVoType:entityType,
+                introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
                 parentElement));
         addControllerMapping(method, "", "put");
-        addSecurityPreAuthorize(method,methodPrefix,"更新");
+        addSecurityPreAuthorize(method, methodPrefix, "更新");
 
-        method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.updateByPrimaryKeySelective({2});"
-                ,entityType.getShortName()
-                ,serviceBeanName
-                ,descript.getReturnFqt().getFullyQualifiedName().equals(entityType.getFullyQualifiedName())
-                        ?entityType.getShortNameFirstLowCase()
-                        :"mappings.from"+descript.getReturnFqt().getShortName()+"("+descript.getReturnFqt().getShortNameFirstLowCase()+")");
+        method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.{3}({2});"
+                , entityType.getShortName()
+                , serviceBeanName
+                , getServiceMethodEntityParameter(false, "update")
+                , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
         method.addBodyLine("if (serviceResult.isSuccess()) {");
         method.addBodyLine("return success({0},serviceResult.getAffectedRows());"
-                , introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName() +"(serviceResult.getResult())":"serviceResult.getResult()");
+                , introspectedTable.getRules().isGenerateVoModel() ? "mappings.to" + entityVoType.getShortName() + "(serviceResult.getResult())" : "serviceResult.getResult()");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}");

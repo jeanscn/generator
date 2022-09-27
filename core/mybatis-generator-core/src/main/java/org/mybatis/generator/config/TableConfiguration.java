@@ -16,16 +16,13 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.custom.pojo.*;
-
+import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.messages.Messages;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 
@@ -38,6 +35,8 @@ public class TableConfiguration extends PropertyHolder {
     private boolean updateBatchStatementEnabled;
 
     private boolean insertOrUpdateStatementEnabled;
+
+    private boolean fileUploadStatementEnabled;
 
     private boolean selectByPrimaryKeyStatementEnabled;
 
@@ -135,6 +134,7 @@ public class TableConfiguration extends PropertyHolder {
         insertStatementEnabled = true;
         insertBatchStatementEnabled = true;
         insertOrUpdateStatementEnabled = true;
+        fileUploadStatementEnabled = false;
 
         selectByPrimaryKeyStatementEnabled = true;
         selectByExampleStatementEnabled = true;
@@ -144,6 +144,7 @@ public class TableConfiguration extends PropertyHolder {
         countByExampleStatementEnabled = true;
         updateByExampleStatementEnabled = true;
         updateBatchStatementEnabled = true;
+
     }
 
     public boolean isDeleteByPrimaryKeyStatementEnabled() {
@@ -253,8 +254,7 @@ public class TableConfiguration extends PropertyHolder {
     /**
      * May return null if the column has not been overridden.
      *
-     * @param columnName
-     *            the column name
+     * @param columnName the column name
      * @return the column override (if any) related to this column
      */
     public ColumnOverride getColumnOverride(String columnName) {
@@ -366,7 +366,7 @@ public class TableConfiguration extends PropertyHolder {
      * table.
      *
      * @return a List of Strings - the columns that were improperly configured
-     *         as ignored columns
+     * as ignored columns
      */
     public List<String> getIgnoredColumnsInError() {
         List<String> answer = new ArrayList<>();
@@ -443,6 +443,14 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setInsertOrUpdateStatementEnabled(boolean insertOrUpdateStatementEnabled) {
         this.insertOrUpdateStatementEnabled = insertOrUpdateStatementEnabled;
+    }
+
+    public boolean isFileUploadStatementEnabled() {
+        return fileUploadStatementEnabled;
+    }
+
+    public void setFileUploadStatementEnabled(boolean fileUploadStatementEnabled) {
+        this.fileUploadStatementEnabled = fileUploadStatementEnabled;
     }
 
     public void validate(List<String> errors, int listPosition) {
@@ -564,7 +572,7 @@ public class TableConfiguration extends PropertyHolder {
         return customMethodGeneratorConfigurations;
     }
 
-    public List<CustomMethodGeneratorConfiguration>  addCustomMethodProperties(CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration) {
+    public List<CustomMethodGeneratorConfiguration> addCustomMethodProperties(CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration) {
         this.customMethodGeneratorConfigurations.add(customMethodGeneratorConfiguration);
         return this.customMethodGeneratorConfigurations;
     }
@@ -574,8 +582,8 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     public List<RelationGeneratorConfiguration> addRelationGeneratorConfiguration(RelationGeneratorConfiguration relationGeneratorConfiguration) {
-       this.relationGeneratorConfigurations.add(relationGeneratorConfiguration);
-       return this.relationGeneratorConfigurations;
+        this.relationGeneratorConfigurations.add(relationGeneratorConfiguration);
+        return this.relationGeneratorConfigurations;
     }
 
     public List<HtmlGeneratorConfiguration> getHtmlMapGeneratorConfigurations() {

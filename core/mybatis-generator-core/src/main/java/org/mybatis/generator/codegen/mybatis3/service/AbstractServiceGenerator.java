@@ -185,11 +185,16 @@ public abstract class AbstractServiceGenerator extends AbstractJavaGenerator {
                                              boolean isAbstract) {
         IntrospectedColumn column = config.getColumn();
         boolean isSelectBase = JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName());
+        boolean isListParam = config.getParameterType().equals("list");
+        FullyQualifiedJavaType paramType = isListParam?FullyQualifiedJavaType.getNewListInstance():config.getColumn().getFullyQualifiedJavaType();
+        if (isListParam) {
+            paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
+        }
         return getMethodByType(config.getMethodName(),
                 isSelectBase ? ReturnTypeEnum.MODEL : ReturnTypeEnum.LIST,
                 config.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,
-                FullyQualifiedJavaType.getStringInstance(),
-                column.getJavaProperty(),
+                paramType,
+                config.getColumn().getJavaProperty()+(isListParam?"s":""),
                 column.getRemarks(false),
                 isAbstract,
                 parentElement);

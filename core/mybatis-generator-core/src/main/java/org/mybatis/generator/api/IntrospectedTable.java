@@ -465,7 +465,7 @@ public abstract class IntrospectedTable {
             for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : tableConfiguration.getSelectByColumnGeneratorConfigurations()) {
                 getColumn(selectByColumnGeneratorConfiguration.getColumnName()).ifPresent(c -> {
                     selectByColumnGeneratorConfiguration.setColumn(c);
-                    selectByColumnGeneratorConfiguration.setMethodName(JavaBeansUtil.byColumnMethodName(c));
+                    selectByColumnGeneratorConfiguration.setMethodName(JavaBeansUtil.byColumnMethodName(c)+(selectByColumnGeneratorConfiguration.isParameterList()?"s":""));
                 });
             }
         }

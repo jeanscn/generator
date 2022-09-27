@@ -298,4 +298,6 @@ public interface Rules {
     boolean generateSelectByColumn();
 
     boolean generateSelectByTable();
+
+    boolean generateFileUpload();
 }

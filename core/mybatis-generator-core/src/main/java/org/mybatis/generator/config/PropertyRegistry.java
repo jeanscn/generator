@@ -33,6 +33,7 @@ public class PropertyRegistry {
      */
     public static final String ANY_ROOT_CLASS = "rootClass";
     public static final String  ROOT_CLASS_TYPE_ARGUMENTS = "rootClassTypeArguments";
+    public static final String  ROOT_SUPER_INTERFACE = "superInterface";
     public static final String ANY_IMMUTABLE = "immutable";
     public static final String ANY_CONSTRUCTOR_BASED = "constructorBased";
 
@@ -111,6 +112,7 @@ public class PropertyRegistry {
     public static final String TABLE_ENABLE_UPDATE_BATCH = "enableUpdateBatch";
     public static final String TABLE_ENABLE_INSERT_BATCH = "enableInsertBatch";
     public static final String TABLE_ENABLE_INSERT_OR_UPDATE = "enableInsertOrUpdate";
+    public static final String TABLE_ENABLE_FILE_UPLOAD = "enableFileUpLoad";
 
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
 

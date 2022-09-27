@@ -11,6 +11,7 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     private String returnTypeParam = "model";
     private String methodName;
     private IntrospectedColumn column;
+    private String parameterType = "key";
     /**
      * 返回类型，默认0-返回list，1-返回model
      * 主要为了标识selectBaseByPrimaryKey方法，返回model
@@ -76,5 +77,18 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     public boolean isReturnPrimaryKey() {
         return this.getReturnTypeParam().equals("primaryKey")
                 ||this.getReturnTypeParam().equals("list_primaryKey");
+    }
+
+    public String getParameterType() {
+        return parameterType;
+    }
+
+    public void setParameterType(String parameterType) {
+        this.parameterType = parameterType;
+    }
+
+    public boolean isParameterList(){
+        return "list".equals(this.parameterType);
+
     }
 }
