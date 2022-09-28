@@ -16,7 +16,7 @@
 package org.mybatis.generator.api.dom.java;
 
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,33 +91,34 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
 
     @Override
     public void addAddtionalProperties(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
-        configurations.stream()
-                .filter(c -> !(c.getName() == null || c.getType() == null || this.isContainField(c.getName())))
-                .forEach(c -> {
-                    FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
-                    org.mybatis.generator.api.dom.java.Field field = new Field(c.getName(), type);
-                    this.addImportedType(type);
-                    field.setVisibility(JavaVisibility.ofCode(c.getVisibility()+" "));
-                    if (c.isFinal()) {
-                        field.setFinal(true);
-                    }
-                    if (c.getTypeArguments().size() > 0) {
-                        for (String typeArgument : c.getTypeArguments()) {
-                            type.addTypeArgument(new FullyQualifiedJavaType(typeArgument));
-                            this.addImportedType(typeArgument);
-                        }
-                    }
-                    for (String annotation : c.getAnnotations()) {
-                        field.addAnnotation(annotation);
-                    }
-                    if (c.getInitializationString() != null) {
-                        field.setInitializationString(c.getInitializationString());
-                    }
-                    if (c.getImportedTypes().size() > 0) {
-                        c.getImportedTypes().forEach(this::addImportedType);
-                    }
-                    this.addField(field);
-                });
+        configurations.forEach(c -> {
+            FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
+            org.mybatis.generator.api.dom.java.Field field;
+            field = this.getFields().stream().filter(f -> f.getName().equals(c.getName())).findFirst().orElse(new Field(c.getName(), type));
+            this.addImportedType(type);
+            field.setVisibility(JavaVisibility.ofCode(c.getVisibility() + " "));
+            if (c.isFinal()) {
+                field.setFinal(true);
+            }
+            if (c.getTypeArguments().size() > 0) {
+                for (String typeArgument : c.getTypeArguments()) {
+                    type.addTypeArgument(new FullyQualifiedJavaType(typeArgument));
+                    this.addImportedType(typeArgument);
+                }
+            }
+            if (c.getAnnotations().size()>0) {
+                c.getAnnotations().forEach(field::addAnnotation);
+            }
+            if (StringUtility.stringHasValue(c.getInitializationString())) {
+                field.setInitializationString(c.getInitializationString());
+            }
+            if (c.getImportedTypes().size() > 0) {
+                c.getImportedTypes().forEach(this::addImportedType);
+            }
+            if (!this.isContainField(field.getName())) {
+                this.addField(field);
+            }
+        });
     }
 
     public void addSerialVersionUID() {

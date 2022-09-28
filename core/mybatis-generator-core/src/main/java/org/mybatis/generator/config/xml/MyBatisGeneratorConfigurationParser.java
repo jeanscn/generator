@@ -1044,7 +1044,13 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         if (stringHasValue(sourceColumn)) {
-            configuration.addOverrideColumnConfigurations(overrideColumnGeneratorConfiguration);
+            if (annotationType.equals("Dict")) {
+                if (stringHasValue(beanName)) {
+                    configuration.addOverrideColumnConfigurations(overrideColumnGeneratorConfiguration);
+                }
+            }else{
+                configuration.addOverrideColumnConfigurations(overrideColumnGeneratorConfiguration);
+            }
         }
     }
 
@@ -1053,7 +1059,10 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(childNode);
         String name = attributes.getProperty("name");
         String type = attributes.getProperty("type");
-        if (stringHasValue(name) && stringHasValue(type)) {
+        if (!stringHasValue(type)) {
+            type = FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName();
+        }
+        if (stringHasValue(name)) {
             voAdditionalPropertyConfiguration.setName(name);
             voAdditionalPropertyConfiguration.setType(type);
             String typeArguments = attributes.getProperty("typeArguments");

@@ -77,7 +77,6 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         abstractName = "Abstract" + entityType.getShortName() + "VO";
         VOGeneratorConfiguration voGeneratorConfiguration = tc.getVoGeneratorConfiguration();
-
         /*
          * 生成VO类
          * */
@@ -112,19 +111,15 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     }
                 }
 
-                //附加属性
-                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
-                additionalPropertyConfigurations.addAll(voModelGeneratorConfiguration.getAdditionalPropertyConfigurations());
-                if (additionalPropertyConfigurations.size() > 0) {
-                    voClass.addAddtionalProperties(additionalPropertyConfigurations);
-                }
-
                 //增加映射
-                List<OverridePropertyValueGeneratorConfiguration> overrideColumnConfigurations = voGeneratorConfiguration.getOverridePropertyConfigurations();
-                overrideColumnConfigurations.addAll(voModelGeneratorConfiguration.getOverridePropertyConfigurations());
-                if (overrideColumnConfigurations.size() > 0) {
-                    buildOverrideColumn(overrideColumnConfigurations, voClass);
-                }
+                List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voModelGeneratorConfiguration.getOverridePropertyConfigurations();
+                overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
+                buildOverrideColumn(overridePropertyConfigurations, voClass);
+
+                //附加属性
+                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voModelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+                additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+                voClass.addAddtionalProperties(additionalPropertyConfigurations);
 
 
                 voClass.addImportedType(abstractVoType);
@@ -214,8 +209,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
 
                 //附加属性
-                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
-                additionalPropertyConfigurations.addAll(voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations());
+                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations();
+                additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
                 createVoClass.addAddtionalProperties(additionalPropertyConfigurations);
 
                 //是否有启用insert的JavaCollectionRelation
@@ -288,8 +283,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
 
                 //附加属性
-                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
-                additionalPropertyConfigurations.addAll(voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations());
+                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations();
+                additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
                 updateVoClass.addAddtionalProperties(additionalPropertyConfigurations);
 
                 //是否有启用update的JavaCollectionRelation
@@ -338,14 +333,15 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 viewVOClass.addSerialVersionUID();
 
                 //增加映射
-                List<OverridePropertyValueGeneratorConfiguration> overrideColumnConfigurations = voGeneratorConfiguration.getOverridePropertyConfigurations();
-                overrideColumnConfigurations.addAll(voViewGeneratorConfiguration.getOverridePropertyConfigurations());
-                buildOverrideColumn(overrideColumnConfigurations, viewVOClass);
+                List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
+                overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
+                buildOverrideColumn(overridePropertyConfigurations, viewVOClass);
 
                 //附加属性
-                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
-                additionalPropertyConfigurations.addAll(voViewGeneratorConfiguration.getAdditionalPropertyConfigurations());
+                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
+                additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
                 viewVOClass.addAddtionalProperties(additionalPropertyConfigurations);
+
                 if (context.getPlugins().voModelViewClassGenerated(viewVOClass, introspectedTable)) {
                     answer.add(viewVOClass);
                     //添加菜单项
@@ -413,14 +409,15 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
 
                 //增加映射
-                List<OverridePropertyValueGeneratorConfiguration> overrideColumnConfigurations = voGeneratorConfiguration.getOverridePropertyConfigurations();
-                overrideColumnConfigurations.addAll(voExcelGeneratorConfiguration.getOverridePropertyConfigurations());
-                buildOverrideColumn(overrideColumnConfigurations, excelVoClass);
+                List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
+                overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
+                buildOverrideColumn(overridePropertyConfigurations, excelVoClass);
 
                 //附加属性
-                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
-                additionalPropertyConfigurations.addAll(voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations());
+                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+                additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
                 excelVoClass.addAddtionalProperties(additionalPropertyConfigurations);
+
                 if (context.getPlugins().voModelExcelClassGenerated(excelVoClass, introspectedTable)) {
                     answer.add(excelVoClass);
                 }
@@ -466,8 +463,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
 
                 //附加属性
-                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voGeneratorConfiguration.getAdditionalPropertyConfigurations();
-                additionalPropertyConfigurations.addAll(voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations());
+                List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations();
+                additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
                 requestVoClass.addAddtionalProperties(additionalPropertyConfigurations);
 
                 if (context.getPlugins().voModelRequestClassGenerated(requestVoClass, introspectedTable)) {
@@ -862,7 +859,17 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     topLevelClass.addMethod(method);
                 }
                 introspectedTable.getColumn(configuration.getSourceColumnName())
-                        .ifPresent(sc -> method.addBodyLine("return this.{0};", sc.getJavaProperty()));
+                        .ifPresent(sc -> {
+                            String source = sc.getFullyQualifiedJavaType().getShortName();
+                            String strType = FullyQualifiedJavaType.getStringInstance().getShortName();
+                            String target = getterType.getShortName();
+
+                            if (!source.equals(strType) && target.equals(strType)) {
+                                method.addBodyLine("return this.{0} != null ? this.{0}.toString():null;", sc.getJavaProperty());
+                            } else {
+                                method.addBodyLine("return this.{0};", sc.getJavaProperty());
+                            }
+                        });
             }
         });
     }

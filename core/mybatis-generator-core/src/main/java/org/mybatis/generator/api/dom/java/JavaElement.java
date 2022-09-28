@@ -52,7 +52,9 @@ public abstract class JavaElement {
     }
 
     public void addAnnotation(String annotation) {
-        annotations.add(annotation);
+        if (annotation != null) {
+            annotations.add(annotation);
+        }
     }
 
     public JavaVisibility getVisibility() {

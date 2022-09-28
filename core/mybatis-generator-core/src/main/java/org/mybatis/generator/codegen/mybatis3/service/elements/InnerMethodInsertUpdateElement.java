@@ -66,6 +66,11 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                             parentElement.addImportedType(ACTION_CATE_ENUM);
 
                             if (config.getBeanClassFullName() != null) {
+                                if (isCollection) {
+                                    innerInsertUpdateMethod.addBodyLine("if (items == null || items.size()==0) return Collections.singletonList(ServiceResult.success(null));");
+                                }else{
+                                    innerInsertUpdateMethod.addBodyLine("if (item == null) return ServiceResult.success(null);");
+                                }
                                 FullyQualifiedJavaType beanClass = new FullyQualifiedJavaType(config.getBeanClassFullName());
                                 innerInsertUpdateMethod.addBodyLine("{0} bean = SpringContextHolder.getBean({0}.class);", beanClass.getShortName());
                                 if (isCollection) {
