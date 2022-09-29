@@ -12,7 +12,10 @@ import org.mybatis.generator.internal.DefaultCommentGenerator;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class VgoCommentGenerator extends DefaultCommentGenerator {
     private boolean suppressAllComments;   //阻止生成注释
@@ -126,6 +129,10 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
             addMethodJavaDocLine(method,"获取默认缓存（字典）数据");
         }else if(("getCache"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"获取默认缓存数据");
+        }else if(VStringUtil.contains(method.getName(), "deleteByTable")){
+            addMethodJavaDocLine(method,"删除中间关系表数据（取消数据关联）");
+        }else if(VStringUtil.contains(method.getName(), "insertByTable")){
+            addMethodJavaDocLine(method,"添加中间关系表数据（添加数据关联）");
         }else if (VStringUtil.contains(method.getName(), "option")) {
             String param = getEntityParam(introspectedTable);
             String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
@@ -180,7 +187,12 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     public void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){
         super.addMethodJavaDocLine(method,singleLine,comments);
     }
-    private void addMethodJavaDocLine(Method method,String...comments){
-        addMethodJavaDocLine(method,false,comments);
+    public void addMethodJavaDocLine(Method method,String...comments){
+        List<String> docLine = method.getParameters().stream().map(p -> "@param " + p.getName() + " " + p.getRemark()).collect(Collectors.toList());
+        docLine.add(0, "");
+        for (int i = 0; i < comments.length; i++) {
+            docLine.add(i, comments[i]);
+        }
+        addMethodJavaDocLine(method,false,docLine.toArray(new String[0]));
     }
 }

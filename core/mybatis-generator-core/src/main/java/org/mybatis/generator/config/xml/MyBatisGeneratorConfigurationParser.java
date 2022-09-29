@@ -256,6 +256,11 @@ public class MyBatisGeneratorConfigurationParser {
             tc.setAlias(alias);
         }
 
+        String tableType = attributes.getProperty("tableType"); //$NON-NLS-1$
+        if (stringHasValue(tableType)) {
+            tc.setTableType(tableType);
+        }
+
         String enableInsert = attributes.getProperty("enableInsert"); //$NON-NLS-1$
         if (stringHasValue(enableInsert)) {
             tc.setInsertStatementEnabled(isTrue(enableInsert));
@@ -596,18 +601,31 @@ public class MyBatisGeneratorConfigurationParser {
         String thisColumn = attributes.getProperty("thisColumn"); //$NON-NLS-1$
         String otherColumn = attributes.getProperty("otherColumn"); //$NON-NLS-1$
         String methodSuffix = attributes.getProperty("methodSuffix"); //$NON-NLS-1$
-        String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
-        String additionClause = attributes.getProperty("additionClause"); //$NON-NLS-1$
         String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
         SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration = new SelectByTableGeneratorConfiguration();
         selectByTableGeneratorConfiguration.setTableName(table);
         selectByTableGeneratorConfiguration.setPrimaryKeyColumn(thisColumn);
         selectByTableGeneratorConfiguration.setOtherPrimaryKeyColumn(otherColumn);
-        selectByTableGeneratorConfiguration.setMethodName("selectByTable" + methodSuffix);
-        selectByTableGeneratorConfiguration.setOrderByClause(orderByClause);
-        selectByTableGeneratorConfiguration.setAdditionCondition(additionClause);
+        selectByTableGeneratorConfiguration.setMethodSuffix(methodSuffix);
+
+        String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
+        if (stringHasValue(orderByClause)) {
+            selectByTableGeneratorConfiguration.setOrderByClause(orderByClause);
+        }
+        String additionClause = attributes.getProperty("additionClause"); //$NON-NLS-1$
+        if (stringHasValue(additionClause)) {
+            selectByTableGeneratorConfiguration.setAdditionCondition(additionClause);
+        }
         if (stringHasValue(returnType)) {
             selectByTableGeneratorConfiguration.setReturnTypeParam(returnType);
+        }
+        String enableSplit = attributes.getProperty("enableSplit");
+        if (stringHasValue(enableSplit)) {
+            selectByTableGeneratorConfiguration.setEnableSplit(Boolean.parseBoolean(enableSplit));
+        }
+        String enableUnion = attributes.getProperty("enableUnion");
+        if (stringHasValue(enableUnion)) {
+            selectByTableGeneratorConfiguration.setEnableUnion(Boolean.parseBoolean(enableUnion));
         }
         tc.addSelectByTableGeneratorConfiguration(selectByTableGeneratorConfiguration);
     }

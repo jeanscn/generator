@@ -294,6 +294,8 @@ public interface CommentGenerator {
 
     default void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){};
 
+    default void addMethodJavaDocLine(Method method,String...comments){};
+
     /**
      * This method is called to add a file level comment to a generated Kotlin file. This method
      * could be used to add a general file comment (such as a copyright notice).

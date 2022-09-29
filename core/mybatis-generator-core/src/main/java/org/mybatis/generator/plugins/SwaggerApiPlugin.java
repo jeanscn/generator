@@ -252,6 +252,10 @@ public class SwaggerApiPlugin extends PluginAdapter {
             buildSwaggerApiAnnotation(method, "默认数据视图显示", "显示默认数据视图");
         }else if (("getDict" + record.getShortName()).equals(method.getName())) {
             buildSwaggerApiAnnotation(method, "字典数据查询", "获取字典数据并缓存");
+        }else if(VStringUtil.contains(method.getName(), "deleteByTable")) {
+            buildSwaggerApiAnnotation(method, "删除数据关联关系", "删除中间表数据");
+        }else if(VStringUtil.contains(method.getName(), "insertByTable")) {
+            buildSwaggerApiAnnotation(method, "添加数据关联关系", "添加中间表数据");
         }else if (VStringUtil.contains(method.getName(), "option")) {
             String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
             if (introspectedTable.getRules().isGenerateRequestVO()) {

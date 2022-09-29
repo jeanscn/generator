@@ -1,6 +1,9 @@
 package org.mybatis.generator.custom.pojo;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.StringUtility;
 
 public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
@@ -10,7 +13,13 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     private String otherPrimaryKeyColumn;
 
+    private String methodSuffix;
+
     private String methodName;
+
+    private String splitMethodName;
+
+    private String unionMethodName;
 
     private String parameterName;
 
@@ -18,10 +27,21 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     private String additionCondition;
 
-    private String returnTypeParam = "model";
+    private String returnTypeParam;
+
+    private boolean enableSplit;
+
+    private boolean enableUnion;
+
+    private IntrospectedColumn thisColumn;
+
+    private IntrospectedColumn otherColumn;
 
     public SelectByTableGeneratorConfiguration() {
         super();
+        returnTypeParam = "model";
+        enableSplit = true;
+        enableUnion = true;
     }
 
     public String getParameterName() {
@@ -30,14 +50,6 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     public void setParameterName(String parameterName) {
         this.parameterName = parameterName;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
     }
 
     public String getTableName() {
@@ -91,5 +103,57 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
     public boolean isReturnPrimaryKey() {
         return this.getReturnTypeParam().equals("primaryKey")
                 ||this.getReturnTypeParam().equals("list_primaryKey");
+    }
+
+    public boolean isEnableSplit() {
+        return enableSplit;
+    }
+
+    public void setEnableSplit(boolean enableSplit) {
+        this.enableSplit = enableSplit;
+    }
+
+    public boolean isEnableUnion() {
+        return enableUnion;
+    }
+
+    public void setEnableUnion(boolean enableUnion) {
+        this.enableUnion = enableUnion;
+    }
+
+    public String getMethodSuffix() {
+        return methodSuffix;
+    }
+
+    public void setMethodSuffix(String methodSuffix) {
+        this.methodSuffix = methodSuffix;
+    }
+
+    public String getMethodName() {
+        return "selectByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
+    }
+
+    public String getSplitMethodName() {
+        return "deleteByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
+    }
+
+    public String getUnionMethodName() {
+        return "insertByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
+    }
+
+    public IntrospectedColumn getThisColumn() {
+        return thisColumn;
+    }
+
+    public void setThisColumn(IntrospectedColumn thisColumn) {
+        this.thisColumn = thisColumn;
+    }
+
+    public IntrospectedColumn getOtherColumn() {
+        return otherColumn;
+    }
+
+    public void setOtherColumn(IntrospectedColumn otherColumn) {
+        this.otherColumn = otherColumn;
     }
 }

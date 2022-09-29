@@ -93,11 +93,9 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //增加selectByTableXXX
         List<SelectByTableGeneratorConfiguration> selectByTableConfiguration = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
-        if (selectByTableConfiguration.size()>0) {
-            for (SelectByTableGeneratorConfiguration config : selectByTableConfiguration) {
-                Method selectByTable = getSelectByTableMethod(entityType, bizINF, config,true);
-                bizINF.addMethod(selectByTable);
-            }
+        for (SelectByTableGeneratorConfiguration config : selectByTableConfiguration) {
+            Method selectByTable = getSelectByTableMethod(entityType, bizINF, config,true);
+            bizINF.addMethod(selectByTable);
         }
 
         /*
@@ -108,6 +106,18 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                     introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(),
                     true));
         }
+
+        //deleteByTableXXXX
+        introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
+                .filter(SelectByTableGeneratorConfiguration::isEnableSplit).forEach(c->{
+                    bizINF.addMethod(getDeleteByTableMethod(bizINF,c,true,false));
+                });
+
+        //insertByTableXXXX
+        introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
+                .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c->{
+                    bizINF.addMethod(getDeleteByTableMethod(bizINF,c,true,true));
+                });
 
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceGenerated(bizINF, introspectedTable)) {

@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.api;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
@@ -401,6 +402,7 @@ public abstract class IntrospectedTable {
         calculateJavaClientAttributes();
         calculateModelAttributes();
         calculateXmlAttributes();
+        calculateSelectByTableProperty();
         calculateControllerAttributes();
         calculateHtmlAttributes();
         calculateRelationProperty();
@@ -415,6 +417,26 @@ public abstract class IntrospectedTable {
         }
 
         context.getPlugins().initialized(this);
+    }
+
+    private void calculateSelectByTableProperty() {
+        this.getTableConfiguration().getSelectByTableGeneratorConfiguration().forEach(c->{
+            IntrospectedColumn thisColumn = new IntrospectedColumn();
+            thisColumn.setFullyQualifiedJavaType(FullyQualifiedJavaType.getStringInstance());
+            thisColumn.setJavaProperty(JavaBeansUtil.getCamelCaseString(c.getPrimaryKeyColumn(), false));
+            thisColumn.setJdbcTypeName("VARCHAR");
+            thisColumn.setRemarks("当前对象主键标识");
+            thisColumn.setActualColumnName(c.getPrimaryKeyColumn());
+            c.setThisColumn(thisColumn);
+
+            IntrospectedColumn otherColumn = new IntrospectedColumn();
+            otherColumn.setFullyQualifiedJavaType(FullyQualifiedJavaType.getStringInstance());
+            otherColumn.setJavaProperty(JavaBeansUtil.getCamelCaseString(c.getOtherPrimaryKeyColumn(), false));
+            otherColumn.setJdbcTypeName("VARCHAR");
+            otherColumn.setRemarks("关联数据表的主键标识");
+            otherColumn.setActualColumnName(c.getOtherPrimaryKeyColumn());
+            c.setOtherColumn(otherColumn);
+        });
     }
 
     protected void calculateRelationProperty() {

@@ -20,6 +20,7 @@ import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.TableTypeEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -559,18 +560,23 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean isGenerateServiceUnitTest() {
         JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
-        return javaServiceImplGeneratorConfiguration.isGenerate() && javaServiceImplGeneratorConfiguration.isGenerateUnitTest();
+        return javaServiceImplGeneratorConfiguration.isGenerate()
+                && javaServiceImplGeneratorConfiguration.isGenerateUnitTest();
     }
 
     @Override
     public boolean isGenerateControllerUnitTest() {
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = tc.getJavaControllerGeneratorConfiguration();
-        return javaControllerGeneratorConfiguration != null && javaControllerGeneratorConfiguration.isGenerate() && javaControllerGeneratorConfiguration.isGenerateUnitTest();
+        return javaControllerGeneratorConfiguration != null
+                && javaControllerGeneratorConfiguration.isGenerate()
+                && javaControllerGeneratorConfiguration.isGenerateUnitTest()
+                && tc.getTableType().equals(TableTypeEnum.DATA_TABLE.code());
     }
 
     @Override
     public boolean isGenerateVO() {
-        return tc.getVoGeneratorConfiguration()!=null && tc.getVoGeneratorConfiguration().isGenerate();
+        return tc.getVoGeneratorConfiguration()!=null && tc.getVoGeneratorConfiguration().isGenerate()
+                && tc.getTableType().equals(TableTypeEnum.DATA_TABLE.code());
     }
 
     @Override

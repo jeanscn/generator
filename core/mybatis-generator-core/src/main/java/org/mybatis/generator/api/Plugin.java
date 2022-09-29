@@ -615,6 +615,11 @@ public interface Plugin {
         return true;
     }
 
+    default boolean clientInsertOrDeleteByTableMethodGenerated(Method method,
+                                                               Interface interfaze, IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     /**
      * Called when the general count method has been generated. This is the replacement for countByExample
      * in the MyBatis Dynamic SQL V2 runtime.

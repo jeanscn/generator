@@ -9,6 +9,7 @@ import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
@@ -104,6 +105,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         addSelectByKeysDictElement(bizGenClazzImpl);
 
+        addDeleteByTableElement(bizGenClazzImpl);
+
+        addInsertByTableElement(bizGenClazzImpl);
+
         /*
          *  以下是重写的方法
          * */
@@ -177,6 +182,20 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
 
         return answer;
+    }
+
+    private void addDeleteByTableElement(TopLevelClass parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(SelectByTableGeneratorConfiguration::isEnableSplit)) {
+            AbstractServiceElementGenerator elementGenerator = new DeleteByTableElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addInsertByTableElement(TopLevelClass parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(SelectByTableGeneratorConfiguration::isEnableUnion)) {
+            AbstractServiceElementGenerator elementGenerator = new InsertByTableElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addInsertBatchElement(TopLevelClass parentElement) {

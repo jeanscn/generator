@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.220927002-->
+        <!--version:1.4.8.220929001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -137,6 +137,8 @@
         <!--
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
+          属性信息：
+            1、tableType:数据表类型；dataTable（缺省值）：普通数据表，relationTable：关系中间表
           property配置：
             1、rootClass 指定生成对象的父类全类名
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
@@ -165,6 +167,7 @@
                 domainObjectName CDATA #IMPLIED
                 mapperName CDATA #IMPLIED
                 sqlProviderName CDATA #IMPLIED
+                tableType (dataTable|relationTable) #IMPLIED
                 enableInsert (true|false) #IMPLIED
                 enableSelectByPrimaryKey (true|false) #IMPLIED
                 enableSelectByExample (true|false) #IMPLIED
@@ -274,7 +277,10 @@
           3、otherColumn 另一关联表的主键在关系表中的字段名
           4、methodSuffix 方法名关键字，最终生成方法名为：selectByTable+方法名关键字
           5、sortColumn 结果排序语句 如：SORT_ desc
-          6、returnType 返回（泛型参数）类型（primaryKey或model,默认model）
+          6、additionClause 附加where条件，将与otherColumn=otherKey并且，用于中间表有多条件的场景，比如部门人员表中的是否管理员（MANAGER_ = 1）等。
+          7、returnType 返回（泛型参数）类型（primaryKey或model,默认model）
+          8、enableSplit 允许取消关联（中间表删除数据）
+          9、enableUnion 允许新建关联（中间表插入数据）
         -->
         <!ELEMENT selectByTable EMPTY>
         <!ATTLIST selectByTable
@@ -284,7 +290,9 @@
                 methodSuffix CDATA #REQUIRED
                 orderByClause CDATA #IMPLIED
                 additionClause CDATA #IMPLIED
-                returnType (model|primaryKey) #IMPLIED>
+                returnType (model|primaryKey) #IMPLIED
+                enableSplit (true|false) #IMPLIED
+                enableUnion (true|false) #IMPLIED>
         <!--
           基于字段的查询方法 （也是配合javaModelCollection Properties实现查询方法）
           增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。

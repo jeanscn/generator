@@ -76,6 +76,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private ModelType modelType;
 
+    private String tableType;
+
     private List<ColumnSearch> columnSearchs;
 
     private boolean wildcardEscapingEnabled;
@@ -89,6 +91,7 @@ public class TableConfiguration extends PropertyHolder {
     private boolean isAllColumnDelimitingEnabled;
 
     private String mapperName;
+
     private String sqlProviderName;
 
     private List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
@@ -144,6 +147,7 @@ public class TableConfiguration extends PropertyHolder {
         countByExampleStatementEnabled = true;
         updateByExampleStatementEnabled = true;
         updateBatchStatementEnabled = true;
+        tableType = "dataTable";
 
     }
 
@@ -354,6 +358,14 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    public String getTableType() {
+        return tableType;
+    }
+
+    public void setTableType(String tableType) {
+        this.tableType = tableType;
     }
 
     public List<ColumnOverride> getColumnOverrides() {

@@ -221,6 +221,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         List<String> collect = parameters.stream()
                 .map(p -> "@param " + p.getName() + " " + p.getRemark())
                 .collect(Collectors.toList());
+        collect.add(0,"");
         collect.add(0,"这个抽象方法通过定制版Mybatis Generator自动生成");
         collect.add(0,"提示 - @mbg.generated");
         String[] strings = collect.toArray(new String[0]);

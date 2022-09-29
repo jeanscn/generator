@@ -7,7 +7,6 @@ import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -291,6 +290,27 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
                 parentElement);
     }
 
+    protected Method getDeleteByTableMethod(CompilationUnit parentElement,
+                                            SelectByTableGeneratorConfiguration configuration,
+                                            boolean isAbstract,boolean isInsert) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter p1 = new Parameter(configuration.getThisColumn().getFullyQualifiedJavaType(), configuration.getThisColumn().getJavaProperty());
+        p1.setRemark("当前对象的键值");
+        parameters.add(p1);
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(configuration.getOtherColumn().getFullyQualifiedJavaType());
+        Parameter p2 = new Parameter(listInstance, configuration.getOtherColumn().getJavaProperty() + "s");
+        p2.setRemark(isInsert?"待关联数据的主键列表":"待解除关联数据的主键列表");
+        parameters.add(p2);
+        return getMethodByType(
+                isInsert?configuration.getUnionMethodName():configuration.getSplitMethodName(),
+                ReturnTypeEnum.MODEL,
+                FullyQualifiedJavaType.getIntInstance(),
+                parameters,
+                isAbstract,
+                parentElement);
+    }
+
     protected String getInterfaceClassShortName(String targetPackage, String entityTypeShortName) {
         return targetPackage +
                 "." + "I" + entityTypeShortName;
@@ -418,14 +438,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
                 parentElement.addImportedType(returnTypeArgument);
                 break;
         }
-
-        List<String> collect = parameters.stream()
-                .map(p -> "@param " + p.getName() + " " + p.getRemark())
-                .collect(Collectors.toList());
-        collect.add(0,"这个抽象方法通过定制版Mybatis Generator自动生成");
-        collect.add(0,"提示 - @mbg.generated");
-        String[] strings = collect.toArray(new String[0]);
-        context.getCommentGenerator().addMethodJavaDocLine(method, false,strings);
+        context.getCommentGenerator().addMethodJavaDocLine(method, "这个抽象方法通过定制版Mybatis Generator自动生成","提示 - @mbg.generated");
         return method;
     }
 

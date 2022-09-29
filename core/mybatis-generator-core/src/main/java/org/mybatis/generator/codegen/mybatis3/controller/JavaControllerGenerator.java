@@ -8,6 +8,7 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.sql.JDBCType;
@@ -131,6 +132,9 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
         }
         addGetDictElement(conTopClazz);
 
+        addDeleteByTableElement(conTopClazz);
+        addInsertByTableElement(conTopClazz);
+
         //追加一个构造导入Excel模板的样例数据方法
         if (introspectedTable.getRules().isGenerateExcelVO()) {
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");
@@ -232,6 +236,19 @@ public class JavaControllerGenerator  extends AbstractJavaGenerator{
             }
         }
         return answer;
+    }
+
+    private void addDeleteByTableElement(TopLevelClass parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(SelectByTableGeneratorConfiguration::isEnableSplit)) {
+            AbstractControllerElementGenerator elementGenerator = new DeleteByTableGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+    private void addInsertByTableElement(TopLevelClass parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(SelectByTableGeneratorConfiguration::isEnableUnion)) {
+            AbstractControllerElementGenerator elementGenerator = new InsertByTableGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addViewElement(TopLevelClass parentElement) {

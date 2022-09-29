@@ -439,6 +439,19 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean clientInsertOrDeleteByTableMethodGenerated(Method method, Interface interfaze,
+                                                              IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientInsertOrDeleteByTableMethodGenerated(method, interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    @Override
     public boolean clientGeneralCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                      IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {

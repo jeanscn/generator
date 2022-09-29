@@ -17,7 +17,8 @@ public enum ReturnTypeEnum{
     SERVICE_RESULT_LIST("sl","服务返回列表"),
     SERVICE_RESULT_MODEL("sm","服务返回对象"),
     RESPONSE_RESULT_MODEL("rm","WEB返回对象"),
-    RESPONSE_RESULT_LIST("rl","WEB返回列表");
+    RESPONSE_RESULT_LIST("rl","WEB返回列表"),
+    UNKNOWN("unknown","未知类型");
 
     ReturnTypeEnum(String code,String codeName){
         this.code = code;
@@ -36,6 +37,6 @@ public enum ReturnTypeEnum{
     public static ReturnTypeEnum ofCode(String code){
         return EnumSet.allOf(ReturnTypeEnum.class).stream()
                 .filter(e -> e.code.equals(code))
-                .findFirst().orElse(null);
+                .findFirst().orElse(ReturnTypeEnum.UNKNOWN);
     }
 }

@@ -24,6 +24,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.*;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 public class XMLMapperGenerator extends AbstractXmlGenerator {
 
@@ -82,8 +83,24 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addSelectTreeByParentIdElement(answer);
         addSelectByTableElement(answer);
         addSelectByKeysDictElement(answer);
+        addDeleteByTableElement(answer);
+        addInsertByTableElement(answer);
 
         return answer;
+    }
+
+    private void addInsertByTableElement(XmlElement parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(SelectByTableGeneratorConfiguration::isEnableUnion)) {
+            AbstractXmlElementGenerator elementGenerator = new InsertByTableElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addDeleteByTableElement(XmlElement parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(SelectByTableGeneratorConfiguration::isEnableSplit)) {
+            AbstractXmlElementGenerator elementGenerator = new DeleteByTableElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     protected void addSelectByKeysDictElement(XmlElement parentElement) {

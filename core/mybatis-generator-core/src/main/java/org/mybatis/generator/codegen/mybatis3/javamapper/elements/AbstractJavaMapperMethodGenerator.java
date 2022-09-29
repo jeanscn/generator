@@ -40,6 +40,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.GeneratedKey;
+import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerator {
     public abstract void addInterfaceElements(Interface interfaze);
@@ -330,6 +331,23 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
         method.addParameter(new Parameter(parameterType, "row")); //$NON-NLS-1$
 
+        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
+        return method;
+    }
+
+    protected Method buildInsertOrDeleteByTableMethod(boolean isInsert, SelectByTableGeneratorConfiguration configuration) {
+        Method method = new Method(isInsert?configuration.getUnionMethodName():configuration.getSplitMethodName());
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setAbstract(true);
+        method.setReturnType(FullyQualifiedJavaType.getIntegerInstance());
+        Parameter p1 = new Parameter(configuration.getThisColumn().getFullyQualifiedJavaType(), configuration.getThisColumn().getJavaProperty());
+        p1.setRemark(configuration.getThisColumn().getRemarks(false));
+        method.addParameter(p1);
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(configuration.getOtherColumn().getFullyQualifiedJavaType());
+        Parameter p2 = new Parameter(listInstance, configuration.getOtherColumn().getJavaProperty() + "s");
+        p2.setRemark(configuration.getOtherColumn().getRemarks(false));
+        method.addParameter(p2);
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
         return method;
     }

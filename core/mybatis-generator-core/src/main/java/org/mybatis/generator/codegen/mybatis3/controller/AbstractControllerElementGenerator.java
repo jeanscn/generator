@@ -73,9 +73,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         }
         responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         responsePagehelperResult = new FullyQualifiedJavaType(RESPONSE_PAGEHELPER_RESULT);
-        String voTargetPackage = introspectedTable.getTableConfiguration()
-                .getVoGeneratorConfiguration()
-                .getBaseTargetPackage();
+        String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
         entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
         entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
@@ -150,6 +148,10 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                     sb.append(introspectedTable.getRemarks(true)).append("查询字典数据");
                 }else if(("getCache"+record.getShortName()).equals(method.getName())) {
                     sb.append(introspectedTable.getRemarks(true)).append("查询缓存数据");
+                }else if(VStringUtil.contains(method.getName(), "deleteByTable")) {
+                    sb.append(introspectedTable.getRemarks(true)).append("删除数据关联");
+                }else if(VStringUtil.contains(method.getName(), "insertByTable")) {
+                    sb.append(introspectedTable.getRemarks(true)).append("添加数据关联");
                 }else{
                     sb.append("执行操作！");
                 }

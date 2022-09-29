@@ -250,6 +250,27 @@ public abstract class AbstractServiceGenerator extends AbstractJavaGenerator {
                 parentElement);
     }
 
+    protected Method getDeleteByTableMethod(CompilationUnit parentElement,
+                                            SelectByTableGeneratorConfiguration configuration,
+                                            boolean isAbstract,boolean isInsert) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter p1 = new Parameter(configuration.getThisColumn().getFullyQualifiedJavaType(), configuration.getThisColumn().getJavaProperty());
+        p1.setRemark("当前对象的键值");
+        parameters.add(p1);
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(configuration.getOtherColumn().getFullyQualifiedJavaType());
+        Parameter p2 = new Parameter(listInstance, configuration.getOtherColumn().getJavaProperty() + "s");
+        p2.setRemark(isInsert?"待关联数据的主键列表":"待解除关联数据的主键列表");
+        parameters.add(p2);
+        return getMethodByType(
+                isInsert?configuration.getUnionMethodName():configuration.getSplitMethodName(),
+                ReturnTypeEnum.MODEL,
+                FullyQualifiedJavaType.getIntInstance(),
+                parameters,
+                isAbstract,
+                parentElement);
+    }
+
     protected String getInterfaceClassShortName(String targetPackage, String entityTypeShortName) {
         return targetPackage +
                 "." + "I" + entityTypeShortName;

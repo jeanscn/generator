@@ -119,6 +119,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addSelectTreeByParentIdMethods(interfaze);
         addSelectByTableMethods(interfaze);
         addSelectByKeysDictMethod(interfaze);
+        addDeleteByTableMethod(interfaze);
+        addInsertByTableMethod(interfaze);
 
         if (context.getPlugins().clientGenerated(interfaze, introspectedTable)) {
             answer.add(interfaze);
@@ -149,6 +151,24 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
 
         return answer;
+    }
+
+    private void addDeleteByTableMethod(Interface interfaze) {
+        for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
+            if (configuration.isEnableSplit()) {
+                AbstractJavaMapperMethodGenerator methodGenerator = new DeleteByTableMethodGenerator(false,configuration);
+                initializeAndExecuteGenerator(methodGenerator, interfaze);
+            }
+        }
+    }
+
+    private void addInsertByTableMethod(Interface interfaze) {
+        for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
+            if (configuration.isEnableUnion()) {
+                AbstractJavaMapperMethodGenerator methodGenerator = new InsertByTableMethodGenerator(false,configuration);
+                initializeAndExecuteGenerator(methodGenerator, interfaze);
+            }
+        }
     }
 
     protected void addSelectByKeysDictMethod(Interface interfaze) {
