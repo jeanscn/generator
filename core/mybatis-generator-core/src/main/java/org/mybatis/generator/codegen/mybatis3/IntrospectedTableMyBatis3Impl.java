@@ -17,6 +17,8 @@ package org.mybatis.generator.codegen.mybatis3;
 
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
@@ -47,9 +49,7 @@ import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Introspected table implementation for generating MyBatis3 artifacts.
@@ -182,11 +182,11 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 initializeAbstractGenerator(javaServiceUnitTestGenerator, warnings,progressCallback);
                 javaGenerators.add(javaServiceUnitTestGenerator);
             }
-            if (getRules().isGenerateVO()) {
-                ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
-                initializeAbstractGenerator(viewObjectClassGenerator, warnings,progressCallback);
-                javaGenerators.add(viewObjectClassGenerator);
-            }
+        }
+        if (getRules().isGenerateVO()) {
+            ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
+            initializeAbstractGenerator(viewObjectClassGenerator, warnings,progressCallback);
+            javaGenerators.add(viewObjectClassGenerator);
         }
         if (getRules().generateController()) {
             JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = this.getTableConfiguration().getJavaControllerGeneratorConfiguration();

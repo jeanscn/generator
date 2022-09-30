@@ -438,7 +438,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
                 parentElement.addImportedType(returnTypeArgument);
                 break;
         }
-        context.getCommentGenerator().addMethodJavaDocLine(method, "这个抽象方法通过定制版Mybatis Generator自动生成","提示 - @mbg.generated");
+        context.getCommentGenerator().addMethodJavaDocLine(method, "提示 - @vgosoft code factory.generated");
         return method;
     }
 

@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.api;
 
+import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
@@ -125,6 +127,8 @@ public abstract class IntrospectedTable {
     protected List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
     protected Map<String, CustomMethodGeneratorConfiguration> customAddtionalSelectMethods = new HashMap<>();
+
+    protected Map<String,List<String>> topLevelClassExampleFields = new HashMap<>();
 
     /**
      * Attributes may be used by plugins to capture table related state between
@@ -1355,6 +1359,14 @@ public abstract class IntrospectedTable {
 
     public void addPermissionDataScriptLines(String id,String permissionDataScriptLines) {
         this.permissionDataScriptLines.put(id,permissionDataScriptLines);
+    }
+
+    public Map<String, List<String>> getTopLevelClassExampleFields() {
+        return topLevelClassExampleFields;
+    }
+
+    public void addTopLevelClassExampleFields(String key, List<String> value) {
+        this.topLevelClassExampleFields.put(key,value);
     }
 
     private String propertyRegistryDefaultValue(String propertyRegistry) {

@@ -47,6 +47,8 @@ public class Method extends JavaElement {
 
     private boolean isFinal;
 
+    private String returnRemark;
+
     public Method(String name) {
         this.name = name;
     }
@@ -191,5 +193,13 @@ public class Method extends JavaElement {
 
     public void setFinal(boolean isFinal) {
         this.isFinal = isFinal;
+    }
+
+    public String getReturnRemark() {
+        return returnRemark;
+    }
+
+    public void setReturnRemark(String returnRemark) {
+        this.returnRemark = returnRemark;
     }
 }

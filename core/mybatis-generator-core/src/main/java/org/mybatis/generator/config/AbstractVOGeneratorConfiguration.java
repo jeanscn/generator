@@ -31,6 +31,8 @@ public abstract class AbstractVOGeneratorConfiguration extends AbstractGenerator
 
     private List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
+    private List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
+
     protected FullyQualifiedJavaType fullyQualifiedJavaType;
 
     public AbstractVOGeneratorConfiguration() {
@@ -81,6 +83,14 @@ public abstract class AbstractVOGeneratorConfiguration extends AbstractGenerator
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
         this.additionalPropertyConfigurations.add(additionalPropertyConfiguration);
+    }
+
+    public List<VoNameFragmentGeneratorConfiguration> getVoNameFragmentGeneratorConfigurations() {
+        return voNameFragmentGeneratorConfigurations;
+    }
+
+    public void addVoNameFragmentGeneratorConfiguration(VoNameFragmentGeneratorConfiguration voNameFragmentGeneratorConfiguration) {
+        this.voNameFragmentGeneratorConfigurations.add(voNameFragmentGeneratorConfiguration);
     }
 
     @Override

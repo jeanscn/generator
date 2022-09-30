@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.220929001-->
+        <!--version:1.4.8.220930004-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -575,7 +575,7 @@
                        当不配置该属性时，默认忽略eAbstractPersistenceLockEntity抽象类属性对应的字段。
                  property配置：无
                -->
-        <!ELEMENT requestVO (property*,additionalProperty*)>
+        <!ELEMENT requestVO (property*,additionalProperty*,nameFragment*)>
         <!ATTLIST requestVO
                 generate (true|false) #IMPLIED
                 includePageParam (true|false) #IMPLIED
@@ -697,3 +697,14 @@
                 isFinal (true|false) #IMPLIED
                 visibility (public|private|protected) #IMPLIED
                 importedTypes CDATA #IMPLIED>
+
+        <!--
+             用于指定requestVO自动构建查询Example类，字段匹配类型
+             属性信息：
+             1、column 必须，列名。
+             2、fragment 必须，方法名片段。
+            -->
+        <!ELEMENT nameFragment EMPTY>
+        <!ATTLIST nameFragment
+                column  CDATA #REQUIRED
+                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeRight|LikeLeft) #REQUIRED>

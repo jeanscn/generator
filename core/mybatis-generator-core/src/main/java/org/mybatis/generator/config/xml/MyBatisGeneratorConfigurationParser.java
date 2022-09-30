@@ -1114,6 +1114,20 @@ public class MyBatisGeneratorConfigurationParser {
 
     }
 
+    private void parseNameFragment(Context context, TableConfiguration tc, Node childNode, AbstractVOGeneratorConfiguration configuration) {
+        VoNameFragmentGeneratorConfiguration voNameFragmentGeneratorConfiguration = new VoNameFragmentGeneratorConfiguration(context, tc);
+        Properties attributes = parseAttributes(childNode);
+        String column = attributes.getProperty("column");
+        if (stringHasValue(column)) {
+            voNameFragmentGeneratorConfiguration.setColumn(column);
+        }
+        String fragment = attributes.getProperty("fragment");
+        if (stringHasValue(fragment)) {
+            voNameFragmentGeneratorConfiguration.setFragment(fragment);
+        }
+        configuration.addVoNameFragmentGeneratorConfiguration(voNameFragmentGeneratorConfiguration);
+    }
+
     private void parseVoChildNodeProperty(Context context, TableConfiguration tc,Node node,AbstractVOGeneratorConfiguration configuration) {
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -1129,10 +1143,11 @@ public class MyBatisGeneratorConfigurationParser {
                 parseVoOverrideColumn(context, tc, childNode,configuration);
             }else if(("additionalProperty").equals(childNode.getNodeName())){
                 parseAdditionalProperty(context, tc, childNode,configuration);
+            }else if(("nameFragment").equals(childNode.getNodeName())){
+                parseNameFragment(context, tc, childNode,configuration);
             }
         }
     }
-
 
     private void parseGenerateModelVO(Context context, TableConfiguration tc, Node node,VOGeneratorConfiguration voGeneratorConfiguration) {
         Properties attributes = parseAttributes(node);
