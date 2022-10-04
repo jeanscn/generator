@@ -9,6 +9,7 @@ import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -98,7 +99,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         addSelectByColumnElement(bizGenClazzImpl);
 
         //增加selectTreeByParentId
-        addSelectTreeByParentIdElement(bizGenClazzImpl);
+        addSelectBySqlMethodElement(bizGenClazzImpl);
 
         //增加selectByTable方法
         addSelectByTableElement(bizGenClazzImpl);
@@ -226,9 +227,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
     }
 
-    private void addSelectTreeByParentIdElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateSelectTreeByParentId()) {
-            AbstractServiceElementGenerator elementGenerator = new SelectTreeByParentIdElement();
+    private void addSelectBySqlMethodElement(TopLevelClass parentElement) {
+        for (SelectBySqlMethodGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectBySqlMethodElement(configuration);
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

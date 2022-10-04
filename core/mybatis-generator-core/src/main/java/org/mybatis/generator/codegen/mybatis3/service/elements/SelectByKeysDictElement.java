@@ -31,9 +31,9 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
-        Method selectByKeysDictMethod = getSelectByKeysDictMethod(parentElement,
+        Method selectByKeysDictMethod = serviceMethods.getSelectByKeysDictMethod(parentElement,
                 voCacheGeneratorConfiguration,
-                false);
+                false,true);
         selectByKeysDictMethod.addAnnotation("@Override");
         List<IntrospectedColumn> introspectedColumns = Stream.of(voCacheGeneratorConfiguration.getTypeColumn(), voCacheGeneratorConfiguration.getCodeColumn())
                 .map(n -> introspectedTable.getColumn(n).orElse(null))

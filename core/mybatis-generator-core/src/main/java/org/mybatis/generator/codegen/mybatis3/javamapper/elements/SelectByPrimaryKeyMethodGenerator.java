@@ -22,37 +22,20 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 public class SelectByPrimaryKeyMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
-    private final boolean isSimple;
-
     public SelectByPrimaryKeyMethodGenerator(boolean isSimple) {
         super();
-        this.isSimple = isSimple;
     }
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        Method method = new Method(introspectedTable.getSelectByPrimaryKeyStatementId());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-
-        FullyQualifiedJavaType returnType = introspectedTable.getRules().calculateAllFieldsClass();
-        method.setReturnType(returnType);
-
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        importedTypes.add(returnType);
-
-        addPrimaryKeyMethodParameters(isSimple, method, importedTypes);
-
-        addMapperAnnotations(interfaze, method);
-
-        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
-
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getSelectByPrimaryKeyMethod(interfaze, true,false);
         if (context.getPlugins().clientSelectByPrimaryKeyMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
     }

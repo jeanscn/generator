@@ -23,12 +23,12 @@ import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -46,6 +46,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     protected FullyQualifiedJavaType entityType;
     protected FullyQualifiedJavaType exampleType;
+    protected  ServiceMethods serviceMethods;
 
     public JavaMapperGenerator(String project) {
         this(project, true);
@@ -60,9 +61,9 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-
+        serviceMethods = new ServiceMethods(context, introspectedTable);
         List<CompilationUnit> answer = new ArrayList<>();
-        if (introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration()==null
+        if (introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration() == null
                 || !introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().isGenerate()) {
             return answer;
         }
@@ -70,13 +71,12 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                 introspectedTable.getFullyQualifiedTable().toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
         String targetPackageGen = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().getTargetPackageGen();
-        String mapperFullName = String.join(".", targetPackageGen, "Gen"+introspectedTable.getTableConfiguration().getDomainObjectName()+"Mapper");
+        String mapperFullName = String.join(".", targetPackageGen, "Gen" + introspectedTable.getTableConfiguration().getDomainObjectName() + "Mapper");
 
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(interfaze);
-
 
 
         String rootInterface = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
@@ -88,7 +88,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(rootInterface);
             interfaze.addSuperInterface(fqjt);
             interfaze.addImportedType(fqjt);
-        }else{
+        } else {
             FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
             infSuperType.addTypeArgument(entityType);
             infSuperType.addTypeArgument(exampleType);
@@ -116,7 +116,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addSelectByExampleWithRelationMethod(interfaze);
         addUpdateBatchMethod(interfaze);
         addSelectByColumnMethods(interfaze);
-        addSelectTreeByParentIdMethods(interfaze);
+        addSelectBySqlMethodMethods(interfaze);
         addSelectByTableMethods(interfaze);
         addSelectByKeysDictMethod(interfaze);
         addDeleteByTableMethod(interfaze);
@@ -134,7 +134,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         //生成子类
         JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration();
         String daoName = introspectedTable.getTableConfiguration().getDomainObjectName() + "Mapper";
-        String sb = javaClientGeneratorConfiguration.getTargetPackage() + "." +  daoName;
+        String sb = javaClientGeneratorConfiguration.getTargetPackage() + "." + daoName;
         Interface subInterface = new Interface(sb);
         subInterface.setVisibility(JavaVisibility.PUBLIC);
         subInterface.addAnnotation("@Mapper");
@@ -145,7 +145,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
         if (forceGenerateScalableElement || fileNotExist) {
-            if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)){
+            if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)) {
                 answer.add(subInterface);
             }
         }
@@ -156,7 +156,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     private void addDeleteByTableMethod(Interface interfaze) {
         for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
             if (configuration.isEnableSplit()) {
-                AbstractJavaMapperMethodGenerator methodGenerator = new DeleteByTableMethodGenerator(false,configuration);
+                AbstractJavaMapperMethodGenerator methodGenerator = new DeleteByTableMethodGenerator(false, configuration);
                 initializeAndExecuteGenerator(methodGenerator, interfaze);
             }
         }
@@ -165,7 +165,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     private void addInsertByTableMethod(Interface interfaze) {
         for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
             if (configuration.isEnableUnion()) {
-                AbstractJavaMapperMethodGenerator methodGenerator = new InsertByTableMethodGenerator(false,configuration);
+                AbstractJavaMapperMethodGenerator methodGenerator = new InsertByTableMethodGenerator(false, configuration);
                 initializeAndExecuteGenerator(methodGenerator, interfaze);
             }
         }
@@ -193,11 +193,14 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     //增加relation方法
-    protected void addSelectByExampleWithRelationMethod(Interface interfaze){
-        if (introspectedTable.getRules().generateRelationWithSubSelected()){
-            Method example = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(), ReturnTypeEnum.LIST,
+    protected void addSelectByExampleWithRelationMethod(Interface interfaze) {
+        if (introspectedTable.getRules().generateRelationWithSubSelected()) {
+            Method example = serviceMethods.getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId()
+                    , ReturnTypeEnum.LIST,
                     entityType,
-                    exampleType, "example",  "查询条件对象",true,interfaze);
+                    introspectedTable.getRemarks(true)+"对象列表",
+                    exampleType, "example", "查询条件对象", true, interfaze);
+            context.getCommentGenerator().addMethodJavaDocLine(example, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
             interfaze.addMethod(example);
             interfaze.addImportedType(exampleType);
         }
@@ -215,72 +218,81 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method;
                 boolean isListParam = config.getParameterType().equals("list");
-                FullyQualifiedJavaType paramType = isListParam?FullyQualifiedJavaType.getNewListInstance():config.getColumn().getFullyQualifiedJavaType();
+                FullyQualifiedJavaType paramType = isListParam ? FullyQualifiedJavaType.getNewListInstance() : config.getColumn().getFullyQualifiedJavaType();
                 if (isListParam) {
                     paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
                 }
                 if (config.isReturnPrimaryKey()) {
-                    method = getMethodByType(config.getMethodName(),
+                    method =  serviceMethods.getMethodByType(config.getMethodName(),
                             ReturnTypeEnum.LIST,
                             FullyQualifiedJavaType.getStringInstance(),
+                            introspectedTable.getRemarks(true)+"唯一标识列表",
                             paramType,
-                            config.getColumn().getJavaProperty()+(isListParam?"s":""),
+                            config.getColumn().getJavaProperty() + (isListParam ? "s" : ""),
                             config.getColumn().getRemarks(false),
                             true,
                             interfaze);
-                } else if(JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName())){
-                    method = getMethodByType(config.getMethodName(),
+                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的查询方法。该方法常用于为其它方法提供子查询。");
+                } else if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName())) {
+                    method = serviceMethods.getMethodByType(config.getMethodName(),
                             ReturnTypeEnum.MODEL,
                             entityType,
+                            introspectedTable.getRemarks(true)+"对象",
                             paramType,
-                            config.getColumn().getJavaProperty()+(isListParam?"s":""),
+                            config.getColumn().getJavaProperty() + (isListParam ? "s" : ""),
                             config.getColumn().getRemarks(false),
                             true,
                             interfaze);
-                }else{
-                    method = getMethodByType(config.getMethodName(),
+                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于主键的的查询方法。当返回对象包含子查询（带查询的子集合）时，生成此方法，用于简单返回","默认情况下{@link #selectByPrimaryKey}执行所有子查询，如果不希望执行子查询，请使用此方法。");
+                } else {
+                    method = serviceMethods.getMethodByType(config.getMethodName(),
                             ReturnTypeEnum.LIST,
                             entityType,
+                            introspectedTable.getRemarks(true)+"对象列表",
                             paramType,
-                            config.getColumn().getJavaProperty()+(isListParam?"s":""),
+                            config.getColumn().getJavaProperty() + (isListParam ? "s" : ""),
                             config.getColumn().getRemarks(false),
                             true,
                             interfaze);
+                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的查询方法。该方法常用于为其它方法提供子查询。");
                 }
-                interfaze.addMethod(method);
+                 interfaze.addMethod(method);
             }
         }
     }
 
-    protected void addSelectTreeByParentIdMethods(Interface interfaze){
+    protected void addSelectBySqlMethodMethods(Interface interfaze) {
         //增加附加选择方法
-        if (introspectedTable.getCustomAddtionalSelectMethods().size() > 0
-                && introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodGeneratorConfiguration config = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            Method method = getMethodByType(introspectedTable.getSelectTreeByParentIdStatementId(),
-                    ReturnTypeEnum.LIST,
-                    entityType,
-                    FullyQualifiedJavaType.getStringInstance(),
-                    config.getParentIdColumn().getJavaProperty(),
-                    config.getParentIdColumn().getRemarks(false),
-                    true,
-                    interfaze);
-            interfaze.addMethod(method);
-        }
+        introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()
+                .forEach(config -> {
+                    Method method = serviceMethods.getMethodByType(config.getMethodName(),
+                            ReturnTypeEnum.LIST,
+                            entityType,
+                            introspectedTable.getRemarks(true)+"对象列表",
+                            FullyQualifiedJavaType.getStringInstance(),
+                            config.getParentIdColumn().getJavaProperty(),
+                            config.getParentIdColumn().getRemarks(false),
+                            true,
+                            interfaze);
+                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于sql函数["+config.getSqlMethod()+"]的查询");
+                    interfaze.addMethod(method);
+                });
     }
 
-    protected void addSelectByTableMethods(Interface interfaze){
-        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()!=null
-                && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size()>0) {
-            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
-                Method selectByTable = getMethodByType(selectByTableGeneratorConfiguration.getMethodName(),
+    protected void addSelectByTableMethods(Interface interfaze) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration() != null
+                && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() > 0) {
+            for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
+                Method selectByTable = serviceMethods.getMethodByType(configuration.getMethodName(),
                         ReturnTypeEnum.LIST,
-                        selectByTableGeneratorConfiguration.isReturnPrimaryKey()?FullyQualifiedJavaType.getStringInstance():entityType,
+                        configuration.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,
+                        introspectedTable.getRemarks(true)+(configuration.isReturnPrimaryKey() ?"唯一标识列表":"对象列表"),
                         FullyQualifiedJavaType.getStringInstance(),
-                        selectByTableGeneratorConfiguration.getParameterName(),
+                        configuration.getParameterName(),
                         "中间表中来自其他表的查询键值",
                         true,
                         interfaze);
+                context.getCommentGenerator().addMethodJavaDocLine(selectByTable,"基于中间表["+configuration.getTableName()+"]的查询");
                 interfaze.addMethod(selectByTable);
             }
         }

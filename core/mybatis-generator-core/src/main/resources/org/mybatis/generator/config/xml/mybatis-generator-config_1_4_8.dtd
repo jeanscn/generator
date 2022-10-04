@@ -157,7 +157,7 @@
                 enableInsertOrUpdate 默认值:true
                 enableFileUpLoad 默认值;false
         -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
                 ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
@@ -308,6 +308,22 @@
                 orderByClause CDATA #IMPLIED
                 returnType (model|primaryKey) #IMPLIED
                 parameterType (key|list) #IMPLIED>
+
+        <!--
+                  基于SQL函数的查询方法 （也是配合javaModelCollection Properties实现查询方法）
+                  增加该属性会为每个字段生成selectBySqlMethod[methodName首字母大写]的查询方法。
+                  元素名：selectBySqlMethod
+                  说明：目前仅限于实现返回带有parentId的所有上级ids或所有下级ids
+                  属性信息：
+                  1、sqlMethod sql方法名称
+                  2、parentIdColumn 父标识字段名。默认PARENT_ID
+                  3、primaryKeyColumn 主键字段名。默认ID_
+                -->
+        <!ELEMENT selectBySqlMethod EMPTY>
+        <!ATTLIST selectBySqlMethod
+                sqlMethod CDATA #REQUIRED
+                parentIdColumn CDATA #IMPLIED
+                primaryKeyColumn CDATA #IMPLIED>
 
     <!--
         添加一个实体类型的属性，并实现一对一的association查询

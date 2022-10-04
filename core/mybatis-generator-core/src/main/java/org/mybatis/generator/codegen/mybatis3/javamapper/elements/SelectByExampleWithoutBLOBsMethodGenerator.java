@@ -25,6 +25,7 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 public class SelectByExampleWithoutBLOBsMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
@@ -34,6 +35,7 @@ public class SelectByExampleWithoutBLOBsMethodGenerator extends AbstractJavaMapp
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         importedTypes.add(type);
@@ -57,7 +59,9 @@ public class SelectByExampleWithoutBLOBsMethodGenerator extends AbstractJavaMapp
         returnType.addTypeArgument(listType);
         method.setReturnType(returnType);
 
-        method.addParameter(new Parameter(type, "example")); //$NON-NLS-1$
+        Parameter parameter = new Parameter(type, "example");
+        parameter.setRemark("查询条件example对象");
+        method.addParameter(parameter); //$NON-NLS-1$
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 

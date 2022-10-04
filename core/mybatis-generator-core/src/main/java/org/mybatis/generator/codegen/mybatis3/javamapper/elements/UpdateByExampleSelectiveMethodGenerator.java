@@ -21,22 +21,17 @@ import java.util.TreeSet;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 public class UpdateByExampleSelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        String statementId = introspectedTable.getUpdateByExampleSelectiveStatementId();
-        FullyQualifiedJavaType parameterType = introspectedTable.getRules().calculateAllFieldsClass();
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-
-        Method method = buildBasicUpdateByExampleMethod(statementId, parameterType, importedTypes);
-
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getUpdateByExample(interfaze, true, false,false);
         addMapperAnnotations(method);
-
         if (context.getPlugins().clientUpdateByExampleSelectiveMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
     }

@@ -1,10 +1,15 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -21,15 +26,22 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         parentElement.addImportedType(exampleType);
         final String methodPrefix = "deleteBatch";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method,parentElement);
+
         Parameter parameter = new Parameter(new FullyQualifiedJavaType("List<String>"), "ids");
         parameter.addAnnotation("@RequestBody");
+        parameter.setRemark("待删除数据的唯一标识列表");
         method.addParameter(parameter);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
         response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
         method.setReturnType(response);
-        addControllerMapping(method, null, "delete");
+        method.setReturnRemark("成功删除的记录数");
+
+        method.addAnnotation(new SystemLog("删除了一条或多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMapping(this.serviceBeanName, RequestMethod.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"批量删除");
+        method.addAnnotation(new ApiOperation("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
+
+        commentGenerator.addMethodJavaDocLine(method, "根据ids批量删除记录");
 
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");

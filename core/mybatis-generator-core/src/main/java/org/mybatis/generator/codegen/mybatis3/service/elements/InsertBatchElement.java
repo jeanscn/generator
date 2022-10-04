@@ -11,8 +11,7 @@ import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 /**
  * selectByExampleWithRelation实现方法
@@ -30,7 +29,7 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method method = getInsertBatchMethod(entityType, parentElement, false);
+        Method method = serviceMethods.getInsertBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
         method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);

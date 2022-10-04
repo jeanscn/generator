@@ -27,7 +27,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method deleteByExampleMethod = this.getDeleteByExampleMethod(parentElement, false);
+        Method deleteByExampleMethod = serviceMethods.getDeleteByExampleMethod(parentElement, false,true);
         deleteByExampleMethod.addAnnotation("@Override");
         deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
@@ -50,6 +50,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         } else {
             deleteByExampleMethod.addBodyLine("return super.{0}(example);", introspectedTable.getDeleteByExampleStatementId());
         }
+
         parentElement.addMethod(deleteByExampleMethod);
     }
 }

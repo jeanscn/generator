@@ -230,7 +230,9 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         if (!isSimple && introspectedTable.getRules().generatePrimaryKeyClass()) {
             FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
             importedTypes.add(type);
-            method.addParameter(new Parameter(type, "key")); //$NON-NLS-1$
+            Parameter parameter = new Parameter(type, "key");
+            parameter.setRemark("唯一标识");
+            method.addParameter(parameter); //$NON-NLS-1$
         } else {
             // no primary key class - fields are in the base class
             // if more than one PK field, then we need to annotate the
@@ -246,6 +248,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
                 FullyQualifiedJavaType type = introspectedColumn.getFullyQualifiedJavaType();
                 importedTypes.add(type);
                 Parameter parameter = new Parameter(type, introspectedColumn.getJavaProperty());
+                parameter.setRemark("主键标识");
                 if (annotate) {
                     sb.setLength(0);
                     sb.append("@Param(\""); //$NON-NLS-1$
@@ -348,7 +351,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         Parameter p2 = new Parameter(listInstance, configuration.getOtherColumn().getJavaProperty() + "s");
         p2.setRemark(configuration.getOtherColumn().getRemarks(false));
         method.addParameter(p2);
-        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
+        method.setReturnRemark("影响行数");
         return method;
     }
 

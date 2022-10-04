@@ -27,7 +27,6 @@ public class SwaggerApiPlugin extends PluginAdapter {
     public static final String  API_MODEL = "io.swagger.annotations.ApiModel";
     public static final String API_MODEL_PROPERTY = "io.swagger.annotations.ApiModelProperty";
     public static final String API = "io.swagger.annotations.Api";
-    public static final String API_OPERATION = "io.swagger.annotations.ApiOperation";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -117,11 +116,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
             topLevelClass.addAnnotation(VStringUtil.format("@Api(tags = \"{0}\")", introspectedTable.getRemarks(true)));
-            for (Method method : topLevelClass.getMethods()) {
-                addMethodApiSwaggerAnnotation(method, introspectedTable);
-            }
             topLevelClass.addImportedType(API);
-            topLevelClass.addImportedType(API_OPERATION);
         }
         return true;
     }
@@ -212,71 +207,6 @@ public class SwaggerApiPlugin extends PluginAdapter {
         }
         sb.append(" )");
         return sb.toString();
-    }
-
-    private void addMethodApiSwaggerAnnotation(Method method, IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        if (("view" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
-                    "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图");
-        }else if (("get" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "获得单条记录", "根据给定id获取单个实体");
-        }else if (("list" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "获得数据"+(introspectedTable.getRules().isGenerateRequestVO()?"分页数据":"数据")+"列表",
-                    "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数");
-        }else if (("create" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "新增一条记录", "新增一条记录,返回json，包含影响条数及消息");
-        }else if (("createBatch" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "新增多条记录", "新增多条记录,返回影响条数及消息");
-        }else if (("upload" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "单个文件上传", "单个文件上传接口");
-        }else if (("download" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "单个文件下载", "单个文件下载接口");
-        }else if (("template" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "Excel导入模板", "下载Excel导入模板接口");
-        }else if (("import" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "Excel数据导入", "Excel数据导入接口");
-        }else if (("export" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "Excel数据导出", "Excel数据导出接口");
-        }else if (("update" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "更新一条记录", "根据主键更新数据");
-        }else if (("updateBatch" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "批量更新数据", "根据主键批量更新数据");
-        }else if (("delete" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "单条记录删除", "根据给定的id删除一条记录");
-        }else if (("deleteBatch" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "批量记录删除", "根据给定的一组id删除多条记录");
-        }else if (("getDefaultViewConfig" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "默认数据视图配置", "获取默认数据视图配置");
-        }else if (("getDefaultView" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "默认数据视图显示", "显示默认数据视图");
-        }else if (("getDict" + record.getShortName()).equals(method.getName())) {
-            buildSwaggerApiAnnotation(method, "字典数据查询", "获取字典数据并缓存");
-        }else if(VStringUtil.contains(method.getName(), "deleteByTable")) {
-            buildSwaggerApiAnnotation(method, "删除数据关联关系", "删除中间表数据");
-        }else if(VStringUtil.contains(method.getName(), "insertByTable")) {
-            buildSwaggerApiAnnotation(method, "添加数据关联关系", "添加中间表数据");
-        }else if (VStringUtil.contains(method.getName(), "option")) {
-            String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
-            if (introspectedTable.getRules().isGenerateRequestVO()) {
-                buildSwaggerApiAnnotation(method, "获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表"+(introspectedTable.getRules().isGenerateRequestVO()?"分页数据":"数据"),
-                        "根据给定条件获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表，可以根据需要传入属性同名参数、消费端选中的值");
-            }else{
-                buildSwaggerApiAnnotation(method, "获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表", "根据给定条件获取Options-"+ JavaBeansUtil.getFirstCharacterLowercase(property) +"选项列表，可以根据需要传入属性同名参数、消费端选中的值");
-            }
-        }
-    }
-
-    private void buildSwaggerApiAnnotation(Method method, String value, String notes) {
-        StringBuilder sb = new StringBuilder();
-        if (StringUtility.stringHasValue(value)) sb.append("value = \"").append(value).append("\"");
-        if (StringUtility.stringHasValue(notes)) {
-            if (sb.length() > 0) sb.append(",");
-            sb.append("notes = \"").append(notes).append("\"");
-        }
-        if (sb.length() > 0) {
-            method.addAnnotation("@ApiOperation(" + sb + ")");
-        }
     }
 
 }

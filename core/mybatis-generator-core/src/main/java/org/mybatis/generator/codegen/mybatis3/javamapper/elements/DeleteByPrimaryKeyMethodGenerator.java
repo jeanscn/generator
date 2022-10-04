@@ -22,6 +22,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 public class DeleteByPrimaryKeyMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
@@ -34,21 +35,11 @@ public class DeleteByPrimaryKeyMethodGenerator extends AbstractJavaMapperMethodG
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        Method method = new Method(introspectedTable.getDeleteByPrimaryKeyStatementId());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        addPrimaryKeyMethodParameters(isSimple, method, importedTypes);
-
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getDeleteByPrimaryKeyMethod(interfaze,true,false);
         addMapperAnnotations(method);
-
-        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
-
         if (context.getPlugins().clientDeleteByPrimaryKeyMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
     }

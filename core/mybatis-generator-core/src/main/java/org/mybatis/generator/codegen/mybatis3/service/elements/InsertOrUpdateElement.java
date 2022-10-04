@@ -29,7 +29,7 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method method = getInsertOrUpdateMethod(entityType, parentElement, false);
+        Method method = serviceMethods.getInsertOrUpdateMethod(parentElement, false,true);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
             method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));

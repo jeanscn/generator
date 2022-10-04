@@ -100,13 +100,6 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
         }
     }
 
-    protected Method createMethod(String methodPrefix) {
-        Method method = new Method(methodPrefix + entityType.getShortName());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addGeneralMethodComment(method, introspectedTable);
-        return method;
-    }
-
     /**
      * 内部方法
      * 创建测试方法
@@ -119,19 +112,6 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
             method.addAnnotation("@DisplayName(\""+methodDescript+"\")");
         }
         return method;
-    }
-
-    protected void addControllerMapping(Method method, String otherKey, String methodType) {
-        StringBuilder sb = new StringBuilder();
-        String mappingPrefix = JavaBeansUtil.getFirstCharacterUppercase(methodType);
-        sb.append("@").append(mappingPrefix).append("Mapping(value = \"");
-        sb.append(this.serviceBeanName);
-        if (StringUtility.stringHasValue(otherKey)) {
-            sb.append("/").append(otherKey).append("\")");
-        } else {
-            sb.append("\")");
-        }
-        method.addAnnotation(sb.toString());
     }
 
     /**

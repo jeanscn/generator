@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.Method;
@@ -8,6 +9,9 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +34,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
 
         final String methodPrefix = "getDict";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method, parentElement);
+
         VOCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
         List<IntrospectedColumn> parametersColumn;
         if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
@@ -45,13 +49,20 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
                 .map(p -> {
                     Parameter parameter = new Parameter(p.getFullyQualifiedJavaType(), p.getJavaProperty());
                     parameter.addAnnotation("@RequestParam");
+                    parameter.setRemark(p.getRemarks(false));
                     return parameter;
                 }).forEach(method::addParameter);
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
                 entityCachePoType,
                 parentElement));
-        addControllerMapping(method, "dict", "get");
-        addSecurityPreAuthorize(method, methodPrefix, "查询字典");
+        method.setReturnRemark("缓存数据对象");
+
+        method.addAnnotation(new SystemLog("查询字典数据",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/dict", RequestMethod.GET),parentElement);
+        addSecurityPreAuthorize(method,methodPrefix,"查询字典");
+        method.addAnnotation(new ApiOperation("字典数据查询", "获取字典数据并缓存"),parentElement);
+
+        commentGenerator.addMethodJavaDocLine(method, "查询字典数据");
 
         //函数体
         String param = parametersColumn.stream()

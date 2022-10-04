@@ -24,6 +24,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.*;
+import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 public class XMLMapperGenerator extends AbstractXmlGenerator {
@@ -80,7 +81,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addSelectByExampleWithRelationElement(answer);
 
         addSelectByForeignKeyElement(answer);
-        addSelectTreeByParentIdElement(answer);
+        addSelectBySqlMethodElement(answer);
         addSelectByTableElement(answer);
         addSelectByKeysDictElement(answer);
         addDeleteByTableElement(answer);
@@ -336,10 +337,9 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         }
     }
 
-    protected void addSelectTreeByParentIdElement(XmlElement parentElement) {
-        if (!introspectedTable.getCustomAddtionalSelectMethods().isEmpty() &&
-                introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            AbstractXmlElementGenerator elementGenerator = new SelectTreeByParentIdElementGenerator();
+    protected void addSelectBySqlMethodElement(XmlElement parentElement) {
+        for (SelectBySqlMethodGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()) {
+            AbstractXmlElementGenerator elementGenerator = new SelectBySqlMethodElementGenerator(configuration);
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

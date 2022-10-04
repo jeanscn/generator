@@ -199,7 +199,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         buildExample.addParameter(parameter);
         buildExample.setReturnType(exampleType);
 
-        commentGenerator.addMethodJavaDocLine(buildExample, "[请在子类中重写此方法]", "根据actionType构造不同的查询条件", "");
+        commentGenerator.addMethodJavaDocLine(buildExample, "[请在子类中重写此方法]", "根据actionType构造不同的查询条件");
 
         FullyQualifiedJavaType type = parameter.getType();
         List<IntrospectedColumn> columns;
@@ -220,6 +220,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), column.getFullyQualifiedJavaType());
                 if (column.isJdbcCharacterColumn()) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.{1}())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
                 }else{
                     buildExample.addBodyLine("if ({0}.{1}()!=null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
                 }
@@ -240,23 +241,24 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
 
             //排序语句
-            final boolean isContain = isContainOrderByClause;
             List<IntrospectedColumn> sort = columns.stream().filter(c -> c.getActualColumnName().equalsIgnoreCase("SORT_")).collect(Collectors.toList());
             if (sort.size()>0) {
-                if (isContain) {
+                if (isContainOrderByClause) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("}else{");
                     buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ",sort.get(0).getActualColumnName());
                     buildExample.addBodyLine("}");
+                    conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
                 }else{
                     buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ",sort.get(0).getActualColumnName());
                 }
             }else{
-                if (isContain) {
+                if (isContainOrderByClause) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("}");
+                    conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
                 }
             }
 

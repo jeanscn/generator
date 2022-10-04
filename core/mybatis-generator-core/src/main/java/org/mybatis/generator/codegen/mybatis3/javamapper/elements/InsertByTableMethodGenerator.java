@@ -17,6 +17,7 @@ package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 public class InsertByTableMethodGenerator extends AbstractJavaMapperMethodGenerator {
@@ -36,7 +37,8 @@ public class InsertByTableMethodGenerator extends AbstractJavaMapperMethodGenera
         if (isSimple) {
             return;
         }
-        Method method = buildInsertOrDeleteByTableMethod(true,configuration);
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getSplitUnionByTableMethod(interfaze, configuration, true, true,false);
         addMapperAnnotations(method);
         if (context.getPlugins().clientInsertOrDeleteByTableMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);

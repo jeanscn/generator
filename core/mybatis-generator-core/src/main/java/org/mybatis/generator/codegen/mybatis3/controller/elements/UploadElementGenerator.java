@@ -1,11 +1,15 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -29,30 +33,38 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         }
         parentElement.addImportedType(multipartFile);
         parentElement.addImportedType("org.springframework.util.Assert");
-        parentElement.addImportedType("org.springframework.http.MediaType");
         parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
 
         final String methodPrefix = "upload";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method, parentElement);
-        addCacheEvictAnnotation(method,parentElement);
 
+        addCacheEvictAnnotation(method,parentElement);
         Parameter multipartFileParameter = new Parameter(multipartFile, "file");
         multipartFileParameter.addAnnotation("@RequestPart(\"file\")");
+        multipartFileParameter.setRemark("文件上传对象");
         method.addParameter(multipartFileParameter);
+        Parameter parameter;
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addParameter(new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase()));
+            parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
         }else{
-            method.addParameter(new Parameter(entityType, entityType.getShortNameFirstLowCase()));
+            parameter = new Parameter(entityType, entityType.getShortNameFirstLowCase());
         }
+        parameter.setRemark("查询条件对象");
+        method.addParameter(parameter);
         responseResult.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         method.setReturnType(responseResult);
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        String sb = "@PostMapping(value = \"" +
-                StringUtils.lowerCase(this.serviceBeanName) +
-                "/upload\",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)";
-        method.addAnnotation(sb);
+        method.setExceptionRemark("上传处理异常，含IO读写异常");
+
+        method.addAnnotation(new SystemLog("上传记录",introspectedTable),parentElement);
+        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/upload", RequestMethod.POST);
+        requestMapping.addProduces("MediaType.MULTIPART_FORM_DATA_VALUE");
+        method.addAnnotation(requestMapping,parentElement);
+        parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"上传");
+        method.addAnnotation(new ApiOperation("单个文件上传", "单个文件上传接口"),parentElement);
+
+        commentGenerator.addMethodJavaDocLine(method, "单个文件上传");
 
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine(format("{0} {1} = mappings.from{2}({3});", entityType.getShortName(),entityType.getShortNameFirstLowCase(),entityVoType.getShortName(),entityVoType.getShortNameFirstLowCase()));

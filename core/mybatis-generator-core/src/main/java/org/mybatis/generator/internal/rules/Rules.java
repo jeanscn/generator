@@ -291,10 +291,6 @@ public interface Rules {
 
     boolean generateInsertOrUpdate();
 
-    boolean generateSelectByExampleWithRelation();
-
-    boolean generateSelectTreeByParentId();
-
     boolean generateSelectByColumn();
 
     boolean generateSelectByTable();

@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.core.constant.enums.RequestMethod;
 import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.ReturnTypeEnum;
@@ -12,9 +11,9 @@ import org.mybatis.generator.custom.annotations.SystemLog;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
-public class UpdateBatchElementGenerator extends AbstractControllerElementGenerator {
+public class SelectBySqlMethodElementGenerator extends AbstractControllerElementGenerator {
 
-    public UpdateBatchElementGenerator() {
+    public SelectBySqlMethodElementGenerator() {
         super();
     }
 
@@ -28,27 +27,24 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
             parentElement.addImportedType(entityType);
         }
 
-        final String methodPrefix = "updateBatch";
+        final String methodPrefix = "get";
         Method method = createMethod(methodPrefix);
 
         MethodParameterDescript descript = new MethodParameterDescript(parentElement, "put");
         descript.setValid(true);
         descript.setRequestBody(true);
         descript.setList(true);
-        Parameter parameter = buildMethodParameter(descript);
-        parameter.setRemark("待更新的数据对象列表");
-        method.addParameter(parameter);
+        method.addParameter(buildMethodParameter(descript));
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
                 getMethodParameterVOType(""),
                 parentElement));
-        method.setReturnRemark("更新后的数据对象列表");
 
-        method.addAnnotation(new SystemLog("更新了多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/batch", RequestMethod.PUT),parentElement);
-        addSecurityPreAuthorize(method, methodPrefix, "批量更新");
-        method.addAnnotation(new ApiOperation("批量更新数据", "根据主键批量更新数据"),parentElement);
+        method.addAnnotation(new SystemLog("获取上级或下级标识",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMapping(this.serviceBeanName + "", RequestMethod.GET),parentElement);
+        addSecurityPreAuthorize(method, methodPrefix, "调用获取上级或下级标识接口");
+        method.addAnnotation(new ApiOperation("集成sql方法的查询", "获取所有父级或子级记录"),parentElement);
 
-        commentGenerator.addMethodJavaDocLine(method, "根据主键批量更新实体对象");
+        commentGenerator.addMethodJavaDocLine(method, "获取上级或下级标识");
 
         method.addBodyLine("ServiceResult<List<{0}>> result =  {1}.{2}({3});"
                 , entityType.getShortName()

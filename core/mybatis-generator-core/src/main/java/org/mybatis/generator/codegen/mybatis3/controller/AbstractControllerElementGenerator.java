@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
@@ -9,6 +10,9 @@ import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.annotations.AnnotationFunction;
+import org.mybatis.generator.custom.annotations.IAnnotation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.pojo.CacheAnnotation;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -16,6 +20,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -87,78 +92,21 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
     protected Method createMethod(String methodPrefix) {
         Method method = new Method(methodPrefix + entityType.getShortName());
         method.setVisibility(JavaVisibility.PROTECTED);
-        commentGenerator.addGeneralMethodComment(method, introspectedTable);
         return method;
     }
 
-    protected void addControllerMapping(Method method, String otherKey, String methodType) {
-        StringBuilder sb = new StringBuilder();
-        String mappingPrefix = JavaBeansUtil.getFirstCharacterUppercase(methodType);
-        sb.append("@").append(mappingPrefix).append("Mapping(value = \"");
-        sb.append(this.serviceBeanName);
-        if (StringUtility.stringHasValue(otherKey)) {
-            sb.append("/").append(otherKey).append("\")");
-        } else {
-            sb.append("\")");
+    protected void addControllerMapping(Method method, String otherKey, RequestMethod requestMethod,TopLevelClass parent) {
+        if (!VStringUtil.isBlank(otherKey) && otherKey.charAt(0) != '/') {
+            otherKey = "/"+otherKey;
         }
-        method.addAnnotation(sb.toString());
+        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + otherKey, requestMethod);
+        requestMapping.toAnnotations().forEach(method::addAnnotation);
+        parent.addImportedType(requestMethod.imported());
     }
 
-    protected void addSystemLogAnnotation(Method method,TopLevelClass parentElement){
-        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
-        String property = javaControllerGeneratorConfiguration.getProperty(PropertyRegistry.CONTROLLER_ENABLE_SYSLOG_ANNOTATION);
-        if (StringUtility.stringHasValue(property)) {
-            if (Boolean.parseBoolean(property)) {
-                StringBuilder sb = new StringBuilder();
-                FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-                sb.append(introspectedTable.getRemarks(true)).append("：");
-                if(("view"+record.getShortName()).equals(method.getName())){
-                    sb.append("通过表单查看或创建").append(introspectedTable.getRemarks(true)).append("记录");
-                }else if(("get"+record.getShortName()).equals(method.getName())){
-                    sb.append("根据主键查询单条");
-                }else if(("list"+record.getShortName()).equals(method.getName())){
-                    sb.append("查看数据列表");
-                }else if(("create"+record.getShortName()).equals(method.getName())){
-                    sb.append("添加了一条记录");
-                }else if(("createBatch"+record.getShortName()).equals(method.getName())){
-                    sb.append("添加了多条记录");
-                }else if(("upload"+record.getShortName()).equals(method.getName())){
-                    sb.append("上传记录");
-                }else if(("download"+record.getShortName()).equals(method.getName())){
-                    sb.append("下载数据");
-                }else if(("update"+record.getShortName()).equals(method.getName())){
-                    sb.append("更新了一条记录");
-                }else if(("updateBatch"+record.getShortName()).equals(method.getName())){
-                    sb.append("更新了多条记录");
-                }else if(("delete"+record.getShortName()).equals(method.getName())){
-                    sb.append("删除了一条记录");
-                }else if(("deleteBatch"+record.getShortName()).equals(method.getName())){
-                    sb.append("删除了一条或多条记录");
-                }else if(("getDefaultView"+record.getShortName()).equals(method.getName())){
-                    sb.append("查看").append(introspectedTable.getRemarks(true)).append("表默认视图");
-                }else if(("getDefaultViewConfig"+record.getShortName()).equals(method.getName())){
-                    sb.append("查看").append(introspectedTable.getRemarks(true)).append("表默认视图配置");
-                }else if(("template"+record.getShortName()).equals(method.getName())) {
-                    sb.append("下载").append(introspectedTable.getRemarks(true)).append("导入模板");
-                }else if(("import"+record.getShortName()).equals(method.getName())) {
-                    sb.append("Excel").append(introspectedTable.getRemarks(true)).append("数据导入");
-                }else if(("export"+record.getShortName()).equals(method.getName())) {
-                    sb.append("Excel").append(introspectedTable.getRemarks(true)).append("数据导出");
-                }else if(("getDict"+record.getShortName()).equals(method.getName())) {
-                    sb.append(introspectedTable.getRemarks(true)).append("查询字典数据");
-                }else if(("getCache"+record.getShortName()).equals(method.getName())) {
-                    sb.append(introspectedTable.getRemarks(true)).append("查询缓存数据");
-                }else if(VStringUtil.contains(method.getName(), "deleteByTable")) {
-                    sb.append(introspectedTable.getRemarks(true)).append("删除数据关联");
-                }else if(VStringUtil.contains(method.getName(), "insertByTable")) {
-                    sb.append(introspectedTable.getRemarks(true)).append("添加数据关联");
-                }else{
-                    sb.append("执行操作！");
-                }
-                method.addAnnotation("@SystemLog(value=\""+ sb +"\")");
-                parentElement.addImportedType(ANNOTATION_SYSTEM_LOG);
-            }
-        }
+    protected void addAnnotation(IAnnotation annotation,Method method,TopLevelClass parent){
+        annotation.toAnnotations().forEach(method::addAnnotation);
+        parent.addMultipleImports(annotation.multipleImports());
     }
 
     /**

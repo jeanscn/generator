@@ -13,6 +13,8 @@ import java.util.Objects;
  */
 public class ConstantsUtil {
 
+    public static final String GENERATED_FLAG = "@VCF.generated";
+
     //实体接口
     public static final String I_BASE_DTO = "com.vgosoft.core.pojo.IBaseDTO";
     public static final String I_SHOW_IN_VIEW = "com.vgosoft.core.entity.IShowInView";

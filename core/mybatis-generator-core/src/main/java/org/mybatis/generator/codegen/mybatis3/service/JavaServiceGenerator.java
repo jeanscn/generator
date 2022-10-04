@@ -4,16 +4,13 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -50,43 +47,45 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizINF.setVisibility(JavaVisibility.PUBLIC);
         bizINF.addSuperInterface(infSuperType);
 
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+
         /**
          * insertBatch
          * */
         if (introspectedTable.getRules().generateInsertBatch()) {
-            bizINF.addMethod(getInsertBatchMethod(entityType, bizINF, true));
+            Method method = serviceMethods.getInsertBatchMethod(bizINF, true,true);
+            bizINF.addMethod(method);
         }
 
         /**
          * updateBatch
          * */
         if (introspectedTable.getRules().generateUpdateBatch()) {
-            bizINF.addMethod(getUpdateBatchMethod(entityType, bizINF, true));
+            bizINF.addMethod(serviceMethods.getUpdateBatchMethod(bizINF, true,true));
         }
 
         /**
          * insertOrUpdate
          * */
         if (introspectedTable.getRules().generateInsertOrUpdate()) {
-            bizINF.addMethod(getInsertOrUpdateMethod(entityType, bizINF,true));
+            bizINF.addMethod(serviceMethods.getInsertOrUpdateMethod(bizINF,true,true));
         }
 
         //增加selectByExampleWithRelation接口方法
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-            bizINF.addMethod(getSelectWithRelationMethod(entityType, exampleType, bizINF,true));
+            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(entityType, exampleType, bizINF,true,true));
         }
 
-        //增加selectTreeByParentId
-        if (introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId())) {
-            CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = introspectedTable.getCustomAddtionalSelectMethods().get(introspectedTable.getSelectTreeByParentIdStatementId());
-            Method method = getSelectTreeByParentIdMethod(entityType, bizINF, customMethodGeneratorConfiguration, true);
+        //增加SelectBySqlMethod
+        introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations().forEach(c->{
+            Method method = serviceMethods.getSelectBySqlMethodMethod(entityType, bizINF, c, true,true);
             bizINF.addMethod(method);
-        }
+        });
 
         //增加selectByColumnXXX
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
-                Method method = getSelectByColumnMethod(entityType, bizINF, config,true);
+                Method method = serviceMethods.getSelectByColumnMethod(entityType, bizINF, config,true,true);
                 bizINF.addMethod(method);
             }
         }
@@ -94,7 +93,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         //增加selectByTableXXX
         List<SelectByTableGeneratorConfiguration> selectByTableConfiguration = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
         for (SelectByTableGeneratorConfiguration config : selectByTableConfiguration) {
-            Method selectByTable = getSelectByTableMethod(entityType, bizINF, config,true);
+            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, bizINF, config,true,true);
             bizINF.addMethod(selectByTable);
         }
 
@@ -102,21 +101,21 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
          *  getSelectByKeysDictMethod
          * */
         if (introspectedTable.getRules().isGenerateCachePO()) {
-            bizINF.addMethod(getSelectByKeysDictMethod(bizINF,
+            bizINF.addMethod(serviceMethods.getSelectByKeysDictMethod(bizINF,
                     introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(),
-                    true));
+                    true,true));
         }
 
         //deleteByTableXXXX
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableSplit).forEach(c->{
-                    bizINF.addMethod(getDeleteByTableMethod(bizINF,c,true,false));
+                    bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF,c,true,false,true));
                 });
 
         //insertByTableXXXX
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c->{
-                    bizINF.addMethod(getDeleteByTableMethod(bizINF,c,true,true));
+                    bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF,c,true,true,true));
                 });
 
         List<CompilationUnit> answer = new ArrayList<>();
@@ -140,7 +139,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 answer.add(bizSubINF);
             }
         }
-
         return answer;
     }
 

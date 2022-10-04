@@ -194,10 +194,19 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
                 docLine.add("@return "+r.getShortName()+" "+method.getReturnRemark());
             }
         });
+        method.getExceptionRemark().ifPresent(r->{
+            if (method.getExceptions().size()>0) {
+                String collect = method.getExceptions().stream()
+                        .map(FullyQualifiedJavaType::getShortName)
+                        .collect(Collectors.joining(","));
+                docLine.add("@throws "+collect+" "+r);
+            }
+        });
         docLine.add(0, "");
         for (int i = 0; i < comments.length; i++) {
             docLine.add(i, comments[i]);
         }
+        docLine.add(0, "提示 - "+ConstantsUtil.GENERATED_FLAG);
         addMethodJavaDocLine(method,false,docLine.toArray(new String[0]));
     }
 }

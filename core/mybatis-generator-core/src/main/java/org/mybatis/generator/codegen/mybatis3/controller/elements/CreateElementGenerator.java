@@ -1,11 +1,16 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.PreAuthorize;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
@@ -26,30 +31,27 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }
-
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method, parentElement);
 
         MethodParameterDescript descript = new MethodParameterDescript(parentElement,"post");
         descript.setValid(true);
         descript.setRequestBody(true);
-        method.addParameter(buildMethodParameter(descript));
+        Parameter parameter = buildMethodParameter(descript);
+        parameter.setRemark("接收请求待持久化的数据（对象）");
+        method.addParameter(parameter);
 
         method.setReturnType(getResponseResult(ReturnTypeEnum.MODEL,
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
                 parentElement));
+        method.setReturnRemark("更新后的数据（对象）");
 
-        addControllerMapping(method, "", "post");
-        addSecurityPreAuthorize(method, methodPrefix, "创建");
+        method.addAnnotation(new SystemLog("添加了一条记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMapping(this.serviceBeanName, RequestMethod.POST),parentElement);
+        addSecurityPreAuthorize(method,methodPrefix,"创建");
+        method.addAnnotation(new ApiOperation("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);
 
-        if (introspectedTable.getRules().isGenerateCreateVO()) {
-
-        }else if (introspectedTable.getRules().isGenerateCreateVO()){
-
-        }else{
-
-        }
+        commentGenerator.addMethodJavaDocLine(method, "新增一条记录");
 
         if (introspectedTable.getRules().isGenerateCreateVO()) {
             method.addBodyLine("ServiceResult<{0}> serviceResult;", entityType.getShortName());

@@ -1,8 +1,12 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -41,20 +45,31 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "option" + methodKey;
         Method method = createMethod(methodPrefix);
         MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
-        method.addParameter(buildMethodParameter(descript));
+        Parameter parameter = buildMethodParameter(descript);
+        parameter.setRemark("用于接收属性同名参数");
+        method.addParameter(parameter);
         Parameter selected = new Parameter(FullyQualifiedJavaType.getStringInstance(), "selected");
         selected.addAnnotation("@RequestParam(required = false)");
+        selected.setRemark("选中的值，用于前端选中数据的回显");
         method.addParameter(selected);
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
+        actionType.setRemark("可选参数，查询场景标识");
         method.addParameter(actionType);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
         FullyQualifiedJavaType typeResult = FullyQualifiedJavaType.getNewListInstance();
         typeResult.addTypeArgument(optionDataType);
         response.addTypeArgument(typeResult);
         method.setReturnType(response);
+        method.setReturnRemark("FormSelectTreeOption对象列表");
 
-        addControllerMapping(method, "option/" + JavaBeansUtil.getFirstCharacterLowercase(column.getJavaProperty()), "get");
+        method.addAnnotation(new SystemLog("调用数据选项接口",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/option/"+ JavaBeansUtil.getFirstCharacterLowercase(column.getJavaProperty())
+                , RequestMethod.GET),parentElement);
+        addSecurityPreAuthorize(method,methodPrefix,"数据选项");
+        method.addAnnotation(new ApiOperation("获取Options-XX选项列表","根据给定条件获取Options-XXX选项列表，可以根据需要传入属性同名参数、消费端选中的值"),parentElement);
+
+        commentGenerator.addMethodJavaDocLine(method, "获取Options-XX选项列表");
 
         String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         selectByExampleWithPagehelper(parentElement, method);

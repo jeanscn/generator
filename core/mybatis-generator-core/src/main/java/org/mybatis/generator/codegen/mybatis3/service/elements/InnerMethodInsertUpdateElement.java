@@ -56,9 +56,10 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
 
                             FullyQualifiedJavaType serviceResult = new FullyQualifiedJavaType(SERVICE_RESULT);
                             serviceResult.addTypeArgument(modelType);
-                            Method innerInsertUpdateMethod = getMethodByType(methodName
+                            Method innerInsertUpdateMethod = serviceMethods.getMethodByType(methodName
                                     , isCollection ? ReturnTypeEnum.LIST : ReturnTypeEnum.MODEL
                                     , serviceResult
+                                    , "影响对象ServiceResult返回"
                                     , parameters
                                     , false
                                     , parentElement);
@@ -68,6 +69,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                             if (config.getBeanClassFullName() != null) {
                                 if (isCollection) {
                                     innerInsertUpdateMethod.addBodyLine("if (items == null || items.size()==0) return Collections.singletonList(ServiceResult.success(null));");
+                                    parentElement.addImportedType("java.util.Collections");
                                 }else{
                                     innerInsertUpdateMethod.addBodyLine("if (item == null) return ServiceResult.success(null);");
                                 }
@@ -92,6 +94,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                             "                return Collections.singletonList(ServiceResult.failure(ServiceCodeEnum.FAIL));\n" +
                                             "        '}'", modelType.getShortName());
                                     parentElement.addImportedType("java.util.stream.Collectors");
+                                    parentElement.addImportedType("java.util.Collections");
                                 } else {
                                     innerInsertUpdateMethod.addBodyLine("switch (actionCate.code()) {\n" +
                                             "            case \"INSERT\":\n" +
@@ -107,7 +110,6 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                             "                return ServiceResult.failure(ServiceCodeEnum.FAIL);\n" +
                                             "        }");
                                 }
-                                parentElement.addImportedType("java.util.Collections");
                                 parentElement.addImportedType(SPRING_CONTEXT_HOLDER);
                                 parentElement.addImportedType(beanClass);
                                 parentElement.addImportedType(SERVICE_CODE_ENUM);

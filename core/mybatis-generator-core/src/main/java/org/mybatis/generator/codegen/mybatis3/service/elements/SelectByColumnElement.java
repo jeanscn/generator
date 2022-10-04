@@ -30,7 +30,7 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
          * */
         for (SelectByColumnGeneratorConfiguration configuration : tc.getSelectByColumnGeneratorConfigurations()) {
             IntrospectedColumn foreignKeyColumn = configuration.getColumn();
-            Method methodByColumn = getSelectByColumnMethod(entityType, parentElement, configuration, false);
+            Method methodByColumn = serviceMethods.getSelectByColumnMethod(entityType, parentElement, configuration, false,true);
             methodByColumn.addAnnotation("@Override");
             if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(configuration.getMethodName())) {
                 methodByColumn.addBodyLine("return mapper.{0}({1});"

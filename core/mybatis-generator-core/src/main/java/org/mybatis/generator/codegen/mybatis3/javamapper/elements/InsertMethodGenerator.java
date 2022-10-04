@@ -23,6 +23,7 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 public class InsertMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
@@ -35,30 +36,11 @@ public class InsertMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        Method method = new Method(introspectedTable.getInsertStatementId());
-
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-
-        FullyQualifiedJavaType parameterType;
-        if (isSimple) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        } else {
-            parameterType = introspectedTable.getRules().calculateAllFieldsClass();
-        }
-
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        importedTypes.add(parameterType);
-        method.addParameter(new Parameter(parameterType, "row")); //$NON-NLS-1$
-
-        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
-
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getInsertMethod(interfaze, true, false,false);
         addMapperAnnotations(method);
-
         if (context.getPlugins().clientInsertMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
     }

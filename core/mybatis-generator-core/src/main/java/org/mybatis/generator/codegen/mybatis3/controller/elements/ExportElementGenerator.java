@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -7,6 +8,9 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 
 public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
@@ -25,17 +29,28 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "export";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method, parentElement);
-        addControllerMapping(method, "export", "get");
+
         FullyQualifiedJavaType response = new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse");
-        method.addParameter(new Parameter(response, "response"));
+        Parameter parameter = new Parameter(response, "response");
+        parameter.setRemark("http响应");
+        method.addParameter(parameter);
         MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
-        method.addParameter(buildMethodParameter(descript));
-        method.addException(new FullyQualifiedJavaType("java.io.IOException"));
+        Parameter parameter1 = buildMethodParameter(descript);
+        parameter1.setRemark("请求数据");
+        method.addParameter(parameter1);
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
+        actionType.setRemark("场景类型，用来标识不同查询类型");
         actionType.addAnnotation("@RequestParam(required = false)");
         method.addParameter(actionType);
+        method.addException(new FullyQualifiedJavaType("java.io.IOException"));
+        method.setExceptionRemark("IO读写异常");
+
+        method.addAnnotation(new SystemLog("数据导出",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/export", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"导出");
+        method.addAnnotation(new ApiOperation("Excel数据导出", "Excel数据导出接口"),parentElement);
+
+        commentGenerator.addMethodJavaDocLine(method, "Excel数据导出");
 
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = buildExample(actionType,{1});",

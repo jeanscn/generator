@@ -640,16 +640,6 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean generateSelectByExampleWithRelation() {
-        return false;
-    }
-
-    @Override
-    public boolean generateSelectTreeByParentId() {
-        return introspectedTable.getCustomAddtionalSelectMethods().containsKey(introspectedTable.getSelectTreeByParentIdStatementId());
-    }
-
-    @Override
     public boolean generateSelectByColumn() {
         return tc.getSelectByColumnGeneratorConfigurations().size() > 0;
     }

@@ -1,27 +1,19 @@
 package org.mybatis.generator.custom;
 
-import cn.hutool.core.util.ArrayUtil;
-import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
-import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 

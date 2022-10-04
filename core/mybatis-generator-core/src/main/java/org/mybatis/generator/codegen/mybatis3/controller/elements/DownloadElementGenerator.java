@@ -3,12 +3,16 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 
 public class DownloadElementGenerator extends AbstractControllerElementGenerator {
 
@@ -23,27 +27,34 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
         parentElement.addImportedType("org.springframework.util.Assert");
         parentElement.addImportedType("org.apache.commons.lang3.BooleanUtils");
-        parentElement.addImportedType("org.springframework.http.MediaType");
 
         final String methodPrefix = "download";
         Method method = createMethod(methodPrefix);
-        addSystemLogAnnotation(method,parentElement);
 
         Parameter idParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "id");
         idParameter.addAnnotation("@PathVariable");
+        idParameter.setRemark("唯一标识");
         method.addParameter(idParameter);
         Parameter typeParameter = new Parameter(FullyQualifiedJavaType.getStringInstance(), "type");
         typeParameter.addAnnotation("@PathVariable");
+        typeParameter.setRemark("下载后展示方式：1-下载，0-浏览器中打开");
         method.addParameter(typeParameter);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse");
-        method.addParameter(new Parameter(response, "response"));
+        Parameter parameter = new Parameter(response, "response");
+        parameter.setRemark("Http响应");
+        method.addParameter(parameter);
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
+        method.setExceptionRemark("下载处理异常，含IO异常");
 
-        String sb = "@GetMapping(value = \"" +
-                StringUtils.lowerCase(this.serviceBeanName) +
-                "/download/{type}/{id}\",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)";
-        method.addAnnotation(sb);
+        method.addAnnotation(new SystemLog("下载数据",introspectedTable),parentElement);
+        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/download/{type}/{id}", RequestMethod.GET);
+        requestMapping.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
+        method.addAnnotation(requestMapping,parentElement);
+        parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"下载");
+        method.addAnnotation(new ApiOperation("单个文件下载", "单个文件下载接口"),parentElement);
+
+        commentGenerator.addMethodJavaDocLine(method, "单个文件下载");
 
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));

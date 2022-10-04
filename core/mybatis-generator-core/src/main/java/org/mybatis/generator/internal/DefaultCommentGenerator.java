@@ -470,9 +470,9 @@ public class DefaultCommentGenerator implements CommentGenerator {
         }else{
             method.addJavaDocLine("/** ");
             for (String comment : comments) {
-                method.addJavaDocLine("* " + comment);
+                method.addJavaDocLine(" * " + comment);
             }
-            method.addJavaDocLine("*/ ");
+            method.addJavaDocLine(" */ ");
         }
     }
 

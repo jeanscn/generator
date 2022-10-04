@@ -29,7 +29,7 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method method = getUpdateBatchMethod(entityType, parentElement, false);
+        Method method = serviceMethods.getUpdateBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());

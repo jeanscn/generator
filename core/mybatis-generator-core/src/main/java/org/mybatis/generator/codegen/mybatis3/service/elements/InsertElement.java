@@ -28,7 +28,7 @@ public class InsertElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method insertMethod = this.getInsertMethod(parentElement, false, false);
+        Method insertMethod = serviceMethods.getInsertMethod(parentElement, false, false,true);
         insertMethod.addAnnotation("@Override");
         insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);

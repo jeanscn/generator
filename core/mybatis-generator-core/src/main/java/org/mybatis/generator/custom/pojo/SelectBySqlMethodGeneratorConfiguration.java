@@ -2,18 +2,21 @@ package org.mybatis.generator.custom.pojo;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-public class CustomMethodGeneratorConfiguration extends PropertyHolder {
-
-    private String methodName;
+public class SelectBySqlMethodGeneratorConfiguration extends PropertyHolder {
 
     private String sqlMethod;
+
+    private String parentIdColumnName;
+
+    private String primaryKeyColumnName;
 
     private IntrospectedColumn parentIdColumn;
 
     private IntrospectedColumn primaryKeyColumn;
 
-    public CustomMethodGeneratorConfiguration() {
+    public SelectBySqlMethodGeneratorConfiguration() {
         super();
     }
 
@@ -33,19 +36,31 @@ public class CustomMethodGeneratorConfiguration extends PropertyHolder {
         this.primaryKeyColumn = primaryKeyColumn;
     }
 
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
     public String getSqlMethod() {
         return sqlMethod;
     }
 
     public void setSqlMethod(String sqlMethod) {
         this.sqlMethod = sqlMethod;
+    }
+
+    public String getParentIdColumnName() {
+        return parentIdColumnName;
+    }
+
+    public void setParentIdColumnName(String parentIdColumnName) {
+        this.parentIdColumnName = parentIdColumnName;
+    }
+
+    public String getPrimaryKeyColumnName() {
+        return primaryKeyColumnName;
+    }
+
+    public void setPrimaryKeyColumnName(String primaryKeyColumnName) {
+        this.primaryKeyColumnName = primaryKeyColumnName;
+    }
+
+    public String getMethodName() {
+        return "selectBySqlMethod"+ JavaBeansUtil.getFirstCharacterUppercase(this.sqlMethod);
     }
 }

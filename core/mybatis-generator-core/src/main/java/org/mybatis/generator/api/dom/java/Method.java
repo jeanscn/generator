@@ -15,11 +15,11 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import org.mybatis.generator.custom.annotations.AnnotationFunction;
+import org.mybatis.generator.custom.annotations.IAnnotation;
+
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Method extends JavaElement {
 
@@ -48,6 +48,8 @@ public class Method extends JavaElement {
     private boolean isFinal;
 
     private String returnRemark;
+
+    private String exceptionRemark;
 
     public Method(String name) {
         this.name = name;
@@ -201,5 +203,18 @@ public class Method extends JavaElement {
 
     public void setReturnRemark(String returnRemark) {
         this.returnRemark = returnRemark;
+    }
+
+    public Optional<String> getExceptionRemark() {
+        return Optional.ofNullable(exceptionRemark);
+    }
+
+    public void setExceptionRemark(String exceptionRemark) {
+        this.exceptionRemark = exceptionRemark;
+    }
+
+    public void addAnnotation(IAnnotation annotation, TopLevelClass parent){
+        annotation.toAnnotations().forEach(this::addAnnotation);
+        Arrays.stream(annotation.multipleImports()).forEach(parent::addImportedType);
     }
 }

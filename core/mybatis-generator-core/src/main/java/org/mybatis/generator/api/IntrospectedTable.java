@@ -15,14 +15,12 @@
  */
 package org.mybatis.generator.api;
 
-import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
@@ -102,8 +100,7 @@ public abstract class IntrospectedTable {
         ATTR_CONTROL_BEAN_NAME,
         ATTR_RELATION_RESULT_MAP_ID,
         ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID,
-        ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID,
-        ATTR_SELECT_TREE_BY_PARENT_ID_STATEMENT_ID
+        ATTR_SELECT_BASE_BY_PRIMARY_KEY_STATEMENT_ID
     }
 
     protected TableConfiguration tableConfiguration;
@@ -122,13 +119,11 @@ public abstract class IntrospectedTable {
 
     protected final List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
-    protected Map<String,String> permissionDataScriptLines = new HashMap<>();
+    protected Map<String, String> permissionDataScriptLines = new HashMap<>();
 
     protected List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
-    protected Map<String, CustomMethodGeneratorConfiguration> customAddtionalSelectMethods = new HashMap<>();
-
-    protected Map<String,List<String>> topLevelClassExampleFields = new HashMap<>();
+    protected Map<String, List<String>> topLevelClassExampleFields = new HashMap<>();
 
     /**
      * Attributes may be used by plugins to capture table related state between
@@ -410,7 +405,7 @@ public abstract class IntrospectedTable {
         calculateControllerAttributes();
         calculateHtmlAttributes();
         calculateRelationProperty();
-        calculateGenerateCustomMethod();
+        calculateSelectBySqlMethodProperty();
 
         if (tableConfiguration.getModelType() == ModelType.HIERARCHICAL) {
             rules = new HierarchicalModelRules(this);
@@ -424,7 +419,7 @@ public abstract class IntrospectedTable {
     }
 
     private void calculateSelectByTableProperty() {
-        this.getTableConfiguration().getSelectByTableGeneratorConfiguration().forEach(c->{
+        this.getTableConfiguration().getSelectByTableGeneratorConfiguration().forEach(c -> {
             IntrospectedColumn thisColumn = new IntrospectedColumn();
             thisColumn.setFullyQualifiedJavaType(FullyQualifiedJavaType.getStringInstance());
             thisColumn.setJavaProperty(JavaBeansUtil.getCamelCaseString(c.getPrimaryKeyColumn(), false));
@@ -451,35 +446,22 @@ public abstract class IntrospectedTable {
         }
     }
 
-    protected void calculateGenerateCustomMethod() {
-        //先看看是否生成selectTreeByParentIdMethod
-        if (tableConfiguration.getCustomMethodGeneratorConfigurations().size() > 0) {
-            for (CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration : tableConfiguration.getCustomMethodGeneratorConfigurations()) {
-                this.customAddtionalSelectMethods.put(customMethodGeneratorConfiguration.getMethodName(), customMethodGeneratorConfiguration);
-            }
-        } else {
-            String propertyValue = this.getConfigPropertyValue("generateSelectChildIdsByFunctionResult", PropertyScope.table);
-            if (stringHasValue(propertyValue)) {
-                String[][] propertyValueArray = StringUtility.parsePropertyValue(propertyValue);
-                for (String[] strings : propertyValueArray) {
-                    CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration = new CustomMethodGeneratorConfiguration();
-                    customMethodGeneratorConfiguration.setMethodName(this.getSelectTreeByParentIdStatementId());
-                    customMethodGeneratorConfiguration.setSqlMethod(strings[0]);
-                    String columnName = "PARENT_ID";
-                    if (strings.length > 1) {
-                        columnName = strings[1];
-                    }
-                    this.getColumn(columnName).ifPresent(c -> {
-                        customMethodGeneratorConfiguration.setParentIdColumn(c);
-                        if (this.getPrimaryKeyColumns().size() > 0) {
-                            customMethodGeneratorConfiguration.setPrimaryKeyColumn(this.getPrimaryKeyColumns().get(0));
-                            this.addCustomAddtionalSelectMethods(this.getSelectTreeByParentIdStatementId(), customMethodGeneratorConfiguration);
-                        }
-                    });
-                }
-            }
+    protected void calculateSelectBySqlMethodProperty() {
+        //计算SelectBySqlMethod列
+        for (SelectBySqlMethodGeneratorConfiguration bySqlMethodGeneratorConfiguration : tableConfiguration.getSelectBySqlMethodGeneratorConfigurations()) {
+            bySqlMethodGeneratorConfiguration.setParentIdColumn(this.getColumn(bySqlMethodGeneratorConfiguration.getParentIdColumnName()).orElse(null));
+            bySqlMethodGeneratorConfiguration.setPrimaryKeyColumn(this.getColumn(bySqlMethodGeneratorConfiguration.getPrimaryKeyColumnName()).orElse(null));
         }
-        //生成基于关系表主键的查询方法
+        List<SelectBySqlMethodGeneratorConfiguration> collect = tableConfiguration.getSelectBySqlMethodGeneratorConfigurations().stream()
+                .peek(c -> {
+                    c.setParentIdColumn(this.getColumn(c.getParentIdColumnName()).orElse(null));
+                    c.setPrimaryKeyColumn(this.getColumn(c.getPrimaryKeyColumnName()).orElse(null));
+                })
+                .filter(c -> c.getPrimaryKeyColumn() != null && c.getParentIdColumn() != null)
+                .collect(Collectors.toList());
+        tableConfiguration.setSelectBySqlMethodGeneratorConfigurations(collect);
+
+        //生成SelectByTable基于关系表主键的查询方法
         if (tableConfiguration.getSelectByTableGeneratorConfiguration().size() > 0) {
             for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : tableConfiguration.getSelectByTableGeneratorConfiguration()) {
                 selectByTableGeneratorConfiguration.setParameterName(JavaBeansUtil.getCamelCaseString(selectByTableGeneratorConfiguration.getOtherPrimaryKeyColumn(), false));
@@ -491,9 +473,13 @@ public abstract class IntrospectedTable {
             for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : tableConfiguration.getSelectByColumnGeneratorConfigurations()) {
                 getColumn(selectByColumnGeneratorConfiguration.getColumnName()).ifPresent(c -> {
                     selectByColumnGeneratorConfiguration.setColumn(c);
-                    selectByColumnGeneratorConfiguration.setMethodName(JavaBeansUtil.byColumnMethodName(c)+(selectByColumnGeneratorConfiguration.isParameterList()?"s":""));
+                    selectByColumnGeneratorConfiguration.setMethodName(JavaBeansUtil.byColumnMethodName(c) + (selectByColumnGeneratorConfiguration.isParameterList() ? "s" : ""));
                 });
             }
+            List<SelectByColumnGeneratorConfiguration> collect1 = tableConfiguration.getSelectByColumnGeneratorConfigurations().stream()
+                    .filter(c -> c.getColumn() == null)
+                    .collect(Collectors.toList());
+            tableConfiguration.getSelectByColumnGeneratorConfigurations().removeAll(collect1);
         }
 
         //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
@@ -576,7 +562,6 @@ public abstract class IntrospectedTable {
         setBlobColumnListId("Blob_Column_List"); //$NON-NLS-1$
         setMyBatis3UpdateByExampleWhereClauseId("Update_By_Example_Where_Clause");
         setSelectByExampleWithRelationStatementId("selectByExampleWithRelation");
-        setSelectTreeByParentIdStatementId("selectChildIdsByFunctionResult");
     }
 
     public void setBlobColumnListId(String s) {
@@ -613,10 +598,6 @@ public abstract class IntrospectedTable {
 
     public void setUpdateByPrimaryKeyWithBLOBsStatementId(String s) {
         internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID, s);
-    }
-
-    public void setSelectTreeByParentIdStatementId(String s) {
-        internalAttributes.put(InternalAttribute.ATTR_SELECT_TREE_BY_PARENT_ID_STATEMENT_ID, s);
     }
 
     public void setUpdateByPrimaryKeySelectiveStatementId(String s) {
@@ -806,16 +787,12 @@ public abstract class IntrospectedTable {
         return "insertOrUpdate";
     }
 
-    public String getSelectByKeysDictStatementId(){
+    public String getSelectByKeysDictStatementId() {
         return "SelectByKeysDict";
     }
 
-    public String getUpdateBySqlStatementId(){
+    public String getUpdateBySqlStatementId() {
         return "updateBySql";
-    }
-
-    public String getSelectTreeByParentIdStatementId() {
-        return internalAttributes.get(InternalAttribute.ATTR_SELECT_TREE_BY_PARENT_ID_STATEMENT_ID);
     }
 
     public String getInsertSelectiveStatementId() {
@@ -1286,12 +1263,13 @@ public abstract class IntrospectedTable {
 
     /**
      * 获得表注释
+     *
      * @param simple 是否格式化为短标签。
      *               false-获得完整注释
      *               true-格式为短标签。
-     * */
+     */
     public String getRemarks(boolean simple) {
-        return simple?StringUtility.remarkLeft(remarks):remarks;
+        return simple ? StringUtility.remarkLeft(remarks) : remarks;
     }
 
     public void setRemarks(String remarks) {
@@ -1308,14 +1286,6 @@ public abstract class IntrospectedTable {
 
     public List<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
         return relationGeneratorConfigurations;
-    }
-
-    public Map<String, CustomMethodGeneratorConfiguration> getCustomAddtionalSelectMethods() {
-        return customAddtionalSelectMethods;
-    }
-
-    public void addCustomAddtionalSelectMethods(String methodName, CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration) {
-        this.customAddtionalSelectMethods.put(methodName, customMethodGeneratorConfiguration);
     }
 
     /**
@@ -1357,16 +1327,12 @@ public abstract class IntrospectedTable {
         return permissionDataScriptLines;
     }
 
-    public void addPermissionDataScriptLines(String id,String permissionDataScriptLines) {
-        this.permissionDataScriptLines.put(id,permissionDataScriptLines);
+    public void addPermissionDataScriptLines(String id, String permissionDataScriptLines) {
+        this.permissionDataScriptLines.put(id, permissionDataScriptLines);
     }
 
     public Map<String, List<String>> getTopLevelClassExampleFields() {
         return topLevelClassExampleFields;
-    }
-
-    public void addTopLevelClassExampleFields(String key, List<String> value) {
-        this.topLevelClassExampleFields.put(key,value);
     }
 
     private String propertyRegistryDefaultValue(String propertyRegistry) {

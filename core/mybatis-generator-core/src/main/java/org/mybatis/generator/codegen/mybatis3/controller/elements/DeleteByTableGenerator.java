@@ -1,7 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.custom.annotations.ApiOperation;
+import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.SystemLog;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -28,7 +32,6 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                 .forEach(c->{
                     Method method = new Method(c.getSplitMethodName());
                     method.setVisibility(JavaVisibility.PROTECTED);
-                    addSystemLogAnnotation(method,parentElement);
                     Parameter p1 = new Parameter(c.getThisColumn().getFullyQualifiedJavaType(), c.getThisColumn().getJavaProperty());
                     p1.addAnnotation("@RequestParam");
                     p1.setRemark(c.getThisColumn().getRemarks(false));
@@ -39,12 +42,18 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     p2.addAnnotation("@RequestParam");
                     p2.setRemark(c.getOtherColumn().getRemarks(false));
                     method.addParameter(p2);
-                    commentGenerator.addGeneralMethodComment(method, introspectedTable);
                     FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
                     response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
                     method.setReturnType(response);
-                    addControllerMapping(method, "split/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix()), "post");
+                    method.setReturnRemark("成功删除的记录数");
+
+                    method.addAnnotation(new SystemLog("删除数据关联",introspectedTable),parentElement);
+                    method.addAnnotation(new RequestMapping(this.serviceBeanName + "/split/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
+                            , RequestMethod.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getSplitMethodName(),"删除关系");
+                    method.addAnnotation(new ApiOperation("删除数据关联关系", "删除中间表数据"),parentElement);
+
+                    commentGenerator.addMethodJavaDocLine(method, "删除中间关系表数据（取消数据关联）");
 
                     method.addBodyLine("int rows =  {0}.{1}({2});",serviceBeanName
                             ,c.getSplitMethodName()

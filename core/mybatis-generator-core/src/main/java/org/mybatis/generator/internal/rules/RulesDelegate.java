@@ -299,16 +299,6 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean generateSelectByExampleWithRelation() {
-        return false;
-    }
-
-    @Override
-    public boolean generateSelectTreeByParentId() {
-        return false;
-    }
-
-    @Override
     public boolean generateSelectByColumn() {
         return false;
     }

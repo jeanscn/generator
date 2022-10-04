@@ -17,6 +17,7 @@ package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,31 +33,11 @@ public class InsertOrUpdateMethodGenerator extends AbstractJavaMapperMethodGener
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        Method method = new Method(introspectedTable.getInsertOrUpdateStatementId());
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-
-        FullyQualifiedJavaType parameterType;
-        if (isSimple) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        } else {
-            parameterType = introspectedTable.getRules().calculateAllFieldsClass();
-        }
-
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        importedTypes.add(parameterType);
-        method.addParameter(new Parameter(parameterType, "record"));
-        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getInsertOrUpdateMethod(interfaze, true,false);
         addMapperAnnotations(method);
-
-        context.getCommentGenerator().addMethodJavaDocLine(method, false, "提示 - @mbg.generated",
-                "这个抽象方法通过定制版Mybatis Generator自动生成",
-                VStringUtil.format("@param record 待新增的数据对象" ));
-
         if (context.getPlugins().clientInsertOrUpdateMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
     }

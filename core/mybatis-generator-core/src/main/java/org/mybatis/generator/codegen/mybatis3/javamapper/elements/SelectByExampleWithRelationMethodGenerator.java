@@ -16,6 +16,7 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,6 +32,7 @@ public class SelectByExampleWithRelationMethodGenerator extends
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         importedTypes.add(type);
@@ -54,7 +56,9 @@ public class SelectByExampleWithRelationMethodGenerator extends
         returnType.addTypeArgument(listType);
         method.setReturnType(returnType);
 
-        method.addParameter(new Parameter(type, "example")); //$NON-NLS-1$
+        Parameter parameter = new Parameter(type, "example");
+        parameter.setRemark("查询条件example对象");
+        method.addParameter(parameter); //$NON-NLS-1$
 
         context.getCommentGenerator().addGeneralMethodComment(method,
                 introspectedTable);

@@ -3,7 +3,6 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.CacheAnnotation;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 /**
@@ -24,7 +23,7 @@ public class InsertByTableElement extends AbstractServiceElementGenerator {
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableUnion)
                 .forEach(c -> {
-                    Method method = this.getDeleteByTableMethod(parentElement, c, false,true);
+                    Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,true,true);
                     method.addBodyLine("return mapper.{0}({1},{2});"
                             ,c.getUnionMethodName()
                             ,c.getThisColumn().getJavaProperty()

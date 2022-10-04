@@ -30,7 +30,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
 
         /* updateByPrimaryKeySelective */
-        Method updateByPrimaryKeySelective = this.getUpdateByPrimaryKey(parentElement, false, true);
+        Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true,true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
         updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
@@ -57,7 +57,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         parentElement.addMethod(updateByPrimaryKeySelective);
 
         /* updateByPrimaryKey */
-        Method updateByPrimaryKey = this.getUpdateByPrimaryKey(parentElement, false, false);
+        Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false,true);
         updateByPrimaryKey.addAnnotation("@Override");
         updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);

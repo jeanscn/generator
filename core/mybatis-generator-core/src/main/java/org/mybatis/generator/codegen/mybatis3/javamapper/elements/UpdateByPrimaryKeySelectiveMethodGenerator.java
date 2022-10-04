@@ -21,6 +21,7 @@ import java.util.TreeSet;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 public class UpdateByPrimaryKeySelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
@@ -30,24 +31,12 @@ public class UpdateByPrimaryKeySelectiveMethodGenerator extends AbstractJavaMapp
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        FullyQualifiedJavaType parameterType;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBLOBsType());
-        } else {
-            parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        }
-        String statementId = introspectedTable.getUpdateByPrimaryKeySelectiveStatementId();
-        importedTypes.add(parameterType);
-
-        Method method = buildBasicUpdateByPrimaryKeyMethod(statementId, parameterType);
-
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getUpdateByPrimaryKey(interfaze, true, true,false);
         addMapperAnnotations(method);
-
         if (context.getPlugins()
                 .clientUpdateByPrimaryKeySelectiveMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
-            interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
     }

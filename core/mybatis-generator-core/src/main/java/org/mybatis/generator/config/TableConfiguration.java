@@ -1,24 +1,8 @@
-/*
- *    Copyright 2006-2022 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.custom.pojo.CustomMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.messages.Messages;
 
@@ -78,8 +62,6 @@ public class TableConfiguration extends PropertyHolder {
 
     private String tableType;
 
-    private List<ColumnSearch> columnSearchs;
-
     private boolean wildcardEscapingEnabled;
 
     private boolean delimitIdentifiers;
@@ -94,15 +76,15 @@ public class TableConfiguration extends PropertyHolder {
 
     private String sqlProviderName;
 
-    private List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
+    private final List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
 
-    private List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations = new ArrayList<>();
+    private final List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations = new ArrayList<>();
 
-    private List<CustomMethodGeneratorConfiguration> customMethodGeneratorConfigurations = new ArrayList<>();
+    private List<SelectBySqlMethodGeneratorConfiguration> selectBySqlMethodGeneratorConfigurations = new ArrayList<>();
 
-    private List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
+    private final List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
 
-    private List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = new ArrayList<>();
+    private final List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = new ArrayList<>();
 
     private JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration;
 
@@ -123,8 +105,6 @@ public class TableConfiguration extends PropertyHolder {
     private VOCacheGeneratorConfiguration voCacheGeneratorConfiguration;
 
     private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
-
-    private FullyQualifiedJavaType rootClassType;
 
     public TableConfiguration(Context context) {
         super();
@@ -566,45 +546,44 @@ public class TableConfiguration extends PropertyHolder {
         return selectByTableGeneratorConfigurations;
     }
 
-    public List<SelectByTableGeneratorConfiguration> addSelectByTableGeneratorConfiguration(SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration) {
+    public void addSelectByTableGeneratorConfiguration(SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration) {
         this.selectByTableGeneratorConfigurations.add(selectByTableGeneratorConfiguration);
-        return this.selectByTableGeneratorConfigurations;
     }
 
     public List<SelectByColumnGeneratorConfiguration> getSelectByColumnGeneratorConfigurations() {
         return selectByColumnGeneratorConfigurations;
     }
 
-    public List<SelectByColumnGeneratorConfiguration> addSelectByColumnProperties(SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
+    public void addSelectByColumnGeneratorConfiguration(SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
         this.selectByColumnGeneratorConfigurations.add(selectByColumnGeneratorConfiguration);
-        return this.selectByColumnGeneratorConfigurations;
     }
 
-    public List<CustomMethodGeneratorConfiguration> getCustomMethodGeneratorConfigurations() {
-        return customMethodGeneratorConfigurations;
+    public List<SelectBySqlMethodGeneratorConfiguration> getSelectBySqlMethodGeneratorConfigurations() {
+        return selectBySqlMethodGeneratorConfigurations;
     }
 
-    public List<CustomMethodGeneratorConfiguration> addCustomMethodProperties(CustomMethodGeneratorConfiguration customMethodGeneratorConfiguration) {
-        this.customMethodGeneratorConfigurations.add(customMethodGeneratorConfiguration);
-        return this.customMethodGeneratorConfigurations;
+    public void addSelectBySqlMethodGeneratorConfiguration(SelectBySqlMethodGeneratorConfiguration selectBySqlMethodGeneratorConfiguration) {
+        this.selectBySqlMethodGeneratorConfigurations.add(selectBySqlMethodGeneratorConfiguration);
+    }
+
+    public void setSelectBySqlMethodGeneratorConfigurations(List<SelectBySqlMethodGeneratorConfiguration> selectBySqlMethodGeneratorConfigurations) {
+        this.selectBySqlMethodGeneratorConfigurations = selectBySqlMethodGeneratorConfigurations;
     }
 
     public List<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
         return relationGeneratorConfigurations;
     }
 
-    public List<RelationGeneratorConfiguration> addRelationGeneratorConfiguration(RelationGeneratorConfiguration relationGeneratorConfiguration) {
+    public void addRelationGeneratorConfiguration(RelationGeneratorConfiguration relationGeneratorConfiguration) {
         this.relationGeneratorConfigurations.add(relationGeneratorConfiguration);
-        return this.relationGeneratorConfigurations;
     }
 
     public List<HtmlGeneratorConfiguration> getHtmlMapGeneratorConfigurations() {
         return htmlGeneratorConfigurations;
     }
 
-    public List<HtmlGeneratorConfiguration> addHtmlMapGeneratorConfigurations(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public void addHtmlMapGeneratorConfigurations(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.htmlGeneratorConfigurations.add(htmlGeneratorConfiguration);
-        return htmlGeneratorConfigurations;
     }
 
     public JavaServiceGeneratorConfiguration getJavaServiceGeneratorConfiguration() {
@@ -685,13 +664,5 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setIgnore(boolean ignore) {
         this.ignore = ignore;
-    }
-
-    public FullyQualifiedJavaType getRootClassType() {
-        return rootClassType;
-    }
-
-    public void setRootClassType(FullyQualifiedJavaType rootClassType) {
-        this.rootClassType = rootClassType;
     }
 }

@@ -405,6 +405,8 @@ public class MyBatisGeneratorConfigurationParser {
                 parseSelectByTable(tc, childNode);
             } else if ("selectByColumn".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseSelectByColumn(tc, childNode);
+            }else if ("selectBySqlMethod".equals(childNode.getNodeName())) { //$NON-NLS-1$
+                parseSelectBySqlMethod(tc, childNode);
             } else if ("javaModelAssociation".equals(childNode.getNodeName())) { //$NON-NLS-1$
                 parseJavaModelRelation(tc, childNode, RelationTypeEnum.association);
             } else if ("javaModelCollection".equals(childNode.getNodeName())) { //$NON-NLS-1$
@@ -439,7 +441,7 @@ public class MyBatisGeneratorConfigurationParser {
                     .filter(c -> "PARENT_ID".equalsIgnoreCase(c.getColumnName()))
                     .count();
             if (selectByColumnParentIdCount == 0) {
-                tc.addSelectByColumnProperties(new SelectByColumnGeneratorConfiguration("PARENT_ID"));
+                tc.addSelectByColumnGeneratorConfiguration(new SelectByColumnGeneratorConfiguration("PARENT_ID"));
             }
             if (childrenCount == 0) {
                 RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
@@ -459,7 +461,6 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
     }
-
     private void parseColumnOverride(TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
         String column = attributes.getProperty("column"); //$NON-NLS-1$
@@ -644,7 +645,27 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parameterType)) {
             selectByColumnGeneratorConfiguration.setParameterType(parameterType);
         }
-        tc.addSelectByColumnProperties(selectByColumnGeneratorConfiguration);
+        tc.addSelectByColumnGeneratorConfiguration(selectByColumnGeneratorConfiguration);
+    }
+
+    private void parseSelectBySqlMethod(TableConfiguration tc, Node node) {
+        Properties attributes = parseAttributes(node);
+        SelectBySqlMethodGeneratorConfiguration configuration = new SelectBySqlMethodGeneratorConfiguration();
+        String sqlMethod = attributes.getProperty("sqlMethod");
+        configuration.setSqlMethod(sqlMethod);
+        String parentIdColumn = attributes.getProperty("parentIdColumn");
+        if (stringHasValue(parentIdColumn)) {
+            configuration.setParentIdColumnName(parentIdColumn);
+        }else{
+            configuration.setParentIdColumnName("PARENT_ID");
+        }
+        String idColumnName = attributes.getProperty("primaryKeyColumn");
+        if (stringHasValue(idColumnName)) {
+            configuration.setPrimaryKeyColumnName(idColumnName);
+        }else{
+            configuration.setPrimaryKeyColumnName("ID_");
+        }
+        tc.addSelectBySqlMethodGeneratorConfiguration(configuration);
     }
 
     private void parseJavaModelRelation(TableConfiguration tc, Node node, RelationTypeEnum relationTypeEnum){
