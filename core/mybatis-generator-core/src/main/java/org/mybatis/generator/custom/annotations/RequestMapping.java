@@ -62,7 +62,7 @@ public class RequestMapping extends AbstractAnnotation {
                             array2String(this.getValue(), "value",true),
                             array2String(this.getParams(), "params",true),
                             array2String(this.getHeaders(), "headers",true),
-                            array2String(this.getConsumes(), "consumes",true),
+                            array2String(this.getConsumes(), "consumes",false),
                             array2String(this.getProduces(), "produces",false))
                     .filter(VStringUtil::isNotBlank)
                     .collect(Collectors.joining(","));

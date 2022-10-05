@@ -92,11 +92,10 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
         entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
         entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelVo"));
-
+        basePath = context.getModuleKeyword();
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
             HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
             viewpath = htmlGeneratorConfiguration.getViewPath();
-            basePath = htmlGeneratorConfiguration.getTargetPackage();
         }
     }
 

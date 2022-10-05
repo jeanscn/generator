@@ -49,7 +49,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         }else{
             parameter = new Parameter(entityType, entityType.getShortNameFirstLowCase());
         }
-        parameter.setRemark("查询条件对象");
+        parameter.setRemark("添加的数据对象");
         method.addParameter(parameter);
         responseResult.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         method.setReturnType(responseResult);
@@ -58,7 +58,8 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
 
         method.addAnnotation(new SystemLog("上传记录",introspectedTable),parentElement);
         RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/upload", RequestMethod.POST);
-        requestMapping.addProduces("MediaType.MULTIPART_FORM_DATA_VALUE");
+        requestMapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
+        requestMapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
         method.addAnnotation(requestMapping,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"上传");

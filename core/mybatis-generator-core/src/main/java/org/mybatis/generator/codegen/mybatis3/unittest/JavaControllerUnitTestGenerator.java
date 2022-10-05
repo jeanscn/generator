@@ -85,7 +85,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 "com.vgosoft.system.service.impl.SysLogInfoImpl",
                 "@MockBean", testClazz);
         addField("mockOrganizationMgr",
-                "com.vgosoft.core.adapter.organization.OrganizationMgr",
+                "com.vgosoft.core.adapter.organization.OrganizationMgr<FooUserInfo,?,?,FooDepartment,FooOrganization>",
                 "@MockBean", testClazz);
         addField(mockServiceImpl,
                 serviceGeneratorConfiguration.getTargetPackage() + ".I" + entityType.getShortName(),
@@ -121,27 +121,26 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         }
         if (viewpath != null) {
             setup.addBodyLine("{0}.setViewPath(\"{1}\");", entityInstanceVar, viewpath);
+            setup.addBodyLine("//{0} = RandomUtils.randomPojo({1}.class,o->'{'o.setViewPath(\"{2}\");'}');", entityInstanceVar,entityType.getShortName(), viewpath);
+        }else{
+            setup.addBodyLine("//{0} = RandomUtils.randomPojo();", entityInstanceVar,entityType.getShortName());
         }
-        setup.addBodyLine("/* {0} = RandomUtils.randomPojo({1}.class,o->'{'", entityInstanceVar, entityType.getShortName());
-        if (viewpath != null) {
-            setup.addBodyLine("o.setViewPath(\"{0}\");", viewpath);
-        }
-        setup.addBodyLine("}); */");
+
         setup.addBodyLine("");
         setup.addBodyLine("id = {0}.getId();", entityInstanceVar);
         setup.addBodyLine("");
         setup.addBodyLine("requestBody = JSONObject.toJSONString({0});", JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         setup.addBodyLine("");
         //组织机构相关mock
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IUser");
+        /*testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IUser");
         testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IOrganization");
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IDepartment");
+        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IDepartment");*/
         testClazz.addImportedType("com.vgosoft.organ.foo.FooDepartment");
         testClazz.addImportedType("com.vgosoft.organ.foo.FooOrganization");
         testClazz.addImportedType("com.vgosoft.organ.foo.FooUserInfo");
-        setup.addBodyLine("final IUser fooUser = new FooUserInfo();\n" +
-                "        final IOrganization fooOrganization = new FooOrganization();\n" +
-                "        final IDepartment fooDepartment = new FooDepartment();\n" +
+        setup.addBodyLine("final FooUserInfo fooUser = new FooUserInfo();\n" +
+                "        final FooOrganization fooOrganization = new FooOrganization();\n" +
+                "        final FooDepartment fooDepartment = new FooDepartment();\n" +
                 "        when(mockOrganizationMgr.getCurrentUser()).thenReturn(fooUser);\n" +
                 "        when(mockOrganizationMgr.getOrganization(any())).thenReturn(fooOrganization);\n" +
                 "        when(mockOrganizationMgr.getDepartment(any())).thenReturn(fooDepartment);");

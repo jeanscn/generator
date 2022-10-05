@@ -25,16 +25,19 @@ public class SelectBySqlMethodElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        Method selectTreeMethod = serviceMethods.getSelectBySqlMethodMethod(entityType, parentElement, configuration, false,true);
-        selectTreeMethod.setReturnRemark(introspectedTable.getRemarks(true)+"数据对象列表");
-        selectTreeMethod.addAnnotation("@Override");
-        String sb = "mapper." + configuration.getMethodName() +
-                "(" +
-                configuration.getParentIdColumn().getJavaProperty() +
-                ");";
-        selectTreeMethod.addBodyLine(sb);
-        parentElement.addMethod(selectTreeMethod);
+        Method method = serviceMethods.getSelectBySqlMethodMethod(entityType, parentElement, configuration, false,true);
+        method.setReturnRemark(introspectedTable.getRemarks(true)+"数据对象列表");
+        method.addAnnotation("@Override");
+        method.addBodyLine("List<{0}> result = mapper.{1}({2});"
+                ,entityType.getShortName()
+                ,configuration.getMethodName()
+                ,configuration.getParentIdColumn().getJavaProperty());
+        method.addBodyLine("if (result.size() > 0) {\n" +
+                "            return ServiceResult.success(result,result.size());\n" +
+                "        }else{\n" +
+                "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+                "        }");
+        parentElement.addMethod(method);
         parentElement.addImportedType(configuration.getParentIdColumn().getFullyQualifiedJavaType());
-
     }
 }

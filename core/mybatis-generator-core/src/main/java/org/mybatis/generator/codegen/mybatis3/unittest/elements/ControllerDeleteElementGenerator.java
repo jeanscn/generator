@@ -43,8 +43,13 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         method = createMethod(methodName, parentElement, "批量删除数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         addMethodComment(method, true, "被调用的service.deleteByExample()方法有返回值");
-        method.addBodyLine("String ids = JSONObject.toJSONString(List.of(id));\n" +
-                        "        int exceptResult = 2;\n" +
+        if (context.getJdkVersion()>8) {
+            method.addBodyLine("String ids = JSONObject.toJSONString(List.of(id));");
+        }else{
+            method.addBodyLine("String ids = JSONObject.toJSONString(Collections.singleton(id));");
+            parentElement.addImportedType("java.util.Collections");
+        }
+        method.addBodyLine("int exceptResult = 2;\n" +
                         "        when({0}.deleteByExample(any({1}.class))).thenReturn(exceptResult);\n" +
                         "        mockMvc.perform({2}\n" +
                         "                        .content(ids).contentType(MediaType.APPLICATION_JSON)\n" +

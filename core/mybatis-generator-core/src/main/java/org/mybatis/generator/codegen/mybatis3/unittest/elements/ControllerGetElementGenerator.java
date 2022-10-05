@@ -31,6 +31,11 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         parentElement.addImportedType("com.vgosoft.core.constant.enums.ApiCodeEnum");
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
 
+        FullyQualifiedJavaType returnEntityType = entityType;
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            returnEntityType = entityVoType;
+        }
+
         //getXXX，预期返回测试方法
         String requestUri = VStringUtil.format("get(\"/{0}/{1}/'{id}'\", id)", basePath, serviceBeanName);
         String methodName = "get" + entityType.getShortName();
@@ -40,18 +45,23 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});",
                 entityType.getShortName(),
                 entityInstanceVar);
-        method.addBodyLine("{0} {1} = {3}Mappings.INSTANCE.to{0}({2});",
-                entityType.getShortName() + "VO",
-                entityType.getShortNameFirstLowCase() + "VO",
-                entityType.getShortNameFirstLowCase(),
-                entityType.getShortName());
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            method.addBodyLine("{0} {1} = {3}Mappings.INSTANCE.to{0}({2});",
+                    entityType.getShortName() + "VO",
+                    entityType.getShortNameFirstLowCase() + "VO",
+                    entityType.getShortNameFirstLowCase(),
+                    entityType.getShortName());
+        }else{
+            method.addBodyLine("{0} {1} = serviceResult.getResult();"
+                    ,returnEntityType.getShortName(),returnEntityType.getShortNameFirstLowCase());
+        }
         method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
                 mockServiceImpl);
         method.addBodyLine("mockMvc.perform({0}\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n" +
                         "                .andExpect(responseBody()\n" +
                         "                        .containsObjectAsJson({1}, {2}.class, ResponseResult.class));",
-                requestUri, entityInstanceVar + "VO", entityType.getShortName() + "VO");
+                requestUri, returnEntityType.getShortNameFirstLowCase(), returnEntityType.getShortName());
         parentElement.addMethod(method);
 
         //getXXX，服务返回失败的测试方法

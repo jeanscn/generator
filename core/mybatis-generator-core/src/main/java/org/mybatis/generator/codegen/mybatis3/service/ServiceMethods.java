@@ -282,13 +282,13 @@ public class ServiceMethods {
                 .collect(Collectors.toList());
         Method method = getMethodByType(
                 introspectedTable.getSelectByKeysDictStatementId(),
-                isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.MODEL,
-                config.getFullyQualifiedJavaType(),
-                introspectedTable.getRemarks(true)+(isService?"缓存对象包装ServiceResult包装":"缓存对象"),
+                isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.LIST,
+                isService?config.getFullyQualifiedJavaType():entityType,
+                introspectedTable.getRemarks(true)+(isService?"缓存对象包装ServiceResult包装":"实体对象列表"),
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据");
+        context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回单一对象");
         return method;
     }
 
