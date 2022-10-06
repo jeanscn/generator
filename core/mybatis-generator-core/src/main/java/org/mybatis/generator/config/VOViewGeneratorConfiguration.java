@@ -30,6 +30,8 @@ public class VOViewGeneratorConfiguration extends AbstractVOGeneratorConfigurati
 
     private List<String> queryColumns = new ArrayList<>();
 
+    private List<String> defaultDisplayFields = new ArrayList<>();
+
     private String parentMenuId;
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
@@ -82,5 +84,13 @@ public class VOViewGeneratorConfiguration extends AbstractVOGeneratorConfigurati
 
     public void setParentMenuId(String parentMenuId) {
         this.parentMenuId = parentMenuId;
+    }
+
+    public List<String> getDefaultDisplayFields() {
+        return defaultDisplayFields;
+    }
+
+    public void setDefaultDisplayFields(List<String> defaultDisplayFields) {
+        this.defaultDisplayFields = defaultDisplayFields;
     }
 }

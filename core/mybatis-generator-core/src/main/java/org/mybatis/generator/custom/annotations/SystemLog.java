@@ -5,9 +5,6 @@ import com.vgosoft.core.constant.enums.LogTypesEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2022-10-03 16:12
@@ -31,17 +28,16 @@ public class SystemLog extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        StringBuilder sb = new StringBuilder();
         if (VStringUtil.isNotBlank(value)) {
-            sb.append("value=\"").append(introspectedTable.getRemarks(true)).append(":").append(value).append("\"");
-            if (logType != null) {
-                sb.append(",logType=LogTypesEnum.").append(logType.name());
-            }
-            if (targetTable != null) {
-                sb.append(",logType=LogTargetTableEnum.").append(targetTable.name());
-            }
+            items.add(VStringUtil.format("value = \"{0}:{1}\"", introspectedTable.getRemarks(true),value));
         }
-        return ANNOTATION_NAME+"("+ sb +")";
+        if (logType != null) {
+            items.add(VStringUtil.format("logType=LogTypesEnum.{0}", logType.name()));
+        }
+        if (targetTable != null) {
+            items.add(VStringUtil.format("logType=LogTargetTableEnum.{0}", targetTable.name()));
+        }
+        return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
     public String getValue() {

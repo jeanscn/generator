@@ -12,11 +12,11 @@ public interface IAnnotation {
 
     default List<String> toAnnotations(){
         return Collections.singletonList(toAnnotation());
-    };
+    }
 
     default String toAnnotation(){
         return toAnnotations().get(0);
-    };
+    }
 
     String[] multipleImports();
 

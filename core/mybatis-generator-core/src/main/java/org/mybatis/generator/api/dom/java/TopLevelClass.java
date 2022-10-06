@@ -168,6 +168,8 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                 case "ResponseResult":
                     this.addStaticImport("com.vgosoft.core.adapter.web.respone.ResponseResult.*");
                     break;
+                default:
+                    this.addImportedType(type);
             }
         }
     }

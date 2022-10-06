@@ -1,9 +1,9 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.IntrospectedColumn;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,6 +23,10 @@ public class ApiOperation extends AbstractAnnotation{
     private  boolean hidden;
     private  int code;
 
+    public static ApiOperation create(String value,String notes){
+        return new ApiOperation(value,notes);
+    }
+
     public ApiOperation(String value,String notes) {
         super();
         this.value = value;
@@ -31,21 +35,14 @@ public class ApiOperation extends AbstractAnnotation{
     }
 
     @Override
-    public List<String> toAnnotations() {
-        return Collections.singletonList(toAnnotation());
-    }
-
-    @Override
     public String toAnnotation() {
-        StringBuilder sb = new StringBuilder();
         if (VStringUtil.isNotBlank(value)) {
-            sb.append("value = \"").append(value).append("\"");
+            this.items.add(VStringUtil.format("value = \"{0}\"", this.value));
         }
         if (VStringUtil.isNotBlank(notes)) {
-            if (sb.length()>0)  sb.append(",");
-            sb.append("notes = \"").append(notes).append("\"");
+            this.items.add(VStringUtil.format("notes = \"{0}\"", this.notes));
         }
-        return ANNOTATION_NAME+"("+sb+")";
+        return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
     public String getValue() {

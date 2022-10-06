@@ -1,9 +1,7 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -16,6 +14,10 @@ public class PreAuthorize extends AbstractAnnotation{
 
     private final String value;
 
+    public static PreAuthorize create(String value){
+        return new PreAuthorize(value);
+    }
+
     public PreAuthorize(String value) {
         super();
         this.value = value;
@@ -24,10 +26,9 @@ public class PreAuthorize extends AbstractAnnotation{
 
     @Override
     public String toAnnotation() {
-        StringBuilder sb = new StringBuilder();
         if (VStringUtil.isNotBlank(value)) {
-            sb.append("value=\"").append(value).append("\"");
+            this.items.add(VStringUtil.format("value = \"{0}\"", this.value));
         }
-        return ANNOTATION_NAME+"("+ sb +")";
+        return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 }

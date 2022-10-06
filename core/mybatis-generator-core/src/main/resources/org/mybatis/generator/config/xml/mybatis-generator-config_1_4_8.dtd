@@ -608,7 +608,8 @@
            4、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
            5、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
            6、queryColumns:应用复合查询的字段名,多值使用","。
-           7、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           7、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           8、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
             property配置：无
         -->
         <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*)>
@@ -619,10 +620,11 @@
                 indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
                 actionColumn CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
+                defaultDisplayFields CDATA #IMPLIED
                 parentMenuId CDATA #IMPLIED>
 
         <!--
-           Excel导入导出模型配置的生成描述，该模型不继承抽象VO父类
+           Excel导入导出模型配置的生成描述，该模型不继承抽象VO抽象类
            属性信息：
            1、generate 可选 是否生成,true生成（ExcelVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
                当父类的generateVO的generate属性为false时，该属性始终false。

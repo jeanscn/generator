@@ -2,6 +2,8 @@ package org.mybatis.generator.custom.annotations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -10,16 +12,18 @@ import java.util.List;
  */
 public abstract class AbstractAnnotation implements IAnnotation{
 
-    protected List<String> imports = new ArrayList<>();
+    protected Set<String> imports = new TreeSet<>();
+
+    protected List<String> items = new ArrayList<>();
 
     public AbstractAnnotation() {
     }
 
     public String[] multipleImports(){
          return this.imports.toArray(new String[imports.size()]);
-    };
+    }
 
-    protected List<String> getImports() {
+    public Set<String> getImports() {
         return imports;
     }
 

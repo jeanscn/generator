@@ -2,11 +2,10 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.IntrospectedTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +23,10 @@ public class RequestMapping extends AbstractAnnotation {
     private List<String> headers = new ArrayList<>();
     private final List<String> consumes = new ArrayList<>();
     private final List<String> produces = new ArrayList<>();
+
+    public static RequestMapping create(String value, RequestMethod method){
+        return new RequestMapping(value,method);
+    }
 
     public RequestMapping(String value, RequestMethod method) {
         super();
@@ -65,7 +68,7 @@ public class RequestMapping extends AbstractAnnotation {
                             array2String(this.getConsumes(), "consumes",false),
                             array2String(this.getProduces(), "produces",false))
                     .filter(VStringUtil::isNotBlank)
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(", "));
 
             return "@" + sb + collect + ")";
         }).collect(Collectors.toList());

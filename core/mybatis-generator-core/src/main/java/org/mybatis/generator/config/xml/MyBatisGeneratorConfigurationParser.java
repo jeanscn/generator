@@ -1250,6 +1250,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parentMenuId)) {
             voViewGeneratorConfiguration.setParentMenuId(parentMenuId);
         }
+        String defaultDisplayFields = attributes.getProperty("defaultDisplayFields");
+        if (stringHasValue(defaultDisplayFields)) {
+            voViewGeneratorConfiguration.setDefaultDisplayFields(Arrays.asList(defaultDisplayFields.split(",")));
+        }
         parseVoChildNodeProperty(context, tc, node,voViewGeneratorConfiguration);
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
     }

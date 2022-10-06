@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import cn.hutool.core.util.ArrayUtil;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.ViewActionColumnEnum;
@@ -13,6 +12,9 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.annotations.CompositeQuery;
+import org.mybatis.generator.custom.annotations.ViewColumnMeta;
+import org.mybatis.generator.custom.annotations.ViewTableMeta;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -359,8 +361,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             viewVOClass = createTopLevelClass(viewVOType, abstractVoType);
             viewVOClass.addMultipleImports("lombok", "ApiModel", "ViewTableMeta");
             viewVOClass.addAnnotation(getApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()));
-            String viewMeta = buildViewTableMeta(voViewGeneratorConfiguration);
-            viewVOClass.addAnnotation(viewMeta);
+            addViewTableMeta(voViewGeneratorConfiguration);
             viewVOClass.addImportedType(abstractVoType);
             viewVOClass.addSerialVersionUID();
 
@@ -578,7 +579,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapper"));
             mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.factory.Mappers"));
             mappingsInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-            mappingsInterface.addAnnotation("@Mapper(componentModel = \"spring\")");
+            mappingsInterface.addAnnotation("@Mapper(componentModel = \"spring\",unmappedTargetPolicy = ReportingPolicy.IGNORE)");
+            mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.ReportingPolicy"));
             Field instance = new Field("INSTANCE", new FullyQualifiedJavaType(mappingsType));
             instance.setInitializationString(VStringUtil.format("Mappers.getMapper({0}.class)", mappingsInterface.getType().getShortName()));
             mappingsInterface.addField(instance);
@@ -642,16 +644,10 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         return answer;
     }
 
-    private String buildViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
-        //viewId
-        String listType;
-        String viewId = "value = \"" + VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX) + "\"";
-        String listName = "listName = \"" + introspectedTable.getRemarks(true) + "\"";
-        String beanName = "beanName = \"" + introspectedTable.getControllerBeanName() + "\"";
+    private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
+        ViewTableMeta viewTableMeta = new ViewTableMeta(introspectedTable);
         if (stringHasValue(context.getModuleName())) {
-            listType = "listType = \"" + context.getModuleName() + "\"";
-        }else{
-            listType = "listType = GlobalConstant.DEFAULT_VIEW_LIST_TYPE";
+            viewTableMeta.setListType(context.getModuleName());
         }
         //createUrl
         String createUrl = "";
@@ -666,68 +662,56 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             }
         }
         if (stringHasValue(createUrl)) {
-            createUrl = "createUrl = \"" + createUrl + "\"";
+            viewTableMeta.setCreateUrl(createUrl);
         }
         //indexColumn
-        String indexColumn = "";
-        viewVOClass.addImportedType("com.vgosoft.core.constant.enums.ViewIndexColumnEnum");
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
         if (viewIndexColumnEnum != null) {
-            indexColumn = "indexColumn = ViewIndexColumnEnum." + viewIndexColumnEnum.name();
+            viewTableMeta.setIndexColumn(viewIndexColumnEnum);
         }
         //actionColumn
-        String actionColumn = "";
         if (voViewGeneratorConfiguration.getActionColumn().size() > 0) {
-            viewVOClass.addImportedType("com.vgosoft.core.constant.enums.ViewActionColumnEnum");
-            String actions = voViewGeneratorConfiguration.getActionColumn().stream()
+            ViewActionColumnEnum[] viewActionColumnEnums = voViewGeneratorConfiguration.getActionColumn().stream()
                     .map(ViewActionColumnEnum::ofCode)
                     .filter(Objects::nonNull)
-                    .distinct()
-                    .map(e -> "ViewActionColumnEnum." + e.name())
-                    .collect(Collectors.joining(","));
-            actionColumn = "actionColumn = {" + actions + "}";
+                    .distinct().toArray(ViewActionColumnEnum[]::new);
+            viewTableMeta.setActionColumn(viewActionColumnEnums);
         }
         //querys
-        String querys = "";
         if (voViewGeneratorConfiguration.getQueryColumns().size() > 0) {
-            viewVOClass.addImportedType("com.vgosoft.core.annotation.CompositeQuery");
-            String compositeQuery = voViewGeneratorConfiguration.getQueryColumns().stream()
+            String[] strings = voViewGeneratorConfiguration.getQueryColumns().stream()
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> VStringUtil.format("@CompositeQuery(value = \"{0}\",description = \"{1}\")", c.getActualColumnName(), c.getRemarks(true)))
-                    .collect(Collectors.joining("\n        , "));
-            querys = "querys = {" + compositeQuery + "}";
+                    .map(c-> CompositeQuery.create(c).toAnnotation())
+                    .toArray(String[]::new);
+            viewTableMeta.setQuerys(strings);
         }
         //columns
-        String columns = "";
         if (voViewGeneratorConfiguration.getIncludeColumns().size() > 0) {
-            viewVOClass.addImportedType("com.vgosoft.core.annotation.ViewColumnMeta");
-            String columns1 = voViewGeneratorConfiguration.getIncludeColumns().stream()
+            String[] strings = voViewGeneratorConfiguration.getIncludeColumns().stream()
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> VStringUtil.format("@ViewColumnMeta(value = \"{0}\",title = \"{1}\")", c.getJavaProperty(), c.getRemarks(true)))
-                    .collect(Collectors.joining("\n        , "));
-            columns = "columns = {" + columns1 + "}";
+                    .map(c-> ViewColumnMeta.create(c, introspectedTable).toAnnotation())
+                    .toArray(String[]::new);
+            viewTableMeta.setColumns(strings);
         }
         //ignoreFields
-        String ignoreFields = "";
         if (voViewGeneratorConfiguration.getExcludeColumns().size() > 0) {
-            String columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()
+            String[] columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
                     .map(IntrospectedColumn::getJavaProperty)
-                    .collect(Collectors.joining(","));
-            ignoreFields = "ignoreFields = \"" + columns2 + "\"";
+                    .toArray(String[]::new);
+            viewTableMeta.setIgnoreFields(columns2);
         }
         //className
-        String className = VStringUtil.format("className = \"{0}\"", viewVOType);
+        viewTableMeta.setClassName(viewVOType);
         //构造ViewTableMeta
-        String[] allItem = {viewId, listName,listType,beanName, createUrl, indexColumn, actionColumn, querys, columns, ignoreFields, className};
-        String join = String.join("\n        , ", ArrayUtil.removeBlank(allItem));
-        return VStringUtil.format("@ViewTableMeta({0})", join);
+        viewVOClass.addAnnotation(viewTableMeta.toAnnotation());
+        viewVOClass.addMultipleImports(viewTableMeta.multipleImports());
     }
 
     private String getApiModel(String voModelName) {
