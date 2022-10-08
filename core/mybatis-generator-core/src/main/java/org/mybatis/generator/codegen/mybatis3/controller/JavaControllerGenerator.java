@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;

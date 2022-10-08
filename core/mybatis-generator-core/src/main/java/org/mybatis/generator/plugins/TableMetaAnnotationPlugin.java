@@ -72,7 +72,7 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     /**
-     * 构造注解@ApiModelProperty
+     * 属性@ColumnMeta
      */
     private void addColumnMetaAnnotation(Field field,
                                          TopLevelClass topLevelClass,
@@ -88,7 +88,7 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     /**
-     * model类的@apiModel
+     * 类的@TableMeta
      */
     private void addTableMetaAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         if (isNoMetaAnnotation(introspectedTable)) {

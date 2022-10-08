@@ -38,9 +38,9 @@ public class ViewTableMeta  extends AbstractAnnotation{
     private String[] querys = new String[0];
     private String indexColWidth;
     private String actionColWidth;
-    private int dataFilterType;
+    private int dataFilterType = 0;
     private String categoryTreeUrl;
-    private int wfStatus;
+    private int wfStatus = 6;
     private String areaWidth;
     private String areaHeight;
 

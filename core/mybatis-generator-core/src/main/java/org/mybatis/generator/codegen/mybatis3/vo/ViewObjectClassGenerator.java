@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
+import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -104,6 +104,18 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             if (plugins.voAbstractFieldGenerated(field, abstractVo, introspectedColumn, introspectedTable)) {
                 abstractVo.addField(field);
                 abstractVo.addImportedType(field.getType());
+
+                StringBuilder sb = new StringBuilder(introspectedColumn.getJavaProperty());
+                if (sb.length()>1 && Character.isUpperCase(sb.charAt(1))) {
+                    Method method = getJavaBeansGetter(introspectedColumn, context, introspectedTable);
+                    abstractVo.addMethod(method);
+
+                    if (!introspectedTable.isImmutable()) {
+                        method = getJavaBeansSetter(introspectedColumn, context, introspectedTable);
+                        abstractVo.addMethod(method);
+                    }
+                }
+
             }
         }
         List<String> absExampleFields = abstractVo.getFields().stream().map(Field::getName).collect(Collectors.toList());

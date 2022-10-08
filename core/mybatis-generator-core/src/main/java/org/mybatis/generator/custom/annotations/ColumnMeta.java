@@ -67,16 +67,16 @@ public class ColumnMeta  extends AbstractAnnotation{
             items.add("summary = false");
         }
         if (this.getOrder()!= GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
-            items.add(VStringUtil.format("order = {0}", this.getOrder()));
+            items.add("order = "+this.getOrder());
         }
         if (!this.isSort()) {
             items.add("sort = false");
         }
         if (this.getSize()!=255) {
-            items.add(VStringUtil.format("size = {0}", this.getSize()));
+            items.add("size = "+this.getSize());
         }
         if (this.getScale()!=0) {
-            items.add(VStringUtil.format("scale = {0}", this.getScale()));
+            items.add("scale = "+this.getScale());
         }
         if (!this.getType().equals(JDBCType.VARCHAR)) {
             items.add(VStringUtil.format("type = JDBCType.{0}", this.getType().getName()));

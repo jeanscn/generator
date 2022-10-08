@@ -64,7 +64,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     /**
-     * 属性注解@ApiModelProperty
+     * model属性注解@ApiModelProperty
      */
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
@@ -89,6 +89,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
         return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
     }
 
+    /**
+     * ViewVO属性注解@ApiModelProperty
+     */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         String apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "view");

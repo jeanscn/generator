@@ -26,10 +26,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
 
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        String s = buildViewColumnMetaAnnotation(introspectedColumn,introspectedTable);
-        if (StringUtility.stringHasValue(s)) {
-            field.addAnnotation(s);
-            topLevelClass.addMultipleImports("ViewColumnMeta");
+        if (introspectedTable.getRules().isGenerateViewVO()) {
+            ViewColumnMeta viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
+            field.addAnnotation(viewColumnMeta.toAnnotation());
+            topLevelClass.addMultipleImports(viewColumnMeta.multipleImports());
         }
         return true;
     }
@@ -39,17 +39,12 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
      */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        String s = buildViewColumnMetaAnnotation(introspectedColumn,introspectedTable);
-        field.addAnnotation(s);
-        topLevelClass.addMultipleImports("ViewColumnMeta");
+        if (introspectedTable.getRules().isGenerateViewVO()) {
+            ViewColumnMeta viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
+            field.addAnnotation(viewColumnMeta.toAnnotation());
+            topLevelClass.addMultipleImports(viewColumnMeta.multipleImports());
+        }
         return true;
     }
 
-    /**
-     * 构造注解@ViewColumnMeta
-     */
-    private String buildViewColumnMetaAnnotation(IntrospectedColumn introspectedColumn,IntrospectedTable introspectedTable) {
-        ViewColumnMeta viewColumnMeta = new ViewColumnMeta(introspectedColumn, introspectedTable);
-        return viewColumnMeta.toAnnotation();
-    }
 }

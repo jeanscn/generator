@@ -114,14 +114,20 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             Method method = getJavaBeansGetter(introspectedColumn, context, introspectedTable);
             if (plugins.modelGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                     Plugin.ModelClassType.BASE_RECORD)) {
-                //topLevelClass.addMethod(method);
+                StringBuilder sb = new StringBuilder(introspectedColumn.getJavaProperty());
+                if (sb.length()>1 && Character.isUpperCase(sb.charAt(1))) {
+                    topLevelClass.addMethod(method);
+                }
             }
 
             if (!introspectedTable.isImmutable()) {
                 method = getJavaBeansSetter(introspectedColumn, context, introspectedTable);
                 if (plugins.modelSetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                         Plugin.ModelClassType.BASE_RECORD)) {
-                    //topLevelClass.addMethod(method);
+                    StringBuilder sb = new StringBuilder(introspectedColumn.getJavaProperty());
+                    if (sb.length()>1 && Character.isUpperCase(sb.charAt(1))) {
+                        topLevelClass.addMethod(method);
+                    }
                 }
             }
         }
