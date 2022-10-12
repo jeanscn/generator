@@ -4,6 +4,7 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
@@ -132,7 +133,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizSubINF.addSuperInterface(bizINF.getType());
         bizSubINF.addImportedType(bizINF.getType());
 
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
+        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceGeneratorConfiguration.getTargetProject(), javaServiceGeneratorConfiguration.getTargetPackage(), "I"+entityType.getShortName());
         if (forceGenerateScalableElement || fileNotExist) {
             if (plugins.subServiceGenerated(bizSubINF, introspectedTable)){

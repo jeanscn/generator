@@ -47,7 +47,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.setExceptionRemark("下载处理异常，含IO异常");
 
         method.addAnnotation(new SystemLog("下载数据",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/download/{type}/{id}", RequestMethod.GET);
+        RequestMapping requestMapping = new RequestMapping("download/{type}/{id}", RequestMethod.GET);
         requestMapping.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMapping,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");

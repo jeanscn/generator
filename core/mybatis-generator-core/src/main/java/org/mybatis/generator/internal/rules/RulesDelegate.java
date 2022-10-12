@@ -276,7 +276,7 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean isForceGenerateScalableElement() {
+    public boolean isForceGenerateScalableElement(String element) {
         return false;
     }
 

@@ -48,7 +48,7 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnRemark("成功删除的记录数");
 
                     method.addAnnotation(new SystemLog("删除数据关联",introspectedTable),parentElement);
-                    method.addAnnotation(new RequestMapping(this.serviceBeanName + "/split/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
+                    method.addAnnotation(new RequestMapping("split/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
                             , RequestMethod.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getSplitMethodName(),"删除关系");
                     method.addAnnotation(new ApiOperation("删除数据关联关系", "删除中间表数据"),parentElement);

@@ -43,6 +43,8 @@ public class Context extends PropertyHolder {
 
     private boolean forceUpdateScalableElement;
 
+    private List<String> forceUpdateElementList;
+
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
     private ConnectionFactoryConfiguration connectionFactoryConfiguration;
@@ -633,6 +635,14 @@ public class Context extends PropertyHolder {
 
     public void setForceUpdateScalableElement(boolean forceUpdateScalableElement) {
         this.forceUpdateScalableElement = forceUpdateScalableElement;
+    }
+
+    public List<String> getForceUpdateElementList() {
+        return forceUpdateElementList;
+    }
+
+    public void setForceUpdateElementList(List<String> forceUpdateElementList) {
+        this.forceUpdateElementList = forceUpdateElementList;
     }
 
     public String getParentMenuId() {

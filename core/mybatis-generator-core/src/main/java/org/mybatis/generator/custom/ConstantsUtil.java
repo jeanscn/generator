@@ -49,10 +49,7 @@ public class ConstantsUtil {
 
     //对象类
     public static final String RESPONSE_SIMPLE = "com.vgosoft.core.adapter.web.respone.ResponseSimple";
-    public static final String RESPONSE_SIMPLE_IMPL = "com.vgosoft.core.adapter.web.respone.ResponseSimpleImpl";
-    public static final String RESPONSE_LIST = "com.vgosoft.core.adapter.web.respone.ResponseList";
-    public static final String RESPONSE_SIMPLE_LIST = "com.vgosoft.core.adapter.web.respone.ResponseSimpleList";
-    public static final String DATATABLES_VIEW_CONFIG = "com.vgosoft.web.plugins.datatables.DataTablesViewConfig";
+    public static final String DATATABLES_CONFIG = "com.vgosoft.web.plugins.datatables.DataTablesConfig";
     public final static String SERVICE_RESULT = "com.vgosoft.core.adapter.ServiceResult";
     public final static String RESPONSE_RESULT = "com.vgosoft.core.adapter.web.respone.ResponseResult";
     public final static String RESPONSE_PAGEHELPER_RESULT = "com.vgosoft.mybatis.pojo.ResponsePagehelperResult";
@@ -61,6 +58,9 @@ public class ConstantsUtil {
     public static final String VIEW_DT_TABLE = "com.vgosoft.web.entity.ViewDtTable";
     public static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
     public static final String SPRING_CONTEXT_HOLDER = "com.vgosoft.core.util.SpringContextHolder";
+
+    //工具类
+    public static final String DATATABLES_UTIL = "com.vgosoft.web.plugins.datatables.util.DataTablesUtil";
 
     //枚举
     public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.ServiceCodeEnum";
@@ -99,7 +99,7 @@ public class ConstantsUtil {
     //easyExcel
     public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
 
-    public static final Map<String,String> childrenGenericClasses = new HashMap<String,String>();
+    public static final Map<String,String> childrenGenericClasses = new HashMap<>();
 
     static{
         childrenGenericClasses.put("IDepartment","com.vgosoft.core.adapter.organization.entity.IDepartment");

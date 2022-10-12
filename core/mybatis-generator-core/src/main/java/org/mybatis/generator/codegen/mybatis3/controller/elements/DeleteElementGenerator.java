@@ -40,7 +40,7 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("成功删除的记录数");
 
         method.addAnnotation(new SystemLog("删除了一条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/"+pathVariable, RequestMethod.DELETE),parentElement);
+        method.addAnnotation(new RequestMapping(pathVariable, RequestMethod.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"删除");
         method.addAnnotation(new ApiOperation("单条记录删除", "根据给定的id删除一条记录"),parentElement);
 

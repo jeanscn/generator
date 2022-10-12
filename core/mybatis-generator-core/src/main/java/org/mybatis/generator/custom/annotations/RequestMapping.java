@@ -2,9 +2,9 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,8 +24,13 @@ public class RequestMapping extends AbstractAnnotation {
     private final List<String> consumes = new ArrayList<>();
     private final List<String> produces = new ArrayList<>();
 
-    public static RequestMapping create(String value, RequestMethod method){
-        return new RequestMapping(value,method);
+    public static RequestMapping create(String value, RequestMethod method) {
+        return new RequestMapping(value, method);
+    }
+
+    public RequestMapping(String value) {
+        super();
+        this.addValue(value);
     }
 
     public RequestMapping(String value, RequestMethod method) {
@@ -36,58 +41,67 @@ public class RequestMapping extends AbstractAnnotation {
 
     @Override
     public List<String> toAnnotations() {
-        return this.method.stream().map(requestMethod -> {
+        if (this.method.size() > 0) {
+            return this.method.stream().map(requestMethod -> {
+                StringBuilder sb = new StringBuilder();
+                if (requestMethod.equals(RequestMethod.GET)) {
+                    sb.append("GetMapping(");
+                    this.addImports("org.springframework.web.bind.annotation.GetMapping");
+                } else if (requestMethod.equals(RequestMethod.DELETE)) {
+                    sb.append("DeleteMapping(");
+                    this.addImports("org.springframework.web.bind.annotation.DeleteMapping");
+                } else if (requestMethod.equals(RequestMethod.PATCH)) {
+                    sb.append("PatchMapping(");
+                    this.addImports("org.springframework.web.bind.annotation.PatchMapping");
+                } else if (requestMethod.equals(RequestMethod.POST)) {
+                    sb.append("PostMapping(");
+                    this.addImports("org.springframework.web.bind.annotation.PostMapping");
+                } else if (requestMethod.equals(RequestMethod.PUT)) {
+                    sb.append("PutMapping(");
+                    this.addImports("org.springframework.web.bind.annotation.PutMapping");
+                } else {
+                    sb.append("RequestMapping(");
+                    this.addImports("org.springframework.web.bind.annotation.RequestMapping");
+                }
+                String nameStr = null;
+                if (VStringUtil.isNotBlank(this.getName())) {
+                    nameStr = "name = \"" + this.getName() + "\"";
+                }
+                String collect = Stream.of(nameStr,
+                                array2String(this.getValue(), "value", true),
+                                array2String(this.getParams(), "params", true),
+                                array2String(this.getHeaders(), "headers", true),
+                                array2String(this.getConsumes(), "consumes", false),
+                                array2String(this.getProduces(), "produces", false))
+                        .filter(VStringUtil::isNotBlank)
+                        .collect(Collectors.joining(", "));
+
+                return "@" + sb + collect + ")";
+            }).collect(Collectors.toList());
+        } else {
+            this.addImports("org.springframework.web.bind.annotation.RequestMapping");
             StringBuilder sb = new StringBuilder();
-            if (requestMethod.equals(RequestMethod.GET)) {
-                sb.append("GetMapping(");
-                this.addImports("org.springframework.web.bind.annotation.GetMapping");
-            } else if (requestMethod.equals(RequestMethod.DELETE)) {
-                sb.append("DeleteMapping(");
-                this.addImports("org.springframework.web.bind.annotation.DeleteMapping");
-            } else if (requestMethod.equals(RequestMethod.PATCH)) {
-                sb.append("PatchMapping(");
-                this.addImports("org.springframework.web.bind.annotation.PatchMapping");
-            } else if (requestMethod.equals(RequestMethod.POST)) {
-                sb.append("PostMapping(");
-                this.addImports("org.springframework.web.bind.annotation.PostMapping");
-            } else if (requestMethod.equals(RequestMethod.PUT)) {
-                sb.append("PutMapping(");
-                this.addImports("org.springframework.web.bind.annotation.PutMapping");
-            } else {
-                sb.append("RequestMapping(");
-                this.addImports("org.springframework.web.bind.annotation.RequestMapping");
+            if (VStringUtil.isNotBlank(this.getName())) {
+                sb.append("name = \"").append(this.getName()).append("\"");
             }
-            String nameStr = null;
-            if (this.getName() != null) {
-                nameStr = "name = \"" + this.getName() + "\"";
-            }
-            String collect = Stream.of(nameStr,
-                            array2String(this.getValue(), "value",true),
-                            array2String(this.getParams(), "params",true),
-                            array2String(this.getHeaders(), "headers",true),
-                            array2String(this.getConsumes(), "consumes",false),
-                            array2String(this.getProduces(), "produces",false))
+            String collect = Stream.of(sb.toString(),
+                            array2String(this.getValue(), "value", true),
+                            array2String(this.getParams(), "params", true),
+                            array2String(this.getHeaders(), "headers", true),
+                            array2String(this.getConsumes(), "consumes", false),
+                            array2String(this.getProduces(), "produces", false))
                     .filter(VStringUtil::isNotBlank)
                     .collect(Collectors.joining(", "));
-
-            return "@" + sb + collect + ")";
-        }).collect(Collectors.toList());
+            return Collections.singletonList("@RequestMapping(" + collect + ")");
+        }
     }
 
-    private String array2String(List<String> list, String key, boolean character) {
-        StringBuilder sb = new StringBuilder();
-        if (list.size() > 0) {
-            sb.append(key).append(" = {");
-            if (character) {
-                sb.append(list.stream()
-                        .map(v -> "\"" + v + "\"")
-                        .collect(Collectors.joining(",")));
-            } else {
-                sb.append(String.join(",", list));
-            }
-            sb.append("}");
+    private String array2String(final List<String> list, final String key, final boolean character) {
+        String collect = list.stream().filter(VStringUtil::isNotBlank).map(s -> character ? "\"" + s + "\"" : s).collect(Collectors.joining(","));
+        if (VStringUtil.isNotBlank(collect)) {
+            return key + " = {" + collect + "}";
         }
-        return sb.toString();
+        return null;
     }
 
     public String getName() {

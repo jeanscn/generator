@@ -24,6 +24,7 @@ public class Field extends JavaElement {
     private boolean isTransient;
     private boolean isVolatile;
     private boolean isFinal;
+    private String remark;
 
     public Field(String name, FullyQualifiedJavaType type) {
         this.name = name;
@@ -86,5 +87,13 @@ public class Field extends JavaElement {
 
     public void setFinal(boolean isFinal) {
         this.isFinal = isFinal;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

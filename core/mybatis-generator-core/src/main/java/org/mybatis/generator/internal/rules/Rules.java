@@ -258,7 +258,7 @@ public interface Rules {
 
     boolean isGenerateControllerUnitTest();
 
-    boolean isForceGenerateScalableElement();
+    boolean isForceGenerateScalableElement(String element);
 
     /**
      * 是生成VO对象

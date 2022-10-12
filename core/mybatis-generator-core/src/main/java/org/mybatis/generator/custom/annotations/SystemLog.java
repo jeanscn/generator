@@ -4,6 +4,9 @@ import com.vgosoft.core.constant.enums.LogTargetTableEnum;
 import com.vgosoft.core.constant.enums.LogTypesEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.custom.ConstantsUtil;
+
+import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_SYSTEM_LOG;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -23,7 +26,7 @@ public class SystemLog extends AbstractAnnotation {
         super();
         this.value = value;
         this.introspectedTable = introspectedTable;
-        this.addImports("com.vgosoft.core.annotation.SystemLog");
+        this.addImports(ConstantsUtil.ANNOTATION_SYSTEM_LOG);
     }
 
     @Override

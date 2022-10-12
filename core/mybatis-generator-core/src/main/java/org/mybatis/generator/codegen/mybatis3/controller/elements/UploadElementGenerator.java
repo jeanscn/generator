@@ -57,7 +57,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.setExceptionRemark("上传处理异常，含IO读写异常");
 
         method.addAnnotation(new SystemLog("上传记录",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/upload", RequestMethod.POST);
+        RequestMapping requestMapping = new RequestMapping("upload", RequestMethod.POST);
         requestMapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         requestMapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
         method.addAnnotation(requestMapping,parentElement);

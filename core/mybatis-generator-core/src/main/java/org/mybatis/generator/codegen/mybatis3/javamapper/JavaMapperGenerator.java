@@ -28,6 +28,7 @@ import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
@@ -142,7 +143,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         subInterface.addSuperInterface(type);
         subInterface.addImportedType(type);
 
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
+        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
         if (forceGenerateScalableElement || fileNotExist) {
             if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)) {

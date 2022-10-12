@@ -8,6 +8,8 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.ScalableElementEnum;
+import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -57,6 +59,14 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conTopClazz.setAbstract(true);
         commentGenerator.addJavaFileComment(conTopClazz);
         FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(ABSTRACT_BASE_CONTROLLER);
+        supClazzType.addTypeArgument(entityType);
+        conTopClazz.addImportedType(entityType);
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            supClazzType.addTypeArgument(entityVoType);
+            conTopClazz.addImportedType(entityVoType);
+        }else{
+            supClazzType.addTypeArgument(entityType);
+        }
         conTopClazz.setSuperClass(supClazzType);
 
         sb.setLength(0);
@@ -137,6 +147,36 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
         addDeleteByTableElement(conTopClazz);
         addInsertByTableElement(conTopClazz);
+
+        //重写getListData，如果存在VO的时候
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            Method getListData = new Method("getListData");
+            getListData.setVisibility(JavaVisibility.PROTECTED);
+            getListData.addAnnotation("@Override");
+            FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("com.github.pagehelper.Page");
+            returnType.addTypeArgument(entityType);
+            getListData.setReturnType(returnType);
+            getListData.setReturnRemark("查询语句执行结果列表的PageHelper的Page封装对象");
+            Parameter parameter1 = new Parameter(FullyQualifiedJavaType.getStringInstance(), "beanName");
+            parameter1.setRemark("        操作服务类beanName。ioc中的beanId");
+            getListData.addParameter(parameter1);
+            Parameter parameter2 = new Parameter(new FullyQualifiedJavaType("com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder"), "selectSqlBuilder");
+            parameter2.setRemark("列表查询sql builder，已经完成相关条件构建");
+            getListData.addParameter(parameter2);
+            FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+            listInstance.addTypeArgument(new FullyQualifiedJavaType("java.lang.Object"));
+            Parameter parameter3 = new Parameter(listInstance, "returnResult");
+            parameter3.setRemark("    接口最终返回的数据列表");
+            getListData.addParameter(parameter3);
+            commentGenerator.addMethodJavaDocLine(getListData,"为了转换返回结果为VO对象而重写父类的方法");
+            getListData.addBodyLine("List<{0}> list = {1}.selectBySql(selectSqlBuilder);",entityType.getShortName(),introspectedTable.getControllerBeanName());
+            getListData.addBodyLine("returnResult.addAll(mappings.to{0}s(list));",entityVoType.getShortName());
+            getListData.addBodyLine("return (Page<{0}>) list;",entityType.getShortName());
+            conTopClazz.addMethod(getListData);
+            conTopClazz.addImportedType("java.util.List");
+            conTopClazz.addImportedType("com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder");
+            conTopClazz.addImportedType("com.github.pagehelper.Page");
+        }
 
         //追加一个构造导入Excel模板的样例数据方法
         if (introspectedTable.getRules().isGenerateExcelVO()) {
@@ -291,7 +331,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addImportedType(conClazzType);
         conSubTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conSubTopClazz.addAnnotation("@RestController");
-        conSubTopClazz.addAnnotation("@RequestMapping(value = \"/" + introspectedTable.getControllerSimplePackage() + "\")");
+        RequestMapping requestMapping = new RequestMapping(
+                String.join("/",introspectedTable.getControllerSimplePackage(),introspectedTable.getControllerBeanName()));
+        conSubTopClazz.addAnnotation(requestMapping.toAnnotation());
         //构造器
         Method conMethod = new Method(subControllerName);
         conMethod.addParameter(new Parameter(bizInfType, introspectedTable.getControllerBeanName()));
@@ -307,7 +349,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         }
         conSubTopClazz.addMethod(conMethod);
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName);
-        if (introspectedTable.getRules().isForceGenerateScalableElement() || fileNotExist) {
+        if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.controller.name()) || fileNotExist) {
             if (context.getPlugins().subControllerGenerated(conSubTopClazz, introspectedTable)) {
                 answer.add(conSubTopClazz);
             }

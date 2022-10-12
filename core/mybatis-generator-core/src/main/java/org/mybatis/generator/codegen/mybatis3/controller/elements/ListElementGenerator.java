@@ -45,7 +45,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("结果对象列表");
 
         method.addAnnotation(new SystemLog("查看数据列表",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName + "", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMapping("", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"数据列表");
         method.addAnnotation(new ApiOperation("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"),parentElement);
 

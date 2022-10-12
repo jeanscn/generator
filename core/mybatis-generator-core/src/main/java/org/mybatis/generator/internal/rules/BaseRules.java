@@ -24,6 +24,8 @@ import org.mybatis.generator.custom.TableTypeEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.Arrays;
+
 /**
  * This class centralizes all the rules related to code generation - including
  * the methods and objects to create, and certain attributes related to those
@@ -553,9 +555,21 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isForceGenerateScalableElement() {
-        return introspectedTable.getContext().isForceUpdateScalableElement();
+    public boolean isForceGenerateScalableElement(final String element) {
+        boolean forceUpdateScalableElement = introspectedTable.getContext().isForceUpdateScalableElement();
+        String property = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST);
+        if (StringUtility.stringHasValue(property)) {
+            if (forceUpdateScalableElement && Arrays.stream(property.split(","))
+                    .anyMatch(e->e.equalsIgnoreCase(element))) {
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return forceUpdateScalableElement;
+        }
     }
+
 
     @Override
     public boolean isGenerateServiceUnitTest() {

@@ -8,6 +8,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
@@ -174,7 +175,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         conMethod.addBodyLine("super(mapper);");
         bizClazzImpl.addMethod(conMethod);
 
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement();
+        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceImplGeneratorConfiguration.getTargetProject(), javaServiceImplGeneratorConfiguration.getTargetPackage(), implClazzName);
         if (forceGenerateScalableElement || fileNotExist) {
             if (plugins.subServiceImplGenerated(bizGenClazzImpl, introspectedTable)) {

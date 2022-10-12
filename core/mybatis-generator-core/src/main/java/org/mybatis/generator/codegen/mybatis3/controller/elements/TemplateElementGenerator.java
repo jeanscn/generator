@@ -39,7 +39,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         method.setExceptionRemark("IO读写异常");
 
         method.addAnnotation(new SystemLog("下载数据导入模板",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/import/template", RequestMethod.GET);
+        RequestMapping requestMapping = new RequestMapping("import/template", RequestMethod.GET);
         requestMapping.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMapping,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");

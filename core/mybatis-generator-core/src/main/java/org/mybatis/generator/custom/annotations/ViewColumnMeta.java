@@ -4,6 +4,7 @@ import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 
 /**
@@ -37,19 +38,30 @@ public class ViewColumnMeta extends AbstractAnnotation{
 
     private boolean defaultDisplay;
 
-    private final IntrospectedColumn introspectedColumn;
+    private IntrospectedColumn introspectedColumn;
 
     private final VOViewGeneratorConfiguration configuration;
 
+    private Field field;
+
     public static ViewColumnMeta create(IntrospectedColumn introspectedColumn,IntrospectedTable introspectedTable){
         return new ViewColumnMeta(introspectedColumn,introspectedTable);
+    }
+
+    public ViewColumnMeta(Field field,String title,IntrospectedTable introspectedTable){
+        super();
+        this.value = field.getName();
+        this.title = title;
+        this.field = field;
+        this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
     }
 
     public ViewColumnMeta(IntrospectedColumn introspectedColumn,IntrospectedTable introspectedTable) {
         super();
         this.value = introspectedColumn.getJavaProperty();
         this.title = introspectedColumn.getRemarks(true)!=null?introspectedColumn.getRemarks(true):introspectedColumn.getActualColumnName();
-        this.introspectedColumn = introspectedColumn;
+       this.introspectedColumn = introspectedColumn;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
     }
@@ -58,10 +70,10 @@ public class ViewColumnMeta extends AbstractAnnotation{
     public String toAnnotation() {
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));
-        if (introspectedColumn.getOrder()!= GlobalConstant.DEFAULT_VIEW_COLUMN_ORDER) {
+        if (introspectedColumn!=null && introspectedColumn.getOrder()!= GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
             items.add(VStringUtil.format("order = {0}", introspectedColumn.getOrder()));
         }
-        if (configuration.getDefaultDisplayFields().size()==0 || configuration.getDefaultDisplayFields().contains(introspectedColumn.getJavaProperty())) {
+        if (configuration.getDefaultDisplayFields().size()==0 || configuration.getDefaultDisplayFields().contains(this.value)) {
             items.add("defaultDisplay = true");
         }
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";

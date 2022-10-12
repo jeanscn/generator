@@ -37,7 +37,7 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnRemark("成功删除的记录数");
 
         method.addAnnotation(new SystemLog("删除了一条或多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName, RequestMethod.DELETE),parentElement);
+        method.addAnnotation(new RequestMapping("", RequestMethod.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"批量删除");
         method.addAnnotation(new ApiOperation("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
 

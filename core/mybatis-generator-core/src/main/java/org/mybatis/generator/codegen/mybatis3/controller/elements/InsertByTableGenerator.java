@@ -45,7 +45,7 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnRemark("成功添加的记录数");
 
                     method.addAnnotation(new SystemLog("添加数据关联",introspectedTable),parentElement);
-                    method.addAnnotation(new RequestMapping(this.serviceBeanName + "/union/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
+                    method.addAnnotation(new RequestMapping("union/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
                             , RequestMethod.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getUnionMethodName(),"添加关系");
                     method.addAnnotation(new ApiOperation("添加数据关联关系", "添加中间表数据"),parentElement);

@@ -92,7 +92,8 @@ public class PropertyRegistry {
     public static final String CONTEXT_MODULE_NAME = "moduleName";
     public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
     public static final String CONTEXT_INTEGRATE_SPRING_SECURITY = "integrateSpringSecurity";
-    public static final String CONTEXT_FORCE_GENERATE_SCALABLE_ELEMENT = "forceUpdateScalableElement";
+    public static final String CONTEXT_FORCE_UPDATE_SCALABLE_ELEMENT = "forceUpdateScalableElement";
+    public static final String CONTEXT_FORCE_UPDATE_ELEMENT_LIST = "forceUpdateElementList";
 
     public static final String ANY_GENERATE = "generate";
     public static final String ANY_TARGET_PROJECT = "targetProject";

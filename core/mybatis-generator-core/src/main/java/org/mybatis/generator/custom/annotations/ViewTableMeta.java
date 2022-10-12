@@ -84,7 +84,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
         if (this.actionColumn.length>0) {
             List<ViewActionColumnEnum> viewActionColumnEnums = Arrays.asList(this.actionColumn);
             if (!(viewActionColumnEnums.size()==2 && viewActionColumnEnums.contains(ViewActionColumnEnum.VIEW) && viewActionColumnEnums.contains(ViewActionColumnEnum.EDIT))) {
-                String collect = Arrays.stream(this.actionColumn).map(e -> "ViewActionColumnEnum" + e.name()).collect(Collectors.joining(","));
+                String collect = Arrays.stream(this.actionColumn).map(e -> "ViewActionColumnEnum." + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("actionColumn = '{'{0}'}'", collect));
                 this.addImports("com.vgosoft.core.constant.enums.ViewActionColumnEnum");
             }

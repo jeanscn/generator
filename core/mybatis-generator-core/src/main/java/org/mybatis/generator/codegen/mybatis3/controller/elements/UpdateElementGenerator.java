@@ -42,7 +42,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("更新后的数据对象");
 
         method.addAnnotation(new SystemLog("更新了一条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName + "", RequestMethod.PUT),parentElement);
+        method.addAnnotation(new RequestMapping("", RequestMethod.PUT),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "更新");
         method.addAnnotation(new ApiOperation( "更新一条记录", "根据主键更新数据"),parentElement);
 

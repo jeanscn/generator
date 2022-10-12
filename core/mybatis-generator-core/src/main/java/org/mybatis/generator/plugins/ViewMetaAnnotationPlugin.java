@@ -40,7 +40,12 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (introspectedTable.getRules().isGenerateViewVO()) {
-            ViewColumnMeta viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
+            ViewColumnMeta viewColumnMeta;
+            if (introspectedColumn != null) {
+                viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
+            }else{
+                viewColumnMeta = new ViewColumnMeta(field, field.getRemark(), introspectedTable);
+            }
             field.addAnnotation(viewColumnMeta.toAnnotation());
             topLevelClass.addMultipleImports(viewColumnMeta.multipleImports());
         }

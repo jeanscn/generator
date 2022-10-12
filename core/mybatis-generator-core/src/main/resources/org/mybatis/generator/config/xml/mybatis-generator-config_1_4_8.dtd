@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.221005003-->
+        <!--version:1.4.8.221010001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -25,6 +25,8 @@
           4、forceUpdateScalableElement 是否强制覆盖可扩展自定义的元素（controller、dao、service、service接口、pojo\maps、pojo\vo）
           5、parentMenuId 如果生成view，则可以指定view菜单项目的父级id，优先级低于generateViewVO标签中的parentMenuId
           可能的property配置：
+          1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
+            类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo，maps
           1、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
           2、htmlUiFrame 页面模板名称 默认值：bottom
           3、htmlBarPosition 页面操作条位置。默认值：bottom

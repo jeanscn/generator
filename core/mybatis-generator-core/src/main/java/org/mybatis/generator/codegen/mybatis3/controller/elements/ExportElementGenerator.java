@@ -46,7 +46,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         method.setExceptionRemark("IO读写异常");
 
         method.addAnnotation(new SystemLog("数据导出",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/export", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMapping("export", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"导出");
         method.addAnnotation(new ApiOperation("Excel数据导出", "Excel数据导出接口"),parentElement);
 

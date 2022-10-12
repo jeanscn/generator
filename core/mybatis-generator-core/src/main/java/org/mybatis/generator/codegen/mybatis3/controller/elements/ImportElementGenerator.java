@@ -47,7 +47,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.setExceptionRemark("导入处理异常，含IO读写异常");
 
         method.addAnnotation(new SystemLog("数据导入",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + "/import", RequestMethod.POST);
+        RequestMapping requestMapping = new RequestMapping("import", RequestMethod.POST);
         requestMapping.addProduces("MediaType.MULTIPART_FORM_DATA_VALUE");
         method.addAnnotation(requestMapping,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");

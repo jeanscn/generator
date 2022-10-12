@@ -3,6 +3,7 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.custom.ConstantsUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TABLE_META;
 
@@ -36,7 +37,7 @@ public class TableMeta extends AbstractAnnotation{
         this.descript = introspectedTable.getRemarks(true);
         this.beanname = introspectedTable.getControllerBeanName();
         this.summary = true;
-        this.addImports(ANNOTATION_TABLE_META);
+        this.addImports(ConstantsUtil.ANNOTATION_TABLE_META);
     }
 
     @Override

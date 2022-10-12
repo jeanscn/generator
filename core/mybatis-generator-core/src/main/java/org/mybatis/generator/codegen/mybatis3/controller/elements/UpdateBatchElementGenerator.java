@@ -44,7 +44,7 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnRemark("更新后的数据对象列表");
 
         method.addAnnotation(new SystemLog("更新了多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(this.serviceBeanName + "/batch", RequestMethod.PUT),parentElement);
+        method.addAnnotation(new RequestMapping("batch", RequestMethod.PUT),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量更新");
         method.addAnnotation(new ApiOperation("批量更新数据", "根据主键批量更新数据"),parentElement);
 
