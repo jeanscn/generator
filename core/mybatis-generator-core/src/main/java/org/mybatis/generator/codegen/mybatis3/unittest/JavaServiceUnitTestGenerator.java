@@ -93,6 +93,9 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
             testClazz.addStaticImport("org.mockito.ArgumentMatchers.any");
 
             String javaProperty = JavaBeansUtil.getColumnExampleValue(configuration.getColumn());
+            if (configuration.getColumn().isJDBCDateColumn() || configuration.getColumn().isJDBCTimeStampColumn() || configuration.getColumn().isJDBCTimeColumn() ) {
+                testClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
+            }
             if (configuration.getReturnType()==1) {
                 method.addBodyLine("final {0} result = serviceImplUnderTest.{1}({2});"
                         , entityType.getShortName()

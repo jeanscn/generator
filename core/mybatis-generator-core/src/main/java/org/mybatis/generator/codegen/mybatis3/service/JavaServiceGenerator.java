@@ -1,6 +1,9 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
-import org.mybatis.generator.api.*;
+import org.mybatis.generator.api.CommentGenerator;
+import org.mybatis.generator.api.FullyQualifiedTable;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -34,7 +37,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
 
 
-
         Interface bizINF = new Interface(
                 getGenInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackageGen(),
                         entityType.getShortName()));
@@ -54,7 +56,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
          * insertBatch
          * */
         if (introspectedTable.getRules().generateInsertBatch()) {
-            Method method = serviceMethods.getInsertBatchMethod(bizINF, true,true);
+            Method method = serviceMethods.getInsertBatchMethod(bizINF, true, true);
             bizINF.addMethod(method);
         }
 
@@ -62,39 +64,45 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
          * updateBatch
          * */
         if (introspectedTable.getRules().generateUpdateBatch()) {
-            bizINF.addMethod(serviceMethods.getUpdateBatchMethod(bizINF, true,true));
+            bizINF.addMethod(serviceMethods.getUpdateBatchMethod(bizINF, true, true));
         }
 
         /**
          * insertOrUpdate
          * */
         if (introspectedTable.getRules().generateInsertOrUpdate()) {
-            bizINF.addMethod(serviceMethods.getInsertOrUpdateMethod(bizINF,true,true));
+            bizINF.addMethod(serviceMethods.getInsertOrUpdateMethod(bizINF, true, true));
         }
 
         //增加selectByExampleWithRelation接口方法
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(entityType, exampleType, bizINF,true,true));
+            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(entityType, exampleType, bizINF, true, true));
         }
 
         //增加SelectBySqlMethod
-        introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations().forEach(c->{
-            Method method = serviceMethods.getSelectBySqlMethodMethod(entityType, bizINF, c, true,true);
+        introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations().forEach(c -> {
+            Method method = serviceMethods.getSelectBySqlMethodMethod(entityType, bizINF, c, true, true);
             bizINF.addMethod(method);
         });
 
         //增加selectByColumnXXX
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
-                Method method = serviceMethods.getSelectByColumnMethod(entityType, bizINF, config,true,true);
+                Method method = serviceMethods.getSelectByColumnMethod(entityType, bizINF, config, true, true);
                 bizINF.addMethod(method);
             }
         }
 
+        //增加deleteByColumnXXX
+        introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream()
+                .filter(SelectByColumnGeneratorConfiguration::isEnableDelete).forEach(c -> {
+                    bizINF.addMethod(serviceMethods.getDeleteByColumnMethod(bizINF, c,true));
+                });
+
         //增加selectByTableXXX
         List<SelectByTableGeneratorConfiguration> selectByTableConfiguration = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
         for (SelectByTableGeneratorConfiguration config : selectByTableConfiguration) {
-            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, bizINF, config,true,true);
+            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, bizINF, config, true, true);
             bizINF.addMethod(selectByTable);
         }
 
@@ -104,19 +112,19 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         if (introspectedTable.getRules().isGenerateCachePO()) {
             bizINF.addMethod(serviceMethods.getSelectByKeysDictMethod(bizINF,
                     introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(),
-                    true,true));
+                    true, true));
         }
 
         //deleteByTableXXXX
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-                .filter(SelectByTableGeneratorConfiguration::isEnableSplit).forEach(c->{
-                    bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF,c,true,false,true));
+                .filter(SelectByTableGeneratorConfiguration::isEnableSplit).forEach(c -> {
+                    bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, false, true));
                 });
 
         //insertByTableXXXX
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-                .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c->{
-                    bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF,c,true,true,true));
+                .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c -> {
+                    bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, true, true));
                 });
 
         List<CompilationUnit> answer = new ArrayList<>();
@@ -134,9 +142,9 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizSubINF.addImportedType(bizINF.getType());
 
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceGeneratorConfiguration.getTargetProject(), javaServiceGeneratorConfiguration.getTargetPackage(), "I"+entityType.getShortName());
+        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceGeneratorConfiguration.getTargetProject(), javaServiceGeneratorConfiguration.getTargetPackage(), "I" + entityType.getShortName());
         if (forceGenerateScalableElement || fileNotExist) {
-            if (plugins.subServiceGenerated(bizSubINF, introspectedTable)){
+            if (plugins.subServiceGenerated(bizSubINF, introspectedTable)) {
                 answer.add(bizSubINF);
             }
         }

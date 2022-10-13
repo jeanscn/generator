@@ -453,6 +453,11 @@ public class JavaBeansUtil {
         return "selectByColumn" + getFirstCharacterUppercase(javaProperty);
     }
 
+    public static String deleteByColumnMethodName(IntrospectedColumn column) {
+        String javaProperty = column.getJavaProperty();
+        return "deleteByColumn" + getFirstCharacterUppercase(javaProperty);
+    }
+
     public static void addAnnotation(AbstractJavaType javaType, String annotation) {
         long count = javaType.getAnnotations().stream().filter(t -> t.equals(annotation)).count();
         if (count == 0) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.221010001-->
+        <!--version:1.4.8.221014001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -24,6 +24,7 @@
           3、integrateSpringSecurity 是否集成Spring Security 默认 true
           4、forceUpdateScalableElement 是否强制覆盖可扩展自定义的元素（controller、dao、service、service接口、pojo\maps、pojo\vo）
           5、parentMenuId 如果生成view，则可以指定view菜单项目的父级id，优先级低于generateViewVO标签中的parentMenuId
+          6、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
           可能的property配置：
           1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo，maps
@@ -46,7 +47,8 @@
                 integrateSpringSecurity (true|false) #IMPLIED
                 forceUpdateScalableElement (true|false) #IMPLIED
                 parentMenuId CDATA #IMPLIED
-                jdkVersion (8|9|11|17) #IMPLIED>
+                jdkVersion (8|9|11|17) #IMPLIED
+                onlyTables CDATA #IMPLIED>
 
         <!--
           The connectionFactory element is used to describe the connection factory used
@@ -158,6 +160,11 @@
                 enableInsertBatch 默认值:true
                 enableInsertOrUpdate 默认值:true
                 enableFileUpLoad 默认值;false
+            说明：
+            1、如果context中指定了onlyTables属性，且属性中包含该表名，则生成，否则忽略该表的生成
+                如果context忽略了onlyTables属性时：
+                1）ignore可以指定是否生基于该表进行生成。true-忽略不生成，false-生成。
+                2）如果忽略ignore参数，则根据表对应的实体是否存在确定是否生成，如果存在则不生成，不存在时进行生成。
         -->
         <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
@@ -303,13 +310,16 @@
           1、column 列名
           2、orderByClause 排序语句
           3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
+          4、parameterType key-传入的参数（列值）为单值，list-传入的参数（列值）为多值
+          5、enableDelete 是否同是生成一个基于改列的删除方法。
         -->
         <!ELEMENT selectByColumn EMPTY>
         <!ATTLIST selectByColumn
                 column CDATA #REQUIRED
                 orderByClause CDATA #IMPLIED
                 returnType (model|primaryKey) #IMPLIED
-                parameterType (key|list) #IMPLIED>
+                parameterType (key|list) #IMPLIED
+                enableDelete (false|true) #IMPLIED>
 
         <!--
                   基于SQL函数的查询方法 （也是配合javaModelCollection Properties实现查询方法）

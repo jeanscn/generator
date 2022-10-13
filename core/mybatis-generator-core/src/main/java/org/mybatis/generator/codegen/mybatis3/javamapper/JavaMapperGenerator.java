@@ -25,6 +25,8 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
+import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.DeleteByColumnElementGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.ReturnTypeEnum;
@@ -117,6 +119,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addSelectByExampleWithRelationMethod(interfaze);
         addUpdateBatchMethod(interfaze);
         addSelectByColumnMethods(interfaze);
+        addDeleteByColumnMethods(interfaze);
         addSelectBySqlMethodMethods(interfaze);
         addSelectByTableMethods(interfaze);
         addSelectByKeysDictMethod(interfaze);
@@ -214,10 +217,21 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
     }
 
+    protected void addDeleteByColumnMethods(Interface interfaze){
+        introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream()
+                .filter(SelectByColumnGeneratorConfiguration::isEnableDelete)
+                .forEach(c->{
+                    Method method = serviceMethods.getDeleteByColumnMethod(interfaze, c, true);
+                    interfaze.addMethod(method);
+                });
+    }
+
     protected void addSelectByColumnMethods(Interface interfaze) {
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
-                Method method;
+                Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true, false);
+
+               /* Method method;
                 boolean isListParam = config.getParameterType().equals("list");
                 FullyQualifiedJavaType paramType = isListParam ? FullyQualifiedJavaType.getNewListInstance() : config.getColumn().getFullyQualifiedJavaType();
                 if (isListParam) {
@@ -256,7 +270,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                             true,
                             interfaze);
                     context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的查询方法。该方法常用于为其它方法提供子查询。");
-                }
+                }*/
                  interfaze.addMethod(method);
             }
         }

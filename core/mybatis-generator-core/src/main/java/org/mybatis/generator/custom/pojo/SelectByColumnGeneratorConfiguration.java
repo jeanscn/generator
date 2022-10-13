@@ -10,8 +10,10 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     //方法返回列表的泛型参数，主键primaryKey或者model默认model
     private String returnTypeParam = "model";
     private String methodName;
+    private String deleteMethodName;
     private IntrospectedColumn column;
     private String parameterType = "key";
+    private boolean enableDelete;
     /**
      * 返回类型，默认0-返回list，1-返回model
      * 主要为了标识selectBaseByPrimaryKey方法，返回model
@@ -90,5 +92,21 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     public boolean isParameterList(){
         return "list".equals(this.parameterType);
 
+    }
+
+    public boolean isEnableDelete() {
+        return enableDelete;
+    }
+
+    public void setEnableDelete(boolean enableDelete) {
+        this.enableDelete = enableDelete;
+    }
+
+    public String getDeleteMethodName() {
+        return deleteMethodName;
+    }
+
+    public void setDeleteMethodName(String deleteMethodName) {
+        this.deleteMethodName = deleteMethodName;
     }
 }

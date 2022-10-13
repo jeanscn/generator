@@ -43,7 +43,9 @@ public class Context extends PropertyHolder {
 
     private boolean forceUpdateScalableElement;
 
-    private List<String> forceUpdateElementList;
+    private List<String> forceUpdateElementList = new ArrayList<>();
+
+    private List<String> onlyTablesGenerate = new ArrayList<>();
 
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
@@ -660,5 +662,13 @@ public class Context extends PropertyHolder {
 
     public void addSysMenuDataScriptLines(String id,String sysMenuDataScriptLine) {
         this.sysMenuDataScriptLines.put(id,sysMenuDataScriptLine);
+    }
+
+    public List<String> getOnlyTablesGenerate() {
+        return onlyTablesGenerate;
+    }
+
+    public void setOnlyTablesGenerate(List<String> onlyTablesGenerate) {
+        this.onlyTablesGenerate = onlyTablesGenerate;
     }
 }

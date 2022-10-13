@@ -24,6 +24,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.*;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
@@ -81,6 +82,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addSelectByExampleWithRelationElement(answer);
 
         addSelectByForeignKeyElement(answer);
+        addDeleteByColumnElement(answer);
         addSelectBySqlMethodElement(answer);
         addSelectByTableElement(answer);
         addSelectByKeysDictElement(answer);
@@ -326,7 +328,15 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
             AbstractXmlElementGenerator elementGenerator = new SelectByColumnElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
+    }
 
+    protected void addDeleteByColumnElement(XmlElement parentElement){
+        introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream()
+                .filter(SelectByColumnGeneratorConfiguration::isEnableDelete)
+                .forEach(c->{
+                    AbstractXmlElementGenerator elementGenerator = new DeleteByColumnElementGenerator(c);
+                    initializeAndExecuteGenerator(elementGenerator, parentElement);
+                });
     }
 
     protected void addSelectByTableElement(XmlElement parentElement){

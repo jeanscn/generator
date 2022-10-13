@@ -166,6 +166,11 @@ public class MyBatisGeneratorConfigurationParser {
         context.setForceUpdateScalableElement(stringHasValue(forceUpdateScalableElement) && Boolean.parseBoolean(forceUpdateScalableElement));
         String jdkVersion = attributes.getProperty("jdkVersion", "8");
         context.setJdkVersion(Integer.parseInt(jdkVersion));
+
+        String onlyTables = attributes.getProperty("onlyTables");
+        if (stringHasValue(onlyTables)) {
+            context.setOnlyTablesGenerate(Arrays.asList(onlyTables.split(",")));
+        }
         configuration.addContext(context);
 
         NodeList nodeList = node.getChildNodes();
@@ -218,18 +223,24 @@ public class MyBatisGeneratorConfigurationParser {
     protected void parseTable(Context context, Node node) {
         TableConfiguration tc = new TableConfiguration(context);
         Properties attributes = parseAttributes(node);
-
+        String tableName = attributes.getProperty("tableName");
         String ignore = attributes.getProperty("ignore");
-
         String domainObjectName = attributes.getProperty("domainObjectName");
-        if (!stringHasValue(ignore) && stringHasValue(domainObjectName)) {
-            JavaModelGeneratorConfiguration gc = context.getJavaModelGeneratorConfiguration();
-            if (JavaBeansUtil.javaFileExist(gc.getTargetProject(), gc.getTargetPackage(), domainObjectName)) {
+
+        //先确认是否指定了生成范围
+        List<String> tables = context.getOnlyTablesGenerate();
+        if (tables.size()==0) {
+            if (!stringHasValue(ignore) && stringHasValue(domainObjectName)) {
+                JavaModelGeneratorConfiguration gc = context.getJavaModelGeneratorConfiguration();
+                if (JavaBeansUtil.javaFileExist(gc.getTargetProject(), gc.getTargetPackage(), domainObjectName)) {
+                    return;
+                }
+            }
+            tc.setIgnore(isTrue(ignore));
+            if (Boolean.parseBoolean(ignore)) {
                 return;
             }
-        }
-        tc.setIgnore(isTrue(ignore));
-        if (Boolean.parseBoolean(ignore)) {
+        }else if(!tables.contains(tableName)){
             return;
         }
         context.addTableConfiguration(tc);
@@ -243,7 +254,6 @@ public class MyBatisGeneratorConfigurationParser {
             tc.setSchema(schema);
         }
 
-        String tableName = attributes.getProperty("tableName"); //$NON-NLS-1$
         if (stringHasValue(tableName)) {
             tc.setTableName(tableName);
         }
@@ -658,6 +668,8 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parameterType)) {
             selectByColumnGeneratorConfiguration.setParameterType(parameterType);
         }
+        String enableDelete = attributes.getProperty("enableDelete","false");
+        selectByColumnGeneratorConfiguration.setEnableDelete(Boolean.parseBoolean(enableDelete));
         tc.addSelectByColumnGeneratorConfiguration(selectByColumnGeneratorConfiguration);
     }
 

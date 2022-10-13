@@ -10,6 +10,7 @@ import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -99,6 +100,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         //SelectByColumnXXX
         addSelectByColumnElement(bizGenClazzImpl);
 
+        addDeleteByColumnElement(bizGenClazzImpl);
         //增加selectTreeByParentId
         addSelectBySqlMethodElement(bizGenClazzImpl);
 
@@ -242,6 +244,14 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
     }
 
+    private void addDeleteByColumnElement(TopLevelClass parentElement) {
+        introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream()
+                .filter(SelectByColumnGeneratorConfiguration::isEnableDelete).forEach(c -> {
+                    AbstractServiceElementGenerator elementGenerator = new DeleteByColumnElement(c);
+                    initializeAndExecuteGenerator(elementGenerator, parentElement);
+                });
+    }
+
     private void addSelectByTableElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateSelectByTable()) {
             AbstractServiceElementGenerator elementGenerator = new SelectByTableElement();
@@ -261,7 +271,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     /**
      * * 以下是重写的方法
-     * * */
+     * *
+     */
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
                 && relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {

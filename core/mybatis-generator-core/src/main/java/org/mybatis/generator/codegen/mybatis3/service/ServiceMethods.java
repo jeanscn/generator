@@ -233,6 +233,28 @@ public class ServiceMethods {
         return method;
     }
 
+    public Method getDeleteByColumnMethod(CompilationUnit parentElement,
+                                          SelectByColumnGeneratorConfiguration config,
+                                          boolean isAbstract) {
+        IntrospectedColumn column = config.getColumn();
+        boolean isListParam = config.getParameterType().equals("list");
+        FullyQualifiedJavaType paramType = isListParam?FullyQualifiedJavaType.getNewListInstance():config.getColumn().getFullyQualifiedJavaType();
+        if (isListParam) {
+            paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
+        }
+        Method method = getMethodByType(config.getDeleteMethodName(),
+                ReturnTypeEnum.MODEL,
+                FullyQualifiedJavaType.getIntInstance(),
+                "成功删除的行数",
+                paramType,
+                config.getColumn().getJavaProperty()+(isListParam?"s":""),
+                column.getRemarks(false),
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的删除方法。");
+        return method;
+    }
+
     public Method getSelectByTableMethod(FullyQualifiedJavaType entityType,
                                             CompilationUnit parentElement,
                                             SelectByTableGeneratorConfiguration config,
