@@ -47,6 +47,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("int affectedRows = super.deleteByPrimaryKey({0});", pks);
             method.addBodyLine("if (affectedRows > 0) {");
             outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, true);
+            method.addBodyLine("return affectedRows;");
             method.addBodyLine("}}");
             method.addBodyLine("return 0;");
         } else {

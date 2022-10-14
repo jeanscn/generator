@@ -115,7 +115,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                 parentElement.addImportedType(SERVICE_CODE_ENUM);
                             } else {
                                 if (isCollection) {
-                                    innerInsertUpdateMethod.addBodyLine("Collections.singletonList(ServiceResult.success(null));");
+                                    innerInsertUpdateMethod.addBodyLine("return Collections.singletonList(ServiceResult.success(null));");
                                     parentElement.addImportedType("java.util.Collections");
                                 } else {
                                     innerInsertUpdateMethod.addBodyLine("ServiceResult.success(null);");

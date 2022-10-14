@@ -45,6 +45,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
             deleteByExampleMethod.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, true);
             deleteByExampleMethod.addBodyLine("}");
+            deleteByExampleMethod.addBodyLine("return affectedRows;");
             deleteByExampleMethod.addBodyLine("}");
             deleteByExampleMethod.addBodyLine("return 0;");
         } else {
