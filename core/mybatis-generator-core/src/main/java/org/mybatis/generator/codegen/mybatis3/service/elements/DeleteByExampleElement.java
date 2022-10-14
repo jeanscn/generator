@@ -40,7 +40,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
                 .collect(Collectors.toList());
         if (collect.size() > 0) {
             deleteByExampleMethod.addBodyLine("List<{0}> {1}s = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-            deleteByExampleMethod.addBodyLine("int affectedRows = super.deleteByExample(example);");
+            deleteByExampleMethod.addBodyLine("int affectedRows = mapper.deleteByExample(example);");
             deleteByExampleMethod.addBodyLine("if (affectedRows > 0) {");
             deleteByExampleMethod.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, true);

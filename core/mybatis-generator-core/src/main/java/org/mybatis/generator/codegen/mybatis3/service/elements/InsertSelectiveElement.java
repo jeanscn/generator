@@ -31,15 +31,15 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         insertSelectiveMethod.addAnnotation("@Override");
         insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        insertSelectiveMethod.addBodyLine("ServiceResult<{0}> result = super.insertSelective(record);", entityType.getShortName());
-        insertSelectiveMethod.addBodyLine("if (result.getAffectedRows()>0) {");
+        insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
+        insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
         List<RelationGeneratorConfiguration> configs1 = introspectedTable.getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (configs1.size() > 0) {
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
         }
-        insertSelectiveMethod.addBodyLine("return result;");
+        insertSelectiveMethod.addBodyLine("return serviceResult;");
         insertSelectiveMethod.addBodyLine("}else{\n" +
                 "            return  ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                 "        }");

@@ -80,7 +80,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         for (RelationGeneratorConfiguration config : configs) {
             boolean isCollection = config.getType().equals(RelationTypeEnum.collection);
             if (isCollection) {
-                method.addBodyLine("if ({0}({1}.getId(), {1}.{2}(), ActionCateEnum.{3})"
+                method.addBodyLine("if ({0}({1}, {1}.{2}(), ActionCateEnum.{3})"
                         , config.getPropertyName() + SUFFIX_INSERT_UPDATE_BATCH
                         , entityVar
                         , JavaBeansUtil.getGetterMethodName(config.getPropertyName(), FullyQualifiedJavaType.getStringInstance())
@@ -88,7 +88,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
                 method.addBodyLine("        .stream()");
                 method.addBodyLine("        .anyMatch(r -> !r.isSuccess())) {");
             } else {
-                method.addBodyLine("if (!{0}({1}.getId(), {1}.{2}(), ActionCateEnum.{3})"
+                method.addBodyLine("if (!{0}({1}, {1}.{2}(), ActionCateEnum.{3})"
                         , config.getPropertyName() + SUFFIX_INSERT_UPDATE_BATCH
                         , entityVar
                         , JavaBeansUtil.getGetterMethodName(config.getPropertyName(), FullyQualifiedJavaType.getStringInstance())

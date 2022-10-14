@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.221014001-->
+        <!--version:1.4.8.221014004-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -348,23 +348,26 @@
              voModelType  VO类中使用
         3、whereColumn 条件字段列名
         4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByPrimaryKey或也可以返回单个实体的查询方法）
-        5、enableInsert 是否支持insert处理
-        6、enableUpdate 是否支持update处理
-        7、enableDelete 是否支持delete处理
-        8、beanName 结合类型对应的service的id
-        9、relationProperty（暂时未用） 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
-        10、relationPropertyIsBoolean（暂时未用） true时，生成getter时为isXXX，否则setXXX.缺省false
+        5、enableInsert 是否支持级联insert处理
+        6、enableUpdate 是否支持级联update处理
+        7、enableDelete 是否支持级联delete处理
+        8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
+        9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
+        10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+        11、relationPropertyIsBoolean  (未用)  true时，生成getter时为isXXX，否则setXXX.缺省false
     -->
         <!ELEMENT javaModelAssociation EMPTY>
         <!ATTLIST javaModelAssociation
                 fieldName CDATA #REQUIRED
                 modelType CDATA #REQUIRED
+                relationProperty CDATA #REQUIRED
                 voModelType CDATA #IMPLIED
                 whereColumn CDATA #IMPLIED
                 mapperMethod CDATA #IMPLIED
                 enableInsert (true|false) #IMPLIED
                 enableUpdate (true|false) #IMPLIED
                 enableDelete (true|false) #IMPLIED
+                enableInsertOrUpdate (true|false) #IMPLIED
                 beanClassFullName CDATA #IMPLIED>
 
         <!--
@@ -380,17 +383,19 @@
                 voModelType  VO类中使用
             3、whereColumn 条件字段列名
             4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
-            5、enableInsert 是否支持insert处理
-            6、enableUpdate 是否支持update处理
-            7、enableDelete 是否支持delete处理
-            8、beanName 结合类型对应的service的id
-            9、relationProperty（暂时未用） 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
-            10、relationPropertyIsBoolean（暂时未用） true时，生成getter时为isXXX，否则setXXX.缺省false
+            5、enableInsert 是否支持级联insert处理
+            6、enableUpdate 是否支持级联update处理
+            7、enableDelete 是否支持级联delete处理
+            8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
+            9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
+            10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            11、relationPropertyIsBoolean (未用) true时，生成getter时为isXXX，否则setXXX.缺省false
         -->
         <!ELEMENT javaModelCollection EMPTY>
         <!ATTLIST javaModelCollection
                 fieldName CDATA #REQUIRED
                 modelType CDATA #REQUIRED
+                relationProperty CDATA #REQUIRED
                 voModelType CDATA #IMPLIED
                 whereColumn CDATA #IMPLIED
                 mapperMethod CDATA #IMPLIED

@@ -32,15 +32,15 @@ public class InsertElement extends AbstractServiceElementGenerator {
         insertMethod.addAnnotation("@Override");
         insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        insertMethod.addBodyLine("ServiceResult<{0}> result = super.insert(record);", entityType.getShortName());
-        insertMethod.addBodyLine("if (result.getAffectedRows()>0) {");
+        insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
+        insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (configs.size() > 0) {
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
-        insertMethod.addBodyLine("return result;");
+        insertMethod.addBodyLine("return serviceResult;");
         insertMethod.addBodyLine("}else{\n" +
                 "            return  ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                 "        }");

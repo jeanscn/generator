@@ -268,7 +268,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 String methodName;
                 if (nameFragments.containsKey(column.getActualColumnName())) {
                     methodName = initializeAndMethodName(column) + nameFragments.get(column.getActualColumnName());
-                }else if (column.isJdbcCharacterColumn()) {
+                }else if (column.isJdbcCharacterColumn() && !column.isIdentity()) {
                     methodName = initializeAndMethodName(column) + "LikeAny";
                 } else {
                     methodName = initializeAndMethodName(column) + "EqualTo";

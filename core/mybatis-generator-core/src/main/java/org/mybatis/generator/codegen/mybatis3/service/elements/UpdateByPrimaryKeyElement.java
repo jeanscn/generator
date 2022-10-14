@@ -41,7 +41,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                     , entityType.getShortName()
                     , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
-            updateByPrimaryKeySelective.addBodyLine("if (result.isSuccess()) {");
+            updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {");
             List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
@@ -68,7 +68,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                     , entityType.getShortName()
                     , introspectedTable.getUpdateByPrimaryKeyStatementId());
-            updateByPrimaryKey.addBodyLine("if (result.isSuccess()) {");
+            updateByPrimaryKey.addBodyLine("if (result.hasResult()) {");
             List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
