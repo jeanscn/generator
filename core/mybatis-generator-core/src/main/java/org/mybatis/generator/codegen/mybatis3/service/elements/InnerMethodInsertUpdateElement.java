@@ -88,7 +88,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     innerInsertUpdateMethod.addBodyLine("case \"UPDATE\":");
                                     innerInsertUpdateMethod.addBodyLine("return items.stream().map(item->{");
                                     printSetRelationValue(innerInsertUpdateMethod, config);
-                                    innerInsertUpdateMethod.addBodyLine("     if(VStringUtil.isBlank(item.getId())){\n" +
+                                    innerInsertUpdateMethod.addBodyLine("          if(VStringUtil.isBlank(item.getId())){\n" +
                                             "                        return bean.insertSelective(item);\n" +
                                             "                    }else{\n" +
                                             "                        return bean.updateByPrimaryKeySelective(item);\n" +
@@ -100,18 +100,18 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     innerInsertUpdateMethod.addBodyLine("    return bean.insertOrUpdate(item);");
                                     innerInsertUpdateMethod.addBodyLine("    }).collect(Collectors.toList());");
                                     innerInsertUpdateMethod.addBodyLine("case \"DELETE\":");
-                                    innerInsertUpdateMethod.addBodyLine("    return items.stream()\n" +
-                                            "                        .map(i -> {\n" +
-                                            "                            int ret = bean.deleteByPrimaryKey(i.getId());\n" +
-                                            "                            ServiceResult<OrgDepartment> result = ret > 0 ? ServiceResult.success(i) : ServiceResult.failure(ServiceCodeEnum.FAIL);\n" +
-                                            "                            return result;\n" +
+                                    innerInsertUpdateMethod.addBodyLine("return items.stream().map(i -> {");
+                                    innerInsertUpdateMethod.addBodyLine("int ret = bean.deleteByPrimaryKey(i.getId());");
+                                    innerInsertUpdateMethod.addBodyLine("ServiceResult<{0}> result = ret > 0 ? ServiceResult.success(i) : ServiceResult.failure(ServiceCodeEnum.FAIL);"
+                                            , modelType.getShortName());
+                                    innerInsertUpdateMethod.addBodyLine("return result;\n" +
                                             "                        }).collect(Collectors.toList());\n" +
                                             "            default:\n" +
                                             "                return Collections.singletonList(ServiceResult.failure(ServiceCodeEnum.FAIL));");
                                     parentElement.addImportedType("java.util.stream.Collectors");
                                     parentElement.addImportedType("java.util.Collections");
                                 } else {
-                                    innerInsertUpdateMethod.addBodyLine("ServiceResult<UserEmployee> serviceResult;");
+                                    innerInsertUpdateMethod.addBodyLine("ServiceResult<{0}> serviceResult;",modelType.getShortName());
                                     innerInsertUpdateMethod.addBodyLine("switch (actionCate.code()) {");
                                     innerInsertUpdateMethod.addBodyLine("    case \"INSERT\":");
                                     innerInsertUpdateMethod.addBodyLine("serviceResult = bean.insertSelective(item);");

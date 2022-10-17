@@ -259,16 +259,18 @@ public class ServiceMethods {
                                             CompilationUnit parentElement,
                                             SelectByTableGeneratorConfiguration config,
                                             boolean isAbstract,boolean isService) {
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         Method method = getMethodByType(config.getMethodName(),
                 ReturnTypeEnum.LIST,
                 config.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,
                 "相关数据库数据"+ (config.isReturnPrimaryKey() ? "主键列表" : "对象列表"),
-                FullyQualifiedJavaType.getStringInstance(),
-                config.getParameterName(),
+                config.getParameterType().equals("list")?listInstance:FullyQualifiedJavaType.getStringInstance(),
+                config.getParameterName()+(config.getParameterType().equals("list")?"s":""),
                 "中间表中来自其他表的查询键值,字段名：" + config.getOtherPrimaryKeyColumn(),
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于中间表["+config.getTableName()+"]的查询");
+        context.getCommentGenerator().addMethodJavaDocLine(method,"基于中间表（表名："+config.getTableName()+"）的查询");
         return method;
     }
 
@@ -334,7 +336,7 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "添加或删除基于中间表的关联数据");
+        context.getCommentGenerator().addMethodJavaDocLine(method, "在关系中间表（表名："+configuration.getTableName()+"）中"+(isInsert?"添加":"删除")+"关联数据记录");
         return method;
     }
 

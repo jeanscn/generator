@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.221014004-->
+        <!--version:1.4.8.221017001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -22,7 +22,7 @@
           1、moduleKeyword 模块标识（controller request mapping url根、html页面根路径）
           2、integrateMybatisPlus 是否集成mybatis plus 默认 true
           3、integrateSpringSecurity 是否集成Spring Security 默认 true
-          4、forceUpdateScalableElement 是否强制覆盖可扩展自定义的元素（controller、dao、service、service接口、pojo\maps、pojo\vo）
+          4、forceUpdateScalableElement 是否强制覆盖可扩展自定义的元素（dao,service,controller,vo,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps）
           5、parentMenuId 如果生成view，则可以指定view菜单项目的父级id，优先级低于generateViewVO标签中的parentMenuId
           6、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
           可能的property配置：
@@ -288,8 +288,9 @@
           5、sortColumn 结果排序语句 如：SORT_ desc
           6、additionClause 附加where条件，将与otherColumn=otherKey并且，用于中间表有多条件的场景，比如部门人员表中的是否管理员（MANAGER_ = 1）等。
           7、returnType 返回（泛型参数）类型（primaryKey或model,默认model）
-          8、enableSplit 允许取消关联（中间表删除数据）
-          9、enableUnion 允许新建关联（中间表插入数据）
+          8、parameterType 参数类型。single-单值，list-多值列表
+          9、enableSplit 允许取消关联（中间表删除数据）
+          10、enableUnion 允许新建关联（中间表插入数据）
         -->
         <!ELEMENT selectByTable EMPTY>
         <!ATTLIST selectByTable
@@ -300,6 +301,7 @@
                 orderByClause CDATA #IMPLIED
                 additionClause CDATA #IMPLIED
                 returnType (model|primaryKey) #IMPLIED
+                parameterType (single|list) #IMPLIED
                 enableSplit (true|false) #IMPLIED
                 enableUnion (true|false) #IMPLIED>
         <!--
@@ -310,7 +312,7 @@
           1、column 列名
           2、orderByClause 排序语句
           3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
-          4、parameterType key-传入的参数（列值）为单值，list-传入的参数（列值）为多值
+          4、parameterType single-传入的参数（列值）为单值，list-传入的参数（列值）为多值
           5、enableDelete 是否同是生成一个基于改列的删除方法。
         -->
         <!ELEMENT selectByColumn EMPTY>
@@ -318,7 +320,7 @@
                 column CDATA #REQUIRED
                 orderByClause CDATA #IMPLIED
                 returnType (model|primaryKey) #IMPLIED
-                parameterType (key|list) #IMPLIED
+                parameterType (single|list) #IMPLIED
                 enableDelete (false|true) #IMPLIED>
 
         <!--
@@ -337,30 +339,32 @@
                 parentIdColumn CDATA #IMPLIED
                 primaryKeyColumn CDATA #IMPLIED>
 
-    <!--
-        添加一个实体类型的属性，并实现一对一的association查询
-        增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
-        *如果仅仅指定field、fieldModel，则仅在实体中添加一个 modelType field的属性。
-        元素名：javaModelAssociationProperties
-        属性信息：
-        1、field 生成的属性名
-        2、modelType 属性类型完整类名，PO类中使用
-             voModelType  VO类中使用
-        3、whereColumn 条件字段列名
-        4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByPrimaryKey或也可以返回单个实体的查询方法）
-        5、enableInsert 是否支持级联insert处理
-        6、enableUpdate 是否支持级联update处理
-        7、enableDelete 是否支持级联delete处理
-        8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
-        9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
-        10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
-        11、relationPropertyIsBoolean  (未用)  true时，生成getter时为isXXX，否则setXXX.缺省false
-    -->
+        <!--
+            添加一个实体类型的属性，并实现一对一的association查询
+            增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
+            *如果仅仅指定field、fieldModel，则仅在实体中添加一个 modelType field的属性。
+            元素名：javaModelAssociationProperties
+            属性信息：
+            1、field 生成的属性名
+            2、modelType 属性类型完整类名，PO类中使用
+                 voModelType  VO类中使用
+            3、whereColumn 条件字段列名
+            4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByPrimaryKey或也可以返回单个实体的查询方法）
+            5、enableInsert 是否支持级联insert处理
+            6、enableUpdate 是否支持级联update处理
+            7、enableDelete 是否支持级联delete处理
+            8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
+            9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
+            10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            说明：
+            1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
+            2、当启用enableInsert或enableUpdate或enableInsertOrUpdate或enableDelete时，beanClassFullName必须，否则无效。
+        -->
         <!ELEMENT javaModelAssociation EMPTY>
         <!ATTLIST javaModelAssociation
                 fieldName CDATA #REQUIRED
                 modelType CDATA #REQUIRED
-                relationProperty CDATA #REQUIRED
+                relationProperty CDATA #IMPLIED
                 voModelType CDATA #IMPLIED
                 whereColumn CDATA #IMPLIED
                 mapperMethod CDATA #IMPLIED
@@ -389,13 +393,15 @@
             8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
             9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
             10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
-            11、relationPropertyIsBoolean (未用) true时，生成getter时为isXXX，否则setXXX.缺省false
+            说明：
+            1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
+            2、当启用enableInsert或enableUpdate或enableInsertOrUpdate或enableDelete时，beanClassFullName必须，否则无效。
         -->
         <!ELEMENT javaModelCollection EMPTY>
         <!ATTLIST javaModelCollection
                 fieldName CDATA #REQUIRED
                 modelType CDATA #REQUIRED
-                relationProperty CDATA #REQUIRED
+                relationProperty CDATA #IMPLIED
                 voModelType CDATA #IMPLIED
                 whereColumn CDATA #IMPLIED
                 mapperMethod CDATA #IMPLIED
@@ -541,7 +547,7 @@
             1、generate 是否生成,true生成,false忽略。缺省值true；
             当设置为false时，所有vo类的generate会集成该属性值。
         -->
-        <!ELEMENT generateVO (property*,overridePropertyValue*,additionalProperty*,modelVO?,createVO?,updateVO?,viewVO?,excelVO?,requestVO?)>
+        <!ELEMENT generateVO (property*,mapstructMapping*,overridePropertyValue*,additionalProperty*,modelVO?,createVO?,updateVO?,viewVO?,excelVO?,requestVO?)>
         <!ATTLIST generateVO
                 generate (true|false) #REQUIRED>
 
@@ -742,4 +748,17 @@
         <!ELEMENT nameFragment EMPTY>
         <!ATTLIST nameFragment
                 column  CDATA #REQUIRED
-                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeRight|LikeLeft) #REQUIRED>
+                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeRight|LikeLeft|Between) #REQUIRED>
+
+        <!--
+             增加一个mapstruct转换方法
+             属性信息：
+             1、sourceType 必须，源类型，完整类名称。
+             2、targetType 必须，目的类型，完整类名称。
+             3、type 单个对象single还是列表list
+            -->
+        <!ELEMENT mapstructMapping EMPTY>
+        <!ATTLIST mapstructMapping
+                sourceType CDATA #REQUIRED
+                targetType CDATA #REQUIRED
+                type (single|list) #IMPLIED>

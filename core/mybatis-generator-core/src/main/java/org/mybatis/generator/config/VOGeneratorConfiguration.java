@@ -19,6 +19,8 @@ public class VOGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
 
     private VOCacheGeneratorConfiguration voCacheConfiguration;
 
+    private List<MapstructMappingConfiguration> mappingConfigurations = new ArrayList<>();
+
     public VOGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
         targetPackage = String.join(".", baseTargetPackage,"vo");
@@ -83,5 +85,13 @@ public class VOGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
 
     public void setVoCacheConfiguration(VOCacheGeneratorConfiguration voCacheConfiguration) {
         this.voCacheConfiguration = voCacheConfiguration;
+    }
+
+    public List<MapstructMappingConfiguration> getMappingConfigurations() {
+        return mappingConfigurations;
+    }
+
+    public void addMappingConfigurations(MapstructMappingConfiguration mappingConfiguration) {
+        this.mappingConfigurations.add(mappingConfiguration);
     }
 }

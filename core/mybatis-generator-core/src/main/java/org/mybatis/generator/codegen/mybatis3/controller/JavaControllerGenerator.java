@@ -64,7 +64,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         if (introspectedTable.getRules().isGenerateVoModel()) {
             supClazzType.addTypeArgument(entityVoType);
             conTopClazz.addImportedType(entityVoType);
-        }else{
+        } else {
             supClazzType.addTypeArgument(entityType);
         }
         conTopClazz.setSuperClass(supClazzType);
@@ -168,10 +168,10 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             Parameter parameter3 = new Parameter(listInstance, "returnResult");
             parameter3.setRemark("    接口最终返回的数据列表");
             getListData.addParameter(parameter3);
-            commentGenerator.addMethodJavaDocLine(getListData,"为了转换返回结果为VO对象而重写父类的方法");
-            getListData.addBodyLine("List<{0}> list = {1}.selectBySql(selectSqlBuilder);",entityType.getShortName(),introspectedTable.getControllerBeanName());
-            getListData.addBodyLine("returnResult.addAll(mappings.to{0}s(list));",entityVoType.getShortName());
-            getListData.addBodyLine("return (Page<{0}>) list;",entityType.getShortName());
+            commentGenerator.addMethodJavaDocLine(getListData, "为了转换返回结果为VO对象而重写父类的方法");
+            getListData.addBodyLine("List<{0}> list = {1}.selectBySql(selectSqlBuilder);", entityType.getShortName(), introspectedTable.getControllerBeanName());
+            getListData.addBodyLine("returnResult.addAll(mappings.to{0}s(list));", entityVoType.getShortName());
+            getListData.addBodyLine("return (Page<{0}>) list;", entityType.getShortName());
             conTopClazz.addMethod(getListData);
             conTopClazz.addImportedType("java.util.List");
             conTopClazz.addImportedType("com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder");
@@ -214,12 +214,12 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         }
 
         //追加一个example构造方法
-        Map<String,String> nameFragments = new HashMap<>();
+        Map<String, String> nameFragments = new HashMap<>();
         if (introspectedTable.getTableConfiguration().getVoGeneratorConfiguration() != null
-        && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration()!=null
-        && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().getVoNameFragmentGeneratorConfigurations()!=null) {
+                && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration() != null
+                && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().getVoNameFragmentGeneratorConfigurations() != null) {
             nameFragments = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().getVoNameFragmentGeneratorConfigurations()
-                    .stream().collect(Collectors.toMap(VoNameFragmentGeneratorConfiguration::getColumn, VoNameFragmentGeneratorConfiguration::getFragment,(k1, k2)->k2));
+                    .stream().collect(Collectors.toMap(VoNameFragmentGeneratorConfiguration::getColumn, VoNameFragmentGeneratorConfiguration::getFragment, (k1, k2) -> k2));
         }
 
         Parameter parameter;
@@ -255,46 +255,84 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             columns = introspectedTable.getNonBLOBColumns();
         }
         if (columns.size() > 0) {
+
+            String testMethodName;
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
             for (IntrospectedColumn column : columns) {
+                boolean isBetween = false;
                 String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), column.getFullyQualifiedJavaType());
+                if (nameFragments.containsKey(column.getActualColumnName()) && "Between".equals(nameFragments.get(column.getActualColumnName()))) {
+                    isBetween = true;
+                }
                 if (column.isJdbcCharacterColumn()) {
-                    buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.{1}())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    if (isBetween) {
+                        buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.{1}())  && !VStringUtil.isBlank({0}.{1}Other())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    } else {
+                        buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.{1}())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    }
                     conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
-                }else{
-                    buildExample.addBodyLine("if ({0}.{1}()!=null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                } else {
+                    if (isBetween) {
+                        buildExample.addBodyLine("if ({0}.{1}() != null  && {0}.{1}Other() != null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    } else {
+                        buildExample.addBodyLine("if ({0}.{1}() != null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    }
                 }
                 String methodName;
+                boolean isId = false;
+                if (column.getJavaProperty().length() > 1) {
+                    String substring = StringUtils.substring(column.getJavaProperty(), column.getJavaProperty().length() - 2);
+                    if ("id".equalsIgnoreCase(substring)) {
+                        isId = true;
+                    }
+                }
                 if (nameFragments.containsKey(column.getActualColumnName())) {
                     methodName = initializeAndMethodName(column) + nameFragments.get(column.getActualColumnName());
-                }else if (column.isJdbcCharacterColumn() && !column.isIdentity()) {
+                } else if (column.isJdbcCharacterColumn() && !column.isIdentity() && !isId) {
                     methodName = initializeAndMethodName(column) + "LikeAny";
                 } else {
                     methodName = initializeAndMethodName(column) + "EqualTo";
                 }
-
-                buildExample.addBodyLine("criteria.{0}({1}.{2}());"
-                        , methodName
-                        , type.getShortNameFirstLowCase()
-                        , getterMethodName);
+                if (isBetween) {
+                    buildExample.addBodyLine("criteria.{0}({1}.{2}(),{1}.{2}Other());"
+                            , methodName
+                            , type.getShortNameFirstLowCase()
+                            , getterMethodName);
+                } else {
+                    buildExample.addBodyLine("criteria.{0}({1}.{2}());"
+                            , methodName
+                            , type.getShortNameFirstLowCase()
+                            , getterMethodName);
+                }
+                if (isBetween) {
+                    if (column.isJdbcCharacterColumn()) {
+                        buildExample.addBodyLine("'}'else if (!VStringUtil.isBlank({0}.{1}())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    } else {
+                        buildExample.addBodyLine("'}'else if ({0}.{1}() != null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                    }
+                    buildExample.addBodyLine("criteria.{0}({1}.{2}());"
+                            , initializeAndMethodName(column) + "EqualTo"
+                            , type.getShortNameFirstLowCase()
+                            , getterMethodName);
+                }
                 buildExample.addBodyLine("}");
             }
 
             //排序语句
             List<IntrospectedColumn> sort = columns.stream().filter(c -> c.getActualColumnName().equalsIgnoreCase("SORT_")).collect(Collectors.toList());
-            if (sort.size()>0) {
+            if (sort.size() > 0) {
                 if (isContainOrderByClause) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("}else{");
-                    buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ",sort.get(0).getActualColumnName());
+                    buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
                     buildExample.addBodyLine("}");
                     conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
-                }else{
-                    buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ",sort.get(0).getActualColumnName());
+                } else {
+                    buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
                 }
-            }else{
+            } else {
                 if (isContainOrderByClause) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
@@ -332,7 +370,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conSubTopClazz.addAnnotation("@RestController");
         RequestMapping requestMapping = new RequestMapping(
-                String.join("/",introspectedTable.getControllerSimplePackage(),introspectedTable.getControllerBeanName()));
+                String.join("/", introspectedTable.getControllerSimplePackage(), introspectedTable.getControllerBeanName()));
         conSubTopClazz.addAnnotation(requestMapping.toAnnotation());
         //构造器
         Method conMethod = new Method(subControllerName);

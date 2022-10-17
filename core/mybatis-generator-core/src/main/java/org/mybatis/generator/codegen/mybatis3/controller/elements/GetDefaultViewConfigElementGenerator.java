@@ -45,5 +45,6 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         method.addBodyLine("return result.map(viewDtTable -> success(DataTablesMappings.INSTANCE.fromViewDtTable(viewDtTable)))\n" +
                 "                .orElseGet(() -> failure(ApiCodeEnum.FAIL_NOT_FOUND,\"默认列表配置\"));");
         parentElement.addMethod(method);
+        parentElement.addImportedType("java.util.Optional");
     }
 }

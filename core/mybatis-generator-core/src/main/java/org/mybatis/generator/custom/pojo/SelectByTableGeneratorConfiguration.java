@@ -3,7 +3,6 @@ package org.mybatis.generator.custom.pojo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
@@ -14,12 +13,6 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
     private String otherPrimaryKeyColumn;
 
     private String methodSuffix;
-
-    private String methodName;
-
-    private String splitMethodName;
-
-    private String unionMethodName;
 
     private String parameterName;
 
@@ -36,6 +29,8 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
     private IntrospectedColumn thisColumn;
 
     private IntrospectedColumn otherColumn;
+
+    private String parameterType = "single";
 
     public SelectByTableGeneratorConfiguration() {
         super();
@@ -155,5 +150,13 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     public void setOtherColumn(IntrospectedColumn otherColumn) {
         this.otherColumn = otherColumn;
+    }
+
+    public String getParameterType() {
+        return parameterType;
+    }
+
+    public void setParameterType(String parameterType) {
+        this.parameterType = parameterType;
     }
 }

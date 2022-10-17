@@ -230,47 +230,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true, false);
-
-               /* Method method;
-                boolean isListParam = config.getParameterType().equals("list");
-                FullyQualifiedJavaType paramType = isListParam ? FullyQualifiedJavaType.getNewListInstance() : config.getColumn().getFullyQualifiedJavaType();
-                if (isListParam) {
-                    paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
-                }
-                if (config.isReturnPrimaryKey()) {
-                    method =  serviceMethods.getMethodByType(config.getMethodName(),
-                            ReturnTypeEnum.LIST,
-                            FullyQualifiedJavaType.getStringInstance(),
-                            introspectedTable.getRemarks(true)+"唯一标识列表",
-                            paramType,
-                            config.getColumn().getJavaProperty() + (isListParam ? "s" : ""),
-                            config.getColumn().getRemarks(false),
-                            true,
-                            interfaze);
-                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的查询方法。该方法常用于为其它方法提供子查询。");
-                } else if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName())) {
-                    method = serviceMethods.getMethodByType(config.getMethodName(),
-                            ReturnTypeEnum.MODEL,
-                            entityType,
-                            introspectedTable.getRemarks(true)+"对象",
-                            paramType,
-                            config.getColumn().getJavaProperty() + (isListParam ? "s" : ""),
-                            config.getColumn().getRemarks(false),
-                            true,
-                            interfaze);
-                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于主键的的查询方法。当返回对象包含子查询（带查询的子集合）时，生成此方法，用于简单返回","默认情况下{@link #selectByPrimaryKey}执行所有子查询，如果不希望执行子查询，请使用此方法。");
-                } else {
-                    method = serviceMethods.getMethodByType(config.getMethodName(),
-                            ReturnTypeEnum.LIST,
-                            entityType,
-                            introspectedTable.getRemarks(true)+"对象列表",
-                            paramType,
-                            config.getColumn().getJavaProperty() + (isListParam ? "s" : ""),
-                            config.getColumn().getRemarks(false),
-                            true,
-                            interfaze);
-                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的查询方法。该方法常用于为其它方法提供子查询。");
-                }*/
                  interfaze.addMethod(method);
             }
         }
@@ -298,7 +257,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration() != null
                 && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() > 0) {
             for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
-                Method selectByTable = serviceMethods.getMethodByType(configuration.getMethodName(),
+                Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, interfaze, configuration, true, false);
+                /*Method selectByTable = serviceMethods.getMethodByType(configuration.getMethodName(),
                         ReturnTypeEnum.LIST,
                         configuration.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,
                         introspectedTable.getRemarks(true)+(configuration.isReturnPrimaryKey() ?"唯一标识列表":"对象列表"),
@@ -306,8 +266,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                         configuration.getParameterName(),
                         "中间表中来自其他表的查询键值",
                         true,
-                        interfaze);
-                context.getCommentGenerator().addMethodJavaDocLine(selectByTable,"基于中间表["+configuration.getTableName()+"]的查询");
+                        interfaze);*/
+                /*context.getCommentGenerator().addMethodJavaDocLine(selectByTable,"基于中间表["+configuration.getTableName()+"]的查询");*/
                 interfaze.addMethod(selectByTable);
             }
         }

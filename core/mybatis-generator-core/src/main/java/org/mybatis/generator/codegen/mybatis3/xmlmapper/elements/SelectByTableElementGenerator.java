@@ -22,10 +22,10 @@ public class SelectByTableElementGenerator extends
         if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() == 0) {
             return;
         }
-        for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
+        for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
             XmlElement answer = new XmlElement("select");
-            answer.addAttribute(new Attribute("id", selectByTableGeneratorConfiguration.getMethodName()));
-            if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
+            answer.addAttribute(new Attribute("id", configuration.getMethodName()));
+            if (configuration.isReturnPrimaryKey()) {
                 answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             }else{
                 if(introspectedTable.getRules().generateResultMapWithBLOBs()){
@@ -39,7 +39,7 @@ public class SelectByTableElementGenerator extends
             answer.addAttribute(new Attribute("parameterType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("select "));
-            if (selectByTableGeneratorConfiguration.isReturnPrimaryKey()) {
+            if (configuration.isReturnPrimaryKey()) {
                 String collect = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
                 answer.addElement(new TextElement(collect));
             }else{
@@ -52,24 +52,38 @@ public class SelectByTableElementGenerator extends
             answer.addElement(new TextElement(sb.toString()));
             sb.setLength(0);
             sb.append("left join ");
-            sb.append(selectByTableGeneratorConfiguration.getTableName()).append(" RT on RT.");
-            sb.append(selectByTableGeneratorConfiguration.getPrimaryKeyColumn());
+            sb.append(configuration.getTableName()).append(" RT on RT.");
+            sb.append(configuration.getPrimaryKeyColumn());
             sb.append(" = ");
             IntrospectedColumn introspectedColumn = introspectedTable.getPrimaryKeyColumns().get(0);
             sb.append(introspectedColumn.getTableAlias()).append(".");
             sb.append(introspectedColumn.getActualColumnName());
-            if (StringUtility.propertyValueValid(selectByTableGeneratorConfiguration.getAdditionCondition())) {
-                sb.append(" and ").append(selectByTableGeneratorConfiguration.getAdditionCondition());
+            if (StringUtility.propertyValueValid(configuration.getAdditionCondition())) {
+                sb.append(" and ").append(configuration.getAdditionCondition());
             }
             answer.addElement(new TextElement(sb.toString()));
             sb.setLength(0);
-            sb.append("where ").append("RT.").append(selectByTableGeneratorConfiguration.getOtherPrimaryKeyColumn());
-            sb.append(" = #{");
-            sb.append(selectByTableGeneratorConfiguration.getParameterName());
-            sb.append(",jdbcType=VARCHAR} ");
-            answer.addElement(new TextElement(sb.toString()));
-            if (StringUtility.propertyValueValid(selectByTableGeneratorConfiguration.getOrderByClause())) {
-                answer.addElement(new TextElement("order by "+ selectByTableGeneratorConfiguration.getOrderByClause()));
+            sb.append("where ").append("RT.").append(configuration.getOtherPrimaryKeyColumn());
+            if (configuration.getParameterType().equals("list")) {
+                sb.append(" in ");
+                answer.addElement(new TextElement(sb.toString()));
+                XmlElement foreachListField = new XmlElement("foreach");
+                foreachListField.addAttribute(new Attribute("collection", "list"));
+                foreachListField.addAttribute(new Attribute("item", "item"));
+                foreachListField.addAttribute(new Attribute("index", "index"));
+                foreachListField.addAttribute(new Attribute("separator", ","));
+                foreachListField.addAttribute(new Attribute("open", "("));
+                foreachListField.addAttribute(new Attribute("close", ")"));
+                answer.addElement(foreachListField);
+                foreachListField.addElement(new TextElement("#{item}"));
+            }else{
+                sb.append(" = #{");
+                sb.append(configuration.getParameterName());
+                sb.append(",jdbcType=VARCHAR} ");
+                answer.addElement(new TextElement(sb.toString()));
+            }
+            if (StringUtility.propertyValueValid(configuration.getOrderByClause())) {
+                answer.addElement(new TextElement("order by "+ configuration.getOrderByClause()));
             }
             parentElement.addElement(answer);
         }

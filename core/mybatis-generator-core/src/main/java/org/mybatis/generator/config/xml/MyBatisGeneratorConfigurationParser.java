@@ -651,6 +651,12 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(enableUnion)) {
             selectByTableGeneratorConfiguration.setEnableUnion(Boolean.parseBoolean(enableUnion));
         }
+
+        String parameterType = attributes.getProperty("parameterType");
+        if (stringHasValue(parameterType)) {
+            selectByTableGeneratorConfiguration.setParameterType(parameterType);
+        }
+
         tc.addSelectByTableGeneratorConfiguration(selectByTableGeneratorConfiguration);
     }
 
@@ -1052,6 +1058,8 @@ public class MyBatisGeneratorConfigurationParser {
             }
             if ("property".equals(childNode.getNodeName())) {
                 parseProperty(configuration, childNode);
+            } else if (("mapstructMapping").equals(childNode.getNodeName())) {
+                parseMapstructMapping(childNode, configuration);
             } else if (("overridePropertyValue").equals(childNode.getNodeName())) {
                 parseVoOverrideColumn(context, tc, childNode, configuration);
             } else if (("additionalProperty").equals(childNode.getNodeName())) {
@@ -1071,6 +1079,18 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
         tc.setVoGeneratorConfiguration(configuration);
+    }
+
+    private void parseMapstructMapping(Node node, VOGeneratorConfiguration configuration) {
+        Properties attributes = parseAttributes(node);
+        String source = attributes.getProperty("sourceType");
+        String target = attributes.getProperty("targetType");
+        MapstructMappingConfiguration mapstructMappingConfiguration = new MapstructMappingConfiguration(source, target);
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            mapstructMappingConfiguration.setType(type);
+        }
+        configuration.addMappingConfigurations(mapstructMappingConfiguration);
     }
 
     private void parseVoOverrideColumn(Context context, TableConfiguration tc, Node node, AbstractVOGeneratorConfiguration configuration) {

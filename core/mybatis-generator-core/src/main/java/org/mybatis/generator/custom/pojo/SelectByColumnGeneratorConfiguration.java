@@ -12,7 +12,7 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     private String methodName;
     private String deleteMethodName;
     private IntrospectedColumn column;
-    private String parameterType = "key";
+    private String parameterType = "single";
     private boolean enableDelete;
     /**
      * 返回类型，默认0-返回list，1-返回model

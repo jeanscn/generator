@@ -504,6 +504,18 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 cascade.setVisibility(JavaVisibility.PRIVATE);
                 requestVoClass.addField(cascade);
             }
+            //增加between的other属性
+            voRequestGeneratorConfiguration.getVoNameFragmentGeneratorConfigurations().stream()
+                    .filter(c->"Between".equals(c.getFragment()))
+                    .forEach(c-> introspectedTable.getColumn(c.getColumn()).ifPresent(column->{
+                        Field field = JavaBeansUtil.getJavaBeansField(column, context,introspectedTable);
+                        field.setVisibility(JavaVisibility.PRIVATE);
+                        addFieldToTopLevelClass(field,requestVoClass,abstractVo);
+                        Field other = JavaBeansUtil.getJavaBeansField(column, context,introspectedTable);
+                        other.setName(other.getName()+"Other");
+                        other.setVisibility(JavaVisibility.PRIVATE);
+                        addFieldToTopLevelClass(other,requestVoClass,abstractVo);
+                    }));
 
             //附加属性
             List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations();
@@ -593,6 +605,15 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             Field instance = new Field("INSTANCE", new FullyQualifiedJavaType(mappingsType));
             instance.setInitializationString(VStringUtil.format("Mappers.getMapper({0}.class)", mappingsInterface.getType().getShortName()));
             mappingsInterface.addField(instance);
+            //先添加指定的转换方法
+            voGeneratorConfiguration.getMappingConfigurations().forEach(c->{
+                FullyQualifiedJavaType source = new FullyQualifiedJavaType(c.getSourceType());
+                FullyQualifiedJavaType target = new FullyQualifiedJavaType(c.getTargetType());
+                mappingsInterface.addImportedType(source);
+                mappingsInterface.addImportedType(target);
+                mappingsInterface.addMethod(addMappingMethod(source, target, c.getType().equals("list")));
+            });
+
             if (stringHasValue(voType)) {
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType(voType));
                 mappingsInterface.addMethod(addMappingMethod(voClass.getType(), entityType, false));
@@ -889,5 +910,15 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         });
             }
         }
+    }
+    private boolean addFieldToTopLevelClass(final Field field,TopLevelClass topLevelClass,TopLevelClass abstractVo){
+        if (Stream.of(topLevelClass.getFields().stream(),abstractVo.getFields().stream())
+                .flatMap(Function.identity())
+                .noneMatch(f->field.getName().equals(f.getName()))) {
+            topLevelClass.addField(field);
+            topLevelClass.addImportedType(field.getType());
+            return true;
+        }
+        return false;
     }
 }
