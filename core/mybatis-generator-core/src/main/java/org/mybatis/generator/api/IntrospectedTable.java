@@ -470,17 +470,11 @@ public abstract class IntrospectedTable {
 
         //生成selectByColumn查询方法
         if (tableConfiguration.getSelectByColumnGeneratorConfigurations().size() > 0) {
-            for (SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration : tableConfiguration.getSelectByColumnGeneratorConfigurations()) {
-                getColumn(selectByColumnGeneratorConfiguration.getColumnName()).ifPresent(c -> {
-                    selectByColumnGeneratorConfiguration.setColumn(c);
-                    selectByColumnGeneratorConfiguration.setMethodName(JavaBeansUtil.byColumnMethodName(c) + (selectByColumnGeneratorConfiguration.isParameterList() ? "s" : ""));
-                    selectByColumnGeneratorConfiguration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(c) + (selectByColumnGeneratorConfiguration.isParameterList() ? "s" : ""));
-                });
+            for (SelectByColumnGeneratorConfiguration configuration : tableConfiguration.getSelectByColumnGeneratorConfigurations()) {
+                configuration.getColumnNames().forEach(n-> getColumn(n).ifPresent(configuration::addColumn));
+                configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
+                configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
             }
-            List<SelectByColumnGeneratorConfiguration> collect1 = tableConfiguration.getSelectByColumnGeneratorConfigurations().stream()
-                    .filter(c -> c.getColumn() == null)
-                    .collect(Collectors.toList());
-            tableConfiguration.getSelectByColumnGeneratorConfigurations().removeAll(collect1);
         }
 
         //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
@@ -496,7 +490,7 @@ public abstract class IntrospectedTable {
                 }
                 if (count == 0) {
                     SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration(actualColumnName);
-                    selectByColumnGeneratorConfiguration.setColumn(this.getPrimaryKeyColumns().get(0));
+                    selectByColumnGeneratorConfiguration.addColumn(this.getPrimaryKeyColumns().get(0));
                     selectByColumnGeneratorConfiguration.setMethodName(selectBaseByPrimaryKeyStatementId);
                     selectByColumnGeneratorConfiguration.setReturnType(1);
                     tableConfiguration.getSelectByColumnGeneratorConfigurations().add(selectByColumnGeneratorConfiguration);

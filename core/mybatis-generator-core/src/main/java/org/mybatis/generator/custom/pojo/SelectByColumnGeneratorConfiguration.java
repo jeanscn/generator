@@ -3,17 +3,24 @@ package org.mybatis.generator.custom.pojo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
-    private String columnName;
+    private List<String> columnNames = new ArrayList<>();
+    private List<IntrospectedColumn> columns = new ArrayList<>();
     private String orderByClause;
     //方法返回列表的泛型参数，主键primaryKey或者model默认model
     private String returnTypeParam = "model";
     private String methodName;
     private String deleteMethodName;
-    private IntrospectedColumn column;
     private String parameterType = "single";
     private boolean enableDelete;
+
+    private Boolean parameterList;
     /**
      * 返回类型，默认0-返回list，1-返回model
      * 主要为了标识selectBaseByPrimaryKey方法，返回model
@@ -25,7 +32,7 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     }
 
     public SelectByColumnGeneratorConfiguration(String columnName) {
-        this.columnName = columnName;
+        this.columnNames.add(columnName);
     }
 
     public String getOrderByClause() {
@@ -44,20 +51,22 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
         this.methodName = methodName;
     }
 
-    public String getColumnName() {
-        return columnName;
+    public List<String> getColumnNames() {
+        return columnNames;
     }
 
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
+    public void setColumnNames(List<String> columnNames) {
+        this.columnNames = columnNames;
     }
 
-    public IntrospectedColumn getColumn() {
-        return column;
+    public List<IntrospectedColumn> getColumns() {
+        return columns;
     }
 
-    public void setColumn(IntrospectedColumn column) {
-        this.column = column;
+    public void addColumn(IntrospectedColumn column) {
+        if (!columns.contains(column)) {
+            this.columns.add(column);
+        }
     }
 
     public int getReturnType() {
@@ -89,9 +98,19 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
         this.parameterType = parameterType;
     }
 
-    public boolean isParameterList(){
-        return "list".equals(this.parameterType);
+    public void setColumns(List<IntrospectedColumn> columns) {
+        this.columns = columns;
+    }
 
+    public Boolean getParameterList() {
+        if (parameterList==null) {
+            return "list".equals(this.parameterType);
+        }
+        return parameterList;
+    }
+
+    public void setParameterList(Boolean parameterList) {
+        this.parameterList = parameterList;
     }
 
     public boolean isEnableDelete() {

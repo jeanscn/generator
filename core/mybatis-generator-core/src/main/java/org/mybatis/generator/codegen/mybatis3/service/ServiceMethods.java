@@ -211,47 +211,63 @@ public class ServiceMethods {
 
     public Method getSelectByColumnMethod(FullyQualifiedJavaType entityType,
                                              CompilationUnit parentElement,
-                                             SelectByColumnGeneratorConfiguration config,
+                                             final SelectByColumnGeneratorConfiguration config,
                                              boolean isAbstract,boolean isService) {
-        IntrospectedColumn column = config.getColumn();
+        //IntrospectedColumn column = config.getColumn();
         boolean isSelectBase = JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName());
-        boolean isListParam = config.getParameterType().equals("list");
-        FullyQualifiedJavaType paramType = isListParam?FullyQualifiedJavaType.getNewListInstance():config.getColumn().getFullyQualifiedJavaType();
-        if (isListParam) {
-            paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
-        }
+        List<Parameter> parameters = config.getColumns().stream().map(column -> {
+            if (config.getParameterList()) {
+                FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+                listInstance.addTypeArgument(column.getFullyQualifiedJavaType());
+                Parameter parameter = new Parameter(listInstance, column.getJavaProperty() + "s");
+                parameter.setRemark(column.getRemarks(true));
+                return parameter;
+            }else{
+                Parameter parameter = new Parameter(column.getFullyQualifiedJavaType(), column.getJavaProperty());
+                parameter.setRemark(column.getRemarks(true));
+                return parameter;
+            }
+        }).collect(Collectors.toList());
+
         Method method = getMethodByType(config.getMethodName(),
                 isSelectBase ? ReturnTypeEnum.MODEL : ReturnTypeEnum.LIST,
                 config.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,
                 introspectedTable.getRemarks(true)+(config.isReturnPrimaryKey() ?"唯一标识列表":"对象列表"),
-                paramType,
-                config.getColumn().getJavaProperty()+(isListParam?"s":""),
-                column.getRemarks(false),
+                parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的查询方法。该方法常用于为其它方法提供子查询。");
+        String collect = config.getColumns().stream().map(column -> column.getActualColumnName() + "(" + column.getRemarks(true) + ")").collect(Collectors.joining(","));
+        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+collect+"]的查询方法。"+(config.getColumns().size()==1?"该方法常用于为其它方法提供子查询。":""));
         return method;
     }
 
     public Method getDeleteByColumnMethod(CompilationUnit parentElement,
                                           SelectByColumnGeneratorConfiguration config,
                                           boolean isAbstract) {
-        IntrospectedColumn column = config.getColumn();
-        boolean isListParam = config.getParameterType().equals("list");
-        FullyQualifiedJavaType paramType = isListParam?FullyQualifiedJavaType.getNewListInstance():config.getColumn().getFullyQualifiedJavaType();
-        if (isListParam) {
-            paramType.addTypeArgument(config.getColumn().getFullyQualifiedJavaType());
-        }
+
+        List<Parameter> parameters = config.getColumns().stream().map(column -> {
+            if (config.getParameterList()) {
+                FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+                listInstance.addTypeArgument(column.getFullyQualifiedJavaType());
+                Parameter parameter = new Parameter(listInstance, column.getJavaProperty() + "s");
+                parameter.setRemark(column.getRemarks(true));
+                return parameter;
+            }else{
+                Parameter parameter = new Parameter(column.getFullyQualifiedJavaType(), column.getJavaProperty());
+                parameter.setRemark(column.getRemarks(true));
+                return parameter;
+            }
+        }).collect(Collectors.toList());
+
         Method method = getMethodByType(config.getDeleteMethodName(),
                 ReturnTypeEnum.MODEL,
                 FullyQualifiedJavaType.getIntInstance(),
                 "成功删除的行数",
-                paramType,
-                config.getColumn().getJavaProperty()+(isListParam?"s":""),
-                column.getRemarks(false),
+                parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+config.getColumn().getRemarks(true)+"["+config.getColumn().getActualColumnName()+"]的删除方法。");
+        String collect = config.getColumns().stream().map(column -> column.getActualColumnName() + "(" + column.getRemarks(true) + ")").collect(Collectors.joining(","));
+        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+collect+"的删除方法。");
         return method;
     }
 

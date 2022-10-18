@@ -77,7 +77,7 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
         testClazz.addImportedType("com.vgosoft.core.entity.ComSelSqlParameter");
 
         //增加selectByColumnXXX测试方法
-        for (SelectByColumnGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
+        /*for (SelectByColumnGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
             Method method = createMethod(configuration.getMethodName(),testClazz,"根据字段:"+configuration.getColumnName()+"查询数据");
             addMethodComment(method,true,"被调用的mapper有返回值");
             if (configuration.getReturnType()==1) {
@@ -112,7 +112,7 @@ public class JavaServiceUnitTestGenerator extends AbstractUnitTestGenerator{
             }
             testClazz.addStaticImport(TEST_ASSERTIONS_ASSERT_THAT);
             addMockMapper(testClazz,mapperType);
-        }
+        }*/
 
         //增加SelectByTableXXXXX测试方法
         for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {

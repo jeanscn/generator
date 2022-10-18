@@ -448,14 +448,24 @@ public class JavaBeansUtil {
         return false;
     }
 
-    public static String byColumnMethodName(IntrospectedColumn column) {
-        String javaProperty = column.getJavaProperty();
-        return "selectByColumn" + getFirstCharacterUppercase(javaProperty);
+    public static String byColumnMethodName(List<IntrospectedColumn> columns) {
+        String names = columns.stream()
+                .map(IntrospectedColumn::getJavaProperty)
+                .map(p -> {
+                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p);
+                    return p;
+                }).collect(Collectors.joining("And"));
+        return "selectByColumn" + getFirstCharacterUppercase(names);
     }
 
-    public static String deleteByColumnMethodName(IntrospectedColumn column) {
-        String javaProperty = column.getJavaProperty();
-        return "deleteByColumn" + getFirstCharacterUppercase(javaProperty);
+    public static String deleteByColumnMethodName(List<IntrospectedColumn> columns) {
+        String names = columns.stream()
+                .map(IntrospectedColumn::getJavaProperty)
+                .map(p -> {
+                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p);
+                    return p;
+                }).collect(Collectors.joining("And"));
+        return "deleteByColumn" + getFirstCharacterUppercase(names);
     }
 
     public static void addAnnotation(AbstractJavaType javaType, String annotation) {

@@ -8,6 +8,8 @@ import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGene
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+import java.util.stream.Collectors;
+
 /**
  * selectByExampleWithRelation实现方法
  *
@@ -27,19 +29,14 @@ public class DeleteByColumnElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        IntrospectedColumn column = configuration.getColumn();
+        String params = configuration.getColumns().stream()
+                .map(column -> column.getJavaProperty() + (configuration.getParameterList() ? "s" : ""))
+                .collect(Collectors.joining(","));
         Method methodByColumn = serviceMethods.getDeleteByColumnMethod(parentElement, configuration, false);
         methodByColumn.addAnnotation("@Override");
         String sb = "return mapper." + configuration.getDeleteMethodName() +
-                "(" +
-                column.getJavaProperty() +
-                (configuration.isParameterList()?"s":"") +
-                ");";
+                "(" + params +  ");";
         methodByColumn.addBodyLine(sb);
-        if (configuration.isParameterList()) {
-            parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-        }
         parentElement.addMethod(methodByColumn);
-        parentElement.addImportedType(column.getFullyQualifiedJavaType());
     }
 }

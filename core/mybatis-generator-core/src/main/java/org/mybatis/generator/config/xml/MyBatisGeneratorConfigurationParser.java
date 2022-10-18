@@ -448,7 +448,7 @@ public class MyBatisGeneratorConfigurationParser {
                     .filter(c -> "children".equalsIgnoreCase(c.getPropertyName()))
                     .count();
             long selectByColumnParentIdCount = tc.getSelectByColumnGeneratorConfigurations().stream()
-                    .filter(c -> "PARENT_ID".equalsIgnoreCase(c.getColumnName()))
+                    .filter(c->c.getColumns().stream().anyMatch(column->"PARENT_ID".equals(column.getActualColumnName())))
                     .count();
             if (selectByColumnParentIdCount == 0) {
                 tc.addSelectByColumnGeneratorConfiguration(new SelectByColumnGeneratorConfiguration("PARENT_ID"));
@@ -665,7 +665,8 @@ public class MyBatisGeneratorConfigurationParser {
         String column = attributes.getProperty("column"); //$NON-NLS-1$
         String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
         String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
-        SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration(column);
+        SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();
+        selectByColumnGeneratorConfiguration.setColumnNames(Arrays.asList(column.split(",")));
         selectByColumnGeneratorConfiguration.setOrderByClause(orderByClause);
         if (stringHasValue(returnType)) {
             selectByColumnGeneratorConfiguration.setReturnTypeParam(returnType);

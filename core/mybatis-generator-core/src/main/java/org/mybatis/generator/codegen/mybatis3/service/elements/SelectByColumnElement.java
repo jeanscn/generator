@@ -1,12 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+
+import java.util.stream.Collectors;
 
 /**
  * selectByExampleWithRelation实现方法
@@ -29,24 +30,22 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
          * 此方法可以使byExample方法支持级联查询
          * */
         for (SelectByColumnGeneratorConfiguration configuration : tc.getSelectByColumnGeneratorConfigurations()) {
-            IntrospectedColumn foreignKeyColumn = configuration.getColumn();
+            String params = configuration.getColumns().stream()
+                    .map(column -> column.getJavaProperty() + (configuration.getParameterList() ? "s" : ""))
+                    .collect(Collectors.joining(","));
             Method methodByColumn = serviceMethods.getSelectByColumnMethod(entityType, parentElement, configuration, false,true);
             methodByColumn.addAnnotation("@Override");
             if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(configuration.getMethodName())) {
                 methodByColumn.addBodyLine("return mapper.{0}({1});"
                         , introspectedTable.getSelectBaseByPrimaryKeyStatementId()
-                        , foreignKeyColumn.getJavaProperty());
+                        , params);
             } else {
                 String sb = "return mapper." + configuration.getMethodName() +
-                        "(" +
-                        foreignKeyColumn.getJavaProperty() +
-                        (configuration.isParameterList()?"s":"") +
-                        ");";
+                        "(" + params +  ");";
                 methodByColumn.addBodyLine(sb);
                 parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
             }
             parentElement.addMethod(methodByColumn);
-            parentElement.addImportedType(foreignKeyColumn.getFullyQualifiedJavaType());
         }
     }
 }
