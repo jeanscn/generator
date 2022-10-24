@@ -16,6 +16,8 @@ public class Dict extends AbstractAnnotation{
 
     private final String beanName;
 
+    private String applyProperty;
+
     public static Dict create(String beanName){
         return new Dict(beanName);
     }
@@ -39,6 +41,9 @@ public class Dict extends AbstractAnnotation{
         if (VStringUtil.isNotBlank(beanName)) {
             this.items.add(VStringUtil.format("beanName = \"{0}\"", this.beanName));
         }
+        if (VStringUtil.isNotBlank(applyProperty) && !applyProperty.equalsIgnoreCase("dictValueText")) {
+            this.items.add(VStringUtil.format("applyProperty = \"{0}\"", this.applyProperty));
+        }
         if (this.items.size()>0) return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
         else return ANNOTATION_NAME;
     }
@@ -53,5 +58,13 @@ public class Dict extends AbstractAnnotation{
 
     public String getBeanName() {
         return beanName;
+    }
+
+    public String getApplyProperty() {
+        return applyProperty;
+    }
+
+    public void setApplyProperty(String applyProperty) {
+        this.applyProperty = applyProperty;
     }
 }

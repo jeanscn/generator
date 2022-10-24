@@ -20,6 +20,8 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     private String beanName;
 
+    private String applyProperty = "dictValueText";
+
 
     public OverridePropertyValueGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
@@ -89,5 +91,13 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     public void setBeanName(String beanName) {
         this.beanName = beanName;
+    }
+
+    public String getApplyProperty() {
+        return applyProperty;
+    }
+
+    public void setApplyProperty(String applyProperty) {
+        this.applyProperty = applyProperty;
     }
 }

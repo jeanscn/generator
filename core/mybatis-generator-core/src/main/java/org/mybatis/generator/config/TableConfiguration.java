@@ -78,7 +78,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private final List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
 
-    private final List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations = new ArrayList<>();
+    private List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations = new ArrayList<>();
 
     private List<SelectBySqlMethodGeneratorConfiguration> selectBySqlMethodGeneratorConfigurations = new ArrayList<>();
 
@@ -556,6 +556,10 @@ public class TableConfiguration extends PropertyHolder {
 
     public void addSelectByColumnGeneratorConfiguration(SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
         this.selectByColumnGeneratorConfigurations.add(selectByColumnGeneratorConfiguration);
+    }
+
+    public void setSelectByColumnGeneratorConfigurations(List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations) {
+        this.selectByColumnGeneratorConfigurations = selectByColumnGeneratorConfigurations;
     }
 
     public List<SelectBySqlMethodGeneratorConfiguration> getSelectBySqlMethodGeneratorConfigurations() {

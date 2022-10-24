@@ -40,7 +40,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
-        cacheAnnotation.setUnless("#result.hasResult()==false");
+        //cacheAnnotation.setUnless("#result.hasResult()==false");
         cacheAnnotation.setParameters(introspectedColumns.size() == 0 ? 1 : introspectedColumns.size());
         selectByKeysDictMethod.addAnnotation(cacheAnnotation.toCacheableAnnotation());
         parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");

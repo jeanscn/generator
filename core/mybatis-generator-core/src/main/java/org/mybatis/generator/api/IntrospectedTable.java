@@ -498,6 +498,9 @@ public abstract class IntrospectedTable {
             }
         }
 
+        List<SelectByColumnGeneratorConfiguration> collect1 = tableConfiguration.getSelectByColumnGeneratorConfigurations().stream().distinct().collect(Collectors.toList());
+        tableConfiguration.setSelectByColumnGeneratorConfigurations(collect1);
+
         //再看其他
 
     }

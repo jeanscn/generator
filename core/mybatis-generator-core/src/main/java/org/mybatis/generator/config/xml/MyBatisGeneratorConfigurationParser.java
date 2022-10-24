@@ -1128,6 +1128,11 @@ public class MyBatisGeneratorConfigurationParser {
             overrideColumnGeneratorConfiguration.setBeanName(beanName);
         }
 
+        String applyProperty = attributes.getProperty(PropertyRegistry.ELEMENT_APPLY_PROPERTY_VALUE);
+        if (stringHasValue(applyProperty)) {
+            overrideColumnGeneratorConfiguration.setApplyProperty(applyProperty);
+        }
+
         if (stringHasValue(sourceColumn)) {
             if (annotationType.equals("Dict")) {
                 if (stringHasValue(beanName)) {

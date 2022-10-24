@@ -20,7 +20,6 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.internal.util.StringUtility;
 
 public class DeleteByColumnElementGenerator extends AbstractXmlElementGenerator {
 
@@ -35,35 +34,31 @@ public class DeleteByColumnElementGenerator extends AbstractXmlElementGenerator 
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("delete");
         answer.addAttribute(new Attribute("id", configuration.getDeleteMethodName()));
-        answer.addAttribute(new Attribute("parameterType", configuration.getColumn().getFullyQualifiedJavaType().getFullyQualifiedName()));
+        if (configuration.getColumns().size() == 1) {
+            answer.addAttribute(new Attribute("parameterType", configuration.getColumns().get(0).getFullyQualifiedJavaType().getFullyQualifiedName()));
+        }
         context.getCommentGenerator().addComment(answer);
-        StringBuilder sb = new StringBuilder("delete ");
-        if (StringUtility.stringHasValue(introspectedTable.getTableConfiguration().getAlias())) {
-            sb.append(introspectedTable.getTableConfiguration().getAlias());
-        }
-        sb.append(" ").append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
-        answer.addElement(new TextElement(sb.toString()));
+        answer.addElement(new TextElement("delete from " + introspectedTable.getFullyQualifiedTableNameAtRuntime()));
         //where
-        sb.setLength(0);
-        sb.append("where ");
-        sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(configuration.getColumn()));
-        if ("list".equals(configuration.getParameterType())) {
-            sb.append(" in ");
-            answer.addElement(new TextElement(sb.toString()));
-            XmlElement foreachListField = new XmlElement("foreach");
-            foreachListField.addAttribute(new Attribute("collection", "list"));
-            foreachListField.addAttribute(new Attribute("item", "item"));
-            foreachListField.addAttribute(new Attribute("index", "index"));
-            foreachListField.addAttribute(new Attribute("separator", ","));
-            foreachListField.addAttribute(new Attribute("open", "("));
-            foreachListField.addAttribute(new Attribute("close", ")"));
-            answer.addElement(foreachListField);
-            foreachListField.addElement(new TextElement("#{item}"));
-        }else{
-            sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(configuration.getColumn()));
-            answer.addElement(new TextElement(sb.toString()));
-        }
+        XmlElement where = new XmlElement("where");
+        configuration.getColumns().forEach(column -> {
+            if (configuration.getParameterList()) {
+                where.addElement(new TextElement("and " + MyBatis3FormattingUtilities.getEscapedColumnName(column) + " in "));
+                XmlElement foreachListField = new XmlElement("foreach");
+                foreachListField.addAttribute(new Attribute("collection", column.getJavaProperty() + "s"));
+                foreachListField.addAttribute(new Attribute("item", "item"));
+                foreachListField.addAttribute(new Attribute("index", "index"));
+                foreachListField.addAttribute(new Attribute("separator", ","));
+                foreachListField.addAttribute(new Attribute("open", "("));
+                foreachListField.addAttribute(new Attribute("close", ")"));
+                foreachListField.addElement(new TextElement("#{item}"));
+                where.addElement(foreachListField);
+            } else {
+                where.addElement(new TextElement("and " + MyBatis3FormattingUtilities.getEscapedColumnName(column) + " = " +
+                        MyBatis3FormattingUtilities.getParameterClause(column)));
+            }
+        });
+        answer.addElement(where);
         parentElement.addElement(answer);
     }
 }

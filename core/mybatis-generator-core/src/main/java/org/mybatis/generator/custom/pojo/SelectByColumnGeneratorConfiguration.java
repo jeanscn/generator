@@ -3,10 +3,7 @@ package org.mybatis.generator.custom.pojo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
@@ -127,5 +124,18 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
 
     public void setDeleteMethodName(String deleteMethodName) {
         this.deleteMethodName = deleteMethodName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SelectByColumnGeneratorConfiguration that = (SelectByColumnGeneratorConfiguration) o;
+        return methodName.equals(that.methodName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(methodName);
     }
 }

@@ -855,6 +855,9 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     if (configuration.getTypeValue() != null) {
                         anno.setValue(configuration.getTypeValue());
                     }
+                    if (configuration.getApplyProperty() != null) {
+                        anno.setApplyProperty(configuration.getApplyProperty());
+                    }
                     annotation = anno.toAnnotation();
                     topLevelClass.addMultipleImports(anno.multipleImports());
                 }

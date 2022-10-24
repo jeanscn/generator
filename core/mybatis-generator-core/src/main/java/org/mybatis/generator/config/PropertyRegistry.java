@@ -131,5 +131,6 @@ public class PropertyRegistry {
     public static final String ELEMENT_TARGET_PROPERTY_TYPE = "targetPropertyType";
     public static final String ELEMENT_ANNOTATION_TYPE = "annotationType";
     public static final String ELEMENT_ANNOTATION_BEAN_NAME = "beanName";
+    public static final String ELEMENT_APPLY_PROPERTY_VALUE = "applyProperty";
     public static final String ELEMENT_TYPE_VALUE = "typeValue";
 }
