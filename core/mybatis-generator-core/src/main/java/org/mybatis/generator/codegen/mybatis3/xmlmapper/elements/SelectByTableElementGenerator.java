@@ -5,7 +5,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.stream.Collectors;
@@ -40,7 +42,9 @@ public class SelectByTableElementGenerator extends
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("select "));
             if (configuration.isReturnPrimaryKey()) {
-                String collect = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+                String collect = introspectedTable.getPrimaryKeyColumns().stream()
+                        .map(MyBatis3FormattingUtilities::getAliasedEscapedColumnName)
+                        .collect(Collectors.joining(","));
                 answer.addElement(new TextElement(collect));
             }else{
                 answer.addElement(getBaseColumnListElement());
