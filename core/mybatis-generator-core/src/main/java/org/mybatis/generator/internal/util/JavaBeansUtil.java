@@ -640,7 +640,7 @@ public class JavaBeansUtil {
             if(index>0){
                 sb.append("'").append(VMD5Util.MD5(keys.get(index-1))).append("'");
             }else{
-                sb.append("NULL");
+                sb.append("0");
             }
             sb.append(",'").append(code).append("'");
             sb.append(",'").append(entry.getValue()).append("'");

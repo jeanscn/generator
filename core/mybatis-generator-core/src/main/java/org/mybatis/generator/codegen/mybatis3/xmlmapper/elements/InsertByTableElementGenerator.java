@@ -44,7 +44,7 @@ public class InsertByTableElementGenerator extends
             answer.addAttribute(new Attribute("id", configuration.getUnionMethodName()));
             answer.addAttribute(new Attribute("parameterType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
-            answer.addElement(new TextElement("insert into " + configuration.getTableName()));
+            answer.addElement(new TextElement("insert ignore into " + configuration.getTableName()));
             StringBuilder sb = new StringBuilder("(");
             sb.append("ID_,").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
             sb.append(")");

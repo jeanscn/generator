@@ -55,7 +55,7 @@ public class DeleteByTableElementGenerator extends
             sb.append(configuration.getPrimaryKeyColumn()).append(" = ");
             sb.append(MyBatis3FormattingUtilities.getParameterClause(configuration.getThisColumn()));
             where.addElement(new TextElement(sb.toString()));
-            where.addElement(new TextElement(" and  USER_ID in"));
+            where.addElement(new TextElement(" and  "+configuration.getOtherColumn().getActualColumnName()+" in"));
             XmlElement foreachListField = new XmlElement("foreach");
             foreachListField.addAttribute(new Attribute("collection", configuration.getOtherColumn().getJavaProperty()+"s"));
             foreachListField.addAttribute(new Attribute("item", configuration.getOtherColumn().getJavaProperty()));
