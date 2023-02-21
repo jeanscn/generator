@@ -15,7 +15,6 @@
  */
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import net.sf.jsqlparser.statement.select.Top;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -23,8 +22,13 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
+import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
+import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,10 +47,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         List<CompilationUnit> answer = new ArrayList<>();
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration()==null
-                || !introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerate()) {
+
+        JavaModelGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration();
+        if (configuration ==null || !configuration.isGenerate()) {
             return answer;
         }
+
 
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.8", table.toString())); //$NON-NLS-1$
@@ -66,11 +72,8 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             topLevelClass.addImportedType(superClass);
             //泛型
             List<String> rootClassTypeArguments = getRootClassTypeArguments(introspectedTable);
-            rootClassTypeArguments.forEach(s->{
-                superClass.addTypeArgument(new FullyQualifiedJavaType(s));
-            });
+            rootClassTypeArguments.forEach(s-> superClass.addTypeArgument(new FullyQualifiedJavaType(s)));
         }
-
         String superInterface = introspectedTable.getTableConfiguration().getProperty("superInterface");
         if (StringUtility.stringHasValue(superInterface)) {
             Arrays.stream(superInterface.split(","))
@@ -80,8 +83,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                         topLevelClass.addImportedType(s);
                     });
         }
-
-
         //类注释
         commentGenerator.addModelClassComment(topLevelClass, introspectedTable);
 
@@ -111,6 +112,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 topLevelClass.addImportedType(field.getType());
             }
 
+            // 生成getter和setter方法
             Method method = getJavaBeansGetter(introspectedColumn, context, introspectedTable);
             if (plugins.modelGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                     Plugin.ModelClassType.BASE_RECORD)) {
@@ -119,7 +121,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     topLevelClass.addMethod(method);
                 }
             }
-
             if (!introspectedTable.isImmutable()) {
                 method = getJavaBeansSetter(introspectedColumn, context, introspectedTable);
                 if (plugins.modelSetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
@@ -132,12 +133,25 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             }
         }
 
+
+        //增加映射
+        VoGenService voGenService = new VoGenService(introspectedTable);
+        List<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
+        voGenService.buildOverrideColumn(overrideProperty, topLevelClass, ModelClassTypeEnum.modelClass);
+
+        //附加属性
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
+        topLevelClass.addAddtionalProperties(additionalProperty);
+
         if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
         }
         return answer;
     }
 
+    /**
+     * 内部方法：获得父类
+     */
     private FullyQualifiedJavaType getSuperClass() {
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             return new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
@@ -151,15 +165,24 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         return null;
     }
 
+    /**
+     * 内部方法：是否包含主键列
+     */
     private boolean includePrimaryKeyColumns() {
         return !introspectedTable.getRules().generatePrimaryKeyClass() && introspectedTable.hasPrimaryKeyColumns();
     }
 
+    /**
+     * 内部方法：是否包含大字段列
+     */
     private boolean includeBLOBColumns() {
         return !introspectedTable.getRules().generateRecordWithBLOBsClass()
                 && introspectedTable.hasBLOBColumns();
     }
 
+    /**
+     * 内部方法：增加带参构造器
+     */
     private void addParameterizedConstructor(TopLevelClass topLevelClass, List<IntrospectedColumn> constructorColumns) {
         Method method = new Method(topLevelClass.getType().getShortName());
         method.setVisibility(JavaVisibility.PUBLIC);
@@ -205,6 +228,9 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         topLevelClass.addMethod(method);
     }
 
+    /**
+     * 内部方法：获得生成属性的列
+     */
     private List<IntrospectedColumn> getColumnsInThisClass() {
         List<IntrospectedColumn> introspectedColumns;
         if (includePrimaryKeyColumns()) {

@@ -44,12 +44,12 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("ServiceResult<{0}> result = this.selectByPrimaryKey({1});", entityType.getShortName(), pks);
             method.addBodyLine("if (result.hasResult()) {");
             method.addBodyLine("{0} {1} = result.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-            method.addBodyLine("int affectedRows = super.deleteByPrimaryKey({0});", pks);
+            method.addBodyLine("int affectedRows = mapper.deleteByPrimaryKey({0});", pks);
             method.addBodyLine("if (affectedRows > 0) {");
-            outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, true);
-            method.addBodyLine("return affectedRows;");
+            outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, false);
+            method.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             method.addBodyLine("}}");
-            method.addBodyLine("return 0;");
+            method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         } else {
             method.addBodyLine("return super.{0}({1});", introspectedTable.getDeleteByPrimaryKeyStatementId()
                     , introspectedTable.getPrimaryKeyColumns().stream()

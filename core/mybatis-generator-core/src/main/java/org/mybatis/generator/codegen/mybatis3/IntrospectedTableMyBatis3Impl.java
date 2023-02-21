@@ -15,9 +15,13 @@
  */
 package org.mybatis.generator.codegen.mybatis3;
 
+import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.tool.core.VMD5Util;
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
@@ -47,6 +51,7 @@ import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
@@ -80,6 +85,40 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
         calculateXmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
         calculateHtmlMapperGenerator(warnings, progressCallback);
+
+        //增加一条模块分类数据
+        if (!context.getModuleDataSqlFile().exists()) {
+            addModuleDataToMap();
+        }
+    }
+
+    private void addModuleDataToMap() {
+        String moduleKey = StringUtils.lowerCase(context.getModuleKeyword());
+        String id = VMD5Util.MD5(moduleKey);
+        int size = context.getModuleDataScriptLines().size() + 1;
+
+        StringBuilder sb = new StringBuilder("INSERT INTO `SYS_CFG_MODULES` (");
+        sb.append("ID_, DELETE_FLAG, MODULE_TAG, MODULE_NAME, PARENT_ID, SORT_, WF_APPLY, CATEGORY_, ORG_ID, MODULE_MANAGER, ");
+        sb.append("VERSION_, CREATED_, MODIFIED_, CREATED_ID, MODIFIED_ID, TENANT_ID");
+        sb.append(") VALUES (");
+        sb.append("'").append(id).append("'");                      //id
+        sb.append(",").append("0");                                 //DELETE_FLAG
+        sb.append(",").append("'").append(moduleKey).append("'");   //MODULE_TAG
+        sb.append(",").append("'").append(context.getModuleName()).append("'");   //MODULE_NAME
+        sb.append(",").append("'0'");                               //PARENT_ID
+        sb.append(",").append(size);                                //SORT_
+        sb.append(",").append(0);                                   //WF_APPLY  否
+        sb.append(",").append("'").append(context.getModuleName()).append("'"); //CATEGORY_
+        sb.append(",").append("'1503582043420889088'");   //ORG_ID
+        sb.append(",").append("'1000010000'");      //MODULE_MANAGER
+        sb.append(",").append("1");                 //VERSION_
+        sb.append(",").append("now()");             //CREATED_
+        sb.append(",").append("now()");             //MODIFIED_
+        sb.append(",").append("'1000010000'");      //CREATED_ID
+        sb.append(",").append("'1000010000'");      //MODIFIED_ID
+        sb.append(",").append("'10000'");           //TENANT_ID
+        sb.append(");");
+        context.addModuleDataScriptLine(id, sb.toString());
     }
 
     protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,
@@ -350,22 +389,6 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         answer.add(generatedSqlSchemaFile);
         return answer;
     }
-
-    /*@Override
-    public List<GeneratedSqlSchemaFile> getGeneratedSysMenuSqlDataFiles() {
-        List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
-        if (this.getContext().getSysMenuDataScriptLines().size() == 0) {
-            return answer;
-        }
-        String fileName = "data-menu-"+this.getTableConfiguration().getTableName().toLowerCase()+".sql";
-        GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
-                "init",
-                "src/main/resources/sql",
-                null,
-                new SqlDataSysMenuScriptGenerator(DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
-        answer.add(generatedSqlSchemaFile);
-        return answer;
-    }*/
 
     @Override
     public int getGenerationSteps() {

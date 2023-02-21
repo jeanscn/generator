@@ -3,7 +3,7 @@ package org.mybatis.generator.config;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
+public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private VOModelGeneratorConfiguration voModelConfiguration;
 

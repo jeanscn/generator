@@ -29,6 +29,8 @@ public class GeneratedHtmlFile extends GeneratedFile {
 
     private final HtmlFormatter htmlFormatter;
 
+    private boolean overwriteFile;
+
     public GeneratedHtmlFile(Document document, String fileName,
                              String targetPackage, String targetProject, boolean isMergeable,
                              HtmlFormatter htmlFormatter) {
@@ -67,5 +69,13 @@ public class GeneratedHtmlFile extends GeneratedFile {
 
     public void setMergeable(boolean isMergeable) {
         this.isMergeable = isMergeable;
+    }
+
+    public boolean isOverwriteFile() {
+        return overwriteFile;
+    }
+
+    public void setOverwriteFile(boolean overwriteFile) {
+        this.overwriteFile = overwriteFile;
     }
 }

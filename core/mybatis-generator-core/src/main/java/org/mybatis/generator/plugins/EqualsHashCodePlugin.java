@@ -18,9 +18,8 @@ package org.mybatis.generator.plugins;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -32,6 +31,7 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.config.AbstractModelGeneratorConfiguration;
 
 /**
  * This plugin adds equals() and hashCode() methods to the generated model
@@ -67,24 +67,21 @@ public class EqualsHashCodePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> columns;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            columns = introspectedTable.getNonBLOBColumns();
-        } else {
-            columns = introspectedTable.getAllColumns();
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().getEqualsAndHashCodeColumns().stream()
+                .map(cname -> introspectedTable.getColumn(cname).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
         }
-
-        generateEquals(topLevelClass, columns, introspectedTable);
-        generateHashCode(topLevelClass, columns, introspectedTable);
-
         return true;
     }
 
     @Override
-    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
         generateEquals(topLevelClass, introspectedTable.getPrimaryKeyColumns(),
                 introspectedTable);
         generateHashCode(topLevelClass, introspectedTable
@@ -100,7 +97,78 @@ public class EqualsHashCodePlugin extends PluginAdapter {
                 introspectedTable);
         generateHashCode(topLevelClass, introspectedTable.getAllColumns(),
                 introspectedTable);
+        return true;
+    }
 
+    @Override
+    public  boolean voModelRecordClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
+        return true;
+    }
+
+    @Override
+    public  boolean voModelCreateClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoCreateConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
+        return true;
+    }
+
+    @Override
+    public  boolean voModelUpdateClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoUpdateConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
+        return true;
+    }
+
+    @Override
+    public  boolean voModelViewClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
+        return true;
+    }
+
+    @Override
+    public  boolean voModelExcelClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
+        return true;
+    }
+
+    @Override
+    public  boolean voModelRequestClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
         return true;
     }
 
@@ -340,5 +408,12 @@ public class EqualsHashCodePlugin extends PluginAdapter {
         method.addBodyLine("return result;"); //$NON-NLS-1$
 
         topLevelClass.addMethod(method);
+    }
+
+    private List<IntrospectedColumn> getEqualsAndHashCodeColumns(IntrospectedTable introspectedTable, AbstractModelGeneratorConfiguration configuration) {
+        return configuration.getEqualsAndHashCodeColumns().stream()
+                .map(cname -> introspectedTable.getColumn(cname).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

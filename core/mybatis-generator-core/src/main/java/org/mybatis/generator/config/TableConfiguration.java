@@ -56,6 +56,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private String domainObjectName;
 
+    private boolean isModules;
+
     private String alias;
 
     private ModelType modelType;
@@ -106,14 +108,19 @@ public class TableConfiguration extends PropertyHolder {
 
     private final List<IgnoredColumnPattern> ignoredColumnPatterns = new ArrayList<>();
 
+    private String serviceApiBasePath;
+
+    private String htmlBasePath;
+
+    private List<String> validateIgnoreColumns = new ArrayList<>();
+
     public TableConfiguration(Context context) {
         super();
-
         this.modelType = context.getDefaultModelType();
-
         columnOverrides = new ArrayList<>();
         ignoredColumns = new HashMap<>();
 
+        isModules = false;
         insertStatementEnabled = true;
         insertBatchStatementEnabled = true;
         insertOrUpdateStatementEnabled = true;
@@ -324,6 +331,14 @@ public class TableConfiguration extends PropertyHolder {
         this.domainObjectName = domainObjectName;
     }
 
+    public boolean isModules() {
+        return isModules;
+    }
+
+    public void setModules(boolean modules) {
+        isModules = modules;
+    }
+
     public String getSchema() {
         return schema;
     }
@@ -350,6 +365,14 @@ public class TableConfiguration extends PropertyHolder {
 
     public List<ColumnOverride> getColumnOverrides() {
         return columnOverrides;
+    }
+
+    public List<String> getValidateIgnoreColumns() {
+        return validateIgnoreColumns;
+    }
+
+    public void setValidateIgnoreColumns(List<String> validateIgnoreColumns) {
+        this.validateIgnoreColumns = validateIgnoreColumns;
     }
 
     /**
@@ -668,5 +691,21 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setIgnore(boolean ignore) {
         this.ignore = ignore;
+    }
+
+    public String getServiceApiBasePath() {
+        return serviceApiBasePath;
+    }
+
+    public void setServiceApiBasePath(String serviceApiBasePath) {
+        this.serviceApiBasePath = serviceApiBasePath;
+    }
+
+    public String getHtmlBasePath() {
+        return htmlBasePath;
+    }
+
+    public void setHtmlBasePath(String htmlBasePath) {
+        this.htmlBasePath = htmlBasePath;
     }
 }

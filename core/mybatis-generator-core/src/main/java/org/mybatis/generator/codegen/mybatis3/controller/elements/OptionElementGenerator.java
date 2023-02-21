@@ -75,7 +75,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         selectByExampleWithPagehelper(parentElement, method);
         Method pMethod = null;
 
-        method.addBodyLine("List<{0}> options = {1}.stream()", optionDataType.getShortName(),listEntityVar);
+        method.addBodyLine("List<{0}> options = result.getResult().stream()", optionDataType.getShortName());
         if (introspectedTable.getColumn("sort_").isPresent()) {
             method.addBodyLine("        .sorted(Comparator.comparing({0}::getSort))", entityType.getShortName());
         }

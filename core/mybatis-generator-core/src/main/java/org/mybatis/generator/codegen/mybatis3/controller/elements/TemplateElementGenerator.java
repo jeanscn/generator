@@ -1,18 +1,14 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.core.constant.enums.RequestMethod;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 public class TemplateElementGenerator extends AbstractControllerElementGenerator {
 

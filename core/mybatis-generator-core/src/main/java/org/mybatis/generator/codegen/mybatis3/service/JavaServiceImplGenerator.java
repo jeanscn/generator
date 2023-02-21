@@ -326,14 +326,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     }
 
     private void addInnerMethodInsertUpdateElement(TopLevelClass parentElement) {
-        relationConfigurations.stream()
-                .filter(c -> c.isEnableUpdate() || c.isEnableInsert() || c.isEnableInsertOrUpdate() || c.isEnableDelete())
-                .forEach(c -> {
-                    AbstractServiceElementGenerator elementGenerator = new InnerMethodInsertUpdateElement();
-                    initializeAndExecuteGenerator(elementGenerator, parentElement);
-                });
+        AbstractServiceElementGenerator elementGenerator = new InnerMethodInsertUpdateElement();
+        initializeAndExecuteGenerator(elementGenerator, parentElement);
     }
-
 
     private void addUpdateBySqlElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().isGenerateCachePO()) {

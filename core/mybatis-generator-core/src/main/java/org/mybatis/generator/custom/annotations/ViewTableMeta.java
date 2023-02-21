@@ -8,8 +8,11 @@ import com.vgosoft.core.constant.enums.ViewIndexColumnEnum;
 import com.vgosoft.core.constant.enums.ViewToolBarsEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.config.Context;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +60,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
         this.beanName = introspectedTable.getControllerBeanName();
         items.add(VStringUtil.format("beanName = \"{0}\"", this.getBeanName()));
         this.dataUrl = "/viewmgr/getdtdata";
-        this.listType = GlobalConstant.DEFAULT_VIEW_LIST_TYPE;
+        this.listType = VMD5Util.MD5(StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword()+"_"+introspectedTable.getTableConfiguration().getDomainObjectName()));
         this.indexColumn = ViewIndexColumnEnum.ROW_INDEX;
         this.dataFilterType = 0;
         this.addImports("com.vgosoft.core.annotation.ViewTableMeta");
@@ -82,7 +85,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
             this.addImports("com.vgosoft.core.constant.enums.ViewIndexColumnEnum");
         }
         if (this.actionColumn.length>0) {
-            List<ViewActionColumnEnum> viewActionColumnEnums = Arrays.asList(this.actionColumn);
+            List<ViewActionColumnEnum> viewActionColumnEnums = new ArrayList<>(Arrays.asList(this.actionColumn));
             if (!(viewActionColumnEnums.size()==2 && viewActionColumnEnums.contains(ViewActionColumnEnum.VIEW) && viewActionColumnEnums.contains(ViewActionColumnEnum.EDIT))) {
                 String collect = Arrays.stream(this.actionColumn).map(e -> "ViewActionColumnEnum." + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("actionColumn = '{'{0}'}'", collect));
@@ -90,7 +93,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
             }
         }
         if (this.toolbarActions.length>0) {
-            List<ViewToolBarsEnum> viewToolBarsEnums = Arrays.asList(this.toolbarActions);
+            List<ViewToolBarsEnum> viewToolBarsEnums = new ArrayList<>(Arrays.asList(this.toolbarActions));
             if (!(viewToolBarsEnums.size()==2 && viewToolBarsEnums.contains(ViewToolBarsEnum.CREATE) && viewToolBarsEnums.contains(ViewToolBarsEnum.REMOVE))) {
                 String collect = Arrays.stream(this.toolbarActions).map(e -> "ViewToolBarsEnum" + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", collect));

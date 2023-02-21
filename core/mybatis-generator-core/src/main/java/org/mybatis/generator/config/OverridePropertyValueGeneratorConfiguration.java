@@ -22,6 +22,8 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     private String applyProperty = "dictValueText";
 
+    private String remark;
+
 
     public OverridePropertyValueGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
@@ -99,5 +101,13 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     public void setApplyProperty(String applyProperty) {
         this.applyProperty = applyProperty;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

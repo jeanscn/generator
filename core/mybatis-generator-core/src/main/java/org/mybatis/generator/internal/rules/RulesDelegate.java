@@ -284,6 +284,11 @@ public class RulesDelegate implements Rules {
      * 是生成VO对象
      */
     @Override
+    public boolean isGenerateAnyVO() {
+        return false;
+    }
+
+    @Override
     public boolean isGenerateVoModel() {
         return false;
     }

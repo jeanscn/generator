@@ -53,27 +53,30 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         commentGenerator.addMethodJavaDocLine(method, "新增一条记录");
 
+        method.addBodyLine("ServiceResult<{0}> serviceResult;", entityType.getShortName());
         if (introspectedTable.getRules().isGenerateCreateVO()) {
-            method.addBodyLine("ServiceResult<{0}> serviceResult;", entityType.getShortName());
-
-            if (introspectedTable.getRules().generateInsertOrUpdate()) {
-                method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate())", entityType.getShortNameFirstLowCase());
-                method.addBodyLine("serviceResult = {0}.insertOrUpdate({1});"
-                        , serviceBeanName
-                        , getServiceMethodEntityParameter(false, "create"));
-                method.addBodyLine("else");
-            }
-            method.addBodyLine("serviceResult = {1}.insert({2});"
-                    , entityType.getShortName()
-                    , serviceBeanName
-                    , getServiceMethodEntityParameter(false, "create"));
-
-        } else {
-            method.addBodyLine("ServiceResult<{0}> serviceResult = {1}.insert({2});"
-                    , entityType.getShortName()
-                    , serviceBeanName
-                    , getServiceMethodEntityParameter(false, "create"));
+            method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate() && VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+            method.addBodyLine("serviceResult = {0}.updateByPrimaryKeySelective({1});"
+                    , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
+            method.addBodyLine("'}' else if ({0}CreateVO.isSelectiveUpdate()) '{'", entityType.getShortNameFirstLowCase());
+            method.addBodyLine("serviceResult = {0}.insertSelective({1});"
+                    , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
+            method.addBodyLine("'}' else if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+        }else{
+            method.addBodyLine("if (VStringUtil.isNotBlank({0}.getId())) '{'", entityType.getShortNameFirstLowCase());
         }
+        method.addBodyLine("serviceResult = {0}.updateByPrimaryKey({1});"
+                , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
+        method.addBodyLine("} else {");
+        method.addBodyLine("serviceResult = {0}.insert({1});"
+                , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
+        method.addBodyLine("}");
+        if (introspectedTable.getRules().generateInsertOrUpdate()) {
+            method.addBodyLine("if (!serviceResult.isSuccess()) {");
+            method.addBodyLine("serviceResult = {0}.insertOrUpdate({1});",serviceBeanName,getServiceMethodEntityParameter(false, "create"));
+            method.addBodyLine("}");
+        }
+
         method.addBodyLine("if (!serviceResult.isSuccess()) {");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}else{");

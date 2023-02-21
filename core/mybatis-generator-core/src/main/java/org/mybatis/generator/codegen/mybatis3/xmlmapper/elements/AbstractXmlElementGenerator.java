@@ -410,4 +410,16 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         }
         return null;
     }
+
+    protected void addResultMap(XmlElement answer) {
+        if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
+            answer.addAttribute(new Attribute("resultMap",introspectedTable.getResultMapWithBLOBsId()));
+        } else {
+            if (introspectedTable.getRules().generateRelationWithSubSelected()) {
+                answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
+            }else{
+                answer.addAttribute(new Attribute("resultMap",introspectedTable.getBaseResultMapId()));
+            }
+        }
+    }
 }

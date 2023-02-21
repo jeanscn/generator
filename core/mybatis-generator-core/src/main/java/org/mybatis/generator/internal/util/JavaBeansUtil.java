@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.internal.util;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
@@ -308,23 +308,13 @@ public class JavaBeansUtil {
         method.addParameter(new Parameter(parameter, columnJavaProperty));
 
         StringBuilder sb = new StringBuilder();
+        sb.append("this.").append(columnJavaProperty).append(" = ").append(columnJavaProperty);
         if (isStringReturn) {
-            sb.append("this."); //$NON-NLS-1$
-            sb.append(columnJavaProperty);
-            sb.append(" = "); //$NON-NLS-1$
-            sb.append(columnJavaProperty);
-            sb.append(" == null ? null : "); //$NON-NLS-1$
-            sb.append(columnJavaProperty);
-            sb.append(".trim();"); //$NON-NLS-1$
-            method.addBodyLine(sb.toString());
-        } else {
-            sb.append("this."); //$NON-NLS-1$
-            sb.append(columnJavaProperty);
-            sb.append(" = "); //$NON-NLS-1$
-            sb.append(columnJavaProperty);
-            sb.append(';');
-            method.addBodyLine(sb.toString());
+            sb.append(" == null ? null : ").append(columnJavaProperty);
+            sb.append(".trim()");
         }
+        sb.append(';');
+        method.addBodyLine(sb.toString());
         return method;
     }
 
@@ -422,7 +412,7 @@ public class JavaBeansUtil {
         }
     }
 
-    private static Class<?> getClass(String className)  {
+    private static Class<?> getClass(String className) {
         try {
             return ObjectFactory.internalClassForName(className);
         } catch (ClassNotFoundException e) {
@@ -480,7 +470,7 @@ public class JavaBeansUtil {
     }
 
     public static String getColumnExampleValue(IntrospectedColumn introspectedColumn) {
-        String defaultValue = null;
+        String defaultValue;
         String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
         try {
             defaultValue = JDBCUtil.getJDBCTypeExample(ObjectFactory.internalClassForName(javaTypeName));
@@ -496,7 +486,7 @@ public class JavaBeansUtil {
         }
     }
 
-    public static boolean javaFileExist(String targetProject,String targetPackage, String fileName) {
+    public static boolean javaFileExist(String targetProject, String targetPackage, String fileName) {
         File project = new File(targetProject);
         if (!project.isDirectory()) {
             return false;
@@ -509,8 +499,8 @@ public class JavaBeansUtil {
         return file.exists();
     }
 
-    public static boolean javaFileNotExist(String targetProject,String targetPackage, String fileName){
-        return !javaFileExist(targetProject,targetPackage,fileName);
+    public static boolean javaFileNotExist(String targetProject, String targetPackage, String fileName) {
+        return !javaFileExist(targetProject, targetPackage, fileName);
     }
 
     public static String getRootClass(IntrospectedTable introspectedTable) {
@@ -527,129 +517,41 @@ public class JavaBeansUtil {
         String typeArguments = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS_TYPE_ARGUMENTS);
         if (StringUtility.stringHasValue(typeArguments)) {
             ret = Arrays.asList(typeArguments.split(","));
-        }else{
+        } else {
             ret = new ArrayList<>();
         }
         return ret;
     }
 
-    public static List<IntrospectedColumn> getAbstractVOColumns(IntrospectedTable introspectedTable){
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
-        BaseRules rules = introspectedTable.getRules();
-        List<String> include = new ArrayList<>();
-        List<String> exclude = new ArrayList<>();
-        if (rules.isGenerateVoModel()) {
-            VOModelGeneratorConfiguration cfg = tc.getVoGeneratorConfiguration().getVoModelConfiguration();
-            if (cfg.getIncludeColumns().size()>0) {
-                include.addAll(cfg.getIncludeColumns());
-            }
-            if (cfg.getExcludeColumns().size()>0) {
-                exclude.addAll(cfg.getExcludeColumns());
-            }
-        }
-        if (rules.isGenerateViewVO()) {
-            VOViewGeneratorConfiguration cfg = tc.getVoGeneratorConfiguration().getVoViewConfiguration();
-            if (cfg.getIncludeColumns().size()>0) {
-                include.retainAll(cfg.getIncludeColumns());
-            }
-            if (cfg.getExcludeColumns().size()>0) {
-                exclude.addAll(cfg.getExcludeColumns());
-            }
-        }
-        if (rules.isGenerateRequestVO()) {
-            VORequestGeneratorConfiguration cfg = tc.getVoGeneratorConfiguration().getVoRequestConfiguration();
-            if (cfg.getExcludeColumns().size()>0) {
-                exclude.addAll(cfg.getExcludeColumns());
-            }
-        }
-        EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
-        if (entityAbstractParentEnum != null) {
-            exclude.addAll(entityAbstractParentEnum.columnNames());
-        }
-        exclude.add("TENANT_ID");
-        exclude.add("BYTES_");
-        if (include.size()>0) {
-            return introspectedTable.getAllColumns().stream()
-                    .filter(c->include.contains(c.getActualColumnName()))
-                    .distinct()
-                    .collect(Collectors.toList());
-        }else{
-            return introspectedTable.getAllColumns().stream()
-                    .filter(c->!exclude.contains(c.getActualColumnName()))
-                    .distinct()
-                    .collect(Collectors.toList());
-        }
-    }
-
-    public static List<IntrospectedColumn> getAllExcelVOColumns(IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> columns;
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = tc.getVoGeneratorConfiguration().getVoExcelConfiguration();
-        if (voExcelGeneratorConfiguration.getIncludeColumns().size()>0) {
-            List<String> includeColumns = voExcelGeneratorConfiguration.getIncludeColumns();
-            columns = introspectedTable.getAllColumns().stream()
-                    .filter(c->includeColumns.contains(c.getActualColumnName()))
-                    .collect(Collectors.toList());
-        }else if(voExcelGeneratorConfiguration.getExcludeColumns().size()>0){
-            List<String> excludeColumns = voExcelGeneratorConfiguration.getExcludeColumns();
-            columns = introspectedTable.getAllColumns().stream()
-                    .filter(c->!excludeColumns.contains(c.getActualColumnName()))
-                    .collect(Collectors.toList());
-        }else{
-            columns = JavaBeansUtil.getAbstractVOColumns(introspectedTable);
-        }
-        return columns;
-    }
-
-    public static List<IntrospectedColumn> getVOColumns(IntrospectedTable introspectedTable,List<String> includeColumns,List<String> excludeColumns) {
-        Stream<IntrospectedColumn> allColumnsStream = introspectedTable.getAllColumns().stream();
-        if (includeColumns != null && includeColumns.size()>0) {
-            return allColumnsStream.filter(t->includeColumns.contains(t.getActualColumnName())).distinct().collect(Collectors.toList());
-        }else if(excludeColumns != null && excludeColumns.size()>0) {
-            return allColumnsStream.filter(t->!excludeColumns.contains(t.getActualColumnName())).distinct().collect(Collectors.toList());
-        }else{
-            List<String> abstractVOColumns = JavaBeansUtil.getAbstractVOColumns(introspectedTable).stream()
-                    .map(IntrospectedColumn::getActualColumnName)
-                    .collect(Collectors.toList());
-            EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
-            if (entityAbstractParentEnum != null) {
-                abstractVOColumns.addAll(entityAbstractParentEnum.columnNames());
-            }
-            abstractVOColumns.add("TENANT_ID");
-            abstractVOColumns.add("BYTES_");
-            return allColumnsStream.filter(t->!abstractVOColumns.contains(t.getActualColumnName())).distinct().collect(Collectors.toList());
-        }
-    }
-
-    public static void setPermissionSqlData(IntrospectedTable introspectedTable, Map<String,String> levels){
+    public static void setPermissionSqlData(IntrospectedTable introspectedTable, Map<String, String> levels) {
         int index = 0;
         List<String> keys = new ArrayList<>();
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, String> entry : levels.entrySet()) {
-            String code = index==0?entry.getKey():keys.get(index-1)+":"+entry.getKey();
+            String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
             String id = VMD5Util.MD5(code);
             keys.add(code);
-            String name = index==0?entry.getValue():names.get(index-1)+":"+entry.getValue();
+            String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
             StringBuilder sb = new StringBuilder("INSERT INTO `SYS_PERMISSION`");
             sb.append("(`ID_`, `SORT_`, `PARENT_ID`, `CODE_`, `NAME_`, `TYPE_`, `SCOPE_`, `STATE_`, `NOTES_`, `CREATED_ID`, `MODIFIED_ID`)");
             sb.append(" VALUES (");
             sb.append("'").append(id).append("'");
-            sb.append(",").append(introspectedTable.getPermissionDataScriptLines().size()+1);
+            sb.append(",").append(introspectedTable.getPermissionDataScriptLines().size() + 1);
             sb.append(",");
-            if(index>0){
-                sb.append("'").append(VMD5Util.MD5(keys.get(index-1))).append("'");
-            }else{
+            if (index > 0) {
+                sb.append("'").append(VMD5Util.MD5(keys.get(index - 1))).append("'");
+            } else {
                 sb.append("0");
             }
             sb.append(",'").append(code).append("'");
             sb.append(",'").append(entry.getValue()).append("'");
             sb.append(",0").append(",0").append(",1");
-            sb.append(",'").append(name==null?"''":name).append("'");
+            sb.append(",'").append(name == null ? "''" : name).append("'");
             sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
             sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
             sb.append(");");
-            introspectedTable.addPermissionDataScriptLines(id,sb.toString());
+            introspectedTable.addPermissionDataScriptLines(id, sb.toString());
             index++;
         }
     }

@@ -588,6 +588,13 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean isGenerateAnyVO() {
+        return isGenerateCreateVO() || isGenerateUpdateVO()
+                || isGenerateVoModel() || isGenerateExcelVO()
+                || isGenerateRequestVO() || isGenerateViewVO() ;
+    }
+
+    @Override
     public boolean isGenerateVO() {
         return tc.getVoGeneratorConfiguration()!=null && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getTableType().equals(TableTypeEnum.DATA_TABLE.code());

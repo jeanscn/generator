@@ -46,12 +46,6 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addTableMetaAnnotation(introspectedTable, topLevelClass);
-        return true;
-    }
-
-    @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         addColumnMetaAnnotation(field, topLevelClass,introspectedTable, introspectedColumn);
         return true;

@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -13,6 +14,7 @@ import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.VoGenService;
 
 import java.sql.JDBCType;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
+        VoGenService voGenService = new VoGenService(introspectedTable);
         String voTargetPackage = context.getJavaModelGeneratorConfiguration()
                 .getBaseTargetPackage() + ".pojo";
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
@@ -97,7 +100,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(
                 String.join(".",
                         voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
-        if (introspectedTable.getRules().isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateAnyVO()) {
             Field mappings = new Field("mappings", entityMappings);
             mappings.setFinal(true);
             mappings.setVisibility(JavaVisibility.PRIVATE);
@@ -169,9 +172,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             parameter3.setRemark("    接口最终返回的数据列表");
             getListData.addParameter(parameter3);
             commentGenerator.addMethodJavaDocLine(getListData, "为了转换返回结果为VO对象而重写父类的方法");
-            getListData.addBodyLine("List<{0}> list = {1}.selectBySql(selectSqlBuilder);", entityType.getShortName(), introspectedTable.getControllerBeanName());
-            getListData.addBodyLine("returnResult.addAll(mappings.to{0}s(list));", entityVoType.getShortName());
-            getListData.addBodyLine("return (Page<{0}>) list;", entityType.getShortName());
+            getListData.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectBySql(selectSqlBuilder);", entityType.getShortName(), introspectedTable.getControllerBeanName());
+            getListData.addBodyLine("returnResult.addAll(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
+            getListData.addBodyLine("return (Page<{0}>) result.getResult();", entityType.getShortName());
             conTopClazz.addMethod(getListData);
             conTopClazz.addImportedType("java.util.List");
             conTopClazz.addImportedType("com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder");
@@ -197,7 +200,10 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 conTopClazz.addImportedType("java.util.Collections");
             }
             buildTemplateSampleData.addBodyLine("        {0}.builder()", entityExcelVoType.getShortName());
-            for (IntrospectedColumn excelVOColumn : JavaBeansUtil.getAllExcelVOColumns(introspectedTable)) {
+            VOExcelGeneratorConfiguration voExcelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration();
+            List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voExcelConfiguration.getIncludeColumns(), voExcelConfiguration.getExcludeColumns());
+            CollectionUtil.addAllIfNotContains(introspectedColumns, voGenService.getAbstractVOColumns());
+            for (IntrospectedColumn excelVOColumn : introspectedColumns) {
                 buildTemplateSampleData.addBodyLine("                .{0}({1})",
                         excelVOColumn.getJavaProperty(),
                         JavaBeansUtil.getColumnExampleValue(excelVOColumn));
@@ -255,8 +261,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             columns = introspectedTable.getNonBLOBColumns();
         }
         if (columns.size() > 0) {
-
-            String testMethodName;
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
             for (IntrospectedColumn column : columns) {
@@ -378,7 +382,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addImportedType(bizInfType);
         conMethod.setConstructor(true);
         conMethod.setVisibility(JavaVisibility.PUBLIC);
-        if (introspectedTable.getRules().isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateAnyVO()) {
             conSubTopClazz.addImportedType(entityMappings);
             conMethod.addParameter(new Parameter(entityMappings, "mappings"));
             conMethod.addBodyLine("super({0}, mappings);", introspectedTable.getControllerBeanName());

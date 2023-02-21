@@ -7,6 +7,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.custom.annotations.ExcelProperty;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -34,7 +35,8 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     }
 
     private void addExcelAnnotation(TopLevelClass topLevelClass,Field field,IntrospectedColumn introspectedColumn){
-        field.addAnnotation("@ExcelProperty(\""+ introspectedColumn.getRemarks(true) +"\")");
-        topLevelClass.addMultipleImports("ExcelProperty");
+        ExcelProperty excelProperty = new ExcelProperty(introspectedColumn.getRemarks(true));
+        field.addAnnotation(excelProperty.toAnnotation());
+        topLevelClass.addMultipleImports(excelProperty.multipleImports());
     }
 }

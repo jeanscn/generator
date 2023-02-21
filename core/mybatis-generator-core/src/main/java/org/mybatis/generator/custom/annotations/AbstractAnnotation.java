@@ -1,5 +1,9 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,5 +33,17 @@ public abstract class AbstractAnnotation implements IAnnotation{
 
     protected void addImports(String imports) {
         this.imports.add(imports);
+    }
+
+    // 添加注解到字段上
+    public void addAnnotationToField(Field field, TopLevelClass topLevelClass) {
+        field.addAnnotation(this.toAnnotation());
+        topLevelClass.addMultipleImports(this.multipleImports());
+    }
+
+    // 添加注解到类上
+    public void addAnnotationToTopLevelClass(TopLevelClass topLevelClass){
+        topLevelClass.addAnnotation(this.toAnnotation());
+        topLevelClass.addMultipleImports(this.multipleImports());
     }
 }

@@ -2,14 +2,20 @@ package org.mybatis.generator.codegen.mybatis3.unittest;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
+
+import java.util.Optional;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE;
@@ -54,7 +60,7 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
 
     protected boolean isGenerateVOModel;
 
-    protected String basePath = "";
+    protected String basePath;
 
     protected String viewpath = null;
 
@@ -92,7 +98,7 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
         entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
         entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
         entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelVo"));
-        basePath = context.getModuleKeyword();
+        basePath = tc.getServiceApiBasePath();
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
             HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
             viewpath = htmlGeneratorConfiguration.getViewPath();

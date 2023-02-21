@@ -16,7 +16,6 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.custom.pojo.HtmlElementDescriptor;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +25,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     private String viewPath;
 
     private String htmlFileName;
+
+    private boolean overWriteFile;
 
     //指定页面打开方式：pop-小弹窗，inner-页面嵌入，full-全屏弹窗，默认full
     private String loadingFrameType;
@@ -49,6 +50,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         hiddenColumns = new ArrayList<>();
         elementRequired = new ArrayList<>();
         elementDescriptors = new ArrayList<>();
+        overWriteFile = false;
         targetProject = "src/main/resources/templates";
     }
 
@@ -73,24 +75,12 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.htmlFileName = htmlFileName;
     }
 
-    @Override
-    public String getTargetProject() {
-        return targetProject;
+    public boolean isOverWriteFile() {
+        return overWriteFile;
     }
 
-    @Override
-    public void setTargetProject(String targetProject) {
-        this.targetProject = targetProject;
-    }
-
-    @Override
-    public String getTargetPackage() {
-        return targetPackage;
-    }
-
-    @Override
-    public void setTargetPackage(String targetPackage) {
-        this.targetPackage = targetPackage;
+    public void setOverWriteFile(boolean overWriteFile) {
+        this.overWriteFile = overWriteFile;
     }
 
     public String getLoadingFrameType() {

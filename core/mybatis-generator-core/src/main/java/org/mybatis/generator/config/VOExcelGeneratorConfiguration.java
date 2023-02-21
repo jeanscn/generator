@@ -20,7 +20,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOExcelGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
+public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 

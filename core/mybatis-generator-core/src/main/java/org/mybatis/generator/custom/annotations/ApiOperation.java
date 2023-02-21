@@ -14,6 +14,7 @@ import java.util.List;
 public class ApiOperation extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ApiOperation";
+    public static final String importClass = "io.swagger.annotations.ApiOperation";
 
     private final String value;
     private  String notes;
@@ -31,7 +32,7 @@ public class ApiOperation extends AbstractAnnotation{
         super();
         this.value = value;
         this.notes = notes;
-        this.addImports("io.swagger.annotations.ApiOperation");
+        this.addImports(importClass);
     }
 
     @Override

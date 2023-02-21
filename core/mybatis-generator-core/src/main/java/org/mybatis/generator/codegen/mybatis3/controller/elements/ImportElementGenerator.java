@@ -1,14 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.core.constant.enums.RequestMethod;
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
@@ -48,7 +45,8 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
 
         method.addAnnotation(new SystemLog("数据导入",introspectedTable),parentElement);
         RequestMapping requestMapping = new RequestMapping("import", RequestMethod.POST);
-        requestMapping.addProduces("MediaType.MULTIPART_FORM_DATA_VALUE");
+        requestMapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
+        requestMapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
         method.addAnnotation(requestMapping,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"导入");

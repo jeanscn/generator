@@ -6,8 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
@@ -57,10 +55,10 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
                 exampleType.getShortName(),
                 introspectedTable.getRules().isGenerateRequestVO()?requestVOVar:
                         introspectedTable.getRules().isGenerateVoModel()?entityVoType.getShortNameFirstLowCase():entityType.getShortNameFirstLowCase());
-        method.addBodyLine("List<{0}> {1}s = {2}.selectByExample(example);",
-                entityType.getShortName(), entityType.getShortNameFirstLowCase(),serviceBeanName);
-        method.addBodyLine("List<{0}> list = mappings.to{0}s({1}s);",
-                entityExcelVoType.getShortName(),entityType.getShortNameFirstLowCase());
+        method.addBodyLine("ServiceResult<List<{0}>> result  = {1}.selectByExample(example);",
+                entityType.getShortName(), serviceBeanName);
+        method.addBodyLine("List<{0}> list = mappings.to{0}s(result.getResult());",
+                entityExcelVoType.getShortName());
         method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list);",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
     }

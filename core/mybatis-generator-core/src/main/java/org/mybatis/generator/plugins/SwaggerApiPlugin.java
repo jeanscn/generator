@@ -6,11 +6,11 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.custom.annotations.Api;
+import org.mybatis.generator.custom.annotations.ApiModel;
+import org.mybatis.generator.custom.annotations.ApiModelProperty;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,11 +23,6 @@ import java.util.Optional;
  * @version 3.0
  */
 public class SwaggerApiPlugin extends PluginAdapter {
-
-    public static final String  API_MODEL = "io.swagger.annotations.ApiModel";
-    public static final String API_MODEL_PROPERTY = "io.swagger.annotations.ApiModelProperty";
-    public static final String API = "io.swagger.annotations.Api";
-
     @Override
     public boolean validate(List<String> warnings) {
         return true;
@@ -39,9 +34,8 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            String apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-            topLevelClass.addAnnotation(apiModelAnnotation);
-            topLevelClass.addImportedType(API_MODEL);
+            ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+            apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
@@ -49,17 +43,15 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     @Override
     public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        String apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-        topLevelClass.addAnnotation(apiModelAnnotation);
-        topLevelClass.addImportedType(API_MODEL);
+        ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
     @Override
     public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        String apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-        topLevelClass.addAnnotation(apiModelAnnotation);
-        topLevelClass.addImportedType(API_MODEL);
+        ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
@@ -70,10 +62,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         //添加日期序列化格式注解
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            String apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "m");
-            if (StringUtility.stringHasValue(apiModelPropertyAnnotation)) {
-                field.addAnnotation(apiModelPropertyAnnotation);
-                topLevelClass.addImportedType(API_MODEL_PROPERTY);
+            ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "m");
+            if (apiModelPropertyAnnotation != null) {
+                apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
             }
         }
         return true;
@@ -94,10 +85,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        String apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "view");
-        if (StringUtility.stringHasValue(apiModelPropertyAnnotation)) {
-            field.addAnnotation(apiModelPropertyAnnotation);
-            topLevelClass.addImportedType(API_MODEL_PROPERTY);
+        ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "view");
+        if (apiModelPropertyAnnotation != null) {
+            apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
         }
         return true;
     }
@@ -112,14 +102,44 @@ public class SwaggerApiPlugin extends PluginAdapter {
         return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
     }
 
+    @Override
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+    }
+
+    @Override
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+    }
+
+    /**
+     * This method is called just before the getGeneratedXXXFiles methods are called on the introspected table. Plugins
+     * can implement this method to override any of the default attributes, or change the results of database
+     * introspection, before any code generation activities occur. Attributes are listed as static Strings with the
+     * prefix ATTR_ in IntrospectedTable.
+     *
+     * <p>A good example of overriding an attribute would be the case where a user wanted to change the name of one
+     * of the generated classes, change the target package, or change the name of the generated SQL map file.
+     *
+     * <p><b>Warning:</b> Anything that is listed as an attribute should not be changed by one of the other plugin
+     * methods. For example, if you want to change the name of a generated example class, you should not simply change
+     * the Type in the <code>modelExampleClassGenerated()</code> method. If you do, the change will not be reflected
+     * in other generated artifacts.
+     *
+     * @param introspectedTable the introspected table
+     */
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        super.initialized(introspectedTable);
+    }
+
     /**
      * controller及方法注解@Api、@ApiOperation
      */
     @Override
     public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            topLevelClass.addAnnotation(VStringUtil.format("@Api(tags = \"{0}\")", introspectedTable.getRemarks(true)));
-            topLevelClass.addImportedType(API);
+            Api.create(introspectedTable.getRemarks(true)).addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
@@ -133,10 +153,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        String apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "v");
-        if (StringUtility.stringHasValue(apiModelPropertyAnnotation)) {
-            field.addAnnotation(apiModelPropertyAnnotation);
-            topLevelClass.addImportedType(API_MODEL_PROPERTY);
+        ApiModelProperty apiModelProperty = buildApiModelPropertyAnnotation(field, introspectedTable, "v");
+        if (apiModelProperty != null) {
+            apiModelProperty.addAnnotationToField(field, topLevelClass);
         }
         return true;
     }
@@ -145,71 +164,54 @@ public class SwaggerApiPlugin extends PluginAdapter {
      * 构造注解@ApiModelProperty
      * @param type 类型：v-vo类，m-model类（entity），view-视图的vo类
      */
-    private String buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable, String type) {
-        StringBuilder sb = new StringBuilder();
+    private ApiModelProperty buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable, String type) {
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
             if (column.getJavaProperty().equals(field.getName())) {
-                sb.append("@ApiModelProperty(").append("value = \"");
-                sb.append(column.getRemarks(true)).append("\"");
+                ApiModelProperty apiModelProperty = new ApiModelProperty(column.getRemarks(true));
                 if (type.equals("v")) {
                     switch (field.getType().getShortName().toLowerCase()) {
                         case "string":
-                            sb.append(VStringUtil.format(",example = \"{0}\"", field.getName()));
+                            apiModelProperty.setExample(field.getName());
                             break;
                         case "integer":
                             if (column.getJavaProperty().equals("active")) {
-                                sb.append(",example = \"1\"");
+                                apiModelProperty.setExample("1");
                             }else if(column.getJavaProperty().equals("sort")){
-                                sb.append(",example = \"1000\"");
+                                apiModelProperty.setExample("1000");
                             }else{
-                                sb.append(",example = \"0\"");
+                                apiModelProperty.setExample("0");
                             }
                             break;
                         case "boolean":
-                            sb.append(",example = \"true\"");
+                            apiModelProperty.setExample("true");
                             break;
                         case "double":
-                            sb.append(",example = \"0.0\"");
+                            apiModelProperty.setExample("0.0");
                             break;
                         case "float":
-                            sb.append(",example = \"0.0f\"");
+                            apiModelProperty.setExample("0.0f");
                             break;
                     }
                 }
                 if (!column.isNullable() && type.equals("m")) {
-                    sb.append(",required = true");
+                    apiModelProperty.setRequired("true");
                 }
-                sb.append(")");
-                return sb.toString();
+                return apiModelProperty;
             }
         }
-        if (sb.length() > 0) {
-            return sb.toString();
-        } else {
-            return "";
-        }
+        return null;
     }
 
     /**
      * model类的@apiModel
      */
-    private String buildApiModelAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
-        StringBuilder sb = new StringBuilder();
+    private ApiModel buildApiModelAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         FullyQualifiedJavaType fullyQualifiedJavaType =  topLevelClass.getType();
-        sb.append("@ApiModel(value = \"").append(fullyQualifiedJavaType.getShortName()).append("\"");
-        if (introspectedTable.getRemarks(true) != null) {
-            sb.append(", description = \"").append(introspectedTable.getRemarks(true)).append("\"");
-        } else {
-            sb.append(", description = \"").append("\"");
-        }
+        ApiModel apiModel = ApiModel.create(fullyQualifiedJavaType.getShortName());
+        apiModel.setDescription(introspectedTable.getRemarks(true));
         final Optional<FullyQualifiedJavaType> superClass = topLevelClass.getSuperClass();
-        if (superClass.isPresent()) {
-            final String clazz = superClass.get().getShortNameWithoutTypeArguments() + ".class";
-            sb.append(", parent = ");
-            sb.append(clazz);
-        }
-        sb.append(" )");
-        return sb.toString();
+        superClass.ifPresent(qualifiedJavaType -> apiModel.setParent(qualifiedJavaType.getShortNameWithoutTypeArguments() + ".class"));
+        return apiModel;
     }
 
 }

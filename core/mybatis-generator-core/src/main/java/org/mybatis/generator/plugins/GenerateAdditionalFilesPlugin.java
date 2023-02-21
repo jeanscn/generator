@@ -1,17 +1,12 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import org.mybatis.generator.api.GeneratedFile;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysMenuScriptGenerator;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysModuleScriptGenerator;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
-import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,16 +30,28 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
     @Override
     public List<GeneratedFile> contextGenerateAdditionalFiles() {
         List<GeneratedFile> answer = new ArrayList<>();
-        if (this.context.getSysMenuDataScriptLines().size() == 0) {
-            return answer;
+
+        //menu data
+        if (this.context.getSysMenuDataScriptLines().size()>0) {
+            String menuDataFileName = "data-menu-"+this.context.getModuleKeyword().toLowerCase()+".sql";
+            GeneratedSqlSchemaFile generatedMenuDataFile = new GeneratedSqlSchemaFile(menuDataFileName,
+                    "init",
+                    "src/main/resources/sql",
+                    null,
+                    new SqlDataSysMenuScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+            answer.add(generatedMenuDataFile);
         }
-        String fileName = "data-menu-"+this.context.getModuleKeyword().toLowerCase()+".sql";
-        GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
-                "init",
-                "src/main/resources/sql",
-                null,
-                new SqlDataSysMenuScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
-        answer.add(generatedSqlSchemaFile);
+
+        //module data
+        if (this.context.getModuleDataScriptLines().size()>0 && context.isUpdateModuleData()) {
+            String moduleDataFileName = context.getModuleDataFileName();
+            GeneratedSqlSchemaFile generatedModuleDataFile = new GeneratedSqlSchemaFile(moduleDataFileName,
+                    "init",
+                    "src/main/resources/sql",
+                    null,
+                    new SqlDataSysModuleScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+            answer.add(generatedModuleDataFile);
+        }
         return answer;
     }
 

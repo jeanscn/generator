@@ -17,9 +17,10 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class JavaModelGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public class JavaModelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private boolean noMetaAnnotation;
 

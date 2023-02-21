@@ -1211,6 +1211,12 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                           IntrospectedColumn introspectedColumn,
+                                           IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass,
                                           IntrospectedColumn introspectedColumn,
                                           IntrospectedTable introspectedTable) {

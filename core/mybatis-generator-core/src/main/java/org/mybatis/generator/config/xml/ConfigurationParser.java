@@ -213,6 +213,10 @@ public class ConfigurationParser {
             PluginConfiguration generateAdditionalFilesPlugin  = new PluginConfiguration();
             generateAdditionalFilesPlugin.setConfigurationType("org.mybatis.generator.plugins.GenerateAdditionalFilesPlugin");
             context.addPluginConfiguration(generateAdditionalFilesPlugin);
+            PluginConfiguration equalsAndHashCode = new PluginConfiguration();
+            equalsAndHashCode.setConfigurationType("org.mybatis.generator.plugins.EqualsHashCodePlugin");
+            context.addPluginConfiguration(equalsAndHashCode);
+
 
 
             //添加commentGenerator

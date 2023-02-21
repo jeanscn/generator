@@ -59,9 +59,9 @@ public class ServiceMethods {
     public Method getDeleteByExampleMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService){
 
         Method method =  getMethodByType(introspectedTable.getDeleteByExampleStatementId(),
-                ReturnTypeEnum.MODEL,
-                FullyQualifiedJavaType.getIntInstance(),
-                "影响行数",
+                ReturnTypeEnum.SERVICE_RESULT_MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(),
+                "影响行数Service返回封装对象",
                 Collections.singletonList(new Parameter(exampleType, "example").setRemark("检索条件对象")),
                 isAbstract,
                 parentElement);
@@ -74,9 +74,9 @@ public class ServiceMethods {
                 .map(Parameter::new)
                 .collect(Collectors.toList());
         Method method =  getMethodByType(introspectedTable.getDeleteByPrimaryKeyStatementId(),
-                ReturnTypeEnum.MODEL,
-                FullyQualifiedJavaType.getIntInstance(),
-                "影响行数",
+                ReturnTypeEnum.SERVICE_RESULT_MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(),
+                "影响行数Service返回封装对象",
                 parameters,
                 isAbstract,
                 parentElement);
@@ -90,9 +90,9 @@ public class ServiceMethods {
         parameters.add(new Parameter(exampleType, "example").setRemark("检索条件对象"));
         Method method =  getMethodByType(
                 isSelective?introspectedTable.getUpdateByExampleSelectiveStatementId():introspectedTable.getUpdateByExampleStatementId(),
-                ReturnTypeEnum.MODEL,
-                FullyQualifiedJavaType.getIntInstance(),
-                "影响行数",
+                ReturnTypeEnum.SERVICE_RESULT_MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(),
+                "影响行数Service返回封装对象",
                 parameters,
                 isAbstract,
                 parentElement);
@@ -120,9 +120,9 @@ public class ServiceMethods {
         parameters.add(new Parameter(new FullyQualifiedJavaType("com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder"), "updateSqlBuilder").setRemark("SQL语句构造对象"));
         Method method = getMethodByType(
                 introspectedTable.getUpdateBySqlStatementId(),
-                ReturnTypeEnum.MODEL,
-                FullyQualifiedJavaType.getIntInstance(),
-                "影响行数",
+                ReturnTypeEnum.SERVICE_RESULT_MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(),
+                "影响行数Service返回封装对象",
                 parameters,
                 isAbstract,
                 parentElement);

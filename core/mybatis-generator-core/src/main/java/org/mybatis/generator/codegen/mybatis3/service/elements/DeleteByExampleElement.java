@@ -39,15 +39,15 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());
         if (collect.size() > 0) {
-            deleteByExampleMethod.addBodyLine("List<{0}> {1}s = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+            deleteByExampleMethod.addBodyLine("ServiceResult<List<{0}>> result = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             deleteByExampleMethod.addBodyLine("int affectedRows = mapper.deleteByExample(example);");
             deleteByExampleMethod.addBodyLine("if (affectedRows > 0) {");
-            deleteByExampleMethod.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-            outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, true);
+            deleteByExampleMethod.addBodyLine("for ({0} {1} : result.getResult()) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+            outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, false);
             deleteByExampleMethod.addBodyLine("}");
-            deleteByExampleMethod.addBodyLine("return affectedRows;");
+            deleteByExampleMethod.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             deleteByExampleMethod.addBodyLine("}");
-            deleteByExampleMethod.addBodyLine("return 0;");
+            deleteByExampleMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         } else {
             deleteByExampleMethod.addBodyLine("return super.{0}(example);", introspectedTable.getDeleteByExampleStatementId());
         }

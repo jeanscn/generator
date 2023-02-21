@@ -51,12 +51,11 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
 
         commentGenerator.addMethodJavaDocLine(method, "获取条件实体对象列表");
 
-        String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         selectByExampleWithPagehelper(parentElement, method);
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s({1}),page);",entityVoType.getShortName(),listEntityVar);
+            method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()),page);",entityVoType.getShortName());
         }else{
-            method.addBodyLine("return ResponsePagehelperResult.success({0},page);",listEntityVar);
+            method.addBodyLine("return ResponsePagehelperResult.success(result.getResult(),page);");
         }
 
         parentElement.addMethod(method);

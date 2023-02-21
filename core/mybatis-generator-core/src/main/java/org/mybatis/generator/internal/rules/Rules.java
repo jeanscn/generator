@@ -263,6 +263,7 @@ public interface Rules {
     /**
      * 是生成VO对象
      * */
+    boolean isGenerateAnyVO();
     boolean isGenerateVoModel();
 
     boolean isGenerateCreateVO();

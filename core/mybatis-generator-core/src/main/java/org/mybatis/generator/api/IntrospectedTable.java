@@ -96,7 +96,7 @@ public abstract class IntrospectedTable {
         ATTR_KOTLIN_RECORD_TYPE,
         ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME,
         /*CONTROLLER相关*/
-        ATTR_CONTROL_BASE_REQUEST_MAPPING,
+        //ATTR_CONTROL_BASE_REQUEST_MAPPING,
         ATTR_CONTROL_BEAN_NAME,
         ATTR_RELATION_RESULT_MAP_ID,
         ATTR_SELECT_BY_EXAMPLE_WITH_RELATION_STATEMENT_ID,
@@ -506,8 +506,6 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateControllerAttributes() {
-        //base Package
-        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING, context.getModuleKeyword().toLowerCase());
         String entityName;
         if (fullyQualifiedTable.getDomainObjectName() != null) {
             entityName = JavaBeansUtil.getFirstCharacterLowercase(fullyQualifiedTable.getDomainObjectName());
@@ -683,7 +681,7 @@ public abstract class IntrospectedTable {
     }
 
     public String getControllerSimplePackage() {
-        return internalAttributes.get(InternalAttribute.ATTR_CONTROL_BASE_REQUEST_MAPPING);
+        return this.tableConfiguration.getServiceApiBasePath();
     }
 
     public String getBlobColumnListId() {
@@ -1085,8 +1083,6 @@ public abstract class IntrospectedTable {
     public abstract List<GeneratedSqlSchemaFile> getGeneratedSqlSchemaFiles();
 
     public abstract List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles();
-
-    //public abstract List<GeneratedSqlSchemaFile> getGeneratedSysMenuSqlDataFiles();
 
     /**
      * This method should return a list of generated Kotlin files related to this

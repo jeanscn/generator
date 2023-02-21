@@ -21,25 +21,27 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractVOGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public abstract class AbstractModelGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     protected VOGeneratorConfiguration voGeneratorConfiguration;
 
     protected List<String> excludeColumns = new ArrayList<>();
 
-    private List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
+    private final List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
 
     private List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
-    private List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
+    private final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
+
+    private List<String> equalsAndHashCodeColumns = new ArrayList<>();
 
     protected FullyQualifiedJavaType fullyQualifiedJavaType;
 
-    public AbstractVOGeneratorConfiguration() {
+    public AbstractModelGeneratorConfiguration() {
         super();
     }
 
-    public AbstractVOGeneratorConfiguration(Context context) {
+    public AbstractModelGeneratorConfiguration(Context context) {
         super();
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
@@ -91,6 +93,14 @@ public abstract class AbstractVOGeneratorConfiguration extends AbstractGenerator
 
     public void addVoNameFragmentGeneratorConfiguration(VoNameFragmentGeneratorConfiguration voNameFragmentGeneratorConfiguration) {
         this.voNameFragmentGeneratorConfigurations.add(voNameFragmentGeneratorConfiguration);
+    }
+
+    public List<String> getEqualsAndHashCodeColumns() {
+        return equalsAndHashCodeColumns;
+    }
+
+    public void setEqualsAndHashCodeColumns(List<String> equalsAndHashCodeColumns) {
+        this.equalsAndHashCodeColumns = equalsAndHashCodeColumns;
     }
 
     @Override

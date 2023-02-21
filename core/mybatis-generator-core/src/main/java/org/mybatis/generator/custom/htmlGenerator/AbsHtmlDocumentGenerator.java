@@ -10,7 +10,6 @@ import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.VOModelGeneratorConfiguration;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
 import java.util.function.Function;
@@ -163,7 +162,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     protected void addLocalStaticResource(HtmlElement head) {
-        String p = introspectedTable.getControllerSimplePackage();
+        String p = introspectedTable.getTableConfiguration().getHtmlBasePath();
         addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
         addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(p, p));
     }

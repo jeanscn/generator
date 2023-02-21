@@ -56,8 +56,8 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
                 ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns())) {
 
             XmlElement fieldSetTrimElement = new XmlElement("trim");
-            fieldSetTrimElement.addAttribute(new Attribute("prefix", introspectedColumn.getActualColumnName()+" = "));
-            fieldSetTrimElement.addAttribute(new Attribute("suffix", ","));
+            fieldSetTrimElement.addAttribute(new Attribute("prefix", introspectedColumn.getActualColumnName()+" = case ID_"));
+            fieldSetTrimElement.addAttribute(new Attribute("suffix", "end,"));
             trimSetElement.addElement(fieldSetTrimElement);
 
             XmlElement foreachListField = new XmlElement("foreach");
@@ -65,12 +65,12 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
             foreachListField.addAttribute(new Attribute("item", "item"));
             foreachListField.addAttribute(new Attribute("index", "index"));
             foreachListField.addAttribute(new Attribute("separator", " "));
-            foreachListField.addAttribute(new Attribute("open", "case ID_"));
-            foreachListField.addAttribute(new Attribute("close", "end"));
+            foreachListField.addAttribute(new Attribute("open", ""));
+            foreachListField.addAttribute(new Attribute("close", ""));
             fieldSetTrimElement.addElement(foreachListField);
 
             XmlElement testItemIf = new XmlElement("if");
-            testItemIf.addAttribute(new Attribute("test", "item != null"));
+            testItemIf.addAttribute(new Attribute("test", "item != null and item."+introspectedColumn.getJavaProperty()+" != null"));
             foreachListField.addElement(testItemIf);
 
             sb.setLength(0);

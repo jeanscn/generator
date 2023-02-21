@@ -981,6 +981,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voCreateFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean voModelGetterMethodGenerated(Method method,
                                                  TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
                                                  IntrospectedTable introspectedTable) {

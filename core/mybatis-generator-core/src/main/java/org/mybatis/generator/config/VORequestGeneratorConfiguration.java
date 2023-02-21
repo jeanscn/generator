@@ -4,7 +4,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.List;
 
-public class VORequestGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
+public class VORequestGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private boolean includePageParam = true;
 

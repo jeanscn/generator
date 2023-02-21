@@ -8,6 +8,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.annotations.ApiModelProperty;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -63,8 +64,9 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             viewPath.setInitializationString("\""+htmlGeneratorConfiguration.getViewPath()+"\"");
             if (topLevelClass.addField(viewPath,null,true)) {
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    viewPath.addAnnotation("@ApiModelProperty(value = \"视图路径\",hidden = true)");
-                    topLevelClass.addMultipleImports("ApiModelProperty");
+                    ApiModelProperty apiModelProperty = new ApiModelProperty("视图路径","html/viewPath");
+                    apiModelProperty.setHidden("true");
+                    apiModelProperty.addAnnotationToField(viewPath, topLevelClass);
                 }
                 if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     viewPath.addAnnotation("@TableField(exist = false)");
@@ -87,7 +89,9 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             field.setInitializationString("\""+introspectedTable.getControllerSimplePackage()+"\"");
             if(topLevelClass.addField(field, null, true)){
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    field.addAnnotation("@ApiModelProperty(value = \"Restful请求中的跟路径\",hidden = true)");
+                    ApiModelProperty apiModelProperty = new ApiModelProperty("Restful请求中的跟路径", "html/restBasePath");
+                    apiModelProperty.setHidden("true");
+                    apiModelProperty.addAnnotationToField(field, topLevelClass);
                 }
                 if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     field.addAnnotation("@TableField(exist = false)");

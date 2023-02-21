@@ -20,11 +20,13 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOUpdateGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
+public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
     private List<String> requiredColumns = new ArrayList<>();
+
+    private List<String> validateIgnoreColumns = new ArrayList<>();
 
     public VOUpdateGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
@@ -47,6 +49,14 @@ public class VOUpdateGeneratorConfiguration extends AbstractVOGeneratorConfigura
 
     public void setRequiredColumns(List<String> requiredColumns) {
         this.requiredColumns = requiredColumns;
+    }
+
+    public List<String> getValidateIgnoreColumns() {
+        return validateIgnoreColumns;
+    }
+
+    public void setValidateIgnoreColumns(List<String> validateIgnoreColumns) {
+        this.validateIgnoreColumns = validateIgnoreColumns;
     }
 
     @Override

@@ -9,6 +9,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -29,7 +30,6 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-
         introspectedTable.getRelationGeneratorConfigurations().stream()
                 .filter(c -> c.isEnableInsert() || c.isEnableUpdate() || c.isEnableInsertOrUpdate() || c.isEnableDelete())
                 .forEach(config -> {
@@ -68,7 +68,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                             context.getCommentGenerator().addMethodJavaDocLine(innerInsertUpdateMethod, "级联操作的实现方法");
                             parentElement.addImportedType(ACTION_CATE_ENUM);
 
-                            if (config.getBeanClassFullName() != null) {
+                            if (config.getBeanClassFullName() != null && config.getRelationProperty()!=null) {
                                 if (isCollection) {
                                     innerInsertUpdateMethod.addBodyLine("if (items == null || items.size()==0) return Collections.singletonList(ServiceResult.success(null));");
                                     parentElement.addImportedType("java.util.Collections");
@@ -101,7 +101,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     innerInsertUpdateMethod.addBodyLine("    }).collect(Collectors.toList());");
                                     innerInsertUpdateMethod.addBodyLine("case \"DELETE\":");
                                     innerInsertUpdateMethod.addBodyLine("return items.stream().map(i -> {");
-                                    innerInsertUpdateMethod.addBodyLine("int ret = bean.deleteByPrimaryKey(i.getId());");
+                                    innerInsertUpdateMethod.addBodyLine("int ret = bean.deleteByPrimaryKey(i.getId()).getResult();");
                                     innerInsertUpdateMethod.addBodyLine("ServiceResult<{0}> result = ret > 0 ? ServiceResult.success(i) : ServiceResult.failure(ServiceCodeEnum.FAIL);"
                                             , modelType.getShortName());
                                     innerInsertUpdateMethod.addBodyLine("return result;\n" +
@@ -111,7 +111,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     parentElement.addImportedType("java.util.stream.Collectors");
                                     parentElement.addImportedType("java.util.Collections");
                                 } else {
-                                    innerInsertUpdateMethod.addBodyLine("ServiceResult<{0}> serviceResult;",modelType.getShortName());
+                                    innerInsertUpdateMethod.addBodyLine("ServiceResult<{0}> serviceResult;", modelType.getShortName());
                                     innerInsertUpdateMethod.addBodyLine("switch (actionCate.code()) {");
                                     innerInsertUpdateMethod.addBodyLine("    case \"INSERT\":");
                                     innerInsertUpdateMethod.addBodyLine("serviceResult = bean.insertSelective(item);");
@@ -127,7 +127,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     innerInsertUpdateMethod.addBodyLine(" serviceResult = bean.insertOrUpdate(item);");
                                     printSetRelationValue2(innerInsertUpdateMethod, config);
                                     innerInsertUpdateMethod.addBodyLine("case \"DELETE\":\n" +
-                                            "                int ret = bean.deleteByPrimaryKey(item.getId());\n" +
+                                            "                int ret = bean.deleteByPrimaryKey(item.getId()).getResult();\n" +
                                             "                return ret > 0 ? ServiceResult.success(item) : ServiceResult.failure(ServiceCodeEnum.FAIL);\n" +
                                             "            default:\n" +
                                             "                return ServiceResult.failure(ServiceCodeEnum.FAIL);");
@@ -137,6 +137,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                 parentElement.addImportedType(beanClass);
                                 parentElement.addImportedType(SERVICE_CODE_ENUM);
                             } else {
+                                innerInsertUpdateMethod.addBodyLine("//!生成配置未指定子级的[beanClassFullName]或者[relationProperty]属性，无法生成方法体处理逻辑。");
                                 if (isCollection) {
                                     innerInsertUpdateMethod.addBodyLine("return Collections.singletonList(ServiceResult.success(null));");
                                     parentElement.addImportedType("java.util.Collections");

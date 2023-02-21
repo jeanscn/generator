@@ -73,7 +73,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewStatus).orElse(\"1\"));");
         sb.setLength(0);
         sb.append("String viewName = VStringUtil.format(\"");
-        sb.append(this.htmlGeneratorConfiguration.getTargetPackage()).append("/");
+        sb.append(introspectedTable.getTableConfiguration().getHtmlBasePath()).append("/");
         sb.append("{0}");
         sb.append(StringUtility.substringBeforeLast(this.htmlGeneratorConfiguration.getHtmlFileName(),"."));
         sb.append("\",Optional.ofNullable(prefix).orElse(\"\"));");

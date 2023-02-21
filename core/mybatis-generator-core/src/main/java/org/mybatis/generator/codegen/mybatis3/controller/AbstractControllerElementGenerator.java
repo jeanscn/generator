@@ -223,18 +223,18 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
             parentElement.addImportedType("com.github.pagehelper.PageHelper");
         }
         if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
-            method.addBodyLine("List<{0}> {1};\n" +
+            method.addBodyLine("ServiceResult<List<{0}>> result;\n" +
                             "        if ({3}.isCascadeResult()) '{'\n" +
-                            "            {1} = {2}.selectByExampleWithRelation(example);\n" +
+                            "            result = ServiceResult.success({2}.selectByExampleWithRelation(example));\n" +
                             "        '}'else'{'\n" +
-                            "            {1} = {2}.selectByExample(example);\n" +
+                            "            result = {2}.selectByExample(example);\n" +
                             "        '}'",
                     entityType.getShortName(), listEntityVar,serviceBeanName,requestVOVar);
         }else{
-            method.addBodyLine("List<{0}> {1} = {2}.selectByExample(example);",
-                    entityType.getShortName(), listEntityVar,serviceBeanName);
+            method.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectByExample(example);",
+                    entityType.getShortName(), serviceBeanName);
         }
-        method.addBodyLine("Page<{0}> page = (Page<{0}>){1};",entityType.getShortName(), listEntityVar);
+        method.addBodyLine("Page<{0}> page = (Page<{0}>)result.getResult();",entityType.getShortName());
         parentElement.addImportedType("com.github.pagehelper.Page");
     }
 

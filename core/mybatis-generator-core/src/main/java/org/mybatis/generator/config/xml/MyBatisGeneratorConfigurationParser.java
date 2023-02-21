@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.config.xml;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
@@ -71,12 +72,16 @@ public class MyBatisGeneratorConfigurationParser {
                 continue;
             }
 
-            if ("properties".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseProperties(childNode);
-            } else if ("classPathEntry".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseClassPathEntry(configuration, childNode);
-            } else if ("context".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseContext(configuration, childNode);
+            switch (childNode.getNodeName()) {
+                case "properties":  //$NON-NLS-1$
+                    parseProperties(childNode);
+                    break;
+                case "classPathEntry":  //$NON-NLS-1$
+                    parseClassPathEntry(configuration, childNode);
+                    break;
+                case "context":  //$NON-NLS-1$
+                    parseContext(configuration, childNode);
+                    break;
             }
         }
 
@@ -169,8 +174,12 @@ public class MyBatisGeneratorConfigurationParser {
 
         String onlyTables = attributes.getProperty("onlyTables");
         if (stringHasValue(onlyTables)) {
-            context.setOnlyTablesGenerate(Arrays.asList(onlyTables.split(",")));
+            context.setOnlyTablesGenerate(spiltToList(onlyTables));
         }
+
+        String updateModuleData = attributes.getProperty("updateModuleData", "false");
+        context.setUpdateModuleData(Boolean.parseBoolean(updateModuleData));
+
         configuration.addContext(context);
 
         NodeList nodeList = node.getChildNodes();
@@ -181,28 +190,48 @@ public class MyBatisGeneratorConfigurationParser {
                 continue;
             }
 
-            if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseProperty(context, childNode);
-            } else if ("plugin".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parsePlugin(context, childNode);
-            } else if ("commentGenerator".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseCommentGenerator(context, childNode);
-            } else if ("jdbcConnection".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseJdbcConnection(context, childNode);
-            } else if ("connectionFactory".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseConnectionFactory(context, childNode);
-            } else if ("javaModelGenerator".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseJavaModelGenerator(context, childNode);
-            } else if ("javaTypeResolver".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseJavaTypeResolver(context, childNode);
-            } else if ("sqlMapGenerator".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseSqlMapGenerator(context, childNode);
-            } else if ("javaClientGenerator".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseJavaClientGenerator(context, childNode);
-            } else if ("table".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseTable(context, childNode);
+            switch (childNode.getNodeName()) {
+                case "property":  //$NON-NLS-1$
+                    parseProperty(context, childNode);
+                    break;
+                case "plugin":  //$NON-NLS-1$
+                    parsePlugin(context, childNode);
+                    break;
+                case "commentGenerator":  //$NON-NLS-1$
+                    parseCommentGenerator(context, childNode);
+                    break;
+                case "jdbcConnection":  //$NON-NLS-1$
+                    parseJdbcConnection(context, childNode);
+                    break;
+                case "connectionFactory":  //$NON-NLS-1$
+                    parseConnectionFactory(context, childNode);
+                    break;
+                case "javaModelGenerator":  //$NON-NLS-1$
+                    parseJavaModelGenerator(context, childNode);
+                    break;
+                case "javaTypeResolver":  //$NON-NLS-1$
+                    parseJavaTypeResolver(context, childNode);
+                    break;
+                case "sqlMapGenerator":  //$NON-NLS-1$
+                    parseSqlMapGenerator(context, childNode);
+                    break;
+                case "javaClientGenerator":  //$NON-NLS-1$
+                    parseJavaClientGenerator(context, childNode);
+                    break;
+                case "table":  //$NON-NLS-1$
+                    parseTable(context, childNode);
+                    break;
             }
         }
+    }
+
+    private List<String> spiltToList(String str) {
+        List<String> ret = new ArrayList<>();
+        if (stringHasValue(str)) {
+            String[] split = str.split("[,;，；、]");
+            Collections.addAll(ret, split);
+        }
+        return ret;
     }
 
     protected void parseSqlMapGenerator(Context context, Node node) {
@@ -229,8 +258,10 @@ public class MyBatisGeneratorConfigurationParser {
 
         //先确认是否指定了生成范围
         List<String> tables = context.getOnlyTablesGenerate();
-        if (tables.size()==0) {
+        if (tables.size() == 0) {
+            //未指定生成范围
             if (!stringHasValue(ignore) && stringHasValue(domainObjectName)) {
+                //未指定ignore
                 JavaModelGeneratorConfiguration gc = context.getJavaModelGeneratorConfiguration();
                 if (JavaBeansUtil.javaFileExist(gc.getTargetProject(), gc.getTargetPackage(), domainObjectName)) {
                     return;
@@ -240,27 +271,25 @@ public class MyBatisGeneratorConfigurationParser {
             if (Boolean.parseBoolean(ignore)) {
                 return;
             }
-        }else if(!tables.contains(tableName)){
+        } else if (!tables.contains(tableName)) { //指定了生成范围但是未不包含当前表
             return;
         }
         context.addTableConfiguration(tc);
+        //表名相关
         String catalog = attributes.getProperty("catalog"); //$NON-NLS-1$
         if (stringHasValue(catalog)) {
             tc.setCatalog(catalog);
         }
-
         String schema = attributes.getProperty("schema"); //$NON-NLS-1$
         if (stringHasValue(schema)) {
             tc.setSchema(schema);
         }
-
         if (stringHasValue(tableName)) {
             tc.setTableName(tableName);
         }
         if (stringHasValue(domainObjectName)) {
             tc.setDomainObjectName(domainObjectName);
         }
-
         String alias = attributes.getProperty("alias"); //$NON-NLS-1$
         if (stringHasValue(alias)) {
             tc.setAlias(alias);
@@ -270,6 +299,30 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(tableType)) {
             tc.setTableType(tableType);
         }
+        String isModules = attributes.getProperty("isModules");
+        if (stringHasValue(isModules)) {
+            tc.setModules(isTrue(isModules));
+        }
+
+        String validateIgnoreColumns = attributes.getProperty("validateIgnoreColumns");
+        if (validateIgnoreColumns != null) {
+            if (VStringUtil.isEmpty(validateIgnoreColumns)) {
+                tc.setValidateIgnoreColumns(new ArrayList<>());
+            } else {
+                List<String> collect = spiltToList(validateIgnoreColumns).stream().distinct().collect(Collectors.toList());
+                tc.setValidateIgnoreColumns(collect);
+            }
+        } else {
+            tc.setValidateIgnoreColumns(Arrays.asList("DELETE_FLAG", "VERSION_", "CREATED_", "MODIFIED_", "CREATED_ID", "MODIFIED_ID"));
+        }
+
+        //service及HTML根路径
+        String serviceApiBasePath = Optional.ofNullable(context.getModuleKeyword())
+                .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse("app"));
+        tc.setServiceApiBasePath(serviceApiBasePath.toLowerCase());
+        String htmlBasePath = Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
+                .orElse(Optional.ofNullable(context.getModuleKeyword()).orElse("html"));
+        tc.setHtmlBasePath(htmlBasePath.toLowerCase());
 
         String enableInsert = attributes.getProperty("enableInsert"); //$NON-NLS-1$
         if (stringHasValue(enableInsert)) {
@@ -397,48 +450,70 @@ public class MyBatisGeneratorConfigurationParser {
                 continue;
             }
 
-            if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseProperty(tc, childNode);
-            } else if ("columnOverride".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseColumnOverride(tc, childNode);
-            } else if ("ignoreColumn".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseIgnoreColumn(tc, childNode);
-            } else if ("ignoreColumnsByRegex".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseIgnoreColumnByRegex(tc, childNode);
-            } else if ("generatedKey".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseGeneratedKey(tc, childNode);
-            } else if ("domainObjectRenamingRule".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseDomainObjectRenamingRule(tc, childNode);
-            } else if ("columnRenamingRule".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseColumnRenamingRule(tc, childNode);
-            } else if ("selectByTable".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseSelectByTable(tc, childNode);
-            } else if ("selectByColumn".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseSelectByColumn(tc, childNode);
-            } else if ("selectBySqlMethod".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseSelectBySqlMethod(tc, childNode);
-            } else if ("javaModelAssociation".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseJavaModelRelation(tc, childNode, RelationTypeEnum.association);
-            } else if ("javaModelCollection".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseJavaModelRelation(tc, childNode, RelationTypeEnum.collection);
-            } else if ("generateHtml".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseGenerateHtml(context, tc, childNode);
-            } else if ("generateService".equals(childNode.getNodeName())) {
-                parseGenerateService(context, tc, childNode);
-            } else if ("generateController".equals(childNode.getNodeName())) {
-                parseGenerateController(context, tc, childNode);
-            } else if ("generateDao".equals(childNode.getNodeName())) {
-                parseGenerateDao(context, tc, childNode);
-            } else if ("generateModel".equals(childNode.getNodeName())) {
-                parseGenerateModel(context, tc, childNode);
-            } else if ("generateSqlMap".equals(childNode.getNodeName())) {
-                parseGenerateSqlMap(context, tc, childNode);
-            } else if ("generateSqlSchema".equals(childNode.getNodeName())) {
-                parseGenerateSqlSchema(context, tc, childNode);
-            } else if ("generateVO".equals(childNode.getNodeName())) {
-                parseGenerateVO(context, tc, childNode);
-            } else if ("generateCachePO".equals(childNode.getNodeName())) {
-                parseGenerateCachePO(context, tc, childNode);
+            switch (childNode.getNodeName()) {
+                case "property":  //$NON-NLS-1$
+                    parseProperty(tc, childNode);
+                    break;
+                case "columnOverride":  //$NON-NLS-1$
+                    parseColumnOverride(tc, childNode);
+                    break;
+                case "ignoreColumn":  //$NON-NLS-1$
+                    parseIgnoreColumn(tc, childNode);
+                    break;
+                case "ignoreColumnsByRegex":  //$NON-NLS-1$
+                    parseIgnoreColumnByRegex(tc, childNode);
+                    break;
+                case "generatedKey":  //$NON-NLS-1$
+                    parseGeneratedKey(tc, childNode);
+                    break;
+                case "domainObjectRenamingRule":  //$NON-NLS-1$
+                    parseDomainObjectRenamingRule(tc, childNode);
+                    break;
+                case "columnRenamingRule":  //$NON-NLS-1$
+                    parseColumnRenamingRule(tc, childNode);
+                    break;
+                case "selectByTable":  //$NON-NLS-1$
+                    parseSelectByTable(tc, childNode);
+                    break;
+                case "selectByColumn":  //$NON-NLS-1$
+                    parseSelectByColumn(tc, childNode);
+                    break;
+                case "selectBySqlMethod":  //$NON-NLS-1$
+                    parseSelectBySqlMethod(tc, childNode);
+                    break;
+                case "javaModelAssociation":  //$NON-NLS-1$
+                    parseJavaModelRelation(tc, childNode, RelationTypeEnum.association);
+                    break;
+                case "javaModelCollection":  //$NON-NLS-1$
+                    parseJavaModelRelation(tc, childNode, RelationTypeEnum.collection);
+                    break;
+                case "generateHtml":  //$NON-NLS-1$
+                    parseGenerateHtml(context, tc, childNode);
+                    break;
+                case "generateService":
+                    parseGenerateService(context, tc, childNode);
+                    break;
+                case "generateController":
+                    parseGenerateController(context, tc, childNode);
+                    break;
+                case "generateDao":
+                    parseGenerateDao(context, tc, childNode);
+                    break;
+                case "generateModel":
+                    parseGenerateModel(context, tc, childNode);
+                    break;
+                case "generateSqlMap":
+                    parseGenerateSqlMap(context, tc, childNode);
+                    break;
+                case "generateSqlSchema":
+                    parseGenerateSqlSchema(context, tc, childNode);
+                    break;
+                case "generateVO":
+                    parseGenerateVO(context, tc, childNode);
+                    break;
+                case "generateCachePO":
+                    parseGenerateCachePO(context, tc, childNode);
+                    break;
             }
         }
         //根据所有配置信息，进行调整
@@ -448,7 +523,7 @@ public class MyBatisGeneratorConfigurationParser {
                     .filter(c -> "children".equalsIgnoreCase(c.getPropertyName()))
                     .count();
             long selectByColumnParentIdCount = tc.getSelectByColumnGeneratorConfigurations().stream()
-                    .filter(c->c.getColumns().stream().anyMatch(column->"PARENT_ID".equals(column.getActualColumnName())))
+                    .filter(c -> c.getColumns().stream().anyMatch(column -> "PARENT_ID".equals(column.getActualColumnName())))
                     .count();
             if (selectByColumnParentIdCount == 0) {
                 tc.addSelectByColumnGeneratorConfiguration(new SelectByColumnGeneratorConfiguration("PARENT_ID"));
@@ -470,7 +545,7 @@ public class MyBatisGeneratorConfigurationParser {
                             ".pojo.vo."
                             + tc.getDomainObjectName() + "VO";
                     relationGeneratorConfiguration.setVoModelTye(voType);
-                }else{
+                } else {
                     relationGeneratorConfiguration.setVoModelTye(sb.toString());
                 }
                 sb.setLength(0);
@@ -666,7 +741,7 @@ public class MyBatisGeneratorConfigurationParser {
         String orderByClause = attributes.getProperty("orderByClause"); //$NON-NLS-1$
         String returnType = attributes.getProperty("returnType"); //$NON-NLS-1$
         SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();
-        selectByColumnGeneratorConfiguration.setColumnNames(Arrays.asList(column.split(",")));
+        selectByColumnGeneratorConfiguration.setColumnNames(spiltToList(column));
         selectByColumnGeneratorConfiguration.setOrderByClause(orderByClause);
         if (stringHasValue(returnType)) {
             selectByColumnGeneratorConfiguration.setReturnTypeParam(returnType);
@@ -675,7 +750,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parameterType)) {
             selectByColumnGeneratorConfiguration.setParameterType(parameterType);
         }
-        String enableDelete = attributes.getProperty("enableDelete","false");
+        String enableDelete = attributes.getProperty("enableDelete", "false");
         selectByColumnGeneratorConfiguration.setEnableDelete(Boolean.parseBoolean(enableDelete));
         tc.addSelectByColumnGeneratorConfiguration(selectByColumnGeneratorConfiguration);
     }
@@ -757,20 +832,25 @@ public class MyBatisGeneratorConfigurationParser {
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = new HtmlGeneratorConfiguration(context, tc);
         htmlGeneratorConfiguration.setGenerate(Boolean.parseBoolean(attributes.getProperty(PropertyRegistry.ANY_GENERATE)));
 
+        String overWriteFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_FILE);
+        if (stringHasValue(overWriteFile)) {
+            htmlGeneratorConfiguration.setOverWriteFile(Boolean.parseBoolean(overWriteFile));
+        }
+
         String targetProject = Optional.ofNullable(attributes.getProperty(PropertyRegistry.ANY_TARGET_PROJECT)).orElse(
                 Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
                         .orElse("src/main/resources/templates"));
         htmlGeneratorConfiguration.setTargetProject(targetProject);
 
         String htmlTargetPackage = Optional.ofNullable(attributes.getProperty(PropertyRegistry.ANY_TARGET_PACKAGE))
-                .orElse(Optional.ofNullable(context.getModuleKeyword())
-                        .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse("html")));
+                .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
+                        .orElse(Optional.ofNullable(context.getModuleKeyword()).orElse("html")));
 
         htmlGeneratorConfiguration.setTargetPackage(htmlTargetPackage);
 
         String viewPath = attributes.getProperty(PropertyRegistry.TABLE_VIEW_PATH);
         String tmpFullPath = htmlGeneratorConfiguration.getTargetPackage() + "/" + viewPath;
-        String fullViewPath = Arrays.stream(tmpFullPath.split("[/\\\\]")).filter(StringUtility::stringHasValue).collect(Collectors.joining("/"));
+        String fullViewPath = spiltToList(tmpFullPath).stream().filter(StringUtility::stringHasValue).collect(Collectors.joining("/"));
         htmlGeneratorConfiguration.setViewPath(fullViewPath);
         htmlGeneratorConfiguration.setTargetPackage(StringUtility.substringBeforeLast(fullViewPath, "/"));
 
@@ -816,20 +896,20 @@ public class MyBatisGeneratorConfigurationParser {
         List<String> hiddenColunms = new ArrayList<>();
         String contextHtmlHiddenColumns = context.getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
         if (stringHasValue(contextHtmlHiddenColumns)) {
-            hiddenColunms = Arrays.stream(contextHtmlHiddenColumns.split(",")).collect(Collectors.toList());
+            hiddenColunms = new ArrayList<>(spiltToList(contextHtmlHiddenColumns));
         }
         switch (propertyName) {
             case PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS:
                 String htmlHiddenColumns = properties.get("value").toString();
                 if (stringHasValue(htmlHiddenColumns)) {
-                    hiddenColunms = Stream.of(Arrays.stream(htmlHiddenColumns.split(",")), hiddenColunms.stream())
+                    hiddenColunms = Stream.of(spiltToList(htmlHiddenColumns).stream(), hiddenColunms.stream())
                             .flatMap(Function.identity()).distinct().collect(Collectors.toList());
                 }
                 break;
 
             case PropertyRegistry.TABLE_HTML_REQUIRED_COLUMNS:
                 String required = properties.get("value").toString();
-                List<String> collect = Arrays.stream(required.split(","))
+                List<String> collect = spiltToList(required).stream()
                         .map(String::toUpperCase).distinct().collect(Collectors.toList());
                 htmlGeneratorConfiguration.setElementRequired(collect);
                 break;
@@ -1050,33 +1130,51 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(node);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
         configuration.setGenerate(Boolean.parseBoolean(generate));
-
+        String columnsName = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
+        if (stringHasValue(columnsName)) {
+            configuration.setExcludeColumns(spiltToList(columnsName));
+        }
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        }
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            if ("property".equals(childNode.getNodeName())) {
-                parseProperty(configuration, childNode);
-            } else if (("mapstructMapping").equals(childNode.getNodeName())) {
-                parseMapstructMapping(childNode, configuration);
-            } else if (("overridePropertyValue").equals(childNode.getNodeName())) {
-                parseVoOverrideColumn(context, tc, childNode, configuration);
-            } else if (("additionalProperty").equals(childNode.getNodeName())) {
-                parseAdditionalProperty(context, tc, childNode, configuration);
-            } else if ("modelVO".equals(childNode.getNodeName())) {
-                parseGenerateModelVO(context, tc, childNode, configuration);
-            } else if ("createVO".equals(childNode.getNodeName())) {
-                parseGenerateCreateVO(context, tc, childNode, configuration);
-            } else if ("updateVO".equals(childNode.getNodeName())) {
-                parseGenerateUpdateVO(context, tc, childNode, configuration);
-            } else if ("viewVO".equals(childNode.getNodeName())) {
-                parseGenerateViewVO(context, tc, childNode, configuration);
-            } else if ("excelVO".equals(childNode.getNodeName())) {
-                parseGenerateExcelVO(context, tc, childNode, configuration);
-            } else if ("requestVO".equals(childNode.getNodeName())) {
-                parseGenerateRequestVO(context, tc, childNode, configuration);
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(configuration, childNode);
+                    break;
+                case ("mapstructMapping"):
+                    parseMapstructMapping(childNode, configuration);
+                    break;
+                case ("overridePropertyValue"):
+                    parseVoOverrideColumn(context, tc, childNode, configuration);
+                    break;
+                case ("additionalProperty"):
+                    parseAdditionalProperty(context, tc, childNode, configuration);
+                    break;
+                case "modelVO":
+                    parseGenerateModelVO(context, tc, childNode, configuration);
+                    break;
+                case "createVO":
+                    parseGenerateCreateVO(context, tc, childNode, configuration);
+                    break;
+                case "updateVO":
+                    parseGenerateUpdateVO(context, tc, childNode, configuration);
+                    break;
+                case "viewVO":
+                    parseGenerateViewVO(context, tc, childNode, configuration);
+                    break;
+                case "excelVO":
+                    parseGenerateExcelVO(context, tc, childNode, configuration);
+                    break;
+                case "requestVO":
+                    parseGenerateRequestVO(context, tc, childNode, configuration);
+                    break;
             }
         }
         tc.setVoGeneratorConfiguration(configuration);
@@ -1094,7 +1192,7 @@ public class MyBatisGeneratorConfigurationParser {
         configuration.addMappingConfigurations(mapstructMappingConfiguration);
     }
 
-    private void parseVoOverrideColumn(Context context, TableConfiguration tc, Node node, AbstractVOGeneratorConfiguration configuration) {
+    private void parseVoOverrideColumn(Context context, TableConfiguration tc, Node node, AbstractModelGeneratorConfiguration configuration) {
         OverridePropertyValueGeneratorConfiguration overrideColumnGeneratorConfiguration = new OverridePropertyValueGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(node);
         String sourceColumn = attributes.getProperty(PropertyRegistry.ELEMENT_SOURCE_COLUMN);
@@ -1133,6 +1231,10 @@ public class MyBatisGeneratorConfigurationParser {
             overrideColumnGeneratorConfiguration.setApplyProperty(applyProperty);
         }
 
+        String remark = attributes.getProperty(PropertyRegistry.ELEMENT_FIELD_REMARK);
+        if (stringHasValue(remark)) {
+            overrideColumnGeneratorConfiguration.setRemark(remark);
+        }
         if (stringHasValue(sourceColumn)) {
             if (annotationType.equals("Dict")) {
                 if (stringHasValue(beanName)) {
@@ -1144,7 +1246,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
     }
 
-    private void parseAdditionalProperty(Context context, TableConfiguration tc, Node childNode, AbstractVOGeneratorConfiguration configuration) {
+    private void parseAdditionalProperty(Context context, TableConfiguration tc, Node childNode, AbstractModelGeneratorConfiguration configuration) {
         VoAdditionalPropertyGeneratorConfiguration voAdditionalPropertyConfiguration = new VoAdditionalPropertyGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(childNode);
         String name = attributes.getProperty("name");
@@ -1157,11 +1259,11 @@ public class MyBatisGeneratorConfigurationParser {
             voAdditionalPropertyConfiguration.setType(type);
             String typeArguments = attributes.getProperty("typeArguments");
             if (stringHasValue(typeArguments)) {
-                voAdditionalPropertyConfiguration.setTypeArguments(Arrays.asList(typeArguments.split(",")));
+                voAdditionalPropertyConfiguration.setTypeArguments(spiltToList(typeArguments));
             }
             String annotations = attributes.getProperty("annotations");
             if (stringHasValue(annotations)) {
-                voAdditionalPropertyConfiguration.setAnnotations(Arrays.asList(annotations.split("\\|")));
+                voAdditionalPropertyConfiguration.setAnnotations(new ArrayList<>(Arrays.asList(annotations.split("\\|"))));
             }
             String initializationString = attributes.getProperty("initializationString");
             if (stringHasValue(initializationString)) {
@@ -1179,14 +1281,14 @@ public class MyBatisGeneratorConfigurationParser {
             }
             String importedTypes = attributes.getProperty("importedTypes");
             if (stringHasValue(importedTypes)) {
-                voAdditionalPropertyConfiguration.setImportedTypes(Arrays.asList(importedTypes.split(",")));
+                voAdditionalPropertyConfiguration.setImportedTypes(spiltToList(importedTypes));
             }
             configuration.addAdditionalPropertyConfigurations(voAdditionalPropertyConfiguration);
         }
 
     }
 
-    private void parseNameFragment(Context context, TableConfiguration tc, Node childNode, AbstractVOGeneratorConfiguration configuration) {
+    private void parseNameFragment(Context context, TableConfiguration tc, Node childNode, AbstractModelGeneratorConfiguration configuration) {
         VoNameFragmentGeneratorConfiguration voNameFragmentGeneratorConfiguration = new VoNameFragmentGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(childNode);
         String column = attributes.getProperty("column");
@@ -1200,7 +1302,7 @@ public class MyBatisGeneratorConfigurationParser {
         configuration.addVoNameFragmentGeneratorConfiguration(voNameFragmentGeneratorConfiguration);
     }
 
-    private void parseVoChildNodeProperty(Context context, TableConfiguration tc, Node node, AbstractVOGeneratorConfiguration configuration) {
+    private void parseModelChildNodeProperty(Context context, TableConfiguration tc, Node node, AbstractModelGeneratorConfiguration configuration) {
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
@@ -1209,14 +1311,19 @@ public class MyBatisGeneratorConfigurationParser {
                 continue;
             }
 
-            if ("property".equals(childNode.getNodeName())) { //$NON-NLS-1$
-                parseProperty(configuration, childNode);
-            } else if (("overridePropertyValue").equals(childNode.getNodeName())) {
-                parseVoOverrideColumn(context, tc, childNode, configuration);
-            } else if (("additionalProperty").equals(childNode.getNodeName())) {
-                parseAdditionalProperty(context, tc, childNode, configuration);
-            } else if (("nameFragment").equals(childNode.getNodeName())) {
-                parseNameFragment(context, tc, childNode, configuration);
+            switch (childNode.getNodeName()) {
+                case "property":  //$NON-NLS-1$
+                    parseProperty(configuration, childNode);
+                    break;
+                case ("overridePropertyValue"):
+                    parseVoOverrideColumn(context, tc, childNode, configuration);
+                    break;
+                case ("additionalProperty"):
+                    parseAdditionalProperty(context, tc, childNode, configuration);
+                    break;
+                case ("nameFragment"):
+                    parseNameFragment(context, tc, childNode, configuration);
+                    break;
             }
         }
     }
@@ -1227,9 +1334,21 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, vOModelGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            vOModelGeneratorConfiguration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+            vOModelGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
         }
-        parseVoChildNodeProperty(context, tc, node, vOModelGeneratorConfiguration);
+        //EqualsAndHashCodeColumns
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            vOModelGeneratorConfiguration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        } else {
+            vOModelGeneratorConfiguration.getEqualsAndHashCodeColumns().addAll(voGeneratorConfiguration.getEqualsAndHashCodeColumns());
+        }
+        if (vOModelGeneratorConfiguration.getEqualsAndHashCodeColumns().size() > 0) {
+            List<String> distinct = vOModelGeneratorConfiguration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
+            vOModelGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
+        }
+
+        parseModelChildNodeProperty(context, tc, node, vOModelGeneratorConfiguration);
         voGeneratorConfiguration.setVoModelConfiguration(vOModelGeneratorConfiguration);
     }
 
@@ -1239,13 +1358,34 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            configuration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+            configuration.setIncludeColumns(spiltToList(includeColumns));
         }
         String requiredColumns = attributes.getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS);
         if (stringHasValue(requiredColumns)) {
-            configuration.setRequiredColumns(Arrays.asList(requiredColumns.split(",")));
+            configuration.setRequiredColumns(spiltToList(requiredColumns));
         }
-        parseVoChildNodeProperty(context, tc, node, configuration);
+
+        List<String> validateIgnoreColumns = spiltToList(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
+        if (validateIgnoreColumns.size() == 0) {
+            validateIgnoreColumns.add("ID_");
+        }
+
+        //EqualsAndHashCodeColumns
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        } else {
+            configuration.getEqualsAndHashCodeColumns().addAll(voGeneratorConfiguration.getEqualsAndHashCodeColumns());
+        }
+        if (configuration.getEqualsAndHashCodeColumns().size() > 0) {
+            List<String> distinct = configuration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
+            configuration.setEqualsAndHashCodeColumns(distinct);
+        }
+
+        validateIgnoreColumns.addAll(tc.getValidateIgnoreColumns());
+        configuration.setValidateIgnoreColumns(validateIgnoreColumns);
+
+        parseModelChildNodeProperty(context, tc, node, configuration);
         voGeneratorConfiguration.setVoCreateConfiguration(configuration);
     }
 
@@ -1255,13 +1395,30 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            configuration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+            configuration.setIncludeColumns(spiltToList(includeColumns));
         }
         String requiredColumns = attributes.getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS);
         if (stringHasValue(requiredColumns)) {
-            configuration.setRequiredColumns(Arrays.asList(requiredColumns.split(",")));
+            configuration.setRequiredColumns(spiltToList(requiredColumns));
         }
-        parseVoChildNodeProperty(context, tc, node, configuration);
+
+        List<String> validateIgnoreColumns = spiltToList(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
+        validateIgnoreColumns.addAll(tc.getValidateIgnoreColumns());
+        configuration.setValidateIgnoreColumns(validateIgnoreColumns);
+
+        //EqualsAndHashCodeColumns
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        } else {
+            configuration.getEqualsAndHashCodeColumns().addAll(voGeneratorConfiguration.getEqualsAndHashCodeColumns());
+        }
+        if (configuration.getEqualsAndHashCodeColumns().size() > 0) {
+            List<String> distinct = configuration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
+            configuration.setEqualsAndHashCodeColumns(distinct);
+        }
+
+        parseModelChildNodeProperty(context, tc, node, configuration);
         voGeneratorConfiguration.setVoUpdateConfiguration(configuration);
     }
 
@@ -1271,9 +1428,22 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, vOExcelGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            vOExcelGeneratorConfiguration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+            vOExcelGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
         }
-        parseVoChildNodeProperty(context, tc, node, vOExcelGeneratorConfiguration);
+
+        //EqualsAndHashCodeColumns
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            vOExcelGeneratorConfiguration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        } else {
+            vOExcelGeneratorConfiguration.getEqualsAndHashCodeColumns().addAll(voGeneratorConfiguration.getEqualsAndHashCodeColumns());
+        }
+        if (vOExcelGeneratorConfiguration.getEqualsAndHashCodeColumns().size() > 0) {
+            List<String> distinct = vOExcelGeneratorConfiguration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
+            vOExcelGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
+        }
+
+        parseModelChildNodeProperty(context, tc, node, vOExcelGeneratorConfiguration);
         voGeneratorConfiguration.setVoExcelConfiguration(vOExcelGeneratorConfiguration);
     }
 
@@ -1283,7 +1453,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, voViewGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            voViewGeneratorConfiguration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+            voViewGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
         }
         String indexColumn = attributes.getProperty("indexColumn");
         if (stringHasValue(indexColumn)) {
@@ -1291,11 +1461,11 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String actionColumn = attributes.getProperty("actionColumn");
         if (stringHasValue(actionColumn)) {
-            voViewGeneratorConfiguration.setActionColumn(Arrays.asList(actionColumn.split(",")));
+            voViewGeneratorConfiguration.setActionColumn(spiltToList(actionColumn));
         }
         String queryColumns = attributes.getProperty("queryColumns");
         if (stringHasValue(queryColumns)) {
-            voViewGeneratorConfiguration.setQueryColumns(Arrays.asList(queryColumns.split(",")));
+            voViewGeneratorConfiguration.setQueryColumns(spiltToList(queryColumns));
         }
         String parentMenuId = attributes.getProperty("parentMenuId");
         if (stringHasValue(parentMenuId)) {
@@ -1303,9 +1473,22 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String defaultDisplayFields = attributes.getProperty("defaultDisplayFields");
         if (stringHasValue(defaultDisplayFields)) {
-            voViewGeneratorConfiguration.setDefaultDisplayFields(Arrays.asList(defaultDisplayFields.split(",")));
+            voViewGeneratorConfiguration.setDefaultDisplayFields(spiltToList(defaultDisplayFields));
         }
-        parseVoChildNodeProperty(context, tc, node, voViewGeneratorConfiguration);
+
+        //EqualsAndHashCodeColumns
+        String equalsHashCode = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(equalsHashCode)) {
+            voViewGeneratorConfiguration.setEqualsAndHashCodeColumns(spiltToList(equalsHashCode));
+        } else {
+            voViewGeneratorConfiguration.getEqualsAndHashCodeColumns().addAll(voGeneratorConfiguration.getEqualsAndHashCodeColumns());
+        }
+        if (voViewGeneratorConfiguration.getEqualsAndHashCodeColumns().size() > 0) {
+            List<String> distinct = voViewGeneratorConfiguration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
+            voViewGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
+        }
+
+        parseModelChildNodeProperty(context, tc, node, voViewGeneratorConfiguration);
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
     }
 
@@ -1316,10 +1499,30 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, voRequestGeneratorConfiguration, voGeneratorConfiguration);
         String includePageParam = attributes.getProperty("includePageParam");
         voRequestGeneratorConfiguration.setIncludePageParam(Boolean.parseBoolean(includePageParam));
-        parseVoChildNodeProperty(context, tc, node, voRequestGeneratorConfiguration);
+
+        //EqualsAndHashCodeColumns
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            voRequestGeneratorConfiguration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        } else {
+            voRequestGeneratorConfiguration.getEqualsAndHashCodeColumns().addAll(voGeneratorConfiguration.getEqualsAndHashCodeColumns());
+        }
+        if (voRequestGeneratorConfiguration.getEqualsAndHashCodeColumns().size() > 0) {
+            List<String> distinct = voRequestGeneratorConfiguration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
+            voRequestGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
+        }
+
+        parseModelChildNodeProperty(context, tc, node, voRequestGeneratorConfiguration);
         voGeneratorConfiguration.setVoRequestConfiguration(voRequestGeneratorConfiguration);
     }
 
+    /**
+     * 解析CachePO子节点属性
+     *
+     * @param context 上下文
+     * @param tc      表配置
+     * @param node    节点
+     */
     private void parseGenerateCachePO(Context context, TableConfiguration tc, Node node) {
         VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = new VOCacheGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(node);
@@ -1327,7 +1530,7 @@ public class MyBatisGeneratorConfigurationParser {
         voCacheGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            voCacheGeneratorConfiguration.setIncludeColumns(Arrays.asList(includeColumns.split(",")));
+            voCacheGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
         }
         String typeColumn = attributes.getProperty(PropertyRegistry.ELEMENT_TYPE_COLUMN);
         if (stringHasValue(typeColumn)) {
@@ -1345,6 +1548,13 @@ public class MyBatisGeneratorConfigurationParser {
 
     }
 
+    /**
+     * 解析PO Model子节点属性
+     *
+     * @param context 上下文
+     * @param tc      表配置
+     * @param node    节点
+     */
     private void parseGenerateModel(Context context, TableConfiguration tc, Node node) {
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
         Properties attributes = parseAttributes(node);
@@ -1354,26 +1564,42 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(noMetaAnnotation)) {
             javaModelGeneratorConfiguration.setNoMetaAnnotation(Boolean.parseBoolean(noMetaAnnotation));
         }
+
+        String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
+        if (stringHasValue(ehAttr)) {
+            javaModelGeneratorConfiguration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+        }
         //判断enableChildren
         javaModelGeneratorConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
+
+        parseModelChildNodeProperty(context, tc, node, javaModelGeneratorConfiguration);
 
         tc.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
         parseAbstractConfigAttributes(attributes, javaModelGeneratorConfiguration, node);
     }
 
-    private void parseColumnsList(Properties attributes, AbstractVOGeneratorConfiguration abstractVOGeneratorConfiguration, VOGeneratorConfiguration voGeneratorConfiguration) {
+    /**
+     * 解析VO子节点通用属性
+     */
+    private void parseColumnsList(Properties attributes, AbstractModelGeneratorConfiguration abstractModelGeneratorConfiguration, VOGeneratorConfiguration voGeneratorConfiguration) {
         if (!voGeneratorConfiguration.isGenerate()) {
-            abstractVOGeneratorConfiguration.setGenerate(false);
+            abstractModelGeneratorConfiguration.setGenerate(false);
         } else {
             String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
-            abstractVOGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
+            abstractModelGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
         }
         String excludeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
         if (stringHasValue(excludeColumns)) {
-            abstractVOGeneratorConfiguration.setExcludeColumns(Arrays.asList(excludeColumns.split(",")));
+            abstractModelGeneratorConfiguration.setExcludeColumns(spiltToList(excludeColumns));
         }
     }
 
+    /**
+     * 解析通用属性
+     * @param attributes 节点属性
+     * @param configuration 配置
+     * @param node 节点
+     */
     private void parseAbstractConfigAttributes(Properties attributes, AbstractGeneratorConfiguration configuration, Node node) {
 
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);

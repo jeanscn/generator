@@ -35,7 +35,7 @@ public class ControllerListElementGenerator extends AbstractUnitTestElementGener
                     mockServiceImpl, exampleType.getShortName());
         }
         method.addBodyLine("when({0}.selectByExample(any({1}.class)))\n" +
-                        "                .thenReturn(Collections.emptyList());",
+                        "                .thenReturn(ServiceResult.success(Collections.emptyList()));",
                 mockServiceImpl, exampleType.getShortName());
         method.addBodyLine("final MockHttpServletResponse response = mockMvc.perform({0}\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n" +

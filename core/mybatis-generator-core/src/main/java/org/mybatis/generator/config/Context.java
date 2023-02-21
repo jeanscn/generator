@@ -22,6 +22,7 @@ import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.PluginAggregator;
 import org.mybatis.generator.internal.db.DatabaseIntrospector;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -46,6 +47,8 @@ public class Context extends PropertyHolder {
     private List<String> forceUpdateElementList = new ArrayList<>();
 
     private List<String> onlyTablesGenerate = new ArrayList<>();
+
+    private boolean updateModuleData;
 
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
@@ -97,7 +100,11 @@ public class Context extends PropertyHolder {
 
     private int jdkVersion;
 
-    protected Map<String,String> sysMenuDataScriptLines = new HashMap<>();
+    protected Map<String,String> sysMenuDataScriptLines = new LinkedHashMap<>();
+
+    protected Map<String, String> moduleDataScriptLines = new LinkedHashMap<>();
+
+    protected File moduleDataSqlFile;
 
     public Context(ModelType defaultModelType) {
         super();
@@ -492,7 +499,6 @@ public class Context extends PropertyHolder {
 
             otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
             otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionSqlDataFiles());
-            //otherGeneratedFiles.addAll(introspectedTable.getGeneratedSysMenuSqlDataFiles());
 
             generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
@@ -598,9 +604,7 @@ public class Context extends PropertyHolder {
     }
 
     public String getModuleKeyword() {
-        return Optional.ofNullable(moduleKeyword)
-                .orElse(Optional.ofNullable(this.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD))
-                .orElse(Optional.ofNullable(this.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE)).orElse(null)));
+        return moduleKeyword;
     }
 
     public void setModuleKeyword(String moduleKeyword) {
@@ -664,11 +668,35 @@ public class Context extends PropertyHolder {
         this.sysMenuDataScriptLines.put(id,sysMenuDataScriptLine);
     }
 
+    public Map<String, String> getModuleDataScriptLines() {
+        return moduleDataScriptLines;
+    }
+
+    public void addModuleDataScriptLine(String id, String moduleDataScriptLine) {
+        this.moduleDataScriptLines.put(id, moduleDataScriptLine);
+    }
+
     public List<String> getOnlyTablesGenerate() {
         return onlyTablesGenerate;
     }
 
     public void setOnlyTablesGenerate(List<String> onlyTablesGenerate) {
         this.onlyTablesGenerate = onlyTablesGenerate;
+    }
+
+    public boolean isUpdateModuleData() {
+        return updateModuleData;
+    }
+
+    public void setUpdateModuleData(boolean updateModuleData) {
+        this.updateModuleData = updateModuleData;
+    }
+
+    public String getModuleDataFileName() {
+        return "data-module-"+this.getModuleKeyword().toLowerCase()+".sql";
+    }
+
+    public File getModuleDataSqlFile() {
+        return new File("src/main/resources/sql/init/"+getModuleDataFileName());
     }
 }

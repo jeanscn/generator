@@ -20,7 +20,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VOModelGeneratorConfiguration extends AbstractVOGeneratorConfiguration {
+public class VOModelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 

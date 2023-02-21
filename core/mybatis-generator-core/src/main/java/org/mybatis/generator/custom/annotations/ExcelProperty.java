@@ -14,6 +14,8 @@ public class ExcelProperty extends AbstractAnnotation{
 
     private final String value;
 
+    private String converter;
+
     public static ExcelProperty create(String value){
         return new ExcelProperty(value);
     }
@@ -29,6 +31,21 @@ public class ExcelProperty extends AbstractAnnotation{
         if (VStringUtil.isNotBlank(value)) {
             this.items.add(VStringUtil.format("value = \"{0}\"", this.value));
         }
+        if (VStringUtil.isNotBlank(converter)) {
+            this.items.add(VStringUtil.format("converter = {0}", this.converter));
+        }
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getConverter() {
+        return converter;
+    }
+
+    public void setConverter(String converter) {
+        this.converter = converter;
     }
 }

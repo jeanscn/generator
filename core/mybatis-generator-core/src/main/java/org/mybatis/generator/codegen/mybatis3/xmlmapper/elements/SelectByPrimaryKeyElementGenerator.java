@@ -31,16 +31,7 @@ public class SelectByPrimaryKeyElementGenerator extends AbstractXmlElementGenera
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("select");
         answer.addAttribute(new Attribute("id", introspectedTable.getSelectByPrimaryKeyStatementId()));
-        if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-            answer.addAttribute(new Attribute("resultMap",introspectedTable.getResultMapWithBLOBsId()));
-        } else {
-            if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-                answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
-            }else{
-                answer.addAttribute(new Attribute("resultMap",introspectedTable.getBaseResultMapId()));
-            }
-        }
-
+        addResultMap(answer);
         String parameterType;
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             parameterType = introspectedTable.getPrimaryKeyType();
@@ -84,4 +75,5 @@ public class SelectByPrimaryKeyElementGenerator extends AbstractXmlElementGenera
             parentElement.addElement(answer);
         }
     }
+
 }

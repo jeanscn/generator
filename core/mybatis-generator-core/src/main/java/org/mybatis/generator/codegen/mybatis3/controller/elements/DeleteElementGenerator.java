@@ -46,9 +46,9 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
 
         commentGenerator.addMethodJavaDocLine(method, "删除一条记录");
 
-        method.addBodyLine("int rows =  {0}.{1}(id);",serviceBeanName,introspectedTable.getDeleteByPrimaryKeyStatementId());
-        method.addBodyLine("if (rows > 0) {");
-        method.addBodyLine("return success((long) rows);");
+        method.addBodyLine("ServiceResult<Integer> result =  {0}.{1}(id);",serviceBeanName,introspectedTable.getDeleteByPrimaryKeyStatementId());
+        method.addBodyLine("if (result.hasResult() && result.getResult() > 0) {");
+        method.addBodyLine("return success((long) result.getResult(),result.getAffectedRows());");
         method.addBodyLine("} else {");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}");

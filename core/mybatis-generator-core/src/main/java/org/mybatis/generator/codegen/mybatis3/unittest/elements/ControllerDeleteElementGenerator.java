@@ -28,7 +28,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         addMethodComment(method, true, "被调用的service.deleteByPrimaryKey(id)方法有返回值");
         method.addBodyLine("int exceptResult = 2;\n" +
-                        "        when({0}.deleteByPrimaryKey(id)).thenReturn(exceptResult);\n" +
+                        "        when({0}.deleteByPrimaryKey(id)).thenReturn(ServiceResult.success(exceptResult));\n" +
                         "        mockMvc.perform({1}\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))",
                 mockServiceImpl, requestUri);
@@ -50,7 +50,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
             parentElement.addImportedType("java.util.Collections");
         }
         method.addBodyLine("int exceptResult = 2;\n" +
-                        "        when({0}.deleteByExample(any({1}.class))).thenReturn(exceptResult);\n" +
+                        "        when({0}.deleteByExample(any({1}.class))).thenReturn(ServiceResult.success(exceptResult));\n" +
                         "        mockMvc.perform({2}\n" +
                         "                        .content(ids).contentType(MediaType.APPLICATION_JSON)\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n",
