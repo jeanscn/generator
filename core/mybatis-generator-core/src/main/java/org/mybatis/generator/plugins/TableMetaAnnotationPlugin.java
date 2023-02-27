@@ -57,6 +57,12 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        addColumnMetaAnnotation(field, topLevelClass, introspectedTable,introspectedColumn);
+        return true;
+    }
+
     private boolean isNoMetaAnnotation(IntrospectedTable introspectedTable) {
         return context.getAnyPropertyBoolean(PropertyRegistry.ANY_NO_META_ANNOTATION,
                 "false",
@@ -73,7 +79,7 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
                                          IntrospectedTable introspectedTable,
                                          IntrospectedColumn introspectedColumn) {
 
-        if (isNoMetaAnnotation(introspectedTable)) {
+        if (isNoMetaAnnotation(introspectedTable) ||introspectedColumn==null) {
             return;
         }
         ColumnMeta columnMeta = new ColumnMeta(introspectedColumn);

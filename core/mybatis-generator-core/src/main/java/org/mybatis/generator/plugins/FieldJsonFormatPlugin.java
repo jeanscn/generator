@@ -39,6 +39,9 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     }
 
     private boolean addJsonFieldFormat(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
+        if (introspectedColumn == null) {
+            return true;
+        }
         //添加日期序列化格式注解
         String datePattern = introspectedColumn.getDatePattern();
         if (StringUtility.stringHasValue(datePattern)) {

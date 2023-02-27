@@ -38,7 +38,7 @@ public class ColumnMeta  extends AbstractAnnotation{
 
     public ColumnMeta(IntrospectedColumn introspectedColumn) {
         this.value = introspectedColumn.getActualColumnName();
-        this.description = introspectedColumn.getRemarks(true);
+        this.description = introspectedColumn.getRemarks(false);
         this.pkid = introspectedColumn.isIdentity();
         this.summary = true;
         this.order = introspectedColumn.getOrder();
@@ -50,7 +50,7 @@ public class ColumnMeta  extends AbstractAnnotation{
         this.nullable = introspectedColumn.isNullable();
         this.charSet = "utf8mb4";
         this.defaultValue = "";
-        this.remarks = introspectedColumn.getRemarks(false);
+        this.remarks = introspectedColumn.getRemarks(true);
         this.position = "";
         this.addImports(ConstantsUtil.ANNOTATION_COLUMN_META);
     }

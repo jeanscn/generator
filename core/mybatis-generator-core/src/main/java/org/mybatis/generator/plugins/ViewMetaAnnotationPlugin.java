@@ -46,5 +46,4 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         return true;
     }
-
 }

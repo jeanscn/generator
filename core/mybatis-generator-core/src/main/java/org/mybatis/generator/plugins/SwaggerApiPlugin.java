@@ -1,6 +1,6 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.tool.core.VStringUtil;
+import com.vgosoft.core.db.util.JDBCUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -62,7 +62,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         //添加日期序列化格式注解
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "m");
+            ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
             if (apiModelPropertyAnnotation != null) {
                 apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
             }
@@ -85,7 +85,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable, "view");
+        ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
         if (apiModelPropertyAnnotation != null) {
             apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
         }
@@ -153,7 +153,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        ApiModelProperty apiModelProperty = buildApiModelPropertyAnnotation(field, introspectedTable, "v");
+        ApiModelProperty apiModelProperty = buildApiModelPropertyAnnotation(field, introspectedTable);
         if (apiModelProperty != null) {
             apiModelProperty.addAnnotationToField(field, topLevelClass);
         }
@@ -162,44 +162,22 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     /**
      * 构造注解@ApiModelProperty
-     * @param type 类型：v-vo类，m-model类（entity），view-视图的vo类
      */
-    private ApiModelProperty buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable, String type) {
-        for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
-            if (column.getJavaProperty().equals(field.getName())) {
-                ApiModelProperty apiModelProperty = new ApiModelProperty(column.getRemarks(true));
-                if (type.equals("v")) {
-                    switch (field.getType().getShortName().toLowerCase()) {
-                        case "string":
-                            apiModelProperty.setExample(field.getName());
-                            break;
-                        case "integer":
-                            if (column.getJavaProperty().equals("active")) {
-                                apiModelProperty.setExample("1");
-                            }else if(column.getJavaProperty().equals("sort")){
-                                apiModelProperty.setExample("1000");
-                            }else{
-                                apiModelProperty.setExample("0");
-                            }
-                            break;
-                        case "boolean":
-                            apiModelProperty.setExample("true");
-                            break;
-                        case "double":
-                            apiModelProperty.setExample("0.0");
-                            break;
-                        case "float":
-                            apiModelProperty.setExample("0.0f");
-                            break;
+    private ApiModelProperty buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable) {
+        final ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark());
+        apiModelProperty.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()));
+        introspectedTable.getAllColumns().stream()
+                .filter(column -> column.getJavaProperty().equals(field.getName()))
+                .findFirst()
+                .ifPresent(column -> {
+                    if (!column.isNullable()) {
+                        apiModelProperty.setRequired("true");
                     }
-                }
-                if (!column.isNullable() && type.equals("m")) {
-                    apiModelProperty.setRequired("true");
-                }
-                return apiModelProperty;
-            }
+        });
+        if (apiModelProperty.getValue() == null) {
+            return null;
         }
-        return null;
+        return apiModelProperty;
     }
 
     /**

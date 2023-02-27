@@ -155,6 +155,21 @@
                * 不配置该属性时候，默认忽略"DELETE_FLAG","VERSION_","CREATED_","MODIFIED_","CREATED_ID","MODIFIED_ID"
                * validateIgnoreColumns=""不忽略任何字段
                * validateIgnoreColumns="ID_,DELETE_FLAG",逗号分割
+            4、enableInsert 是否生成insert方法，默认true
+            5、enableSelectByPrimaryKey 是否生成selectByPrimaryKey方法，默认true
+            6、enableSelectByExample 是否生成selectByExample方法，默认true
+            7、enableUpdateByPrimaryKey 是否生成updateByPrimaryKey方法，默认true
+            8、enableDeleteByPrimaryKey 是否生成deleteByPrimaryKey方法，默认true
+            9、enableDeleteByExample 是否生成deleteByExample方法，默认true
+            10、enableCountByExample 是否生成countByExample方法，默认true
+            11、enableUpdateByExample 是否生成updateByExample方法，默认true
+            12、enableUpdateBatch 是否生成updateBatch方法，默认true
+            13、enableInsertBatch 是否生成insertBatch方法，默认true
+            14、enableInsertOrUpdate 是否生成insertOrUpdate方法，默认true
+            15、enableFileUpLoad 是否生成文件上传方法，默认false
+            16、enableFileDownLoad 是否生成文件下载方法，默认false
+            17、enableFileDelete 是否生成文件删除方法，默认false
+            18、enableFileDownload 是否生成文件下载方法，默认false
           property配置：
             1、rootClass 指定生成对象的父类全类名
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
@@ -178,6 +193,9 @@
                 如果context忽略了onlyTables属性时：
                 1）ignore可以指定是否生基于该表进行生成。true-忽略不生成，false-生成。
                 2）如果忽略ignore参数，则根据表对应的实体是否存在确定是否生成，如果存在则不生成，不存在时进行生成。
+            2、javaModelCollection table中配置后，会在model及modelVO中同时生成相应的属性。
+            3、javaModelAssociation table中配置后，会在model及modelVO中同时生成相应的属性。
+
         -->
         <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
@@ -372,6 +390,7 @@
             8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
             9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
             10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            11、remark 备注
             说明：
             1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
             2、当启用enableInsert或enableUpdate或enableInsertOrUpdate或enableDelete时，beanClassFullName必须，否则无效。
@@ -388,7 +407,8 @@
                 enableUpdate (true|false) #IMPLIED
                 enableDelete (true|false) #IMPLIED
                 enableInsertOrUpdate (true|false) #IMPLIED
-                beanClassFullName CDATA #IMPLIED>
+                beanClassFullName CDATA #IMPLIED
+                remark CDATA #IMPLIED>
 
         <!--
             添加一个实体列表的属性，并实现一对多的collection查询
@@ -408,6 +428,7 @@
             8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
             9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
             10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            11、remark 备注
             说明：
             1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
             2、当启用enableInsert或enableUpdate或enableInsertOrUpdate或enableDelete时，beanClassFullName必须，否则无效。
@@ -424,7 +445,8 @@
                 enableUpdate (true|false) #IMPLIED
                 enableDelete (true|false) #IMPLIED
                 enableInsertOrUpdate (true|false) #IMPLIED
-                beanClassFullName CDATA #IMPLIED>
+                beanClassFullName CDATA #IMPLIED
+                remark CDATA #IMPLIED>
 
         <!--
             是否生成页面
@@ -670,8 +692,9 @@
            5、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
            6、queryColumns:应用复合查询的字段名,多值使用","。
            7、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           8、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-           9、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           8、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           9、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           10、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
             property配置：无
         -->
         <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*)>
@@ -683,6 +706,7 @@
                 actionColumn CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
+                defaultHiddenFields CDATA #IMPLIED
                 parentMenuId CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
 
@@ -750,6 +774,7 @@
              3、typeColumn根据需要可选配置
              4、选择dict时，对应beanName对应的bean需要生成cachePO，并且注意sourceColumn<->codeColumn,typeValue来自typeColumn
              5、applyProperty 应用的缓存实体的属性值，该属性允许使用valueColumn之外的字段值（cachePo中includeColumn中的字段）
+             6、如果指定了targetProperty、则按实际情况指定targetPropertyType的全类名，最终生成 private String field形式.缺省为java.lang.String
 
         -->
         <!ELEMENT overridePropertyValue  (property*)>
@@ -775,7 +800,9 @@
              6、isFinal 是否为final。
              7、visibility 属性修饰符。
              8、importedTypes 需要导入的包路径，多值用“,”分隔。
+             9、remark 属性中文描述
               说明：
+              1、如果typeArguments指定了多个值，则type必须为java.util.List
             -->
         <!ELEMENT additionalProperty  (property*)>
         <!ATTLIST additionalProperty
@@ -786,7 +813,8 @@
                 initializationString CDATA #IMPLIED
                 isFinal (true|false) #IMPLIED
                 visibility (public|private|protected) #IMPLIED
-                importedTypes CDATA #IMPLIED>
+                importedTypes CDATA #IMPLIED
+                remark CDATA #IMPLIED>
 
         <!--
              用于指定requestVO自动构建查询Example类，字段匹配类型
@@ -803,11 +831,15 @@
              增加一个mapstruct转换方法
              属性信息：
              1、sourceType 必须，源类型，完整类名称。
+             1-1、sourceArguments 源类型泛型参数如：Map<String,String>中，”java.lang.String,java.lang.String“，多值用”,“分割
              2、targetType 必须，目的类型，完整类名称。
-             3、type 单个对象single还是列表list
+             2-1、targetArguments 目的类型泛型参数如：Map<String,String>中，”java.lang.String,java.lang.String“，多值用”,“分割
+             3、type 单个对象single还是列表list，默认值为single
             -->
         <!ELEMENT mapstructMapping EMPTY>
         <!ATTLIST mapstructMapping
                 sourceType CDATA #REQUIRED
                 targetType CDATA #REQUIRED
+                sourceArguments CDATA #IMPLIED
+                targetArguments CDATA #IMPLIED
                 type (single|list) #IMPLIED>

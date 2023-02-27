@@ -2,6 +2,7 @@ package org.mybatis.generator.internal.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.db.util.JDBCUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -198,11 +199,14 @@ public class VoGenService {
                 sourceColumn = introspectedTable.getColumn(configuration.getSourceColumnName()).orElse(null);
                 if (sourceColumn != null) {
                     field = new Field(sourceColumn.getJavaProperty(), sourceColumn.getFullyQualifiedJavaType());
+                    field.setRemark(sourceColumn.getRemarks(true));
                 }
             }
             if (field != null) {
+                if (field.getRemark()==null) {
+                    field.setRemark(configuration.getRemark());
+                }
                 field.setVisibility(JavaVisibility.PRIVATE);
-                field.setRemark(configuration.getRemark() == null ? sourceColumn.getRemarks(true) : configuration.getRemark());
                 String annotation = null;
                 if ("DictUser".equals(configuration.getAnnotationType())) {
                     DictUser anno = configuration.getTypeValue() != null ? new DictUser(configuration.getTypeValue()) : new DictUser();
@@ -229,13 +233,7 @@ public class VoGenService {
                 if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
                     topLevelClass.addAnnotation("@EnableDictionary");
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
-                    //添加ApiModelProperty注解
-                    if (field.getRemark() != null) {
-                        ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark());
-                        apiModelProperty.setExample(field.getName());
-                        field.addAnnotation(apiModelProperty.toAnnotation());
-                        topLevelClass.addMultipleImports(apiModelProperty.multipleImports());
-                    }
+
                 }
 
                 final String fieldName = field.getName();
@@ -247,6 +245,13 @@ public class VoGenService {
                     addDictAnnotation(topLevelClass, collect.get(0), annotation, type);
                 } else {
                     addDictAnnotation(topLevelClass, field, annotation, type);
+                    //添加ApiModelProperty注解
+                    if (field.getRemark() != null) {
+                        ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark());
+                        apiModelProperty.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()));
+                        field.addAnnotation(apiModelProperty.toAnnotation());
+                        topLevelClass.addMultipleImports(apiModelProperty.multipleImports());
+                    }
                     topLevelClass.addField(field);
                     answer.add(field);
                 }

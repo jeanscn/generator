@@ -12,7 +12,7 @@ import org.mybatis.generator.config.VOViewGeneratorConfiguration;
  * 2022-10-06 23:42
  * @version 3.0
  */
-public class ViewColumnMeta extends AbstractAnnotation{
+public class ViewColumnMeta extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ViewColumnMeta";
 
@@ -44,11 +44,11 @@ public class ViewColumnMeta extends AbstractAnnotation{
 
     private Field field;
 
-    public static ViewColumnMeta create(IntrospectedColumn introspectedColumn,IntrospectedTable introspectedTable){
-        return new ViewColumnMeta(introspectedColumn,introspectedTable);
+    public static ViewColumnMeta create(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return new ViewColumnMeta(introspectedColumn, introspectedTable);
     }
 
-    public ViewColumnMeta(Field field,String title,IntrospectedTable introspectedTable){
+    public ViewColumnMeta(Field field, String title, IntrospectedTable introspectedTable) {
         super();
         this.value = field.getName();
         this.title = title;
@@ -57,11 +57,11 @@ public class ViewColumnMeta extends AbstractAnnotation{
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
     }
 
-    public ViewColumnMeta(IntrospectedColumn introspectedColumn,IntrospectedTable introspectedTable) {
+    public ViewColumnMeta(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         super();
         this.value = introspectedColumn.getJavaProperty();
-        this.title = introspectedColumn.getRemarks(true)!=null?introspectedColumn.getRemarks(true):introspectedColumn.getActualColumnName();
-       this.introspectedColumn = introspectedColumn;
+        this.title = introspectedColumn.getRemarks(true) != null ? introspectedColumn.getRemarks(true) : introspectedColumn.getActualColumnName();
+        this.introspectedColumn = introspectedColumn;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
     }
@@ -70,13 +70,35 @@ public class ViewColumnMeta extends AbstractAnnotation{
     public String toAnnotation() {
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));
-        if (introspectedColumn!=null && introspectedColumn.getOrder()!= GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
+        if (introspectedColumn != null && introspectedColumn.getOrder() != GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
             items.add(VStringUtil.format("order = {0}", introspectedColumn.getOrder()));
         }
-        if (configuration.getDefaultDisplayFields().size()==0 || configuration.getDefaultDisplayFields().contains(this.value)) {
+        if (this.width != null) {
+            items.add(VStringUtil.format("width = \"{0}\"", this.width));
+        }
+        if (this.defaultContent != null) {
+            items.add(VStringUtil.format("defaultContent = \"{0}\"", this.defaultContent));
+        }
+        if (this.searchable != null) {
+            items.add(VStringUtil.format("searchable = {0}", this.searchable));
+        }
+        if (this.orderable != null) {
+            items.add(VStringUtil.format("orderable = {0}", this.orderable));
+        }
+        if (this.render != null) {
+            items.add(VStringUtil.format("render = \"{0}\"", this.render));
+        }
+        if (this.datafmt != null) {
+            items.add(VStringUtil.format("datafmt = \"{0}\"", this.datafmt));
+        }
+        if (this.ignore) {
+            items.add("ignore = true");
+        }
+        if (!configuration.getDefaultHiddenFields().contains(this.value)
+                && (configuration.getDefaultDisplayFields().size() == 0 || configuration.getDefaultDisplayFields().contains(this.value))) {
             items.add("defaultDisplay = true");
         }
-        return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
     public String getValue() {

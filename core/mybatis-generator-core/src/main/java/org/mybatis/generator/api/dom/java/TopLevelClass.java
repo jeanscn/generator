@@ -15,7 +15,10 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import com.vgosoft.core.db.util.JDBCUtil;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
@@ -88,13 +91,12 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
     public void addStaticImports(Set<String> staticImports) {
         this.staticImports.addAll(staticImports);
     }
-
     @Override
-    public void addAddtionalProperties(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAddtionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+        List<Field> fields = new ArrayList<>();
         configurations.forEach(c -> {
             FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
-            org.mybatis.generator.api.dom.java.Field field;
-            field = this.getFields().stream().filter(f -> f.getName().equals(c.getName())).findFirst().orElse(new Field(c.getName(), type));
+            Field field = this.getFields().stream().filter(f -> f.getName().equals(c.getName())).findFirst().orElse(new Field(c.getName(), type));
             this.addImportedType(type);
             field.setVisibility(JavaVisibility.ofCode(c.getVisibility() + " "));
             if (c.isFinal()) {
@@ -115,10 +117,12 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
             if (c.getImportedTypes().size() > 0) {
                 c.getImportedTypes().forEach(this::addImportedType);
             }
+            field.setRemark(c.getRemark());
             if (!this.isContainField(field.getName())) {
-                this.addField(field);
+                fields.add(field);
             }
         });
+        return fields;
     }
 
     public void addSerialVersionUID() {

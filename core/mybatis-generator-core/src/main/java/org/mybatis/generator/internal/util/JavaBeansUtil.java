@@ -270,7 +270,7 @@ public class JavaBeansUtil {
 
         Field field = new Field(property, fqjt);
         field.setVisibility(JavaVisibility.PRIVATE);
-
+        field.setRemark(introspectedColumn.getRemarks(true));
         return field;
     }
 

@@ -530,6 +530,7 @@ public class MyBatisGeneratorConfigurationParser {
             }
             if (childrenCount == 0) {
                 RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
+                relationGeneratorConfiguration.setRemark("子集合");
                 relationGeneratorConfiguration.setPropertyName("children");
                 relationGeneratorConfiguration.setColumn("ID_");
 
@@ -823,6 +824,10 @@ public class MyBatisGeneratorConfigurationParser {
         String relationPropertyIsBoolean = attributes.getProperty("relationPropertyIsBoolean");
         if (stringHasValue(relationPropertyIsBoolean)) {
             relationGeneratorConfiguration.setRelationPropertyIsBoolean(Boolean.parseBoolean(relationPropertyIsBoolean));
+        }
+        String remark = attributes.getProperty(PropertyRegistry.ELEMENT_FIELD_REMARK);
+        if (stringHasValue(remark)) {
+            relationGeneratorConfiguration.setRemark(remark);
         }
         tc.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
     }
@@ -1138,6 +1143,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(ehAttr)) {
             configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
         }
+
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
@@ -1188,6 +1194,14 @@ public class MyBatisGeneratorConfigurationParser {
         String type = attributes.getProperty("type");
         if (stringHasValue(type)) {
             mapstructMappingConfiguration.setType(type);
+        }
+        String sourceArguments = attributes.getProperty("sourceArguments");
+        if (stringHasValue(sourceArguments)) {
+            mapstructMappingConfiguration.setSourceArguments(spiltToList(sourceArguments));
+        }
+        String targetArguments = attributes.getProperty("targetArguments");
+        if (stringHasValue(targetArguments)) {
+            mapstructMappingConfiguration.setTargetArguments(spiltToList(targetArguments));
         }
         configuration.addMappingConfigurations(mapstructMappingConfiguration);
     }
@@ -1283,6 +1297,10 @@ public class MyBatisGeneratorConfigurationParser {
             if (stringHasValue(importedTypes)) {
                 voAdditionalPropertyConfiguration.setImportedTypes(spiltToList(importedTypes));
             }
+            String remark = attributes.getProperty(PropertyRegistry.ELEMENT_FIELD_REMARK);
+            if (stringHasValue(remark)) {
+                voAdditionalPropertyConfiguration.setRemark(remark);
+            }
             configuration.addAdditionalPropertyConfigurations(voAdditionalPropertyConfiguration);
         }
 
@@ -1348,7 +1366,26 @@ public class MyBatisGeneratorConfigurationParser {
             vOModelGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
         }
 
+        // 继承model的overridePropertyValue、additionalProperty
+        vOModelGeneratorConfiguration.getOverridePropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
+        vOModelGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations());
+
+        // 继承model的javaModelCollection创建的属性
+        tc.getRelationGeneratorConfigurations().forEach(relationConfiguration -> {
+            VoAdditionalPropertyGeneratorConfiguration additionalPropertyGeneratorConfiguration = new VoAdditionalPropertyGeneratorConfiguration(context, tc);
+            additionalPropertyGeneratorConfiguration.setName(relationConfiguration.getPropertyName());
+            additionalPropertyGeneratorConfiguration.setRemark(relationConfiguration.getRemark());
+            String type = relationConfiguration.getVoModelTye() != null ? relationConfiguration.getVoModelTye() : relationConfiguration.getJavaType();
+            if (relationConfiguration.getType().equals(RelationTypeEnum.collection)) {
+                additionalPropertyGeneratorConfiguration.setType("java.util.List<" + type + ">");
+                additionalPropertyGeneratorConfiguration.getImportedTypes().add("java.util.List");
+            }else{
+                additionalPropertyGeneratorConfiguration.setType(type);
+            }
+            additionalPropertyGeneratorConfiguration.getImportedTypes().add(type);
+        });
         parseModelChildNodeProperty(context, tc, node, vOModelGeneratorConfiguration);
+
         voGeneratorConfiguration.setVoModelConfiguration(vOModelGeneratorConfiguration);
     }
 
@@ -1476,6 +1513,11 @@ public class MyBatisGeneratorConfigurationParser {
             voViewGeneratorConfiguration.setDefaultDisplayFields(spiltToList(defaultDisplayFields));
         }
 
+        String defaultHiddenFields = attributes.getProperty("defaultHiddenFields");
+        if (stringHasValue(defaultHiddenFields)) {
+            voViewGeneratorConfiguration.setDefaultHiddenFields(spiltToList(defaultHiddenFields));
+        }
+
         //EqualsAndHashCodeColumns
         String equalsHashCode = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(equalsHashCode)) {
@@ -1556,26 +1598,32 @@ public class MyBatisGeneratorConfigurationParser {
      * @param node    节点
      */
     private void parseGenerateModel(Context context, TableConfiguration tc, Node node) {
-        JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
+        JavaModelGeneratorConfiguration modelConfiguration = new JavaModelGeneratorConfiguration();
+        //继承context的配置
+        JavaModelGeneratorConfiguration contextConfiguration = context.getJavaModelGeneratorConfiguration();
+        modelConfiguration.setTargetPackage(contextConfiguration.getTargetPackage());
+        modelConfiguration.setTargetProject(contextConfiguration.getTargetProject());
+        modelConfiguration.setBaseTargetPackage(contextConfiguration.getBaseTargetPackage());
+        modelConfiguration.setTargetPackageGen(contextConfiguration.getTargetPackageGen());
+        //解析子节点属性
         Properties attributes = parseAttributes(node);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
-        javaModelGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
+        modelConfiguration.setGenerate(Boolean.parseBoolean(generate));
         String noMetaAnnotation = attributes.getProperty(PropertyRegistry.ANY_NO_META_ANNOTATION);
         if (stringHasValue(noMetaAnnotation)) {
-            javaModelGeneratorConfiguration.setNoMetaAnnotation(Boolean.parseBoolean(noMetaAnnotation));
+            modelConfiguration.setNoMetaAnnotation(Boolean.parseBoolean(noMetaAnnotation));
         }
-
         String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(ehAttr)) {
-            javaModelGeneratorConfiguration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
+            modelConfiguration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
         }
         //判断enableChildren
-        javaModelGeneratorConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
+        modelConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
 
-        parseModelChildNodeProperty(context, tc, node, javaModelGeneratorConfiguration);
+        parseModelChildNodeProperty(context, tc, node, modelConfiguration);
 
-        tc.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
-        parseAbstractConfigAttributes(attributes, javaModelGeneratorConfiguration, node);
+        tc.setJavaModelGeneratorConfiguration(modelConfiguration);
+        parseAbstractConfigAttributes(attributes, modelConfiguration, node);
     }
 
     /**
@@ -1596,9 +1644,10 @@ public class MyBatisGeneratorConfigurationParser {
 
     /**
      * 解析通用属性
-     * @param attributes 节点属性
+     *
+     * @param attributes    节点属性
      * @param configuration 配置
-     * @param node 节点
+     * @param node          节点
      */
     private void parseAbstractConfigAttributes(Properties attributes, AbstractGeneratorConfiguration configuration, Node node) {
 

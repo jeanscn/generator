@@ -25,6 +25,8 @@ public class VoAdditionalPropertyGeneratorConfiguration extends TypedPropertyHol
 
     private String visibility = "private";
 
+    private String remark;
+
 
     public VoAdditionalPropertyGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
@@ -102,5 +104,13 @@ public class VoAdditionalPropertyGeneratorConfiguration extends TypedPropertyHol
 
     public void setVisibility(String visibility) {
         this.visibility = visibility;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

@@ -82,6 +82,8 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
      */
     private boolean relationPropertyIsBoolean;
 
+    private String remark;
+
     public RelationGeneratorConfiguration() {
         super();
         this.enableInsert = false;
@@ -213,5 +215,13 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
 
     public void setEnableInsertOrUpdate(boolean enableInsertOrUpdate) {
         this.enableInsertOrUpdate = enableInsertOrUpdate;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

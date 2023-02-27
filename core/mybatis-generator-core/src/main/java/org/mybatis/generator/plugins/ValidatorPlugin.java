@@ -55,8 +55,12 @@ public class ValidatorPlugin extends PluginAdapter {
         return true;
     }
 
+    // 添加非空校验
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        if (introspectedColumn == null) {
+            return true;
+        }
         VOGeneratorConfiguration voCfg = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
         boolean ngc = voCfg.getVoCreateConfiguration() == null || !voCfg.getVoCreateConfiguration().isGenerate();
         boolean ngu = voCfg.getVoUpdateConfiguration() == null || !voCfg.getVoUpdateConfiguration().isGenerate();
@@ -100,6 +104,9 @@ public class ValidatorPlugin extends PluginAdapter {
 
     @Override
     public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        if (introspectedColumn == null) {
+            return true;
+        }
         VOUpdateGeneratorConfiguration voUpdateConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoUpdateConfiguration();
         if (!(introspectedColumn.isNullable() || voUpdateConfiguration.getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
             addNotNullValidate(field, topLevelClass, introspectedColumn,"ValidateUpdate.class",introspectedTable);
@@ -110,6 +117,9 @@ public class ValidatorPlugin extends PluginAdapter {
 
     @Override
     public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        if (introspectedColumn == null) {
+            return true;
+        }
         VOCreateGeneratorConfiguration voCreateConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoCreateConfiguration();
         if (!(introspectedColumn.isNullable() || voCreateConfiguration.getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
             addNotNullValidate(field, topLevelClass, introspectedColumn,"ValidateInsert.class",introspectedTable);

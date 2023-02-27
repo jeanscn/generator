@@ -32,6 +32,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private List<String> defaultDisplayFields = new ArrayList<>();
 
+    private List<String> defaultHiddenFields = new ArrayList<>();
+
     private String parentMenuId;
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
@@ -92,5 +94,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setDefaultDisplayFields(List<String> defaultDisplayFields) {
         this.defaultDisplayFields = defaultDisplayFields;
+    }
+
+    public List<String> getDefaultHiddenFields() {
+        return defaultHiddenFields;
+    }
+
+    public void setDefaultHiddenFields(List<String> defaultHiddenFields) {
+        this.defaultHiddenFields = defaultHiddenFields;
     }
 }

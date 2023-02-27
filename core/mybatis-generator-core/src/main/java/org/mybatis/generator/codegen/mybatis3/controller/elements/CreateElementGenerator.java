@@ -62,6 +62,8 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine("serviceResult = {0}.insertSelective({1});"
                     , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
             method.addBodyLine("'}' else if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+        }else if(introspectedTable.getRules().isGenerateVoModel()){
+            method.addBodyLine("if (VStringUtil.isNotBlank({0}VO.getId())) '{'", entityType.getShortNameFirstLowCase());
         }else{
             method.addBodyLine("if (VStringUtil.isNotBlank({0}.getId())) '{'", entityType.getShortNameFirstLowCase());
         }

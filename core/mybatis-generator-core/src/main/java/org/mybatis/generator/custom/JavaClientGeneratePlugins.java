@@ -1,10 +1,13 @@
 package org.mybatis.generator.custom;
 
+import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
@@ -97,10 +100,16 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                         field = new Field(relationProperty.getPropertyName(), returnType);
                     }
                     if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
-                        field.addAnnotation("@TableField(exist = false)");
-                        topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
+                        TableField tableField = new TableField();
+                        tableField.setExist(false);
+                        tableField.addAnnotationToField(field,topLevelClass);
                     }
                     field.setVisibility(JavaVisibility.PRIVATE);
+                    if (field.getRemark() == null) {
+                        field.setRemark(relationProperty.getRemark());
+                    }
+                    ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()));
+                    apiModelProperty.addAnnotationToField(field,topLevelClass);
                     addField(topLevelClass, field);
                     topLevelClass.addImportedType(fullyQualifiedJavaType);
                 }
