@@ -28,6 +28,8 @@ public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfig
 
     private List<String> validateIgnoreColumns = new ArrayList<>();
 
+    private boolean isEnableSelective = true;
+
     public VOUpdateGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
         this.generate = true;
@@ -57,6 +59,14 @@ public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfig
 
     public void setValidateIgnoreColumns(List<String> validateIgnoreColumns) {
         this.validateIgnoreColumns = validateIgnoreColumns;
+    }
+
+    public boolean isEnableSelective() {
+        return isEnableSelective;
+    }
+
+    public void setEnableSelective(boolean enableSelective) {
+        isEnableSelective = enableSelective;
     }
 
     @Override

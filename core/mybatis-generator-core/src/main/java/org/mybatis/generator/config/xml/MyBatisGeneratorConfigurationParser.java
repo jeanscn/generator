@@ -313,7 +313,7 @@ public class MyBatisGeneratorConfigurationParser {
                 tc.setValidateIgnoreColumns(collect);
             }
         } else {
-            tc.setValidateIgnoreColumns(Arrays.asList("DELETE_FLAG", "VERSION_", "CREATED_", "MODIFIED_", "CREATED_ID", "MODIFIED_ID"));
+            tc.setValidateIgnoreColumns(Arrays.asList("delete_flag", "version_", "created_", "modified_", "created_id", "modified_id"));
         }
 
         //service及HTML根路径
@@ -523,16 +523,16 @@ public class MyBatisGeneratorConfigurationParser {
                     .filter(c -> "children".equalsIgnoreCase(c.getPropertyName()))
                     .count();
             long selectByColumnParentIdCount = tc.getSelectByColumnGeneratorConfigurations().stream()
-                    .filter(c -> c.getColumns().stream().anyMatch(column -> "PARENT_ID".equals(column.getActualColumnName())))
+                    .filter(c -> c.getColumns().stream().anyMatch(column -> "parent_id".equalsIgnoreCase(column.getActualColumnName())))
                     .count();
             if (selectByColumnParentIdCount == 0) {
-                tc.addSelectByColumnGeneratorConfiguration(new SelectByColumnGeneratorConfiguration("PARENT_ID"));
+                tc.addSelectByColumnGeneratorConfiguration(new SelectByColumnGeneratorConfiguration("parent_id"));
             }
             if (childrenCount == 0) {
                 RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
                 relationGeneratorConfiguration.setRemark("子集合");
                 relationGeneratorConfiguration.setPropertyName("children");
-                relationGeneratorConfiguration.setColumn("ID_");
+                relationGeneratorConfiguration.setColumn(PropertyRegistry.DEFAULT_PRIMARY_KEY);
 
                 StringBuilder sb = new StringBuilder();
                 sb.append(tc.getJavaModelGeneratorConfiguration().getTargetPackage());
@@ -765,13 +765,13 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parentIdColumn)) {
             configuration.setParentIdColumnName(parentIdColumn);
         } else {
-            configuration.setParentIdColumnName("PARENT_ID");
+            configuration.setParentIdColumnName("parent_id");
         }
         String idColumnName = attributes.getProperty("primaryKeyColumn");
         if (stringHasValue(idColumnName)) {
             configuration.setPrimaryKeyColumnName(idColumnName);
         } else {
-            configuration.setPrimaryKeyColumnName("ID_");
+            configuration.setPrimaryKeyColumnName(PropertyRegistry.DEFAULT_PRIMARY_KEY);
         }
         tc.addSelectBySqlMethodGeneratorConfiguration(configuration);
     }
@@ -1404,7 +1404,12 @@ public class MyBatisGeneratorConfigurationParser {
 
         List<String> validateIgnoreColumns = spiltToList(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
         if (validateIgnoreColumns.size() == 0) {
-            validateIgnoreColumns.add("ID_");
+            validateIgnoreColumns.add(PropertyRegistry.DEFAULT_PRIMARY_KEY);
+        }
+
+        String isSelective = attributes.getProperty(PropertyRegistry.ELEMENT_ENABLE_SELECTIVE);
+        if (stringHasValue(isSelective)) {
+            configuration.setEnableSelective(Boolean.parseBoolean(isSelective));
         }
 
         //EqualsAndHashCodeColumns
@@ -1442,6 +1447,11 @@ public class MyBatisGeneratorConfigurationParser {
         List<String> validateIgnoreColumns = spiltToList(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
         validateIgnoreColumns.addAll(tc.getValidateIgnoreColumns());
         configuration.setValidateIgnoreColumns(validateIgnoreColumns);
+
+        String isSelective = attributes.getProperty(PropertyRegistry.ELEMENT_ENABLE_SELECTIVE);
+        if (stringHasValue(isSelective)) {
+            configuration.setEnableSelective(Boolean.parseBoolean(isSelective));
+        }
 
         //EqualsAndHashCodeColumns
         String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);

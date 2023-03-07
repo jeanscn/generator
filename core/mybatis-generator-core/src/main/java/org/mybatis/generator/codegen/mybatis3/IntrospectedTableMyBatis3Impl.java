@@ -97,26 +97,26 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         String id = VMD5Util.MD5(moduleKey);
         int size = context.getModuleDataScriptLines().size() + 1;
 
-        StringBuilder sb = new StringBuilder("INSERT INTO `SYS_CFG_MODULES` (");
-        sb.append("ID_, DELETE_FLAG, MODULE_TAG, MODULE_NAME, PARENT_ID, SORT_, WF_APPLY, CATEGORY_, ORG_ID, MODULE_MANAGER, ");
-        sb.append("VERSION_, CREATED_, MODIFIED_, CREATED_ID, MODIFIED_ID, TENANT_ID");
+        StringBuilder sb = new StringBuilder("INSERT INTO `sys_cfg_modules` (");
+        sb.append("id_, delete_flag, module_tag, module_name, parent_id, sort_, wf_apply, category_, org_id, module_manager, ");
+        sb.append("version_, created_, modified_, created_id, modified_id, tenant_id");
         sb.append(") VALUES (");
         sb.append("'").append(id).append("'");                      //id
-        sb.append(",").append("0");                                 //DELETE_FLAG
-        sb.append(",").append("'").append(moduleKey).append("'");   //MODULE_TAG
-        sb.append(",").append("'").append(context.getModuleName()).append("'");   //MODULE_NAME
-        sb.append(",").append("'0'");                               //PARENT_ID
-        sb.append(",").append(size);                                //SORT_
-        sb.append(",").append(0);                                   //WF_APPLY  否
-        sb.append(",").append("'").append(context.getModuleName()).append("'"); //CATEGORY_
-        sb.append(",").append("'1503582043420889088'");   //ORG_ID
-        sb.append(",").append("'1000010000'");      //MODULE_MANAGER
-        sb.append(",").append("1");                 //VERSION_
-        sb.append(",").append("now()");             //CREATED_
-        sb.append(",").append("now()");             //MODIFIED_
-        sb.append(",").append("'1000010000'");      //CREATED_ID
-        sb.append(",").append("'1000010000'");      //MODIFIED_ID
-        sb.append(",").append("'10000'");           //TENANT_ID
+        sb.append(",").append("0");                                 //delete_flag
+        sb.append(",").append("'").append(moduleKey).append("'");   //module_tag
+        sb.append(",").append("'").append(context.getModuleName()).append("'");   //module_name
+        sb.append(",").append("'0'");                               //parent_id
+        sb.append(",").append(size);                                //sort_
+        sb.append(",").append(0);                                   //wf_apply  否
+        sb.append(",").append("'").append(context.getModuleName()).append("'"); //category_
+        sb.append(",").append("'1503582043420889088'");   //org_id
+        sb.append(",").append("'1000010000'");      //module_manager
+        sb.append(",").append("1");                 //version_
+        sb.append(",").append("now()");             //created_
+        sb.append(",").append("now()");             //modified_
+        sb.append(",").append("'1000010000'");      //created_id
+        sb.append(",").append("'1000010000'");      //modified_id
+        sb.append(",").append("'10000'");           //tenant_id
         sb.append(");");
         context.addModuleDataScriptLine(id, sb.toString());
     }

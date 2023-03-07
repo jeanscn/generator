@@ -292,6 +292,10 @@ public interface Rules {
 
     boolean generateInsertOrUpdate();
 
+    boolean createEnableSelective();
+
+    boolean updateEnableSelective();
+
     boolean generateSelectByColumn();
 
     boolean generateSelectByTable();

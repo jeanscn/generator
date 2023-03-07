@@ -55,13 +55,17 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
         method.addBodyLine("ServiceResult<{0}> serviceResult;", entityType.getShortName());
         if (introspectedTable.getRules().isGenerateCreateVO()) {
-            method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate() && VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
-            method.addBodyLine("serviceResult = {0}.updateByPrimaryKeySelective({1});"
-                    , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
-            method.addBodyLine("'}' else if ({0}CreateVO.isSelectiveUpdate()) '{'", entityType.getShortNameFirstLowCase());
-            method.addBodyLine("serviceResult = {0}.insertSelective({1});"
-                    , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
-            method.addBodyLine("'}' else if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+            if (introspectedTable.getRules().createEnableSelective()) {
+                method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate() && VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("serviceResult = {0}.updateByPrimaryKeySelective({1});"
+                        , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
+                method.addBodyLine("'}' else if ({0}CreateVO.isSelectiveUpdate()) '{'", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("serviceResult = {0}.insertSelective({1});"
+                        , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
+                method.addBodyLine("'}' else if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+            }else{
+                method.addBodyLine("if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+            }
         }else if(introspectedTable.getRules().isGenerateVoModel()){
             method.addBodyLine("if (VStringUtil.isNotBlank({0}VO.getId())) '{'", entityType.getShortNameFirstLowCase());
         }else{

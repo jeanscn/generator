@@ -8,10 +8,13 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.DictTypeEnum;
+import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 import org.mybatis.generator.custom.annotations.Api;
 import org.mybatis.generator.custom.annotations.ApiModel;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 

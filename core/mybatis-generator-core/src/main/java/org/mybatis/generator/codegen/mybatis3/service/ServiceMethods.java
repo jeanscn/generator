@@ -171,7 +171,7 @@ public class ServiceMethods {
                 introspectedTable.getRemarks(true)+(isService?"对象列表ServiceResult封装":"成功更新的记录数"),
                 parameterType,
                 entityType.getShortNameFirstLowCase() + "s",
-                "待更新的数据对象列表",
+                "待更新的数据对象列表,该方法为选择性更新，如果对象属性为null则不更新且不返回。如果需要返回更新后的对象，请使用selectByExample方法再次查询",
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method, "批量更新方法");

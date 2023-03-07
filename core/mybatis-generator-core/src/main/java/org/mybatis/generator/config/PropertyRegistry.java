@@ -137,4 +137,8 @@ public class PropertyRegistry {
     public static final String ELEMENT_APPLY_PROPERTY_VALUE = "applyProperty";
     public static final String ELEMENT_TYPE_VALUE = "typeValue";
     public static final String ELEMENT_FIELD_REMARK = "remark";
+
+    public static final String ELEMENT_ENABLE_SELECTIVE = "enableSelective";
+
+    public static final String DEFAULT_PRIMARY_KEY = "id_";
 }

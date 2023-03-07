@@ -107,7 +107,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 if (isIgnore(baseColumn
                         , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                         && !baseColumn.isIdentity()
-                        && !baseColumn.getActualColumnName().equalsIgnoreCase("VERSION_")) {
+                        && !baseColumn.getActualColumnName().equalsIgnoreCase("version_")) {
                     continue;
                 }
             }

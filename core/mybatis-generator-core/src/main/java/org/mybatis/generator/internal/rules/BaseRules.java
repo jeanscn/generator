@@ -158,6 +158,16 @@ public abstract class BaseRules implements Rules {
         return tc.isInsertOrUpdateStatementEnabled();
     }
 
+    @Override
+    public boolean createEnableSelective() {
+        return tc.getVoGeneratorConfiguration().getVoCreateConfiguration().isEnableSelective();
+    }
+
+    @Override
+    public boolean updateEnableSelective() {
+        return tc.getVoGeneratorConfiguration().getVoUpdateConfiguration().isEnableSelective();
+    }
+
     /**
      * Implements the rule for generating the insert selective SQL Map element
      * and DAO method. If the insert statement is allowed, then generate the

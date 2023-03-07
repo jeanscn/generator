@@ -22,6 +22,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
@@ -165,7 +166,10 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             //增加映射
             List<OverridePropertyValueGeneratorConfiguration> overridePropertyVo = voModelGeneratorConfiguration.getOverridePropertyConfigurations();
             overridePropertyVo.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-            voGenService.buildOverrideColumn(overridePropertyVo, voClass, ModelClassTypeEnum.voClass);
+            voGenService.buildOverrideColumn(overridePropertyVo, voClass, ModelClassTypeEnum.voClass).forEach(field -> {
+                plugins.voModelFieldGenerated(field, voClass, null, introspectedTable);
+            });
+
 
             //附加属性
             List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyVo = voModelGeneratorConfiguration.getAdditionalPropertyConfigurations();
@@ -256,7 +260,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                 }
             }
             //增加是否选择性更新
-            if (introspectedTable.getRules().generateInsertOrUpdate()) {
+            if (introspectedTable.getRules().createEnableSelective()) {
                 Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
                 selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
                 selectiveUpdate.setRemark("插入时选择性更新");
@@ -366,6 +370,18 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     }
             );
 
+            //是否增加是否选择性更新的属性
+            if (voUpdateGeneratorConfiguration.isEnableSelective()) {
+                Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+                selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
+                selectiveUpdate.setRemark("更新时选择性插入");
+                ApiModelProperty apiModelProperty = new ApiModelProperty(selectiveUpdate.getRemark());
+                apiModelProperty.setExample("true");
+                selectiveUpdate.addAnnotation(apiModelProperty.toAnnotation());
+                updateVoClass.addMultipleImports(apiModelProperty.multipleImports());
+                updateVoClass.addField(selectiveUpdate);
+            }
+
             //是否有启用update的JavaCollectionRelation
             tc.getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate).collect(Collectors.toList())
@@ -426,15 +442,11 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             //增加映射
             List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
             overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-            List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass);
-            //获得annotations不包含@ViewColumnMeta的field
-            fields.stream()
-                    .filter(f -> f.getAnnotations().stream().noneMatch(a -> a.contains("ViewColumnMeta")))
-                    .forEach(f -> {
-                        ViewColumnMeta viewColumnMeta = new ViewColumnMeta(f, f.getRemark(), introspectedTable);
-                        f.addAnnotation(viewColumnMeta.toAnnotation());
-                        viewVOClass.addMultipleImports(viewColumnMeta.multipleImports());
-                    });
+            voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass).forEach(field -> {
+                        plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable);
+                    }
+            );
+
             //附加属性
             List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
             additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
@@ -457,7 +469,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         int sort = introspectedTable.getContext().getSysMenuDataScriptLines().size() + 1;
                         String id = VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
                         String title = introspectedTable.getRemarks(true);
-                        String sb = "INSERT INTO `SYS_MENU`" + " (ID_,DELETE_FLAG,NAME_,PARENT_ID,SORT_,TITLE_,URL_,ICON_,TYPE_,CONTAIN_TYPE,TARGET_,LEVEL_,STATE_,HIDE_,NOTES_,RIGHT_,VERSION_,CREATED_ID,MODIFIED_ID,TENANT_ID )" +
+                        String sb = "INSERT INTO `sys_menu`" + " (id_,delete_flag,name_,parent_id,sort_,title_,url_,icon_,type_,contain_type,target_,level_,state_,hide_,notes_,right_,version_,created_id,modified_id,tenant_id )" +
                                 " VALUES (" +
                                 "'" + id + "'" +
                                 "," + "0" +
@@ -518,7 +530,9 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             //增加映射
             List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
             overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-            voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
+            voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass).forEach(field -> {
+                plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable);
+            });
 
             //附加属性
             List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();

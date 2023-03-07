@@ -180,6 +180,16 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean createEnableSelective() {
+        return rules.createEnableSelective();
+    }
+
+    @Override
+    public boolean updateEnableSelective() {
+        return rules.updateEnableSelective();
+    }
+
+    @Override
     public boolean generateUpdateBatch() {
         return rules.generateUpdateBatch();
     }

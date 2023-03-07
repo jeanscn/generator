@@ -56,7 +56,7 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
                 ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns())) {
 
             XmlElement fieldSetTrimElement = new XmlElement("trim");
-            fieldSetTrimElement.addAttribute(new Attribute("prefix", introspectedColumn.getActualColumnName()+" = case ID_"));
+            fieldSetTrimElement.addAttribute(new Attribute("prefix", introspectedColumn.getActualColumnName()+" = case id_"));
             fieldSetTrimElement.addAttribute(new Attribute("suffix", "end,"));
             trimSetElement.addElement(fieldSetTrimElement);
 
@@ -79,7 +79,7 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
             testItemIf.addElement(new TextElement(sb.toString()));
         }
 
-        answer.addElement(new TextElement("where ID_ in"));
+        answer.addElement(new TextElement("where id_ in"));
         XmlElement foreachListId = new XmlElement("foreach");
         foreachListId.addAttribute(new Attribute("collection", "list"));
         foreachListId.addAttribute(new Attribute("item", "item"));

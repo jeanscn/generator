@@ -21,6 +21,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class InsertByTableElementGenerator extends
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("insert ignore into " + configuration.getTableName()));
             StringBuilder sb = new StringBuilder("(");
-            sb.append("ID_,").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
+            sb.append(PropertyRegistry.DEFAULT_PRIMARY_KEY+",").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
             sb.append(")");
             answer.addElement(new TextElement(sb.toString()));
             answer.addElement(new TextElement("values"));
@@ -59,7 +60,7 @@ public class InsertByTableElementGenerator extends
             foreachListField.addAttribute(new Attribute("open", ""));
             foreachListField.addAttribute(new Attribute("close", ""));
             sb.setLength(0);
-            sb.append("(md5( CONCAT(");
+            sb.append("(md5( concat(");
             sb.append(MyBatis3FormattingUtilities.getParameterClause(configuration.getThisColumn()));
             sb.append(",");
             sb.append(MyBatis3FormattingUtilities.getParameterClause(configuration.getOtherColumn()));

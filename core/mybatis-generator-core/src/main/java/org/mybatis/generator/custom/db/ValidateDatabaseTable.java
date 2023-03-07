@@ -280,7 +280,7 @@ public class ValidateDatabaseTable {
         for (IntrospectedColumn col : columns) {
             /*
              * sql模板
-             * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `PARENT_ID`;
+             * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `parent_id`;
              * */
             DatabaseDDLDialects databaseDialect = DatabaseDDLDialects.getDatabaseDialect(this.databaseProductName);
             String COLUMN_STATEMENT = databaseDialect.getColumnModifyStatement();

@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import static org.mybatis.generator.custom.ConstantsUtil.COM_SEL_SQL_PARAMETER;
@@ -76,15 +77,15 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
                 if (!StringUtility.isEmpty(actualColumnName)) {
                     sb.append("and ").append(actualColumnName).append(" in(");
                 } else {
-                    sb.append("and ID_ in(");
+                    sb.append("and ").append(PropertyRegistry.DEFAULT_PRIMARY_KEY).append(" in(");
                 }
             } else {
-                sb.append("and ID_ in(");
+                sb.append("and id_ in(");
             }
 
 
-            sb.append("select distinct BUSINESS_KEY_ from VCORE_RU_AUTHORITY ");
-            sb.append("where AUTHORITY_NAME_ in");
+            sb.append("select distinct business_key_ from vcore_ru_authority ");
+            sb.append("where authority_name_ in");
             xmlElement.addElement(new TextElement(sb.toString()));
             //<foreach close=")" collection="principals" index="index" item="principal" open="(" separator=",">
             //  #{principal}

@@ -533,8 +533,8 @@ public class JavaBeansUtil {
             keys.add(code);
             String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
-            StringBuilder sb = new StringBuilder("INSERT INTO `SYS_PERMISSION`");
-            sb.append("(`ID_`, `SORT_`, `PARENT_ID`, `CODE_`, `NAME_`, `TYPE_`, `SCOPE_`, `STATE_`, `NOTES_`, `CREATED_ID`, `MODIFIED_ID`)");
+            StringBuilder sb = new StringBuilder("INSERT INTO `sys_permission`");
+            sb.append("(`id_`, `sort_`, `parent_id`, `code_`, `name_`, `type_`, `scope_`, `state_`, `notes_`, `created_id`, `modified_id`)");
             sb.append(" VALUES (");
             sb.append("'").append(id).append("'");
             sb.append(",").append(introspectedTable.getPermissionDataScriptLines().size() + 1);

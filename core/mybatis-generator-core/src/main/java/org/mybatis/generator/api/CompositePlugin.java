@@ -28,7 +28,10 @@ import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.custom.DictTypeEnum;
+import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;

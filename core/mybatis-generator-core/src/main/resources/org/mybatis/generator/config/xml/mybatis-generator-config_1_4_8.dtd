@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.221115001-->
+        <!--version:1.4.8.230307001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -152,7 +152,7 @@
                *moduleId的构成：MD5(模块关键字（moduleKey）+“_”+实体类名)
                *module数据文件生成条件：isModules为true且文件不存在
             3、validateIgnoreColumns 生成pojo的VO及实体对象忽略属性不为空校验的列名称
-               * 不配置该属性时候，默认忽略"DELETE_FLAG","VERSION_","CREATED_","MODIFIED_","CREATED_ID","MODIFIED_ID"
+               * 不配置该属性时候，默认忽略"delete_flag","version_","created_","modified_","created_id","modified_id"
                * validateIgnoreColumns=""不忽略任何字段
                * validateIgnoreColumns="ID_,DELETE_FLAG",逗号分割
             4、enableInsert 是否生成insert方法，默认true
@@ -195,6 +195,19 @@
                 2）如果忽略ignore参数，则根据表对应的实体是否存在确定是否生成，如果存在则不生成，不存在时进行生成。
             2、javaModelCollection table中配置后，会在model及modelVO中同时生成相应的属性。
             3、javaModelAssociation table中配置后，会在model及modelVO中同时生成相应的属性。
+
+             常用实体父类
+            1、com.vgosoft.core.entity.abs.AbstractEntity，简单实体包含ID_,DELETE_FLAG字段
+            2、com.vgosoft.core.entity.abs.AbstractPersistenceObjectEntity,包含以上及：created_,modified_,created_id,modified_id
+            3、com.vgosoft.core.entity.abs.AbstractPersistenceLockEntity，包含以上及：version_
+            3.1.1、com.vgosoft.core.entity.abs.AbstractBusinessEntity，包含以上及：subject_、priority_、module_id、module_name、file_category、fld_ser_number、reg_doc_number、author_
+            3.1.2、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessEntity，包含以上及：business_key、wf_state、cur_processors、cur_processors_name
+            3.1.3、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessNumberable，包含以上及：fld_ser_number、reg_doc_number
+            3.2、com.vgosoft.core.entity.abs.AbstractPersistenceLockSortableEntity，包含AbstractPersistenceLockEntity及：sort_
+            4、com.vgosoft.core.entity.abs.AbstractBlobEntity，包含id_,delete_flag,name_,size_,bytes_
+            5、com.vgosoft.core.entity.abs.AbstractBlobPersistenceObjectEntity，包含以上及：created_,modified_,created_id,modified_id
+            6、com.vgosoft.core.entity.abs.AbstractBlobPersistenceLockEntity，包含以上及：version_
+            7、com.vgosoft.core.entity.abs.AbstractBlobBusinessEntity，包含以上及：subject_,priority_,module_name,file_category,fld_doc_code,author_
 
         -->
         <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
@@ -364,8 +377,8 @@
                   说明：目前仅限于实现返回带有parentId的所有上级ids或所有下级ids
                   属性信息：
                   1、sqlMethod sql方法名称
-                  2、parentIdColumn 父标识字段名。默认PARENT_ID
-                  3、primaryKeyColumn 主键字段名。默认ID_
+                  2、parentIdColumn 父标识字段名。默认parent_id
+                  3、primaryKeyColumn 主键字段名。默认id_
                 -->
         <!ELEMENT selectBySqlMethod EMPTY>
         <!ATTLIST selectBySqlMethod
@@ -557,7 +570,7 @@
             4、enableChildren 生成children属性及子查询。当该属性为true时，将在实体中添加children属性，并添加相应的selectByColumnParentId方法。
             5、equalsAndHashCodeColumns 可选 指定equals和hashCode方法的列名，多个列名用逗号分隔。缺省值为id
             说明：
-            启用enableChildren的前提条件是数据表有PARENT_ID字段
+            启用enableChildren的前提条件是数据表有parent_id字段
         -->
         <!ELEMENT generateModel (property*,overridePropertyValue*,additionalProperty*)>
         <!ATTLIST generateModel
@@ -628,6 +641,7 @@
             4、requiredColumns：验证不为空的字段名，多值使用",";
             5、validateIgnoreColumns：验证忽略的字段名，多值使用",";
             6、equalsAndHashCodeColumns：指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+            7、genIsSelective：是否生成isSelective属性，用于判断是否选择性创建或编辑。默认为true
             property配置：无
             -->
         <!ELEMENT createVO (property*,additionalProperty*)>
@@ -637,7 +651,8 @@
                 excludeColumns CDATA #IMPLIED
                 requiredColumns CDATA #IMPLIED
                 validateIgnoreColumns CDATA #IMPLIED
-                equalsAndHashCodeColumns CDATA #IMPLIED>
+                equalsAndHashCodeColumns CDATA #IMPLIED
+                genIsSelective (true|false) #IMPLIED>
 
         <!--
            更新记录参数模型（UpdateVO）配置的生成描述
@@ -650,6 +665,7 @@
            4、requiredColumns：验证不为空的字段名，多值使用",";
            5、validateIgnoreColumns：验证忽略的字段名，多值使用",";
            6、equalsAndHashCodeColumns：指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           7、genIsSelective：是否生成isSelective属性，用于判断是否选择性编辑或创建。默认为true
            property配置：无
            -->
         <!ELEMENT updateVO (property*,additionalProperty*)>
@@ -659,7 +675,8 @@
                 excludeColumns CDATA #IMPLIED
                 requiredColumns CDATA #IMPLIED
                 validateIgnoreColumns CDATA #IMPLIED
-                equalsAndHashCodeColumns CDATA #IMPLIED>
+                equalsAndHashCodeColumns CDATA #IMPLIED
+                genIsSelective (true|false) #IMPLIED>
 
         <!--
                  请求参数配置的生成描述

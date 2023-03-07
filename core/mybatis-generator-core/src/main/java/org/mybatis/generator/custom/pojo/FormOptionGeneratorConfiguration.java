@@ -1,6 +1,7 @@
 package org.mybatis.generator.custom.pojo;
 
 import org.mybatis.generator.config.PropertyHolder;
+import org.mybatis.generator.config.PropertyRegistry;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -17,7 +18,7 @@ public class FormOptionGeneratorConfiguration  extends PropertyHolder {
     private int dataType;
 
     public FormOptionGeneratorConfiguration(String nameColumn) {
-        this.idColumn = "ID_";
+        this.idColumn = PropertyRegistry.DEFAULT_PRIMARY_KEY;
         this.nameColumn = nameColumn;
         dataType = 0;
     }

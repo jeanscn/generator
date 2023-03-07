@@ -1,6 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
+import jdk.nashorn.internal.ir.IfNode;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -8,6 +9,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.JavaElement;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.VOCreateGeneratorConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
@@ -66,7 +68,11 @@ public class ValidatorPlugin extends PluginAdapter {
         boolean ngu = voCfg.getVoUpdateConfiguration() == null || !voCfg.getVoUpdateConfiguration().isGenerate();
         if (!(introspectedColumn.isNullable() || introspectedTable.getTableConfiguration().getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
             if (ngc && ngu) {
-                addNotNullValidate(field, topLevelClass, introspectedColumn,"ValidateInsert.class,ValidateUpdate.class",introspectedTable);
+                if (PropertyRegistry.DEFAULT_PRIMARY_KEY.equalsIgnoreCase(introspectedColumn.getActualColumnName())) {
+                    addNotNullValidate(field, topLevelClass, introspectedColumn, "ValidateUpdate.class", introspectedTable);
+                }else{
+                    addNotNullValidate(field, topLevelClass, introspectedColumn, "ValidateInsert.class,ValidateUpdate.class", introspectedTable);
+                }
             }else if(ngc){
                 addNotNullValidate(field, topLevelClass, introspectedColumn,"ValidateInsert.class",introspectedTable);
             }else if(ngu){
@@ -121,7 +127,7 @@ public class ValidatorPlugin extends PluginAdapter {
             return true;
         }
         VOCreateGeneratorConfiguration voCreateConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoCreateConfiguration();
-        if (!(introspectedColumn.isNullable() || voCreateConfiguration.getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
+        if (!introspectedColumn.isNullable() && !voCreateConfiguration.getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName())) {
             addNotNullValidate(field, topLevelClass, introspectedColumn,"ValidateInsert.class",introspectedTable);
             topLevelClass.addImportedType(VALIDATE_INSERT);
         }

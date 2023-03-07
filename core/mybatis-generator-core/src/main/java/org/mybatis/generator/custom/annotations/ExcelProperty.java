@@ -1,44 +1,76 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.custom.ConstantsUtil;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2022-10-03 16:24
  * @version 3.0
  */
-public class ExcelProperty extends AbstractAnnotation{
+public class ExcelProperty extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ExcelProperty";
+    public static final String importClass = "com.alibaba.excel.annotation.ExcelProperty";
 
-    private final String value;
+    private final String[] value;
 
-    private String converter;
+    private int index = -1;
 
-    public static ExcelProperty create(String value){
+    private int order;
+    String converter;
+
+    public static ExcelProperty create(String... value) {
         return new ExcelProperty(value);
     }
 
-    public ExcelProperty(String value) {
+    public ExcelProperty(String... value) {
         super();
         this.value = value;
-        this.addImports(ConstantsUtil.EXCEL_PROPERTY);
+        this.addImports(importClass);
     }
+
 
     @Override
     public String toAnnotation() {
-        if (VStringUtil.isNotBlank(value)) {
-            this.items.add(VStringUtil.format("value = \"{0}\"", this.value));
+        if (value.length == 1) {
+            this.items.add(VStringUtil.format("value = \"{0}\"", this.value[0]));
+        } else if (value.length > 1) {
+            for (int i = 0; i < value.length; i++) {
+                value[i] = VStringUtil.format("\"{0}\"", value[i]);
+            }
+            this.items.add(VStringUtil.format("value = '{'{0}'}'", String.join(",", value)));
         }
         if (VStringUtil.isNotBlank(converter)) {
             this.items.add(VStringUtil.format("converter = {0}", this.converter));
         }
-        return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
+        if (index != -1) {
+            this.items.add(VStringUtil.format("index = {0}", this.index));
+        }
+        if (order != 0) {
+            this.items.add(VStringUtil.format("order = {0}", this.order));
+        }
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
-    public String getValue() {
+
+    public String[] getValue() {
         return value;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     public String getConverter() {

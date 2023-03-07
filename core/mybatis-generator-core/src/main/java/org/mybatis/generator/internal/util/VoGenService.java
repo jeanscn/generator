@@ -38,38 +38,40 @@ public class VoGenService {
 
     /**
      * 获取vo类的内省列对象列表，返回不包含abstractVO中的列、VO全局排除的列和指定排除的列名列表
+     *
      * @param abstractVOColumnNames abstractVO对象的数据库列名列表
-     * @param includeColumns    要包含的数据库列名列表
-     * @param excludeColumns    要排除的数据库列名列表
+     * @param includeColumns        要包含的数据库列名列表
+     * @param excludeColumns        要排除的数据库列名列表
      * @return 内省列对象列表
      */
-    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames,List<String> includeColumns, List<String> excludeColumns) {
+    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames, List<String> includeColumns, List<String> excludeColumns) {
         //在给定的排除列列表中附加全局VO标签的排除列
         CollectionUtil.addAllIfNotContains(excludeColumns, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getExcludeColumns());
         //将排除列追加到abstractVO列表中，整体排除
         if (excludeColumns != null && excludeColumns.size() > 0) {
-            CollectionUtil.addAllIfNotContains(abstractVOColumnNames,excludeColumns);
+            CollectionUtil.addAllIfNotContains(abstractVOColumnNames, excludeColumns);
         }
         if (includeColumns != null && includeColumns.size() > 0) {
             List<String> includes = CollectionUtil.subtractToList(includeColumns, abstractVOColumnNames);
-            return getIntrospectedColumns(includes,false);
-        }else{
+            return getIntrospectedColumns(includes, false);
+        } else {
             return getIntrospectedColumns(abstractVOColumnNames, true);
         }
     }
 
     /**
      * 返回除去父类和所有排除的列+指定的fields属性名
-     * @param fields 额外的需要增加的属性名
+     *
+     * @param fields         额外的需要增加的属性名
      * @param includeColumns 要包含的
      * @param excludeColumns 要排除的
      * @return 所有列-VO抽象父类的列-当前vo配置排除+vo全局排除的
      */
     public List<IntrospectedColumn> getAllVoColumns(List<String> fields, List<String> includeColumns, List<String> excludeColumns) {
-        List<IntrospectedColumn> voColumns = getVOColumns(this.getAbstractVOColumnNames(),includeColumns, excludeColumns); //排除abstractVO、指定排除、VO全局排除的列名
-        if (fields == null || fields.size()==0) {
+        List<IntrospectedColumn> voColumns = getVOColumns(this.getAbstractVOColumnNames(), includeColumns, excludeColumns); //排除abstractVO、指定排除、VO全局排除的列名
+        if (fields == null || fields.size() == 0) {
             return voColumns;
-        }else{
+        } else {
             List<IntrospectedColumn> fieldColumns = introspectedTable.getAllColumns().stream()
                     .filter(c -> fields.contains(c.getJavaProperty())).collect(Collectors.toList());
             return CollectionUtil.addAllIfNotContains(voColumns, fieldColumns);
@@ -78,14 +80,14 @@ public class VoGenService {
 
     public List<String> getDefaultExcludeColumnNames(List<String> excludeNames) {
         List<String> exclude = new ArrayList<>();
-        if (excludeNames != null && excludeNames.size()>0) {
+        if (excludeNames != null && excludeNames.size() > 0) {
             exclude.addAll(excludeNames);
         }
         EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
         if (entityAbstractParentEnum != null) {
-            CollectionUtil.addAllIfNotContains(exclude,entityAbstractParentEnum.columnNames());
+            CollectionUtil.addAllIfNotContains(exclude, entityAbstractParentEnum.columnNames());
         }
-        CollectionUtil.addAllIfNotContains(exclude, Arrays.asList("TENANT_ID","BYTES_"));
+        CollectionUtil.addAllIfNotContains(exclude, Arrays.asList("tenant_id", "bytes_"));
         return exclude.stream().distinct().collect(Collectors.toList());
     }
 
@@ -135,20 +137,20 @@ public class VoGenService {
 
         if (rules.isGenerateCreateVO()) {
             VOCreateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoCreateConfiguration();
-            if (cfg.getIncludeColumns().size()>0) {
+            if (cfg.getIncludeColumns().size() > 0) {
                 include.addAll(cfg.getIncludeColumns());
             }
-            if (cfg.getExcludeColumns().size()>0) {
+            if (cfg.getExcludeColumns().size() > 0) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
 
         if (rules.isGenerateUpdateVO()) {
             VOUpdateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoUpdateConfiguration();
-            if (cfg.getIncludeColumns().size()>0) {
+            if (cfg.getIncludeColumns().size() > 0) {
                 include.addAll(cfg.getIncludeColumns());
             }
-            if (cfg.getExcludeColumns().size()>0) {
+            if (cfg.getExcludeColumns().size() > 0) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
@@ -203,21 +205,19 @@ public class VoGenService {
                 }
             }
             if (field != null) {
-                if (field.getRemark()==null) {
-                    field.setRemark(configuration.getRemark());
+                if (field.getRemark() == null) {
+                    field.setRemark(configuration.getRemark()!=null?configuration.getRemark():sourceColumn.getRemarks(true));
                 }
                 field.setVisibility(JavaVisibility.PRIVATE);
                 String annotation = null;
                 if ("DictUser".equals(configuration.getAnnotationType())) {
                     DictUser anno = configuration.getTypeValue() != null ? new DictUser(configuration.getTypeValue()) : new DictUser();
                     anno.setSource(sourceColumn.getJavaProperty());
-                    annotation = anno.toAnnotation();
-                    topLevelClass.addMultipleImports(anno.multipleImports());
+                    anno.addAnnotationToField(field, topLevelClass);
                 } else if ("DictSys".equals(configuration.getAnnotationType())) {
                     DictSys anno = configuration.getTypeValue() != null ? new DictSys(configuration.getTypeValue()) : new DictSys();
                     anno.setSource(sourceColumn.getJavaProperty());
-                    annotation = anno.toAnnotation();
-                    topLevelClass.addMultipleImports(anno.multipleImports());
+                    anno.addAnnotationToField(field, topLevelClass);
                 } else if ("Dict".equals(configuration.getAnnotationType()) && configuration.getBeanName() != null) {
                     Dict anno = new Dict(configuration.getBeanName());
                     if (configuration.getTypeValue() != null) {
@@ -227,37 +227,23 @@ public class VoGenService {
                         anno.setApplyProperty(configuration.getApplyProperty());
                     }
                     anno.setSource(sourceColumn.getJavaProperty());
-                    annotation = anno.toAnnotation();
-                    topLevelClass.addMultipleImports(anno.multipleImports());
+                    anno.addAnnotationToField(field, topLevelClass);
                 }
                 if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
-                    topLevelClass.addAnnotation("@EnableDictionary");
-                    topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
-
-                }
-
-                final String fieldName = field.getName();
-                List<Field> collect = topLevelClass.getFields()
-                        .stream()
-                        .filter(f -> f.getName().equals(fieldName))
-                        .collect(Collectors.toList());
-                if (collect.size() > 0) {
-                    addDictAnnotation(topLevelClass, collect.get(0), annotation, type);
-                } else {
-                    addDictAnnotation(topLevelClass, field, annotation, type);
-                    //添加ApiModelProperty注解
-                    if (field.getRemark() != null) {
-                        ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark());
-                        apiModelProperty.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()));
-                        field.addAnnotation(apiModelProperty.toAnnotation());
-                        topLevelClass.addMultipleImports(apiModelProperty.multipleImports());
+                    if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
+                        topLevelClass.addAnnotation("@EnableDictionary");
+                        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
                     }
-                    topLevelClass.addField(field);
-                    answer.add(field);
                 }
 
+                //如果已经存在该字段，则不再添加
+                answer.add(field);
+                if (!topLevelClass.isContainField(field.getName())) {
+                    topLevelClass.addField(field);
+                }
 
                 //重写getter
+                /*
                 String getterName;
                 FullyQualifiedJavaType getterType;
                 if (targetColumn != null) {
@@ -291,45 +277,10 @@ public class VoGenService {
                             } else {
                                 method.addBodyLine("return this.{0};", sc.getJavaProperty());
                             }
-                        });
+                        });*/
             }
         }
         return answer;
-    }
-
-    /**
-     * 添加字典注解
-     *
-     * @param topLevelClass     类
-     * @param field     字段
-     * @param annotation    字典注解
-     * @param type voClass,viewVOClass,excelVoClass,modelClass
-     */
-    private void addDictAnnotation(final TopLevelClass topLevelClass, Field field, String annotation, ModelClassTypeEnum type) {
-        String exportDictConverter = "com.vgosoft.plugins.excel.converter.ExportDictConverter";
-        if (annotation != null) {
-            if (ModelClassTypeEnum.voClass.equals(type)) {
-                field.getAnnotations().forEach(s -> {
-                    if (s.contains("@ExcelProperty(") && !s.contains("converter")) {
-                        topLevelClass.addImportedType(exportDictConverter);
-                    }
-                });
-                long count = field.getAnnotations().stream().filter(s -> s.contains("@ExcelProperty(")).count();
-                if (count == 0) {
-                    ExcelProperty excelProperty = new ExcelProperty(field.getRemark());
-                    excelProperty.setConverter("ExportDictConverter.class");
-                    topLevelClass.addImportedType(exportDictConverter);
-                    topLevelClass.addMultipleImports(excelProperty.multipleImports());
-                    field.addAnnotation(excelProperty.toAnnotation());
-                }
-            } else if (ModelClassTypeEnum.viewVOClass.equals(type)) {
-                field.addAnnotation(annotation);
-            } else if (ModelClassTypeEnum.excelVoClass.equals(type)) {
-                field.addAnnotation(annotation);
-            } else if(ModelClassTypeEnum.modelClass.equals(type)){
-                field.addAnnotation(annotation);
-            }
-        }
     }
 
 }
