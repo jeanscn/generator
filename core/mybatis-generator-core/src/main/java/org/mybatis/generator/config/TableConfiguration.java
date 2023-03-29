@@ -1,5 +1,8 @@
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.ProgressCallback;
+import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
@@ -707,5 +710,59 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setHtmlBasePath(String htmlBasePath) {
         this.htmlBasePath = htmlBasePath;
+    }
+
+    public void validateConfig(ProgressCallback callback, List<String> warnings, IntrospectedTable introspectedTable) {
+        if (introspectedTable == null) {
+            return;
+        }
+        //根据所有配置信息，进行调整
+        //1、enableChildren
+        if (this.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            if (introspectedTable.getColumn("parent_id").isPresent()) {
+
+                //如果存在parent_id字段，则自动添加selectByParentId方法
+                long selectByColumnParentIdCount = this.getSelectByColumnGeneratorConfigurations().stream()
+                        .filter(c -> c.getColumns().stream().anyMatch(column -> "parent_id".equalsIgnoreCase(column.getActualColumnName())))
+                        .count();
+                if (selectByColumnParentIdCount == 0) {
+                    SelectByColumnGeneratorConfiguration selectByParentId = new SelectByColumnGeneratorConfiguration("parent_id");
+                    this.addSelectByColumnGeneratorConfiguration(selectByParentId);
+                }
+
+                //如果存在parent_id字段，则自动添加children字段
+                if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> "children".equalsIgnoreCase(c.getPropertyName()))) {
+                    RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
+                    relationGeneratorConfiguration.setRemark("子集合");
+                    relationGeneratorConfiguration.setPropertyName("children");
+                    relationGeneratorConfiguration.setColumn(PropertyRegistry.DEFAULT_PRIMARY_KEY);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(this.getJavaModelGeneratorConfiguration().getTargetPackage());
+                    sb.append(".");
+                    sb.append(this.getDomainObjectName());
+                    relationGeneratorConfiguration.setModelTye(sb.toString());
+                    if (this.getVoGeneratorConfiguration() != null
+                            && this.getVoGeneratorConfiguration().getVoModelConfiguration() != null
+                            && this.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()) {
+                        String voType = substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") +
+                                ".pojo.vo."
+                                + this.getDomainObjectName() + "VO";
+                        relationGeneratorConfiguration.setVoModelTye(voType);
+                    } else {
+                        relationGeneratorConfiguration.setVoModelTye(sb.toString());
+                    }
+                    sb.setLength(0);
+                    sb.append(this.getJavaClientGeneratorConfiguration().getTargetPackage()).append(".");
+                    sb.append(this.getDomainObjectName()).append("Mapper").append(".");
+                    sb.append("selectByColumnParentId");
+                    relationGeneratorConfiguration.setSelect(sb.toString());
+                    relationGeneratorConfiguration.setType(RelationTypeEnum.collection);
+                    this.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
+                }
+            } else {
+                warnings.add("表" + introspectedTable.getFullyQualifiedTable() + "不存在parent_id字段，无法自动生成children字段及相关子查询方法");
+            }
+        }
     }
 }

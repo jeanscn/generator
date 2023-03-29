@@ -25,7 +25,8 @@
           4、forceUpdateScalableElement 是否强制覆盖可扩展自定义的元素（dao,service,controller,vo,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps）
           5、parentMenuId 如果生成view，则可以指定view菜单项目的父级id，优先级低于generateViewVO标签中的parentMenuId
           6、updateModuleData 是否更新该组数据库的模块数据，默认为false，不更新
-          7、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
+          7、updateMenuData 是否更新该组数据库的ViewVo对应的菜单数据，默认为false，不更新
+          8、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
           可能的property配置：
           1、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
           2、htmlUiFrame 页面模板名称 默认值：bottom
@@ -35,7 +36,10 @@
           特别说明：
           1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
-          2、updateModuleData 参数为true时生成context（父级）模块标识和生成的数据库对应的模块数据（子集）。
+          2、updateModuleData 参数为true时，生成context（父级）模块标识和生成的数据库对应的模块数据（子集）。
+          当仅生成部分数据库时，模块数据不完整。最好的方式是第一次全部生成时指定为true，然后忽略该参数不再生成。从而保证sql数据文件数据完整。
+          3、updateMenuData 参数为true时，生成parentMenuId菜单标识对应的模块数据子集菜单。
+          生成菜单数据的条件是：1、updateMenuData为true；2、生成菜单项目ViewVo；3、数据库表生成配置的isModules为true;4、指定了parentMenuId
           当仅生成部分数据库时，模块数据不完整。最好的方式是第一次全部生成时指定为true，然后忽略该参数不再生成。从而保证sql数据文件数据完整。
 
         -->
@@ -53,6 +57,7 @@
                 parentMenuId CDATA #IMPLIED
                 jdkVersion (8|9|11|17) #IMPLIED
                 updateModuleData (false|true) #IMPLIED
+                updateMenuData (false|true) #IMPLIED
                 onlyTables CDATA #IMPLIED>
 
         <!--

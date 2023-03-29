@@ -32,8 +32,8 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
         List<GeneratedFile> answer = new ArrayList<>();
 
         //menu data
-        if (this.context.getSysMenuDataScriptLines().size()>0) {
-            String menuDataFileName = "data-menu-"+this.context.getModuleKeyword().toLowerCase()+".sql";
+        if (this.context.getSysMenuDataScriptLines().size()>0 && context.isUpdateMenuData()) {
+            String menuDataFileName = context.getMenuDataFileName();
             GeneratedSqlSchemaFile generatedMenuDataFile = new GeneratedSqlSchemaFile(menuDataFileName,
                     "init",
                     "src/main/resources/sql",

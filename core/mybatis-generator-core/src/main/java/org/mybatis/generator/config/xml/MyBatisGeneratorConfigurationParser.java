@@ -180,6 +180,9 @@ public class MyBatisGeneratorConfigurationParser {
         String updateModuleData = attributes.getProperty("updateModuleData", "false");
         context.setUpdateModuleData(Boolean.parseBoolean(updateModuleData));
 
+        String updateMenuData = attributes.getProperty("updateMenuData", "false");
+        context.setUpdateMenuData(Boolean.parseBoolean(updateMenuData));
+
         configuration.addContext(context);
 
         NodeList nodeList = node.getChildNodes();
@@ -514,48 +517,6 @@ public class MyBatisGeneratorConfigurationParser {
                 case "generateCachePO":
                     parseGenerateCachePO(context, tc, childNode);
                     break;
-            }
-        }
-        //根据所有配置信息，进行调整
-        //1、enableChildren
-        if (tc.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
-            long childrenCount = tc.getRelationGeneratorConfigurations().stream()
-                    .filter(c -> "children".equalsIgnoreCase(c.getPropertyName()))
-                    .count();
-            long selectByColumnParentIdCount = tc.getSelectByColumnGeneratorConfigurations().stream()
-                    .filter(c -> c.getColumns().stream().anyMatch(column -> "parent_id".equalsIgnoreCase(column.getActualColumnName())))
-                    .count();
-            if (selectByColumnParentIdCount == 0) {
-                tc.addSelectByColumnGeneratorConfiguration(new SelectByColumnGeneratorConfiguration("parent_id"));
-            }
-            if (childrenCount == 0) {
-                RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
-                relationGeneratorConfiguration.setRemark("子集合");
-                relationGeneratorConfiguration.setPropertyName("children");
-                relationGeneratorConfiguration.setColumn(PropertyRegistry.DEFAULT_PRIMARY_KEY);
-
-                StringBuilder sb = new StringBuilder();
-                sb.append(tc.getJavaModelGeneratorConfiguration().getTargetPackage());
-                sb.append(".");
-                sb.append(tc.getDomainObjectName());
-                relationGeneratorConfiguration.setModelTye(sb.toString());
-                if (tc.getVoGeneratorConfiguration() != null
-                        && tc.getVoGeneratorConfiguration().getVoModelConfiguration() != null
-                        && tc.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()) {
-                    String voType = substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") +
-                            ".pojo.vo."
-                            + tc.getDomainObjectName() + "VO";
-                    relationGeneratorConfiguration.setVoModelTye(voType);
-                } else {
-                    relationGeneratorConfiguration.setVoModelTye(sb.toString());
-                }
-                sb.setLength(0);
-                sb.append(tc.getJavaClientGeneratorConfiguration().getTargetPackage()).append(".");
-                sb.append(tc.getDomainObjectName()).append("Mapper").append(".");
-                sb.append("selectByColumnParentId");
-                relationGeneratorConfiguration.setSelect(sb.toString());
-                relationGeneratorConfiguration.setType(RelationTypeEnum.collection);
-                tc.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
             }
         }
     }

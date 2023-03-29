@@ -50,6 +50,8 @@ public class Context extends PropertyHolder {
 
     private boolean updateModuleData;
 
+    private boolean updateMenuData;
+
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
     private ConnectionFactoryConfiguration connectionFactoryConfiguration;
@@ -698,5 +700,29 @@ public class Context extends PropertyHolder {
 
     public File getModuleDataSqlFile() {
         return new File("src/main/resources/sql/init/"+getModuleDataFileName());
+    }
+
+    public boolean isUpdateMenuData() {
+        return updateMenuData;
+    }
+
+    public void setUpdateMenuData(boolean updateMenuData) {
+        this.updateMenuData = updateMenuData;
+    }
+
+    public String getMenuDataFileName() {
+        return "data-menu-"+this.getModuleKeyword().toLowerCase()+".sql";
+    }
+
+    public File getMenuDataSqlFile() {
+        return new File("src/main/resources/sql/init/"+getMenuDataFileName());
+    }
+
+    public void validateTableConfig(ProgressCallback callback, List<String> warnings) {
+        if (tableConfigurations != null) {
+            for (TableConfiguration tc : tableConfigurations) {
+                tc.validateConfig(callback, warnings,this.getIntrospectedTables().stream().filter(introspectedTable -> introspectedTable.getTableConfiguration().getTableName().equals(tc.getTableName())).findFirst().orElse(null));
+            }
+        }
     }
 }

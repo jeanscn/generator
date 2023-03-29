@@ -15,18 +15,18 @@
  */
 package org.mybatis.generator.internal.util;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
+import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
-import org.mybatis.generator.internal.rules.BaseRules;
 
 import java.io.File;
 import java.sql.JDBCType;
@@ -391,10 +391,7 @@ public class JavaBeansUtil {
     public static boolean isAssignable(String parentClassName, String childClassName, IntrospectedTable introspectedTable) {
         try {
             //处理生成key类未加载的问题
-            FullyQualifiedJavaType childClassNameType = new FullyQualifiedJavaType(childClassName);
-            //FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
             Class<?> cClazz = getClass(childClassName);
-            //if (childClassNameType.getShortName().equals(entityType.getShortName() + "Key")) {
             if (cClazz == null) {
                 childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
                 if (childClassName == null) {
@@ -403,7 +400,6 @@ public class JavaBeansUtil {
                 }
                 cClazz = Class.forName(childClassName);
             }
-            //}
             Class<?> pClazz = Class.forName(parentClassName);
             return ClassUtils.isAssignable(cClazz, pClazz);
         } catch (ClassNotFoundException e) {
@@ -533,25 +529,17 @@ public class JavaBeansUtil {
             keys.add(code);
             String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
-            StringBuilder sb = new StringBuilder("INSERT INTO `sys_permission`");
-            sb.append("(`id_`, `sort_`, `parent_id`, `code_`, `name_`, `type_`, `scope_`, `state_`, `notes_`, `created_id`, `modified_id`)");
-            sb.append(" VALUES (");
-            sb.append("'").append(id).append("'");
-            sb.append(",").append(introspectedTable.getPermissionDataScriptLines().size() + 1);
-            sb.append(",");
+            InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
+            sqlBuilder.updateStringValues("id_", id);
+            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
             if (index > 0) {
-                sb.append("'").append(VMD5Util.MD5(keys.get(index - 1))).append("'");
+                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5(keys.get(index - 1)));
             } else {
-                sb.append("0");
+                sqlBuilder.updateStringValues("parent_id", "0");
             }
-            sb.append(",'").append(code).append("'");
-            sb.append(",'").append(entry.getValue()).append("'");
-            sb.append(",0").append(",0").append(",1");
-            sb.append(",'").append(name == null ? "''" : name).append("'");
-            sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
-            sb.append(",'").append(GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID).append("'");
-            sb.append(");");
-            introspectedTable.addPermissionDataScriptLines(id, sb.toString());
+            sqlBuilder.updateStringValues("code_", code);
+            sqlBuilder.updateStringValues("name_", name);
+            introspectedTable.addPermissionDataScriptLines(id, sqlBuilder.toSql()+";");
             index++;
         }
     }

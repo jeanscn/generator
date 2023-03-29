@@ -1,6 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
+import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
@@ -16,7 +18,6 @@ import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,39 +149,22 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         }
 
         //最后生成该数据库的模块数据
-        if (introspectedTable.getTableConfiguration().isModules() && !context.getModuleDataSqlFile().exists()) {
+        if (introspectedTable.getTableConfiguration().isModules() && context.isUpdateModuleData()) {
             String moduleKey = StringUtils.lowerCase(context.getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
             String id = VMD5Util.MD5(moduleKey);
             String pId = VMD5Util.MD5(StringUtils.lowerCase(context.getModuleKeyword()));
             int size = context.getModuleDataScriptLines().size() + 1;
-            StringBuilder sb = new StringBuilder("INSERT INTO `sys_cfg_modules` (");
-            sb.append("id_, delete_flag, module_tag, module_name, parent_id, sort_, wf_apply, category_, org_id, module_manager, ");
-            sb.append("version_, created_, modified_, created_id, modified_id, tenant_id");
-            sb.append(") VALUES (");
-            sb.append("'").append(id).append("'");          //id
-            sb.append(",").append("0");                                 //delete_flag
-            sb.append(",").append("'").append(moduleKey).append("'");   //module_tag
-            sb.append(",").append("'").append(introspectedTable.getRemarks(true)).append("'");   //module_name
-            sb.append(",").append("'").append(pId).append("'");   //parent_id
-            sb.append(",").append(size);                                //sort_
             FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
             EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
-            if (entityAbstractParentEnum != null && entityAbstractParentEnum.scope() == 1) {
-                sb.append(",").append(1);                                //wf_apply  是
-            } else {
-                sb.append(",").append(0);                               //wf_apply  否
-            }
-            sb.append(",").append("'").append(context.getModuleName()).append("'");             //category_
-            sb.append(",").append("'1503582043420889088'");   //org_id
-            sb.append(",").append("'1000010000'");   //module_manager
-            sb.append(",").append("1");   //version_
-            sb.append(",").append("now()");   //created_
-            sb.append(",").append("now()");   //modified_
-            sb.append(",").append("'1000010000'");   //created_id
-            sb.append(",").append("'1000010000'");   //modified_id
-            sb.append(",").append("'10000'");   //tenant_id
-            sb.append(");");
-            context.addModuleDataScriptLine(id, sb.toString());
+            InsertSqlBuilder sqlForModule = GenerateSqlTemplate.insertSqlForModule();
+            sqlForModule.updateStringValues("id_", id);
+            sqlForModule.updateStringValues("module_tag", moduleKey);
+            sqlForModule.updateStringValues("module_name", introspectedTable.getRemarks(true));
+            sqlForModule.updateStringValues("parent_id", pId);
+            sqlForModule.updateValues("sort_", String.valueOf(size));
+            sqlForModule.updateValues("wf_apply", entityAbstractParentEnum != null && entityAbstractParentEnum.scope() == 1 ? "1" : "0");
+            sqlForModule.updateStringValues("category_", context.getModuleName());
+            context.addModuleDataScriptLine(id, sqlForModule.toSql()+";");
         }
         return answer;
     }

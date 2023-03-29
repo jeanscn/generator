@@ -15,14 +15,12 @@
  */
 package org.mybatis.generator.codegen.mybatis3;
 
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
+import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
@@ -40,7 +38,6 @@ import org.mybatis.generator.codegen.mybatis3.service.JavaServiceGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataPermissionScriptGenerator;
-import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysMenuScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlSchemaScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaControllerUnitTestGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaServiceUnitTestGenerator;
@@ -51,10 +48,11 @@ import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.ObjectFactory;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Introspected table implementation for generating MyBatis3 artifacts.
@@ -87,7 +85,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         calculateHtmlMapperGenerator(warnings, progressCallback);
 
         //增加一条模块分类数据
-        if (!context.getModuleDataSqlFile().exists()) {
+        if (context.isUpdateModuleData()) {
             addModuleDataToMap();
         }
     }
@@ -96,29 +94,15 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         String moduleKey = StringUtils.lowerCase(context.getModuleKeyword());
         String id = VMD5Util.MD5(moduleKey);
         int size = context.getModuleDataScriptLines().size() + 1;
-
-        StringBuilder sb = new StringBuilder("INSERT INTO `sys_cfg_modules` (");
-        sb.append("id_, delete_flag, module_tag, module_name, parent_id, sort_, wf_apply, category_, org_id, module_manager, ");
-        sb.append("version_, created_, modified_, created_id, modified_id, tenant_id");
-        sb.append(") VALUES (");
-        sb.append("'").append(id).append("'");                      //id
-        sb.append(",").append("0");                                 //delete_flag
-        sb.append(",").append("'").append(moduleKey).append("'");   //module_tag
-        sb.append(",").append("'").append(context.getModuleName()).append("'");   //module_name
-        sb.append(",").append("'0'");                               //parent_id
-        sb.append(",").append(size);                                //sort_
-        sb.append(",").append(0);                                   //wf_apply  否
-        sb.append(",").append("'").append(context.getModuleName()).append("'"); //category_
-        sb.append(",").append("'1503582043420889088'");   //org_id
-        sb.append(",").append("'1000010000'");      //module_manager
-        sb.append(",").append("1");                 //version_
-        sb.append(",").append("now()");             //created_
-        sb.append(",").append("now()");             //modified_
-        sb.append(",").append("'1000010000'");      //created_id
-        sb.append(",").append("'1000010000'");      //modified_id
-        sb.append(",").append("'10000'");           //tenant_id
-        sb.append(");");
-        context.addModuleDataScriptLine(id, sb.toString());
+        InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForModule();
+        sqlBuilder.updateStringValues("id_", id);
+        sqlBuilder.updateStringValues("module_tag", moduleKey);
+        sqlBuilder.updateStringValues("module_name", context.getModuleName());
+        sqlBuilder.updateStringValues("parent_id","0");
+        sqlBuilder.updateValues("sort_", String.valueOf(size));
+        sqlBuilder.updateValues("wf_apply", "0");
+        sqlBuilder.updateStringValues("category_", context.getModuleName());
+        context.addModuleDataScriptLine(id, sqlBuilder.toSql()+";");
     }
 
     protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,

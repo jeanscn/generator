@@ -232,8 +232,12 @@ public class MyBatisGenerator {
 
         //处理数据表相关信息到introspectedTable
         for (Context context : contextsToRun) {
-            context.introspectTables(callback, warnings,
-                    fullyQualifiedTableNames);
+            context.introspectTables(callback, warnings, fullyQualifiedTableNames);
+        }
+
+        //根据表结构验证配置类的正确性
+        for (Context context : contextsToRun) {
+            context.validateTableConfig(callback, warnings);
         }
 
         // now run the generates
@@ -426,7 +430,7 @@ public class MyBatisGenerator {
                 callback.checkCancel();
                 callback.startTask(getString("Progress.15", targetFile.getName()));
                 writeFile(targetFile, source, ghf.getFileEncoding());
-            }else{
+            } else {
                 warnings.add(getString("Warning.110", targetFile.getAbsolutePath()));
             }
         } catch (ShellException e) {

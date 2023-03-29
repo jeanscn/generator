@@ -6,6 +6,8 @@ import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.ViewActionColumnEnum;
 import com.vgosoft.core.constant.enums.ViewIndexColumnEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
+import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
@@ -459,36 +461,26 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             );
 
             //添加生成viewVO到生成列表及菜单项
-            if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.viewVo.name()) || fileNotExist(subPackageVo, voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName())) {
+            boolean genViewVo = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.viewVo.name()) || fileNotExist(subPackageVo, voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
+            if (genViewVo) {
                 if (context.getPlugins().voModelViewClassGenerated(viewVOClass, introspectedTable)) {
                     answer.add(viewVOClass);
                     //添加菜单项
                     String parentMenuId = Optional.ofNullable(voViewGeneratorConfiguration.getParentMenuId())
                             .orElse(context.getParentMenuId());
-                    if (stringHasValue(parentMenuId)) {
-                        int sort = introspectedTable.getContext().getSysMenuDataScriptLines().size() + 1;
+                    if (stringHasValue(parentMenuId) && context.isUpdateMenuData() && introspectedTable.getTableConfiguration().isModules()) {
+                        int sort = context.getSysMenuDataScriptLines().size() + 1;
                         String id = VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
                         String title = introspectedTable.getRemarks(true);
-                        String sb = "INSERT INTO `sys_menu`" + " (id_,delete_flag,name_,parent_id,sort_,title_,url_,icon_,type_,contain_type,target_,level_,state_,hide_,notes_,right_,version_,created_id,modified_id,tenant_id )" +
-                                " VALUES (" +
-                                "'" + id + "'" +
-                                "," + "0" +
-                                ",'" + title + "'" +
-                                ",'" + parentMenuId + "'" +
-                                "," + sort +
-                                ",'" + title + "'" +
-                                ",'" + "viewmgr/" + id + "/openview'" +
-                                ",'pli-list-view'" +
-                                ",'link'" +
-                                ",'tab'" +
-                                ",'iframe',1,1,0" +
-                                ",'" + context.getModuleName() + "->" + title + "默认视图" +
-                                "',NULL,1" +
-                                ",'" + GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID + "'" +
-                                ",'" + GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID + "'" +
-                                ",'" + GlobalConstant.DEFAULT_TENANT_ID + "'" +
-                                ");";
-                        introspectedTable.getContext().addSysMenuDataScriptLines(id, sb);
+                        InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
+                        sqlBuilder.updateStringValues("id_", id);
+                        sqlBuilder.updateStringValues("name_", title);
+                        sqlBuilder.updateStringValues("parent_id", parentMenuId);
+                        sqlBuilder.updateStringValues("sort_", String.valueOf(sort));
+                        sqlBuilder.updateStringValues("title_", title);
+                        sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/openview");
+                        sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
+                        introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql()+";");
                     }
                 }
 
