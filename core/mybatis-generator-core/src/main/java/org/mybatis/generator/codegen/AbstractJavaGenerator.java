@@ -15,15 +15,13 @@
  */
 package org.mybatis.generator.codegen;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Properties;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
@@ -32,9 +30,12 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
     public abstract List<CompilationUnit> getCompilationUnits();
 
-    private final String project;
+    protected final String project;
+
+
 
     protected AbstractJavaGenerator(String project) {
+        super();
         this.project = project;
     }
 
