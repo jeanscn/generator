@@ -7,15 +7,16 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
-import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
+import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 public class OptionElementGenerator extends AbstractControllerElementGenerator {
 
-    private final FullyQualifiedJavaType optionType = new FullyQualifiedJavaType("com.vgosoft.web.pojo.FormSelectOption");
-    private final FullyQualifiedJavaType optionTreeType = new FullyQualifiedJavaType("com.vgosoft.web.pojo.FormSelectTreeOption");
+    private final FullyQualifiedJavaType optionType = new FullyQualifiedJavaType("com.vgosoft.system.web.FormSelectOption");
+    private final FullyQualifiedJavaType optionTreeType = new FullyQualifiedJavaType("com.vgosoft.system.web.FormSelectTreeOption");
 
     private final FormOptionGeneratorConfiguration formOptionGeneratorConfiguration;
 
@@ -64,7 +65,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("FormSelectTreeOption对象列表");
 
         method.addAnnotation(new SystemLog("调用数据选项接口",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("option/"+ JavaBeansUtil.getFirstCharacterLowercase(column.getJavaProperty())
+        method.addAnnotation(new RequestMapping("option/"+ toHyphenCase(column.getJavaProperty())
                 , RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"数据选项");
         method.addAnnotation(new ApiOperation("获取Options-XX选项列表","根据给定条件获取Options-XXX选项列表，可以根据需要传入属性同名参数、消费端选中的值"),parentElement);
@@ -83,7 +84,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         IntrospectedColumn idColumn = introspectedTable.getColumn(formOptionGeneratorConfiguration.getIdColumn()).orElse(null);
         String idGetterName = idColumn!=null?
                 JavaBeansUtil.getGetterMethodName(idColumn.getJavaProperty(), idColumn.getFullyQualifiedJavaType()):"getId";
-        if (formOptionGeneratorConfiguration.getDataType() == 0) {
+        if (formOptionGeneratorConfiguration.getDataType() == 0) {  //0-flat，1-tree
             method.addBodyLine("        .map(t -> new FormSelectOption(t.{1}(), t.{0}(), selected))", getterMethodName,idGetterName);
         } else {
             method.addBodyLine("         .map(c -> {0}(c, selected))",pMethodName);

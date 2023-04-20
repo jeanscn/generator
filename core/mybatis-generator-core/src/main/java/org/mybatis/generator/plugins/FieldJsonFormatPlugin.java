@@ -38,6 +38,16 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
         return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
     }
 
+    @Override
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+    }
+
+    @Override
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+    }
+
     private boolean addJsonFieldFormat(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
         if (introspectedColumn == null) {
             return true;
@@ -46,9 +56,7 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
         String datePattern = introspectedColumn.getDatePattern();
         if (StringUtility.stringHasValue(datePattern)) {
             topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
-            field.addAnnotation("@JsonFormat(locale=\"zh\", timezone=\"GMT+8\", pattern=\"" + datePattern + "\")");
-            topLevelClass.addImportedType("com.alibaba.fastjson.annotation.JSONField");
-            field.addAnnotation("@JSONField(format=\"" + datePattern + "\")");
+            field.addAnnotation("@JsonFormat(shape = JsonFormat.Shape.STRING,locale=\"zh\", timezone=\"GMT+8\", pattern=\"" + datePattern + "\")");
         }
         return true;
     }

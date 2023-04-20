@@ -4,7 +4,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.stream.Collectors;

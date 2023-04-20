@@ -4,10 +4,239 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="">
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_core_annotation_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_core_constant_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_core_exception_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_mybatis_mybatis_typehandlers_jsr310_1_0_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/GeneratorInitialParameters.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/AbstractGeneratedFile.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/freeMaker/AbstractFreemarkerGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/freeMaker/css/GeneratedStyleFile.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/freeMaker/css/StyleFreemarkerGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/freeMaker/js/layui/GeneratedJqueryFile.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/freeMaker/js/layui/JQueryFreemarkerGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/AbstractLayuiElementGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/CheckBoxHtmlGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/DateHtmlElementGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/DropdownListHtmlGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/InputHtmlElementGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/RadioHtmlGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/SelectElementGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/layui/SwitchHtmlGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/ConfigUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlLayoutDescriptor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/VoColumnRenderFunGeneratorConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/HtmlElementTagTypeEnum.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/handler/LocalDateTimeTypeHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/internal/util/Mb3GenUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/WorkflowPropertyPlugin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/css/StyleFileGeneratePlugin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/jquery/JQueryPlugin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_5_0.dtd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_main_css.css.ftl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_main_js.js.ftl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_main_wf_js.js.ftl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/CompositePlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/CompositePlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/GeneratedHtmlFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/GeneratedHtmlFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/IntrospectedColumn.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/IntrospectedColumn.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/IntrospectedTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/IntrospectedTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/Plugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/Plugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/dom/html/HtmlElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/dom/html/HtmlElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/dom/java/JavaElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/dom/java/JavaElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/AbstractGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/AbstractGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/XmlConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/XmlConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/AbstractControllerElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/AbstractControllerElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/JavaControllerGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/JavaControllerGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/DeleteByTableGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/DeleteByTableGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/GetDefaultViewConfigElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/GetDefaultViewConfigElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/GetDefaultViewElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/GetDefaultViewElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/InsertByTableGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/InsertByTableGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/OptionElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/OptionElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/GenerateHtmlFiles.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/GenerateHtmlFiles.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/HTMLGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/HTMLGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/AbstractHtmlElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/elements/AbstractHtmlElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/JavaMapperGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/JavaMapperGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/elements/AbstractJavaMapperMethodGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/elements/AbstractJavaMapperMethodGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/elements/DeleteByTableMethodGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/elements/DeleteByTableMethodGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/elements/InsertByTableMethodGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/javamapper/elements/InsertByTableMethodGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/AbstractServiceElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/AbstractServiceElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/AbstractServiceGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/AbstractServiceGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/JavaServiceGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/JavaServiceGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/JavaServiceImplGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/JavaServiceImplGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/ServiceMethods.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/ServiceMethods.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByColumnElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByColumnElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByExampleElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByExampleElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByPrimaryKeyElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByPrimaryKeyElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByTableElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByTableElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InnerMethodInsertUpdateElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InnerMethodInsertUpdateElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertBatchElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertBatchElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertByTableElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertByTableElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertOrUpdateElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertOrUpdateElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertSelectiveElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertSelectiveElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectByColumnElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectByColumnElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectByKeysDictElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectByKeysDictElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectBySqlMethodElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectBySqlMethodElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectByTableElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/SelectByTableElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateBatchElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateBatchElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateByExampleElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateByExampleElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateByPrimaryKeyElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateByPrimaryKeyElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateBySqlElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateBySqlElement.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/sqlschema/GeneratedSqlSchemaFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/sqlschema/GeneratedSqlSchemaFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/sqlschema/SqlSchemaScriptGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/sqlschema/SqlSchemaScriptGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/AbstractUnitTestElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/AbstractUnitTestElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/JavaControllerUnitTestGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/JavaControllerUnitTestGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/JavaServiceUnitTestGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/JavaServiceUnitTestGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerCreateElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerCreateElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerDeleteElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerDeleteElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerGetElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerGetElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerListElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerListElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerUpdateElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerUpdateElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerViewElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/unittest/elements/ControllerViewElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOCreateGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOCreateGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOModelGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOModelGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VORequestGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VORequestGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOUpdateGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOUpdateGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOViewGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/VOViewGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/ViewObjectClassGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vo/ViewObjectClassGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/XMLMapperGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/XMLMapperGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/DeleteByColumnElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/DeleteByColumnElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/DeleteByTableElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/DeleteByTableElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/InsertByTableElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/InsertByTableElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/ResultMapWithoutBLOBsElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/ResultMapWithoutBLOBsElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/SelectBySqlMethodElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/SelectBySqlMethodElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/SelectByTableElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/xmlmapper/elements/SelectByTableElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/AbstractModelGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/AbstractModelGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/Context.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/Context.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/JavaControllerGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/JavaControllerGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/OverridePropertyValueGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/OverridePropertyValueGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/PropertyRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/PropertyRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/VOViewGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/VOViewGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/ConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/ConfigurationParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/ParserEntityResolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/ParserEntityResolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/ConstantsUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/ConstantsUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/JavaClientGeneratePlugins.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/JavaClientGeneratePlugins.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/ViewColumnMeta.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/ViewColumnMeta.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/ViewTableMeta.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/ViewTableMeta.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/htmlGenerator/AbsHtmlDocumentGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/htmlGenerator/AbsHtmlDocumentGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/htmlGenerator/GenerateUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/htmlGenerator/GenerateUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/htmlGenerator/LayuiDocumentGenerated.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/htmlGenerator/LayuiDocumentGenerated.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/CacheAnnotation.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/CacheAnnotation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/FormOptionGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/FormOptionGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/HtmlElementDescriptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlElementDescriptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/RelationGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/RelationGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/SelectByColumnGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/SelectByColumnGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/SelectBySqlMethodGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/SelectBySqlMethodGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/pojo/SelectByTableGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/SelectByTableGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/internal/rules/BaseRules.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/internal/rules/BaseRules.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/FieldJsonFormatPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/FieldJsonFormatPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/GenerateAdditionalFilesPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/GenerateAdditionalFilesPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/ModelWebPropertiesPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/ModelWebPropertiesPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/SwaggerApiPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/SwaggerApiPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/ViewMetaAnnotationPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/ViewMetaAnnotationPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/internal/util/messages/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/internal/util/messages/messages.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-maven-plugin/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-maven-plugin/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-maven-plugin/src/main/java/org/mybatis/generator/maven/MyBatisGeneratorMojo.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-maven-plugin/src/main/java/org/mybatis/generator/maven/MyBatisGeneratorMojo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-systests-common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-systests-common/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-systests-domtests/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-systests-domtests/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-systests-kotlin/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-systests-kotlin/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-systests-mybatis3-java8/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-systests-mybatis3-java8/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-systests-mybatis3/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-systests-mybatis3/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/core/pom.xml" afterDir="false" />
     </list>
-    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="" />
+    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/aws.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/pasm_test.RmggvQ.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/pasm_test.RmggvQ.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jpa-buddy.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_alibaba_fastjson2_fastjson2_extension_2_0_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_alibaba_transmittable_thread_local_2_14_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_baomidou_mybatis_plus_annotation_3_5_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_pagehelper_pagehelper_5_3_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_pagehelper_pagehelper_spring_boot_autoconfigure_1_4_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_errorprone_error_prone_annotations_2_11_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_failureaccess_1_0_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_listenablefuture_9999_0_empty_to_avoid_conflict_with_guava.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_j2objc_j2objc_annotations_1_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_checkerframework_checker_qual_3_12_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_2_7_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_configuration_processor_2_7_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_beans_5_3_23.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/markdown.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_27_[Ignore_Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_27__Ignore_Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__cglib_cglib_3_3_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__cn_hutool_hutool_all_5_7_20.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__cn_hutool_hutool_all_5_8_12.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_alibaba_druid_1_2_8.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_alibaba_fastjson_2_0_24.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_alibaba_fastjson_1_2_75.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_guava_31_1_jre.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_jsqlparser_jsqlparser_4_2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_jsqlparser_jsqlparser_4_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_oshi_oshi_core_6_1_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_oshi_oshi_core_6_1_6.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_pagehelper_pagehelper_5_3_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_alibaba_fastjson2_fastjson2_2_0_24.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_pagehelper_pagehelper_spring_boot_autoconfigure_1_4_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_pagehelper_pagehelper_spring_boot_starter_1_4_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_pagehelper_pagehelper_spring_boot_starter_1_4_6.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_github_xiaoymin_swagger_bootstrap_ui_1_9_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_protobuf_protobuf_java_2_6_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_bizcore_3_8_2_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_core_db_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_core_3_8_2_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_core_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_mybatis_3_8_2_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_mybatis_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_organ_3_8_2_SNAPSHOT.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_tool_3_8_2_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_tool_4_0_0_SNAPSHOT.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_web2_3_8_2_SNAPSHOT.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_vgosoft_vgosoft_webjars_3_8_1_SNAPSHOT.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__javax_annotation_javax_annotation_api_1_3_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__mysql_mysql_connector_java_8_0_11.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_java_dev_jna_jna_5_10_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_java_dev_jna_jna_5_11_0.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_java_dev_jna_jna_platform_5_10_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_java_dev_jna_jna_platform_5_11_0.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_attoparser_attoparser_2_0_5_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_javassist_javassist_3_25_0_GA.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_jcl_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_jetbrains_kotlin_kotlin_stdlib_jdk7_1_6_20.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_jetbrains_kotlin_kotlin_stdlib_jdk8_1_6_20.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_mapstruct_mapstruct_1_3_1_Final.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_mapstruct_mapstruct_1_5_3_Final.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_mybatis_dynamic_sql_mybatis_dynamic_sql_1_4_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_ow2_asm_asm_7_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_yaml_snakeyaml_1_30.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_2_5_12.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_autoconfigure_2_5_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_autoconfigure_2_7_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_2_5_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_2_7_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_aop_2_5_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_aop_2_7_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_jdbc_2_5_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_jdbc_2_7_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_logging_2_5_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_logging_2_7_5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_thymeleaf_2_5_12.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_aop_5_2_0_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_beans_5_2_0_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_context_5_2_0_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_core_5_3_18.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_jdbc_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_expression_5_2_0_RELEASE.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_expression_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_jcl_5_3_18.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_aop_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_jdbc_5_3_18.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_core_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_tx_5_3_18.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_tx_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_thymeleaf_extras_thymeleaf_extras_java8time_3_0_4_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_thymeleaf_thymeleaf_3_0_15_RELEASE.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_context_5_3_23.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_thymeleaf_thymeleaf_spring5_3_0_15_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_unbescape_unbescape_1_1_6_RELEASE.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_yaml_snakeyaml_1_28.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_freemarker_freemarker_2_3_32.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,22 +248,71 @@
       <option value="module" />
     </option>
   </component>
+  <component name="ExportToHTMLSettings">
+    <option name="printScope" value="1" />
+    <option name="OUTPUT_DIRECTORY" value="E:/111" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Enum" />
+        <option value="Class" />
+        <option value="CSS File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="91b4b645-8810-488b-bd2d-781f641c44a5" />
+        <option name="url" value="https://github.com/jeanscn/generator.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
         <option name="localRepository" value="D:\MavenRepo\local" />
         <option name="mavenHome" value="E:/java/apache-maven-3.6.3" />
-        <option name="userSettingsFile" value="E:/java/apache-maven-3.6.3\conf\settings.xml" />
+        <option name="userSettingsFile" value="E:\java\apache-maven-3.6.3\conf\settings.xml" />
       </MavenGeneralSettings>
+    </option>
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="downloadAnnotationsAutomatically" value="true" />
+        <option name="downloadDocsAutomatically" value="true" />
+        <option name="downloadSourcesAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+    <option name="enabledProfiles">
+      <list>
+        <option value="release" />
+      </list>
     </option>
     <option name="disabledProfiles">
       <list>
         <option value="jdk9on" />
       </list>
     </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="8" />
+    <option name="skipTests" value="true" />
   </component>
   <component name="ProjectId" id="27bCEpsdgtpBq5xe9rIDkbuBVc9" />
   <component name="ProjectViewState">
@@ -43,13 +321,48 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="MavenSettings" />
-    <property name="vue.rearranger.settings.migration" value="true" />
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/java/idea_projs4/generator/core/mybatis-generator-core/src/main/resources/templates/layui&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;0870dd61c2c2751b2c82971b337300b9&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.mybatis.generator.config" />
+      <recent name="org.mybatis.generator.codegen.mybatis3.js" />
+      <recent name="org.mybatis.generator.codegen.mybatis3.js.jquery" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\java\idea_projs4\generator\core\mybatis-generator-core\src\main\resources\templates\layui" />
+      <recent name="D:\java\idea_projs4\generator\core\mybatis-generator-core\src\main\resources\org\mybatis\generator\config\xml" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\java\idea_projs4\generator\core\mybatis-generator-core\src\main\java\org\mybatis\generator\codegen\mybatis3\freeMaker" />
+      <recent name="D:\java\idea_projs4\generator\core\mybatis-generator-core\src\main\resources\templates" />
+      <recent name="D:\java\idea_projs4\generator\core\mybatis-generator-core\src\main\resources\templates\jquery" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="org.mybatis.generator.internal.util" />
+      <recent name="org.mybatis.generator.config" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.mybatis.generator.codegen.mybatis3.freeMaker.css" />
+      <recent name="org.mybatis.generator.plugins.css" />
+      <recent name="org.mybatis.generator.config" />
+      <recent name="org.mybatis.generator.codegen.mybatis3.sqlschema" />
+      <recent name="org.mybatis.generator.codegen.mybatis3.service.elements" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration name="XmlCodeGenerationTest.testXmlParse" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
@@ -90,6 +403,230 @@
       <workItem from="1649613747087" duration="4594000" />
       <workItem from="1649620069769" duration="15000" />
       <workItem from="1649621118401" duration="5629000" />
+      <workItem from="1649825571879" duration="5469000" />
+      <workItem from="1649854308102" duration="53234000" />
+      <workItem from="1650030958116" duration="17048000" />
+      <workItem from="1650171340931" duration="5500000" />
+      <workItem from="1650257966061" duration="11953000" />
+      <workItem from="1650340245591" duration="17867000" />
+      <workItem from="1650368932225" duration="18511000" />
+      <workItem from="1650391523182" duration="3001000" />
+      <workItem from="1650429649822" duration="3091000" />
+      <workItem from="1650519385122" duration="1235000" />
+      <workItem from="1650526298310" duration="4725000" />
+      <workItem from="1651340309458" duration="56076000" />
+      <workItem from="1651591729825" duration="8260000" />
+      <workItem from="1651651456123" duration="8984000" />
+      <workItem from="1651756194942" duration="583000" />
+      <workItem from="1651829931670" duration="1701000" />
+      <workItem from="1651947544994" duration="2385000" />
+      <workItem from="1651951743207" duration="1594000" />
+      <workItem from="1651996093426" duration="25062000" />
+      <workItem from="1652117781816" duration="3297000" />
+      <workItem from="1652158558193" duration="20403000" />
+      <workItem from="1652703629672" duration="17766000" />
+      <workItem from="1652763677048" duration="26705000" />
+      <workItem from="1652856846400" duration="15165000" />
+      <workItem from="1653115074985" duration="12171000" />
+      <workItem from="1653289524891" duration="46169000" />
+      <workItem from="1653476726801" duration="3727000" />
+      <workItem from="1653533108941" duration="1777000" />
+      <workItem from="1654022539107" duration="7429000" />
+      <workItem from="1654034369786" duration="3380000" />
+      <workItem from="1654790525103" duration="1332000" />
+      <workItem from="1654974358330" duration="2019000" />
+      <workItem from="1655121624042" duration="4919000" />
+      <workItem from="1655377039153" duration="590000" />
+      <workItem from="1655436217955" duration="24533000" />
+      <workItem from="1655790852309" duration="22960000" />
+      <workItem from="1655866900935" duration="1174000" />
+      <workItem from="1656519078902" duration="5454000" />
+      <workItem from="1656827415156" duration="11500000" />
+      <workItem from="1657028603331" duration="20098000" />
+      <workItem from="1657115485219" duration="11674000" />
+      <workItem from="1657177152698" duration="5058000" />
+      <workItem from="1657190807932" duration="10419000" />
+      <workItem from="1657292351811" duration="15668000" />
+      <workItem from="1657701816012" duration="2050000" />
+      <workItem from="1657814858724" duration="10428000" />
+      <workItem from="1657875624841" duration="3579000" />
+      <workItem from="1657903851789" duration="1633000" />
+      <workItem from="1657947872423" duration="2252000" />
+      <workItem from="1657971141906" duration="2126000" />
+      <workItem from="1657979335029" duration="916000" />
+      <workItem from="1658059915733" duration="20518000" />
+      <workItem from="1658119552355" duration="5414000" />
+      <workItem from="1658141066241" duration="8436000" />
+      <workItem from="1658193711186" duration="3345000" />
+      <workItem from="1658214583749" duration="5344000" />
+      <workItem from="1658384318276" duration="13567000" />
+      <workItem from="1658582804106" duration="45288000" />
+      <workItem from="1658807811501" duration="62160000" />
+      <workItem from="1659069894085" duration="2439000" />
+      <workItem from="1659111247585" duration="7688000" />
+      <workItem from="1659459049912" duration="859000" />
+      <workItem from="1659504487245" duration="2384000" />
+      <workItem from="1659519600501" duration="1538000" />
+      <workItem from="1659547756756" duration="4346000" />
+      <workItem from="1660284633693" duration="2714000" />
+      <workItem from="1660405939488" duration="4288000" />
+      <workItem from="1660629989628" duration="34619000" />
+      <workItem from="1660756379583" duration="44641000" />
+      <workItem from="1660902148474" duration="70000" />
+      <workItem from="1660927762449" duration="1503000" />
+      <workItem from="1661020625412" duration="3264000" />
+      <workItem from="1661186578299" duration="53171000" />
+      <workItem from="1661401167248" duration="10303000" />
+      <workItem from="1661418184587" duration="3099000" />
+      <workItem from="1661433987420" duration="2010000" />
+      <workItem from="1661437383573" duration="9025000" />
+      <workItem from="1661503088161" duration="2984000" />
+      <workItem from="1661618338456" duration="14657000" />
+      <workItem from="1661771035522" duration="3719000" />
+      <workItem from="1661931571266" duration="588000" />
+      <workItem from="1661995942179" duration="59544000" />
+      <workItem from="1662134208107" duration="20995000" />
+      <workItem from="1662303331977" duration="17500000" />
+      <workItem from="1662375176838" duration="707000" />
+      <workItem from="1662427230317" duration="8177000" />
+      <workItem from="1662517165422" duration="1252000" />
+      <workItem from="1662518651205" duration="1189000" />
+      <workItem from="1662556892595" duration="70246000" />
+      <workItem from="1662872792911" duration="93898000" />
+      <workItem from="1663202179799" duration="67855000" />
+      <workItem from="1663378709280" duration="80959000" />
+      <workItem from="1663633482649" duration="63392000" />
+      <workItem from="1663812074050" duration="8370000" />
+      <workItem from="1663835422710" duration="35470000" />
+      <workItem from="1663922926847" duration="8649000" />
+      <workItem from="1663947343324" duration="9351000" />
+      <workItem from="1663980454147" duration="1863000" />
+      <workItem from="1664019448533" duration="8040000" />
+      <workItem from="1664074186768" duration="677000" />
+      <workItem from="1664115695666" duration="761000" />
+      <workItem from="1664119226327" duration="4323000" />
+      <workItem from="1664127245664" duration="15092000" />
+      <workItem from="1664185936235" duration="5122000" />
+      <workItem from="1664242038950" duration="8591000" />
+      <workItem from="1664304581841" duration="12392000" />
+      <workItem from="1664361715228" duration="1464000" />
+      <workItem from="1664364710805" duration="8287000" />
+      <workItem from="1664381299002" duration="34390000" />
+      <workItem from="1664510503449" duration="24446000" />
+      <workItem from="1664600219314" duration="784000" />
+      <workItem from="1664641461284" duration="4890000" />
+      <workItem from="1664699686350" duration="65925000" />
+      <workItem from="1664858051141" duration="29813000" />
+      <workItem from="1664947117915" duration="16196000" />
+      <workItem from="1665000585826" duration="31860000" />
+      <workItem from="1665158946283" duration="3910000" />
+      <workItem from="1665217916666" duration="1911000" />
+      <workItem from="1665234703985" duration="678000" />
+      <workItem from="1665241393373" duration="3435000" />
+      <workItem from="1665335829750" duration="767000" />
+      <workItem from="1665375453125" duration="11732000" />
+      <workItem from="1665420487220" duration="2430000" />
+      <workItem from="1665515533994" duration="24247000" />
+      <workItem from="1665654726194" duration="1007000" />
+      <workItem from="1665686370106" duration="30233000" />
+      <workItem from="1665752638550" duration="2321000" />
+      <workItem from="1665774346343" duration="3660000" />
+      <workItem from="1665877343315" duration="8209000" />
+      <workItem from="1665999326233" duration="876000" />
+      <workItem from="1666000281463" duration="11489000" />
+      <workItem from="1666082401641" duration="17159000" />
+      <workItem from="1666203450763" duration="2732000" />
+      <workItem from="1666366457289" duration="5333000" />
+      <workItem from="1666409075819" duration="9898000" />
+      <workItem from="1666651283873" duration="952000" />
+      <workItem from="1666664070192" duration="815000" />
+      <workItem from="1666786518898" duration="1802000" />
+      <workItem from="1666930178500" duration="3383000" />
+      <workItem from="1666944457698" duration="1519000" />
+      <workItem from="1667316814622" duration="2467000" />
+      <workItem from="1667326358046" duration="907000" />
+      <workItem from="1667329438348" duration="625000" />
+      <workItem from="1667416311805" duration="580000" />
+      <workItem from="1667907498780" duration="1623000" />
+      <workItem from="1668109127329" duration="3742000" />
+      <workItem from="1668173426586" duration="7858000" />
+      <workItem from="1668250584860" duration="3034000" />
+      <workItem from="1668443726728" duration="9944000" />
+      <workItem from="1669993053311" duration="5318000" />
+      <workItem from="1670647858965" duration="1315000" />
+      <workItem from="1670767591194" duration="34483000" />
+      <workItem from="1671192006076" duration="3853000" />
+      <workItem from="1672736719523" duration="1557000" />
+      <workItem from="1672743048336" duration="3005000" />
+      <workItem from="1672993481425" duration="52000" />
+      <workItem from="1673015987494" duration="20486000" />
+      <workItem from="1673099989160" duration="27320000" />
+      <workItem from="1673320511210" duration="3182000" />
+      <workItem from="1673324899900" duration="70000" />
+      <workItem from="1673325136718" duration="671000" />
+      <workItem from="1673947548614" duration="14033000" />
+      <workItem from="1674831686089" duration="15999000" />
+      <workItem from="1674916319490" duration="977000" />
+      <workItem from="1675008833382" duration="13060000" />
+      <workItem from="1675093057354" duration="6354000" />
+      <workItem from="1675545920734" duration="2532000" />
+      <workItem from="1675607537398" duration="3371000" />
+      <workItem from="1675697756574" duration="1191000" />
+      <workItem from="1675771307598" duration="22855000" />
+      <workItem from="1676556330691" duration="6705000" />
+      <workItem from="1676841909956" duration="20997000" />
+      <workItem from="1676907944610" duration="9809000" />
+      <workItem from="1677255763216" duration="2835000" />
+      <workItem from="1677344565212" duration="41222000" />
+      <workItem from="1677736403091" duration="11115000" />
+      <workItem from="1677752614761" duration="14373000" />
+      <workItem from="1677899595332" duration="590000" />
+      <workItem from="1678173826157" duration="1736000" />
+      <workItem from="1678194116283" duration="49000" />
+      <workItem from="1678195581406" duration="2747000" />
+      <workItem from="1679542980350" duration="25400000" />
+      <workItem from="1679762500689" duration="2425000" />
+      <workItem from="1679881598936" duration="6931000" />
+      <workItem from="1679908532385" duration="2666000" />
+      <workItem from="1679931562097" duration="3582000" />
+      <workItem from="1679984503223" duration="11204000" />
+      <workItem from="1680047484482" duration="31564000" />
+      <workItem from="1680106731735" duration="3929000" />
+      <workItem from="1680246024786" duration="12950000" />
+      <workItem from="1680269539647" duration="2882000" />
+      <workItem from="1680278277702" duration="2535000" />
+      <workItem from="1680325179452" duration="590000" />
+      <workItem from="1680359768238" duration="9633000" />
+      <workItem from="1680439971083" duration="2400000" />
+      <workItem from="1680461146575" duration="2580000" />
+      <workItem from="1680497060390" duration="9937000" />
+      <workItem from="1680523070101" duration="2475000" />
+      <workItem from="1680540008883" duration="8214000" />
+      <workItem from="1680584597887" duration="4257000" />
+      <workItem from="1680601538210" duration="3221000" />
+      <workItem from="1680700288304" duration="2602000" />
+      <workItem from="1680707205165" duration="31904000" />
+      <workItem from="1680833284048" duration="9832000" />
+      <workItem from="1680932643555" duration="15037000" />
+      <workItem from="1680957077454" duration="294000" />
+      <workItem from="1680967989144" duration="1154000" />
+      <workItem from="1680970826865" duration="750000" />
+      <workItem from="1680972441589" duration="7040000" />
+      <workItem from="1681102373200" duration="1692000" />
+      <workItem from="1681127290060" duration="7787000" />
+      <workItem from="1681144927059" duration="1488000" />
+      <workItem from="1681181618183" duration="18928000" />
+      <workItem from="1681345527782" duration="47554000" />
+      <workItem from="1681552261796" duration="287000" />
+      <workItem from="1681552685306" duration="941000" />
+      <workItem from="1681556551933" duration="4407000" />
+      <workItem from="1681575178001" duration="1917000" />
+      <workItem from="1681589135643" duration="4442000" />
+      <workItem from="1681677784196" duration="1912000" />
+      <workItem from="1681716422747" duration="1819000" />
+      <workItem from="1681871560490" duration="34634000" />
+      <workItem from="1681945890606" duration="7723000" />
+      <workItem from="1681972757078" duration="6999000" />
     </task>
     <task id="LOCAL-00001" summary="合并官方源码142">
       <created>1649623804083</created>
@@ -119,7 +656,301 @@
       <option name="project" value="LOCAL" />
       <updated>1649647889904</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="增加根据父类列注解，更新或添加列功能">
+      <created>1652121381916</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1652121381916</updated>
+    </task>
+    <task id="LOCAL-00006" summary="批量更新">
+      <created>1658071076861</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1658071076861</updated>
+    </task>
+    <task id="LOCAL-00007" summary="批量更新">
+      <created>1658512547705</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1658512547705</updated>
+    </task>
+    <task id="LOCAL-00008" summary="默认视图生成及其它">
+      <created>1660715329148</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1660715329148</updated>
+    </task>
+    <task id="LOCAL-00009" summary="1、重构controller测试方法生成类。&#10;2、example类中，字符型字段增加notEmpty Empty条件&#10;3、可扩展元素重新开关设置">
+      <created>1661280814640</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1661280814640</updated>
+    </task>
+    <task id="LOCAL-00010" summary="1、list、option增加分页功能&#10;2、list、option等selectByExample查询，提取构造example方法用于子类多样性处理。">
+      <created>1661623320494</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1661623320494</updated>
+    </task>
+    <task id="LOCAL-00011" summary="1、生成excel文件导入和导入模板接口&#10;2、调整vo类生成细节">
+      <created>1662054644102</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1662054644102</updated>
+    </task>
+    <task id="LOCAL-00012" summary="增加controller的security权限">
+      <created>1662100679760</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1662100679760</updated>
+    </task>
+    <task id="LOCAL-00013" summary="option接口返回支持层级（tree）">
+      <created>1662116820014</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1662116820014</updated>
+    </task>
+    <task id="LOCAL-00014" summary="1、当父类有children属性时，根据parentId生成children属性及默认查询（selectByColumnParentId）。">
+      <created>1662315326334</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1662315326334</updated>
+    </task>
+    <task id="LOCAL-00015" summary="调整context的几个property为attribute">
+      <created>1662480978993</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1662480978993</updated>
+    </task>
+    <task id="LOCAL-00016" summary="菜单初始数据、权限关键字初始数据sql脚本文件生成">
+      <created>1662659249409</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1662659249409</updated>
+    </task>
+    <task id="LOCAL-00017" summary="1、调整example类的like方法，value添加”%“通配符。&#10;2、增加likeLeft、likeRight方法。">
+      <created>1662703043158</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1662703043158</updated>
+    </task>
+    <task id="LOCAL-00018" summary="1、补充级联删除方法&#10;2、修正bug">
+      <created>1663931019205</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1663931019205</updated>
+    </task>
+    <task id="LOCAL-00019" summary="拆分service impl元素成单独类">
+      <created>1663956602841</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1663956602841</updated>
+    </task>
+    <task id="LOCAL-00020" summary="修正service Impl insertBatch等生成规则">
+      <created>1664054114386</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1664054114386</updated>
+    </task>
+    <task id="LOCAL-00021" summary="部分代码优化">
+      <created>1664298000722</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1664298000722</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Ignore Changes">
+      <created>1664298026410</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1664298026410</updated>
+    </task>
+    <task id="LOCAL-00023" summary="修正子集为空或null时失败回滚部分代码的生成，修正字典转换getter原属性值null是toString()空指针。">
+      <created>1664370990125</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1664370990125</updated>
+    </task>
+    <task id="LOCAL-00024" summary="增加基于selectByTable标签，配置中间表的数据增删。enableSplit、enableUnion">
+      <created>1664446964310</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1664446964310</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Controller生成默认example查询对象。">
+      <created>1664538980986</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1664538980986</updated>
+    </task>
+    <task id="LOCAL-00026" summary="整合dao、service、serviceImpl的方法，优化生成。">
+      <created>1664909024575</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1664909024576</updated>
+    </task>
+    <task id="LOCAL-00027" summary="整合dao、service、serviceImpl的方法，优化生成。">
+      <created>1664909326631</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1664909326631</updated>
+    </task>
+    <task id="LOCAL-00028" summary="优化，修正上传返回content-type设置的错误">
+      <created>1664986071041</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1664986071042</updated>
+    </task>
+    <task id="LOCAL-00029" summary="优化，重写注解生成及添加方式。由拼接字符串改为实体">
+      <created>1665099680998</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1665099680998</updated>
+    </task>
+    <task id="LOCAL-00030" summary="修正lombok对应首个单字符生成的getter及setter不符合java规范的问题，baseModel及abstractVo中对于首个单字符驼峰，生成getter及setter">
+      <created>1665254384447</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1665254384447</updated>
+    </task>
+    <task id="LOCAL-00031" summary="1、生成controller接口路径中beaname移到根下。2、增加controller父类泛型。3、调整viewVo生成，4、增加指定元素类型进行强制覆盖">
+      <created>1665607077122</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1665607077123</updated>
+    </task>
+    <task id="LOCAL-00032" summary="selectByColumn增加enableDelete参数，支持生成deleteByColumn方法">
+      <created>1665705325867</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1665705325867</updated>
+    </task>
+    <task id="LOCAL-00033" summary="修正级联delete的返回错误">
+      <created>1665732745606</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1665732745606</updated>
+    </task>
+    <task id="LOCAL-00034" summary="级联插入更新，更新主表或子表的外键值">
+      <created>1665746439008</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1665746439008</updated>
+    </task>
+    <task id="LOCAL-00035" summary="requestVO的example增加Between比较">
+      <created>1666016294271</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1666016294271</updated>
+    </task>
+    <task id="LOCAL-00036" summary="SelectByColumn增加多参数支持">
+      <created>1666105573308</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1666105573308</updated>
+    </task>
+    <task id="LOCAL-00037" summary="SelectByColumn增加多参数支持">
+      <created>1666107117357</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1666107117357</updated>
+    </task>
+    <task id="LOCAL-00038" summary="deleteByColumn生成的xml缺少from、selectByColumn去重">
+      <created>1666590379631</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1666590379632</updated>
+    </task>
+    <task id="LOCAL-00039" summary="SelectByTable返回list&lt;Id&gt;时，列添加别名">
+      <created>1666652868344</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1666652868344</updated>
+    </task>
+    <task id="LOCAL-00040" summary="deleteByTable返回,otherColumn列名未计算">
+      <created>1666947667875</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1666947667876</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Changes">
+      <created>1676985959336</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1676985959336</updated>
+    </task>
+    <task id="LOCAL-00042" summary="完善生成附加属性的各实体中的注解添加">
+      <created>1677490111933</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1677490111933</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Changes">
+      <created>1678202832207</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1678202832207</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Changes">
+      <created>1680049023546</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1680049023546</updated>
+    </task>
+    <task id="LOCAL-00045" summary="优化Vo生成相关类，拆各位多个vo对象生成器">
+      <created>1680098989034</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1680098989034</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Changes">
+      <created>1680099023741</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1680099023741</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -139,6 +970,31 @@
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
+        <entry key="9c2bbc5e-3f14-4ca8-90c8-6c35c5c17608">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:D:/java/idea_projs4/generator/core" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State>
@@ -158,9 +1014,53 @@
         </entry>
       </map>
     </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="9c2bbc5e-3f14-4ca8-90c8-6c35c5c17608" value="TOOL_WINDOW" />
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="合并官方源码142" />
-    <option name="LAST_COMMIT_MESSAGE" value="合并官方源码142" />
+    <MESSAGE value="1、调整example类的like方法，value添加”%“通配符。&#10;2、增加likeLeft、likeRight方法。" />
+    <MESSAGE value="1、补充级联删除方法&#10;2、修正bug" />
+    <MESSAGE value="拆分service impl元素成单独类" />
+    <MESSAGE value="修正service Impl insertBatch等生成规则" />
+    <MESSAGE value="部分代码优化" />
+    <MESSAGE value="Ignore Changes" />
+    <MESSAGE value="修正子集为空或null时失败回滚部分代码的生成，修正字典转换getter原属性值null是toString()空指针。" />
+    <MESSAGE value="增加基于selectByTable标签，配置中间表的数据增删。enableSplit、enableUnion" />
+    <MESSAGE value="Controller生成默认example查询对象。" />
+    <MESSAGE value="整合dao、service、serviceImpl的方法，优化生成。" />
+    <MESSAGE value="优化，修正上传返回content-type设置的错误" />
+    <MESSAGE value="优化，重写注解生成及添加方式。由拼接字符串改为实体" />
+    <MESSAGE value="修正lombok对应首个单字符生成的getter及setter不符合java规范的问题，baseModel及abstractVo中对于首个单字符驼峰，生成getter及setter" />
+    <MESSAGE value="1、生成controller接口路径中beaname移到根下。2、增加controller父类泛型。3、调整viewVo生成，4、增加指定元素类型进行强制覆盖" />
+    <MESSAGE value="selectByColumn增加enableDelete参数，支持生成deleteByColumn方法" />
+    <MESSAGE value="修正级联delete的返回错误" />
+    <MESSAGE value="级联插入更新，更新主表或子表的外键值" />
+    <MESSAGE value="requestVO的example增加Between比较" />
+    <MESSAGE value="SelectByColumn增加多参数支持" />
+    <MESSAGE value="deleteByColumn生成的xml缺少from、selectByColumn去重" />
+    <MESSAGE value="SelectByTable返回list&lt;Id&gt;时，列添加别名" />
+    <MESSAGE value="deleteByTable返回,otherColumn列名未计算" />
+    <MESSAGE value="完善生成附加属性的各实体中的注解添加" />
+    <MESSAGE value="优化Vo生成相关类，拆各位多个vo对象生成器" />
+    <MESSAGE value="Changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/core/mybatis-generator-core/src/test/java/org/mybatis/generator/XmlCodeGenerationTest.java</url>
+          <line>50</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

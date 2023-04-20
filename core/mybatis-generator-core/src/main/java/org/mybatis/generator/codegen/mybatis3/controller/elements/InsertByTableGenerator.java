@@ -6,12 +6,13 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.vgosoft.tool.core.VStringUtil.toCamelCase;
+import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 public class InsertByTableGenerator extends AbstractControllerElementGenerator {
@@ -45,7 +46,7 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnRemark("成功添加的记录数");
 
                     method.addAnnotation(new SystemLog("添加数据关联",introspectedTable),parentElement);
-                    method.addAnnotation(new RequestMapping("union/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
+                    method.addAnnotation(new RequestMapping("union/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethod.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getUnionMethodName(),"添加关系");
                     method.addAnnotation(new ApiOperation("添加数据关联关系", "添加中间表数据"),parentElement);

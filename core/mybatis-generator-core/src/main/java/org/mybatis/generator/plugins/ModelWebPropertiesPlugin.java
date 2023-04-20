@@ -1,19 +1,14 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
-import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
-import java.sql.JDBCType;
-import java.text.MessageFormat;
 import java.util.List;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -58,13 +53,13 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
                 .stream()
                 .filter(t -> stringHasValue(t.getViewPath()))
                 .findFirst().orElse(null);
-        if (htmlGeneratorConfiguration != null) {
+        if (htmlGeneratorConfiguration != null && stringHasValue(htmlGeneratorConfiguration.getViewPath())) {
             Field viewPath = new Field(PROP_NAME_VIEW_PATH, FullyQualifiedJavaType.getStringInstance());
             viewPath.setVisibility(JavaVisibility.PRIVATE);
             viewPath.setInitializationString("\""+htmlGeneratorConfiguration.getViewPath()+"\"");
             if (topLevelClass.addField(viewPath,null,true)) {
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    ApiModelProperty apiModelProperty = new ApiModelProperty("视图路径","html/viewPath");
+                    ApiModelProperty apiModelProperty = new ApiModelProperty("视图路径",htmlGeneratorConfiguration.getViewPath());
                     apiModelProperty.setHidden("true");
                     apiModelProperty.addAnnotationToField(viewPath, topLevelClass);
                 }
@@ -86,10 +81,10 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
         if (stringHasValue(introspectedTable.getControllerSimplePackage())) {
             Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
             field.setVisibility(JavaVisibility.PRIVATE);
-            field.setInitializationString("\""+introspectedTable.getControllerSimplePackage()+"\"");
+            field.setInitializationString("\""+ Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) +"\"");
             if(topLevelClass.addField(field, null, true)){
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    ApiModelProperty apiModelProperty = new ApiModelProperty("Restful请求中的跟路径", "html/restBasePath");
+                    ApiModelProperty apiModelProperty = new ApiModelProperty("Restful请求中的跟路径", "api/serv");
                     apiModelProperty.setHidden("true");
                     apiModelProperty.addAnnotationToField(field, topLevelClass);
                 }

@@ -1,28 +1,23 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
-import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.AnnotationFunction;
 import org.mybatis.generator.custom.annotations.IAnnotation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.CacheAnnotation;
+import org.mybatis.generator.custom.annotations.CacheAnnotation;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 public abstract class AbstractControllerElementGenerator  extends AbstractGenerator {
 
@@ -94,16 +89,6 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         method.setVisibility(JavaVisibility.PROTECTED);
         return method;
     }
-
-    protected void addControllerMapping(Method method, String otherKey, RequestMethod requestMethod,TopLevelClass parent) {
-        if (!VStringUtil.isBlank(otherKey) && otherKey.charAt(0) != '/') {
-            otherKey = "/"+otherKey;
-        }
-        RequestMapping requestMapping = new RequestMapping(this.serviceBeanName + otherKey, requestMethod);
-        requestMapping.toAnnotations().forEach(method::addAnnotation);
-        parent.addImportedType(requestMethod.imported());
-    }
-
     protected void addAnnotation(IAnnotation annotation,Method method,TopLevelClass parent){
         annotation.toAnnotations().forEach(method::addAnnotation);
         parent.addMultipleImports(annotation.multipleImports());

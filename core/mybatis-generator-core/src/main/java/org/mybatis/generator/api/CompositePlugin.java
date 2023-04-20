@@ -150,9 +150,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(IntrospectedTable introspectedTable) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         return plugins.stream()
-                .map(p -> p.contextGenerateAdditionalHtmlFiles(introspectedTable))
+                .map(p -> p.contextGenerateAdditionalWebFiles(introspectedTable,htmlGeneratorConfiguration))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }

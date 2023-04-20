@@ -8,13 +8,11 @@ import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.HtmlLayoutDescriptor;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.VOModelGeneratorConfiguration;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -42,7 +40,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public int getPageColumnsConfig() {
-        int c = htmlGeneratorConfiguration.getPageColumnsNum();
+        int c = htmlGeneratorConfiguration.getLayoutDescriptor().getPageColumnsNum();
         if (c > 12) {
             c = 12;
         } else if (c <= 0) {
@@ -56,7 +54,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     }
 
     public String getHtmlBarPositionConfig() {
-        return htmlGeneratorConfiguration.getBarPosition();
+        return htmlGeneratorConfiguration.getLayoutDescriptor().getBarPosition();
     }
 
     public abstract boolean htmlMapDocumentGenerated();
@@ -94,13 +92,14 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         htmlElement.addElement(div);
     }
 
-    protected Map<String,HtmlElement> generateHtmlBody() {
-        Map<String,HtmlElement> answer = new HashMap<>();
+    protected Map<String, HtmlElement> generateHtmlBody() {
+        Map<String, HtmlElement> answer = new HashMap<>();
         HtmlElement body = new HtmlElement("body");
         HtmlElement out = addDivWithClassToParent(body, "container");
         answer.put("body", body);
         answer.put("out", out);
-        switch (htmlGeneratorConfiguration.getLoadingFrameType()) {
+        HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
+        switch (layoutDescriptor.getLoadingFrameType()) {
             case "pop":
                 addClassNameToElement(out, "popContainer");
                 body.addAttribute(new Attribute("style", "background-color: #FFFFFF;"));
@@ -118,7 +117,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         HtmlElement headerText = new HtmlElement("span");
         headerText.addElement(new TextElement(introspectedTable.getRemarks(true)));
         contentHeader.addElement(headerText);
-        answer.put("content",content);
+        answer.put("content", content);
         return answer;
     }
 
@@ -142,21 +141,24 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     protected String thymeleafValue(IntrospectedColumn baseColumn, String entityName) {
         StringBuilder sb = new StringBuilder();
         sb.append("${").append(entityName).append("?.").append(baseColumn.getJavaProperty());
-        if ("DATE".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+        if (baseColumn.isJava8TimeColumn()) {
+            sb.append("!=null?#temporals.format(").append(entityName).append(".");
+        }else if(baseColumn.isJDBCTimeColumn() || baseColumn.isJDBCTimeStampColumn() || baseColumn.isJDBCDateColumn()){
             sb.append("!=null?#dates.format(").append(entityName).append(".");
-            sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd'):''}");
-        } else if ("TIME".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
-            sb.append("!=null?#dates.format(").append(entityName).append(".");
-            sb.append(baseColumn.getJavaProperty()).append(",'HH:mm:ss'):''}");
-        } else if ("TIMESTAMP".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
-            sb.append("!=null?#dates.format(").append(entityName).append(".");
-            sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
         } else {
             if ("version".equals(baseColumn.getJavaProperty())) {
                 sb.append("}?:1");
             } else {
                 sb.append("}?:_");
             }
+            return sb.toString();
+        }
+        if ("DATE".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+            sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd'):''}");
+        } else if ("TIME".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+            sb.append(baseColumn.getJavaProperty()).append(",'HH:mm:ss'):''}");
+        } else if ("TIMESTAMP".equalsIgnoreCase(baseColumn.getJdbcTypeName()) || "DATETIME".equalsIgnoreCase(baseColumn.getJdbcTypeName())) {
+            sb.append(baseColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
         }
         return sb.toString();
     }
@@ -164,14 +166,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
     protected void addLocalStaticResource(HtmlElement head) {
         String p = introspectedTable.getTableConfiguration().getHtmlBasePath();
         addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
-        addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(p, p));
-    }
-
-    //TODO 计划第一次生成js文件，并初始化
-    protected boolean isEntityTypeJsFileExist() {
-        String filePath = GenerateUtils.getLocalJsFilePath(htmlGeneratorConfiguration.getTargetProject(), getEntityType().getShortName().toLowerCase());
-
-        return false;
+        //addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(p, p));
     }
 
     protected Document getDocument() {
@@ -244,7 +239,7 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         Map<Integer, List<IntrospectedColumn>> introspectedColumnRows = new HashMap<>();
         int rowIndex = 1, colIndex = 1;
         for (IntrospectedColumn baseColumn : baseColumns) {
-            if (baseColumn.getLength() > 255) {
+            if (baseColumn.getLength() > 255 || this.htmlGeneratorConfiguration.getLayoutDescriptor().getExclusiveColumns().contains(baseColumn.getActualColumnName())) {
                 if (introspectedColumnRows.get(rowIndex) != null) {
                     rowIndex = rowIndex + 1;
                 }
@@ -271,20 +266,9 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
         return introspectedColumnRows;
     }
 
-    protected List<IntrospectedColumn> getColumnsExceptBlock() {
-        return Stream.of(introspectedTable.getPrimaryKeyColumns().stream()
-                        , introspectedTable.getBaseColumns().stream()).flatMap(Function.identity())
-                .collect(Collectors.toList());
-    }
-
     protected void addSubjectInput(HtmlElement parent) {
-        boolean include = false;
-        for (IntrospectedColumn introspectedColumn : getColumnsExceptBlock()) {
-            if (input_subject_id.equals(introspectedColumn.getJavaProperty())) {
-                include = true;
-            }
-        }
-        if (!include) {
+        if (introspectedTable.getNonBLOBColumns().stream()
+                .noneMatch(c -> input_subject_id.equals(c.getJavaProperty()))) {
             HtmlElement input = new HtmlElement("input");
             input.addAttribute(new Attribute("id", input_subject_id));
             input.addAttribute(new Attribute("name", input_subject_id));

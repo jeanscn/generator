@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+
 public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHolder {
 
     private final TableConfiguration tc;
@@ -64,7 +66,7 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
     }
 
     public String getTargetPropertyType() {
-        return targetPropertyType;
+        return targetPropertyType==null? FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName():targetPropertyType;
     }
 
     public void setTargetPropertyType(String targetPropertyType) {

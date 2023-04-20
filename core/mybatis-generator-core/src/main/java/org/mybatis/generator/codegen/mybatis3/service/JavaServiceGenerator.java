@@ -14,8 +14,8 @@ import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;

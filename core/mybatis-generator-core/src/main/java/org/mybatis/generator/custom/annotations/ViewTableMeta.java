@@ -60,8 +60,8 @@ public class ViewTableMeta  extends AbstractAnnotation{
         this.beanName = introspectedTable.getControllerBeanName();
         items.add(VStringUtil.format("beanName = \"{0}\"", this.getBeanName()));
         this.dataUrl = "/viewmgr/getdtdata";
-        this.listType = VMD5Util.MD5(StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword()+"_"+introspectedTable.getTableConfiguration().getDomainObjectName()));
-        this.indexColumn = ViewIndexColumnEnum.ROW_INDEX;
+        this.listType = VMD5Util.MD5(StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword()));
+        this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
         this.dataFilterType = 0;
         this.addImports("com.vgosoft.core.annotation.ViewTableMeta");
     }

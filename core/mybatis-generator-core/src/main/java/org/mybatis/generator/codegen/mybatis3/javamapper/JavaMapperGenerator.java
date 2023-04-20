@@ -25,15 +25,13 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
-import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElementGenerator;
-import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.DeleteByColumnElementGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;

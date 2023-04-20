@@ -7,10 +7,12 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
+import org.mybatis.generator.custom.annotations.ApiModel;
 import org.mybatis.generator.custom.annotations.CompositeQuery;
 import org.mybatis.generator.custom.annotations.ViewColumnMeta;
 import org.mybatis.generator.custom.annotations.ViewTableMeta;
@@ -37,11 +39,11 @@ public class VOViewGenerator extends AbstractVOGenerator{
         String viewVOType = voViewGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass viewVOClass = createTopLevelClass(viewVOType, getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addMultipleImports("lombok");
-        getApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(viewVOClass);
+        ApiModel apiModel = getApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
+        apiModel.addAnnotationToTopLevelClass(viewVOClass);
         addViewTableMeta(voViewGeneratorConfiguration,viewVOClass);
         viewVOClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addSerialVersionUID();
-
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voViewGeneratorConfiguration.getIncludeColumns(), voViewGeneratorConfiguration.getExcludeColumns());
         for (IntrospectedColumn voColumn : introspectedColumns) {
             if (!(isAbstractVOColumn(voColumn) || voViewGeneratorConfiguration.getExcludeColumns().contains(voColumn.getActualColumnName()))) {
@@ -89,8 +91,7 @@ public class VOViewGenerator extends AbstractVOGenerator{
                     || (EntityAbstractParentEnum.ofCode(rootType.getShortName()) != null
                     && EntityAbstractParentEnum.ofCode(rootType.getShortName()).scope() != 1)) {
                 createUrl = String.join("/"
-                        , introspectedTable.getControllerSimplePackage()
-                        , introspectedTable.getControllerBeanName()
+                        , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                         , "view");
             }
         }
@@ -99,8 +100,7 @@ public class VOViewGenerator extends AbstractVOGenerator{
         }
         //dataUrl
         viewTableMeta.setDataUrl(String.join("/"
-                , introspectedTable.getControllerSimplePackage()
-                , introspectedTable.getControllerBeanName()
+                , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                 , "getdtdata"));
 
         //indexColumn

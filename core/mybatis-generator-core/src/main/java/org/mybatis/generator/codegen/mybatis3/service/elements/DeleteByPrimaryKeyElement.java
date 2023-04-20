@@ -4,8 +4,8 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.CacheAnnotation;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,11 +44,12 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("ServiceResult<{0}> result = this.selectByPrimaryKey({1});", entityType.getShortName(), pks);
             method.addBodyLine("if (result.hasResult()) {");
             method.addBodyLine("{0} {1} = result.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+            outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, false);
             method.addBodyLine("int affectedRows = mapper.deleteByPrimaryKey({0});", pks);
             method.addBodyLine("if (affectedRows > 0) {");
-            outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, false);
             method.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             method.addBodyLine("}}");
+            method.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
             method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         } else {
             method.addBodyLine("return super.{0}({1});", introspectedTable.getDeleteByPrimaryKeyStatementId()

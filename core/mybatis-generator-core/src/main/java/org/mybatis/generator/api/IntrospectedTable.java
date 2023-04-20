@@ -18,10 +18,7 @@ package org.mybatis.generator.api;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -403,9 +400,9 @@ public abstract class IntrospectedTable {
         calculateXmlAttributes();
         calculateSelectByTableProperty();
         calculateControllerAttributes();
-        calculateHtmlAttributes();
         calculateRelationProperty();
         calculateSelectBySqlMethodProperty();
+        calculateHtmlAttributes();
 
         if (tableConfiguration.getModelType() == ModelType.HIERARCHICAL) {
             rules = new HierarchicalModelRules(this);
@@ -471,7 +468,7 @@ public abstract class IntrospectedTable {
         //生成selectByColumn查询方法
         if (tableConfiguration.getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration configuration : tableConfiguration.getSelectByColumnGeneratorConfigurations()) {
-                configuration.getColumnNames().forEach(n-> getColumn(n).ifPresent(configuration::addColumn));
+                configuration.getColumnNames().forEach(n -> getColumn(n).ifPresent(configuration::addColumn));
                 configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
                 configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
             }
@@ -519,11 +516,42 @@ public abstract class IntrospectedTable {
 
     protected void calculateHtmlAttributes() {
         //重新计算不为空字段，根据数据库字段不为空属性，追加数据库表不允许空的字段
-        final List<IntrospectedColumn> noNullableColumns = this.getAllColumns().stream().filter(c -> !c.isNullable()).collect(Collectors.toList());
-        if (noNullableColumns.size() > 0) {
-            List<String> noNullableColumnNames = noNullableColumns.stream().map(c -> c.getActualColumnName().toUpperCase()).collect(Collectors.toList());
-            this.getTableConfiguration().getHtmlMapGeneratorConfigurations()
-                    .forEach(htmlConfiguration -> htmlConfiguration.getElementRequired().addAll(noNullableColumnNames));
+        this.getAllColumns().stream().filter(c -> !c.isNullable()).map(IntrospectedColumn::getActualColumnName).forEach(c -> {
+            this.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> htmlConfiguration.getElementRequired().add(c));
+        });
+        //获取所有HtmlGeneratorConfiguration中所有的HtmlElementDescriptor，如果存在tagType为select的，需要计算dataFormat对应的数据
+        this.getTableConfiguration().getHtmlMapGeneratorConfigurations()
+                .forEach(htmlConfiguration -> {
+                    htmlConfiguration.getElementDescriptors()
+                            .forEach(elementDescriptor -> {
+                                if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.getCode())) {
+                                    //如果elementDescriptor的dataType为null，则计算其dataType
+                                    if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
+                                        this.getColumn(elementDescriptor.getName()).ifPresent(c -> {
+                                            elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty()));
+                                        });
+                                    }
+                                    addSelectAddtionalAttribute(elementDescriptor);
+                                }
+                            });
+                });
+
+    }
+
+    private void addSelectAddtionalAttribute(HtmlElementDescriptor elementDescriptor) {
+        //如果已经存在，不再追加
+        if (ConfigUtil.javaPropertyExist(elementDescriptor.getOtherFieldName(), this)) {
+            return;
+        }
+        //javaModel或者voModel中不存在对应的属性，需要追加
+        TableConfiguration tc = this.getTableConfiguration();
+        OverridePropertyValueGeneratorConfiguration overrideConfiguration = ConfigUtil.createOverridePropertyConfiguration(elementDescriptor,this);
+        if (overrideConfiguration != null) {
+            if (tc.getVoGeneratorConfiguration() != null) {
+                tc.getVoGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+            } else {
+                tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+            }
         }
     }
 

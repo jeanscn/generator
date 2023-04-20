@@ -88,6 +88,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_ROOT_MODULE_NAME = "rootModuleName";
     public static final String CONTEXT_SPRING_BOOT_APPLICATION_CLASS = "springBootApplicationClass";
 
+    public static final String CONTEXT_APPLICATION_KEYWORD = "appKeyword";
     public static final String CONTEXT_MODULE_KEYWORD = "moduleKeyword";
     public static final String CONTEXT_MODULE_NAME = "moduleName";
     public static final String CONTEXT_INTEGRATE_MYBATIS_PLUS = "integrateMybatisPlus";
@@ -119,6 +120,7 @@ public class PropertyRegistry {
 
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
 
+    public static final String ELEMENT_HTML_LAYOUT = "layout";
     public static final String ELEMENT_IGNORE_COLUMNS = "ignoreColumns";
     public static final String ELEMENT_EXCLUDE_COLUMNS = "excludeColumns";
     public static final String ELEMENT_INCLUDE_COLUMNS = "includeColumns";

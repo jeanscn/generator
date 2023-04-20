@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VStringUtil;
@@ -6,12 +6,13 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
 import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -108,7 +109,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
                     if (field.getRemark() == null) {
                         field.setRemark(relationProperty.getRemark());
                     }
-                    ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()));
+                    ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
                     apiModelProperty.addAnnotationToField(field,topLevelClass);
                     addField(topLevelClass, field);
                     topLevelClass.addImportedType(fullyQualifiedJavaType);
@@ -129,7 +130,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     @Override
     public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         HtmlDocumentGenerator htmlDocumentGenerated;
-        String uiFrame = htmlGeneratorConfiguration.getUiFrameType();
+        String uiFrame = htmlGeneratorConfiguration.getLayoutDescriptor().getUiFrameType();
         if (HtmlConstants.HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
             htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
         } else if (HtmlConstants.HTML_UI_FRAME_ZUI.equals(uiFrame)) {
@@ -141,7 +142,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     }
 
     @Override
-    public List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(IntrospectedTable introspectedTable) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         return new ArrayList<>();
     }
 

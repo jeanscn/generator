@@ -1,10 +1,9 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,17 +31,18 @@ public class InsertElement extends AbstractServiceElementGenerator {
         insertMethod.addAnnotation("@Override");
         insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
-        insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (configs.size() > 0) {
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
+        insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
+        insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
         insertMethod.addBodyLine("return serviceResult;");
-        insertMethod.addBodyLine("}else{\n" +
-                "            return  ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+        insertMethod.addBodyLine("} else {\n" +
+                "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
+                "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                 "        }");
         parentElement.addMethod(insertMethod);
         parentElement.addImportedType(SERVICE_CODE_ENUM);

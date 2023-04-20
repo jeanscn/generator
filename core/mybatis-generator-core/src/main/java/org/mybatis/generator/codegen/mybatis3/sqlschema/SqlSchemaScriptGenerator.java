@@ -51,6 +51,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
             if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL)) {
                 character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
             }
+
             String rowSql = VStringUtil.format(COLUMN_STATEMENT,
                     col.getActualColumnName(),
                     col.getActualTypeName(),

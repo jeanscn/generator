@@ -29,7 +29,13 @@ public abstract class AbstractGenerator {
     protected ProgressCallback progressCallback;
 
     protected AbstractGenerator() {
-        super();
+    }
+
+    protected AbstractGenerator(GeneratorInitialParameters generatorInitialParameters) {
+        this.context = generatorInitialParameters.getContext();
+        this.introspectedTable = generatorInitialParameters.getIntrospectedTable();
+        this.warnings = generatorInitialParameters.getWarnings();
+        this.progressCallback = generatorInitialParameters.getProgressCallback();
     }
 
     public Context getContext() {

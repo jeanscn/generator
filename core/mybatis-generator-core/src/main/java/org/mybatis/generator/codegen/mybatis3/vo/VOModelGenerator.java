@@ -11,7 +11,7 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,7 +109,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
                     field = new Field(relationProperty.getPropertyName(), returnType);
                     field.setVisibility(JavaVisibility.PRIVATE);
                     field.setRemark(relationProperty.getRemark());
-                    new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()))
+                    new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0))
                             .addAnnotationToField(field, voClass);
                     voClass.addField(field, null, true);
                     voClass.addImportedType(fullyQualifiedJavaType);

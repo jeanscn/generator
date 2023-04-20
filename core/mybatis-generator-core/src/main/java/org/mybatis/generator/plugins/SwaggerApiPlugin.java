@@ -157,6 +157,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         ApiModelProperty apiModelProperty = buildApiModelPropertyAnnotation(field, introspectedTable);
+        if (apiModelProperty!=null && topLevelClass.getType().getShortName().indexOf("CreateVO")>0) {
+            apiModelProperty.setRequired(null);
+        }
         if (apiModelProperty != null) {
             apiModelProperty.addAnnotationToField(field, topLevelClass);
         }
@@ -168,7 +171,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     private ApiModelProperty buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable) {
         final ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark());
-        apiModelProperty.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedName()));
+        apiModelProperty.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
         introspectedTable.getAllColumns().stream()
                 .filter(column -> column.getJavaProperty().equals(field.getName()))
                 .findFirst()

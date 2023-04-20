@@ -9,10 +9,10 @@ import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.ScalableElementEnum;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;

@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
-    <version>1.4.8-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>mybatis-generator-core</artifactId>
@@ -180,7 +180,7 @@
     <dependency>
       <groupId>com.vgosoft</groupId>
       <artifactId>vgosoft-mybatis</artifactId>
-      <version>3.11.0-SNAPSHOT</version>
+      <version>4.0.0-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -245,6 +245,10 @@
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
     </dependency>
   </dependencies>
 

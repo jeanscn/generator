@@ -6,16 +6,12 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
@@ -48,7 +44,7 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnRemark("成功删除的记录数");
 
                     method.addAnnotation(new SystemLog("删除数据关联",introspectedTable),parentElement);
-                    method.addAnnotation(new RequestMapping("split/"+ JavaBeansUtil.getFirstCharacterLowercase(c.getMethodSuffix())
+                    method.addAnnotation(new RequestMapping("split/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethod.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getSplitMethodName(),"删除关系");
                     method.addAnnotation(new ApiOperation("删除数据关联关系", "删除中间表数据"),parentElement);
@@ -62,9 +58,6 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.addBodyLine("else return failure(ApiCodeEnum.FAIL_OPERATION);");
                     parentElement.addMethod(method);
                 });
-
-
-
 
     }
 }

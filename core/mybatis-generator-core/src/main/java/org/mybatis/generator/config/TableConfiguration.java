@@ -3,10 +3,6 @@ package org.mybatis.generator.config;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.*;

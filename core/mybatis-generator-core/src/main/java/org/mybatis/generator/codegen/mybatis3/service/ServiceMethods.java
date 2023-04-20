@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.pojo.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;

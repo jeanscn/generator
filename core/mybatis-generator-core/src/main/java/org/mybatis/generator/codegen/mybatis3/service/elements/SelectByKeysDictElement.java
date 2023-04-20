@@ -5,8 +5,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.CacheAnnotation;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.CacheAnnotation;
 
 import java.util.List;
 import java.util.Objects;

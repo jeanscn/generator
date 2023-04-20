@@ -16,17 +16,14 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DeleteByTableElementGenerator extends
         AbstractXmlElementGenerator {

@@ -18,6 +18,8 @@ package org.mybatis.generator.custom.htmlGenerator;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 
@@ -39,7 +41,7 @@ public class GenerateUtils {
              return false;
          }
         List<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumns();
-        return hiddenColumn.contains(introspectedColumn.getActualColumnName().toUpperCase());
+        return hiddenColumn.contains(introspectedColumn.getActualColumnName());
     };
 
     public static String getLocalCssFilePath(String path, String filename) {
@@ -53,9 +55,9 @@ public class GenerateUtils {
     /*构造文件路径*/
     public static String genLocalFilePath(String path, String filename, String type) {
         StringBuilder sb = new StringBuilder();
-        sb.append("/" + type + "/");
+        sb.append("/").append(type).append("/");
         if (path != null && path.length() > 0) {
-            if (path.indexOf(".") > -1) {
+            if (path.contains(".")) {
                 path = path.replace(".", "/");
             }
             sb.append(path).append("/");
@@ -130,7 +132,7 @@ public class GenerateUtils {
         return false;
     }
 
-    public static Boolean isLongVarchar(IntrospectedColumn introspectedColumn){
-        return introspectedColumn.getJdbcType()==-1 || introspectedColumn.getJdbcType()==-16;
+    public static boolean isDateType(IntrospectedColumn introspectedColumn) {
+        return introspectedColumn.getJdbcType() == 91 || introspectedColumn.getJdbcType() == 92 || introspectedColumn.getJdbcType() == 93;
     }
 }

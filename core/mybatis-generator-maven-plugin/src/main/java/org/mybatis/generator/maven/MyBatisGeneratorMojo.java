@@ -322,7 +322,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
             context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
             //添加generator plugin
             PluginConfiguration pluginConfiguration = new PluginConfiguration();
-            pluginConfiguration.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
+            pluginConfiguration.setConfigurationType("org.mybatis.generator.plugins.JavaClientGeneratePlugins");
             context.addPluginConfiguration(pluginConfiguration);
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();

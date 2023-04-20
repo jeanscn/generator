@@ -52,6 +52,7 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
                     new SqlDataSysModuleScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
             answer.add(generatedModuleDataFile);
         }
+
         return answer;
     }
 

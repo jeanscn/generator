@@ -3,8 +3,8 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.CacheAnnotation;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +30,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
 
         /* updateByPrimaryKeySelective */
-        Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true,true);
+        Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
         updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
@@ -38,17 +38,18 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             updateByPrimaryKeySelective.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
         }
         if (introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
-            updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
-                    , entityType.getShortName()
-                    , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
-            updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {");
             List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
             outSubBatchMethodBody(updateByPrimaryKeySelective, "UPDATE", "record", parentElement, configs, false);
-            updateByPrimaryKeySelective.addBodyLine(" return result;\n" +
-                    "        }else{\n" +
-                    "            return  ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+            updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
+                    , entityType.getShortName()
+                    , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+            updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {\n" +
+                    "            return result;\n" +
+                    "        } else {\n" +
+                    "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
+                    "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                     "        }");
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
@@ -57,7 +58,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         parentElement.addMethod(updateByPrimaryKeySelective);
 
         /* updateByPrimaryKey */
-        Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false,true);
+        Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false, true);
         updateByPrimaryKey.addAnnotation("@Override");
         updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
@@ -65,17 +66,18 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             updateByPrimaryKey.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
         }
         if (introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
-            updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
-                    , entityType.getShortName()
-                    , introspectedTable.getUpdateByPrimaryKeyStatementId());
-            updateByPrimaryKey.addBodyLine("if (result.hasResult()) {");
             List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
             outSubBatchMethodBody(updateByPrimaryKey, "UPDATE", "record", parentElement, configs, false);
-            updateByPrimaryKey.addBodyLine(" return result;\n" +
-                    "        }else{\n" +
-                    "            return  ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+            updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
+                    , entityType.getShortName()
+                    , introspectedTable.getUpdateByPrimaryKeyStatementId());
+            updateByPrimaryKey.addBodyLine("if (result.hasResult()) {\n" +
+                    "            return result;\n" +
+                    "        } else {\n" +
+                    "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
+                    "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                     "        }");
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {

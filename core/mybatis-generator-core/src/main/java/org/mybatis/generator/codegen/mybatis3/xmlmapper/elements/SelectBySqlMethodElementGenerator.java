@@ -19,9 +19,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.custom.pojo.SelectBySqlMethodGeneratorConfiguration;
-
-import java.util.Map;
+import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
 
 public class SelectBySqlMethodElementGenerator extends AbstractXmlElementGenerator {
 

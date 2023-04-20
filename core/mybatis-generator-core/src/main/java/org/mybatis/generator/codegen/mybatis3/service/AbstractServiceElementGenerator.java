@@ -1,20 +1,14 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.pojo.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
 import static org.mybatis.generator.custom.ConstantsUtil.*;

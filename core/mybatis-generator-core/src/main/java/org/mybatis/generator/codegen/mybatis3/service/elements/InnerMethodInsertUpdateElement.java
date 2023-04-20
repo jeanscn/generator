@@ -4,12 +4,11 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -128,7 +127,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     printSetRelationValue2(innerInsertUpdateMethod, config);
                                     innerInsertUpdateMethod.addBodyLine("case \"DELETE\":\n" +
                                             "                int ret = bean.deleteByPrimaryKey(item.getId()).getResult();\n" +
-                                            "                return ret > 0 ? ServiceResult.success(item) : ServiceResult.failure(ServiceCodeEnum.FAIL);\n" +
+                                            "                return ret > 0 ? ServiceResult.success(item,ret) : ServiceResult.failure(ServiceCodeEnum.FAIL);\n" +
                                             "            default:\n" +
                                             "                return ServiceResult.failure(ServiceCodeEnum.FAIL);");
                                 }
@@ -137,12 +136,13 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                 parentElement.addImportedType(beanClass);
                                 parentElement.addImportedType(SERVICE_CODE_ENUM);
                             } else {
+                                warnings.add("生成配置未指定子级的[beanClassFullName]或者[relationProperty]属性，无法生成方法体处理逻辑。");
                                 innerInsertUpdateMethod.addBodyLine("//!生成配置未指定子级的[beanClassFullName]或者[relationProperty]属性，无法生成方法体处理逻辑。");
                                 if (isCollection) {
                                     innerInsertUpdateMethod.addBodyLine("return Collections.singletonList(ServiceResult.success(null));");
                                     parentElement.addImportedType("java.util.Collections");
                                 } else {
-                                    innerInsertUpdateMethod.addBodyLine("ServiceResult.success(null);");
+                                    innerInsertUpdateMethod.addBodyLine("return ServiceResult.success(null);");
                                 }
                             }
                             parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
@@ -160,9 +160,9 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
 
     private void printSetRelationValue2(Method method, RelationGeneratorConfiguration configuration) {
         method.addBodyLine("if (serviceResult.hasResult()) '{'\n" +
-                        "                    orgUser.{0}(serviceResult.getResult().getId());\n" +
+                        "                    {0}.{1}(serviceResult.getResult().getId());\n" +
                         "                '}'\n" +
-                        "                return serviceResult;"
-                , JavaBeansUtil.getSetterMethodName(configuration.getRelationProperty()));
+                        "                return serviceResult;",
+                entityType.getShortNameFirstLowCase() , JavaBeansUtil.getSetterMethodName(configuration.getRelationProperty()));
     }
 }

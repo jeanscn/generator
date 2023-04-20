@@ -8,7 +8,7 @@ import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;

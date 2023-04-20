@@ -206,8 +206,8 @@ public interface Plugin {
             IntrospectedTable introspectedTable){
         return Collections.emptyList();
     };
-    default List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles(
-            IntrospectedTable introspectedTable){
+    default List<GeneratedFile> contextGenerateAdditionalWebFiles(
+            IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration){
         return Collections.emptyList();
     }
 

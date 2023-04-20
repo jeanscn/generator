@@ -101,6 +101,9 @@ public class ConstantsUtil {
 
     public static final Map<String,String> childrenGenericClasses = new HashMap<>();
 
+    public static final String HTML_BORDER_COLOR_DEFAULT = "#eee";
+    public static final int HTML_BORDER_WIDTH = 1;
+
     static{
         childrenGenericClasses.put("IDepartment","com.vgosoft.core.adapter.organization.entity.IDepartment");
         childrenGenericClasses.put("IGroup","com.vgosoft.core.adapter.organization.entity.IGroup");

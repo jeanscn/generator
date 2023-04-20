@@ -35,7 +35,7 @@ public class ValidateDatabaseTable {
 
     private final List<String> warnings;
 
-    private final IntrospectedTable table;
+    private final IntrospectedTable introspectedTable;
 
     private final Connection connection;
 
@@ -45,8 +45,8 @@ public class ValidateDatabaseTable {
 
     private String databaseProductName;
 
-    public ValidateDatabaseTable(IntrospectedTable table, Connection connection, List<String> warnings) {
-        this.table = table;
+    public ValidateDatabaseTable(IntrospectedTable introspectedTable, Connection connection, List<String> warnings) {
+        this.introspectedTable = introspectedTable;
         this.warnings = warnings;
         this.connection = connection;
         this.addColumns = new ArrayList<>();
@@ -133,51 +133,43 @@ public class ValidateDatabaseTable {
 
     private void checkTable() {
         JavaTypeResolverDefaultImpl javaTypeResolverDefault = new JavaTypeResolverDefaultImpl(databaseProductName);
-        TableConfiguration tc = table.getTableConfiguration();
-        String property = tc.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
-        if (!stringHasValue(property)) {
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        String rootClassName = tc.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        if (!stringHasValue(rootClassName)) {
             return;
         }
-        try {
-            Class<?> aClass = ObjectFactory.externalClassForName(property);
-            Field[] annotationFields = VReflectionUtil.getAnnotationFields(aClass, ColumnMeta.class);
-            for (Field declaredField : annotationFields) {
-                ColumnMeta columnMeta = declaredField.getAnnotation(ColumnMeta.class);
-                long count = table.getPrimaryKeyColumns().stream()
-                        .filter(t -> columnMeta.value().equalsIgnoreCase(t.getActualColumnName()))
-                        .count();
-                boolean isPk = count > 0;
-                if (table.getColumn(columnMeta.value()).isPresent()) {
-                    //比较是否需要更新
-                    IntrospectedColumn introspectedColumn = table.getColumn(columnMeta.value()).get();
-                    JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault
-                            .getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-                    jdbcTypeInformation.setColumnLength(columnMeta.size());
-                    String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();//字段完整注释
-                    int columnLength = jdbcTypeInformation.getColumnLength();//字段长度
-                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
-                            || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber() //类型
-                            || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
-                            || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale())) //小数点位数
-                            || !introspectedColumn.getRemarks(false).equals(remark)
-                            || isPk != columnMeta.pkid()
-                            || (introspectedColumn.isNullable() != columnMeta.nullable())
-                            || (!columnMeta.nullable() && !columnMeta.pkid()
-                            && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
-                    ) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, table);
-                        newColumn.setIntrospectedTable(table);
-                        updateColumns.add(newColumn);
-                    }
-                } else {
-                    //需要创建的列
-                    IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, table);
-                    introspectedColumn.setIntrospectedTable(table);
-                    addColumns.add(introspectedColumn);
+        for (Field declaredField : getClassFieldsSorted(rootClassName)) {
+            ColumnMeta columnMeta = declaredField.getAnnotation(ColumnMeta.class);
+            boolean isPk = introspectedTable.getPrimaryKeyColumns().stream()
+                    .anyMatch(t -> columnMeta.value().equalsIgnoreCase(t.getActualColumnName()));
+            if (introspectedTable.getColumn(columnMeta.value()).isPresent()) {
+                //比较是否需要更新
+                IntrospectedColumn introspectedColumn = introspectedTable.getColumn(columnMeta.value()).get();
+                JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault
+                        .getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+                jdbcTypeInformation.setColumnLength(columnMeta.size());
+                String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();//字段完整注释
+                int columnLength = jdbcTypeInformation.getColumnLength();//字段长度
+                if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
+                        || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber() //类型
+                        || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
+                        || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale())) //小数点位数
+                        || !introspectedColumn.getRemarks(false).equals(remark)
+                        || isPk != columnMeta.pkid()
+                        || (introspectedColumn.isNullable() != columnMeta.nullable())
+                        || (!columnMeta.nullable() && !columnMeta.pkid()
+                        && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
+                ) {
+                    IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                    newColumn.setIntrospectedTable(introspectedTable);
+                    updateColumns.add(newColumn);
                 }
+            } else {
+                //需要创建的列
+                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                introspectedColumn.setIntrospectedTable(introspectedTable);
+                addColumns.add(introspectedColumn);
             }
-        } catch (ClassNotFoundException e) {
-            warnings.add("加载父类发生错误，未找到类：" + property);
         }
 
     }
@@ -221,7 +213,7 @@ public class ValidateDatabaseTable {
         Map<String, List<IntrospectedColumn>> updMap = groupColumns(updateColumns);
         StringBuilder ret = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        TableConfiguration tc = table.getTableConfiguration();
+        TableConfiguration tc = introspectedTable.getTableConfiguration();
         String sqlTableName = StringUtility.composeFullyQualifiedTableName(tc.getCatalog(), tc.getSchema(), tc.getTableName(), '.');
         if (addMap.containsKey(tc.getTableName()) || updMap.containsKey(tc.getTableName())) {
             if (addMap.containsKey(tc.getTableName())) {
@@ -240,15 +232,15 @@ public class ValidateDatabaseTable {
                 sb.append(getColumnSql(updMap.get(tc.getTableName()), "MODIFY"));
             }
             //增加主键
-            List<String> collect1 = Stream.of(addColumns.stream(), updateColumns.stream())
+            List<String> affectPKs = Stream.of(addColumns.stream(), updateColumns.stream())
                     .flatMap(Function.identity())
                     .filter(IntrospectedColumn::isIdentity)
-                    .map(t -> t.getActualColumnName().toUpperCase())
+                    .map(IntrospectedColumn::getActualColumnName)
                     .collect(Collectors.toList());
-            List<String> pkColumnName = table.getPrimaryKeyColumns().stream()
-                    .map(t -> t.getActualColumnName().toUpperCase())
+            List<String> pkColumnName = introspectedTable.getPrimaryKeyColumns().stream()
+                    .map(IntrospectedColumn::getActualColumnName)
                     .collect(Collectors.toList());
-            List<String> collect = collect1.stream()
+            List<String> collect = affectPKs.stream()
                     .filter(t -> !pkColumnName.contains(t))
                     .collect(Collectors.toList());
             if (collect.size() > 0) {
@@ -309,5 +301,15 @@ public class ValidateDatabaseTable {
     private Map<String, List<IntrospectedColumn>> groupColumns(List<IntrospectedColumn> addColumns) {
         return addColumns.stream()
                 .collect(Collectors.groupingBy(t -> t.getIntrospectedTable().getTableConfiguration().getTableName()));
+    }
+
+    private Field[] getClassFieldsSorted(String className) {
+        try {
+            Class<?> aClass = ObjectFactory.externalClassForName(className);
+            return VReflectionUtil.getAnnotationFields(aClass, ColumnMeta.class);
+        } catch (ClassNotFoundException e) {
+            warnings.add(VStringUtil.format("类{0}不存在", className));
+        }
+        return new Field[0];
     }
 }

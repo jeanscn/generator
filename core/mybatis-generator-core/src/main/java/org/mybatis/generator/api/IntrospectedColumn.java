@@ -90,7 +90,7 @@ public class IntrospectedColumn {
      */
     protected boolean isGeneratedAlways;
 
-    /**
+    /*
      * Constructs a Column definition. This object holds all the information
      * about a column that is required to generate Java objects and SQL maps;
      */
@@ -98,7 +98,7 @@ public class IntrospectedColumn {
     /**
      * 额外增加：位置标识
      * 列在表格中的位置，在创建或编辑列时使用
-     * */
+     */
     protected String position;
 
     protected int order = 10;
@@ -177,8 +177,13 @@ public class IntrospectedColumn {
     public boolean isBLOBColumn() {
         String typeName = getJdbcTypeName();
 
-        return "BINARY".equals(typeName) || "BLOB".equals(typeName) || "CLOB".equals(typeName) || "LONGNVARCHAR".equals(typeName)
+        return "BINARY".equals(typeName) || "BLOB".equals(typeName) || "CLOB".equals(typeName)
                 || "LONGVARBINARY".equals(typeName) || "NCLOB".equals(typeName) || "VARBINARY".equals(typeName);
+    }
+
+    public boolean isLongVarchar(){
+        //-1:LONGVARCHAR, -16:LONGNVARCHAR
+        return this.getJdbcType()==-1 || this.getJdbcType()==-16;
     }
 
     public boolean isStringColumn() {
@@ -210,8 +215,8 @@ public class IntrospectedColumn {
     }
 
     public boolean isJDBCDateColumn() {
-        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType
-                .getDateInstance()) && "DATE".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
+        return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
+                && "DATE".equalsIgnoreCase(jdbcTypeName);
     }
 
     public boolean isJDBCTimeColumn() {
@@ -219,9 +224,27 @@ public class IntrospectedColumn {
                 && "TIME".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
     }
 
-    public boolean isJDBCTimeStampColumn(){
+    public boolean isJDBCTimeStampColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
                 && "TIMESTAMP".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
+    }
+
+    public boolean isJavaLocalDateColumn() {
+        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalDate"));
+    }
+
+    public boolean isJavaLocalDateTimeColumn() {
+        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalDateTime"));
+    }
+
+    public boolean isJavaLocalTimeColumn() {
+        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalTime"));
+    }
+
+    public boolean isJava8TimeColumn() {
+        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalDate"))
+                || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalDateTime"))
+                || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalTime"));
     }
 
     public String getTypeHandler() {
@@ -299,12 +322,13 @@ public class IntrospectedColumn {
 
     /**
      * 获得列注释
+     *
      * @param simple 是否格式化为短标签。
      *               false-获得完整注释
      *               true-格式为短标签。
-     * */
+     */
     public String getRemarks(boolean simple) {
-        return simple?StringUtility.remarkLeft(remarks):remarks;
+        return simple ? StringUtility.remarkLeft(remarks) : remarks;
     }
 
     public void setRemarks(String remarks) {
@@ -374,13 +398,19 @@ public class IntrospectedColumn {
         this.position = position;
     }
 
-    public String getDatePattern(){
-        switch (jdbcTypeName.toUpperCase()){
-            case "DATE":
+    public String getDatePattern() {
+        switch (this.fullyQualifiedJavaType.getShortName()) {
+            case "LocalDate":
                 return "yyyy-MM-dd";
-            case "TIME":
+            case "LocalDateTime":
+                return "yyyy-MM-dd HH:mm:ss";
+            case "Instant":
+                return "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+            case "ZonedDateTime":
+                return "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+            case "LocalTime":
                 return "HH:mm:ss";
-            case "TIMESTAMP":
+            case "Date":
                 return "yyyy-MM-dd HH:mm:ss.SSS";
             default:
                 return "";
@@ -395,9 +425,9 @@ public class IntrospectedColumn {
         this.order = order;
     }
 
-    public String getSqlFragmentLength(){
+    public String getSqlFragmentLength() {
         StringBuilder sb_length = new StringBuilder();
-        if (!(this.isJDBCDateColumn() || this.isJDBCTimeColumn() || this.isJDBCTimeStampColumn() || this.isBLOBColumn())) {
+        if (!(this.isJDBCDateColumn() || this.isJDBCTimeColumn() || this.isJDBCTimeStampColumn() || this.isBLOBColumn() || this.isJava8TimeColumn() || this.isLongVarchar())) {
             sb_length.append("(");
             sb_length.append(this.length);
             if (this.scale > 0) {
@@ -410,7 +440,7 @@ public class IntrospectedColumn {
         return sb_length.toString();
     }
 
-    public String getSqlFragmentNotNull(){
+    public String getSqlFragmentNotNull() {
         StringBuilder not_null = new StringBuilder();
         if (!this.isNullable() || stringHasValue(this.getDefaultValue())) {
             not_null.append("NOT NULL ");

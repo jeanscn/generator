@@ -33,7 +33,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         method.setReturnRemark("视图配置数据对象");
 
         method.addAnnotation(new SystemLog("查看表默认视图配置",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("dt/viewDefault", RequestMethod.POST),parentElement);
+        method.addAnnotation(new RequestMapping("dt/view-default", RequestMethod.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图配置");
         method.addAnnotation(new ApiOperation("默认数据视图配置", "获取默认数据视图配置"),parentElement);
 

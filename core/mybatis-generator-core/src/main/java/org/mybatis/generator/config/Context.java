@@ -34,6 +34,8 @@ public class Context extends PropertyHolder {
 
     private String id;
 
+    private String appKeyword;
+
     private String moduleKeyword;
 
     private String moduleName;
@@ -102,7 +104,7 @@ public class Context extends PropertyHolder {
 
     private int jdkVersion;
 
-    protected Map<String,String> sysMenuDataScriptLines = new LinkedHashMap<>();
+    protected Map<String, String> sysMenuDataScriptLines = new LinkedHashMap<>();
 
     protected Map<String, String> moduleDataScriptLines = new LinkedHashMap<>();
 
@@ -151,8 +153,7 @@ public class Context extends PropertyHolder {
      * This method does a simple validate, it makes sure that all required fields have been filled in. It does not do
      * any more complex operations such as validating that database tables exist or validating that named columns exist
      *
-     * @param errors
-     *            the errors
+     * @param errors the errors
      */
     public void validate(List<String> errors) {
         if (!stringHasValue(id)) {
@@ -362,8 +363,8 @@ public class Context extends PropertyHolder {
      * and not for code generation.
      *
      * @return a list containing the results of table introspection. The list will be empty
-     *     if this method is called before introspectTables(), or if no tables are found that
-     *     match the configuration
+     * if this method is called before introspectTables(), or if no tables are found that
+     * match the configuration
      */
     public List<IntrospectedTable> getIntrospectedTables() {
         return introspectedTables;
@@ -387,27 +388,21 @@ public class Context extends PropertyHolder {
      * Introspect tables based on the configuration specified in the
      * constructor. This method is long running.
      *
-     * @param callback
-     *            a progress callback if progress information is desired, or
-     *            <code>null</code>
-     * @param warnings
-     *            any warning generated from this method will be added to the
-     *            List. Warnings are always Strings.
-     * @param fullyQualifiedTableNames
-     *            a set of table names to generate. The elements of the set must
-     *            be Strings that exactly match what's specified in the
-     *            configuration. For example, if table name = "foo" and schema =
-     *            "bar", then the fully qualified table name is "foo.bar". If
-     *            the Set is null or empty, then all tables in the configuration
-     *            will be used for code generation.
-     *
-     * @throws SQLException
-     *             if some error arises while introspecting the specified
-     *             database tables.
-     * @throws InterruptedException
-     *             if the progress callback reports a cancel
+     * @param callback                 a progress callback if progress information is desired, or
+     *                                 <code>null</code>
+     * @param warnings                 any warning generated from this method will be added to the
+     *                                 List. Warnings are always Strings.
+     * @param fullyQualifiedTableNames a set of table names to generate. The elements of the set must
+     *                                 be Strings that exactly match what's specified in the
+     *                                 configuration. For example, if table name = "foo" and schema =
+     *                                 "bar", then the fully qualified table name is "foo.bar". If
+     *                                 the Set is null or empty, then all tables in the configuration
+     *                                 will be used for code generation.
+     * @throws SQLException         if some error arises while introspecting the specified
+     *                              database tables.
+     * @throws InterruptedException if the progress callback reports a cancel
      */
-    public void introspectTables(ProgressCallback callback,List<String> warnings, Set<String> fullyQualifiedTableNames)
+    public void introspectTables(ProgressCallback callback, List<String> warnings, Set<String> fullyQualifiedTableNames)
             throws SQLException, InterruptedException {
 
         introspectedTables.clear();
@@ -443,7 +438,7 @@ public class Context extends PropertyHolder {
                     introspectedTables.addAll(tables);
                     for (IntrospectedTable table : tables) {
                         if (!table.getTableConfiguration().isIgnore()) {
-                            ValidateDatabaseTable validateDatabaseTables = new ValidateDatabaseTable(table, connection,warnings);
+                            ValidateDatabaseTable validateDatabaseTables = new ValidateDatabaseTable(table, connection, warnings);
                             validateDatabaseTables.executeUpdate();
                         }
                     }
@@ -466,21 +461,21 @@ public class Context extends PropertyHolder {
     }
 
     public void generateFiles(ProgressCallback callback,
-            List<GeneratedJavaFile> generatedJavaFiles,
-            List<GeneratedXmlFile> generatedXmlFiles,
-            List<GeneratedHtmlFile> generatedHtmlFiles,
-            List<GeneratedKotlinFile> generatedKotlinFiles,
-            List<GeneratedFile> otherGeneratedFiles,
-            List<String> warnings)
+                              List<GeneratedJavaFile> generatedJavaFiles,
+                              List<GeneratedXmlFile> generatedXmlFiles,
+                              List<GeneratedHtmlFile> generatedHtmlFiles,
+                              List<GeneratedKotlinFile> generatedKotlinFiles,
+                              List<GeneratedFile> otherGeneratedFiles,
+                              List<String> warnings)
             throws InterruptedException {
 
         pluginAggregator = new PluginAggregator();
         for (PluginConfiguration pluginConfiguration : pluginConfigurations) {
-            Plugin plugin = ObjectFactory.createPlugin(this,pluginConfiguration);
+            Plugin plugin = ObjectFactory.createPlugin(this, pluginConfiguration);
             if (plugin.validate(warnings)) {
                 pluginAggregator.addPlugin(plugin);
             } else {
-                warnings.add(getString("Warning.24",pluginConfiguration.getConfigurationType(), id));
+                warnings.add(getString("Warning.24", pluginConfiguration.getConfigurationType(), id));
             }
         }
 
@@ -504,7 +499,10 @@ public class Context extends PropertyHolder {
 
             generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
-            generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles(introspectedTable));
+            introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlMapGeneratorConfiguration -> {
+                otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(introspectedTable,htmlMapGeneratorConfiguration));
+            });
+
             generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
             otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(introspectedTable));
         }
@@ -592,11 +590,11 @@ public class Context extends PropertyHolder {
         isSqlServe = sqlServe;
     }
 
-    public boolean getAnyPropertyBoolean(String propertyName,String defaultVale,PropertyHolder...propertyHolder){
-        return Boolean.parseBoolean(getAnyPropertyValue(propertyName,defaultVale,propertyHolder));
+    public boolean getAnyPropertyBoolean(String propertyName, String defaultVale, PropertyHolder... propertyHolder) {
+        return Boolean.parseBoolean(getAnyPropertyValue(propertyName, defaultVale, propertyHolder));
     }
 
-    public String getAnyPropertyValue(String propertyName,String defaultVale,PropertyHolder...propertyHolder){
+    public String getAnyPropertyValue(String propertyName, String defaultVale, PropertyHolder... propertyHolder) {
         for (PropertyHolder holder : propertyHolder) {
             if (holder.getProperties().containsKey(propertyName)) {
                 return holder.getProperty(propertyName);
@@ -666,8 +664,8 @@ public class Context extends PropertyHolder {
         return sysMenuDataScriptLines;
     }
 
-    public void addSysMenuDataScriptLines(String id,String sysMenuDataScriptLine) {
-        this.sysMenuDataScriptLines.put(id,sysMenuDataScriptLine);
+    public void addSysMenuDataScriptLines(String id, String sysMenuDataScriptLine) {
+        this.sysMenuDataScriptLines.put(id, sysMenuDataScriptLine);
     }
 
     public Map<String, String> getModuleDataScriptLines() {
@@ -695,11 +693,11 @@ public class Context extends PropertyHolder {
     }
 
     public String getModuleDataFileName() {
-        return "data-module-"+this.getModuleKeyword().toLowerCase()+".sql";
+        return "data-module-" + this.getModuleKeyword().toLowerCase() + ".sql";
     }
 
     public File getModuleDataSqlFile() {
-        return new File("src/main/resources/sql/init/"+getModuleDataFileName());
+        return new File("src/main/resources/sql/init/" + getModuleDataFileName());
     }
 
     public boolean isUpdateMenuData() {
@@ -711,18 +709,56 @@ public class Context extends PropertyHolder {
     }
 
     public String getMenuDataFileName() {
-        return "data-menu-"+this.getModuleKeyword().toLowerCase()+".sql";
+        return "data-menu-" + this.getModuleKeyword().toLowerCase() + ".sql";
     }
 
     public File getMenuDataSqlFile() {
-        return new File("src/main/resources/sql/init/"+getMenuDataFileName());
+        return new File("src/main/resources/sql/init/" + getMenuDataFileName());
+    }
+
+    public String getAppKeyword() {
+        return appKeyword;
+    }
+
+    public void setAppKeyword(String appKeyword) {
+        this.appKeyword = appKeyword;
     }
 
     public void validateTableConfig(ProgressCallback callback, List<String> warnings) {
         if (tableConfigurations != null) {
             for (TableConfiguration tc : tableConfigurations) {
-                tc.validateConfig(callback, warnings,this.getIntrospectedTables().stream().filter(introspectedTable -> introspectedTable.getTableConfiguration().getTableName().equals(tc.getTableName())).findFirst().orElse(null));
+                tc.validateConfig(callback, warnings, this.getIntrospectedTables().stream().filter(introspectedTable -> introspectedTable.getTableConfiguration().getTableName().equals(tc.getTableName())).findFirst().orElse(null));
             }
+        }
+    }
+
+    public void initDefault() {
+        String basePackage = String.join(".", "com.vgosoft", this.appKeyword, this.moduleKeyword);
+        //设置默认的javaModelGenerator
+        if (this.getJavaModelGeneratorConfiguration()==null) {
+            JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
+            javaModelGeneratorConfiguration.setTargetPackage(String.join(".", basePackage,"entity"));
+            javaModelGeneratorConfiguration.setTargetProject("src/main/java");
+            javaModelGeneratorConfiguration.setBaseTargetPackage(basePackage);
+            javaModelGeneratorConfiguration.setTargetPackageGen(String.join(".", basePackage,"codegen.entity"));
+            this.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
+        }
+        //设置默认的sqlMapGenerator
+        if (this.getSqlMapGeneratorConfiguration()==null) {
+            SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
+            sqlMapGeneratorConfiguration.setTargetPackage("mappers");
+            sqlMapGeneratorConfiguration.setTargetProject("src/main/resources");
+            this.setSqlMapGeneratorConfiguration(sqlMapGeneratorConfiguration);
+        }
+        //设置默认的javaClientGenerator
+        if (this.getJavaClientGeneratorConfiguration()==null) {
+            JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = new JavaClientGeneratorConfiguration();
+            javaClientGeneratorConfiguration.setTargetPackage(String.join(".", basePackage,"dao"));
+            javaClientGeneratorConfiguration.setTargetProject("src/main/java");
+            javaClientGeneratorConfiguration.setBaseTargetPackage(basePackage);
+            javaClientGeneratorConfiguration.setTargetPackageGen(String.join(".", basePackage,"codegen.dao"));
+            javaClientGeneratorConfiguration.setConfigurationType("XMLMAPPER");
+            this.setJavaClientGeneratorConfiguration(javaClientGeneratorConfiguration);
         }
     }
 }

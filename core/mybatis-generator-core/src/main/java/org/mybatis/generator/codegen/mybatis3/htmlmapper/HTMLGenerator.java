@@ -42,14 +42,12 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
         return answer;
     }
 
-    protected void initializeAndExecuteGenerator(
-            AbstractHtmlElementGenerator elementGenerator,
-            HtmlElement parentElement) {
+    protected void initializeAndExecuteGenerator(AbstractHtmlElementGenerator elementGenerator,HtmlElement parentElement) {
         elementGenerator.setContext(context);
         elementGenerator.setIntrospectedTable(introspectedTable);
         elementGenerator.setProgressCallback(progressCallback);
         elementGenerator.setWarnings(warnings);
-        elementGenerator.addElements(parentElement);
+        //elementGenerator.addElements(parentElement);
     }
 
     @Override

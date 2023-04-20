@@ -4,6 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.unittest.AbstractUnitTestElementGenerator;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
@@ -30,7 +31,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
         }
 
         //viewXXX，预期返回测试方法
-        String requestUri = VStringUtil.format("get(\"/{0}/{1}/view\")", basePath, serviceBeanName);
+        String requestUri = VStringUtil.format("get(\"/{0}/view\")", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
         String methodName = "view" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "显示或创建一条记录-服务层返回逾期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));

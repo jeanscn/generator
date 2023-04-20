@@ -31,8 +31,9 @@ public class VORequestGenerator extends AbstractVOGenerator{
         requestVoClass.addSerialVersionUID();
 
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, null, voRequestGeneratorConfiguration.getExcludeColumns());
+        List<String > excludeColumns = voGenService.getDefaultExcludeColumnNames(voRequestGeneratorConfiguration.getExcludeColumns());
         for (IntrospectedColumn voColumn : introspectedColumns) {
-            if (!(isAbstractVOColumn(voColumn) || voRequestGeneratorConfiguration.getExcludeColumns().contains(voColumn.getActualColumnName()))) {
+            if (!(isAbstractVOColumn(voColumn) || !excludeColumns.contains(voColumn.getActualColumnName()))) {
                 Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
                 field.setVisibility(JavaVisibility.PRIVATE);
                 field.setRemark(voColumn.getRemarks(true));

@@ -8,15 +8,13 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.Optional;
-
+import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE;
 

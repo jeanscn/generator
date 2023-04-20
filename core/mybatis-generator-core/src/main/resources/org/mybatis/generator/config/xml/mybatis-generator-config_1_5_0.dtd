@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!--version:1.4.8.230307001-->
+        <!--
+          The generatorConfiguration element is the root element for configurations.
+        -->
+        <!ELEMENT generatorConfiguration (properties?, classPathEntry*, context+)>
+
+        <!--
+          The properties element is used to define a standard Java properties file
+          that contains placeholders for use in the remainder of the configuration
+          file.
+        -->
+        <!ELEMENT properties EMPTY>
+        <!ATTLIST properties
+                resource CDATA #IMPLIED
+                url CDATA #IMPLIED>
+
+        <!--
+          The context element is used to describe a context for generating files, and the source
+          tables.
+           属性信息：
+          1、appKeyword 应用标识（包路径中的项目关键字）
+          2、moduleKeyword 模块标识（controller request mapping url根、html页面根路径）
+          3、integrateMybatisPlus 是否集成mybatis plus 默认 true
+          4、integrateSpringSecurity 是否集成Spring Security 默认 true
+          5、forceUpdateScalableElement 是否强制覆盖可扩展自定义的元素（dao,service,controller,vo,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps）
+          6、parentMenuId 如果生成view，则可以指定view菜单项目的父级id，优先级低于generateViewVO标签中的parentMenuId
+          7、updateModuleData 是否更新该组数据库的模块数据，默认为false，不更新
+          8、updateMenuData 是否更新该组数据库的ViewVo对应的菜单数据，默认为false，不更新
+          9、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
+          可能的property配置：
+          1、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
+          2、htmlUiFrame 页面模板名称 默认值：bottom
+          3、htmlBarPosition 页面操作条位置。默认值：bottom
+          4、htmlPageColumnsNum 页面列数 默认值：2
+          5、htmlLoadingFrameType 页面加载方式 默认值：full（pop,full,inner）
+          特别说明：
+          1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
+            类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
+          2、updateModuleData 参数为true时，生成context（父级）模块标识和生成的数据库对应的模块数据（子集）。
+          当仅生成部分数据库时，模块数据不完整。最好的方式是第一次全部生成时指定为true，然后忽略该参数不再生成。从而保证sql数据文件数据完整。
+          3、updateMenuData 参数为true时，生成parentMenuId菜单标识对应的模块数据子集菜单。
+          生成菜单数据的条件是：1、updateMenuData为true；2、生成菜单项目ViewVo；3、数据库表生成配置的isModules为true;4、指定了parentMenuId
+          当仅生成部分数据库时，模块数据不完整。最好的方式是第一次全部生成时指定为true，然后忽略该参数不再生成。从而保证sql数据文件数据完整。
+
+        -->
+        <!ELEMENT context (property*, plugin*, commentGenerator?, (connectionFactory | jdbcConnection), javaTypeResolver?,
+                javaModelGenerator?, sqlMapGenerator?, javaClientGenerator?, table+)>
+        <!ATTLIST context id ID #REQUIRED
+                appKeyword CDATA #REQUIRED
+                moduleKeyword CDATA #REQUIRED
+                moduleName CDATA #REQUIRED
+                defaultModelType CDATA #IMPLIED
+                targetRuntime CDATA #IMPLIED
+                introspectedColumnImpl CDATA #IMPLIED
+                integrateMybatisPlus (true|false) #IMPLIED
+                integrateSpringSecurity (true|false) #IMPLIED
+                forceUpdateScalableElement (true|false) #IMPLIED
+                parentMenuId CDATA #IMPLIED
+                jdkVersion (8|9|11|17) #IMPLIED
+                updateModuleData (false|true) #IMPLIED
+                updateMenuData (false|true) #IMPLIED
+                onlyTables CDATA #IMPLIED>
+
+        <!--
+          The connectionFactory element is used to describe the connection factory used
+          for connecting to the database for introspection.  Either connectionFactory
+          or jdbcConnection must be specified, but not both.
+        -->
+        <!ELEMENT connectionFactory (property*)>
+        <!ATTLIST connectionFactory
+                type CDATA #IMPLIED>
+
+        <!--
+          The jdbcConnection element is used to describe the JDBC connection that the generator
+          will use to introspect the database.
+        -->
+        <!ELEMENT jdbcConnection (property*)>
+        <!ATTLIST jdbcConnection
+                driverClass CDATA #REQUIRED
+                connectionURL CDATA #REQUIRED
+                userId CDATA #IMPLIED
+                password CDATA #IMPLIED>
+
+        <!--
+          The classPathEntry element is used to add the JDBC driver to the run-time classpath.
+          Repeat this element as often as needed to add elements to the classpath.
+        -->
+        <!ELEMENT classPathEntry EMPTY>
+        <!ATTLIST classPathEntry
+                location CDATA #REQUIRED>
+
+        <!--
+          The property element is used to add custom properties to many of the generator's
+          configuration elements.  See each element for example properties.
+          Repeat this element as often as needed to add as many properties as necessary
+          to the configuration element.
+        -->
+        <!ELEMENT property EMPTY>
+        <!ATTLIST property
+                name CDATA #REQUIRED
+                value CDATA #REQUIRED>
+
+        <!--
+          The plugin element is used to define a plugin.
+        -->
+        <!ELEMENT plugin (property*)>
+        <!ATTLIST plugin
+                type CDATA #REQUIRED>
+
+        <!--
+          The javaModelGenerator element is used to define properties of the Java Model Generator.
+          The Java Model Generator builds primary key classes, record classes, and Query by Example
+          indicator classes.
+        -->
+        <!ELEMENT javaModelGenerator (property*)>
+        <!ATTLIST javaModelGenerator
+                targetPackage CDATA #REQUIRED
+                targetProject CDATA #REQUIRED>
+
+        <!--
+          The javaTypeResolver element is used to define properties of the Java Type Resolver.
+          The Java Type Resolver is used to calculate Java types from database column information.
+          The default Java Type Resolver attempts to make JDBC DECIMAL and NUMERIC types easier
+          to use by substituting Integral types if possible (Long, Integer, Short, etc.)
+        -->
+        <!ELEMENT javaTypeResolver (property*)>
+        <!ATTLIST javaTypeResolver
+                type CDATA #IMPLIED>
+
+        <!--
+          The sqlMapGenerator element is used to define properties of the SQL Map Generator.
+          The SQL Map Generator builds an XML file for each table that conforms to MyBatis'
+          SQL Mapper DTD.
+        -->
+        <!ELEMENT sqlMapGenerator (property*)>
+        <!ATTLIST sqlMapGenerator
+                targetPackage CDATA #REQUIRED
+                targetProject CDATA #REQUIRED>
+
+        <!--
+          The javaClientGenerator element is used to define properties of the Java client Generator.
+          The Java Client Generator builds Java interface and implementation classes
+          (as required) for each table.
+          If this element is missing, then the generator will not build Java Client classes.
+        -->
+        <!ELEMENT javaClientGenerator (property*)>
+        <!ATTLIST javaClientGenerator
+                type CDATA #IMPLIED
+                targetPackage CDATA #REQUIRED
+                targetProject CDATA #REQUIRED>
+
+        <!--
+          The table element is used to specify a database table that will be the source information
+          for a set of generated objects.
+          属性信息：
+            1、tableType:数据表类型；dataTable（缺省值）：普通数据表，relationTable：关系中间表
+            2、isModules 是否为模块主表。默认false，如果为true，则会添加一条模块表数据记录
+               *moduleId的构成：MD5(模块关键字（moduleKey）+“_”+实体类名)
+               *module数据文件生成条件：isModules为true且文件不存在
+            3、validateIgnoreColumns 生成pojo的VO及实体对象忽略属性不为空校验的列名称
+               * 不配置该属性时候，默认忽略"delete_flag","version_","created_","modified_","created_id","modified_id"
+               * validateIgnoreColumns=""不忽略任何字段
+               * validateIgnoreColumns="ID_,DELETE_FLAG",逗号分割
+            4、enableInsert 是否生成insert方法，默认true
+            5、enableSelectByPrimaryKey 是否生成selectByPrimaryKey方法，默认true
+            6、enableSelectByExample 是否生成selectByExample方法，默认true
+            7、enableUpdateByPrimaryKey 是否生成updateByPrimaryKey方法，默认true
+            8、enableDeleteByPrimaryKey 是否生成deleteByPrimaryKey方法，默认true
+            9、enableDeleteByExample 是否生成deleteByExample方法，默认true
+            10、enableCountByExample 是否生成countByExample方法，默认true
+            11、enableUpdateByExample 是否生成updateByExample方法，默认true
+            12、enableUpdateBatch 是否生成updateBatch方法，默认true
+            13、enableInsertBatch 是否生成insertBatch方法，默认true
+            14、enableInsertOrUpdate 是否生成insertOrUpdate方法，默认true
+            15、enableFileUpLoad 是否生成文件上传方法，默认false
+            16、enableFileDownLoad 是否生成文件下载方法，默认false
+            17、enableFileDelete 是否生成文件删除方法，默认false
+            18、enableFileDownload 是否生成文件下载方法，默认false
+          property配置：
+            1、rootClass 指定生成对象的父类全类名
+            2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
+            3、superInterface 对象实现的接口全类名，多值”,“分割
+            属性默认值：
+                isModules 默认值 false
+                enableInsert 默认值true
+                enableSelectByPrimaryKey 默认值:true
+                enableSelectByExample 默认值:true
+                enableUpdateByPrimaryKey 默认值:true
+                enableDeleteByPrimaryKey 默认值:true
+                enableDeleteByExample 默认值:true
+                enableCountByExample 默认值:true
+                enableUpdateByExample 默认值:true
+                enableUpdateBatch 默认值:true
+                enableInsertBatch 默认值:true
+                enableInsertOrUpdate 默认值:true
+                enableFileUpLoad 默认值;false
+            说明：
+            1、如果context中指定了onlyTables属性，且属性中包含该表名，则生成，否则忽略该表的生成
+                如果context忽略了onlyTables属性时：
+                1）ignore可以指定是否生基于该表进行生成。true-忽略不生成，false-生成。
+                2）如果忽略ignore参数，则根据表对应的实体是否存在确定是否生成，如果存在则不生成，不存在时进行生成。
+            2、javaModelCollection table中配置后，会在model及modelVO中同时生成相应的属性。
+            3、javaModelAssociation table中配置后，会在model及modelVO中同时生成相应的属性。
+
+             常用实体父类
+            1、com.vgosoft.core.entity.abs.AbstractEntity，简单实体包含ID_,DELETE_FLAG字段
+            2、com.vgosoft.core.entity.abs.AbstractPersistenceObjectEntity,包含以上及：created_,modified_,created_id,modified_id
+            3、com.vgosoft.core.entity.abs.AbstractPersistenceLockEntity，包含以上及：version_
+            3.1.1、com.vgosoft.core.entity.abs.AbstractBusinessEntity，包含以上及：subject_、priority_、module_id、module_name、file_category、fld_ser_number、reg_doc_number、author_
+            3.1.2、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessEntity，包含以上及：business_key、wf_state、cur_processors、cur_processors_name
+            3.1.3、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessNumberable，包含以上及：fld_ser_number、reg_doc_number
+            3.2、com.vgosoft.core.entity.abs.AbstractPersistenceLockSortableEntity，包含AbstractPersistenceLockEntity及：sort_
+            4、com.vgosoft.core.entity.abs.AbstractBlobEntity，包含id_,delete_flag,name_,size_,bytes_
+            5、com.vgosoft.core.entity.abs.AbstractBlobPersistenceObjectEntity，包含以上及：created_,modified_,created_id,modified_id
+            6、com.vgosoft.core.entity.abs.AbstractBlobPersistenceLockEntity，包含以上及：version_
+            7、com.vgosoft.core.entity.abs.AbstractBlobBusinessEntity，包含以上及：subject_,priority_,module_name,file_category,fld_doc_code,author_
+
+        -->
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ATTLIST table
+                ignore (true|false) #IMPLIED
+                catalog CDATA #IMPLIED
+                schema CDATA #IMPLIED
+                tableName CDATA #REQUIRED
+                alias CDATA #IMPLIED
+                domainObjectName CDATA #IMPLIED
+                isModules (false|true) #IMPLIED
+                mapperName CDATA #IMPLIED
+                sqlProviderName CDATA #IMPLIED
+                tableType (dataTable|relationTable) #IMPLIED
+                validateIgnoreColumns CDATA #IMPLIED
+                enableInsert (true|false) #IMPLIED
+                enableSelectByPrimaryKey (true|false) #IMPLIED
+                enableSelectByExample (true|false) #IMPLIED
+                enableUpdateByPrimaryKey (true|false) #IMPLIED
+                enableDeleteByPrimaryKey (true|false) #IMPLIED
+                enableDeleteByExample (true|false) #IMPLIED
+                enableCountByExample (true|false) #IMPLIED
+                enableUpdateByExample (true|false) #IMPLIED
+                enableUpdateBatch  (true|false) #IMPLIED
+                enableInsertBatch  (true|false) #IMPLIED
+                enableInsertOrUpdate  (true|false) #IMPLIED
+                enableFileUpLoad  (true|false) #IMPLIED
+                selectByPrimaryKeyQueryId CDATA #IMPLIED
+                selectByExampleQueryId CDATA #IMPLIED
+                modelType CDATA #IMPLIED
+                escapeWildcards CDATA #IMPLIED
+                delimitIdentifiers CDATA #IMPLIED
+                delimitAllColumns CDATA #IMPLIED>
+
+        <!--
+          The columnOverride element is used to change certain attributes of the column
+          from their default values.
+        -->
+        <!ELEMENT columnOverride (property*)>
+        <!ATTLIST columnOverride
+                column CDATA #REQUIRED
+                property CDATA #IMPLIED
+                javaType CDATA #IMPLIED
+                jdbcType CDATA #IMPLIED
+                typeHandler CDATA #IMPLIED
+                isGeneratedAlways CDATA #IMPLIED
+                delimitedColumnName CDATA #IMPLIED>
+
+        <!--
+          The ignoreColumn element is used to identify a column that should be ignored.
+          No generated SQL will refer to the column, and no property will be generated
+          for the column in the model objects.
+        -->
+        <!ELEMENT ignoreColumn EMPTY>
+        <!ATTLIST ignoreColumn
+                column CDATA #REQUIRED
+                delimitedColumnName CDATA #IMPLIED>
+
+        <!--
+          The ignoreColumnsByRegex element is used to identify a column pattern that should be ignored.
+          No generated SQL will refer to the column, and no property will be generated
+          for the column in the model objects.
+        -->
+        <!ELEMENT ignoreColumnsByRegex (except*)>
+        <!ATTLIST ignoreColumnsByRegex
+                pattern CDATA #REQUIRED>
+
+        <!--
+          The except element is used to identify an exception to the ignoreColumnsByRegex rule.
+          If a column matches the regex rule, but also matches the exception, then the
+          column will be included in the generated objects.
+        -->
+        <!ELEMENT except EMPTY>
+        <!ATTLIST except
+                column CDATA #REQUIRED
+                delimitedColumnName CDATA #IMPLIED>
+
+        <!--
+          The generatedKey element is used to identify a column in the table whose value
+          is calculated - either from a sequence (or some other query), or as an identity column.
+        -->
+        <!ELEMENT generatedKey EMPTY>
+        <!ATTLIST generatedKey
+                column CDATA #REQUIRED
+                sqlStatement CDATA #REQUIRED
+                identity CDATA #IMPLIED
+                type CDATA #IMPLIED>
+
+        <!--
+          The domainObjectRenamingRule element is used to specify a rule for renaming
+          object domain name before the corresponding domain object name is calculated
+        -->
+        <!ELEMENT domainObjectRenamingRule EMPTY>
+        <!ATTLIST domainObjectRenamingRule
+                searchString CDATA #REQUIRED
+                replaceString CDATA #IMPLIED>
+
+        <!--
+          The columnRenamingRule element is used to specify a rule for renaming
+          columns before the corresponding property name is calculated
+        -->
+        <!ELEMENT columnRenamingRule EMPTY>
+        <!ATTLIST columnRenamingRule
+                searchString CDATA #REQUIRED
+                replaceString CDATA #IMPLIED>
+
+        <!--
+          The commentGenerator element is used to define properties of the Comment Generator.
+          The Comment Generator adds comments to generated elements.
+        -->
+        <!ELEMENT commentGenerator (property*)>
+        <!ATTLIST commentGenerator
+                type CDATA #IMPLIED>
+
+        <!--
+          基于中间关系表的自查询 selectByTable
+          可以配合关系表中另一个表的javaModelCollectionProperties生成，实现多对多的查询
+          元素名：selectByTable
+          属性信息：
+          1、table 关系表名
+          2、thisColumn 当前表主键在关系表中的字段名
+          3、otherColumn 另一关联表的主键在关系表中的字段名
+          4、methodSuffix 方法名关键字，最终生成方法名为：selectByTable+方法名关键字
+          5、sortColumn 结果排序语句 如：SORT_ desc，默认为SORT_
+          6、additionClause 附加where条件，将与otherColumn=otherKey并且，用于中间表有多条件的场景，比如部门人员表中的是否管理员（MANAGER_ = 1）等。
+          7、returnType 返回（泛型参数）类型（primaryKey或model,默认model）
+          8、parameterType 参数类型。single-单值，list-多值列表
+          9、enableSplit 允许取消关联（中间表删除数据）
+          10、enableUnion 允许新建关联（中间表插入数据）
+        -->
+        <!ELEMENT selectByTable EMPTY>
+        <!ATTLIST selectByTable
+                table CDATA #REQUIRED
+                thisColumn CDATA #REQUIRED
+                otherColumn CDATA #REQUIRED
+                methodSuffix CDATA #REQUIRED
+                orderByClause CDATA #IMPLIED
+                additionClause CDATA #IMPLIED
+                returnType (model|primaryKey) #IMPLIED
+                parameterType (single|list) #IMPLIED
+                enableSplit (true|false) #IMPLIED
+                enableUnion (true|false) #IMPLIED>
+        <!--
+          基于字段的查询方法 （如果指定为单列可以作为javaModelCollection的子查询实现多表查询方法）
+          增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
+          多指定多个列的时候，生成方法名为SelectByColumnXXXXAndXXXAndXXX
+          元素名：selectByColumn
+          属性信息：
+          1、column 列名,多列使用","分隔。
+          2、orderByClause 排序语句
+          3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
+          4、parameterType single-传入的参数（列值）为单值，list-传入的参数（列值）为多值
+          5、enableDelete 是否同是生成一个基于该（多）列的删除方法。
+        -->
+        <!ELEMENT selectByColumn EMPTY>
+        <!ATTLIST selectByColumn
+                column CDATA #REQUIRED
+                orderByClause CDATA #IMPLIED
+                returnType (model|primaryKey) #IMPLIED
+                parameterType (single|list) #IMPLIED
+                enableDelete (false|true) #IMPLIED>
+
+        <!--
+                  基于SQL函数的查询方法 （也是配合javaModelCollection Properties实现查询方法）
+                  增加该属性会为每个字段生成selectBySqlMethod[methodName首字母大写]的查询方法。
+                  元素名：selectBySqlMethod
+                  说明：目前仅限于实现返回带有parentId的所有上级ids或所有下级ids
+                  属性信息：
+                  1、sqlMethod sql方法名称
+                  2、parentIdColumn 父标识字段名。默认parent_id
+                  3、primaryKeyColumn 主键字段名。默认id_
+                -->
+        <!ELEMENT selectBySqlMethod EMPTY>
+        <!ATTLIST selectBySqlMethod
+                sqlMethod CDATA #REQUIRED
+                parentIdColumn CDATA #IMPLIED
+                primaryKeyColumn CDATA #IMPLIED>
+
+        <!--
+            添加一个实体类型的属性，并实现一对一的association查询
+            增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。
+            *如果仅仅指定field、fieldModel，则仅在实体中添加一个 modelType field的属性。
+            元素名：javaModelAssociationProperties
+            属性信息：
+            1、field 生成的属性名
+            2、modelType 属性类型完整类名，PO类中使用
+                 voModelType  VO类中使用
+            3、whereColumn 条件字段列名
+            4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByPrimaryKey或也可以返回单个实体的查询方法）
+            5、enableInsert 是否支持级联insert处理
+            6、enableUpdate 是否支持级联update处理
+            7、enableDelete 是否支持级联delete处理
+            8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
+            9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
+            10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            11、remark 备注
+            说明：
+            1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
+            2、当启用enableInsert或enableUpdate或enableInsertOrUpdate或enableDelete时，beanClassFullName必须，否则无效。
+        -->
+        <!ELEMENT javaModelAssociation EMPTY>
+        <!ATTLIST javaModelAssociation
+                fieldName CDATA #REQUIRED
+                modelType CDATA #REQUIRED
+                relationProperty CDATA #IMPLIED
+                voModelType CDATA #IMPLIED
+                whereColumn CDATA #IMPLIED
+                mapperMethod CDATA #IMPLIED
+                enableInsert (true|false) #IMPLIED
+                enableUpdate (true|false) #IMPLIED
+                enableDelete (true|false) #IMPLIED
+                enableInsertOrUpdate (true|false) #IMPLIED
+                beanClassFullName CDATA #IMPLIED
+                remark CDATA #IMPLIED>
+
+        <!--
+            添加一个实体列表的属性，并实现一对多的collection查询
+            需要再相关表需要增加对应的外键属性，并生成对应的查询方法。
+            *通过调用自己的外键查询可以达到递归查询的效果（慎用，大量递归可能引发效率问题）
+            *如果该实体可能用于生成菜单或层级列表的通过转换方法，必须生成children为属性名的一对多的属性
+            *如果仅仅指定field、fieldModel，则仅在实体中添加一个List<model> field的属性。
+            属性信息：
+            1、field 生成的属性名
+            2、modelType 属性类型完整类名，PO类中使用
+                voModelType  VO类中使用
+            3、whereColumn 条件字段列名
+            4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
+            5、enableInsert 是否支持级联insert处理
+            6、enableUpdate 是否支持级联update处理
+            7、enableDelete 是否支持级联delete处理
+            8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
+            9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
+            10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            11、remark 备注
+            说明：
+            1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
+            2、当启用enableInsert或enableUpdate或enableInsertOrUpdate或enableDelete时，beanClassFullName必须，否则无效。
+        -->
+        <!ELEMENT javaModelCollection EMPTY>
+        <!ATTLIST javaModelCollection
+                fieldName CDATA #REQUIRED
+                modelType CDATA #REQUIRED
+                relationProperty CDATA #IMPLIED
+                voModelType CDATA #IMPLIED
+                whereColumn CDATA #IMPLIED
+                mapperMethod CDATA #IMPLIED
+                enableInsert (true|false) #IMPLIED
+                enableUpdate (true|false) #IMPLIED
+                enableDelete (true|false) #IMPLIED
+                enableInsertOrUpdate (true|false) #IMPLIED
+                beanClassFullName CDATA #IMPLIED
+                remark CDATA #IMPLIED>
+
+        <!--
+            是否生成页面
+             属性信息：
+            1、generate 是否生成页面：”true“|”false“
+            2、viewPath 视图文件名
+            3、overWriteFile 当页面存在时，是否覆盖。默认为false
+            4、targetProject 视图路径，默认"src/main/resources/templates"
+            5、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
+        -->
+
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*)>
+        <!ATTLIST generateHtml
+                generate (true|false) #REQUIRED
+                viewPath CDATA #IMPLIED
+                overWriteFile (true|false) #IMPLIED
+                targetPackage  CDATA #IMPLIED
+                targetProject CDATA #IMPLIED>
+
+        <!--
+            页面布局生成描述
+            属性信息：
+            1、loadingFrameType 指定页面打开方式：pop-内容全屏弹窗，inner-页面嵌入含重置按钮，full-全屏弹窗内容居中，默认pop
+            2、pageColumnsNum 页面显示元素列数 默认2列
+            3、barPosition 工具条位置，"bottom"\"top" 默认”bottom“
+            4、uiFrameType 页面框架名称，layui|zui，默认layui
+            5、exclusiveColumns 独占一行的列名，多个列名用逗号分隔
+            6、borderWidth 内容边框宽度，默认1px
+            7、borderColor 内容边框颜色，默认#eee
+            -->
+        <!ELEMENT layout  EMPTY>
+        <!ATTLIST layout
+                loadingFrameType (full|inner|pop) #IMPLIED
+                pageColumnsNum CDATA #IMPLIED
+                barPosition (bottom|top) #IMPLIED
+                uiFrameType (layui|zui) #IMPLIED
+                exclusiveColumns CDATA #IMPLIED
+                borderWidth CDATA #IMPLIED
+                borderColor CDATA #IMPLIED>
+
+        <!--
+            页面元素生成描述
+            属性信息：
+            1、column 数据库字段名
+            2、tagType 生成的类型，生成类型支持：dropdownlist、radio、checkbox、switch、select（弹窗选择）
+            3、dataUrl 数据接口请求地址
+            4、dataFormat 数据格式：启停|有无|是否|性别，可应用在radio和switch；缓急|级别，仅在radio时有效；department|user，仅在select时有效
+            5、dataSource 数据来源：  dictData-来自sys_dict_data
+                                    dict-来自指定beanName对应的表，如果该bean的SelectByKeysDict方法存在，则使用该方法,否则使用SelectByPrimaryKey方法。
+                                        强烈建议使用SelectByKeysDict方法，该方法是缓存数据，SelectByPrimaryKey存在性能问题。
+                                    dictSys-来自sys_dict
+                                    dictUser-来自org_user表缓存数据，当使用select类型时，在dataFormat为department时默认为此值
+                                    user-来自org_department表缓存数据，当使用select类型时，在dataFormat为user时默认为此值
+            6、beanName 数据来源为dict时，指定bean的完整类名，如果不指定完整类名，请使用唯一的interface的shortName名称
+            7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
+            说明：
+            department|user：仅在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
+            如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
+        -->
+        <!ELEMENT htmlElementDescriptor EMPTY>
+        <!ATTLIST htmlElementDescriptor
+                column CDATA #REQUIRED
+                tagType (dropdownlist|radio|checkbox|switch|select) #REQUIRED
+                dataUrl CDATA #IMPLIED
+                dataFormat (启停|有无|是否|性别|缓急|级别|department|user) #IMPLIED
+                otherFieldName CDATA #IMPLIED
+                dataSource (dictData|dict|dictSys|dictUser|department|user) #IMPLIED
+                beanName CDATA #IMPLIED
+                applyProperty CDATA #IMPLIED>
+
+        <!--
+            Dao接口生成描述
+            属性信息：
+            1、generate 是否生成,true生成,false忽略
+            2、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.dao中的dao
+        -->
+        <!ELEMENT generateDao EMPTY>
+        <!ATTLIST generateDao
+                generate (true|false) #REQUIRED
+                targetSubPackage CDATA #IMPLIED>
+
+        <!--
+            Service接口生成描述
+            属性信息：
+            1、generate 是否生成,true生成,false忽略
+            2、generateUnitTest 是否生成服务层的单元测试，缺省为true生成
+            3、noServiceAnnotation 是否不添加@Service注解，既实现类不注入ioc
+            4、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.service中的service
+        -->
+        <!ELEMENT generateService EMPTY>
+        <!ATTLIST generateService
+                generate (true|false) #REQUIRED
+                generateUnitTest (true|false) #IMPLIED
+                noServiceAnnotation (false|true) #IMPLIED
+                targetSubPackage CDATA #IMPLIED>
+        <!--
+            Controller接口生成描述
+            属性信息：
+            1、generate 是否生成,true生成,false忽略
+            2、generateUnitTest 是否生成控制层的单元测试，缺省为true生成
+            3、noSwaggerAnnotation 是否不添加Swagger相关注解
+            4、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.controller中的controller
+            5、targetProject 项目路径默认与model一一致，一般为当前模块的src/main/java，
+            也可以指定绝对路径如：d:/project/vgosoft-abc/src/main/java。由此可以把生成的元素放在位置。
+            6、targetPackage 包路径。也可以有model的基础路径+targetSubPackage构成
+            property配置：
+            1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用是同时增加@Transactional注解
+        -->
+        <!ELEMENT generateController (property*, generateOptions*)>
+        <!ATTLIST generateController
+                generate (true|false) #REQUIRED
+                generateUnitTest (true|false) #IMPLIED
+                noSwaggerAnnotation (false|true) #IMPLIED
+                targetSubPackage CDATA #IMPLIED
+                targetProject CDATA #IMPLIED
+                targetPackage CDATA #IMPLIED>
+
+        <!--
+                   表单选项接口生成描述
+                   属性信息：
+                   默认以id为选项的key值
+                   1、nameColumn 指定用于显示名称（value）的列名。
+                   2、类型可以选择flat数据扁平，tree数据树，默认flat（当选择tree时，实体需要具有parentId及children属性）
+                -->
+        <!ELEMENT generateOptions EMPTY>
+        <!ATTLIST generateOptions
+                nameColumn CDATA #REQUIRED
+                idColumn CDATA #IMPLIED
+                type (flat|tree) #IMPLIED>
+
+        <!--
+            Model PO类对象生成描述
+            属性信息：
+            1、generate 是否生成,true生成,false忽略
+            2、noMetaAnnotation 是否不添加@TableMeta、@ColumnMeta注解
+            3、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.entity中的entity
+            4、enableChildren 生成children属性及子查询。当该属性为true时，将在实体中添加children属性，并添加相应的selectByColumnParentId方法。
+            5、equalsAndHashCodeColumns 可选 指定equals和hashCode方法的列名，多个列名用逗号分隔。缺省值为id
+            说明：
+            启用enableChildren的前提条件是数据表有parent_id字段
+        -->
+        <!ELEMENT generateModel (property*,overridePropertyValue*,additionalProperty*)>
+        <!ATTLIST generateModel
+                generate (true|false) #REQUIRED
+                noMetaAnnotation (false|true) #IMPLIED
+                targetSubPackage CDATA #IMPLIED
+                enableChildren (false|true) #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+            sqlMapper XML文件生成描述
+            属性信息：
+            1、generate 是否生成,true生成,false忽略
+        -->
+        <!ELEMENT generateSqlMap EMPTY>
+        <!ATTLIST generateSqlMap
+                generate (true|false) #REQUIRED>
+
+        <!--
+            SqlSchema sql schema文件生成描述
+            属性信息：
+            1、generate 是否生成,true生成（生成H2\Mysql数据库对应的ddl）,false忽略。缺省值true
+        -->
+        <!ELEMENT generateSqlSchema (property*)>
+        <!ATTLIST generateSqlSchema
+                generate (true|false) #REQUIRED>
+
+        <!--
+            所有VO类的父级配置，用于配置vo的通用属性
+            属性信息：
+            1、generate 是否生成,true生成,false忽略。缺省值true，当设置为false时，所有vo类的generate会继承该属性值。
+            2、excludeColumns，指定排除的列。如果不指定该属性抽象类的排除列使用父类默认的忽略列。否则使用该属性指定的列
+            3、equalsAndHashCodeColumns，可选 指定生成equals和HashCode方法的列名。此处指定后，所有子vo对象将使用该配置，除非子对象中配置了该属性。
+        -->
+        <!ELEMENT generateVO (property*,mapstructMapping*,overridePropertyValue*,additionalProperty*,modelVO?,createVO?,updateVO?,viewVO?,excelVO?,requestVO?)>
+        <!ATTLIST generateVO
+                generate (true|false) #REQUIRED
+                excludeColumns CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+            vo类生成描述
+            属性信息：
+            1、generate 是否生成,true生成（VO抽象父类每次生成、vo类mappings类不存在是生成）,false忽略。缺省为true
+                当父类的generateVO的generate属性为false时，该属性继承false。
+            2、includeColumns:VO模型包含的字段名,多值使用","。
+            3、excludeColumns：当没有配置includeColumns时，VO模型(父类)排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+                当不配置该属性时，默认忽略entity父抽象类属性对应的字段;
+            当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。
+            4、equalsAndHashCodeColumns 可选 指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+            property配置：无
+        -->
+        <!ELEMENT modelVO (property*,overridePropertyValue*,additionalProperty*)>
+        <!ATTLIST modelVO
+                generate (true|false) #IMPLIED
+                includeColumns CDATA #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+            创建新纪录参数模型（CreateVO）配置的生成描述
+            属性信息：
+            1、generate 是否生成,true生成（CreateVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
+                当父类的generateVO的generate属性为false时，该属性继承false。
+            2、includeColumns:CreateVO模型包含的字段名,多值使用","。
+            3、excludeColumns：当没有配置includeColumns时，CreateVO排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+               当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。
+            4、requiredColumns：验证不为空的字段名，多值使用",";
+            5、validateIgnoreColumns：验证忽略的字段名，多值使用",";
+            6、equalsAndHashCodeColumns：指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+            7、genIsSelective：是否生成isSelective属性，用于判断是否选择性创建或编辑。默认为true
+            property配置：无
+            -->
+        <!ELEMENT createVO (property*,additionalProperty*)>
+        <!ATTLIST createVO
+                generate (true|false) #IMPLIED
+                includeColumns CDATA #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                requiredColumns CDATA #IMPLIED
+                validateIgnoreColumns CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED
+                genIsSelective (true|false) #IMPLIED>
+
+        <!--
+           更新记录参数模型（UpdateVO）配置的生成描述
+           属性信息：
+           1、generate 是否生成,true生成（UpdateVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
+               当父类的generateVO的generate属性为false时，该属性继承false。
+           2、includeColumns:UpdateVO模型包含的字段名,多值使用","。
+           3、excludeColumns：当没有配置includeColumns时，UpdateVO排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+              当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。
+           4、requiredColumns：验证不为空的字段名，多值使用",";
+           5、validateIgnoreColumns：验证忽略的字段名，多值使用",";
+           6、equalsAndHashCodeColumns：指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           7、genIsSelective：是否生成isSelective属性，用于判断是否选择性编辑或创建。默认为true
+           property配置：无
+           -->
+        <!ELEMENT updateVO (property*,additionalProperty*)>
+        <!ATTLIST updateVO
+                generate (true|false) #IMPLIED
+                includeColumns CDATA #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                requiredColumns CDATA #IMPLIED
+                validateIgnoreColumns CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED
+                genIsSelective (true|false) #IMPLIED>
+
+        <!--
+                 请求参数配置的生成描述
+                 属性信息：
+                 1、generate 可选 是否生成,true生成（RequestVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
+                      当父类的generateVO的generate属性为false时，该属性始终false。
+                 2、includePageParam 可选 是否包含分页参数。true包含。缺省值true
+                 3、excludeColumns 可选 RequestVO(父类)排除的字段名，多值使用",";
+                       当不配置该属性时，默认忽略eAbstractPersistenceLockEntity抽象类属性对应的字段。
+                 4、includeColumns 可选 RequestVO(父类)包含的字段名，多值使用",";
+                 5、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+                 property配置：无
+               -->
+        <!ELEMENT requestVO (property*,additionalProperty*,nameFragment*)>
+        <!ATTLIST requestVO
+                generate (true|false) #IMPLIED
+                includePageParam (true|false) #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+           默认视图配置的生成描述
+           属性信息：
+           1、generate 是否生成,true生成（ViewVO类不存时生成，如果存在则不再覆盖）,false忽略;缺省值false
+               当父类的generateVO的generate属性为false时，该属性始终false。
+           2、includeColumns:视图包含的字段名,多值使用","。
+           3、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+                当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
+           4、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
+           5、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
+           6、queryColumns:应用复合查询的字段名,多值使用","。
+           7、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           8、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           9、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           10、viewMenuIcon view菜单项目的图标
+           11、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+            property配置：无
+        -->
+        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*)>
+        <!ATTLIST viewVO
+                generate (true|false) #IMPLIED
+                includeColumns CDATA #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
+                actionColumn CDATA #IMPLIED
+                queryColumns CDATA #IMPLIED
+                defaultDisplayFields CDATA #IMPLIED
+                defaultHiddenFields CDATA #IMPLIED
+                parentMenuId CDATA #IMPLIED
+                viewMenuIcon CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+           Excel导入导出模型配置的生成描述，该模型不继承抽象VO抽象类
+           属性信息：
+           1、generate 可选 是否生成,true生成（ExcelVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
+               当父类的generateVO的generate属性为false时，该属性始终false。
+           2、includeColumns 可选 Excel模型包含的字段名,多值使用","。
+           3、excludeColumns 可选 当没有配置includeColumns时，ExcelVO排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+                当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。
+           4、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           property配置：无
+        -->
+        <!ELEMENT excelVO (property*,overridePropertyValue*,additionalProperty*)>
+        <!ATTLIST excelVO
+                generate (true|false) #IMPLIED
+                includeColumns CDATA #IMPLIED
+                excludeColumns CDATA #IMPLIED
+                equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+           缓存模型配置的生成描述，用于指定数据的redis缓存处理，该模型为简单模型不继承父类
+                *主要用于"属性值映射"等处理.当生成CachePO时，该表对应的insert、update、delete接口会添加Spring CacheEvict注解。
+                *重新生成时会覆盖.
+                *注意：1、typeColumn、codeColumn同时指定，如果作为字典数据，将按照typeColumn、codeColumn组合查询返回含有dictValueText（默认）属性
+                        的CachePO并以两个字段的组合名为缓存key值，
+                      2、typeColumn、codeColumn任一指定时，如果作为字典数据，将按照指定列进行查询并返回含有dictValueText属性
+                        的CachePO并以两个字段的组合名为缓存key值，
+                      3、指定valueColumn时，会增加字典相关的service
+                      4、如果不指定codeColumn将按照id查询，并以id的值为缓存key值，否则按照codeColumn进行查询
+                      5、如果overridePropertyValue中指定applyProperty，则在generateCachePO需要在includeColumns中包含对应的列
+          属性信息：
+            1、generate 可选 是否生成,true生成,false忽略。缺省为false
+               当父类的generateVO的generate属性为false时，该属性始终false。
+            2、valueColumn 必须 作为字典，翻译结果内容的字段名
+            3、includeColumns 可选 Cache模型包含的字段名,多值使用","。 始终包含ID_。如果
+            4、typeColumn 可选 作为字典，字典类型的字段名
+            5、codeColumn 可选 作为字典，字典编码的字段名，如果不指定则默认为"ID_"
+               property配置：无
+        -->
+        <!ELEMENT generateCachePO EMPTY>
+        <!ATTLIST generateCachePO
+                valueColumn  CDATA #REQUIRED
+                generate (true|false) #IMPLIED
+                includeColumns CDATA #IMPLIED
+                typeColumn  CDATA #IMPLIED
+                codeColumn  CDATA #IMPLIED>
+
+        <!--
+             用于配置VO对象转换值的属性值得配置描述
+             属性信息：
+             1、sourceColumn 必须，转换前的原值保存的字段名。
+             2、annotationType 注解类型（DictUser\DictSys\Dict）
+             3、beanName 如果是Dict类型，需要提供beanName用来获取service对象。
+             4、targetColumn 转换后需要显示的属性对应的列名（如果转换到一个数据库存在的列对应的属性时，填写此属性）
+             5、targetProperty 转换后需要显示的转换结果的属性名（如果转换到一个新属性时，填写此属性，将在vo类中添加一个新属性）
+                targetPropertyType 转换后需要显示的转换结果的属性的java类型完全类名
+             6、typeValue 转换查找原数据的附加检索的条件的值，如果字典查询是的字典类型。
+             7、applyProperty 转换结果要使用的属性值，默认使用cachePo中的valueColumn的值。
+             8、remark 属性中文描述
+              说明：
+             1、targetColumn、targetProperty根据实际情况只能选择其中一个，如果配置了targetColumn，则targetProperty无效
+             2、如果指定了targetProperty、则按实际情况指定targetPropertyType的全类名，最终生成 private String field形式.缺省为java.lang.String
+             3、typeColumn根据需要可选配置
+             4、选择dict时，对应beanName对应的bean需要生成cachePO，并且注意sourceColumn<->codeColumn,typeValue来自typeColumn
+             5、applyProperty 应用的缓存实体的属性值，该属性允许使用valueColumn之外的字段值（cachePo中includeColumn中的字段）
+             6、如果指定了targetProperty、则按实际情况指定targetPropertyType的全类名，最终生成 private String field形式.缺省为java.lang.String
+
+        -->
+        <!ELEMENT overridePropertyValue  (property*)>
+        <!ATTLIST overridePropertyValue
+                sourceColumn CDATA #REQUIRED
+                annotationType (DictUser|DictSys|Dict) #REQUIRED
+                beanName CDATA #IMPLIED
+                targetColumn CDATA #IMPLIED
+                targetProperty CDATA #IMPLIED
+                targetPropertyType CDATA #IMPLIED
+                typeValue CDATA #IMPLIED
+                applyProperty CDATA #IMPLIED
+                remark CDATA #IMPLIED>
+
+        <!--
+             用于配置VO类添加附加属性
+             属性信息：
+             1、name 必须，属性名。
+             2、type 属性类型，类全名，如："java.util.List"
+             3、typeArguments 类型泛型参数如：List<DictContent>中，”com.vgosoft.system.entity.DictContent“，多值用”,“分割
+             4、annotation 添加到属性上的注解，注意：多值用”|“分割、双引号使用“&quot;”
+             5、initializationString 属性初始化字符串
+             6、isFinal 是否为final。
+             7、visibility 属性修饰符。
+             8、importedTypes 需要导入的包路径，多值用“,”分隔。
+             9、remark 属性中文描述
+              说明：
+              1、如果typeArguments指定了多个值，则type必须为java.util.List
+            -->
+        <!ELEMENT additionalProperty  (property*)>
+        <!ATTLIST additionalProperty
+                name CDATA #REQUIRED
+                type CDATA #IMPLIED
+                typeArguments CDATA #IMPLIED
+                annotations CDATA #IMPLIED
+                initializationString CDATA #IMPLIED
+                isFinal (true|false) #IMPLIED
+                visibility (public|private|protected) #IMPLIED
+                importedTypes CDATA #IMPLIED
+                remark CDATA #IMPLIED>
+
+        <!--
+             用于指定requestVO自动构建查询Example类，字段匹配类型
+             属性信息：
+             1、column 必须，列名。
+             2、fragment 必须，方法名片段。
+            -->
+        <!ELEMENT nameFragment EMPTY>
+        <!ATTLIST nameFragment
+                column  CDATA #REQUIRED
+                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeRight|LikeLeft|Between) #REQUIRED>
+
+        <!--
+             用于指定视图列渲染方法名
+             属性信息：
+             1、column 必须，列名。
+             2、renderFun 必须，方法名。
+            -->
+        <!ELEMENT columnRenderFun (#PCDATA)>
+        <!ATTLIST columnRenderFun
+                column  CDATA #REQUIRED
+                renderFun (colDefsAsLink|colDefsState|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLink_parent) #REQUIRED>
+        <!--
+             增加一个mapstruct转换方法
+             属性信息：
+             1、sourceType 必须，源类型，完整类名称。
+             1-1、sourceArguments 源类型泛型参数如：Map<String,String>中，”java.lang.String,java.lang.String“，多值用”,“分割
+             2、targetType 必须，目的类型，完整类名称。
+             2-1、targetArguments 目的类型泛型参数如：Map<String,String>中，”java.lang.String,java.lang.String“，多值用”,“分割
+             3、type 单个对象single还是列表list，默认值为single
+            -->
+        <!ELEMENT mapstructMapping EMPTY>
+        <!ATTLIST mapstructMapping
+                sourceType CDATA #REQUIRED
+                targetType CDATA #REQUIRED
+                sourceArguments CDATA #IMPLIED
+                targetArguments CDATA #IMPLIED
+                type (single|list) #IMPLIED>

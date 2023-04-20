@@ -34,6 +34,8 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     private final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
 
+    private final List<VoColumnRenderFunGeneratorConfiguration> voColumnRenderFunGeneratorConfigurations = new ArrayList<>();
+
     private List<String> equalsAndHashCodeColumns = new ArrayList<>();
 
     protected FullyQualifiedJavaType fullyQualifiedJavaType;
@@ -106,4 +108,12 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     @Override
     abstract void validate(List<String> errors, String contextId);
+
+    public void addVoColumnRenderFunGeneratorConfiguration(VoColumnRenderFunGeneratorConfiguration voColumnRenderFunGeneratorConfiguration) {
+        this.voColumnRenderFunGeneratorConfigurations.add(voColumnRenderFunGeneratorConfiguration);
+    }
+
+    public List<VoColumnRenderFunGeneratorConfiguration> getVoColumnRenderFunGeneratorConfigurations() {
+        return voColumnRenderFunGeneratorConfigurations;
+    }
 }

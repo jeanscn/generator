@@ -40,7 +40,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerator {
     public abstract void addInterfaceElements(Interface interfaze);

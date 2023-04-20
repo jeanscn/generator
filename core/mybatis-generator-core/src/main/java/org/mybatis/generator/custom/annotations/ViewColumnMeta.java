@@ -1,11 +1,15 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+
+import java.sql.JDBCType;
+import java.util.Arrays;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -30,7 +34,9 @@ public class ViewColumnMeta extends AbstractAnnotation {
 
     private String render;
 
-    private String datafmt;
+    private String dataType;
+
+    private String dataFormat;
 
     private boolean ignore;
 
@@ -64,10 +70,51 @@ public class ViewColumnMeta extends AbstractAnnotation {
         this.introspectedColumn = introspectedColumn;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
+        switch (JDBCType.valueOf(introspectedColumn.getJdbcType())) {
+            case DATE:
+                this.dataType = "date";
+                this.dataFormat = "yyyy-MM-dd";
+                this.render = "colDefsDatefmt";
+                break;
+            case TIME:
+                this.dataType = "time";
+                this.dataFormat = "HH:mm:ss";
+                this.render = "colDefsDatefmt";
+                break;
+            case TIMESTAMP:
+                this.dataType = "timestamp";
+                this.dataFormat = "yyyy-MM-dd HH:mm:ss";
+                this.render = "colDefsDatefmt";
+                break;
+            case BOOLEAN:
+            case BIT:
+            case TINYINT:
+                this.dataType = "boolean";
+                break;
+            case SMALLINT:
+            case INTEGER:
+            case BIGINT:
+                this.dataType = "number";
+                this.dataFormat = "0";
+                break;
+            case DECIMAL:
+            case NUMERIC:
+                this.dataType = "number";
+                this.dataFormat = "0.00";
+                break;
+        }
+        //指定的render
+        configuration.getVoColumnRenderFunGeneratorConfigurations().stream()
+                .filter(configuration -> configuration.getColumn().equals(introspectedColumn.getActualColumnName()))
+                .findFirst()
+                .ifPresent(voColumnRenderFunGeneratorConfiguration -> this.render = voColumnRenderFunGeneratorConfiguration.getRenderFun());
     }
 
     @Override
     public String toAnnotation() {
+        if (configuration.getDefaultHiddenFields().size() == 0 && configuration.getDefaultDisplayFields().size() == 0) {
+            configuration.getDefaultHiddenFields().addAll(Arrays.asList(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS.split(",")));
+        }
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));
         if (introspectedColumn != null && introspectedColumn.getOrder() != GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
@@ -88,8 +135,11 @@ public class ViewColumnMeta extends AbstractAnnotation {
         if (this.render != null) {
             items.add(VStringUtil.format("render = \"{0}\"", this.render));
         }
-        if (this.datafmt != null) {
-            items.add(VStringUtil.format("datafmt = \"{0}\"", this.datafmt));
+        if (this.dataType != null) {
+            items.add(VStringUtil.format("dataType = \"{0}\"", this.dataType));
+        }
+        if (this.dataFormat != null) {
+            items.add(VStringUtil.format("dataFormat = \"{0}\"", this.dataFormat));
         }
         if (this.ignore) {
             items.add("ignore = true");
@@ -157,12 +207,20 @@ public class ViewColumnMeta extends AbstractAnnotation {
         this.render = render;
     }
 
-    public String getDatafmt() {
-        return datafmt;
+    public String getDataType() {
+        return dataType;
     }
 
-    public void setDatafmt(String datafmt) {
-        this.datafmt = datafmt;
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getDataFormat() {
+        return dataFormat;
+    }
+
+    public void setDataFormat(String dataFormat) {
+        this.dataFormat = dataFormat;
     }
 
     public boolean isIgnore() {

@@ -180,7 +180,7 @@ public class ConfigurationParser {
 
             //添加generator plugin
             PluginConfiguration javaClientGeneratePlugins = new PluginConfiguration();
-            javaClientGeneratePlugins.setConfigurationType("org.mybatis.generator.custom.JavaClientGeneratePlugins");
+            javaClientGeneratePlugins.setConfigurationType("org.mybatis.generator.plugins.JavaClientGeneratePlugins");
             context.addPluginConfiguration(javaClientGeneratePlugins);
             PluginConfiguration fieldJsonFormatPlugin = new PluginConfiguration();
             fieldJsonFormatPlugin.setConfigurationType("org.mybatis.generator.plugins.FieldJsonFormatPlugin");
@@ -216,7 +216,12 @@ public class ConfigurationParser {
             PluginConfiguration equalsAndHashCode = new PluginConfiguration();
             equalsAndHashCode.setConfigurationType("org.mybatis.generator.plugins.EqualsHashCodePlugin");
             context.addPluginConfiguration(equalsAndHashCode);
-
+            PluginConfiguration jqueryPlugin = new PluginConfiguration();
+            jqueryPlugin.setConfigurationType("org.mybatis.generator.plugins.jquery.JQueryPlugin");
+            context.addPluginConfiguration(jqueryPlugin);
+            PluginConfiguration workflowPropertyPlugin = new PluginConfiguration();
+            workflowPropertyPlugin.setConfigurationType("org.mybatis.generator.plugins.WorkflowPropertyPlugin");
+            context.addPluginConfiguration(workflowPropertyPlugin);
 
 
             //添加commentGenerator
@@ -243,6 +248,7 @@ public class ConfigurationParser {
             JavaTypeResolverConfiguration javaTypeResolverConfiguration = Optional.ofNullable(context.getJavaTypeResolverConfiguration())
                     .orElseGet(JavaTypeResolverConfiguration::new);
             javaTypeResolverConfiguration.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, "true");
+            javaTypeResolverConfiguration.addProperty(PropertyRegistry.TYPE_RESOLVER_USE_JSR310_TYPES, "true");
             context.setJavaTypeResolverConfiguration(javaTypeResolverConfiguration);
 
             //generator Model 配置

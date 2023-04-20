@@ -27,7 +27,7 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
         method.setReturnType(new FullyQualifiedJavaType(MODEL_AND_VIEW));
 
         method.addAnnotation(new SystemLog("查看默认视图",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("dt/viewDefault/show", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMapping("dt/view-default/show", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图");
         method.addAnnotation(new ApiOperation("默认数据视图显示", "显示默认数据视图"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "查看默认视图");

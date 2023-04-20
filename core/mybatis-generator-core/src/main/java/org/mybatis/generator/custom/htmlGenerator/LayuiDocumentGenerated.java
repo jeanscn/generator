@@ -7,15 +7,15 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
+import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.HtmlElementDescriptor;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.config.HtmlElementDescriptor;
+import org.mybatis.generator.config.HtmlLayoutDescriptor;
+import org.mybatis.generator.custom.ConstantsUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,13 +37,19 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private final Map<String, HtmlElement> body;
 
+    private final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
+
+    private final GeneratorInitialParameters generatorInitialParameters;
+
     public LayuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(document, introspectedTable, htmlGeneratorConfiguration);
+        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
         this.introspectedTable = introspectedTable;
         this.document = document;
         this.rootElement = document.getRootElement();
         this.head = generateLayuiHead();
         this.body = generateHtmlBody();
+        this.generatorInitialParameters = new GeneratorInitialParameters(introspectedTable.getContext(), introspectedTable, null, null);
     }
 
     @Override
@@ -58,14 +64,28 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         addSubjectInput(form);
         /*表单验证button*/
         addVerifyButton(form);
-        /* 查看状态*/
         // if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
+        /* 查看状态*/
         HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
         viewStatus.addAttribute(new Attribute("th:value", "${viewStatus}?:1"));
         content.addElement(viewStatus);
+        /* 是否工作流应用*/
+        HtmlElement isWorkflow = generateHtmlInput("workflowEnabled", true, false);
+        isWorkflow.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.workflowEnabled}?:0"));
+        content.addElement(isWorkflow);
         // }
         generateLayuiToolBar(content);
-        addLayJavaScriptFragment(body.get("body"));
+
+        String fileName = Arrays.stream(htmlGeneratorConfiguration.getViewPath().split("[/\\\\]"))
+                .reduce((first, second) -> second)
+                .orElse("");
+        if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-non-wf-form.js");
+        } else {
+            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-wf-form.js");
+        }
+        addStaticJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".js");
+        //addLayJavaScriptFragment(body.get("body"));
         return true;
     }
 
@@ -84,14 +104,31 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement head = generateHtmlHead();
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiRequired");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiForm");
-        long count = introspectedTable.getBaseColumns().stream().filter(GenerateUtils::isLongVarchar).count();
+        long count = introspectedTable.getBaseColumns().stream().filter(IntrospectedColumn::isLongVarchar).count();
         if (count > 0) {
             addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::neditorRequired");
         }
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::contextMemuOnly");
         addStaticJavaScript(head, "/webjars/plugins/js/mainform.min.js");
         addLocalStaticResource(head);
+        //添加自定义样式
+        addCustomCss(head, this.htmlGeneratorConfiguration);
         return head;
+    }
+
+    private void addCustomCss(HtmlElement head, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
+        if (layoutDescriptor.getBorderWidth() != 1 || !layoutDescriptor.getBorderColor().equals(ConstantsUtil.HTML_BORDER_COLOR_DEFAULT)) {
+            HtmlElement style = new HtmlElement("style");
+            style.addAttribute(new Attribute("type", "text/css"));
+            String styleStr = ".layui-table td,.layui-table th,.layui-table-col-set,.layui-table-fixed-r,.layui-table-grid-down,.layui-table-header,.layui-table-page,.layui-table-tips-main,.layui-table-tool,.layui-table-total,.layui-table-view,.layui-table[lay-skin=line],.layui-table[lay-skin=row] {\n";
+            styleStr += "            border-width: " + (layoutDescriptor.getBorderWidth() == 0 ? 0 : layoutDescriptor.getBorderWidth() + "px") + ";\n";
+            styleStr += "            border-color: " + layoutDescriptor.getBorderColor() + ";\n";
+            styleStr += "            border-style: solid;\n";
+            styleStr += "       }";
+            style.addElement(new TextElement(styleStr));
+            head.addElement(style);
+        }
     }
 
     private HtmlElement generateForm(HtmlElement parent) {
@@ -99,6 +136,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> columns = Stream.of(introspectedTable.getPrimaryKeyColumns().stream()
                         , introspectedTable.getBaseColumns().stream()).flatMap(Function.identity())
                 .collect(Collectors.toList());
+
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
@@ -119,7 +157,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 for (HtmlElementDescriptor htmlElementDescriptor : htmlGeneratorConfiguration.getElementDescriptors()) {
                     if (htmlElementDescriptor.getName().equals(baseColumn.getActualColumnName())) {
                         htmlElementDescriptor.setColumn(baseColumn);
-                        waitRenderMap.put(baseColumn.getActualColumnName().toUpperCase(), baseColumn);
+                        waitRenderMap.put(baseColumn.getActualColumnName(), baseColumn);
                     }
                 }
             }
@@ -133,9 +171,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             /*添加表格*/
             HtmlElement table = new HtmlElement("table");
             table.addAttribute(new Attribute("class", "layui-table"));
-            /*HtmlElement caption = new HtmlElement("caption");
-            caption.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
-            table.addElement(caption);*/
             for (List<IntrospectedColumn> rowIntrospectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement tr = new HtmlElement("tr");
@@ -147,14 +182,16 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     drawLabel(introspectedColumn, td);
                     //input
                     HtmlElement block = addDivWithClassToParent(td, "layui-input-block");
-                    if (rowIntrospectedColumns.size() == 1 && rowIntrospectedColumns.get(0).getLength() > 255) {
+                    if (rowIntrospectedColumns.size() == 1
+                            && (rowIntrospectedColumns.get(0).getLength() > 255
+                            || this.htmlGeneratorConfiguration.getLayoutDescriptor().getExclusiveColumns().contains(rowIntrospectedColumns.get(0).getActualColumnName()))) {
                         td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
                     }
-                    if (GenerateUtils.isLongVarchar(introspectedColumn)) {
+                    if (introspectedColumn.isLongVarchar()) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, block);
                     } else {
-                        generateHtmlInputComponent(introspectedColumn, entityKey, block, td);
+                        generateHtmlInputComponent(introspectedColumn, block, td);
                     }
                     tr.addElement(td);
                 }
@@ -168,27 +205,33 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             }
             form.addElement(table);
         } else {
-//            HtmlElement h2 = new HtmlElement("H2");
-//            h2.addElement(new TextElement(StringUtility.remarkLeft(introspectedTable.getRemarks())));
-//            form.addElement(h2);
             for (List<IntrospectedColumn> introspectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement formItem = addDivWithClassToParent(form, "layui-form-item");
                 /*列*/
                 for (IntrospectedColumn introspectedColumn : introspectedColumns) {
-                    //HtmlElement inline = addDivWithClassToParent(formItem, "layui-inline");
                     //label
                     drawLabel(introspectedColumn, formItem);
                     //input
                     HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block");
-                    if (GenerateUtils.isLongVarchar(introspectedColumn)) {
+                    if (introspectedColumn.isLongVarchar()) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
                     } else {
-                        generateHtmlInputComponent(introspectedColumn, entityKey, inputInline, formItem);
+                        generateHtmlInputComponent(introspectedColumn, inputInline, formItem);
                     }
                 }
             }
+        }
+
+        //添加主键字段
+        for (IntrospectedColumn primaryKeyColumn : introspectedTable.getPrimaryKeyColumns()) {
+            if (hiddenColumns.stream().anyMatch(c -> c.getActualColumnName().equals(primaryKeyColumn.getActualColumnName()))) {
+                continue;
+            }
+            HtmlElement input = generateHtmlInput(primaryKeyColumn, true, false);
+            input.addAttribute(new Attribute("th:value", thymeleafValue(primaryKeyColumn, entityKey)));
+            form.addElement(input);
         }
 
         if (hiddenColumns.size() > 0) {
@@ -224,250 +267,124 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     }
 
     //生成页面dropdownlist、switch、radio、checkbox、date及其它元素
-    private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, String entityKey, HtmlElement parent, HtmlElement td) {
+    private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, HtmlElement parent, HtmlElement td) {
         List<HtmlElementDescriptor> collect = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName()))
                 .collect(Collectors.toList());
         if (collect.size() > 0) {
             HtmlElementDescriptor htmlElementDescriptor = collect.get(0);
-            StringBuilder sb = new StringBuilder();
+            //计算使用方言
+            String thisDialect;
+            Attribute beanName = null, applyProperty = null;
+            if (VStringUtil.stringHasValue(htmlElementDescriptor.getDataSource())) {
+                switch (htmlElementDescriptor.getDataSource()) {
+                    case "department":
+                        thisDialect = "vgo:deptName";
+                        break;
+                    case "user":
+                        thisDialect = "vgo:userName";
+                        break;
+                    default:
+                        thisDialect = "vgo:" + htmlElementDescriptor.getDataSource();
+                        if (htmlElementDescriptor.getBeanName() != null) {
+                            beanName = new Attribute("beanName", htmlElementDescriptor.getBeanName());
+                        }
+                        if (htmlElementDescriptor.getApplyProperty() != null) {
+                            applyProperty = new Attribute("applyProperty", htmlElementDescriptor.getApplyProperty());
+                        }
+                        break;
+                }
+            } else {
+                thisDialect = "th:text";
+            }
             switch (htmlElementDescriptor.getTagType().toLowerCase()) {
                 case "dropdownlist":
-                    HtmlElement element = new HtmlElement("select");
-                    element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
-                    element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
-                    element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-                    element.addAttribute(new Attribute("th:data-value", thymeleafValue(introspectedColumn, entityKey)));
-                    if (StringUtility.stringHasValue(htmlElementDescriptor.getDataUrl())) {
-                        element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-                    } else {
-                        element.addAttribute(new Attribute("data-url", "/system/dict/options/" + introspectedColumn.getJavaProperty()));
-                    }
-                    HtmlElement option = new HtmlElement("option");
-                    option.addAttribute(new Attribute("value", ""));
-                    option.addElement(new TextElement("请选择"));
-                    element.addElement(option);
-                    parent.addElement(element);
-                    //读写状态区
-                    addClassNameToElement(parent, "oas-form-item-edit");
+                    DropdownListHtmlGenerator dropdownListHtmlGenerator = new DropdownListHtmlGenerator(generatorInitialParameters);
+                    dropdownListHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    dropdownListHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                    dropdownListHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement dpRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    dpRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
-                    //非空验证
-                    addElementRequired(introspectedColumn.getActualColumnName(), element);
+                    dpRead.addAttribute(new Attribute(thisDialect, dropdownListHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (beanName != null) {
+                        dpRead.addAttribute(beanName);
+                    }
+                    if (applyProperty != null) {
+                        dpRead.addAttribute(applyProperty);
+                    }
                     break;
                 case "switch":
-                    element = new HtmlElement("input");
-                    element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
-                    element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
-                    element.addAttribute(new Attribute("type", "checkbox"));
-                    element.addAttribute(new Attribute("lay-skin", "switch"));
-                    if (htmlElementDescriptor.getDataFormat() != null) {
-                        switch (htmlElementDescriptor.getDataFormat()) {
-                            case "有无":
-                                element.addAttribute(new Attribute("lay-text", "有|无"));
-                                break;
-                            case "是否":
-                                element.addAttribute(new Attribute("lay-text", "是|否"));
-                                break;
-                            case "性别":
-                                element.addAttribute(new Attribute("lay-text", "男|女"));
-                                break;
-                            default:
-                                element.addAttribute(new Attribute("lay-text", "启用|停用"));
-                        }
-                    }
-                    element.addAttribute(new Attribute("value", "1"));
-                    element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-                    if (htmlElementDescriptor.getDataUrl() != null) {
-                        element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-                    }
-                    sb.setLength(0);
-                    sb.append("${").append(entityKey).append("?.");
-                    sb.append(introspectedColumn.getJavaProperty()).append("} ne 0");
-                    element.addAttribute(new Attribute("th:checked", sb.toString()));
-                    parent.addElement(element);
-                    //读写状态区
-                    addClassNameToElement(parent, "oas-form-item-edit");
+                    //增加美化的switch
+                    SwitchHtmlGenerator switchHtmlGenerator = new SwitchHtmlGenerator(generatorInitialParameters);
+                    switchHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    switchHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                    switchHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement sRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    sb.setLength(0);
-                    sb.append("${").append(entityKey).append("?.").append(introspectedColumn.getJavaProperty());
-                    if (htmlElementDescriptor.getDataFormat() != null) {
-                        switch (htmlElementDescriptor.getDataFormat()) {
-                            case "有无":
-                                sb.append("} eq 1 ? '有':'无'");
-                                break;
-                            case "是否":
-                                sb.append("} eq 1 ? '是':'否'");
-                                break;
-                            case "性别":
-                                sb.append("} eq 1 ? '男':'女'");
-                                break;
-                            default:
-                                sb.append("} eq 1 ? '启用':'停用'");
-                        }
+                    sRead.addAttribute(new Attribute(thisDialect, switchHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (beanName != null) {
+                        sRead.addAttribute(beanName);
                     }
-
-                    sRead.addAttribute(new Attribute("th:text", sb.toString()));
-                    //非空验证
-                    addElementRequired(introspectedColumn.getActualColumnName(), element);
+                    if (applyProperty != null) {
+                        sRead.addAttribute(applyProperty);
+                    }
                     break;
                 case "radio":
-                    if (htmlElementDescriptor.getDataFormat() != null) {
-                        switch (htmlElementDescriptor.getDataFormat()) {
-                            case "sex":
-                            case "性别":
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "男", "男", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "女", "女", entityKey));
-                                break;
-                            case "level":
-                            case "级别":
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "1", "1级", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "2", "2级", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "3", "3级", entityKey));
-                                break;
-                            case "true":
-                            case "是":
-                            case "是否":
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "是", "是", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "否", "否", entityKey));
-                                break;
-                            case "有":
-                            case "有无":
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "有", "有", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "无", "无", entityKey));
-                                break;
-                            case "急":
-                            case "缓急":
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "70", "紧急", entityKey));
-                                parent.addElement(drawRadio(introspectedColumn.getJavaProperty(), "50", "正常", entityKey));
-                                break;
-                        }
-                    } else {
-                        for (int i = 0; i < 3; i++) {
-                            HtmlElement element1 = new HtmlElement("input");
-                            element1.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
-                            element1.addAttribute(new Attribute("type", "radio"));
-                            element1.addAttribute(new Attribute("value", Integer.toString(i + 1)));
-                            element1.addAttribute(new Attribute("title", "选项"));
-                            element1.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-                            sb.setLength(0);
-                            sb.append("${").append(entityKey).append(".");
-                            sb.append(introspectedColumn.getJavaProperty()).append("} eq ").append(i + 1);
-                            element1.addAttribute(new Attribute("th:checked", sb.toString()));
-                            parent.addElement(element1);
-                        }
-                        if (htmlElementDescriptor.getDataUrl() != null) {
-                            parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-                        }
-                    }
-                    addClassNameToElement(parent, "oas-form-item-edit");
+                    RadioHtmlGenerator radioHtmlGenerator = new RadioHtmlGenerator(generatorInitialParameters);
+                    radioHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    radioHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                    radioHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement rRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    if (htmlElementDescriptor.getDataFormat().equals("急")) {
-                        String format = VStringUtil.format("$'{'{0}.{1} ne null?({0}.{1} <= 50?''正常'':''紧急''):''正常''}'", entityKey, introspectedColumn.getJavaProperty());
-                        rRead.addAttribute(new Attribute("th:text", format));
-                    } else {
-                        rRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+                    rRead.addAttribute(new Attribute(thisDialect, radioHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (beanName != null) {
+                        rRead.addAttribute(beanName);
+                    }
+                    if (applyProperty != null) {
+                        rRead.addAttribute(applyProperty);
                     }
                     break;
                 case "checkbox":
-                    for (int i = 0; i < 2; i++) {
-                        HtmlElement element1 = new HtmlElement("input");
-                        element1.addAttribute(new Attribute("type", "checkbox"));
-                        element1.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty() + "[" + i + "]"));
-                        element1.addAttribute(new Attribute("title", "选项"));
-                        element1.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-                        element1.addAttribute(new Attribute("value", Integer.toString(i + 1)));
-                        sb.setLength(0);
-                        sb.append("${").append(entityKey).append(".");
-                        sb.append(introspectedColumn.getJavaProperty());
-                        sb.append("} eq ").append(i + 1);
-                        element1.addAttribute(new Attribute("th:checked", sb.toString()));
-                        parent.addElement(element1);
-                    }
-                    if (htmlElementDescriptor.getDataUrl() != null) {
-                        parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-                    }
-                    addClassNameToElement(parent, "oas-form-item-edit");
+                    CheckBoxHtmlGenerator checkBoxHtmlGenerator = new CheckBoxHtmlGenerator(generatorInitialParameters);
+                    checkBoxHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    checkBoxHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                    checkBoxHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement cRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    cRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+                    cRead.addAttribute(new Attribute(thisDialect, checkBoxHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (beanName != null) {
+                        cRead.addAttribute(beanName);
+                    }
+                    if (applyProperty != null) {
+                        cRead.addAttribute(applyProperty);
+                    }
                     break;
                 case "date":
-                    HtmlElement input = generateHtmlInput(introspectedColumn, false, false);
-                    String dateType = htmlElementDescriptor.getDataFormat() != null ? htmlElementDescriptor.getDataFormat() : htmlElementDescriptor.getDataUrl();
-                    if (!StringUtility.stringHasValue(dateType)) {
-                        if (introspectedColumn.isJDBCDateColumn()) dateType = "date";
-                        if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn())
-                            dateType = "datetime";
-                    }
-                    input.addAttribute(new Attribute("lay-date", dateType));
-                    input.addAttribute(new Attribute("readonly", "readonly"));
-                    input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
-                    addClassNameToElement(input, "layui-input");
-                    input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-                    addElementRequired(introspectedColumn.getActualColumnName(), input);
-                    parent.addElement(input);
-                    addClassNameToElement(input, "oas-form-item-edit");
-                    HtmlElement dateRead = addDivWithClassToParent(parent, "oas-form-item-read");
-                    dateRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
+                    DateHtmlElementGenerator dateHtmlElementGenerator = new DateHtmlElementGenerator(generatorInitialParameters);
+                    dateHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                    dateHtmlElementGenerator.addHtmlElement(introspectedColumn, parent);
+                    break;
+                case "select":
+                    SelectElementGenerator selectElementGenerator = new SelectElementGenerator(generatorInitialParameters);
+                    selectElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                    selectElementGenerator.addHtmlElement(introspectedColumn, parent);
                     break;
                 default:
-                    drawInput(introspectedColumn, entityKey, parent);
+                    if (GenerateUtils.isDateType(introspectedColumn)) {
+                        DateHtmlElementGenerator date = new DateHtmlElementGenerator(generatorInitialParameters);
+                        date.setHtmlElementDescriptor(htmlElementDescriptor);
+                        date.addHtmlElement(introspectedColumn, parent);
+                    } else {
+                        InputHtmlElementGenerator inputHtmlElementGenerator = new InputHtmlElementGenerator(generatorInitialParameters);
+                        inputHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
+                        inputHtmlElementGenerator.addHtmlElement(introspectedColumn, parent);
+                    }
+
             }
         } else {
-            drawInput(introspectedColumn, entityKey, parent);
-        }
-    }
-
-    private HtmlElement drawRadio(String propertyName, String value, String text, String entityKey) {
-        HtmlElement element = new HtmlElement("input");
-        element.addAttribute(new Attribute("name", propertyName));
-        element.addAttribute(new Attribute("type", "radio"));
-        element.addAttribute(new Attribute("value", value));
-        element.addAttribute(new Attribute("title", text));
-        element.addAttribute(new Attribute("lay-filter", propertyName));
-        StringBuilder sb = new StringBuilder();
-        sb.setLength(0);
-        sb.append("${").append(entityKey).append("?.");
-        sb.append(propertyName).append("} eq ");
-        sb.append("'").append(value).append("'");
-        element.addAttribute(new Attribute("th:checked", sb.toString()));
-        return element;
-    }
-
-
-    private void drawInput(IntrospectedColumn introspectedColumn, String entityKey, HtmlElement parent) {
-        boolean isTextArea = introspectedColumn.getLength() > 500;
-        HtmlElement input = generateHtmlInput(introspectedColumn, false, isTextArea);
-        addElementRequired(introspectedColumn.getActualColumnName(), input);
-
-        if (isTextArea) {
-            addClassNameToElement(input, "layui-textarea");
-            input.addAttribute(new Attribute("th:utext", thymeleafValue(introspectedColumn, entityKey)));
-        } else {
-            addClassNameToElement(input, "layui-input");
-            input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
-        }
-        input.addAttribute(new Attribute("autocomplete", "off"));
-        input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-        if (introspectedColumn.isJDBCDateColumn()) {
-            input.addAttribute(new Attribute("readonly", "readonly"));
-            input.addAttribute(new Attribute("lay-date", "date"));
-        } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn()) {
-            input.addAttribute(new Attribute("readonly", "readonly"));
-            input.addAttribute(new Attribute("lay-date", "datetime"));
-        }
-        parent.addElement(input);
-        //if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-        addClassNameToElement(input, "oas-form-item-edit");
-        HtmlElement div = addDivWithClassToParent(parent, "oas-form-item-read");
-        div.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
-        //}
-    }
-
-    private void addElementRequired(String columnName, HtmlElement element) {
-        List<String> htmlElementInputRequired = htmlGeneratorConfiguration.getElementRequired();
-        if (htmlElementInputRequired.contains(columnName)) {
-            element.addAttribute(new Attribute("lay-verify", "required"));
+            if (GenerateUtils.isDateType(introspectedColumn)) {
+                DateHtmlElementGenerator date = new DateHtmlElementGenerator(generatorInitialParameters);
+                date.addHtmlElement(introspectedColumn, parent);
+            } else {
+                InputHtmlElementGenerator inputHtmlElementGenerator = new InputHtmlElementGenerator(generatorInitialParameters);
+                inputHtmlElementGenerator.addHtmlElement(introspectedColumn, parent);
+            }
         }
     }
 
@@ -490,13 +407,9 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (!HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
             addClassNameToElement(btnClose, "footer-btn");
-            if (htmlGeneratorConfiguration.getLoadingFrameType().equals("inner")) {
+            if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
                 addClassNameToElement(btnReset, "footer-btn");
-            }
-            if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
-                HtmlElement btnSubmit = addLayButton(toolBar, btn_submit_id, "保存", "&#xe605;");
-                addClassNameToElement(btnSubmit, "footer-btn");
             }
         }
         return toolBar;
@@ -523,83 +436,5 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         } else {
             return null;
         }
-    }
-
-    private HtmlElement addLayJavaScriptFragment(HtmlElement parent) {
-        boolean innerWindow = htmlGeneratorConfiguration.getLoadingFrameType().equals("inner");
-        final boolean workflow = GenerateUtils.isWorkflowInstance(introspectedTable);
-
-        StringBuilder sb = new StringBuilder();
-        HtmlElement javascript = addJavaScriptFragment(parent);
-        javascript.addElement(new TextElement("$(function(){"));
-        if (!workflow) {
-            if (innerWindow) {
-                javascript.addElement(new TextElement(insertTab(1) + "$('#btn_close').hide();"));
-            } else {
-                javascript.addElement(new TextElement(insertTab(1) + "$('#btn_close').click(function () {"));
-                javascript.addElement(new TextElement(insertTab(2) + "if (parent.datatable && parent.datatable.ajax)  parent.datatable.ajax.reload();"));
-                javascript.addElement(new TextElement(insertTab(2) + "$.refreshPortlet(1);"));
-                javascript.addElement(new TextElement(insertTab(2) + "if (parent.layer) parent.layer.close(parent.layer.getFrameIndex(window.name));"));
-                javascript.addElement(new TextElement(insertTab(1) + "})"));
-            }
-        }
-        javascript.addElement(new TextElement(insertTab(1) + "let saveDoc = function(data) {"));
-        if (workflow) {
-            javascript.addElement(new TextElement(insertTab(2) + "updateSubject(data)"));
-            javascript.addElement(new TextElement(insertTab(2) + "let upData = {};"));
-            javascript.addElement(new TextElement(insertTab(2) + "upData.field = data;"));
-            javascript.addElement(new TextElement(insertTab(2) + "$.wfSaveDoc(upData, {});"));
-        } else {
-            sb.setLength(0);
-            sb.append(insertTab(2)).append("let url = \"/");
-            sb.append(introspectedTable.getControllerSimplePackage());
-            sb.append("/").append(introspectedTable.getControllerBeanName()).append("\";");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(2)).append("$.requestJsonSuccessCallback(url, function (resp) {");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(3)).append("if (resp.attributes.id) $('#id').val(resp.attributes.id);");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(3)).append("if (resp.attributes.version && $('#version').length > 0) $('#version').val(resp.attributes.version);");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(3)).append("$.showFrameAlertBox(\"操作成功！\", \"info\", {});");
-            javascript.addElement(new TextElement(sb.toString()));
-            if (!innerWindow) {
-                sb.setLength(0);
-                sb.append(insertTab(3)).append("$('#btn_close').trigger('click');");
-                javascript.addElement(new TextElement(sb.toString()));
-            }
-            sb.setLength(0);
-            sb.append(insertTab(2)).append(" }, {");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(3)).append("data: JSON.stringify(data),");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(3)).append("type: !$.isEmpty(data.id) ? 'PUT' : 'POST'");
-            javascript.addElement(new TextElement(sb.toString()));
-            sb.setLength(0);
-            sb.append(insertTab(2)).append("})");
-            javascript.addElement(new TextElement(sb.toString()));
-        }
-        javascript.addElement(new TextElement(insertTab(1) + "}"));
-        javascript.addElement(new TextElement(insertTab(1) + "let updateSubject = function(data){"));
-        javascript.addElement(new TextElement(insertTab(2) + "data.subject = \"【\" + data.fileCategory + \"】\" + data.name + \"的处理单（\" + data.applyDate + \"）\";"));
-        javascript.addElement(new TextElement(insertTab(1) + "}"));
-        javascript.addElement(new TextElement(insertTab(1) + "window.saveDoc = saveDoc;"));
-        javascript.addElement(new TextElement(insertTab(1) + "window.updateSubject = updateSubject;"));
-        javascript.addElement(new TextElement("})"));
-        return javascript;
-    }
-
-    private String insertTab(int count) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            sb.append("    ");
-        }
-        return sb.toString();
     }
 }

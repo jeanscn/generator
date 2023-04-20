@@ -15,7 +15,6 @@
  */
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;

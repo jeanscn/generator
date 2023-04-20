@@ -7,12 +7,13 @@ import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.pojo.FormOptionGeneratorConfiguration;
-import org.mybatis.generator.custom.pojo.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.VoGenService;
 
@@ -62,12 +63,12 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conTopClazz.setAbstract(true);
         commentGenerator.addJavaFileComment(conTopClazz);
         FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(ABSTRACT_BASE_CONTROLLER);
-        supClazzType.addTypeArgument(entityType);
-        conTopClazz.addImportedType(entityType);
         if (introspectedTable.getRules().isGenerateVoModel()) {
+            supClazzType.addTypeArgument(entityType);
             supClazzType.addTypeArgument(entityVoType);
             conTopClazz.addImportedType(entityVoType);
-        } else {
+        }else{
+            supClazzType.addTypeArgument(entityType);
             supClazzType.addTypeArgument(entityType);
         }
         conTopClazz.setSuperClass(supClazzType);
@@ -111,14 +112,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         }
         conTopClazz.addMethod(method);
 
-
-        String viewpath = null;
-        if (tc.getHtmlMapGeneratorConfigurations().size() > 0) {
-            viewpath = tc.getHtmlMapGeneratorConfigurations().get(0).getViewPath();
-        }
-        if (viewpath != null) {
-            addViewElement(conTopClazz);
-        }
+        tc.getHtmlMapGeneratorConfigurations().stream()
+                .filter(hc -> stringHasValue(hc.getViewPath()))
+                .findFirst()
+                .map(HtmlGeneratorConfiguration::getViewPath)
+                .ifPresent(viewpath -> addViewElement(conTopClazz));
         addGetElement(conTopClazz);
         addListElement(conTopClazz);
         addCreateElement(conTopClazz);
@@ -167,7 +165,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             parameter2.setRemark("列表查询sql builder，已经完成相关条件构建");
             getListData.addParameter(parameter2);
             FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
-            listInstance.addTypeArgument(new FullyQualifiedJavaType("java.lang.Object"));
+            listInstance.addTypeArgument(entityVoType);
             Parameter parameter3 = new Parameter(listInstance, "returnResult");
             parameter3.setRemark("    接口最终返回的数据列表");
             getListData.addParameter(parameter3);
@@ -207,7 +205,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 buildTemplateSampleData.addBodyLine("                .{0}({1})",
                         excelVOColumn.getJavaProperty(),
                         JavaBeansUtil.getColumnExampleValue(excelVOColumn));
-                if (excelVOColumn.isJDBCDateColumn() || excelVOColumn.isJDBCTimeColumn() || excelVOColumn.isJDBCTimeStampColumn()) {
+                if (excelVOColumn.isJDBCDateColumn() || excelVOColumn.isJDBCTimeColumn() || excelVOColumn.isJDBCTimeStampColumn()
+                || excelVOColumn.isJava8TimeColumn()) {
                     conTopClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
                 } else if (excelVOColumn.getJdbcType() == JDBCType.DECIMAL.getVendorTypeNumber()) {
                     conTopClazz.addImportedType("java.math.BigDecimal");
@@ -373,9 +372,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addImportedType(conClazzType);
         conSubTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conSubTopClazz.addAnnotation("@RestController");
-        RequestMapping requestMapping = new RequestMapping(
-                String.join("/", introspectedTable.getControllerSimplePackage(), introspectedTable.getControllerBeanName()));
-        conSubTopClazz.addAnnotation(requestMapping.toAnnotation());
+        conSubTopClazz.addAnnotation(new RequestMapping(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)).toAnnotation());
         //构造器
         Method conMethod = new Method(subControllerName);
         conMethod.addParameter(new Parameter(bizInfType, introspectedTable.getControllerBeanName()));
@@ -415,8 +412,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
     private void addViewElement(TopLevelClass parentElement) {
         List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
-        long count = htmlGeneratorConfigurations.stream().filter(h -> h.isGenerate() && stringHasValue(h.getViewPath())).count();
-        if (count > 0) {
+        if (htmlGeneratorConfigurations.stream().anyMatch(h -> h.isGenerate() && stringHasValue(h.getViewPath()))) {
             AbstractControllerElementGenerator elementGenerator = new ViewElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

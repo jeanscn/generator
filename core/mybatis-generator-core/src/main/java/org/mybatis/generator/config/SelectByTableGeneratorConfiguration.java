@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom.pojo;
+package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;

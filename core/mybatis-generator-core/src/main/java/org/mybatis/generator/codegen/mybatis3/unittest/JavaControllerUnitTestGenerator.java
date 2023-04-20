@@ -112,7 +112,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
             if (column.getJdbcType() == Types.DECIMAL) {
                 testClazz.addImportedType("java.math.BigDecimal");
             }
-            if (column.isJDBCDateColumn() || column.isJDBCTimeColumn() || column.isJDBCTimeStampColumn()) {
+            if (column.isJava8TimeColumn() || column.isJDBCDateColumn() || column.isJDBCTimeColumn() || column.isJDBCTimeStampColumn()) {
                 testClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
             }
             setup.addBodyLine("{0}.set{1}({2});", entityInstanceVar,

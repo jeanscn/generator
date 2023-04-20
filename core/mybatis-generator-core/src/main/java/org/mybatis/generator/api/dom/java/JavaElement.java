@@ -52,7 +52,7 @@ public abstract class JavaElement {
     }
 
     public void addAnnotation(String annotation) {
-        if (annotation != null) {
+        if (annotation != null && !annotations.contains(annotation)) {
             annotations.add(annotation);
         }
     }

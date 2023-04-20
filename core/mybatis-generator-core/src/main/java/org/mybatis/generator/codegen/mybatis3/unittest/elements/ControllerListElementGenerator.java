@@ -4,6 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.unittest.AbstractUnitTestElementGenerator;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
@@ -24,7 +25,7 @@ public class ControllerListElementGenerator extends AbstractUnitTestElementGener
         parentElement.addImportedType("java.util.Collections");
         parentElement.addImportedType(exampleType);
 
-        String requestUri = VStringUtil.format("get(\"/{0}/{1}\")", basePath, serviceBeanName);
+        String requestUri = VStringUtil.format("get(\"/{0}\")", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
         String methodName = "list" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "获取列表-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));

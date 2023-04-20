@@ -36,6 +36,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private String parentMenuId;
 
+    private String viewMenuIcon;
+
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
         this.generate = false;
@@ -102,5 +104,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setDefaultHiddenFields(List<String> defaultHiddenFields) {
         this.defaultHiddenFields = defaultHiddenFields;
+    }
+
+    public String getViewMenuIcon() {
+        return viewMenuIcon;
+    }
+
+    public void setViewMenuIcon(String viewMenuIcon) {
+        this.viewMenuIcon = viewMenuIcon;
     }
 }

@@ -150,10 +150,11 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
                         sqlBuilder.updateStringValues("id_", id);
                         sqlBuilder.updateStringValues("name_", title);
+                        sqlBuilder.updateStringValues("icon_", voGeneratorConfiguration.getVoViewConfiguration().getViewMenuIcon());
                         sqlBuilder.updateStringValues("parent_id", parentMenuId);
                         sqlBuilder.updateStringValues("sort_", String.valueOf(sort));
                         sqlBuilder.updateStringValues("title_", title);
-                        sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/openview");
+                        sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/open-view");
                         sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
                         introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql()+";");
                     }

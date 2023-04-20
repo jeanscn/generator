@@ -3,11 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.CacheAnnotation;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.mybatis.generator.custom.annotations.CacheAnnotation;
 
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
 

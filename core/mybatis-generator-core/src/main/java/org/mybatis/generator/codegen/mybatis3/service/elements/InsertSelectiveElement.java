@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,17 +31,18 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         insertSelectiveMethod.addAnnotation("@Override");
         insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
-        insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
         List<RelationGeneratorConfiguration> configs1 = introspectedTable.getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (configs1.size() > 0) {
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
         }
+        insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
+        insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
         insertSelectiveMethod.addBodyLine("return serviceResult;");
-        insertSelectiveMethod.addBodyLine("}else{\n" +
-                "            return  ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+        insertSelectiveMethod.addBodyLine("} else {\n" +
+                "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
+                "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                 "        }");
         parentElement.addMethod(insertSelectiveMethod);
         parentElement.addImportedType(SERVICE_CODE_ENUM);

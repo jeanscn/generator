@@ -20,9 +20,9 @@ import java.util.List;
 
 public class HtmlElement implements VisitableElement {
 
-    private List<Attribute> attributes = new ArrayList<>();
+    private final List<Attribute> attributes = new ArrayList<>();
 
-    private List<VisitableElement> elements = new ArrayList<>();
+    private final List<VisitableElement> elements = new ArrayList<>();
 
     private String name;
 
@@ -55,6 +55,26 @@ public class HtmlElement implements VisitableElement {
         return elements;
     }
 
+    public HtmlElement addDivWithClass(String className) {
+        HtmlElement div = new HtmlElement("div");
+        if (!className.isEmpty()) {
+            div.addClassName(className);
+        }
+        this.addElement(div);
+        return div;
+    }
+
+    protected void addClassName(String className) {
+        Attribute htmlClass = this.getAttributes().stream().filter(attribute -> "class".equalsIgnoreCase(attribute.getName())).findFirst().orElse(null);
+        if (htmlClass == null) {
+            this.addAttribute(new Attribute("class", className));
+        } else {
+            if (!htmlClass.getValue().contains(className)) {
+                htmlClass.setValue(htmlClass.getValue() + " " + className);
+            }
+        }
+    }
+
     public List<VisitableElement> getAllElements(){
         List<VisitableElement> result = new ArrayList<>();
         getAllElements(this,result);
@@ -69,6 +89,8 @@ public class HtmlElement implements VisitableElement {
             }
         }
     }
+
+
 
     public void addElement(VisitableElement element) {
         elements.add(element);

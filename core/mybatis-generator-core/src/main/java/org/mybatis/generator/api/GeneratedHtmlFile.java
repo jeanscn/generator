@@ -16,15 +16,11 @@
 package org.mybatis.generator.api;
 
 import org.mybatis.generator.api.dom.html.Document;
+import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 
-public class GeneratedHtmlFile extends GeneratedFile {
+public class GeneratedHtmlFile extends AbstractGeneratedFile {
 
     private final Document document;
-
-    private final String fileName;
-
-    private final String targetPackage;
-
     private boolean isMergeable;
 
     private final HtmlFormatter htmlFormatter;
@@ -33,11 +29,9 @@ public class GeneratedHtmlFile extends GeneratedFile {
 
     public GeneratedHtmlFile(Document document, String fileName,
                              String targetPackage, String targetProject, boolean isMergeable,
-                             HtmlFormatter htmlFormatter) {
-        super(targetProject);
+                             HtmlFormatter htmlFormatter,IntrospectedTable introspectedTable) {
+        super(targetProject,targetPackage,fileName,introspectedTable);
         this.document = document;
-        this.fileName = fileName;
-        this.targetPackage = targetPackage;
         this.isMergeable = isMergeable;
         this.htmlFormatter = htmlFormatter;
     }
@@ -48,23 +42,8 @@ public class GeneratedHtmlFile extends GeneratedFile {
     }
 
     @Override
-    public String getFileName() {
-        return fileName;
-    }
-
-    @Override
-    public String getTargetPackage() {
-        return targetPackage;
-    }
-
-    @Override
     public boolean isMergeable() {
         return isMergeable;
-    }
-
-    @Override
-    public String getFileEncoding() {
-        return "UTF-8";
     }
 
     public void setMergeable(boolean isMergeable) {

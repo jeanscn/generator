@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom.pojo;
+package org.mybatis.generator.custom.annotations;
 
 import java.util.ArrayList;
 import java.util.List;

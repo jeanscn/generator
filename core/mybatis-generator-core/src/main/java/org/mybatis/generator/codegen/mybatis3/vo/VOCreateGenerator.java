@@ -8,7 +8,7 @@ import org.mybatis.generator.config.VOCreateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,9 +42,10 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         //添加id属性
         List<String> fields = new ArrayList<>(Collections.singletonList("id"));
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(fields, voCreateGeneratorConfiguration.getIncludeColumns(), voCreateGeneratorConfiguration.getExcludeColumns());
-
+        List<String> excludeColumns = voCreateGeneratorConfiguration.getExcludeColumns();
+        introspectedColumns.removeIf(introspectedColumn -> excludeColumns.contains(introspectedColumn.getActualColumnName()));
         for (IntrospectedColumn voColumn : introspectedColumns) {
-            if (!(isAbstractVOColumn(voColumn) || voCreateGeneratorConfiguration.getExcludeColumns().contains(voColumn.getActualColumnName()))) {
+            if (!isAbstractVOColumn(voColumn)) {
                 Field field = getJavaBeansField(voColumn, context, introspectedTable);
                 field.setVisibility(JavaVisibility.PRIVATE);
                 if (plugins.voCreateFieldGenerated(field, createVoClass, voColumn, introspectedTable)) {

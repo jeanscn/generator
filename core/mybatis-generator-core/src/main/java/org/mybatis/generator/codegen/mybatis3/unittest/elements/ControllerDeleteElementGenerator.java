@@ -4,8 +4,10 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.unittest.AbstractUnitTestElementGenerator;
 
+import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGenerator {
@@ -22,7 +24,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType(exampleType);
 
         //deleteXXX，预期返回测试方法
-        String requestUri = VStringUtil.format("delete(\"/{0}/{1}/'{id}'\", id)", basePath, serviceBeanName);
+        String requestUri = VStringUtil.format("delete(\"/{0}/'{id}'\", id)", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
         String methodName = "delete" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "删除一条记录-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
@@ -38,7 +40,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         parentElement.addMethod(method);
 
         //deleteBatchXXX，预期返回测试方法
-        requestUri = VStringUtil.format("delete(\"/{0}/{1}\")", basePath, serviceBeanName);
+        requestUri = VStringUtil.format("delete(\"/{0}/{1}\")", basePath, toHyphenCase(serviceBeanName));
         methodName = "deleteBatch" + entityType.getShortName();
         method = createMethod(methodName, parentElement, "批量删除数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
