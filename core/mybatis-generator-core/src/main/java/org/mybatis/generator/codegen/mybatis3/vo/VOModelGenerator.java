@@ -11,7 +11,6 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,16 +28,16 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
 public class VOModelGenerator extends AbstractVOGenerator {
 
     public VOModelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
-    public TopLevelClass generate(){
+    public TopLevelClass generate() {
         VOModelGeneratorConfiguration voModelGeneratorConfiguration = voGeneratorConfiguration.getVoModelConfiguration();
         String voType = voModelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass voClass = createTopLevelClass(voType, getAbstractVOType().getFullyQualifiedName());
         voClass.addMultipleImports("lombok");
         voClass.addAnnotation("@NoArgsConstructor");
-        getApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
+        addApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
         voClass.addSerialVersionUID();
         //添加id、version属性
         List<String> fields = new ArrayList<>(Arrays.asList("id", "version"));
@@ -53,7 +52,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
             }
         }
         for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
-            if (!(introspectedColumn.isNullable() || introspectedTable.getTableConfiguration().getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
+            if (introspectedColumn.isBeValidated()) {
                 this.getOverrideGetter(introspectedColumn).ifPresent(m -> {
                     if (plugins.voModelGetterMethodGenerated(m, voClass, introspectedColumn, introspectedTable)) {
                         voClass.addMethod(m);
@@ -80,42 +79,34 @@ public class VOModelGenerator extends AbstractVOGenerator {
 
         voClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         //persistenceBeanName属性
-        Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
-        persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
-        persistenceBeanName.setRemark("对象服务java bean名称");
-        ApiModelProperty apiModelProperty = new ApiModelProperty(persistenceBeanName.getRemark());
-        persistenceBeanName.addAnnotation(apiModelProperty.toAnnotation());
-        voClass.addMultipleImports(apiModelProperty.multipleImports());
-        voClass.addField(persistenceBeanName);
+        addPersistenceBeanNameProperty(voClass);
 
         //检查是否有定制的新属性
-        if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().size() > 0) {
-            /*
-             * 根据联合查询属性配置
-             * 增加相应的属性
-             */
-            if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
-                for (RelationGeneratorConfiguration relationProperty : introspectedTable.getRelationGeneratorConfigurations()) {
-                    FullyQualifiedJavaType returnType;
-                    Field field;
-                    FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getVoModelTye());
-                    if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
-                        voClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                        returnType = FullyQualifiedJavaType.getNewListInstance();
-                        returnType.addTypeArgument(fullyQualifiedJavaType);
-                    } else {
-                        returnType = fullyQualifiedJavaType;
-                    }
-                    field = new Field(relationProperty.getPropertyName(), returnType);
-                    field.setVisibility(JavaVisibility.PRIVATE);
-                    field.setRemark(relationProperty.getRemark());
-                    new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0))
-                            .addAnnotationToField(field, voClass);
-                    voClass.addField(field, null, true);
-                    voClass.addImportedType(fullyQualifiedJavaType);
-                }
+        introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().forEach(relationProperty -> {
+            FullyQualifiedJavaType returnType;
+            Field field;
+            FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getVoModelTye());
+            if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
+                voClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                returnType = FullyQualifiedJavaType.getNewListInstance();
+                returnType.addTypeArgument(fullyQualifiedJavaType);
+            } else {
+                returnType = fullyQualifiedJavaType;
             }
-        }
+            field = new Field(relationProperty.getPropertyName(), returnType);
+            field.setVisibility(JavaVisibility.PRIVATE);
+            field.setRemark(relationProperty.getRemark());
+            new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0))
+                    .addAnnotationToField(field, voClass);
+            voClass.addField(field, null, true);
+            voClass.addImportedType(fullyQualifiedJavaType);
+        });
+
+        //添加静态代码块
+        InitializationBlock initializationBlock = new InitializationBlock(false);
+        //在静态代码块中添加默认值
+        addInitialization(initializationBlock, voClass);
+        voClass.addInitializationBlock(initializationBlock);
 
         //增加转换方法
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(voClass.getType().getFullyQualifiedName()));
@@ -125,5 +116,15 @@ public class VOModelGenerator extends AbstractVOGenerator {
         mappingsInterface.addMethod(addMappingMethod(entityType, voClass.getType(), true));
 
         return voClass;
+    }
+
+    private void addPersistenceBeanNameProperty(TopLevelClass voClass) {
+        Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
+        persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
+        persistenceBeanName.setRemark("对象服务java bean名称");
+        ApiModelProperty apiModelProperty = new ApiModelProperty(persistenceBeanName.getRemark());
+        persistenceBeanName.addAnnotation(apiModelProperty.toAnnotation());
+        voClass.addImportedTypes(apiModelProperty.getImportedTypes());
+        voClass.addField(persistenceBeanName);
     }
 }

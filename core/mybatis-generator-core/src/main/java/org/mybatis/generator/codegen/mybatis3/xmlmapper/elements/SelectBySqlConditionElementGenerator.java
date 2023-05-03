@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
+import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -77,7 +78,7 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
                 if (!StringUtility.isEmpty(actualColumnName)) {
                     sb.append("and ").append(actualColumnName).append(" in(");
                 } else {
-                    sb.append("and ").append(PropertyRegistry.DEFAULT_PRIMARY_KEY).append(" in(");
+                    sb.append("and ").append(DefultColumnNameEnum.ID.columnName()).append(" in(");
                 }
             } else {
                 sb.append("and id_ in(");

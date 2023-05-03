@@ -252,6 +252,8 @@
         <!--
           The columnOverride element is used to change certain attributes of the column
           from their default values.
+          1、maxLength 列的最大长度，列长度应不大于数据中列的实际长度，同时在生成该字段的验证。
+          2、minLength 列的最小长度，列长度应大于1同时小于数据中列的实际长度，同时在生成该字段的验证。
         -->
         <!ELEMENT columnOverride (property*)>
         <!ATTLIST columnOverride
@@ -261,7 +263,9 @@
                 jdbcType CDATA #IMPLIED
                 typeHandler CDATA #IMPLIED
                 isGeneratedAlways CDATA #IMPLIED
-                delimitedColumnName CDATA #IMPLIED>
+                delimitedColumnName CDATA #IMPLIED
+                maxLength CDATA #IMPLIED
+                minLength CDATA #IMPLIED>
 
         <!--
           The ignoreColumn element is used to identify a column that should be ignored.
@@ -522,20 +526,28 @@
                                     user-来自org_department表缓存数据，当使用select类型时，在dataFormat为user时默认为此值
             6、beanName 数据来源为dict时，指定bean的完整类名，如果不指定完整类名，请使用唯一的interface的shortName名称
             7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
+            8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
+            9、maxLength 验证类型包含limit时，指定最大长度
+            10、minLength 验证类型包含limit时，指定最小长度
             说明：
             department|user：仅在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
+            verify为多值时，使用管道分隔”|“，如：verify="required|number"
         -->
         <!ELEMENT htmlElementDescriptor EMPTY>
         <!ATTLIST htmlElementDescriptor
                 column CDATA #REQUIRED
-                tagType (dropdownlist|radio|checkbox|switch|select) #REQUIRED
+                tagType (dropdownlist|radio|checkbox|switch|select|input) #REQUIRED
                 dataUrl CDATA #IMPLIED
-                dataFormat (启停|有无|是否|性别|缓急|级别|department|user) #IMPLIED
+                dataFormat (启停|有无|是否|性别|缓急|级别) #IMPLIED
                 otherFieldName CDATA #IMPLIED
-                dataSource (dictData|dict|dictSys|dictUser|department|user) #IMPLIED
+                dataSource (DictData|Dict|DictSys|DictUser|Department|User) #IMPLIED
                 beanName CDATA #IMPLIED
-                applyProperty CDATA #IMPLIED>
+                applyProperty CDATA #IMPLIED
+                verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED
+                maxLength CDATA #IMPLIED
+                minLength CDATA #IMPLIED>
+
 
         <!--
             Dao接口生成描述
@@ -575,7 +587,7 @@
             property配置：
             1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用是同时增加@Transactional注解
         -->
-        <!ELEMENT generateController (property*, generateOptions*)>
+        <!ELEMENT generateController (property*, generateTreeViewCate?,generateOptions*)>
         <!ATTLIST generateController
                 generate (true|false) #REQUIRED
                 generateUnitTest (true|false) #IMPLIED
@@ -585,17 +597,28 @@
                 targetPackage CDATA #IMPLIED>
 
         <!--
-                   表单选项接口生成描述
-                   属性信息：
-                   默认以id为选项的key值
-                   1、nameColumn 指定用于显示名称（value）的列名。
-                   2、类型可以选择flat数据扁平，tree数据树，默认flat（当选择tree时，实体需要具有parentId及children属性）
-                -->
+           列表分类树接口生成描述
+           生成的前提条件是实体需要具有parentId及children属性
+           属性信息：
+           1、SPeLExpression SPeL表达式。如：'parent_id = ''' + #this.id +''''，表示parent_id = 'xxx'，其中xxx为当前实体的id值
+         -->
+        <!ELEMENT generateTreeViewCate  EMPTY>
+        <!ATTLIST generateTreeViewCate
+                SPeLExpression CDATA #IMPLIED>
+
+        <!--
+           表单选项接口生成描述
+           属性信息：
+           默认以id为选项的key值
+           1、nameColumn 指定用于显示名称（value）的列名。
+           2、类型可以选择flat数据扁平，tree数据树，默认flat（当选择tree时，实体需要具有parentId及children属性）
+         -->
         <!ELEMENT generateOptions EMPTY>
         <!ATTLIST generateOptions
                 nameColumn CDATA #REQUIRED
                 idColumn CDATA #IMPLIED
                 type (flat|tree) #IMPLIED>
+
 
         <!--
             Model PO类对象生成描述
@@ -645,6 +668,7 @@
         <!ATTLIST generateVO
                 generate (true|false) #REQUIRED
                 excludeColumns CDATA #IMPLIED
+                validateIgnoreColumns CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
 
         <!--
@@ -664,6 +688,7 @@
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
                 excludeColumns CDATA #IMPLIED
+                validateIgnoreColumns CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
 
         <!--
@@ -796,11 +821,10 @@
                       5、如果overridePropertyValue中指定applyProperty，则在generateCachePO需要在includeColumns中包含对应的列
           属性信息：
             1、generate 可选 是否生成,true生成,false忽略。缺省为false
-               当父类的generateVO的generate属性为false时，该属性始终false。
             2、valueColumn 必须 作为字典，翻译结果内容的字段名
-            3、includeColumns 可选 Cache模型包含的字段名,多值使用","。 始终包含ID_。如果
+            3、includeColumns 可选 Cache模型包含的字段名,多值使用","。 始终包含ID_。
             4、typeColumn 可选 作为字典，字典类型的字段名
-            5、codeColumn 可选 作为字典，字典编码的字段名，如果不指定则默认为"ID_"
+            5、keyColumn 可选 作为字典，字典编码的字段名，如果不指定则默认为"ID_"
                property配置：无
         -->
         <!ELEMENT generateCachePO EMPTY>
@@ -809,13 +833,13 @@
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
                 typeColumn  CDATA #IMPLIED
-                codeColumn  CDATA #IMPLIED>
+                keyColumn  CDATA #IMPLIED>
 
         <!--
              用于配置VO对象转换值的属性值得配置描述
              属性信息：
              1、sourceColumn 必须，转换前的原值保存的字段名。
-             2、annotationType 注解类型（DictUser\DictSys\Dict）
+             2、annotationType 注解类型(DictUser|DictSys|Dict|DictData)
              3、beanName 如果是Dict类型，需要提供beanName用来获取service对象。
              4、targetColumn 转换后需要显示的属性对应的列名（如果转换到一个数据库存在的列对应的属性时，填写此属性）
              5、targetProperty 转换后需要显示的转换结果的属性名（如果转换到一个新属性时，填写此属性，将在vo类中添加一个新属性）
@@ -835,7 +859,7 @@
         <!ELEMENT overridePropertyValue  (property*)>
         <!ATTLIST overridePropertyValue
                 sourceColumn CDATA #REQUIRED
-                annotationType (DictUser|DictSys|Dict) #REQUIRED
+                annotationType (DictUser|DictSys|Dict|DictData) #REQUIRED
                 beanName CDATA #IMPLIED
                 targetColumn CDATA #IMPLIED
                 targetProperty CDATA #IMPLIED

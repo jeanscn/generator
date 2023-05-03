@@ -1,32 +1,19 @@
-/*
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    private List<String> includeColumns = new ArrayList<>();
+    private Set<String> includeColumns = new HashSet<>();
 
     private List<String> requiredColumns = new ArrayList<>();
 
-    private List<String> validateIgnoreColumns = new ArrayList<>();
+    private Set<String> validateIgnoreColumns = new HashSet<>();
 
     private boolean isEnableSelective = true;
 
@@ -37,11 +24,11 @@ public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfig
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"UpdateVO"));
     }
 
-    public List<String> getIncludeColumns() {
+    public Set<String> getIncludeColumns() {
         return includeColumns;
     }
 
-    public void setIncludeColumns(List<String> includeColumns) {
+    public void setIncludeColumns(Set<String> includeColumns) {
         this.includeColumns = includeColumns;
     }
 
@@ -53,11 +40,11 @@ public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfig
         this.requiredColumns = requiredColumns;
     }
 
-    public List<String> getValidateIgnoreColumns() {
+    public Set<String> getValidateIgnoreColumns() {
         return validateIgnoreColumns;
     }
 
-    public void setValidateIgnoreColumns(List<String> validateIgnoreColumns) {
+    public void setValidateIgnoreColumns(Set<String> validateIgnoreColumns) {
         this.validateIgnoreColumns = validateIgnoreColumns;
     }
 

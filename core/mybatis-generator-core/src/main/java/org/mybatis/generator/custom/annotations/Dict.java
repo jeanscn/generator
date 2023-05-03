@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
 
 /**
@@ -43,7 +44,7 @@ public class Dict extends AbstractAnnotation{
         if (VStringUtil.isNotBlank(beanName)) {
             this.items.add(VStringUtil.format("beanName = \"{0}\"", this.beanName));
         }
-        if (VStringUtil.isNotBlank(applyProperty) && !applyProperty.equalsIgnoreCase("dictValueText")) {
+        if (VStringUtil.isNotBlank(applyProperty) && !applyProperty.equalsIgnoreCase(GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT)) {
             this.items.add(VStringUtil.format("applyProperty = \"{0}\"", this.applyProperty));
         }
         if (VStringUtil.isNotBlank(source)) {

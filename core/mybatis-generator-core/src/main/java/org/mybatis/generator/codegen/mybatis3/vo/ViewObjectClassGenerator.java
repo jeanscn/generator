@@ -67,7 +67,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         /*
          * 生成mappings类
          * */
-        CreateMappingsInterface createMappingsInterface = new CreateMappingsInterface(introspectedTable, "project", progressCallback, warnings);
+        CreateMappingsInterface createMappingsInterface = new CreateMappingsInterface(introspectedTable, "project", progressCallback, warnings,null);
         Interface mappingsInterface = createMappingsInterface.generate();
         //先添加指定的转换方法
         introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getMappingConfigurations().forEach(c -> {
@@ -203,17 +203,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             requestExampleFields.addAll(absExampleFields);
             introspectedTable.getTopLevelClassExampleFields().put(requestVoClass.getType().getShortName(), requestExampleFields);
         }
-        /*
-         *  生成cachePo类
-         *  */
-        if (introspectedTable.getRules().isGenerateCachePO()) {
-            TopLevelClass cachePoClass = new POCacheGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
 
-            if (context.getPlugins().voModelCacheClassGenerated(cachePoClass, introspectedTable)) {
-                generated = true;
-                answer.add(cachePoClass);
-            }
-        }
         //生成mapstruct接口
         if (generated) {
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.maps.name()) || fileNotExist(subPackageMaps, mappingsInterface.getType().getShortName())) {

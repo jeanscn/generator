@@ -31,7 +31,7 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         insertSelectiveMethod.addAnnotation("@Override");
         insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        List<RelationGeneratorConfiguration> configs1 = introspectedTable.getRelationGeneratorConfigurations().stream()
+        List<RelationGeneratorConfiguration> configs1 = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (configs1.size() > 0) {

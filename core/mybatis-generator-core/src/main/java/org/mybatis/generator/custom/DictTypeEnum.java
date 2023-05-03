@@ -6,13 +6,17 @@ public enum DictTypeEnum{
      */
     DICT(1,"Dict"),
     /**
+     * 2:字典数据
+     */
+    DICT_DATA(2,"DictData"),
+    /**
      * 2:用户字典
      */
-    DICT_USER(2,"DictUser"),
+    DICT_USER(3,"DictUser"),
     /**
      * 3:系统字典
      */
-    DICT_SYS(3,"DictSys");
+    DICT_SYS(4,"DictSys");
 
     private final int value;
     private final String code;

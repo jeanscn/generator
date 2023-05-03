@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom;
 
+import com.vgosoft.core.constant.GlobalConstant;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +20,7 @@ public class ConstantsUtil {
     //实体接口
     public static final String I_BASE_DTO = "com.vgosoft.core.pojo.IBaseDTO";
     public static final String I_SHOW_IN_VIEW = "com.vgosoft.core.entity.IShowInView";
+    public static final String I_SIMPLE_KVP = "com.vgosoft.core.pojo.ISimpleKVP";
     public static final String I_PERSISTENCE_BASIC = "com.vgosoft.core.entity.IPersistenceBasic";
     public static final String I_SORTABLE_ENTITY = "com.vgosoft.core.entity.ISortableEntity";
     public static final String I_WORK_FLOW_BASE_ENTITY = "com.vgosoft.core.entity.IWorkflowBaseEntity";
@@ -59,6 +62,9 @@ public class ConstantsUtil {
     public static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
     public static final String SPRING_CONTEXT_HOLDER = "com.vgosoft.core.util.SpringContextHolder";
 
+    public static final String Z_TREE_DATA_SIMPLE = "com.vgosoft.core.pojo.ztree.ZtreeDataSimple";
+    public static final String Z_TREE_DATA_SIMPLE_CATE = "com.vgosoft.core.pojo.ztree.ZtreeDataViewCate";
+
     //工具类
     public static final String DATATABLES_UTIL = "com.vgosoft.web.plugins.datatables.util.DataTablesUtil";
 
@@ -75,6 +81,7 @@ public class ConstantsUtil {
     //其他
     public static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
     public static final String V_STRING_UTIL = "com.vgosoft.tool.core.VStringUtil";
+    public static final String V_DATE_UTILS = "com.vgosoft.tool.core.VDateUtils";
     public static final String COM_SEL_SQL_PARAMETER = "com.vgosoft.core.entity.ComSelSqlParameter";
 
     //spring
@@ -85,7 +92,6 @@ public class ConstantsUtil {
     //属性名
     public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
     public static final String PROP_NAME_VIEW_PATH = "viewPath";
-    public static final String PROP_DICT_VALUE_TEXT = "dictValueText";
 
     //参数名称
     public static final String PARAM_NAME_PERSISTENCE_STATUS = "persistenceStatus";
@@ -115,4 +121,12 @@ public class ConstantsUtil {
     public static String getTestClass(String superClass) {
        return Objects.requireNonNull(TestClassMapEnum.ofSuperClass(superClass).orElse(null)).getTestClass();
     }
+
+    public static final String MAPPINGS_CACHE_PO_KEY = "CachePo";
+
+    public static final String MAPSTRUCT_MAPPER = "org.mapstruct.Mapper";
+    public static final String MAPSTRUCT_FACTORY_MAPPERS = "org.mapstruct.factory.Mappers";
+    public static final String MAPSTRUCT_REPORTING_POLICY = "org.mapstruct.ReportingPolicy";
+
+    public static final String ANNOTATION_NULLABLE = "javax.annotation.Nullable";
 }

@@ -47,11 +47,11 @@ public class DropdownListHtmlGenerator extends AbstractLayuiElementGenerator{
         option.addElement(new TextElement("请选择"));
         element.addElement(option);
         parent.addElement(element);
-        parent.addAttribute(new Attribute("for-type", "lay-select"));
+        parent.addAttribute(new Attribute("for-type", "lay-dropdownlist"));
         //读写状态区
         addClassNameToElement(parent, "oas-form-item-edit");
         //非空验证
-        addElementRequired(introspectedColumn.getActualColumnName(), element);
+        addElementRequired(introspectedColumn.getActualColumnName(), element,this.htmlElementDescriptor);
     }
 
     @Override

@@ -18,6 +18,7 @@ public enum ReturnTypeEnum{
     SERVICE_RESULT_MODEL("sm","服务返回对象"),
     RESPONSE_RESULT_MODEL("rm","WEB返回对象"),
     RESPONSE_RESULT_LIST("rl","WEB返回列表"),
+    VOID("v","无返回值"),
     UNKNOWN("unknown","未知类型");
 
     ReturnTypeEnum(String code,String codeName){

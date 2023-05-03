@@ -25,7 +25,7 @@ public class VOExcelGenerator extends AbstractVOGenerator{
     }
 
     @Override
-    TopLevelClass generate() {
+    public TopLevelClass generate() {
         VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
         String excelVoType = voExcelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass excelVoClass = createTopLevelClass(excelVoType, null);

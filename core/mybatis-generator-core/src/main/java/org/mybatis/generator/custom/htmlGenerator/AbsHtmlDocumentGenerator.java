@@ -6,7 +6,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlLayoutDescriptor;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -21,7 +21,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2020-07-23 00:57
  * @version 3.0
  */
-public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator {
+public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator, HtmlConstant {
 
     private final Document document;
     private final IntrospectedTable introspectedTable;
@@ -299,9 +299,9 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator 
 
     protected HtmlElement generateToolBar(HtmlElement parent) {
         String config = getHtmlBarPositionConfig();
-        if (HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
+        if (HTML_KEY_WORD_TOP.equals(config)) {
             return addDivWithClassToParent(parent, "breadcrumb _top");
-        } else if (HtmlConstants.HTML_KEY_WORD_BOTTOM.equals(config)) {
+        } else if (HTML_KEY_WORD_BOTTOM.equals(config)) {
             return addDivWithClassToParent(parent, "breadcrumb _footer");
         } else {
             return addDivWithClassToParent(parent, "breadcrumb _footer");

@@ -47,7 +47,9 @@ public static final String ANNOTATION_NAME = "@TableField";
         if (value != null) {
             this.items.add(VStringUtil.format("value = \"{0}\"", this.value));
         }
-        this.items.add(VStringUtil.format("exist = {0}", this.exist));
+        if (!this.exist) {
+            this.items.add(VStringUtil.format("exist = {0}", "false"));
+        }
 
         if (condition != null) {
             this.items.add(VStringUtil.format("condition = \"{0}\"", this.condition));

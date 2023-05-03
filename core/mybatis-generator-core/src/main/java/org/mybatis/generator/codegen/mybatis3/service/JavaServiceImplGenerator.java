@@ -43,7 +43,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         CommentGenerator commentGenerator = context.getCommentGenerator();
         Plugin plugins = context.getPlugins();
 
-        relationConfigurations = introspectedTable.getRelationGeneratorConfigurations();
+        relationConfigurations = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations();
         String targetPackage = tc.getJavaClientGeneratorConfiguration().getTargetPackage();
         FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType(targetPackage + "." + tc.getDomainObjectName() + "Mapper");
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
@@ -112,6 +112,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         addDeleteByTableElement(bizGenClazzImpl);
 
         addInsertByTableElement(bizGenClazzImpl);
+
+        addZtreeDataSimpleElement(bizGenClazzImpl);
 
         /*
          *  以下是重写的方法
@@ -186,6 +188,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
 
         return answer;
+    }
+
+    private void addZtreeDataSimpleElement(TopLevelClass bizGenClazzImpl) {
+        if (introspectedTable.getRules().isModelEnableChildren()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectTreeDataElement();
+            initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
+        }
     }
 
     private void addDeleteByTableElement(TopLevelClass parentElement) {
@@ -264,6 +273,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      * */
     private void addSelectByKeysDictElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().isGenerateCachePO()) {
+            parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
+            parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
             AbstractServiceElementGenerator elementGenerator = new SelectByKeysDictElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

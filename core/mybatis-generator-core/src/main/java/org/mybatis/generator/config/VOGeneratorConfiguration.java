@@ -1,7 +1,9 @@
 package org.mybatis.generator.config;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
@@ -20,6 +22,8 @@ public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguratio
     private VOCacheGeneratorConfiguration voCacheConfiguration;
 
     private List<MapstructMappingConfiguration> mappingConfigurations = new ArrayList<>();
+
+    private Set<String> validateIgnoreColumns = new HashSet<>();
 
     public VOGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
@@ -93,5 +97,13 @@ public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguratio
 
     public void addMappingConfigurations(MapstructMappingConfiguration mappingConfiguration) {
         this.mappingConfigurations.add(mappingConfiguration);
+    }
+
+    public Set<String> getValidateIgnoreColumns() {
+        return validateIgnoreColumns;
+    }
+
+    public void setValidateIgnoreColumns(Set<String> validateIgnoreColumns) {
+        this.validateIgnoreColumns = validateIgnoreColumns;
     }
 }

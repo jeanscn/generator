@@ -4,7 +4,13 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+
+import java.io.File;
+
+import static org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator.subPackagePojo;
+import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -42,4 +48,17 @@ public class VOGeneratorUtil {
         return method;
     }
 
+    public static boolean fileNotExist(String subPackage, String fileName, String targetProject, Context context) {
+        File project = new File(targetProject);
+        if (!project.isDirectory()) {
+            return true;
+        }
+        String baseTargetPackage = context.getJavaModelGeneratorConfiguration().getBaseTargetPackage() + "."+subPackagePojo;
+        File directory = new File(project, packageToDir(String.join(".", baseTargetPackage, subPackage)));
+        if (!directory.isDirectory()) {
+            return true;
+        }
+        File file = new File(directory, fileName + ".java");
+        return !file.exists();
+    }
 }

@@ -36,7 +36,7 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         }
         method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
+        List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableUpdate)
                 .collect(Collectors.toList());
         if (configs.size() > 0) {

@@ -39,12 +39,10 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
-        JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
-
+        JavaServiceGeneratorConfiguration serviceInfConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
 
         Interface bizINF = new Interface(
-                getGenInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackageGen(),
-                        entityType.getShortName()));
+                getGenInterfaceClassShortName(serviceInfConfiguration.getTargetPackageGen(),entityType.getShortName()));
         commentGenerator.addJavaFileComment(bizINF);
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
@@ -54,7 +52,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizINF.addImportedType(exampleType);
         bizINF.setVisibility(JavaVisibility.PUBLIC);
         bizINF.addSuperInterface(infSuperType);
-
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
 
         /*
@@ -126,6 +123,13 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c -> bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, true, true)));
 
+        if (introspectedTable.getRules().isModelEnableChildren()) {
+            Method method = serviceMethods.getSelectByMultiStringIdsMethod(bizINF, true);
+            method.getParameters().get(0).addAnnotation("@Nullable");
+            bizINF.addMethod(method);
+            bizINF.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
+        }
+
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceGenerated(bizINF, introspectedTable)) {
             answer.add(bizINF);
@@ -133,7 +137,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //生成子接口
         Interface bizSubINF = new Interface(
-                getInterfaceClassShortName(javaServiceGeneratorConfiguration.getTargetPackage(),
+                getInterfaceClassShortName(serviceInfConfiguration.getTargetPackage(),
                         entityType.getShortName()));
         commentGenerator.addJavaFileComment(bizSubINF);
         bizSubINF.setVisibility(JavaVisibility.PUBLIC);
@@ -141,7 +145,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizSubINF.addImportedType(bizINF.getType());
 
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceGeneratorConfiguration.getTargetProject(), javaServiceGeneratorConfiguration.getTargetPackage(), "I" + entityType.getShortName());
+        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(serviceInfConfiguration.getTargetProject(), serviceInfConfiguration.getTargetPackage(), "I" + entityType.getShortName());
         if (forceGenerateScalableElement || fileNotExist) {
             if (plugins.subServiceGenerated(bizSubINF, introspectedTable)) {
                 answer.add(bizSubINF);

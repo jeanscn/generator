@@ -1,18 +1,3 @@
-/*
- *    Copyright 2006-2021 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.api;
 
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
@@ -49,6 +34,8 @@ public class IntrospectedColumn {
     protected int length;
 
     protected int scale;
+
+    protected int minLength;
 
     protected boolean identity;
 
@@ -102,6 +89,10 @@ public class IntrospectedColumn {
     protected String position;
 
     protected int order = 10;
+
+    protected boolean beValidated = false;
+
+
 
     public IntrospectedColumn() {
         super();
@@ -196,6 +187,14 @@ public class IntrospectedColumn {
                 || jdbcType == Types.LONGVARCHAR || jdbcType == Types.VARCHAR
                 || jdbcType == Types.LONGNVARCHAR || jdbcType == Types.NCHAR
                 || jdbcType == Types.NCLOB || jdbcType == Types.NVARCHAR;
+    }
+
+    public boolean isNumericColumn(){
+        return jdbcType == Types.BIGINT || jdbcType == Types.DECIMAL
+                || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
+                || jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC
+                || jdbcType == Types.REAL || jdbcType == Types.SMALLINT
+                || jdbcType == Types.TINYINT;
     }
 
     public String getJavaProperty() {
@@ -456,5 +455,19 @@ public class IntrospectedColumn {
         return not_null.toString();
     }
 
+    public int getMinLength() {
+        return minLength;
+    }
 
+    public void setMinLength(int minLength) {
+        this.minLength = minLength;
+    }
+
+    public boolean isBeValidated() {
+        return beValidated;
+    }
+
+    public void setBeValidated(boolean beValidated) {
+        this.beValidated = beValidated;
+    }
 }

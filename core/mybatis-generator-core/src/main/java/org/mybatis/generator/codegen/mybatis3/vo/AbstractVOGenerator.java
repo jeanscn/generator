@@ -4,7 +4,9 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
+import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModel;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -13,6 +15,7 @@ import org.mybatis.generator.internal.util.VoGenService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * VO生成抽象类
@@ -56,7 +59,7 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
     }
 
-    abstract TopLevelClass generate();
+    protected abstract TopLevelClass generate();
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
@@ -83,7 +86,7 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         return new FullyQualifiedJavaType(baseTargetPackage + "." + subPackageAbs + "." + abstractName);
     }
 
-    protected ApiModel getApiModel(String voModelName) {
+    protected ApiModel addApiModel(String voModelName) {
         ApiModel apiModel = ApiModel.create(voModelName);
         apiModel.setParent(getAbstractVOType().getShortName() + ".class");
         apiModel.setDescription(introspectedTable.getRemarks(true));
@@ -113,4 +116,28 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
        return VOGeneratorUtil.addMappingMethod(fromType, toType, isList, introspectedTable);
     }
 
+    protected void addJavaCollectionRelation(TopLevelClass topLevelClass,String type) {
+        List<RelationGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations();
+        Stream<RelationGeneratorConfiguration> stream = configurations.stream().filter(RelationGeneratorConfiguration::isEnableInsert);
+        if("update".equals(type)){
+            stream = configurations.stream().filter(RelationGeneratorConfiguration::isEnableUpdate);
+        }
+        stream.forEach(c -> {
+            if (!topLevelClass.isContainField(c.getPropertyName())) {
+                FullyQualifiedJavaType fullyQualifiedJavaType;
+                if (c.getType().equals(RelationTypeEnum.collection)) {
+                    fullyQualifiedJavaType = FullyQualifiedJavaType.getNewListInstance();
+                    fullyQualifiedJavaType.addTypeArgument(new FullyQualifiedJavaType(c.getVoModelTye()));
+                    topLevelClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+                } else {
+                    fullyQualifiedJavaType = new FullyQualifiedJavaType(c.getVoModelTye());
+                }
+                Field field = new Field(c.getPropertyName(), fullyQualifiedJavaType);
+                field.setVisibility(JavaVisibility.PRIVATE);
+                field.setRemark(c.getRemark());
+                topLevelClass.addField(field);
+                topLevelClass.addImportedType(c.getVoModelTye());
+            }
+        });
+    }
 }

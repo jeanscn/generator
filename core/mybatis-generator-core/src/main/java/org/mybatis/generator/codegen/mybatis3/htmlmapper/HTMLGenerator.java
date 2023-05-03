@@ -1,18 +1,3 @@
-/**
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -20,13 +5,15 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
-import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
+import static org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant.MYBATIS3_THYMELEAF_XMLNS_SEC;
+import static org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant.MYBATIS3_THYMELEAF_XMLNS_TH;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class HTMLGenerator extends AbstractHtmlGenerator {
+
 
     public HTMLGenerator() {
         super();
@@ -36,8 +23,8 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.121", table.toString(), htmlGeneratorConfiguration.getHtmlFileName())); //$NON-NLS-1$
         HtmlElement answer = new HtmlElement("html"); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("xmlns:th",HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_TH));
-        answer.addAttribute(new Attribute("xmlns:sec",HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_SEC));
+        answer.addAttribute(new Attribute("xmlns:th",MYBATIS3_THYMELEAF_XMLNS_TH));
+        answer.addAttribute(new Attribute("xmlns:sec",MYBATIS3_THYMELEAF_XMLNS_SEC));
         context.getCommentGenerator().addRootComment(answer);
         return answer;
     }
@@ -53,8 +40,8 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
     @Override
     public Document getDocument(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         Document document = new Document(
-                HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_TH,
-                HtmlConstants.MYBATIS3_THYEMLEAF_XMLNS_SEC);
+                MYBATIS3_THYMELEAF_XMLNS_TH,
+                MYBATIS3_THYMELEAF_XMLNS_SEC);
         document.setRootElement(getHtmlMapElement(htmlGeneratorConfiguration));
 
         if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable, htmlGeneratorConfiguration)) {

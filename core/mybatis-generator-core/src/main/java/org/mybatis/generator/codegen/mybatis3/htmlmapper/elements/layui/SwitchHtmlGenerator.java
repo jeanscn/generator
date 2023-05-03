@@ -74,7 +74,7 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         //非空验证
-        addElementRequired(introspectedColumn.getActualColumnName(), element);
+        addElementRequired(introspectedColumn.getActualColumnName(), element,this.htmlElementDescriptor);
     }
 
     @Override

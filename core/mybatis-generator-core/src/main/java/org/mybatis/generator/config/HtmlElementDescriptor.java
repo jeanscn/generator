@@ -22,6 +22,8 @@ public class HtmlElementDescriptor {
 
     private String applyProperty;
 
+    private String verify;
+
     public String getDataFormat() {
         return dataFormat;
     }
@@ -92,5 +94,13 @@ public class HtmlElementDescriptor {
 
     public void setApplyProperty(String applyProperty) {
         this.applyProperty = applyProperty;
+    }
+
+    public String getVerify() {
+        return verify;
+    }
+
+    public void setVerify(String verify) {
+        this.verify = verify;
     }
 }

@@ -10,6 +10,7 @@ import org.mybatis.generator.custom.annotations.ApiModelProperty;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.StringUtility.*;
@@ -41,7 +42,7 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
         return true;
     }
 
-    private void addWebProperties(TopLevelClass topLevelClass, IntrospectedTable introspectedTable,String type) {
+    private void addWebProperties(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String type) {
         //追加respBasePath属性
         addRespBasePath(topLevelClass, introspectedTable, type);
         //追加viewPath

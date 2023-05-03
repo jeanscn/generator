@@ -84,7 +84,7 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
         }
         ColumnMeta columnMeta = new ColumnMeta(introspectedColumn);
         field.addAnnotation(columnMeta.toAnnotation());
-        topLevelClass.addMultipleImports(columnMeta.multipleImports());
+        topLevelClass.addImportedTypes(columnMeta.getImportedTypes());
     }
 
     /**
@@ -96,7 +96,7 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
         }
         TableMeta tableMeta = new TableMeta(introspectedTable);
         topLevelClass.addAnnotation(tableMeta.toAnnotation());
-        topLevelClass.addMultipleImports(tableMeta.multipleImports());
+        topLevelClass.addImportedTypes(tableMeta.getImportedTypes());
     }
 
 }

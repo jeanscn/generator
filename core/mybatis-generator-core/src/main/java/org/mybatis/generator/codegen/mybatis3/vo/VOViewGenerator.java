@@ -39,7 +39,7 @@ public class VOViewGenerator extends AbstractVOGenerator{
         String viewVOType = voViewGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass viewVOClass = createTopLevelClass(viewVOType, getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addMultipleImports("lombok");
-        ApiModel apiModel = getApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
+        ApiModel apiModel = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
         apiModel.addAnnotationToTopLevelClass(viewVOClass);
         addViewTableMeta(voViewGeneratorConfiguration,viewVOClass);
         viewVOClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
@@ -151,6 +151,6 @@ public class VOViewGenerator extends AbstractVOGenerator{
 
         //构造ViewTableMeta
         viewVOClass.addAnnotation(viewTableMeta.toAnnotation());
-        viewVOClass.addMultipleImports(viewTableMeta.multipleImports());
+        viewVOClass.addImportedTypes(viewTableMeta.getImportedTypes());
     }
 }

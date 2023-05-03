@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
-import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import java.util.ArrayList;
@@ -112,7 +111,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement btnClose = addZuiButton(toolBar, btn_close_id, "关闭", "icon-times");
         HtmlElement btnSubmit = addZuiButton(toolBar, btn_submit_id, "保存", "icon-check");
         String config = getHtmlBarPositionConfig();
-        if (!HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
+        if (!HTML_KEY_WORD_TOP.equals(config)) {
             addClassNameToElement(btnClose, "footer-btn");
             addClassNameToElement(btnSubmit, "footer-btn");
         }

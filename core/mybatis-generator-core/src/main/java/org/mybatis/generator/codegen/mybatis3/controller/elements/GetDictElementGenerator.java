@@ -3,10 +3,12 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import com.vgosoft.core.constant.enums.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperation;
@@ -31,20 +33,12 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
         parentElement.addImportedType(entityCachePoType);
+        parentElement.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
 
         final String methodPrefix = "getDict";
         Method method = createMethod(methodPrefix);
-
-        VOCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
-        List<IntrospectedColumn> parametersColumn;
-        if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
-            parametersColumn = Stream.of(config.getTypeColumn(), config.getCodeColumn())
-                    .map(c -> introspectedTable.getColumn(c).orElse(null))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } else {
-            parametersColumn = introspectedTable.getPrimaryKeyColumns();
-        }
+        List<IntrospectedColumn> parametersColumn = (new ServiceMethods(context,introspectedTable)).getSelectDictParameterColumns(
+                introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(), introspectedTable);
         parametersColumn.stream()
                 .map(p -> {
                     Parameter parameter = new Parameter(p.getFullyQualifiedJavaType(), p.getJavaProperty());
@@ -52,7 +46,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
                     parameter.setRemark(p.getRemarks(false));
                     return parameter;
                 }).forEach(method::addParameter);
-        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
+        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
                 entityCachePoType,
                 parentElement));
         method.setReturnRemark("缓存数据对象");
@@ -67,7 +61,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
         //函数体
         String param = parametersColumn.stream()
                 .map(IntrospectedColumn::getJavaProperty).collect(Collectors.joining(","));
-        method.addBodyLine(VStringUtil.format("ServiceResult<{0}> serviceResult = {1}.{2}({3});"
+        method.addBodyLine(VStringUtil.format("ServiceResult<List<{0}>> serviceResult = {1}.{2}({3});"
                 , entityCachePoType.getShortName()
                 , serviceBeanName
                 , introspectedTable.getSelectByKeysDictStatementId()

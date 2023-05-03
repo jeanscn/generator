@@ -1,18 +1,3 @@
-/*
- *    Copyright 2006-2021 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.internal.util;
 
 import com.vgosoft.core.db.util.JDBCUtil;
@@ -33,8 +18,7 @@ import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
+import static org.mybatis.generator.internal.util.StringUtility.*;
 
 public class JavaBeansUtil {
 
@@ -83,30 +67,22 @@ public class JavaBeansUtil {
     }
 
     public static String getFirstCharacterUppercase(String inputString) {
-        if (inputString != null) {
-            StringBuilder sb = new StringBuilder(inputString);
-            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-            return sb.toString();
-        } else {
-            return null;
-        }
-
+        if (!stringHasValue(inputString)) return inputString;
+        StringBuilder sb = new StringBuilder(inputString);
+        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+        return sb.toString();
     }
 
     public static String getFirstCharacterLowercase(String inputString) {
-        if (inputString != null) {
-            StringBuilder sb = new StringBuilder(inputString);
-            sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-            return sb.toString();
-        } else {
-            return null;
-        }
+        if (!stringHasValue(inputString)) return inputString;
+        StringBuilder sb = new StringBuilder(inputString);
+        sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+        return sb.toString();
     }
 
-    public static String getCamelCaseString(String inputString,
-                                            boolean firstCharacterUppercase) {
+    public static String getCamelCaseString(String inputString,boolean firstCharacterUppercase) {
+        if (!stringHasValue(inputString)) return inputString;
         StringBuilder sb = new StringBuilder();
-
         boolean nextUpperCase = false;
         for (int i = 0; i < inputString.length(); i++) {
             char c = inputString.charAt(i);
@@ -171,11 +147,9 @@ public class JavaBeansUtil {
      * @return the valid property name
      */
     public static String getValidPropertyName(String inputString) {
+        if (!stringHasValue(inputString)) return inputString;
         String answer;
-
-        if (inputString == null) {
-            answer = null;
-        } else if (inputString.length() < 2) {
+       if (inputString.length() < 2) {
             answer = inputString.toLowerCase(Locale.US);
         } else {
             if (Character.isUpperCase(inputString.charAt(0))
@@ -186,7 +160,6 @@ public class JavaBeansUtil {
                 answer = inputString;
             }
         }
-
         return answer;
     }
 

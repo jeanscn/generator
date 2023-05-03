@@ -37,7 +37,7 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
             methodByColumn.addAnnotation("@Override");
             if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(configuration.getMethodName())) {
                 methodByColumn.addBodyLine("return mapper.{0}({1});"
-                        , introspectedTable.getSelectBaseByPrimaryKeyStatementId()
+                        , "selectBaseByPrimaryKey"
                         , params);
             } else {
                 String sb = "return mapper." + configuration.getMethodName() +

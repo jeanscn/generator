@@ -2,21 +2,23 @@ package org.mybatis.generator.internal.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
-import com.vgosoft.core.db.util.JDBCUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.DictTypeEnum;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
-import org.mybatis.generator.custom.annotations.*;
+import org.mybatis.generator.custom.annotations.Dict;
+import org.mybatis.generator.custom.annotations.DictData;
+import org.mybatis.generator.custom.annotations.DictSys;
+import org.mybatis.generator.custom.annotations.DictUser;
 import org.mybatis.generator.internal.rules.BaseRules;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -44,13 +46,11 @@ public class VoGenService {
      * @param excludeColumns        要排除的数据库列名列表
      * @return 内省列对象列表
      */
-    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames, List<String> includeColumns, List<String> excludeColumns) {
+    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames, Set<String> includeColumns, Set<String> excludeColumns) {
         //在给定的排除列列表中附加全局VO标签的排除列
-        CollectionUtil.addAllIfNotContains(excludeColumns, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getExcludeColumns());
+        excludeColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getExcludeColumns());
         //将排除列追加到abstractVO列表中，整体排除
-        if (excludeColumns != null && excludeColumns.size() > 0) {
-            CollectionUtil.addAllIfNotContains(abstractVOColumnNames, excludeColumns);
-        }
+        abstractVOColumnNames.addAll(excludeColumns);
         if (includeColumns != null && includeColumns.size() > 0) {
             List<String> includes = CollectionUtil.subtractToList(includeColumns, abstractVOColumnNames);
             return getIntrospectedColumns(includes, false);
@@ -67,7 +67,7 @@ public class VoGenService {
      * @param excludeColumns 要排除的
      * @return 所有列-VO抽象父类的列-当前vo配置排除+vo全局排除的
      */
-    public List<IntrospectedColumn> getAllVoColumns(List<String> fields, List<String> includeColumns, List<String> excludeColumns) {
+    public List<IntrospectedColumn> getAllVoColumns(List<String> fields, Set<String> includeColumns, Set<String> excludeColumns) {
         List<IntrospectedColumn> voColumns = getVOColumns(this.getAbstractVOColumnNames(), includeColumns, excludeColumns); //排除abstractVO、指定排除、VO全局排除的列名
         if (fields == null || fields.size() == 0) {
             return voColumns;
@@ -78,17 +78,17 @@ public class VoGenService {
         }
     }
 
-    public List<String> getDefaultExcludeColumnNames(List<String> excludeNames) {
-        List<String> exclude = new ArrayList<>();
+    public Set<String> getDefaultExcludeColumnNames(Set<String> excludeNames) {
+        Set<String> exclude = new HashSet<>();
         if (excludeNames != null && excludeNames.size() > 0) {
             exclude.addAll(excludeNames);
         }
         EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
         if (entityAbstractParentEnum != null) {
-            CollectionUtil.addAllIfNotContains(exclude, entityAbstractParentEnum.columnNames());
+            exclude.addAll(entityAbstractParentEnum.columnNames());
         }
-        CollectionUtil.addAllIfNotContains(exclude, Arrays.asList("tenant_id", "bytes_"));
-        return exclude.stream().distinct().collect(Collectors.toList());
+        exclude.addAll(Arrays.asList("tenant_id", "bytes_"));
+        return exclude;
     }
 
 
@@ -209,16 +209,24 @@ public class VoGenService {
                     field.setRemark(configuration.getRemark()!=null?configuration.getRemark():sourceColumn.getRemarks(true));
                 }
                 field.setVisibility(JavaVisibility.PRIVATE);
-                String annotation = null;
-                if ("DictUser".equals(configuration.getAnnotationType())) {
+                if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
+                    field.setInitializationString("\"-\"");
+                }else if(field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())){
+                    field.setInitializationString("0");
+                }
+                if (DictTypeEnum.DICT_USER.getCode().equals(configuration.getAnnotationType())) {
                     DictUser anno = configuration.getTypeValue() != null ? new DictUser(configuration.getTypeValue()) : new DictUser();
                     anno.setSource(sourceColumn.getJavaProperty());
                     anno.addAnnotationToField(field, topLevelClass);
-                } else if ("DictSys".equals(configuration.getAnnotationType())) {
+                } else if (DictTypeEnum.DICT_SYS.getCode().equals(configuration.getAnnotationType())) {
                     DictSys anno = configuration.getTypeValue() != null ? new DictSys(configuration.getTypeValue()) : new DictSys();
                     anno.setSource(sourceColumn.getJavaProperty());
                     anno.addAnnotationToField(field, topLevelClass);
-                } else if ("Dict".equals(configuration.getAnnotationType()) && configuration.getBeanName() != null) {
+                } else if (DictTypeEnum.DICT_DATA.getCode().equals(configuration.getAnnotationType())) {
+                    DictData anno = configuration.getTypeValue() != null ? new DictData(configuration.getTypeValue()) : new DictData();
+                    anno.setSource(sourceColumn.getJavaProperty());
+                    anno.addAnnotationToField(field, topLevelClass);
+                } else if (DictTypeEnum.DICT.getCode().equals(configuration.getAnnotationType()) && configuration.getBeanName() != null) {
                     Dict anno = new Dict(configuration.getBeanName());
                     if (configuration.getTypeValue() != null) {
                         anno.setValue(configuration.getTypeValue());

@@ -35,10 +35,11 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
-            updateByPrimaryKeySelective.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
+            cacheAnnotation.setKey("#record.id");
+            updateByPrimaryKeySelective.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(false));
         }
-        if (introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
-            List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
+        if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
+            List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
             outSubBatchMethodBody(updateByPrimaryKeySelective, "UPDATE", "record", parentElement, configs, false);
@@ -63,10 +64,11 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
+            cacheAnnotation.setKey("#record.id");
             updateByPrimaryKey.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
         }
-        if (introspectedTable.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
-            List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
+        if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
+            List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
             outSubBatchMethodBody(updateByPrimaryKey, "UPDATE", "record", parentElement, configs, false);

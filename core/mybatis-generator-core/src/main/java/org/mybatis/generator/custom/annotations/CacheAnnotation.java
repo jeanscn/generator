@@ -1,8 +1,12 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.tool.core.VStringUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.vgosoft.tool.core.VStringUtil.*;
 
 /**
  * spring cache annotation
@@ -16,6 +20,8 @@ public class CacheAnnotation {
     private String unless;
     private int parameters;
     private String serviceKey;
+
+    private String key;
 
     public CacheAnnotation() {
     }
@@ -62,25 +68,21 @@ public class CacheAnnotation {
         this.serviceKey = serviceKey;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     public String toCacheableAnnotation() {
         StringBuilder sb = new StringBuilder("@Cacheable(");
         sb.append(formatCacheNames());
         if (unless != null) {
             sb.append(",unless = \"").append(unless).append("\"");
         }
-        sb.append(",key = \"'").append(serviceKey);
-        if (parameters > 0) {
-            sb.append(":'");
-            for (int i = 0; i < parameters; i++) {
-                String pi = "#p" + i;
-                sb.append(".concat(");
-                sb.append(pi);
-                sb.append("!=null?").append(pi).append(":'')");
-            }
-            sb.append("\"");
-        } else {
-            sb.append("'\"");
-        }
+        sb.append(",").append(formatKey());
         sb.append(")");
         return sb.toString();
     }
@@ -102,8 +104,28 @@ public class CacheAnnotation {
         sb.append(formatCacheNames());
         if (allEntries) {
             sb.append(",allEntries = true");
+        }else if(stringHasValue(key)){
+            sb.append(",").append(formatKey());
         }
         sb.append(")");
+        return sb.toString();
+    }
+
+    private String formatKey() {
+        if (parameters == 0 && !stringHasValue(key)) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder("key = \"'");
+        sb.append(serviceKey);
+        sb.append(":'");
+        if (stringHasValue(key)) {
+            sb.append(format(".concat({0})", key));
+        } else {
+            for (int i = 0; i < parameters; i++) {
+               sb.append(format(".concat(#p{0}!=null?#p{0}:'''')",i));
+            }
+        }
+        sb.append("\"");
         return sb.toString();
     }
 }

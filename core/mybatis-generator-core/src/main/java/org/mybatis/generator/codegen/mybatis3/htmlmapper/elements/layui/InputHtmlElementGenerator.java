@@ -33,7 +33,7 @@ public class InputHtmlElementGenerator extends AbstractLayuiElementGenerator{
     public void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         boolean isTextArea = introspectedColumn.getLength() > 500;
         HtmlElement input = generateHtmlInput(introspectedColumn, false, isTextArea);
-        this.addElementRequired(introspectedColumn.getActualColumnName(), input);
+        this.addElementRequired(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
         if (isTextArea) {
             addClassNameToElement(input, "layui-textarea");
             input.addAttribute(new Attribute("th:utext", this.getFieldValueFormatPattern(introspectedColumn)));

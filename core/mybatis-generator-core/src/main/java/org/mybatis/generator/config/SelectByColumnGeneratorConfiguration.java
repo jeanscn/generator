@@ -55,6 +55,14 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
         this.columnNames = columnNames;
     }
 
+    public boolean addColumnName(String columnName) {
+        if (!this.columnNames.contains(columnName)) {
+            this.columnNames.add(columnName);
+            return true;
+        }
+        return false;
+    }
+
     public List<IntrospectedColumn> getColumns() {
         return columns;
     }

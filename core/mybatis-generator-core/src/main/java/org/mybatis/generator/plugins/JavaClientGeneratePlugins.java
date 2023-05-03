@@ -1,23 +1,28 @@
 package org.mybatis.generator.plugins;
 
+import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.*;
+import org.mybatis.generator.api.GeneratedFile;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.Plugin;
+import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.codegen.HtmlConstants;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
 import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -28,7 +33,7 @@ import static org.mybatis.generator.custom.ConstantsUtil.*;
  * 2020-07-14 05:23
  * @version 3.0
  */
-public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
+public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, HtmlConstant {
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -59,71 +64,20 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
             topLevelClass.addAnnotation("@ToString");
         }
 
-        //添加静态代码块
-        String beanName = introspectedTable.getControllerBeanName();
-        InitializationBlock initializationBlock = new InitializationBlock(false);
 
-        //添加一个参数的构造器
-        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
-        if (assignable1) {
-            Method method = new Method(topLevelClass.getType().getShortName());
-            method.addParameter(new Parameter(FullyQualifiedJavaType.getIntInstance(), PARAM_NAME_PERSISTENCE_STATUS));
-            method.setVisibility(JavaVisibility.PUBLIC);
-            method.setConstructor(true);
-            addConstructorBodyLine(method, true, topLevelClass, introspectedTable);
-            if (topLevelClass.getMethods().size() == 0) {
-                topLevelClass.getMethods().add(method);
-            } else {
-                topLevelClass.getMethods().add(0, method);
-            }
+
+        //检查是否存在children属性，如果存在则追加实现ISimpleKVP接口
+        Set<String> fieldNames = introspectedTable.getTableConfiguration().getFieldNames();
+        if (fieldNames.contains(DefultColumnNameEnum.ID.fieldName())
+                && fieldNames.contains(DefultColumnNameEnum.NAME.fieldName())
+                && fieldNames.contains(DefultColumnNameEnum.PARENT_ID.fieldName())
+                && topLevelClass.getFields().stream().anyMatch(f->f.getName().equals(DefultColumnNameEnum.CHILDREN.fieldName()))) {
+            FullyQualifiedJavaType simpleKvpType = new FullyQualifiedJavaType(I_SIMPLE_KVP);
+            topLevelClass.addImportedType(I_SIMPLE_KVP);
+            simpleKvpType.addTypeArgument(topLevelClass.getType());
+            topLevelClass.addSuperInterface(simpleKvpType);
         }
 
-        /*
-         * 根据联合查询属性配置
-         * 在实体对象中增加相应的属性
-         */
-        if (introspectedTable.getRelationGeneratorConfigurations().size() > 0) {
-            for (RelationGeneratorConfiguration relationProperty : introspectedTable.getRelationGeneratorConfigurations()) {
-                FullyQualifiedJavaType returnType;
-                Field field;
-                FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());
-                if (!topLevelClass.isContainField(relationProperty.getPropertyName())) {
-                    if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
-                        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
-                        topLevelClass.addImportedType(listType);
-                        returnType = FullyQualifiedJavaType.getNewListInstance();
-                        returnType.addTypeArgument(fullyQualifiedJavaType);
-                        field = new Field(relationProperty.getPropertyName(), returnType);
-                        topLevelClass.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
-                        initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new ArrayList<>();", relationProperty.getPropertyName()));
-                    } else {
-                        returnType = fullyQualifiedJavaType;
-                        field = new Field(relationProperty.getPropertyName(), returnType);
-                    }
-                    if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
-                        TableField tableField = new TableField();
-                        tableField.setExist(false);
-                        tableField.addAnnotationToField(field,topLevelClass);
-                    }
-                    field.setVisibility(JavaVisibility.PRIVATE);
-                    if (field.getRemark() == null) {
-                        field.setRemark(relationProperty.getRemark());
-                    }
-                    ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
-                    apiModelProperty.addAnnotationToField(field,topLevelClass);
-                    addField(topLevelClass, field);
-                    topLevelClass.addImportedType(fullyQualifiedJavaType);
-                }
-            }
-        }
-
-        if (!StringUtility.isEmpty(beanName) && assignable1) {
-            initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", introspectedTable.getControllerBeanName()));
-        }
-
-        if (initializationBlock.getBodyLines().size() > 0) {
-            topLevelClass.addInitializationBlock(initializationBlock);
-        }
         return true;
     }
 
@@ -131,9 +85,9 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
     public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         HtmlDocumentGenerator htmlDocumentGenerated;
         String uiFrame = htmlGeneratorConfiguration.getLayoutDescriptor().getUiFrameType();
-        if (HtmlConstants.HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
+        if (HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
             htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
-        } else if (HtmlConstants.HTML_UI_FRAME_ZUI.equals(uiFrame)) {
+        } else if (HTML_UI_FRAME_ZUI.equals(uiFrame)) {
             htmlDocumentGenerated = new ZuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
         } else {
             htmlDocumentGenerated = new LayuiDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration);
@@ -146,24 +100,4 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin {
         return new ArrayList<>();
     }
 
-    private boolean addField(TopLevelClass topLevelClass, Field field) {
-        return topLevelClass.addField(field, null,true);
-    }
-
-    /**
-     * 内部类，添加构造器方法体内容
-     *
-     * @param method          构造器方法
-     * @param existParameters 是否有参
-     */
-    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        boolean assignable = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
-        if (existParameters) {
-            if (assignable) {
-                method.addBodyLine("super(persistenceStatus);");
-            } else {
-                method.addBodyLine("this.persistenceStatus = persistenceStatus;");
-            }
-        }
-    }
 }

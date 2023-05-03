@@ -1,11 +1,16 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 
@@ -77,6 +82,10 @@ public class TableConfiguration extends PropertyHolder {
 
     private String sqlProviderName;
 
+    private Set<String> columnNames = new HashSet<>();
+
+    private Set<String> fieldNames = new HashSet<>();
+
     private final List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
 
     private List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations = new ArrayList<>();
@@ -111,7 +120,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private String htmlBasePath;
 
-    private List<String> validateIgnoreColumns = new ArrayList<>();
+    private Set<String> validateIgnoreColumns = new HashSet<>();
 
     public TableConfiguration(Context context) {
         super();
@@ -366,11 +375,11 @@ public class TableConfiguration extends PropertyHolder {
         return columnOverrides;
     }
 
-    public List<String> getValidateIgnoreColumns() {
+    public Set<String> getValidateIgnoreColumns() {
         return validateIgnoreColumns;
     }
 
-    public void setValidateIgnoreColumns(List<String> validateIgnoreColumns) {
+    public void setValidateIgnoreColumns(Set<String> validateIgnoreColumns) {
         this.validateIgnoreColumns = validateIgnoreColumns;
     }
 
@@ -708,30 +717,75 @@ public class TableConfiguration extends PropertyHolder {
         this.htmlBasePath = htmlBasePath;
     }
 
-    public void validateConfig(ProgressCallback callback, List<String> warnings, IntrospectedTable introspectedTable) {
-        if (introspectedTable == null) {
-            return;
-        }
+
+    public Set<String> getColumnNames() {
+        return columnNames;
+    }
+
+    public void setColumnNames(Set<String> columnNames) {
+        this.columnNames = columnNames;
+    }
+
+    public Set<String> getFieldNames() {
+        return fieldNames;
+    }
+
+    public void setFieldNames(Set<String> fieldNames) {
+        this.fieldNames = fieldNames;
+    }
+
+    public void validateConfig(List<String> warnings, IntrospectedTable introspectedTable) {
+        //先更新TC与表结构相关的自定义属性
+        this.updateTableConfiguration(introspectedTable);
+
+        calculateSelectByTableProperty();
+
+        //计算html
+        calculateHtmlAttributes(introspectedTable);
+
+        //增加SelectBaseByPrimaryKey配置
+        calculateSelectBaseByPrimaryKeyConfig(introspectedTable);
+
+        //计算所有的selectByColumn配置，去重、计算列信息
+        calculateSelectByColumnConfigurations(introspectedTable);
+
         //根据所有配置信息，进行调整
-        //1、enableChildren
-        if (this.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
-            if (introspectedTable.getColumn("parent_id").isPresent()) {
+        //1、enableChildren.
+        calculateSelectByParentIdConfig(warnings, introspectedTable);
+        //如果存在parent_id字段，则自动添加children属性
+        calculateChildrenRelationConfig(introspectedTable);
 
-                //如果存在parent_id字段，则自动添加selectByParentId方法
-                long selectByColumnParentIdCount = this.getSelectByColumnGeneratorConfigurations().stream()
-                        .filter(c -> c.getColumns().stream().anyMatch(column -> "parent_id".equalsIgnoreCase(column.getActualColumnName())))
-                        .count();
-                if (selectByColumnParentIdCount == 0) {
-                    SelectByColumnGeneratorConfiguration selectByParentId = new SelectByColumnGeneratorConfiguration("parent_id");
+        calculateSelectBySqlMethodProperty(introspectedTable);
+    }
+
+    private void calculateSelectByParentIdConfig(List<String> warnings, IntrospectedTable introspectedTable) {
+        String parentIdColumnName = DefultColumnNameEnum.PARENT_ID.columnName();
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()
+                && this.getColumnNames().contains(parentIdColumnName)) {
+            //如果存在parent_id字段，则自动添加selectByParentId方法
+            if (this.getSelectByColumnGeneratorConfigurations().stream()
+                    .noneMatch(c -> c.getColumns().stream().anyMatch(column -> parentIdColumnName.equalsIgnoreCase(column.getActualColumnName())))) {
+                introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
+                    SelectByColumnGeneratorConfiguration selectByParentId = new SelectByColumnGeneratorConfiguration(column.getActualColumnName());
+                    selectByParentId.addColumn(column);
+                    selectByParentId.setMethodName(JavaBeansUtil.byColumnMethodName(selectByParentId.getColumns()));
+                    selectByParentId.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(selectByParentId.getColumns()));
                     this.addSelectByColumnGeneratorConfiguration(selectByParentId);
-                }
+                    warnings.add("table:" + this.tableName + " 自动添加" + selectByParentId.getMethodName() + " 方法.");
+                });
+            }
+        }
+    }
 
-                //如果存在parent_id字段，则自动添加children字段
-                if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> "children".equalsIgnoreCase(c.getPropertyName()))) {
+    private void calculateChildrenRelationConfig(IntrospectedTable introspectedTable) {
+        String parentIdColumnName = DefultColumnNameEnum.PARENT_ID.columnName();
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
+                if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefultColumnNameEnum.CHILDREN.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
                     RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
                     relationGeneratorConfiguration.setRemark("子集合");
-                    relationGeneratorConfiguration.setPropertyName("children");
-                    relationGeneratorConfiguration.setColumn(PropertyRegistry.DEFAULT_PRIMARY_KEY);
+                    relationGeneratorConfiguration.setPropertyName(DefultColumnNameEnum.CHILDREN.fieldName());
+                    relationGeneratorConfiguration.setColumn(DefultColumnNameEnum.ID.columnName());
 
                     StringBuilder sb = new StringBuilder();
                     sb.append(this.getJavaModelGeneratorConfiguration().getTargetPackage());
@@ -751,14 +805,149 @@ public class TableConfiguration extends PropertyHolder {
                     sb.setLength(0);
                     sb.append(this.getJavaClientGeneratorConfiguration().getTargetPackage()).append(".");
                     sb.append(this.getDomainObjectName()).append("Mapper").append(".");
-                    sb.append("selectByColumnParentId");
+                    sb.append(JavaBeansUtil.byColumnMethodName(Collections.singletonList(column)));
                     relationGeneratorConfiguration.setSelect(sb.toString());
                     relationGeneratorConfiguration.setType(RelationTypeEnum.collection);
                     this.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
                 }
-            } else {
-                warnings.add("表" + introspectedTable.getFullyQualifiedTable() + "不存在parent_id字段，无法自动生成children字段及相关子查询方法");
+            });
+
+
+        }
+    }
+
+
+    //更新TC与表结构相关的自定义属性
+    private void updateTableConfiguration(final IntrospectedTable introspectedTable) {
+        introspectedTable.getAllColumns().forEach(column -> {
+            //1、更新tableConfiguration的FieldNames、ColumnNames列表
+            this.getFieldNames().add(column.getJavaProperty());
+            this.getColumnNames().add(column.getActualColumnName());
+            //2、根据自定义的列长度属性，更新introspectedTable的列长度
+            ColumnOverride columnOverride = this.getColumnOverride(column.getActualColumnName());
+            if (columnOverride != null) {
+                column.setLength(columnOverride.getMaxLength() != null && columnOverride.getMaxLength() <= column.getLength() ? columnOverride.getMaxLength() : column.getLength());
+                column.setScale(columnOverride.getScale() != null ? columnOverride.getScale() : column.getScale());
+                column.setMinLength(columnOverride.getMinLength() != null && columnOverride.getMinLength() > 0 && columnOverride.getMinLength() <= column.getLength() ? columnOverride.getMinLength() : 0);
+            }
+            //3、设置是否需要验证的属性
+            if ((column.isNullable() || column.getLength()>0)
+                    && !column.isAutoIncrement()
+                    && !this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {
+                column.setBeValidated(true);
+            }
+        });
+    }
+
+    private void calculateSelectBySqlMethodProperty(IntrospectedTable introspectedTable) {
+        //计算SelectBySqlMethod列
+        for (SelectBySqlMethodGeneratorConfiguration bySqlMethodGeneratorConfiguration : this.getSelectBySqlMethodGeneratorConfigurations()) {
+            bySqlMethodGeneratorConfiguration.setParentIdColumn(introspectedTable.getColumn(bySqlMethodGeneratorConfiguration.getParentIdColumnName()).orElse(null));
+            bySqlMethodGeneratorConfiguration.setPrimaryKeyColumn(introspectedTable.getColumn(bySqlMethodGeneratorConfiguration.getPrimaryKeyColumnName()).orElse(null));
+        }
+        List<SelectBySqlMethodGeneratorConfiguration> collect = this.getSelectBySqlMethodGeneratorConfigurations().stream()
+                .peek(c -> {
+                    c.setParentIdColumn(introspectedTable.getColumn(c.getParentIdColumnName()).orElse(null));
+                    c.setPrimaryKeyColumn(introspectedTable.getColumn(c.getPrimaryKeyColumnName()).orElse(null));
+                })
+                .filter(c -> c.getPrimaryKeyColumn() != null && c.getParentIdColumn() != null)
+                .collect(Collectors.toList());
+        this.setSelectBySqlMethodGeneratorConfigurations(collect);
+
+        //生成SelectByTable基于关系表主键的查询方法
+        if (this.getSelectByTableGeneratorConfiguration().size() > 0) {
+            for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : this.getSelectByTableGeneratorConfiguration()) {
+                selectByTableGeneratorConfiguration.setParameterName(JavaBeansUtil.getCamelCaseString(selectByTableGeneratorConfiguration.getOtherPrimaryKeyColumn(), false));
             }
         }
+    }
+
+    private void calculateSelectByColumnConfigurations(IntrospectedTable introspectedTable) {
+        //生成selectByColumn查询方法
+        if (this.getSelectByColumnGeneratorConfigurations().size() > 0) {
+            for (SelectByColumnGeneratorConfiguration configuration : this.getSelectByColumnGeneratorConfigurations()) {
+                configuration.getColumnNames().forEach(n -> introspectedTable.getColumn(n).ifPresent(configuration::addColumn));
+                configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
+                configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
+            }
+        }
+        List<SelectByColumnGeneratorConfiguration> collect1 = this.getSelectByColumnGeneratorConfigurations().stream().distinct().collect(Collectors.toList());
+        this.setSelectByColumnGeneratorConfigurations(collect1);
+    }
+
+    private void calculateSelectBaseByPrimaryKeyConfig(IntrospectedTable introspectedTable) {
+        if (this.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isSubSelected)) {
+            //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
+            if (introspectedTable.getPrimaryKeyColumns().size() == 0) return;
+            final String methodName = "selectBaseByPrimaryKey";
+            if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(t -> methodName.equals(t.getMethodName()))) {
+                SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();
+                for (IntrospectedColumn column : introspectedTable.getPrimaryKeyColumns()) {
+                    if (selectByColumnGeneratorConfiguration.addColumnName(column.getActualColumnName()))
+                        selectByColumnGeneratorConfiguration.addColumn(column);
+                }
+                selectByColumnGeneratorConfiguration.setMethodName(methodName);
+                selectByColumnGeneratorConfiguration.setEnableDelete(false);
+                selectByColumnGeneratorConfiguration.setReturnType(1);
+                this.getSelectByColumnGeneratorConfigurations().add(selectByColumnGeneratorConfiguration);
+            }
+        }
+    }
+
+    protected void calculateHtmlAttributes(IntrospectedTable introspectedTable) {
+        //重新计算不为空字段，根据数据库字段不为空属性，追加数据库表不允许空的字段
+        introspectedTable.getAllColumns().stream()
+                .filter(c -> !c.isNullable())
+                .map(IntrospectedColumn::getActualColumnName)
+                .forEach(c -> this.getHtmlMapGeneratorConfigurations()
+                        .forEach(htmlConfiguration -> htmlConfiguration.getElementRequired().add(c)));
+        //获取所有HtmlGeneratorConfiguration中所有的HtmlElementDescriptor
+        this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> htmlConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
+            //如果tagType为select的，需要计算dataFormat对应的数据
+            //如果elementDescriptor的otherFieldName为null，则通过当前字段属性计算补齐otherFieldName
+            if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
+                introspectedTable.getColumn(elementDescriptor.getName())
+                        .ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
+            }
+            //添加附件属性
+            if (elementDescriptor.getOtherFieldName() != null) {
+                addHtmlElementAddtionalAttribute(elementDescriptor, introspectedTable);
+            }
+        }));
+
+    }
+
+    private void addHtmlElementAddtionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {
+        //如果已经存在，不再追加
+        if (ConfigUtil.javaPropertyExist(elementDescriptor.getOtherFieldName(), introspectedTable) || !VStringUtil.stringHasValue(elementDescriptor.getDataSource())) {
+            return;
+        }
+        //javaModel或者voModel中不存在对应的属性，需要追加
+        OverridePropertyValueGeneratorConfiguration overrideConfiguration = ConfigUtil.createOverridePropertyConfiguration(elementDescriptor, introspectedTable);
+        if (this.getVoGeneratorConfiguration() != null) {
+            this.getVoGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+        } else {
+            this.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+        }
+    }
+
+    private void calculateSelectByTableProperty() {
+        this.getSelectByTableGeneratorConfiguration().forEach(c -> {
+            IntrospectedColumn thisColumn = new IntrospectedColumn();
+            thisColumn.setFullyQualifiedJavaType(FullyQualifiedJavaType.getStringInstance());
+            thisColumn.setJavaProperty(JavaBeansUtil.getCamelCaseString(c.getPrimaryKeyColumn(), false));
+            thisColumn.setJdbcTypeName("VARCHAR");
+            thisColumn.setRemarks("当前对象主键标识");
+            thisColumn.setActualColumnName(c.getPrimaryKeyColumn());
+            c.setThisColumn(thisColumn);
+
+            IntrospectedColumn otherColumn = new IntrospectedColumn();
+            otherColumn.setFullyQualifiedJavaType(FullyQualifiedJavaType.getStringInstance());
+            otherColumn.setJavaProperty(JavaBeansUtil.getCamelCaseString(c.getOtherPrimaryKeyColumn(), false));
+            otherColumn.setJdbcTypeName("VARCHAR");
+            otherColumn.setRemarks("关联数据表的主键标识");
+            otherColumn.setActualColumnName(c.getOtherPrimaryKeyColumn());
+            c.setOtherColumn(otherColumn);
+        });
     }
 }

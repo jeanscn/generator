@@ -178,6 +178,20 @@ public class ServiceMethods {
         return method;
     }
 
+    public Method getSelectByMultiStringIdsMethod(CompilationUnit parentElement, boolean isAbstract) {
+        Method method = getMethodByType(introspectedTable.getSelectByMultiStringIdsStatementId(),
+                ReturnTypeEnum.LIST,
+                entityType,
+                "树形示例表对象列表",
+                FullyQualifiedJavaType.getStringInstance(),
+                "ids",
+                "待转换为ztree的数据对象列表",
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method, "获取带child集合的数据，支持字符串多值的方法");
+        return method;
+    }
+
     public Method getInsertOrUpdateMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService) {
         Method method = getMethodByType(introspectedTable.getInsertOrUpdateStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.MODEL,
@@ -237,7 +251,7 @@ public class ServiceMethods {
                 isAbstract,
                 parentElement);
         String collect = config.getColumns().stream().map(column -> column.getActualColumnName() + "(" + column.getRemarks(true) + ")").collect(Collectors.joining(","));
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+collect+"]的查询方法。"+(config.getColumns().size()==1?"该方法常用于为其它方法提供子查询。":""));
+        context.getCommentGenerator().addMethodJavaDocLine(method,"基于["+collect+"]的查询方法。"+(config.getColumns().size()==1?"该方法常用于为其它方法提供子查询。":""));
         return method;
     }
 
@@ -307,22 +321,15 @@ public class ServiceMethods {
         return method;
     }
 
-    public Method getSelectByKeysDictMethod(CompilationUnit parentElement,
-                                               VOCacheGeneratorConfiguration config,
+    public Method getSelectByKeysDictMethod(CompilationUnit parentElement,VOCacheGeneratorConfiguration config,
                                                boolean isAbstract,boolean isService) {
-        List<IntrospectedColumn> parameterColumns = Stream.of(config.getTypeColumn(), config.getCodeColumn())
-                .map(n -> introspectedTable.getColumn(n).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        if (!introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
-            parameterColumns = introspectedTable.getPrimaryKeyColumns();
-        }
-        List<Parameter> parameters = parameterColumns.stream()
+        boolean isCache = introspectedTable.getRules().isGenerateCachePO();
+        List<Parameter> parameters = getSelectDictParameterColumns(config, introspectedTable).stream()
                 .map(p -> new Parameter(p.getFullyQualifiedJavaType(), p.getJavaProperty()).setRemark(p.getRemarks(false)))
                 .collect(Collectors.toList());
         Method method = getMethodByType(
                 introspectedTable.getSelectByKeysDictStatementId(),
-                isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.LIST,
+                isCache?(isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST):ReturnTypeEnum.MODEL,
                 isService?config.getFullyQualifiedJavaType():entityType,
                 introspectedTable.getRemarks(true)+(isService?"缓存对象包装ServiceResult包装":"实体对象列表"),
                 parameters,
@@ -330,6 +337,17 @@ public class ServiceMethods {
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回单一对象");
         return method;
+    }
+
+    public List<IntrospectedColumn> getSelectDictParameterColumns(VOCacheGeneratorConfiguration config, IntrospectedTable introspectedTable) {
+        if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
+            return Stream.of(config.getTypeColumn(), config.getKeyColumn())
+                    .map(n -> introspectedTable.getColumn(n).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }else {
+            return introspectedTable.getPrimaryKeyColumns();
+        }
     }
 
     public Method getSplitUnionByTableMethod(CompilationUnit parentElement,
@@ -441,6 +459,8 @@ public class ServiceMethods {
                 method.setReturnType(responseResult);
                 parentElement.addImportedType(responseResult);
                 parentElement.addImportedType(returnTypeArgument);
+                break;
+            case VOID:
                 break;
             default:
                 method.setReturnType(returnTypeArgument);

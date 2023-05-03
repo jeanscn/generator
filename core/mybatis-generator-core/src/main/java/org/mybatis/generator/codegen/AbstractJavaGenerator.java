@@ -1,25 +1,13 @@
-/*
- *    Copyright 2006-2021 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.codegen;
 
+import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -135,5 +123,30 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         topLevelClass.addImportedType(new FullyQualifiedJavaType("org.springframework.cache.annotation.CacheConfig"));
         topLevelClass.addStaticImport("com.vgosoft.core.constant.CacheConstant.CACHE_MANAGER_NAME");
         topLevelClass.addAnnotation("@CacheConfig(cacheManager = CACHE_MANAGER_NAME)");
+    }
+
+    protected void addInitialization(InitializationBlock initializationBlock, TopLevelClass topLevelClass){
+        //在静态代码块中添加默认值
+        final List<String> defaultFields = new ArrayList<>();
+        topLevelClass.getSuperClass().ifPresent(s -> {
+            EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(s.getShortName());
+            if (entityAbstractParentEnum != null) {
+                defaultFields.addAll(entityAbstractParentEnum.fields());
+            }
+        });
+        introspectedTable.getBaseColumns().forEach(c -> {
+            if (c.getDefaultValue() != null
+                    && !c.getDefaultValue().equalsIgnoreCase("null")
+                    && !defaultFields.contains(c.getJavaProperty())) {
+                if (c.getDefaultValue().equals("CURRENT_TIMESTAMP")) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
+                    topLevelClass.addImportedType(V_DATE_UTILS);
+                } else if (c.isJdbcCharacterColumn()) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), c.getDefaultValue()));
+                } else {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), c.getDefaultValue()));
+                }
+            }
+        });
     }
 }

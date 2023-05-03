@@ -1,7 +1,11 @@
 package org.mybatis.generator.custom.annotations;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -18,6 +22,14 @@ public interface IAnnotation {
         return toAnnotations().get(0);
     }
 
-    String[] multipleImports();
+    Set<String> getImports();
+
+    default Set<FullyQualifiedJavaType> getImportedTypes() {
+        Set<FullyQualifiedJavaType> imports = new TreeSet<>();
+        for (String item : this.getImports()) {
+            imports.add(new FullyQualifiedJavaType(item));
+        }
+        return imports;
+    }
 
 }

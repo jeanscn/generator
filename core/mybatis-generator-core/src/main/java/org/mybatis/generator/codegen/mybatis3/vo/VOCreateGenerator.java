@@ -6,14 +6,12 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VOCreateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
 
@@ -31,18 +29,18 @@ public class VOCreateGenerator extends AbstractVOGenerator{
     }
 
     @Override
-    TopLevelClass generate() {
+    public TopLevelClass generate() {
         VOCreateGeneratorConfiguration voCreateGeneratorConfiguration = voGeneratorConfiguration.getVoCreateConfiguration();
         String createVoType = voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass createVoClass = createTopLevelClass(createVoType, getAbstractVOType().getFullyQualifiedName());
         createVoClass.addMultipleImports("lombok");
-        getApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
+        addApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
         createVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         createVoClass.addSerialVersionUID();
         //添加id属性
         List<String> fields = new ArrayList<>(Collections.singletonList("id"));
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(fields, voCreateGeneratorConfiguration.getIncludeColumns(), voCreateGeneratorConfiguration.getExcludeColumns());
-        List<String> excludeColumns = voCreateGeneratorConfiguration.getExcludeColumns();
+        Set<String> excludeColumns = voCreateGeneratorConfiguration.getExcludeColumns();
         introspectedColumns.removeIf(introspectedColumn -> excludeColumns.contains(introspectedColumn.getActualColumnName()));
         for (IntrospectedColumn voColumn : introspectedColumns) {
             if (!isAbstractVOColumn(voColumn)) {
@@ -62,10 +60,11 @@ public class VOCreateGenerator extends AbstractVOGenerator{
             ApiModelProperty apiModelProperty = new ApiModelProperty(selectiveUpdate.getRemark());
             apiModelProperty.setExample("true");
             selectiveUpdate.addAnnotation(apiModelProperty.toAnnotation());
-            createVoClass.addMultipleImports(apiModelProperty.multipleImports());
+            createVoClass.addImportedTypes(apiModelProperty.getImportedTypes());
             createVoClass.addField(selectiveUpdate);
         }
 
+        //重写父类getter方法
         for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
             if (!(introspectedColumn.isNullable() || introspectedTable.getTableConfiguration().getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
                 this.getOverrideGetter(introspectedColumn).ifPresent(javaBeansGetter -> {
@@ -88,25 +87,7 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         );
 
         //是否有启用insert的JavaCollectionRelation
-        introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
-                .filter(RelationGeneratorConfiguration::isEnableInsert).collect(Collectors.toList())
-                .forEach(c -> {
-                    if (!createVoClass.isContainField(c.getPropertyName())) {
-                        FullyQualifiedJavaType type;
-                        if (c.getType().equals(RelationTypeEnum.collection)) {
-                            type = FullyQualifiedJavaType.getNewListInstance();
-                            type.addTypeArgument(new FullyQualifiedJavaType(c.getVoModelTye()));
-                            createVoClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                        } else {
-                            type = new FullyQualifiedJavaType(c.getVoModelTye());
-                        }
-                        Field field = new Field(c.getPropertyName(), type);
-                        field.setVisibility(JavaVisibility.PRIVATE);
-                        field.setRemark(c.getRemark());
-                        createVoClass.addField(field);
-                        createVoClass.addImportedType(c.getVoModelTye());
-                    }
-                });
+        addJavaCollectionRelation(createVoClass, "insert");
 
         /*
           生成映射方法

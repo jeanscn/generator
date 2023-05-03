@@ -29,7 +29,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        introspectedTable.getRelationGeneratorConfigurations().stream()
+        introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(c -> c.isEnableInsert() || c.isEnableUpdate() || c.isEnableInsertOrUpdate() || c.isEnableDelete())
                 .forEach(config -> {
                             List<Parameter> parameters = new ArrayList<>();

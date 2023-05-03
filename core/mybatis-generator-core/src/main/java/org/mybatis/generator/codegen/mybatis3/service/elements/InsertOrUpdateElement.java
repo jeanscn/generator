@@ -33,7 +33,7 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
             method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
         }
         method.addAnnotation("@Override");
-        List<RelationGeneratorConfiguration> configs = introspectedTable.getRelationGeneratorConfigurations().stream()
+        List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsertOrUpdate)
                 .collect(Collectors.toList());
         if (configs.size() > 0) {

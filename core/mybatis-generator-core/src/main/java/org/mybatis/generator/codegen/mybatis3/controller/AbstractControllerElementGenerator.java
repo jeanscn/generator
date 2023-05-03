@@ -91,7 +91,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
     }
     protected void addAnnotation(IAnnotation annotation,Method method,TopLevelClass parent){
         annotation.toAnnotations().forEach(method::addAnnotation);
-        parent.addMultipleImports(annotation.multipleImports());
+        parent.addImportedTypes(annotation.getImportedTypes());
     }
 
     /**

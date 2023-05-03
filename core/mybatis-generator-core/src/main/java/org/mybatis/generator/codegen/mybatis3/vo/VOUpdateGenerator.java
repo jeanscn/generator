@@ -6,14 +6,11 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * updateVO生成器
@@ -34,7 +31,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         String updateVoType = voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass updateVoClass = createTopLevelClass(updateVoType, getAbstractVOType().getFullyQualifiedName());
         updateVoClass.addMultipleImports("lombok");
-        getApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
+        addApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
         updateVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         updateVoClass.addSerialVersionUID();
 
@@ -82,30 +79,12 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
             ApiModelProperty apiModelProperty = new ApiModelProperty(selectiveUpdate.getRemark());
             apiModelProperty.setExample("true");
             selectiveUpdate.addAnnotation(apiModelProperty.toAnnotation());
-            updateVoClass.addMultipleImports(apiModelProperty.multipleImports());
+            updateVoClass.addImportedTypes(apiModelProperty.getImportedTypes());
             updateVoClass.addField(selectiveUpdate);
         }
 
         //是否有启用update的JavaCollectionRelation
-        introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
-                .filter(RelationGeneratorConfiguration::isEnableUpdate).collect(Collectors.toList())
-                .forEach(c -> {
-                    if (!updateVoClass.isContainField(c.getPropertyName())) {
-                        FullyQualifiedJavaType type;
-                        if (c.getType().equals(RelationTypeEnum.collection)) {
-                            type = FullyQualifiedJavaType.getNewListInstance();
-                            type.addTypeArgument(new FullyQualifiedJavaType(c.getVoModelTye()));
-                            updateVoClass.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-                        } else {
-                            type = new FullyQualifiedJavaType(c.getVoModelTye());
-                        }
-                        Field field = new Field(c.getPropertyName(), type);
-                        field.setVisibility(JavaVisibility.PRIVATE);
-                        field.setRemark(c.getRemark());
-                        updateVoClass.addField(field);
-                        updateVoClass.addImportedType(c.getVoModelTye());
-                    }
-                });
+        addJavaCollectionRelation(updateVoClass,"update");
 
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(updateVoType));
         mappingsInterface.addMethod(addMappingMethod(updateVoClass.getType(), entityType, false));

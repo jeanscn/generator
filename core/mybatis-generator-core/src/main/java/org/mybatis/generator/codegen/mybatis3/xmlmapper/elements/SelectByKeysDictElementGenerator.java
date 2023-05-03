@@ -1,18 +1,3 @@
-/*
- *    Copyright 2006-2021 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -20,16 +5,14 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerator {
 
@@ -53,17 +36,7 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
         VOCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
-
-        List<IntrospectedColumn> keysColumns = new ArrayList<>();
-        if (config.getTypeColumn() != null && config.getCodeColumn()!=null) {
-            List<IntrospectedColumn> keysColumn = Stream.of(config.getTypeColumn(), config.getCodeColumn())
-                    .map(n -> introspectedTable.getColumn(n).orElse(null))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            keysColumns.addAll(keysColumn);
-        }else{
-            introspectedTable.getColumn(config.getCodeColumn()).ifPresent(keysColumns::add);
-        }
+        List<IntrospectedColumn> keysColumns = (new ServiceMethods(context,introspectedTable)).getSelectDictParameterColumns(config, introspectedTable);
         XmlElement where = new XmlElement("where");
         answer.addElement(where);
         for (IntrospectedColumn keysColumn : keysColumns) {

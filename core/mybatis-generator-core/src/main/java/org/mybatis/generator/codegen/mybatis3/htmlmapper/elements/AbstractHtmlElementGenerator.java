@@ -7,14 +7,15 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.config.HtmlElementDescriptor;
 
 import java.util.List;
 
-public abstract class AbstractHtmlElementGenerator extends AbstractGenerator {
+public abstract class AbstractHtmlElementGenerator extends AbstractGenerator implements HtmlConstant {
 
     protected HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 

@@ -22,7 +22,7 @@ public class VOAbstractGenerator extends AbstractVOGenerator{
     }
 
     @Override
-    TopLevelClass generate() {
+    public TopLevelClass generate() {
         /*
          * 生成AbstractVo
          * */

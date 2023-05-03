@@ -44,11 +44,12 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
             excelProperty.setOrder(introspectedColumn.getOrder());
         }
         if (field.getAnnotations().stream()
-                .anyMatch(annotation -> annotation.contains("@Dict") || annotation.contains("@DictSys") || annotation.contains("@DictUser"))) {
+                .anyMatch(annotation -> annotation.contains("@Dict") || annotation.contains("@DictSys") || annotation.contains("@DictUser") || annotation.contains("@DictData"))) {
             excelProperty.setConverter("ExportDictConverter.class");
-            excelProperty.getImports().add("com.vgosoft.plugins.excel.converter.ExportDictConverter");
+
+            excelProperty.addImports("com.vgosoft.plugins.excel.converter.ExportDictConverter");
         }
         field.addAnnotation(excelProperty.toAnnotation());
-        topLevelClass.addMultipleImports(excelProperty.multipleImports());
+        topLevelClass.addImportedTypes(excelProperty.getImportedTypes());
     }
 }

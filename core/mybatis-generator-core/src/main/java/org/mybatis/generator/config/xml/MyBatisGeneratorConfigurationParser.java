@@ -1,21 +1,7 @@
-/*
- *    Copyright 2006-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.config.xml;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
@@ -236,6 +222,15 @@ public class MyBatisGeneratorConfigurationParser {
         return ret;
     }
 
+    private Set<String> spiltToSet(String str){
+        Set<String> ret = new HashSet<>();
+        if (stringHasValue(str)) {
+            String[] split = str.split("[,;，；、]");
+            Collections.addAll(ret, split);
+        }
+        return ret;
+    }
+
     protected void parseSqlMapGenerator(Context context, Node node) {
         SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
 
@@ -273,7 +268,7 @@ public class MyBatisGeneratorConfigurationParser {
                     return;
                 }
                 tc.setIgnore(false);
-            }else{
+            } else {
                 tc.setIgnore(isTrue(ignore));
                 if (Boolean.parseBoolean(ignore)) {
                     return;
@@ -315,13 +310,12 @@ public class MyBatisGeneratorConfigurationParser {
         String validateIgnoreColumns = attributes.getProperty("validateIgnoreColumns");
         if (validateIgnoreColumns != null) {
             if (VStringUtil.isEmpty(validateIgnoreColumns)) {
-                tc.setValidateIgnoreColumns(new ArrayList<>());
+                tc.setValidateIgnoreColumns(new HashSet<>());
             } else {
-                List<String> collect = spiltToList(validateIgnoreColumns).stream().distinct().collect(Collectors.toList());
-                tc.setValidateIgnoreColumns(collect);
+                tc.setValidateIgnoreColumns(spiltToSet(validateIgnoreColumns));
             }
         } else {
-            tc.setValidateIgnoreColumns(Arrays.asList("delete_flag", "version_", "created_", "modified_", "created_id", "modified_id"));
+            tc.setValidateIgnoreColumns(new HashSet<>(Arrays.asList("delete_flag", "version_", "created_", "modified_", "created_id", "modified_id")));
         }
 
         //service及HTML根路径
@@ -549,7 +543,6 @@ public class MyBatisGeneratorConfigurationParser {
             sqlMapGeneratorConfiguration.setTargetPackage(context.getSqlMapGeneratorConfiguration().getTargetPackage());
             sqlMapGeneratorConfiguration.setTargetProject(context.getSqlMapGeneratorConfiguration().getTargetProject());
             sqlMapGeneratorConfiguration.setBaseTargetPackage(context.getJavaModelGeneratorConfiguration().getBaseTargetPackage());
-            ;
             tc.setSqlMapGeneratorConfiguration(sqlMapGeneratorConfiguration);
         }
 
@@ -594,11 +587,7 @@ public class MyBatisGeneratorConfigurationParser {
         //如果未指定，则设置generateController默认值
         if (tc.getJavaControllerGeneratorConfiguration() == null) {
             JavaControllerGeneratorConfiguration configuration = new JavaControllerGeneratorConfiguration(context);
-            if (tc.getHtmlMapGeneratorConfigurations().stream().anyMatch(c->stringHasValue(c.getViewPath()))) {
-                configuration.setGenerate(true);
-            }else{
-                configuration.setGenerate(false);
-            }
+            configuration.setGenerate(tc.getHtmlMapGeneratorConfigurations().stream().anyMatch(c -> stringHasValue(c.getViewPath())));
             configuration.setGenerateUnitTest(false);
             tc.setJavaControllerGeneratorConfiguration(configuration);
         }
@@ -651,6 +640,14 @@ public class MyBatisGeneratorConfigurationParser {
         String isGeneratedAlways = attributes.getProperty("isGeneratedAlways"); //$NON-NLS-1$
         if (stringHasValue(isGeneratedAlways)) {
             co.setGeneratedAlways(Boolean.parseBoolean(isGeneratedAlways));
+        }
+        String maxLength = attributes.getProperty("maxLength");
+        if (stringHasValue(maxLength)) {
+            co.setMaxLength(Integer.parseInt(maxLength));
+        }
+        String minLength = attributes.getProperty("minLength");
+        if (stringHasValue(minLength)) {
+            co.setMinLength(Integer.parseInt(minLength));
         }
         parseChildNodeOnlyProperty(co, node);
         tc.addColumnOverride(co);
@@ -821,13 +818,13 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parentIdColumn)) {
             configuration.setParentIdColumnName(parentIdColumn);
         } else {
-            configuration.setParentIdColumnName("parent_id");
+            configuration.setParentIdColumnName(DefultColumnNameEnum.PARENT_ID.columnName());
         }
         String idColumnName = attributes.getProperty("primaryKeyColumn");
         if (stringHasValue(idColumnName)) {
             configuration.setPrimaryKeyColumnName(idColumnName);
         } else {
-            configuration.setPrimaryKeyColumnName(PropertyRegistry.DEFAULT_PRIMARY_KEY);
+            configuration.setPrimaryKeyColumnName(DefultColumnNameEnum.ID.columnName());
         }
         tc.addSelectBySqlMethodGeneratorConfiguration(configuration);
     }
@@ -1007,34 +1004,19 @@ public class MyBatisGeneratorConfigurationParser {
         htmlElementDescriptor.setName(column);
         htmlElementDescriptor.setTagType(tagType);
         String dataSource = attributes.getProperty("dataSource");
-        if (dataSource != null) {
-            htmlElementDescriptor.setDataSource(dataSource);
-        }
+        htmlElementDescriptor.setDataSource(dataSource);
         String dataUrl = attributes.getProperty("dataUrl");
-        if (dataUrl != null) {
-            htmlElementDescriptor.setDataUrl(dataUrl);
-        }
+        htmlElementDescriptor.setDataUrl(dataUrl);
         String dataFormat = attributes.getProperty("dataFormat");
-        if (dataFormat != null) {
-            htmlElementDescriptor.setDataFormat(dataFormat);
-            switch (dataFormat) {
-                case "department":
-                    htmlElementDescriptor.setDataSource("department");
-                    break;
-                case "user":
-                    htmlElementDescriptor.setDataSource("user");
-                    break;
-            }
-        }
+        htmlElementDescriptor.setDataFormat(dataFormat);
         String otherFieldName = attributes.getProperty("otherFieldName");
         htmlElementDescriptor.setOtherFieldName(otherFieldName);
-
         String beanName = attributes.getProperty("beanName");
         htmlElementDescriptor.setBeanName(beanName);
-
         String applyProperty = attributes.getProperty("applyProperty");
         htmlElementDescriptor.setApplyProperty(applyProperty);
-
+        String verify = attributes.getProperty("verify");
+        htmlElementDescriptor.setVerify(verify);
         htmlGeneratorConfiguration.addElementDescriptors(htmlElementDescriptor);
     }
 
@@ -1172,14 +1154,31 @@ public class MyBatisGeneratorConfigurationParser {
                 continue;
             }
 
-            if ("property".equals(childNode.getNodeName())) {
-                parseProperty(javaControllerGeneratorConfiguration, childNode);
-            } else if ("generateOptions".equals(childNode.getNodeName())) {
-                parseGenerateOptions(javaControllerGeneratorConfiguration, childNode);
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(javaControllerGeneratorConfiguration, childNode);
+                    break;
+                case "generateOptions":
+                    parseGenerateOptions(javaControllerGeneratorConfiguration, childNode);
+                    break;
+                case "generateTreeViewCate":
+                    parseGenerateTreeViewCate(javaControllerGeneratorConfiguration, childNode);
+                    break;
             }
         }
 
         tc.setJavaControllerGeneratorConfiguration(javaControllerGeneratorConfiguration);
+    }
+
+    private void parseGenerateTreeViewCate(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration, Node node) {
+        TreeViewCateGeneratorConfiguration viewCateGeneratorConfiguration = new TreeViewCateGeneratorConfiguration();
+        Properties attributes = parseAttributes(node);
+        String expression = attributes.getProperty("SPeLExpression");
+        if (stringHasValue(expression)) {
+            viewCateGeneratorConfiguration.setSPeL(expression);
+        }
+        javaControllerGeneratorConfiguration.setTreeViewCateGeneratorConfiguration(viewCateGeneratorConfiguration);
+
     }
 
     private void parseGenerateOptions(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration, Node node) {
@@ -1235,8 +1234,14 @@ public class MyBatisGeneratorConfigurationParser {
         configuration.setGenerate(Boolean.parseBoolean(generate));
         String columnsName = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
         if (stringHasValue(columnsName)) {
-            configuration.setExcludeColumns(spiltToList(columnsName));
+            configuration.setExcludeColumns(spiltToSet(columnsName));
         }
+
+        String property = attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS);
+        if (stringHasValue(property)) {
+            configuration.setValidateIgnoreColumns(spiltToSet(property));
+        }
+
         String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(ehAttr)) {
             configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
@@ -1468,7 +1473,11 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, vOModelGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            vOModelGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
+            vOModelGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
+        }
+        String excludeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
+        if (stringHasValue(excludeColumns)) {
+            vOModelGeneratorConfiguration.setExcludeColumns(spiltToSet(excludeColumns));
         }
         //EqualsAndHashCodeColumns
         String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
@@ -1513,16 +1522,16 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            configuration.setIncludeColumns(spiltToList(includeColumns));
+            configuration.setIncludeColumns(spiltToSet(includeColumns));
         }
         String requiredColumns = attributes.getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS);
         if (stringHasValue(requiredColumns)) {
-            configuration.setRequiredColumns(spiltToList(requiredColumns));
+            configuration.setRequiredColumns(spiltToSet(requiredColumns));
         }
 
-        List<String> validateIgnoreColumns = spiltToList(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
+        Set<String> validateIgnoreColumns = spiltToSet(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
         if (validateIgnoreColumns.size() == 0) {
-            validateIgnoreColumns.add(PropertyRegistry.DEFAULT_PRIMARY_KEY);
+            validateIgnoreColumns.add(DefultColumnNameEnum.ID.columnName());
         }
 
         String isSelective = attributes.getProperty(PropertyRegistry.ELEMENT_ENABLE_SELECTIVE);
@@ -1555,14 +1564,14 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            configuration.setIncludeColumns(spiltToList(includeColumns));
+            configuration.setIncludeColumns(spiltToSet(includeColumns));
         }
         String requiredColumns = attributes.getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS);
         if (stringHasValue(requiredColumns)) {
             configuration.setRequiredColumns(spiltToList(requiredColumns));
         }
 
-        List<String> validateIgnoreColumns = spiltToList(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
+        Set<String> validateIgnoreColumns = spiltToSet(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
         validateIgnoreColumns.addAll(tc.getValidateIgnoreColumns());
         configuration.setValidateIgnoreColumns(validateIgnoreColumns);
 
@@ -1593,7 +1602,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, vOExcelGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            vOExcelGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
+            vOExcelGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
         }
 
         //EqualsAndHashCodeColumns
@@ -1618,7 +1627,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, voViewGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            voViewGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
+            voViewGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
         }
         String indexColumn = attributes.getProperty("indexColumn");
         if (stringHasValue(indexColumn)) {
@@ -1707,15 +1716,15 @@ public class MyBatisGeneratorConfigurationParser {
         voCacheGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            voCacheGeneratorConfiguration.setIncludeColumns(spiltToList(includeColumns));
+            voCacheGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
         }
         String typeColumn = attributes.getProperty(PropertyRegistry.ELEMENT_TYPE_COLUMN);
         if (stringHasValue(typeColumn)) {
             voCacheGeneratorConfiguration.setTypeColumn(typeColumn);
         }
-        String codeColumn = attributes.getProperty(PropertyRegistry.ELEMENT_CODE_COLUMN);
-        if (stringHasValue(codeColumn)) {
-            voCacheGeneratorConfiguration.setCodeColumn(codeColumn);
+        String keyColumn = attributes.getProperty(PropertyRegistry.ELEMENT_KEY_COLUMN);
+        if (stringHasValue(keyColumn)) {
+            voCacheGeneratorConfiguration.setKeyColumn(keyColumn);
         }
         String nameColumn = attributes.getProperty(PropertyRegistry.ELEMENT_NAME_COLUMN);
         if (stringHasValue(nameColumn)) {
@@ -1773,7 +1782,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String excludeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
         if (stringHasValue(excludeColumns)) {
-            abstractModelGeneratorConfiguration.setExcludeColumns(spiltToList(excludeColumns));
+            abstractModelGeneratorConfiguration.setExcludeColumns(spiltToSet(excludeColumns));
         }
     }
 

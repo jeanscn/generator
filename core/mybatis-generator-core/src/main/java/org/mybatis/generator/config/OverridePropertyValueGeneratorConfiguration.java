@@ -1,5 +1,6 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHolder {
@@ -22,7 +23,7 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     private String beanName;
 
-    private String applyProperty = "dictValueText";
+    private String applyProperty = GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT;
 
     private String remark;
 

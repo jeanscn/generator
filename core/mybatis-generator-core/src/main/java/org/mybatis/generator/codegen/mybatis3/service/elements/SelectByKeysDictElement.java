@@ -4,7 +4,9 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.CacheAnnotation;
 
 import java.util.List;
@@ -34,25 +36,24 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
                 voCacheGeneratorConfiguration,
                 false,true);
         selectByKeysDictMethod.addAnnotation("@Override");
-        List<IntrospectedColumn> introspectedColumns = Stream.of(voCacheGeneratorConfiguration.getTypeColumn(), voCacheGeneratorConfiguration.getCodeColumn())
-                .map(n -> introspectedTable.getColumn(n).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        List<IntrospectedColumn> parameterColumns = (new ServiceMethods(context,introspectedTable)).getSelectDictParameterColumns(
+                introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(), introspectedTable);
         CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
         //cacheAnnotation.setUnless("#result.hasResult()==false");
-        cacheAnnotation.setParameters(introspectedColumns.size() == 0 ? 1 : introspectedColumns.size());
+        cacheAnnotation.setParameters(parameterColumns.size() == 0 ? 1 : parameterColumns.size());
+        cacheAnnotation.setUnless("#result==null || #result.getResult()==null || #result.getResult().isEmpty()");
         selectByKeysDictMethod.addAnnotation(cacheAnnotation.toCacheableAnnotation());
         parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
         parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
-        selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName());
-        if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
-            String parameters = introspectedColumns.stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.joining(","));
+        selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName()+ ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
+        if (introspectedTable.getRules().isGenerateCachePO()) {
+            String parameters = parameterColumns.stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.joining(","));
             selectByKeysDictMethod.addBodyLine("List<{0}> result = mapper.{2}({1});"
                     , entityType.getShortName()
                     , parameters
                     , introspectedTable.getSelectByKeysDictStatementId());
             selectByKeysDictMethod.addBodyLine("if (result.size()>0) {");
-            selectByKeysDictMethod.addBodyLine("return ServiceResult.success(mappings.to{0}CachePO(result.get(0)));"
+            selectByKeysDictMethod.addBodyLine("return ServiceResult.success(mappings.to{0}CachePOs(result));"
                     , entityType.getShortName());
         } else {
             String parameters = introspectedTable.getPrimaryKeyColumns().stream()
@@ -69,7 +70,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         selectByKeysDictMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
         selectByKeysDictMethod.addBodyLine("}");
         parentElement.addMethod(selectByKeysDictMethod);
-        parentElement.addImportedType(voCacheGeneratorConfiguration.getBaseTargetPackage() + ".maps." + entityType.getShortName() + "Mappings");
+        parentElement.addImportedType(voCacheGeneratorConfiguration.getBaseTargetPackage() + ".maps." + entityType.getShortName() +ConstantsUtil.MAPPINGS_CACHE_PO_KEY+ "Mappings");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
     }
 }

@@ -1,31 +1,21 @@
-/*
- *    Copyright 2006-2021 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.Plugin;
+import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.tool.core.VDateUtils;
+import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
+import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
@@ -35,6 +25,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -49,7 +40,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         List<CompilationUnit> answer = new ArrayList<>();
 
         JavaModelGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration();
-        if (configuration ==null || !configuration.isGenerate()) {
+        if (configuration == null || !configuration.isGenerate()) {
             return answer;
         }
 
@@ -72,13 +63,13 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             topLevelClass.addImportedType(superClass);
             //泛型
             List<String> rootClassTypeArguments = getRootClassTypeArguments(introspectedTable);
-            rootClassTypeArguments.forEach(s-> superClass.addTypeArgument(new FullyQualifiedJavaType(s)));
+            rootClassTypeArguments.forEach(s -> superClass.addTypeArgument(new FullyQualifiedJavaType(s)));
         }
         String superInterface = introspectedTable.getTableConfiguration().getProperty("superInterface");
         if (StringUtility.stringHasValue(superInterface)) {
             Arrays.stream(superInterface.split(","))
                     .map(FullyQualifiedJavaType::new)
-                    .forEach(s->{
+                    .forEach(s -> {
                         topLevelClass.addSuperInterface(s);
                         topLevelClass.addImportedType(s);
                     });
@@ -100,6 +91,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             }
         }
 
+        //生成属性
         for (IntrospectedColumn introspectedColumn : introspectedColumns) {
             if (RootClassInfo.getInstance(getRootClass(), warnings).containsProperty(introspectedColumn)) {
                 continue;
@@ -117,7 +109,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             if (plugins.modelGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                     Plugin.ModelClassType.BASE_RECORD)) {
                 StringBuilder sb = new StringBuilder(introspectedColumn.getJavaProperty());
-                if (sb.length()>1 && Character.isUpperCase(sb.charAt(1))) {
+                if (sb.length() > 1 && Character.isUpperCase(sb.charAt(1))) {
                     topLevelClass.addMethod(method);
                 }
             }
@@ -126,7 +118,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 if (plugins.modelSetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                         Plugin.ModelClassType.BASE_RECORD)) {
                     StringBuilder sb = new StringBuilder(introspectedColumn.getJavaProperty());
-                    if (sb.length()>1 && Character.isUpperCase(sb.charAt(1))) {
+                    if (sb.length() > 1 && Character.isUpperCase(sb.charAt(1))) {
                         topLevelClass.addMethod(method);
                     }
                 }
@@ -137,20 +129,85 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         //增加映射
         VoGenService voGenService = new VoGenService(introspectedTable);
         List<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
-        voGenService.buildOverrideColumn(overrideProperty, topLevelClass, ModelClassTypeEnum.modelClass).forEach(f->{
-            plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable,Plugin.ModelClassType.BASE_RECORD);
+        voGenService.buildOverrideColumn(overrideProperty, topLevelClass, ModelClassTypeEnum.modelClass).forEach(f -> {
+            plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD);
         });
 
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
         List<Field> addtionalPropertiesFields = topLevelClass.getAddtionalPropertiesFields(additionalProperty);
-        addtionalPropertiesFields.forEach(f->{
+        addtionalPropertiesFields.forEach(f -> {
             if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable,
                     Plugin.ModelClassType.BASE_RECORD)) {
                 topLevelClass.addField(f);
                 topLevelClass.addImportedType(f.getType());
             }
         });
+
+        //添加一个参数的构造器
+        boolean assignable1 = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
+        if (assignable1) {
+            Method method = new Method(topLevelClass.getType().getShortName());
+            method.addParameter(new Parameter(FullyQualifiedJavaType.getIntInstance(), PARAM_NAME_PERSISTENCE_STATUS));
+            method.setVisibility(JavaVisibility.PUBLIC);
+            method.setConstructor(true);
+            addConstructorBodyLine(method, true, topLevelClass, introspectedTable);
+            if (topLevelClass.getMethods().size() == 0) {
+                topLevelClass.getMethods().add(method);
+            } else {
+                topLevelClass.getMethods().add(0, method);
+            }
+        }
+
+        //添加静态代码块
+        InitializationBlock initializationBlock = new InitializationBlock(false);
+        //在静态代码块中添加默认值
+        addInitialization(initializationBlock, topLevelClass);
+        String beanName = introspectedTable.getControllerBeanName();
+        if (!StringUtility.isEmpty(beanName) && assignable1) {
+            initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", introspectedTable.getControllerBeanName()));
+        }
+        if (initializationBlock.getBodyLines().size() > 0) {
+            topLevelClass.addInitializationBlock(initializationBlock);
+        }
+
+        /*
+         * 根据联合查询属性配置
+         * 在实体对象中增加相应的属性
+         */
+        introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().forEach(relationProperty -> {
+            FullyQualifiedJavaType returnType;
+            Field field;
+            FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());
+            if (!topLevelClass.isContainField(relationProperty.getPropertyName())) {
+                if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
+                    FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+                    topLevelClass.addImportedType(listType);
+                    returnType = FullyQualifiedJavaType.getNewListInstance();
+                    returnType.addTypeArgument(fullyQualifiedJavaType);
+                    field = new Field(relationProperty.getPropertyName(), returnType);
+                    topLevelClass.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new ArrayList<>();", relationProperty.getPropertyName()));
+                } else {
+                    returnType = fullyQualifiedJavaType;
+                    field = new Field(relationProperty.getPropertyName(), returnType);
+                }
+                if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+                    TableField tableField = new TableField();
+                    tableField.setExist(false);
+                    tableField.addAnnotationToField(field, topLevelClass);
+                }
+                field.setVisibility(JavaVisibility.PRIVATE);
+                if (field.getRemark() == null) {
+                    field.setRemark(relationProperty.getRemark());
+                }
+                ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
+                apiModelProperty.addAnnotationToField(field, topLevelClass);
+                topLevelClass.addField(field, null, true);
+                topLevelClass.addImportedType(fullyQualifiedJavaType);
+            }
+        });
+
 
         if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
@@ -257,5 +314,22 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         }
 
         return introspectedColumns;
+    }
+
+    /**
+     * 内部类，添加构造器方法体内容
+     *
+     * @param method          构造器方法
+     * @param existParameters 是否有参
+     */
+    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        boolean assignable = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
+        if (existParameters) {
+            if (assignable) {
+                method.addBodyLine("super(persistenceStatus);");
+            } else {
+                method.addBodyLine("this.persistenceStatus = persistenceStatus;");
+            }
+        }
     }
 }

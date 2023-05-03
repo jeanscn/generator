@@ -24,7 +24,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (introspectedTable.getRules().isGenerateViewVO()) {
             ViewColumnMeta viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
             field.addAnnotation(viewColumnMeta.toAnnotation());
-            topLevelClass.addMultipleImports(viewColumnMeta.multipleImports());
+            topLevelClass.addImportedTypes(viewColumnMeta.getImportedTypes());
         }
         return true;
     }
@@ -44,7 +44,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             viewColumnMeta = new ViewColumnMeta(field, field.getRemark(), introspectedTable);
         }
         field.addAnnotation(viewColumnMeta.toAnnotation());
-        topLevelClass.addMultipleImports(viewColumnMeta.multipleImports());
+        topLevelClass.addImportedTypes(viewColumnMeta.getImportedTypes());
         return true;
     }
 }

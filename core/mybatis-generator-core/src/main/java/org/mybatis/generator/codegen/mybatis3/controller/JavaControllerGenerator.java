@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -18,10 +19,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.VoGenService;
 
 import java.sql.JDBCType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -67,7 +65,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             supClazzType.addTypeArgument(entityType);
             supClazzType.addTypeArgument(entityVoType);
             conTopClazz.addImportedType(entityVoType);
-        }else{
+        } else {
             supClazzType.addTypeArgument(entityType);
             supClazzType.addTypeArgument(entityType);
         }
@@ -148,6 +146,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
         addDeleteByTableElement(conTopClazz);
         addInsertByTableElement(conTopClazz);
+        addGetTreeElement(conTopClazz);
+
 
         //重写getListData，如果存在VO的时候
         if (introspectedTable.getRules().isGenerateVoModel()) {
@@ -206,7 +206,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                         excelVOColumn.getJavaProperty(),
                         JavaBeansUtil.getColumnExampleValue(excelVOColumn));
                 if (excelVOColumn.isJDBCDateColumn() || excelVOColumn.isJDBCTimeColumn() || excelVOColumn.isJDBCTimeStampColumn()
-                || excelVOColumn.isJava8TimeColumn()) {
+                        || excelVOColumn.isJava8TimeColumn()) {
                     conTopClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
                 } else if (excelVOColumn.getJdbcType() == JDBCType.DECIMAL.getVendorTypeNumber()) {
                     conTopClazz.addImportedType("java.math.BigDecimal");
@@ -394,6 +394,17 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
         }
         return answer;
+    }
+
+    private void addGetTreeElement(TopLevelClass parentElement) {
+        Set<String> columnNames = introspectedTable.getTableConfiguration().getColumnNames();
+        if (introspectedTable.getRules().isModelEnableChildren()
+                && columnNames.contains(DefultColumnNameEnum.PARENT_ID.columnName())
+                && columnNames.contains(DefultColumnNameEnum.ID.columnName())
+                && columnNames.contains(DefultColumnNameEnum.NAME.columnName())) {
+            AbstractControllerElementGenerator elementGenerator = new FetchTreeDataElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addDeleteByTableElement(TopLevelClass parentElement) {

@@ -35,7 +35,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
             CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
             deleteByExampleMethod.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
         }
-        List<RelationGeneratorConfiguration> collect = introspectedTable.getRelationGeneratorConfigurations().stream()
+        List<RelationGeneratorConfiguration> collect = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());
         if (collect.size() > 0) {

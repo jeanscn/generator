@@ -8,12 +8,12 @@ import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.codegen.HtmlConstants;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlElementDescriptor;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlLayoutDescriptor;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 
 import java.util.*;
 import java.util.function.Function;
@@ -124,7 +124,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             String styleStr = ".layui-table td,.layui-table th,.layui-table-col-set,.layui-table-fixed-r,.layui-table-grid-down,.layui-table-header,.layui-table-page,.layui-table-tips-main,.layui-table-tool,.layui-table-total,.layui-table-view,.layui-table[lay-skin=line],.layui-table[lay-skin=row] {\n";
             styleStr += "            border-width: " + (layoutDescriptor.getBorderWidth() == 0 ? 0 : layoutDescriptor.getBorderWidth() + "px") + ";\n";
             styleStr += "            border-color: " + layoutDescriptor.getBorderColor() + ";\n";
-            styleStr += "            border-style: solid;\n";
+            styleStr += "  i          border-style: solid;\n";
             styleStr += "       }";
             style.addElement(new TextElement(styleStr));
             head.addElement(style);
@@ -224,6 +224,20 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             }
         }
 
+        //添加checkbox的隐藏input，避免提交时没有值
+        for (HtmlElementDescriptor htmlElementDescriptor : htmlGeneratorConfiguration.getElementDescriptors()) {
+            if (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.getCode())) {
+                HtmlElement input = new HtmlElement("input");
+                input.addAttribute(new Attribute("name",
+                        htmlElementDescriptor.getColumn().getJavaProperty() +
+                                (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.getCode()) ? "[]" : "")
+                ));
+                input.addAttribute(new Attribute("type", "hidden"));
+                input.addAttribute(new Attribute("value", ""));
+                form.addElement(input);
+            }
+        }
+
         //添加主键字段
         for (IntrospectedColumn primaryKeyColumn : introspectedTable.getPrimaryKeyColumns()) {
             if (hiddenColumns.stream().anyMatch(c -> c.getActualColumnName().equals(primaryKeyColumn.getActualColumnName()))) {
@@ -278,20 +292,14 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             Attribute beanName = null, applyProperty = null;
             if (VStringUtil.stringHasValue(htmlElementDescriptor.getDataSource())) {
                 switch (htmlElementDescriptor.getDataSource()) {
-                    case "department":
+                    case "Department":
                         thisDialect = "vgo:deptName";
                         break;
-                    case "user":
+                    case "User":
                         thisDialect = "vgo:userName";
                         break;
                     default:
-                        thisDialect = "vgo:" + htmlElementDescriptor.getDataSource();
-                        if (htmlElementDescriptor.getBeanName() != null) {
-                            beanName = new Attribute("beanName", htmlElementDescriptor.getBeanName());
-                        }
-                        if (htmlElementDescriptor.getApplyProperty() != null) {
-                            applyProperty = new Attribute("applyProperty", htmlElementDescriptor.getApplyProperty());
-                        }
+                        thisDialect = "vgo:" + htmlElementDescriptor.getDataSource().toLowerCase();
                         break;
                 }
             } else {
@@ -305,12 +313,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     dropdownListHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement dpRead = addDivWithClassToParent(td, "oas-form-item-read");
                     dpRead.addAttribute(new Attribute(thisDialect, dropdownListHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
-                    if (beanName != null) {
-                        dpRead.addAttribute(beanName);
-                    }
-                    if (applyProperty != null) {
-                        dpRead.addAttribute(applyProperty);
-                    }
+                    addBeanNameApplyProperty(htmlElementDescriptor,dpRead);
                     break;
                 case "switch":
                     //增加美化的switch
@@ -320,12 +323,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     switchHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement sRead = addDivWithClassToParent(td, "oas-form-item-read");
                     sRead.addAttribute(new Attribute(thisDialect, switchHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
-                    if (beanName != null) {
-                        sRead.addAttribute(beanName);
-                    }
-                    if (applyProperty != null) {
-                        sRead.addAttribute(applyProperty);
-                    }
+                   addBeanNameApplyProperty(htmlElementDescriptor,sRead);
                     break;
                 case "radio":
                     RadioHtmlGenerator radioHtmlGenerator = new RadioHtmlGenerator(generatorInitialParameters);
@@ -334,12 +332,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     radioHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement rRead = addDivWithClassToParent(td, "oas-form-item-read");
                     rRead.addAttribute(new Attribute(thisDialect, radioHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
-                    if (beanName != null) {
-                        rRead.addAttribute(beanName);
-                    }
-                    if (applyProperty != null) {
-                        rRead.addAttribute(applyProperty);
-                    }
+                   addBeanNameApplyProperty(htmlElementDescriptor,rRead);
                     break;
                 case "checkbox":
                     CheckBoxHtmlGenerator checkBoxHtmlGenerator = new CheckBoxHtmlGenerator(generatorInitialParameters);
@@ -347,13 +340,9 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     checkBoxHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     checkBoxHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement cRead = addDivWithClassToParent(td, "oas-form-item-read");
+                    addBeanNameApplyProperty(htmlElementDescriptor, cRead);
                     cRead.addAttribute(new Attribute(thisDialect, checkBoxHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
-                    if (beanName != null) {
-                        cRead.addAttribute(beanName);
-                    }
-                    if (applyProperty != null) {
-                        cRead.addAttribute(applyProperty);
-                    }
+                   addBeanNameApplyProperty(htmlElementDescriptor,cRead);
                     break;
                 case "date":
                     DateHtmlElementGenerator dateHtmlElementGenerator = new DateHtmlElementGenerator(generatorInitialParameters);
@@ -388,6 +377,15 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         }
     }
 
+    private void addBeanNameApplyProperty(HtmlElementDescriptor htmlElementDescriptor, HtmlElement element) {
+        if (htmlElementDescriptor.getBeanName() != null) {
+            element.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
+        }
+        if (htmlElementDescriptor.getApplyProperty() != null) {
+            element.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
+        }
+    }
+
     private void drawRtfContentDiv(String entityKey, IntrospectedColumn introspectedColumn, HtmlElement inputInline) {
         HtmlElement htmlElement = addDivWithClassToParent(inputInline, "rtf-content");
         htmlElement.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
@@ -396,6 +394,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         HtmlElement label = new HtmlElement("label");
+        label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         addClassNameToElement(label, "layui-form-label");
         label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
         parent.addElement(label);
@@ -404,7 +403,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     private HtmlElement generateLayuiToolBar(HtmlElement parent) {
         HtmlElement toolBar = generateToolBar(parent);
         String config = getHtmlBarPositionConfig();
-        if (!HtmlConstants.HTML_KEY_WORD_TOP.equals(config)) {
+        if (!HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
             addClassNameToElement(btnClose, "footer-btn");
             if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {

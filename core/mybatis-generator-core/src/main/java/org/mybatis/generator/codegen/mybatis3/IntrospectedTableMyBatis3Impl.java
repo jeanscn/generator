@@ -1,18 +1,3 @@
-/*
- *    Copyright 2006-2021 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.mybatis.generator.codegen.mybatis3;
 
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
@@ -21,6 +6,7 @@ import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
@@ -34,6 +20,7 @@ import org.mybatis.generator.codegen.mybatis3.model.BaseRecordGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.ExampleGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.PrimaryKeyGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.RecordWithBLOBsGenerator;
+import org.mybatis.generator.codegen.mybatis3.po.CachePoClassGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
@@ -41,6 +28,7 @@ import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataPermissionScriptG
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlSchemaScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaControllerUnitTestGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaServiceUnitTestGenerator;
+import org.mybatis.generator.codegen.mybatis3.po.POCacheGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.ViewObjectClassGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
@@ -53,6 +41,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Introspected table implementation for generating MyBatis3 artifacts.
@@ -75,7 +64,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
     @Override
     public void calculateGenerators(List<String> warnings,
-            ProgressCallback progressCallback) {
+                                    ProgressCallback progressCallback) {
         calculateJavaModelGenerators(warnings, progressCallback);
 
         AbstractJavaClientGenerator javaClientGenerator =
@@ -98,16 +87,16 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         sqlBuilder.updateStringValues("id_", id);
         sqlBuilder.updateStringValues("module_tag", moduleKey);
         sqlBuilder.updateStringValues("module_name", context.getModuleName());
-        sqlBuilder.updateStringValues("parent_id","0");
+        sqlBuilder.updateStringValues("parent_id", "0");
         sqlBuilder.updateValues("sort_", String.valueOf(size));
         sqlBuilder.updateValues("wf_apply", "0");
         sqlBuilder.updateStringValues("category_", context.getModuleName());
-        context.addModuleDataScriptLine(id, sqlBuilder.toSql()+";");
+        context.addModuleDataScriptLine(id, sqlBuilder.toSql() + ";");
     }
 
     protected void calculateXmlMapperGenerator(AbstractJavaClientGenerator javaClientGenerator,
-            List<String> warnings,
-            ProgressCallback progressCallback) {
+                                               List<String> warnings,
+                                               ProgressCallback progressCallback) {
         if (javaClientGenerator == null) {
             if (context.getSqlMapGeneratorConfiguration() != null) {
                 xmlMapperGenerator = new XMLMapperGenerator();
@@ -118,17 +107,17 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
         initializeAbstractGenerator(xmlMapperGenerator, warnings,
                 progressCallback);
-        }
+    }
 
-    protected void calculateHtmlMapperGenerator(List<String> warnings,ProgressCallback progressCallback) {
-        if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+    protected void calculateHtmlMapperGenerator(List<String> warnings, ProgressCallback progressCallback) {
+        if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
             htmlGenerator = new HTMLGenerator();
-            initializeAbstractGenerator(htmlGenerator, warnings,progressCallback);
+            initializeAbstractGenerator(htmlGenerator, warnings, progressCallback);
         }
     }
 
     protected AbstractJavaClientGenerator calculateClientGenerators(List<String> warnings,
-            ProgressCallback progressCallback) {
+                                                                    ProgressCallback progressCallback) {
         if (!rules.generateJavaClient()) {
             return null;
         }
@@ -142,6 +131,16 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         javaGenerators.add(javaGenerator);
 
         return javaGenerator;
+    }
+
+    /**
+     * 在这里做一些定制内容的计算
+     *
+     * @param warnings 生成警告
+     * @param callback 进度回调
+     */
+    public void calculateCustom(List<String> warnings, ProgressCallback callback) {
+
     }
 
     protected AbstractJavaClientGenerator createJavaClientGenerator() {
@@ -167,7 +166,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         return javaGenerator;
     }
 
-    protected void calculateJavaModelGenerators(List<String> warnings,ProgressCallback progressCallback) {
+    protected void calculateJavaModelGenerators(List<String> warnings, ProgressCallback progressCallback) {
         if (getRules().generateExampleClass()) {
             AbstractJavaGenerator javaGenerator = new ExampleGenerator(getExampleProject());
             initializeAbstractGenerator(javaGenerator, warnings, progressCallback);
@@ -193,46 +192,51 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         }
         if (getRules().generateService()) {
             JavaServiceGenerator javaServiceGenerator = new JavaServiceGenerator(getServiceProject());
-            initializeAbstractGenerator(javaServiceGenerator, warnings,progressCallback);
+            initializeAbstractGenerator(javaServiceGenerator, warnings, progressCallback);
             javaGenerators.add(javaServiceGenerator);
 
             JavaServiceImplGenerator javaServiceImplGenerator = new JavaServiceImplGenerator(getServiceProject());
-            initializeAbstractGenerator(javaServiceImplGenerator, warnings,progressCallback);
+            initializeAbstractGenerator(javaServiceImplGenerator, warnings, progressCallback);
             javaGenerators.add(javaServiceImplGenerator);
 
             if (getRules().isGenerateServiceUnitTest()) {
                 JavaServiceUnitTestGenerator javaServiceUnitTestGenerator = new JavaServiceUnitTestGenerator("src/test/java");
-                initializeAbstractGenerator(javaServiceUnitTestGenerator, warnings,progressCallback);
+                initializeAbstractGenerator(javaServiceUnitTestGenerator, warnings, progressCallback);
                 javaGenerators.add(javaServiceUnitTestGenerator);
             }
         }
         if (getRules().isGenerateVO()) {
             ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
-            initializeAbstractGenerator(viewObjectClassGenerator, warnings,progressCallback);
+            initializeAbstractGenerator(viewObjectClassGenerator, warnings, progressCallback);
             javaGenerators.add(viewObjectClassGenerator);
         }
         if (getRules().generateController()) {
             JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = this.getTableConfiguration().getJavaControllerGeneratorConfiguration();
-            String project = StringUtility.stringHasValue(javaControllerGeneratorConfiguration.getTargetProject())?
-                    javaControllerGeneratorConfiguration.getTargetProject():getClientProject();
+            String project = StringUtility.stringHasValue(javaControllerGeneratorConfiguration.getTargetProject()) ?
+                    javaControllerGeneratorConfiguration.getTargetProject() : getClientProject();
             project = StringUtility.getTargetProject(project);
             JavaControllerGenerator javaControllerGenerator = new JavaControllerGenerator(project);
-            initializeAbstractGenerator(javaControllerGenerator, warnings,progressCallback);
+            initializeAbstractGenerator(javaControllerGenerator, warnings, progressCallback);
             javaGenerators.add(javaControllerGenerator);
 
             if (getRules().isGenerateControllerUnitTest()) {
                 String targetProject = "src/test/java";
                 String property = this.getContext().getProperty(PropertyRegistry.CONTEXT_ROOT_MODULE_NAME);
                 if (StringUtility.stringHasValue(property)) {
-                    String tmpStr = StringUtility.getTargetProject("$PROJECT_DIR$\\"+property);
-                   targetProject = tmpStr+"\\"+targetProject;
+                    String tmpStr = StringUtility.getTargetProject("$PROJECT_DIR$\\" + property);
+                    targetProject = tmpStr + "\\" + targetProject;
                 }
                 JavaControllerUnitTestGenerator javaControllerUnitTestGenerator = new JavaControllerUnitTestGenerator(targetProject);
-                initializeAbstractGenerator(javaControllerUnitTestGenerator, warnings,progressCallback);
+                initializeAbstractGenerator(javaControllerUnitTestGenerator, warnings, progressCallback);
                 javaGenerators.add(javaControllerUnitTestGenerator);
             }
         }
 
+        if (getRules().isGenerateCachePO()) {
+            CachePoClassGenerator cachePoClassGenerator = new CachePoClassGenerator(getModelProject());
+            initializeAbstractGenerator(cachePoClassGenerator, warnings, progressCallback);
+            javaGenerators.add(cachePoClassGenerator);
+        }
     }
 
     protected void initializeAbstractGenerator(AbstractGenerator abstractGenerator, List<String> warnings,
@@ -255,9 +259,9 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             List<CompilationUnit> compilationUnits = javaGenerator.getCompilationUnits();
             for (CompilationUnit compilationUnit : compilationUnits) {
                 GeneratedJavaFile gjf = new GeneratedJavaFile(compilationUnit,
-                                javaGenerator.getProject(),
-                                context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
-                                context.getJavaFormatter());
+                        javaGenerator.getProject(),
+                        context.getProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING),
+                        context.getJavaFormatter());
                 answer.add(gjf);
             }
         }
@@ -273,9 +277,9 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             List<KotlinFile> kotlinFiles = kotlinGenerator.getKotlinFiles();
             for (KotlinFile kotlinFile : kotlinFiles) {
                 GeneratedKotlinFile gjf = new GeneratedKotlinFile(kotlinFile,
-                                kotlinGenerator.getProject(),
-                                context.getProperty(PropertyRegistry.CONTEXT_KOTLIN_FILE_ENCODING),
-                                context.getKotlinFormatter());
+                        kotlinGenerator.getProject(),
+                        context.getProperty(PropertyRegistry.CONTEXT_KOTLIN_FILE_ENCODING),
+                        context.getKotlinFormatter());
                 answer.add(gjf);
             }
         }
@@ -302,7 +306,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         }
     }
 
-    protected String getServiceProject(){
+    protected String getServiceProject() {
         return context.getJavaModelGeneratorConfiguration().getTargetProject();
     }
 
@@ -311,7 +315,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         List<GeneratedXmlFile> answer = new ArrayList<>();
 
         if (xmlMapperGenerator != null
-                && xmlMapperGenerator.getIntrospectedTable().getTableConfiguration().getSqlMapGeneratorConfiguration()!=null
+                && xmlMapperGenerator.getIntrospectedTable().getTableConfiguration().getSqlMapGeneratorConfiguration() != null
                 && xmlMapperGenerator.getIntrospectedTable().getTableConfiguration().getSqlMapGeneratorConfiguration().isGenerate()) {
             Document document = xmlMapperGenerator.getDocument();
             GeneratedXmlFile gxf = new GeneratedXmlFile(document,
@@ -328,7 +332,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
     @Override
     public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
-        GenerateHtmlFiles generateHtmlFiles = new GenerateHtmlFiles(context,this, htmlGenerator);
+        GenerateHtmlFiles generateHtmlFiles = new GenerateHtmlFiles(context, this, htmlGenerator);
         return generateHtmlFiles.getGeneratedHtmlFiles();
     }
 
@@ -337,17 +341,17 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
         SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration = this.getTableConfiguration().getSqlSchemaGeneratorConfiguration();
         if (sqlSchemaGeneratorConfiguration == null) {
-            sqlSchemaGeneratorConfiguration = new SqlSchemaGeneratorConfiguration(this.context,this.tableConfiguration);
+            sqlSchemaGeneratorConfiguration = new SqlSchemaGeneratorConfiguration(this.context, this.tableConfiguration);
             sqlSchemaGeneratorConfiguration.setGenerate(true);
         }
         if (sqlSchemaGeneratorConfiguration.isGenerate()) {
             String fileName = this.getTableConfiguration().getTableName().toLowerCase();
             if (StringUtility.stringHasValue(sqlSchemaGeneratorConfiguration.getFilePrefix())) {
-                fileName = sqlSchemaGeneratorConfiguration.getFilePrefix()+fileName;
+                fileName = sqlSchemaGeneratorConfiguration.getFilePrefix() + fileName;
             }
             List<String> dbType = Arrays.asList("h2", "mysql");
             for (String type : dbType) {
-                GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName+".sql",
+                GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName + ".sql",
                         type,
                         sqlSchemaGeneratorConfiguration.getTargetProject(),
                         this,
@@ -361,10 +365,10 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     @Override
     public List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles() {
         List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
-        if (this.getPermissionDataScriptLines().size()==0) {
+        if (this.getPermissionDataScriptLines().size() == 0) {
             return answer;
         }
-        String fileName = "data-permission-"+this.getTableConfiguration().getTableName().toLowerCase()+".sql";
+        String fileName = "data-permission-" + this.getTableConfiguration().getTableName().toLowerCase() + ".sql";
         GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
                 "init",
                 "src/main/resources/sql",

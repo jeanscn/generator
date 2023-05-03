@@ -68,7 +68,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("}");
         method.addBodyLine("}else{");
         method.addBodyLine(format("mv.addObject(\"{0}\", new {1});",
-                this.entityNameKey,introspectedTable.getRules().isGenerateVoModel()?this.entityVoType.getShortName()+"()":entityType.getShortName()+"(0)"));
+                this.entityNameKey,introspectedTable.getRules().isGenerateVoModel()?this.entityVoType.getShortName()+"()"
+                                :entityType.getShortName()+"(0)"));
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewStatus).orElse(\"1\"));");
         sb.setLength(0);

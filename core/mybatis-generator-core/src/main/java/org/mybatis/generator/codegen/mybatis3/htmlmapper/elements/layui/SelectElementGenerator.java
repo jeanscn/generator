@@ -13,6 +13,8 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
+import static com.vgosoft.tool.core.VStringUtil.*;
+
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-04-13 17:29
@@ -35,15 +37,11 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
 
     @Override
     public void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent) {
-        String dataFormat = this.htmlElementDescriptor.getDataFormat();
-        if (!StringUtility.stringHasValue(dataFormat)) {
-            dataFormat = "user";
-        }
-
+        String dataSource = this.htmlElementDescriptor.getDataSource();
         //计算使用方言
         String thisDialect = null;
-        if (VStringUtil.stringHasValue(this.htmlElementDescriptor.getDataSource())) {
-            thisDialect = "vgo:"+(dataFormat.equals("department")?"deptName":"userName");
+        if (stringHasValue(this.htmlElementDescriptor.getDataSource())) {
+            thisDialect = "vgo:"+(dataSource.equals("Department")?"deptName":dataSource.equals("User")?"userName":dataSource.toLowerCase());
         }
 
         this.otherFieldName = this.htmlElementDescriptor.getOtherFieldName();
@@ -56,15 +54,25 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         input.addAttribute(new Attribute("readonly", "readonly"));
         addClassNameToElement(input, "layui-input");
         input.addAttribute(new Attribute("data-field", javaProperty));
-        addElementRequired(introspectedColumn.getActualColumnName(), input);
-
+        addElementRequired(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
         input.addAttribute(new Attribute(thisDialect==null?"th:value":thisDialect, this.thymeleafValue(introspectedColumn)));
         input.addAttribute(new Attribute("for-type", "lay-select"));
-        input.addAttribute(new Attribute("data-type", dataFormat));
+        input.addAttribute(new Attribute("data-type", dataSource));
         addClassNameToElement(input, "oas-form-item-edit");
+        if (stringHasValue(htmlElementDescriptor.getDataUrl())) {
+            input.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+        }
         parent.addElement(input);
-        HtmlElement dateRead = addDivWithClassToParent(parent, "oas-form-item-read");
-        dateRead.addAttribute(new Attribute(thisDialect==null?"th:text":thisDialect, this.thymeleafValue(introspectedColumn)));
+        HtmlElement divRead = addDivWithClassToParent(parent, "oas-form-item-read");
+        divRead.addAttribute(new Attribute(thisDialect==null?"th:text":thisDialect, this.thymeleafValue(introspectedColumn)));
+        if (stringHasValue(htmlElementDescriptor.getBeanName())) {
+            input.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
+            divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
+        }
+        if (stringHasValue(htmlElementDescriptor.getApplyProperty())) {
+            input.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
+            divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
+        }
         //增加一个隐藏字段
         HtmlElement hidden = generateHtmlInput(introspectedColumn, true, false);
         hidden.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(introspectedColumn)));

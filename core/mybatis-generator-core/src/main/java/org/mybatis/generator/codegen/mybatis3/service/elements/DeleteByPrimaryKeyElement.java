@@ -34,10 +34,11 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
-            method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
+            cacheAnnotation.setKey("#id");
+            method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(false));
         }
         String pks = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.joining(","));
-        List<RelationGeneratorConfiguration> deleteConfigs = introspectedTable.getRelationGeneratorConfigurations().stream()
+        List<RelationGeneratorConfiguration> deleteConfigs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());
         if (deleteConfigs.size() > 0) {

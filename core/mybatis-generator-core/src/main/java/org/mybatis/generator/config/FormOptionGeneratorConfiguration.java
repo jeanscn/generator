@@ -1,5 +1,6 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
 import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.config.PropertyRegistry;
 
@@ -18,7 +19,7 @@ public class FormOptionGeneratorConfiguration  extends PropertyHolder {
     private int dataType;
 
     public FormOptionGeneratorConfiguration(String nameColumn) {
-        this.idColumn = PropertyRegistry.DEFAULT_PRIMARY_KEY;
+        this.idColumn = DefultColumnNameEnum.ID.columnName();
         this.nameColumn = nameColumn;
         dataType = 0;
     }
