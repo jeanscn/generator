@@ -1662,6 +1662,11 @@ public class MyBatisGeneratorConfigurationParser {
             voViewGeneratorConfiguration.setViewMenuIcon(GlobalConstant.VIEW_VO_DEFAULT_ICON);
         }
 
+        String categoryTreeUrl = attributes.getProperty("categoryTreeUrl");
+        if (stringHasValue(categoryTreeUrl)) {
+            voViewGeneratorConfiguration.setCategoryTreeUrl(categoryTreeUrl);
+        }
+
         //EqualsAndHashCodeColumns
         String equalsHashCode = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(equalsHashCode)) {

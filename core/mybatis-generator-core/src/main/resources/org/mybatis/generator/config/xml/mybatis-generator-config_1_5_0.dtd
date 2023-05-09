@@ -788,6 +788,7 @@
                 defaultHiddenFields CDATA #IMPLIED
                 parentMenuId CDATA #IMPLIED
                 viewMenuIcon CDATA #IMPLIED
+                categoryTreeUrl CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
 
         <!--

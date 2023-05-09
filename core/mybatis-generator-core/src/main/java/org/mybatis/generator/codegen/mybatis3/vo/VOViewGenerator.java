@@ -136,6 +136,9 @@ public class VOViewGenerator extends AbstractVOGenerator{
                     .toArray(String[]::new);
             viewTableMeta.setColumns(strings);
         }
+        if (stringHasValue(voViewGeneratorConfiguration.getCategoryTreeUrl())) {
+            viewTableMeta.setCategoryTreeUrl(voViewGeneratorConfiguration.getCategoryTreeUrl());
+        }
         //ignoreFields
         if (voViewGeneratorConfiguration.getExcludeColumns().size() > 0) {
             String[] columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()

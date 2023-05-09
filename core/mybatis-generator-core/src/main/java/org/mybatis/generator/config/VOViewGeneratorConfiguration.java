@@ -25,6 +25,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private String viewMenuIcon;
 
+    private String categoryTreeUrl;
+
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
         this.generate = false;
@@ -99,5 +101,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setViewMenuIcon(String viewMenuIcon) {
         this.viewMenuIcon = viewMenuIcon;
+    }
+
+    public String getCategoryTreeUrl() {
+        return categoryTreeUrl;
+    }
+
+    public void setCategoryTreeUrl(String categoryTreeUrl) {
+        this.categoryTreeUrl = categoryTreeUrl;
     }
 }

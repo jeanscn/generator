@@ -43,9 +43,9 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         method.addAnnotation(new ApiOperation("树形数据查询", "获取指定根或所有的树形结构数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取指定根或所有的树形结构数据");
         //函数体
-        method.addBodyLine("SimpleTreeNodeConverter<{0}> nodeConverter = new SimpleTreeNodeConverter<>();",entityType.getShortName());
+        method.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();",entityType.getShortName());
         method.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.selectByMultiStringIds(ids));", serviceBeanName));
-        method.addBodyLine("return ResponseResult.success(nodeConverter.convertTreeNodeData());");
+        method.addBodyLine("return ResponseResult.success(nodeConverter.convertTreeNodeDataSimple());");
         parentElement.addMethod(method);
 
 
@@ -66,11 +66,12 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             methodCate.addAnnotation(new ApiOperation("树形分类数据查询", "获取指定根或所有的树形分类结构数据"), parentElement);
             commentGenerator.addMethodJavaDocLine(methodCate, "获取指定根或所有的树形结构数据");
             //函数体
-            methodCate.addBodyLine("SimpleTreeNodeConverter<{0}> nodeConverter = new SimpleTreeNodeConverter<>();",entityType.getShortName());
+            methodCate.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();",entityType.getShortName());
             methodCate.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.selectByMultiStringIds(ids));", serviceBeanName));
-            methodCate.addBodyLine("return ResponseResult.success(nodeConverter.convertTreeNodeViewCate(\"{0}\"));",configuration.getSPeL());
+            methodCate.addBodyLine("return ResponseResult.success(nodeConverter.convertTreeNodeDataViewCate(\"{0}\"));",configuration.getSPeL());
             parentElement.addMethod(methodCate);
         }
-        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.SimpleTreeNodeConverter");
+        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.TreeNodeConverterImpl");
+        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.ITreeNodeConverter");
     }
 }
