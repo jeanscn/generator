@@ -257,6 +257,8 @@ public class MyBatisGeneratorConfigurationParser {
         String domainObjectName = attributes.getProperty("domainObjectName");
         if (!stringHasValue(domainObjectName)) {
             domainObjectName = JavaBeansUtil.getCamelCaseString(tableName, true);
+        }else{
+            domainObjectName = JavaBeansUtil.getFirstCharacterUppercase(domainObjectName.trim());
         }
         //先确认是否指定了生成范围
         List<String> tables = context.getOnlyTablesGenerate();

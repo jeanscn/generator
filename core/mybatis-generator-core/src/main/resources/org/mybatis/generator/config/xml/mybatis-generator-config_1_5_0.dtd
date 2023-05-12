@@ -527,8 +527,6 @@
             6、beanName 数据来源为dict时，指定bean的完整类名，如果不指定完整类名，请使用唯一的interface的shortName名称
             7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
             8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
-            9、maxLength 验证类型包含limit时，指定最大长度
-            10、minLength 验证类型包含limit时，指定最小长度
             说明：
             department|user：仅在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -544,9 +542,7 @@
                 dataSource (DictData|Dict|DictSys|DictUser|Department|User) #IMPLIED
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
-                verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED
-                maxLength CDATA #IMPLIED
-                minLength CDATA #IMPLIED>
+                verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED>
 
 
         <!--
