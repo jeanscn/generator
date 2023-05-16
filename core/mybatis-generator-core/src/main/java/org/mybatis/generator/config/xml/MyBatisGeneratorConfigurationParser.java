@@ -212,25 +212,6 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
     }
-
-    private List<String> spiltToList(String str) {
-        List<String> ret = new ArrayList<>();
-        if (stringHasValue(str)) {
-            String[] split = str.split("[,;，；、]");
-            Collections.addAll(ret, split);
-        }
-        return ret;
-    }
-
-    private Set<String> spiltToSet(String str){
-        Set<String> ret = new HashSet<>();
-        if (stringHasValue(str)) {
-            String[] split = str.split("[,;，；、]");
-            Collections.addAll(ret, split);
-        }
-        return ret;
-    }
-
     protected void parseSqlMapGenerator(Context context, Node node) {
         SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
 
@@ -914,11 +895,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(overWriteFile)) {
             htmlGeneratorConfiguration.setOverWriteFile(Boolean.parseBoolean(overWriteFile));
         }
-        //先计算全局隐藏字段
-        String contextHtmlHiddenColumns = context.getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        if (stringHasValue(contextHtmlHiddenColumns)) {
-            htmlGeneratorConfiguration.getHiddenColumns().addAll(spiltToList(contextHtmlHiddenColumns));
-        }
+
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -1179,8 +1156,15 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(expression)) {
             viewCateGeneratorConfiguration.setSPeL(expression);
         }
-        javaControllerGeneratorConfiguration.setTreeViewCateGeneratorConfiguration(viewCateGeneratorConfiguration);
-
+        String pathKeyWord = attributes.getProperty("pathKeyWord");
+        if (stringHasValue(pathKeyWord)) {
+            viewCateGeneratorConfiguration.setPathKeyWord(pathKeyWord);
+        }
+        if (javaControllerGeneratorConfiguration.getTreeViewCateGeneratorConfigurations()
+                .stream()
+                .noneMatch(config -> config.getPathKeyWord().equals(viewCateGeneratorConfiguration.getPathKeyWord()))) {
+            javaControllerGeneratorConfiguration.getTreeViewCateGeneratorConfigurations().add(viewCateGeneratorConfiguration);
+        }
     }
 
     private void parseGenerateOptions(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration, Node node) {

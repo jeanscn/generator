@@ -1,8 +1,7 @@
 package org.mybatis.generator.internal.util;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class StringUtility {
 
@@ -203,6 +202,24 @@ public class StringUtility {
             targetProject =  targetProject.replace("$PROJECT_DIR$", StringUtility.substringBeforeLast(System.getProperty("user.dir"),"\\"));
         }
         return targetProject;
+    }
+
+    public static  List<String> spiltToList(String str) {
+        List<String> ret = new ArrayList<>();
+        if (stringHasValue(str)) {
+            String[] split = str.split("[,;，；、]");
+            Collections.addAll(ret, split);
+        }
+        return ret;
+    }
+
+    public static  Set<String> spiltToSet(String str){
+        Set<String> ret = new HashSet<>();
+        if (stringHasValue(str)) {
+            String[] split = str.split("[,;，；、]");
+            Collections.addAll(ret, split);
+        }
+        return ret;
     }
 
 }

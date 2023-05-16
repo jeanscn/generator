@@ -147,22 +147,34 @@ public class ValidateDatabaseTable {
                 IntrospectedColumn introspectedColumn = introspectedTable.getColumn(columnMeta.value()).get();
                 JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault
                         .getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-                jdbcTypeInformation.setColumnLength(columnMeta.size());
                 String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();//字段完整注释
-                int columnLength = jdbcTypeInformation.getColumnLength();//字段长度
-                if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
-                        || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber() //类型
-                        || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
-                        || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale())) //小数点位数
-                        || !introspectedColumn.getRemarks(false).equals(remark)
-                        || isPk != columnMeta.pkid()
-                        || (introspectedColumn.isNullable() != columnMeta.nullable())
-                        || (!columnMeta.nullable() && !columnMeta.pkid()
-                        && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
-                ) {
-                    IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
-                    newColumn.setIntrospectedTable(introspectedTable);
-                    updateColumns.add(newColumn);
+                if (!introspectedColumn.isBLOBColumn()) {
+                    jdbcTypeInformation.setColumnLength(columnMeta.size());
+                    int columnLength = jdbcTypeInformation.getColumnLength();//字段长度
+                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
+                            || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber() //类型
+                            || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
+                            || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale())) //小数点位数
+                            || !introspectedColumn.getRemarks(false).equals(remark)
+                            || isPk != columnMeta.pkid()
+                            || (introspectedColumn.isNullable() != columnMeta.nullable())
+                            || (!columnMeta.nullable() && !columnMeta.pkid()
+                            && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
+                    ) {
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                        newColumn.setIntrospectedTable(introspectedTable);
+                        updateColumns.add(newColumn);
+                    }
+                }else{
+                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
+                            || !introspectedColumn.getRemarks(false).equals(remark)
+                            || isPk != columnMeta.pkid()
+                            || (introspectedColumn.isNullable() != columnMeta.nullable())
+                    ) {
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                        newColumn.setIntrospectedTable(introspectedTable);
+                        updateColumns.add(newColumn);
+                    }
                 }
             } else {
                 //需要创建的列

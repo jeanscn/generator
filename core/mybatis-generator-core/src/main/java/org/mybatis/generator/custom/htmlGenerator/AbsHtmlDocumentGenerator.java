@@ -325,6 +325,5 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
             ret = VArrayUtil.contains(property.split(","), introspectedColumn.getActualColumnName());
         }
         return ret || allFields.contains(introspectedColumn.getJavaProperty());
-
     }
 }

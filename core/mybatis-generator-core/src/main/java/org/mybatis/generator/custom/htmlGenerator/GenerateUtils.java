@@ -7,6 +7,8 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -19,12 +21,17 @@ import static org.mybatis.generator.custom.ConstantsUtil.*;
 public class GenerateUtils {
 
     /*判断当前属性是否为隐藏属性*/
-     public static boolean isHiddenColumn(IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration){
+     public static boolean isHiddenColumn(IntrospectedTable introspectedTable,IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration){
          if (htmlGeneratorConfiguration == null) {
              return false;
          }
-        List<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumns();
-        return hiddenColumn.contains(introspectedColumn.getActualColumnName());
+        Set<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumns();
+         Set<String> collect = introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
+                 .stream()
+                 .map(IntrospectedColumn::getActualColumnName)
+                 .collect(Collectors.toSet());
+            hiddenColumn.addAll(collect);
+         return hiddenColumn.contains(introspectedColumn.getActualColumnName());
     };
 
     public static String getLocalCssFilePath(String path, String filename) {

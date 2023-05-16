@@ -72,7 +72,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         for (IntrospectedColumn baseColumn : columns) {
-            if (GenerateUtils.isHiddenColumn(baseColumn, htmlGeneratorConfiguration)) {
+            if (GenerateUtils.isHiddenColumn(introspectedTable,baseColumn, htmlGeneratorConfiguration)) {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);

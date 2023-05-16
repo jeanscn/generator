@@ -1,7 +1,9 @@
 package org.mybatis.generator.config;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
@@ -11,7 +13,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean overWriteFile;
 
-    private List<String> hiddenColumns;
+    private Set<String> hiddenColumns;
 
     //指定页面表单不允许为空的字段
     private List<String> elementRequired;
@@ -22,7 +24,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
-        hiddenColumns = new ArrayList<>();
+        hiddenColumns = new HashSet<>();
         elementRequired = new ArrayList<>();
         elementDescriptors = new ArrayList<>();
         overWriteFile = false;
@@ -58,11 +60,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.overWriteFile = overWriteFile;
     }
 
-    public List<String> getHiddenColumns() {
+    public Set<String> getHiddenColumns() {
         return hiddenColumns;
     }
 
-    public void setHiddenColumns(List<String> hiddenColumns) {
+    public void setHiddenColumns(Set<String> hiddenColumns) {
         this.hiddenColumns = hiddenColumns;
     }
 
@@ -93,10 +95,5 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     public List<HtmlElementDescriptor> addElementDescriptors(HtmlElementDescriptor htmlElementDescriptor) {
         this.elementDescriptors.add(htmlElementDescriptor);
         return this.elementDescriptors;
-    }
-
-    public List<String> addHiddenColumns(String column) {
-        this.hiddenColumns.add(column);
-        return this.hiddenColumns;
     }
 }

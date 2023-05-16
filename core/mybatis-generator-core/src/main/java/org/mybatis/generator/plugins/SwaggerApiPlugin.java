@@ -8,13 +8,10 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 import org.mybatis.generator.custom.annotations.Api;
 import org.mybatis.generator.custom.annotations.ApiModel;
 import org.mybatis.generator.custom.annotations.ApiModelProperty;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,24 +60,27 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        //添加日期序列化格式注解
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
-            if (apiModelPropertyAnnotation != null) {
-                apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
-            }
+            addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
         }
         return true;
     }
 
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+        ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
+        if (apiModelPropertyAnnotation != null) {
+            if (!introspectedColumn.isNullable()) {
+                apiModelPropertyAnnotation.setRequired("true");
+            }
+            apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
+        }
+        return true;
     }
 
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,true);
     }
 
     /**
@@ -97,22 +97,22 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     @Override
     public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
     }
 
     @Override
     public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
     }
 
     @Override
     public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,true);
     }
 
     @Override
     public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable);
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
     }
 
     /**
@@ -155,14 +155,17 @@ public class SwaggerApiPlugin extends PluginAdapter {
                 context);
     }
 
-    private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,boolean required) {
         ApiModelProperty apiModelProperty = buildApiModelPropertyAnnotation(field, introspectedTable);
-        if (apiModelProperty!=null && topLevelClass.getType().getShortName().indexOf("CreateVO")>0) {
+        if (apiModelProperty == null) {
+            return false;
+        }
+        if (required) {
+            apiModelProperty.setRequired("true");
+        }else{
             apiModelProperty.setRequired(null);
         }
-        if (apiModelProperty != null) {
-            apiModelProperty.addAnnotationToField(field, topLevelClass);
-        }
+        apiModelProperty.addAnnotationToField(field, topLevelClass);
         return true;
     }
 

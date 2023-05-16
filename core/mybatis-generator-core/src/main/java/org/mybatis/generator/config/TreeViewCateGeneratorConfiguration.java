@@ -9,6 +9,8 @@ import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
  */
 public class TreeViewCateGeneratorConfiguration extends PropertyHolder {
 
+    private String pathKeyWord = "view-cate";
+
     private String SPeL = "'"+ DefultColumnNameEnum.PARENT_ID.columnName() +" = ''' + #this.id +''''";
 
     public TreeViewCateGeneratorConfiguration() {
@@ -26,5 +28,13 @@ public class TreeViewCateGeneratorConfiguration extends PropertyHolder {
 
     public void setSPeL(String SPeL) {
         this.SPeL = SPeL;
+    }
+
+    public String getPathKeyWord() {
+        return pathKeyWord;
+    }
+
+    public void setPathKeyWord(String pathKeyWord) {
+        this.pathKeyWord = pathKeyWord;
     }
 }

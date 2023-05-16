@@ -15,7 +15,7 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     private List<FormOptionGeneratorConfiguration> formOptionGeneratorConfigurations = new ArrayList<>();
 
-    private TreeViewCateGeneratorConfiguration treeViewCateGeneratorConfiguration;
+    private List<TreeViewCateGeneratorConfiguration> treeViewCateGeneratorConfigurations = new ArrayList<>();
 
     public JavaControllerGeneratorConfiguration(Context context) {
         super();
@@ -59,12 +59,12 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
         this.formOptionGeneratorConfigurations.add(formOptionGeneratorConfigurations);
     }
 
-    public TreeViewCateGeneratorConfiguration getTreeViewCateGeneratorConfiguration() {
-        return treeViewCateGeneratorConfiguration;
+    public List<TreeViewCateGeneratorConfiguration> getTreeViewCateGeneratorConfigurations() {
+        return treeViewCateGeneratorConfigurations;
     }
 
-    public void setTreeViewCateGeneratorConfiguration(TreeViewCateGeneratorConfiguration treeViewCateGeneratorConfiguration) {
-        this.treeViewCateGeneratorConfiguration = treeViewCateGeneratorConfiguration;
+    public void setTreeViewCateGeneratorConfigurations(List<TreeViewCateGeneratorConfiguration> treeViewCateGeneratorConfigurations) {
+        this.treeViewCateGeneratorConfigurations = treeViewCateGeneratorConfigurations;
     }
 
     @Override

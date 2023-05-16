@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.4.8.230307001-->
+        <!--version:1.5.0.230512001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -29,11 +29,12 @@
           8、updateMenuData 是否更新该组数据库的ViewVo对应的菜单数据，默认为false，不更新
           9、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
           可能的property配置：
-          1、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
-          2、htmlUiFrame 页面模板名称 默认值：bottom
-          3、htmlBarPosition 页面操作条位置。默认值：bottom
-          4、htmlPageColumnsNum 页面列数 默认值：2
-          5、htmlLoadingFrameType 页面加载方式 默认值：full（pop,full,inner）
+          1、rootModuleName 根模块（运行模块）名称，用于生成controller单元测试位置
+          2、springBootApplicationClass 项目启动类，用于生成controller单元测试构建上下文
+          3、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型范围，多个”,“分隔
+            类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
+          4、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
+          5、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           特别说明：
           1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
@@ -195,6 +196,7 @@
                 enableInsertBatch 默认值:true
                 enableInsertOrUpdate 默认值:true
                 enableFileUpLoad 默认值;false
+             4、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             说明：
             1、如果context中指定了onlyTables属性，且属性中包含该表名，则生成，否则忽略该表的生成
                 如果context忽略了onlyTables属性时：
@@ -583,7 +585,7 @@
             property配置：
             1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用是同时增加@Transactional注解
         -->
-        <!ELEMENT generateController (property*, generateTreeViewCate?,generateOptions*)>
+        <!ELEMENT generateController (property*, generateTreeViewCate*,generateOptions*)>
         <!ATTLIST generateController
                 generate (true|false) #REQUIRED
                 generateUnitTest (true|false) #IMPLIED
@@ -597,10 +599,12 @@
            生成的前提条件是实体需要具有parentId及children属性
            属性信息：
            1、SPeLExpression SPeL表达式。如：'parent_id = ''' + #this.id +''''，表示parent_id = 'xxx'，其中xxx为当前实体的id值
+           2、pathKeyWord 路径关键字，用于生成多个类似接口是的区分的接口关键字，缺省值为view-cate。
          -->
         <!ELEMENT generateTreeViewCate  EMPTY>
         <!ATTLIST generateTreeViewCate
-                SPeLExpression CDATA #IMPLIED>
+                SPeLExpression CDATA #REQUIRED
+                pathKeyWord CDATA #IMPLIED>
 
         <!--
            表单选项接口生成描述

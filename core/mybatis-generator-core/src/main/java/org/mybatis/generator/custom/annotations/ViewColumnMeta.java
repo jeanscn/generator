@@ -10,6 +10,9 @@ import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 
 import java.sql.JDBCType;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -44,6 +47,8 @@ public class ViewColumnMeta extends AbstractAnnotation {
 
     private boolean defaultDisplay;
 
+    private IntrospectedTable introspectedTable;
+
     private IntrospectedColumn introspectedColumn;
 
     private final VOViewGeneratorConfiguration configuration;
@@ -68,6 +73,7 @@ public class ViewColumnMeta extends AbstractAnnotation {
         this.value = introspectedColumn.getJavaProperty();
         this.title = introspectedColumn.getRemarks(true) != null ? introspectedColumn.getRemarks(true) : introspectedColumn.getActualColumnName();
         this.introspectedColumn = introspectedColumn;
+        this.introspectedTable = introspectedTable;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
         switch (JDBCType.valueOf(introspectedColumn.getJdbcType())) {
@@ -144,8 +150,17 @@ public class ViewColumnMeta extends AbstractAnnotation {
         if (this.ignore) {
             items.add("ignore = true");
         }
-        if (!configuration.getDefaultHiddenFields().contains(this.value)
-                && (configuration.getDefaultDisplayFields().size() == 0 || configuration.getDefaultDisplayFields().contains(this.value))) {
+        //计算defaultDisplay
+        Set<String> hiddenProperties = new HashSet<>();
+        if (this.introspectedTable != null) {
+            hiddenProperties = this.introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
+                    .stream()
+                    .map(IntrospectedColumn::getJavaProperty)
+                    .collect(Collectors.toSet());
+        }
+        if (!(hiddenProperties.contains(this.value)
+                || configuration.getDefaultHiddenFields().contains(this.value)
+                || (configuration.getDefaultDisplayFields().size() > 0 && !configuration.getDefaultDisplayFields().contains(this.value)))) {
             items.add("defaultDisplay = true");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";

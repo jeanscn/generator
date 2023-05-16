@@ -11,16 +11,17 @@ import org.mybatis.generator.custom.annotations.ApiModelProperty;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-03-29 16:50
  * @version 3.0
  */
-public class VORequestGenerator extends AbstractVOGenerator{
+public class VORequestGenerator extends AbstractVOGenerator {
 
     public VORequestGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
@@ -29,23 +30,23 @@ public class VORequestGenerator extends AbstractVOGenerator{
         String requestVoType = voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass requestVoClass = createTopLevelClass(requestVoType, getAbstractVOType().getFullyQualifiedName());
         requestVoClass.addMultipleImports("lombok");
+
         addApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);
         requestVoClass.addSerialVersionUID();
 
-        List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, null, voRequestGeneratorConfiguration.getExcludeColumns());
-        Set<String > excludeColumns = voGenService.getDefaultExcludeColumnNames(voRequestGeneratorConfiguration.getExcludeColumns());
-        for (IntrospectedColumn voColumn : introspectedColumns) {
-            if (!(isAbstractVOColumn(voColumn) || !excludeColumns.contains(voColumn.getActualColumnName()))) {
-                Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
-                field.setVisibility(JavaVisibility.PRIVATE);
-                field.setRemark(voColumn.getRemarks(true));
-                if (plugins.voRequestFieldGenerated(field, requestVoClass, voColumn, introspectedTable)) {
-                    requestVoClass.addField(field);
-                    requestVoClass.addImportedType(voColumn.getFullyQualifiedJavaType());
-                }
+        Set<String> excludeColumns = voGenService.getDefaultExcludeColumnNames(voRequestGeneratorConfiguration.getExcludeColumns());
+        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
+            if (!introspectedColumn.isNullable() && !excludeColumns.contains(introspectedColumn.getActualColumnName())) {
+                addRequestField(requestVoClass, introspectedColumn);
             }
         }
 
+        List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, null, voRequestGeneratorConfiguration.getExcludeColumns());
+        introspectedColumns.stream()
+                .filter(introspectedColumn -> !isAbstractVOColumn(introspectedColumn) && !excludeColumns.contains(introspectedColumn.getActualColumnName()))
+                .forEach(introspectedColumn -> {
+                    addRequestField(requestVoClass, introspectedColumn);
+                });
         //分页属性
         addPageProperty(voRequestGeneratorConfiguration, requestVoClass);
         //排序属性
@@ -60,6 +61,17 @@ public class VORequestGenerator extends AbstractVOGenerator{
 
         return requestVoClass;
     }
+
+    private void addRequestField(TopLevelClass requestVoClass, IntrospectedColumn introspectedColumn) {
+        Field field = new Field(introspectedColumn.getJavaProperty(), introspectedColumn.getFullyQualifiedJavaType());
+        field.setVisibility(JavaVisibility.PRIVATE);
+        field.setRemark(introspectedColumn.getRemarks(true));
+        if (plugins.voRequestFieldGenerated(field, requestVoClass, introspectedColumn, introspectedTable)) {
+            requestVoClass.addField(field);
+            requestVoClass.addImportedType(introspectedColumn.getFullyQualifiedJavaType());
+        }
+    }
+
     private void addCascadeResult(TopLevelClass requestVoClass) {
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
             Field cascade = new Field("cascadeResult", FullyQualifiedJavaType.getBooleanPrimitiveInstance());

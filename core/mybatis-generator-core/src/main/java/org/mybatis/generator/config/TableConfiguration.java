@@ -82,9 +82,9 @@ public class TableConfiguration extends PropertyHolder {
 
     private String sqlProviderName;
 
-    private Set<String> columnNames = new HashSet<>();
+    private final Set<String> columnNames = new HashSet<>();
 
-    private Set<String> fieldNames = new HashSet<>();
+    private final Set<String> fieldNames = new HashSet<>();
 
     private final List<SelectByTableGeneratorConfiguration> selectByTableGeneratorConfigurations = new ArrayList<>();
 
@@ -121,6 +121,8 @@ public class TableConfiguration extends PropertyHolder {
     private String htmlBasePath;
 
     private Set<String> validateIgnoreColumns = new HashSet<>();
+
+    private final Set<IntrospectedColumn> htmlHiddenColumns = new HashSet<>();
 
     public TableConfiguration(Context context) {
         super();
@@ -722,16 +724,12 @@ public class TableConfiguration extends PropertyHolder {
         return columnNames;
     }
 
-    public void setColumnNames(Set<String> columnNames) {
-        this.columnNames = columnNames;
-    }
-
     public Set<String> getFieldNames() {
         return fieldNames;
     }
 
-    public void setFieldNames(Set<String> fieldNames) {
-        this.fieldNames = fieldNames;
+    public Set<IntrospectedColumn> getHtmlHiddenColumns() {
+        return htmlHiddenColumns;
     }
 
     public void validateConfig(List<String> warnings, IntrospectedTable introspectedTable) {
@@ -819,18 +817,38 @@ public class TableConfiguration extends PropertyHolder {
 
     //更新TC与表结构相关的自定义属性
     private void updateTableConfiguration(final IntrospectedTable introspectedTable) {
+        String property = introspectedTable.getContext().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
+        final List<String> hiddenColumnNames = new ArrayList<>();
+        if (stringHasValue(property)) {
+            hiddenColumnNames.addAll(spiltToSet(property));
+        }
+        String property1 = introspectedTable.getTableConfiguration().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
+        if (stringHasValue(property1)) {
+            hiddenColumnNames.addAll(spiltToSet(property1));
+        }
+
         introspectedTable.getAllColumns().forEach(column -> {
             //1、更新tableConfiguration的FieldNames、ColumnNames列表
             this.getFieldNames().add(column.getJavaProperty());
             this.getColumnNames().add(column.getActualColumnName());
-            //2、根据自定义的列长度属性，更新introspectedTable的列长度
+
+            //2、更新context、table中htmlHiddenColumns列表
+            if (hiddenColumnNames.contains(column.getActualColumnName())) {
+                this.getHtmlHiddenColumns().add(column);
+            }
+
+            //3、更新HTMLHiddenColumns列表
+            this.getHtmlMapGeneratorConfigurations()
+                    .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumns().addAll(hiddenColumnNames));
+
+            //3、根据自定义的列长度属性，更新introspectedTable的列长度
             ColumnOverride columnOverride = this.getColumnOverride(column.getActualColumnName());
             if (columnOverride != null) {
                 column.setLength(columnOverride.getMaxLength() != null && columnOverride.getMaxLength() <= column.getLength() ? columnOverride.getMaxLength() : column.getLength());
                 column.setScale(columnOverride.getScale() != null ? columnOverride.getScale() : column.getScale());
                 column.setMinLength(columnOverride.getMinLength() != null && columnOverride.getMinLength() > 0 && columnOverride.getMinLength() <= column.getLength() ? columnOverride.getMinLength() : 0);
             }
-            //3、设置是否需要验证的属性
+            //4、设置是否需要验证的属性
             if ((column.isNullable() || column.getLength()>0)
                     && !column.isAutoIncrement()
                     && !this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {

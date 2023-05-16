@@ -141,7 +141,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
         for (IntrospectedColumn baseColumn : columns) {
-            if (introspectedTable.getRules().isGenerateVO()) {
+            if (introspectedTable.getRules().isGenerateVoModel()) {
                 if (isIgnore(baseColumn
                         , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                         && !baseColumn.isIdentity()
@@ -149,7 +149,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     continue;
                 }
             }
-            if (GenerateUtils.isHiddenColumn(baseColumn, htmlGeneratorConfiguration)) {
+            if (GenerateUtils.isHiddenColumn(introspectedTable,baseColumn, htmlGeneratorConfiguration)) {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);
