@@ -394,15 +394,7 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateControllerAttributes() {
-        String entityName;
-        if (fullyQualifiedTable.getDomainObjectName() != null) {
-            entityName = JavaBeansUtil.getFirstCharacterLowercase(fullyQualifiedTable.getDomainObjectName());
-        } else {
-            entityName = JavaBeansUtil.getCamelCaseString(fullyQualifiedTable.getIntrospectedTableName(), true);
-        }
-        String beanName = entityName + "Impl";
-        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME, beanName);
-
+        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME, this.getTableConfiguration().getIntrospectedTableBeanName());
     }
 
     protected void calculateXmlAttributes() {
@@ -667,7 +659,7 @@ public abstract class IntrospectedTable {
     }
 
     public String getSelectByMultiStringIdsStatementId() {
-        return "selectByMultiStringIds";
+        return "selectTreeDataByMultiIds";
     }
 
     public String getInsertSelectiveStatementId() {

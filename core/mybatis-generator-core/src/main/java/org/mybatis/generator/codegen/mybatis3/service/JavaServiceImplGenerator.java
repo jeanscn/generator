@@ -192,7 +192,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addZtreeDataSimpleElement(TopLevelClass bizGenClazzImpl) {
         if (introspectedTable.getRules().isModelEnableChildren()) {
-            AbstractServiceElementGenerator elementGenerator = new SelectTreeDataElement();
+            AbstractServiceElementGenerator elementGenerator = new SelectTreeDataByMultiIdsElement();
             initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
         }
     }

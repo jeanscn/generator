@@ -22,7 +22,7 @@ public class SelectByTableElement extends AbstractServiceElementGenerator {
     public void addElements(TopLevelClass parentElement) {
 
         for (SelectByTableGeneratorConfiguration configuration : tc.getSelectByTableGeneratorConfiguration()) {
-            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, parentElement, configuration, false,true);
+            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, parentElement, configuration, false);
             selectByTable.addAnnotation("@Override");
             StringBuilder sb = new StringBuilder("return mapper.");
             sb.append(configuration.getMethodName());

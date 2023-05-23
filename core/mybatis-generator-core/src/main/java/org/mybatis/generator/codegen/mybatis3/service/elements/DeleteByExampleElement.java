@@ -27,7 +27,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method deleteByExampleMethod = serviceMethods.getDeleteByExampleMethod(parentElement, false,true);
+        Method deleteByExampleMethod = serviceMethods.getDeleteByExampleMethod(parentElement, false);
         deleteByExampleMethod.addAnnotation("@Override");
         deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);

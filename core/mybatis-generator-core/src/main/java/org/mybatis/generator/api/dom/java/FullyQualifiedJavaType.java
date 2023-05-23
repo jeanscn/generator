@@ -296,6 +296,16 @@ public class FullyQualifiedJavaType implements
         return dateInstance;
     }
 
+    public static FullyQualifiedJavaType getOptionalFullyQualifiedJavaType() {
+        return new FullyQualifiedJavaType("java.util.Optional");
+    }
+
+    public static FullyQualifiedJavaType getOptionalFullyQualifiedJavaType(FullyQualifiedJavaType typeArgument) {
+        FullyQualifiedJavaType optionalFullyQualifiedJavaType = getOptionalFullyQualifiedJavaType();
+        optionalFullyQualifiedJavaType.addTypeArgument(typeArgument);
+        return optionalFullyQualifiedJavaType;
+    }
+
     public static FullyQualifiedJavaType getCriteriaInstance() {
         if (criteriaInstance == null) {
             criteriaInstance = new FullyQualifiedJavaType("Criteria"); //$NON-NLS-1$

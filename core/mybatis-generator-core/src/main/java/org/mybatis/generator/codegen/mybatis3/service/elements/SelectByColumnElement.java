@@ -33,7 +33,7 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
             String params = configuration.getColumns().stream()
                     .map(column -> column.getJavaProperty() + (configuration.getParameterList() ? "s" : ""))
                     .collect(Collectors.joining(","));
-            Method methodByColumn = serviceMethods.getSelectByColumnMethod(entityType, parentElement, configuration, false,true);
+            Method methodByColumn = serviceMethods.getSelectByColumnMethod(entityType, parentElement, configuration, false);
             methodByColumn.addAnnotation("@Override");
             if (JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(configuration.getMethodName())) {
                 methodByColumn.addBodyLine("return mapper.{0}({1});"

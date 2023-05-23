@@ -67,6 +67,10 @@ public class ConfigUtil {
                 overrideConfiguration.setBeanName(elementDescriptor.getBeanName());
                 overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
                 break;
+            case "DictEnum":
+                overrideConfiguration.setEnumClassName(elementDescriptor.getEnumClassName());
+                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT_ENUM.getCode());
+                break;
             default:
                 overrideConfiguration.setAnnotationType(elementDescriptor.getDataSource());
                 break;

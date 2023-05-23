@@ -13,7 +13,7 @@ public class UpdateByExampleSelectiveMethodGenerator extends AbstractJavaMapperM
     @Override
     public void addInterfaceElements(Interface interfaze) {
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
-        Method method = serviceMethods.getUpdateByExample(interfaze, true, false,false);
+        Method method = serviceMethods.getUpdateByExample(interfaze, true, false);
         addMapperAnnotations(method);
         if (context.getPlugins().clientUpdateByExampleSelectiveMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);

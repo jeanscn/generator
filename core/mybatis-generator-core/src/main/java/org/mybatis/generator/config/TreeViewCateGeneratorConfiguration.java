@@ -11,6 +11,10 @@ public class TreeViewCateGeneratorConfiguration extends PropertyHolder {
 
     private String pathKeyWord = "view-cate";
 
+    private String idProperty = DefultColumnNameEnum.ID.fieldName();
+
+    private String nameProperty = DefultColumnNameEnum.NAME.fieldName();
+
     private String SPeL = "'"+ DefultColumnNameEnum.PARENT_ID.columnName() +" = ''' + #this.id +''''";
 
     public TreeViewCateGeneratorConfiguration() {
@@ -36,5 +40,21 @@ public class TreeViewCateGeneratorConfiguration extends PropertyHolder {
 
     public void setPathKeyWord(String pathKeyWord) {
         this.pathKeyWord = pathKeyWord;
+    }
+
+    public String getIdProperty() {
+        return idProperty;
+    }
+
+    public void setIdProperty(String idProperty) {
+        this.idProperty = idProperty;
+    }
+
+    public String getNameProperty() {
+        return nameProperty;
+    }
+
+    public void setNameProperty(String nameProperty) {
+        this.nameProperty = nameProperty;
     }
 }

@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -13,7 +12,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
-import static com.vgosoft.tool.core.VStringUtil.*;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -59,9 +58,7 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         input.addAttribute(new Attribute("for-type", "lay-select"));
         input.addAttribute(new Attribute("data-type", dataSource));
         addClassNameToElement(input, "oas-form-item-edit");
-        if (stringHasValue(htmlElementDescriptor.getDataUrl())) {
-            input.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-        }
+        addDataUrl(input,htmlElementDescriptor,null);
         parent.addElement(input);
         HtmlElement divRead = addDivWithClassToParent(parent, "oas-form-item-read");
         divRead.addAttribute(new Attribute(thisDialect==null?"th:text":thisDialect, this.thymeleafValue(introspectedColumn)));

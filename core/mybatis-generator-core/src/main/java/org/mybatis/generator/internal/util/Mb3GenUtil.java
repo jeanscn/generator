@@ -13,11 +13,12 @@ import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 public class Mb3GenUtil {
 
     public static String getControllerBaseMappingPath(IntrospectedTable introspectedTable){
+        String beanName = introspectedTable.getTableConfiguration().getIntrospectedTableBeanName();
         String basePath = introspectedTable.getTableConfiguration().getServiceApiBasePath();
         if (StringUtility.stringHasValue(basePath)) {
-            return basePath + "/" + toHyphenCase(introspectedTable.getControllerBeanName());
+            return basePath + "/" + toHyphenCase(beanName);
         }else {
-            return toHyphenCase(introspectedTable.getControllerBeanName());
+            return toHyphenCase(beanName);
         }
     }
 

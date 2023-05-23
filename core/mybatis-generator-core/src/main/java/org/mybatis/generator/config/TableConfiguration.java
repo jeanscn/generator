@@ -5,8 +5,10 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.*;
@@ -152,8 +154,7 @@ public class TableConfiguration extends PropertyHolder {
         return deleteByPrimaryKeyStatementEnabled;
     }
 
-    public void setDeleteByPrimaryKeyStatementEnabled(
-            boolean deleteByPrimaryKeyStatementEnabled) {
+    public void setDeleteByPrimaryKeyStatementEnabled(boolean deleteByPrimaryKeyStatementEnabled) {
         this.deleteByPrimaryKeyStatementEnabled = deleteByPrimaryKeyStatementEnabled;
     }
 
@@ -177,8 +178,7 @@ public class TableConfiguration extends PropertyHolder {
         return selectByPrimaryKeyStatementEnabled;
     }
 
-    public void setSelectByPrimaryKeyStatementEnabled(
-            boolean selectByPrimaryKeyStatementEnabled) {
+    public void setSelectByPrimaryKeyStatementEnabled(boolean selectByPrimaryKeyStatementEnabled) {
         this.selectByPrimaryKeyStatementEnabled = selectByPrimaryKeyStatementEnabled;
     }
 
@@ -186,14 +186,12 @@ public class TableConfiguration extends PropertyHolder {
         return updateByPrimaryKeyStatementEnabled;
     }
 
-    public void setUpdateByPrimaryKeyStatementEnabled(
-            boolean updateByPrimaryKeyStatementEnabled) {
+    public void setUpdateByPrimaryKeyStatementEnabled(boolean updateByPrimaryKeyStatementEnabled) {
         this.updateByPrimaryKeyStatementEnabled = updateByPrimaryKeyStatementEnabled;
     }
 
     public boolean isColumnIgnored(String columnName) {
-        for (Map.Entry<IgnoredColumn, Boolean> entry : ignoredColumns
-                .entrySet()) {
+        for (Map.Entry<IgnoredColumn, Boolean> entry : ignoredColumns.entrySet()) {
             if (entry.getKey().matches(columnName)) {
                 entry.setValue(Boolean.TRUE);
                 return true;
@@ -233,9 +231,7 @@ public class TableConfiguration extends PropertyHolder {
 
         TableConfiguration other = (TableConfiguration) obj;
 
-        return Objects.equals(this.catalog, other.catalog)
-                && Objects.equals(this.schema, other.schema)
-                && Objects.equals(this.tableName, other.tableName);
+        return Objects.equals(this.catalog, other.catalog) && Objects.equals(this.schema, other.schema) && Objects.equals(this.tableName, other.tableName);
     }
 
     @Override
@@ -247,8 +243,7 @@ public class TableConfiguration extends PropertyHolder {
         return selectByExampleStatementEnabled;
     }
 
-    public void setSelectByExampleStatementEnabled(
-            boolean selectByExampleStatementEnabled) {
+    public void setSelectByExampleStatementEnabled(boolean selectByExampleStatementEnabled) {
         this.selectByExampleStatementEnabled = selectByExampleStatementEnabled;
     }
 
@@ -298,19 +293,12 @@ public class TableConfiguration extends PropertyHolder {
         return deleteByExampleStatementEnabled;
     }
 
-    public void setDeleteByExampleStatementEnabled(
-            boolean deleteByExampleStatementEnabled) {
+    public void setDeleteByExampleStatementEnabled(boolean deleteByExampleStatementEnabled) {
         this.deleteByExampleStatementEnabled = deleteByExampleStatementEnabled;
     }
 
     public boolean areAnyStatementsEnabled() {
-        return selectByExampleStatementEnabled
-                || selectByPrimaryKeyStatementEnabled || insertStatementEnabled
-                || updateByPrimaryKeyStatementEnabled
-                || deleteByExampleStatementEnabled
-                || deleteByPrimaryKeyStatementEnabled
-                || countByExampleStatementEnabled
-                || updateByExampleStatementEnabled;
+        return selectByExampleStatementEnabled || selectByPrimaryKeyStatementEnabled || insertStatementEnabled || updateByPrimaryKeyStatementEnabled || deleteByExampleStatementEnabled || deleteByPrimaryKeyStatementEnabled || countByExampleStatementEnabled || updateByExampleStatementEnabled;
     }
 
     public void setGeneratedKey(GeneratedKey generatedKey) {
@@ -396,8 +384,7 @@ public class TableConfiguration extends PropertyHolder {
     public List<String> getIgnoredColumnsInError() {
         List<String> answer = new ArrayList<>();
 
-        for (Map.Entry<IgnoredColumn, Boolean> entry : ignoredColumns
-                .entrySet()) {
+        for (Map.Entry<IgnoredColumn, Boolean> entry : ignoredColumns.entrySet()) {
             if (Boolean.FALSE.equals(entry.getValue())) {
                 answer.add(entry.getKey().getColumnName());
             }
@@ -424,8 +411,7 @@ public class TableConfiguration extends PropertyHolder {
 
     @Override
     public String toString() {
-        return composeFullyQualifiedTableName(catalog, schema,
-                tableName, '.');
+        return composeFullyQualifiedTableName(catalog, schema, tableName, '.');
     }
 
     public boolean isDelimitIdentifiers() {
@@ -440,8 +426,7 @@ public class TableConfiguration extends PropertyHolder {
         return countByExampleStatementEnabled;
     }
 
-    public void setCountByExampleStatementEnabled(
-            boolean countByExampleStatementEnabled) {
+    public void setCountByExampleStatementEnabled(boolean countByExampleStatementEnabled) {
         this.countByExampleStatementEnabled = countByExampleStatementEnabled;
     }
 
@@ -449,8 +434,7 @@ public class TableConfiguration extends PropertyHolder {
         return updateByExampleStatementEnabled;
     }
 
-    public void setUpdateByExampleStatementEnabled(
-            boolean updateByExampleStatementEnabled) {
+    public void setUpdateByExampleStatementEnabled(boolean updateByExampleStatementEnabled) {
         this.updateByExampleStatementEnabled = updateByExampleStatementEnabled;
     }
 
@@ -480,12 +464,10 @@ public class TableConfiguration extends PropertyHolder {
 
     public void validate(List<String> errors, int listPosition) {
         if (!stringHasValue(tableName)) {
-            errors.add(Messages.getString(
-                    "ValidationError.6", Integer.toString(listPosition))); //$NON-NLS-1$
+            errors.add(Messages.getString("ValidationError.6", Integer.toString(listPosition))); //$NON-NLS-1$
         }
 
-        String fqTableName = composeFullyQualifiedTableName(
-                catalog, schema, tableName, '.');
+        String fqTableName = composeFullyQualifiedTableName(catalog, schema, tableName, '.');
 
         if (generatedKey != null) {
             generatedKey.validate(errors, fqTableName);
@@ -493,9 +475,7 @@ public class TableConfiguration extends PropertyHolder {
 
         // when using column indexes, either both or neither query ids
         // should be set
-        if (isTrue(getProperty(PropertyRegistry.TABLE_USE_COLUMN_INDEXES))
-                && selectByExampleStatementEnabled
-                && selectByPrimaryKeyStatementEnabled) {
+        if (isTrue(getProperty(PropertyRegistry.TABLE_USE_COLUMN_INDEXES)) && selectByExampleStatementEnabled && selectByPrimaryKeyStatementEnabled) {
             boolean queryId1Set = stringHasValue(selectByExampleQueryId);
             boolean queryId2Set = stringHasValue(selectByPrimaryKeyQueryId);
 
@@ -546,8 +526,7 @@ public class TableConfiguration extends PropertyHolder {
         return isAllColumnDelimitingEnabled;
     }
 
-    public void setAllColumnDelimitingEnabled(
-            boolean isAllColumnDelimitingEnabled) {
+    public void setAllColumnDelimitingEnabled(boolean isAllColumnDelimitingEnabled) {
         this.isAllColumnDelimitingEnabled = isAllColumnDelimitingEnabled;
     }
 
@@ -736,6 +715,9 @@ public class TableConfiguration extends PropertyHolder {
         //先更新TC与表结构相关的自定义属性
         this.updateTableConfiguration(introspectedTable);
 
+        //根据表字段的注释，自动生成某些配置项目
+        this.autoGenerateConfigurations(introspectedTable);
+
         calculateSelectByTableProperty();
 
         //计算html
@@ -756,13 +738,49 @@ public class TableConfiguration extends PropertyHolder {
         calculateSelectBySqlMethodProperty(introspectedTable);
     }
 
+    private void autoGenerateConfigurations(IntrospectedTable introspectedTable) {
+
+        // 获取context、table中设置的隐藏列名
+        Set<String> hiddenColumnNames = this.getHtmlHiddenColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toSet());
+        introspectedTable.getAllColumns().stream().filter(column -> !hiddenColumnNames.contains(column.getActualColumnName()))
+                .forEach(column -> {
+                    this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> {
+                        if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
+                                && !htmlConfiguration.getHiddenColumns().contains(column.getActualColumnName()) ) {
+                            List<HtmlElementDescriptor> elementDescriptors = htmlConfiguration.getElementDescriptors();
+                            if (column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.STATE.columnName())) { //列名state_，自动添加页面switch（启用停用）元素
+                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
+                                elementDescriptor.setName(column.getActualColumnName());
+                                elementDescriptor.setTagType("switch");
+                                elementDescriptor.setDataFormat("启停");
+                                elementDescriptors.add(elementDescriptor);
+                            }else if(column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.PARENT_ID.columnName())){   //选择上级
+                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
+                                elementDescriptor.setName(column.getActualColumnName());
+                                elementDescriptor.setTagType("select");
+                                elementDescriptor.setDataSource("Dict");
+                                elementDescriptor.setBeanName(this.getIntrospectedTableBeanName());
+                                elementDescriptor.setApplyProperty(DefultColumnNameEnum.NAME.fieldName());
+                                elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)+"/tree");
+                                elementDescriptors.add(elementDescriptor);
+                            }else if (column.getRemarks(true) != null && column.getRemarks(true).startsWith("是否")) { //如果列注释以“是否”开头，则自动添加页面switch元素
+                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
+                                elementDescriptor.setName(column.getActualColumnName());
+                                elementDescriptor.setDataSource("DictEnum");
+                                elementDescriptor.setEnumClassName(ConstantsUtil.YES_NO_ENUM_CLASS_NAME);
+                                elementDescriptor.setTagType("switch");
+                                elementDescriptors.add(elementDescriptor);
+                            }
+                        }
+                    });
+                });
+    }
+
     private void calculateSelectByParentIdConfig(List<String> warnings, IntrospectedTable introspectedTable) {
         String parentIdColumnName = DefultColumnNameEnum.PARENT_ID.columnName();
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()
-                && this.getColumnNames().contains(parentIdColumnName)) {
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren() && this.getColumnNames().contains(parentIdColumnName)) {
             //如果存在parent_id字段，则自动添加selectByParentId方法
-            if (this.getSelectByColumnGeneratorConfigurations().stream()
-                    .noneMatch(c -> c.getColumns().stream().anyMatch(column -> parentIdColumnName.equalsIgnoreCase(column.getActualColumnName())))) {
+            if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(c -> c.getColumns().stream().anyMatch(column -> parentIdColumnName.equalsIgnoreCase(column.getActualColumnName())))) {
                 introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
                     SelectByColumnGeneratorConfiguration selectByParentId = new SelectByColumnGeneratorConfiguration(column.getActualColumnName());
                     selectByParentId.addColumn(column);
@@ -790,12 +808,8 @@ public class TableConfiguration extends PropertyHolder {
                     sb.append(".");
                     sb.append(this.getDomainObjectName());
                     relationGeneratorConfiguration.setModelTye(sb.toString());
-                    if (this.getVoGeneratorConfiguration() != null
-                            && this.getVoGeneratorConfiguration().getVoModelConfiguration() != null
-                            && this.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()) {
-                        String voType = substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") +
-                                ".pojo.vo."
-                                + this.getDomainObjectName() + "VO";
+                    if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoModelConfiguration() != null && this.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()) {
+                        String voType = substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo.vo." + this.getDomainObjectName() + "VO";
                         relationGeneratorConfiguration.setVoModelTye(voType);
                     } else {
                         relationGeneratorConfiguration.setVoModelTye(sb.toString());
@@ -818,7 +832,7 @@ public class TableConfiguration extends PropertyHolder {
     //更新TC与表结构相关的自定义属性
     private void updateTableConfiguration(final IntrospectedTable introspectedTable) {
         String property = introspectedTable.getContext().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        final List<String> hiddenColumnNames = new ArrayList<>();
+        final Set<String> hiddenColumnNames = new HashSet<>();
         if (stringHasValue(property)) {
             hiddenColumnNames.addAll(spiltToSet(property));
         }
@@ -837,24 +851,26 @@ public class TableConfiguration extends PropertyHolder {
                 this.getHtmlHiddenColumns().add(column);
             }
 
-            //3、更新HTMLHiddenColumns列表
-            this.getHtmlMapGeneratorConfigurations()
-                    .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumns().addAll(hiddenColumnNames));
-
-            //3、根据自定义的列长度属性，更新introspectedTable的列长度
+            //3、根据自定义的列长度属性，更新introspectedTable的列长度，是否需要修改注释
             ColumnOverride columnOverride = this.getColumnOverride(column.getActualColumnName());
             if (columnOverride != null) {
                 column.setLength(columnOverride.getMaxLength() != null && columnOverride.getMaxLength() <= column.getLength() ? columnOverride.getMaxLength() : column.getLength());
                 column.setScale(columnOverride.getScale() != null ? columnOverride.getScale() : column.getScale());
                 column.setMinLength(columnOverride.getMinLength() != null && columnOverride.getMinLength() > 0 && columnOverride.getMinLength() <= column.getLength() ? columnOverride.getMinLength() : 0);
+
+                if (stringHasValue(columnOverride.getColumnComment())) {
+                    column.setRemarks(columnOverride.getColumnComment());
+                }
             }
+
             //4、设置是否需要验证的属性
-            if ((column.isNullable() || column.getLength()>0)
-                    && !column.isAutoIncrement()
-                    && !this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {
+            if ((column.isNullable() || column.getLength() > 0) && !column.isAutoIncrement() && !this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {
                 column.setBeValidated(true);
             }
         });
+
+        //5、更新HTMLHiddenColumns列表
+        this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumns().addAll(hiddenColumnNames));
     }
 
     private void calculateSelectBySqlMethodProperty(IntrospectedTable introspectedTable) {
@@ -863,13 +879,10 @@ public class TableConfiguration extends PropertyHolder {
             bySqlMethodGeneratorConfiguration.setParentIdColumn(introspectedTable.getColumn(bySqlMethodGeneratorConfiguration.getParentIdColumnName()).orElse(null));
             bySqlMethodGeneratorConfiguration.setPrimaryKeyColumn(introspectedTable.getColumn(bySqlMethodGeneratorConfiguration.getPrimaryKeyColumnName()).orElse(null));
         }
-        List<SelectBySqlMethodGeneratorConfiguration> collect = this.getSelectBySqlMethodGeneratorConfigurations().stream()
-                .peek(c -> {
-                    c.setParentIdColumn(introspectedTable.getColumn(c.getParentIdColumnName()).orElse(null));
-                    c.setPrimaryKeyColumn(introspectedTable.getColumn(c.getPrimaryKeyColumnName()).orElse(null));
-                })
-                .filter(c -> c.getPrimaryKeyColumn() != null && c.getParentIdColumn() != null)
-                .collect(Collectors.toList());
+        List<SelectBySqlMethodGeneratorConfiguration> collect = this.getSelectBySqlMethodGeneratorConfigurations().stream().peek(c -> {
+            c.setParentIdColumn(introspectedTable.getColumn(c.getParentIdColumnName()).orElse(null));
+            c.setPrimaryKeyColumn(introspectedTable.getColumn(c.getPrimaryKeyColumnName()).orElse(null));
+        }).filter(c -> c.getPrimaryKeyColumn() != null && c.getParentIdColumn() != null).collect(Collectors.toList());
         this.setSelectBySqlMethodGeneratorConfigurations(collect);
 
         //生成SelectByTable基于关系表主键的查询方法
@@ -914,18 +927,14 @@ public class TableConfiguration extends PropertyHolder {
 
     protected void calculateHtmlAttributes(IntrospectedTable introspectedTable) {
         //重新计算不为空字段，根据数据库字段不为空属性，追加数据库表不允许空的字段
-        introspectedTable.getAllColumns().stream()
-                .filter(c -> !c.isNullable())
-                .map(IntrospectedColumn::getActualColumnName)
-                .forEach(c -> this.getHtmlMapGeneratorConfigurations()
-                        .forEach(htmlConfiguration -> htmlConfiguration.getElementRequired().add(c)));
+        introspectedTable.getAllColumns().stream().filter(c -> !c.isNullable()).map(IntrospectedColumn::getActualColumnName).forEach(c -> this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> htmlConfiguration.getElementRequired().add(c)));
+
         //获取所有HtmlGeneratorConfiguration中所有的HtmlElementDescriptor
         this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> htmlConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
             //如果tagType为select的，需要计算dataFormat对应的数据
             //如果elementDescriptor的otherFieldName为null，则通过当前字段属性计算补齐otherFieldName
             if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
-                introspectedTable.getColumn(elementDescriptor.getName())
-                        .ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
+                introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
             }
             //添加附件属性
             if (elementDescriptor.getOtherFieldName() != null) {
@@ -945,6 +954,9 @@ public class TableConfiguration extends PropertyHolder {
         if (this.getVoGeneratorConfiguration() != null) {
             this.getVoGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
         } else {
+            this.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+        }
+        if (this.getVoGeneratorConfiguration() != null && (this.getVoGeneratorConfiguration().getVoModelConfiguration() == null || (this.getVoGeneratorConfiguration().getVoModelConfiguration() != null && !this.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()))) {
             this.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
         }
     }
@@ -967,5 +979,13 @@ public class TableConfiguration extends PropertyHolder {
             otherColumn.setActualColumnName(c.getOtherPrimaryKeyColumn());
             c.setOtherColumn(otherColumn);
         });
+    }
+
+    public String getIntrospectedTableBeanName() {
+        if (this.getDomainObjectName() != null) {
+            return JavaBeansUtil.getFirstCharacterLowercase(this.getDomainObjectName()) + "Impl";
+        } else {
+            return JavaBeansUtil.getCamelCaseString(this.getTableName(), false) + "Impl";
+        }
     }
 }

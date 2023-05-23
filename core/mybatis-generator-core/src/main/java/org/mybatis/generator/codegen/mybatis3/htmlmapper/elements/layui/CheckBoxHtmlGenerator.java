@@ -47,9 +47,7 @@ public class CheckBoxHtmlGenerator extends AbstractLayuiElementGenerator {
             element1.addAttribute(new Attribute("th:checked", sb.toString()));
             parent.addElement(element1);
         }
-        if (htmlElementDescriptor.getDataUrl() != null) {
-            parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-        }
+        addDataUrl(parent,htmlElementDescriptor,null);
         //在parent中添加data-data属性，用于保存初始值
         parent.addAttribute(new Attribute("th:data-data", thymeleafValue(introspectedColumn)));
         parent.addAttribute(new Attribute("for-type", "lay-checkbox"));

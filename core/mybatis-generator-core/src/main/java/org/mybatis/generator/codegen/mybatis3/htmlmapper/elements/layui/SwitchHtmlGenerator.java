@@ -1,12 +1,16 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
+import com.vgosoft.core.constant.enums.IBaseEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 
 import java.util.List;
@@ -16,6 +20,7 @@ import java.util.List;
  * 2023-04-13 14:49
  * @version 3.0
  */
+
 public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
 
     public SwitchHtmlGenerator() {
@@ -49,11 +54,27 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
                 default:
                     element.addAttribute(new Attribute("lay-text", "启用|停用"));
             }
+        } else {
+            if (htmlElementDescriptor.getEnumClassName() != null) {
+                try {
+                    Class<?> aClass = Class.forName(htmlElementDescriptor.getEnumClassName());
+                    if (aClass.isEnum() && IBaseEnum.class.isAssignableFrom(aClass)) {
+                        Object[] enumConstants = aClass.getEnumConstants();
+                        if (enumConstants.length == 2) {
+                            element.addAttribute(
+                                    new Attribute("lay-text", ((IBaseEnum<?>) enumConstants[0]).codeName() + "|" + ((IBaseEnum<?>) enumConstants[1]).codeName())
+                            );
+                        }
+                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }else if(htmlElementDescriptor.getSwitchText()!=null){
+                element.addAttribute(new Attribute("lay-text", htmlElementDescriptor.getSwitchText()));
+            }
         }
         element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-        if (htmlElementDescriptor.getDataUrl() != null) {
-            element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-        }
+        addDataUrl(element, htmlElementDescriptor, null);
         String sb = "${" + entityKey + "?." +
                 introspectedColumn.getJavaProperty() + "} eq 1";
         element.addAttribute(new Attribute("th:checked", sb));
@@ -74,7 +95,7 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         //非空验证
-        addElementRequired(introspectedColumn.getActualColumnName(), element,this.htmlElementDescriptor);
+        addElementRequired(introspectedColumn.getActualColumnName(), element, this.htmlElementDescriptor);
     }
 
     @Override
@@ -96,6 +117,8 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
                 default:
                     sb.append("} eq 1 ? '启用':'停用'");
             }
+        } else {
+            sb.append("}?:_");
         }
         return sb.toString();
     }

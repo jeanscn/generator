@@ -130,7 +130,10 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         VoGenService voGenService = new VoGenService(introspectedTable);
         List<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
         voGenService.buildOverrideColumn(overrideProperty, topLevelClass, ModelClassTypeEnum.modelClass).forEach(f -> {
-            plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD);
+            if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(f);
+                topLevelClass.addImportedType(f.getType());
+            }
         });
 
         //附加属性

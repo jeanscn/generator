@@ -23,4 +23,6 @@ public interface HtmlConstant {
 
     public static final String HTML_KEY_WORD_ALL = "all";
 
+    public static final String HTML_ATTRIBUTE_ENUM_CLASS_NAME = "data-enum-class";
+
 }

@@ -1,14 +1,13 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 
-import java.sql.JDBCType;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,13 +46,11 @@ public class ViewColumnMeta extends AbstractAnnotation {
 
     private boolean defaultDisplay;
 
-    private IntrospectedTable introspectedTable;
+    private final IntrospectedTable introspectedTable;
 
     private IntrospectedColumn introspectedColumn;
 
     private final VOViewGeneratorConfiguration configuration;
-
-    private Field field;
 
     public static ViewColumnMeta create(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         return new ViewColumnMeta(introspectedColumn, introspectedTable);
@@ -63,9 +60,11 @@ public class ViewColumnMeta extends AbstractAnnotation {
         super();
         this.value = field.getName();
         this.title = title;
-        this.field = field;
+        this.introspectedTable = introspectedTable;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
+        parseDefaultFormatRender(field.getType(),field.getName());
+        parseRenderFun(field.getName());
     }
 
     public ViewColumnMeta(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
@@ -76,44 +75,62 @@ public class ViewColumnMeta extends AbstractAnnotation {
         this.introspectedTable = introspectedTable;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
-        switch (JDBCType.valueOf(introspectedColumn.getJdbcType())) {
-            case DATE:
+        parseDefaultFormatRender(introspectedColumn.getFullyQualifiedJavaType(), introspectedColumn.getJavaProperty());
+        parseRenderFun(introspectedColumn.getJavaProperty());
+    }
+
+    private void parseRenderFun(String fieldName) {
+        //指定的render
+        configuration.getVoColumnRenderFunGeneratorConfigurations().stream()
+                .filter(configuration -> configuration.getFieldNames().contains(fieldName))
+                .findFirst()
+                .ifPresent(voColumnRenderFunGeneratorConfiguration -> this.render = voColumnRenderFunGeneratorConfiguration.getRenderFun());
+    }
+
+    private void parseDefaultFormatRender(FullyQualifiedJavaType javaType, String fieldName) {
+        //默认的render
+        switch (javaType.getShortNameWithoutTypeArguments()) {
+            case "Date":
+            case "LocalDateTime":
+            case "Instant":
+                this.render = "colDefsDatefmt";
+                this.dataType = "datetime";
+                this.dataFormat = "yyyy-MM-dd HH:mm:ss";
+                break;
+            case "LocalDate":
+                this.render = "colDefsDatefmt";
                 this.dataType = "date";
                 this.dataFormat = "yyyy-MM-dd";
-                this.render = "colDefsDatefmt";
                 break;
-            case TIME:
+            case "LocalTime":
+                this.render = "colDefsDatefmt";
                 this.dataType = "time";
                 this.dataFormat = "HH:mm:ss";
-                this.render = "colDefsDatefmt";
                 break;
-            case TIMESTAMP:
-                this.dataType = "timestamp";
-                this.dataFormat = "yyyy-MM-dd HH:mm:ss";
-                this.render = "colDefsDatefmt";
-                break;
-            case BOOLEAN:
-            case BIT:
-            case TINYINT:
+            case "Boolean":
+            case "boolean":
                 this.dataType = "boolean";
                 break;
-            case SMALLINT:
-            case INTEGER:
-            case BIGINT:
-                this.dataType = "number";
-                this.dataFormat = "0";
-                break;
-            case DECIMAL:
-            case NUMERIC:
+            case "Double":
+            case "double":
+            case "Float":
+            case "float":
                 this.dataType = "number";
                 this.dataFormat = "0.00";
                 break;
+            case "Integer":
+            case "int":
+            case "Long":
+            case "long":
+            case "Short":
+            case "short":
+                this.dataType = "number";
+                this.dataFormat = "0";
+                break;
         }
-        //指定的render
-        configuration.getVoColumnRenderFunGeneratorConfigurations().stream()
-                .filter(configuration -> configuration.getColumn().equals(introspectedColumn.getActualColumnName()))
-                .findFirst()
-                .ifPresent(voColumnRenderFunGeneratorConfiguration -> this.render = voColumnRenderFunGeneratorConfiguration.getRenderFun());
+        if (fieldName.equals("state")) {
+            this.render = "colDefsState";
+        }
     }
 
     @Override
@@ -123,8 +140,10 @@ public class ViewColumnMeta extends AbstractAnnotation {
         }
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));
-        if (introspectedColumn != null && introspectedColumn.getOrder() != GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
-            items.add(VStringUtil.format("order = {0}", introspectedColumn.getOrder()));
+        int o = this.order > 0 ? this.order :
+                (introspectedColumn != null && introspectedColumn.getOrder() > 0) ? introspectedColumn.getOrder() : 0;
+        if (o > 0 && o != GlobalConstant.COLUMN_META_ANNOTATION_DEFAULT_ORDER) {
+            items.add(VStringUtil.format("order = {0}", o));
         }
         if (this.width != null) {
             items.add(VStringUtil.format("width = \"{0}\"", this.width));

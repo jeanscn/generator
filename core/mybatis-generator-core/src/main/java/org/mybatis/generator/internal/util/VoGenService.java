@@ -11,10 +11,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.DictTypeEnum;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
-import org.mybatis.generator.custom.annotations.Dict;
-import org.mybatis.generator.custom.annotations.DictData;
-import org.mybatis.generator.custom.annotations.DictSys;
-import org.mybatis.generator.custom.annotations.DictUser;
+import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.rules.BaseRules;
 
 import java.util.*;
@@ -236,6 +233,10 @@ public class VoGenService {
                     }
                     anno.setSource(sourceColumn.getJavaProperty());
                     anno.addAnnotationToField(field, topLevelClass);
+                } else if(DictTypeEnum.DICT_ENUM.getCode().equals(configuration.getAnnotationType()) && configuration.getEnumClassName() != null){
+                    DictEnum anno = new DictEnum(configuration.getEnumClassName());
+                    anno.setSource(sourceColumn.getJavaProperty());
+                    anno.addAnnotationToField(field, topLevelClass);
                 }
                 if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
                     if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
@@ -244,48 +245,7 @@ public class VoGenService {
                     }
                 }
 
-                //如果已经存在该字段，则不再添加
                 answer.add(field);
-                if (!topLevelClass.isContainField(field.getName())) {
-                    topLevelClass.addField(field);
-                }
-
-                //重写getter
-                /*
-                String getterName;
-                FullyQualifiedJavaType getterType;
-                if (targetColumn != null) {
-                    getterType = targetColumn.getFullyQualifiedJavaType();
-                    getterName = getGetterMethodName(targetColumn.getJavaProperty(), getterType);
-                } else {
-                    getterType = new FullyQualifiedJavaType(configuration.getTargetPropertyType());
-                    getterName = getGetterMethodName(configuration.getTargetPropertyName(), getterType);
-                }
-                List<Method> methods = topLevelClass.getMethods().stream()
-                        .filter(m -> m.getName().equals(getterName))
-                        .collect(Collectors.toList());
-                Method method;
-                if (methods.size() > 0) {
-                    method = methods.get(0);
-                    method.getBodyLines().clear();
-                } else {
-                    method = new Method(getterName);
-                    method.setReturnType(getterType);
-                    method.setVisibility(JavaVisibility.PUBLIC);
-                    topLevelClass.addMethod(method);
-                }
-                introspectedTable.getColumn(configuration.getSourceColumnName())
-                        .ifPresent(sc -> {
-                            String source = sc.getFullyQualifiedJavaType().getShortName();
-                            String strType = FullyQualifiedJavaType.getStringInstance().getShortName();
-                            String target = getterType.getShortName();
-
-                            if (!source.equals(strType) && target.equals(strType)) {
-                                method.addBodyLine("return this.{0} != null ? this.{0}.toString():null;", sc.getJavaProperty());
-                            } else {
-                                method.addBodyLine("return this.{0};", sc.getJavaProperty());
-                            }
-                        });*/
             }
         }
         return answer;

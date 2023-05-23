@@ -129,4 +129,6 @@ public class ConstantsUtil {
     public static final String MAPSTRUCT_REPORTING_POLICY = "org.mapstruct.ReportingPolicy";
 
     public static final String ANNOTATION_NULLABLE = "javax.annotation.Nullable";
+
+    public static final String YES_NO_ENUM_CLASS_NAME = "com.vgosoft.core.constant.enums.YesNoEnum";
 }

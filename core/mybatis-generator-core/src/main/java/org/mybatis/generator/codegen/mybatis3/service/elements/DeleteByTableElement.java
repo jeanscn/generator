@@ -24,7 +24,7 @@ public class DeleteByTableElement extends AbstractServiceElementGenerator {
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableSplit)
                 .forEach(c -> {
-                    Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,false,true);
+                    Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,false);
                     method.addAnnotation("@Override");
                     if (introspectedTable.getRules().isGenerateCachePO()) {
                         CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());

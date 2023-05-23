@@ -112,7 +112,7 @@ public class PropertyRegistry {
     public static final String ELEMENT_REQUIRED_COLUMNS = "requiredColumns";
     public static final String ELEMENT_TYPE_COLUMN = "typeColumn";
     public static final String ELEMENT_KEY_COLUMN = "keyColumn";
-    public static final String ELEMENT_NAME_COLUMN = "valueColumn";
+    public static final String ELEMENT_VALUE_COLUMN = "valueColumn";
     public static final String ELEMENT_VALIDATE_IGNORE_COLUMNS = "validateIgnoreColumns";
 
     public static final String ELEMENT_SOURCE_COLUMN = "sourceColumn";
@@ -126,5 +126,22 @@ public class PropertyRegistry {
     public static final String ELEMENT_FIELD_REMARK = "remark";
 
     public static final String ELEMENT_ENABLE_SELECTIVE = "enableSelective";
+
+    public static final String ELEMENT_ID_PROPERTY = "idProperty";
+    public static final String ELEMENT_NAME_PROPERTY = "nameProperty";
+
+    public static final String ELEMENT_SPEL_EXPRESSION = "SPeLExpression";
+
+    public static final String ELEMENT_PATH_KEYWORD = "pathKeyWord";
+
+    public static final String ELEMENT_ENUM_CLASS_FULL_NAME = "enumClassFullName";
+
+    public static final String ELEMENT_SWITCH_TEXT = "switchText";
+
+    public static final String ELEMENT_FIELD_NAMES = "fieldNames";
+
+    public static final String ELEMENT_RENDER_FUN = "renderFun";
+
+
 
 }

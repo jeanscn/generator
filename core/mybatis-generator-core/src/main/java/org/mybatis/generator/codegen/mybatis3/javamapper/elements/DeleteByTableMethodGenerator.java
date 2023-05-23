@@ -23,7 +23,7 @@ public class DeleteByTableMethodGenerator extends AbstractJavaMapperMethodGenera
             return;
         }
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
-        Method method = serviceMethods.getSplitUnionByTableMethod(interfaze, configuration, true, false,false);
+        Method method = serviceMethods.getSplitUnionByTableMethod(interfaze, configuration, true, false);
         addMapperAnnotations(method);
         if (context.getPlugins().clientInsertOrDeleteByTableMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);

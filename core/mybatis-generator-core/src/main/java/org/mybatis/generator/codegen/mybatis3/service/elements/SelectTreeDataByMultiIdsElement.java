@@ -2,10 +2,10 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
+import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,10 +18,10 @@ import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
  * 2023-04-26 14:38
  * @version 3.0
  */
-public class SelectTreeDataElement extends AbstractServiceElementGenerator {
+public class SelectTreeDataByMultiIdsElement extends AbstractServiceElementGenerator {
 
 
-    public SelectTreeDataElement() {
+    public SelectTreeDataByMultiIdsElement() {
         super();
     }
 
@@ -32,7 +32,6 @@ public class SelectTreeDataElement extends AbstractServiceElementGenerator {
             return;
         }
         Method method = serviceMethods.getSelectByMultiStringIdsMethod(parentElement, false);
-        method.getParameters().get(0).addAnnotation("@Nullable");
         parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         //方法体
         method.addBodyLine("if (!VStringUtil.stringHasValue(ids)) {");

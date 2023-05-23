@@ -99,7 +99,7 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
 
     protected void addDeleteByPrimaryKeyMethod(Interface interfaze) {
         if (introspectedTable.getRules().generateDeleteByPrimaryKey()) {
-            AbstractJavaMapperMethodGenerator methodGenerator = new DeleteByPrimaryKeyMethodGenerator(true);
+            AbstractJavaMapperMethodGenerator methodGenerator = new DeleteByPrimaryKeyMethodGenerator(false);
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }

@@ -1,14 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
@@ -56,7 +53,7 @@ public class ServiceMethods {
 
     }
 
-    public Method getDeleteByExampleMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService){
+    public Method getDeleteByExampleMethod(CompilationUnit parentElement,boolean isAbstract){
 
         Method method =  getMethodByType(introspectedTable.getDeleteByExampleStatementId(),
                 ReturnTypeEnum.SERVICE_RESULT_MODEL,
@@ -69,7 +66,7 @@ public class ServiceMethods {
         return method;
     }
 
-    public Method getDeleteByPrimaryKeyMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService){
+    public Method getDeleteByPrimaryKeyMethod(CompilationUnit parentElement,boolean isAbstract){
         List<Parameter> parameters = introspectedTable.getPrimaryKeyColumns().stream()
                 .map(Parameter::new)
                 .collect(Collectors.toList());
@@ -84,7 +81,7 @@ public class ServiceMethods {
         return method;
     }
 
-    public Method getUpdateByExample(CompilationUnit parentElement,boolean isAbstract,boolean isSelective,boolean isService){
+    public Method getUpdateByExample(CompilationUnit parentElement,boolean isAbstract,boolean isSelective){
         List<Parameter> parameters = new ArrayList<>();
         parameters.add(new Parameter(entityType, "record").setRemark("数据对象"));
         parameters.add(new Parameter(exampleType, "example").setRemark("检索条件对象"));
@@ -115,7 +112,7 @@ public class ServiceMethods {
         return method;
     }
 
-    public Method getUpdateBySql(CompilationUnit parentElement,boolean isAbstract,boolean isService){
+    public Method getUpdateBySql(CompilationUnit parentElement,boolean isAbstract){
         List<Parameter> parameters = new ArrayList<>();
         parameters.add(new Parameter(new FullyQualifiedJavaType("com.vgosoft.mybatis.sqlbuilder.UpdateSqlBuilder"), "updateSqlBuilder").setRemark("SQL语句构造对象"));
         Method method = getMethodByType(
@@ -179,16 +176,19 @@ public class ServiceMethods {
     }
 
     public Method getSelectByMultiStringIdsMethod(CompilationUnit parentElement, boolean isAbstract) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter ids = new Parameter(FullyQualifiedJavaType.getStringInstance(), "ids");
+        ids.setRemark("指定的数据范围的标识，多个以逗号分隔");
+        ids.addAnnotation("@Nullable");
+        parameters.add(ids);
         Method method = getMethodByType(introspectedTable.getSelectByMultiStringIdsStatementId(),
                 ReturnTypeEnum.LIST,
                 entityType,
                 "树形示例表对象列表",
-                FullyQualifiedJavaType.getStringInstance(),
-                "ids",
-                "待转换为ztree的数据对象列表",
+                parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "获取带child集合的数据，支持字符串多值的方法");
+        context.getCommentGenerator().addMethodJavaDocLine(method, "获取带child集合的数据，允许指定返回的数根的数据的方法");
         return method;
     }
 
@@ -209,7 +209,7 @@ public class ServiceMethods {
     public Method getSelectWithRelationMethod(FullyQualifiedJavaType entityType,
                                                  FullyQualifiedJavaType exampleType,
                                                  CompilationUnit parentElement,
-                                                 boolean isAbstract,boolean isService) {
+                                                 boolean isAbstract) {
         Method method = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(),
                 ReturnTypeEnum.LIST,
                 entityType,
@@ -226,7 +226,7 @@ public class ServiceMethods {
     public Method getSelectByColumnMethod(FullyQualifiedJavaType entityType,
                                              CompilationUnit parentElement,
                                              final SelectByColumnGeneratorConfiguration config,
-                                             boolean isAbstract,boolean isService) {
+                                             boolean isAbstract) {
         //IntrospectedColumn column = config.getColumn();
         boolean isSelectBase = JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName());
         List<Parameter> parameters = config.getColumns().stream().map(column -> {
@@ -288,7 +288,7 @@ public class ServiceMethods {
     public Method getSelectByTableMethod(FullyQualifiedJavaType entityType,
                                             CompilationUnit parentElement,
                                             SelectByTableGeneratorConfiguration config,
-                                            boolean isAbstract,boolean isService) {
+                                            boolean isAbstract) {
         FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
         listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         Method method = getMethodByType(config.getMethodName(),
@@ -324,9 +324,15 @@ public class ServiceMethods {
     public Method getSelectByKeysDictMethod(CompilationUnit parentElement,VOCacheGeneratorConfiguration config,
                                                boolean isAbstract,boolean isService) {
         boolean isCache = introspectedTable.getRules().isGenerateCachePO();
-        List<Parameter> parameters = getSelectDictParameterColumns(config, introspectedTable).stream()
-                .map(p -> new Parameter(p.getFullyQualifiedJavaType(), p.getJavaProperty()).setRemark(p.getRemarks(false)))
-                .collect(Collectors.toList());
+        List<Parameter> parameters;
+        if(isService){
+            parameters = getSelectByKeysDictMethodParameters();
+        }else{
+            FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.core.pojo.parameter.SelDictByKeysParam");
+            Parameter param = new Parameter(fullyQualifiedJavaType, "param");
+            param.setRemark("SelDictByKeysParam 查询参数对象,包含keys列表、type列表和排除id列表");
+            parameters = Collections.singletonList(param);
+        }
         Method method = getMethodByType(
                 introspectedTable.getSelectByKeysDictStatementId(),
                 isCache?(isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST):ReturnTypeEnum.MODEL,
@@ -335,7 +341,8 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回单一对象");
+        context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回对象列表",
+                "对dao的方法参数进行对象封装，以便于处理为null参数");
         return method;
     }
 
@@ -350,9 +357,56 @@ public class ServiceMethods {
         }
     }
 
+    public List<Parameter> getDictControllerMethodParameters(VOCacheGeneratorConfiguration voCacheGeneratorConfiguration) {
+        //方法参数
+        final List<Parameter> parameters = new ArrayList<>();
+        introspectedTable.getColumn(voCacheGeneratorConfiguration.getKeyColumn()).ifPresent(introspectedColumn -> {
+            Parameter keys = new Parameter(introspectedColumn.getFullyQualifiedJavaType(), "keys");
+            keys.setRemark(introspectedColumn.getRemarks(false));
+            keys.addAnnotation("@RequestParam");
+            parameters.add(keys);
+        });
+        if (VStringUtil.stringHasValue(voCacheGeneratorConfiguration.getTypeColumn())) {
+            introspectedTable.getColumn(voCacheGeneratorConfiguration.getTypeColumn()).ifPresent(introspectedColumn -> {
+                Parameter types = new Parameter(introspectedColumn.getFullyQualifiedJavaType(), "types");
+                types.setRemark(introspectedColumn.getRemarks(false));
+                types.addAnnotation("@RequestParam (required = false)");
+                parameters.add(types);
+            });
+        }
+        Parameter excludeIds = new Parameter(FullyQualifiedJavaType.getStringInstance(), "eids");
+        excludeIds.setRemark("排除的id列表");
+        excludeIds.addAnnotation("@RequestParam (required = false)");
+        parameters.add(excludeIds);
+        return parameters;
+    }
+
+    public List<Parameter> getSelectByKeysDictMethodParameters(){
+        //方法参数
+        final List<Parameter> parameters = new ArrayList<>();
+        VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
+        if (VStringUtil.stringHasValue(voCacheGeneratorConfiguration.getTypeColumn())) {
+            introspectedTable.getColumn(voCacheGeneratorConfiguration.getTypeColumn()).ifPresent(introspectedColumn -> {
+                Parameter types = new Parameter(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType(introspectedColumn.getFullyQualifiedJavaType()), "types");
+                types.setRemark(introspectedColumn.getRemarks(false));
+                parameters.add(types);
+            });
+        }else{
+            Parameter types = new Parameter(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType(FullyQualifiedJavaType.getStringInstance()), "types");
+            types.setRemark("类型参数占位符");
+            parameters.add(types);
+        }
+        introspectedTable.getColumn(voCacheGeneratorConfiguration.getKeyColumn()).ifPresent(introspectedColumn -> {
+            Parameter keys = new Parameter(introspectedColumn.getFullyQualifiedJavaType(), "keys");
+            keys.setRemark(introspectedColumn.getRemarks(false));
+            parameters.add(keys);
+        });
+        return parameters;
+    }
+
     public Method getSplitUnionByTableMethod(CompilationUnit parentElement,
                                                 SelectByTableGeneratorConfiguration configuration,
-                                                boolean isAbstract, boolean isInsert,boolean isService) {
+                                                boolean isAbstract, boolean isInsert) {
         List<Parameter> parameters = new ArrayList<>();
         Parameter p1 = new Parameter(configuration.getThisColumn().getFullyQualifiedJavaType(), configuration.getThisColumn().getJavaProperty());
         p1.setRemark("当前对象的键值");

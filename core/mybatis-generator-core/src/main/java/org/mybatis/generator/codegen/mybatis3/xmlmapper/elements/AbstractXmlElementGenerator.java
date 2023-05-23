@@ -407,4 +407,12 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
             }
         }
     }
+
+    protected XmlElement createBracketTrim(){
+        XmlElement trim = new XmlElement("trim");
+        trim.addAttribute(new Attribute("prefix", "("));
+        trim.addAttribute(new Attribute("suffix",")"));
+        trim.addAttribute(new Attribute("prefixOverrides", "and | or"));
+        return trim;
+    }
 }

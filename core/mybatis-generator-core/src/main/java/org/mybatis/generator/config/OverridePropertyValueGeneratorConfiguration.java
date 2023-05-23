@@ -27,6 +27,8 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     private String remark;
 
+    private String enumClassName;
+
 
     public OverridePropertyValueGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
@@ -112,5 +114,13 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getEnumClassName() {
+        return enumClassName;
+    }
+
+    public void setEnumClassName(String enumClassName) {
+        this.enumClassName = enumClassName;
     }
 }

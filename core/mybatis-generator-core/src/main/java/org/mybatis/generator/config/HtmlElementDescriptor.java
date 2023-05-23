@@ -24,6 +24,10 @@ public class HtmlElementDescriptor {
 
     private String verify;
 
+    private String enumClassName;
+
+    private String switchText;
+
     public String getDataFormat() {
         return dataFormat;
     }
@@ -102,5 +106,21 @@ public class HtmlElementDescriptor {
 
     public void setVerify(String verify) {
         this.verify = verify;
+    }
+
+    public String getEnumClassName() {
+        return enumClassName;
+    }
+
+    public void setEnumClassName(String enumClassName) {
+        this.enumClassName = enumClassName;
+    }
+
+    public String getSwitchText() {
+        return switchText;
+    }
+
+    public void setSwitchText(String switchText) {
+        this.switchText = switchText;
     }
 }

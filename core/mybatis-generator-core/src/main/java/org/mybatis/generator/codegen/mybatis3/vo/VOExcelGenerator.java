@@ -56,7 +56,13 @@ public class VOExcelGenerator extends AbstractVOGenerator{
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
         overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-        voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass).forEach(field -> plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable));
+        voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass).forEach(field -> {
+            if(plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)){
+                if (!excelVoClass.isContainField(field.getName())) {
+                    excelVoClass.addField(field);
+                }
+            }
+        });
 
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();

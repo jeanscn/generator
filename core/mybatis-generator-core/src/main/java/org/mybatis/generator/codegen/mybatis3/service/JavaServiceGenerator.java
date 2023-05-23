@@ -78,7 +78,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //增加selectByExampleWithRelation接口方法
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(entityType, exampleType, bizINF, true, true));
+            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(entityType, exampleType, bizINF, true));
         }
 
         //增加SelectBySqlMethod
@@ -90,7 +90,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         //增加selectByColumnXXX
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
-                Method method = serviceMethods.getSelectByColumnMethod(entityType, bizINF, config, true, true);
+                Method method = serviceMethods.getSelectByColumnMethod(entityType, bizINF, config, true);
                 bizINF.addMethod(method);
             }
         }
@@ -102,7 +102,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         //增加selectByTableXXX
         List<SelectByTableGeneratorConfiguration> selectByTableConfiguration = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
         for (SelectByTableGeneratorConfiguration config : selectByTableConfiguration) {
-            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, bizINF, config, true, true);
+            Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, bizINF, config, true);
             bizINF.addMethod(selectByTable);
         }
 
@@ -113,19 +113,19 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             bizINF.addMethod(serviceMethods.getSelectByKeysDictMethod(bizINF,
                     introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(),
                     true, true));
+            bizINF.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         }
 
         //deleteByTableXXXX
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-                .filter(SelectByTableGeneratorConfiguration::isEnableSplit).forEach(c -> bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, false, true)));
+                .filter(SelectByTableGeneratorConfiguration::isEnableSplit).forEach(c -> bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, false)));
 
         //insertByTableXXXX
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-                .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c -> bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, true, true)));
+                .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c -> bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, true)));
 
         if (introspectedTable.getRules().isModelEnableChildren()) {
             Method method = serviceMethods.getSelectByMultiStringIdsMethod(bizINF, true);
-            method.getParameters().get(0).addAnnotation("@Nullable");
             bizINF.addMethod(method);
             bizINF.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         }

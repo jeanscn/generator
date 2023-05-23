@@ -22,7 +22,7 @@ public class UpdateBySqlElement extends AbstractServiceElementGenerator {
     public void addElements(TopLevelClass parentElement) {
         CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
 
-        Method updateBySql = serviceMethods.getUpdateBySql(parentElement, false,true);
+        Method updateBySql = serviceMethods.getUpdateBySql(parentElement, false);
         updateBySql.addAnnotation("@Override");
         if (introspectedTable.getRules().isGenerateCachePO()) {
             updateBySql.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));

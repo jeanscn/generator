@@ -212,6 +212,7 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
     }
+
     protected void parseSqlMapGenerator(Context context, Node node) {
         SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
 
@@ -238,7 +239,7 @@ public class MyBatisGeneratorConfigurationParser {
         String domainObjectName = attributes.getProperty("domainObjectName");
         if (!stringHasValue(domainObjectName)) {
             domainObjectName = JavaBeansUtil.getCamelCaseString(tableName, true);
-        }else{
+        } else {
             domainObjectName = JavaBeansUtil.getFirstCharacterUppercase(domainObjectName.trim());
         }
         //先确认是否指定了生成范围
@@ -632,6 +633,12 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(minLength)) {
             co.setMinLength(Integer.parseInt(minLength));
         }
+
+        String columnComment = attributes.getProperty("columnComment");
+        if (stringHasValue(columnComment)) {
+            co.setColumnComment(columnComment);
+        }
+
         parseChildNodeOnlyProperty(co, node);
         tc.addColumnOverride(co);
     }
@@ -996,6 +1003,14 @@ public class MyBatisGeneratorConfigurationParser {
         htmlElementDescriptor.setApplyProperty(applyProperty);
         String verify = attributes.getProperty("verify");
         htmlElementDescriptor.setVerify(verify);
+        String enumClassName = attributes.getProperty(PropertyRegistry.ELEMENT_ENUM_CLASS_FULL_NAME);
+        if (stringHasValue(enumClassName)) {
+            htmlElementDescriptor.setEnumClassName(enumClassName);
+        }
+        String switchText = attributes.getProperty(PropertyRegistry.ELEMENT_SWITCH_TEXT);
+        if (stringHasValue(switchText)) {
+            htmlElementDescriptor.setSwitchText(switchText);
+        }
         htmlGeneratorConfiguration.addElementDescriptors(htmlElementDescriptor);
     }
 
@@ -1152,13 +1167,21 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseGenerateTreeViewCate(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration, Node node) {
         TreeViewCateGeneratorConfiguration viewCateGeneratorConfiguration = new TreeViewCateGeneratorConfiguration();
         Properties attributes = parseAttributes(node);
-        String expression = attributes.getProperty("SPeLExpression");
+        String expression = attributes.getProperty(PropertyRegistry.ELEMENT_SPEL_EXPRESSION);
         if (stringHasValue(expression)) {
             viewCateGeneratorConfiguration.setSPeL(expression);
         }
-        String pathKeyWord = attributes.getProperty("pathKeyWord");
+        String pathKeyWord = attributes.getProperty(PropertyRegistry.ELEMENT_PATH_KEYWORD);
         if (stringHasValue(pathKeyWord)) {
             viewCateGeneratorConfiguration.setPathKeyWord(pathKeyWord);
+        }
+        String idColumn = attributes.getProperty(PropertyRegistry.ELEMENT_ID_PROPERTY);
+        if (stringHasValue(idColumn)) {
+            viewCateGeneratorConfiguration.setIdProperty(idColumn);
+        }
+        String nameColumn = attributes.getProperty(PropertyRegistry.ELEMENT_NAME_PROPERTY);
+        if (stringHasValue(nameColumn)) {
+            viewCateGeneratorConfiguration.setNameProperty(nameColumn);
         }
         if (javaControllerGeneratorConfiguration.getTreeViewCateGeneratorConfigurations()
                 .stream()
@@ -1338,6 +1361,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(remark)) {
             overrideColumnGeneratorConfiguration.setRemark(remark);
         }
+        String enumClassName = attributes.getProperty(PropertyRegistry.ELEMENT_ENUM_CLASS_FULL_NAME);
+        if (stringHasValue(enumClassName)) {
+            overrideColumnGeneratorConfiguration.setEnumClassName(enumClassName);
+        }
         if (stringHasValue(sourceColumn)) {
             if (annotationType.equals("Dict")) {
                 if (stringHasValue(beanName)) {
@@ -1441,11 +1468,11 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseColumnRenderFun(Context context, TableConfiguration tc, AbstractModelGeneratorConfiguration configuration, Node childNode) {
         VoColumnRenderFunGeneratorConfiguration voColumnRenderFunGeneratorConfiguration = new VoColumnRenderFunGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(childNode);
-        String column = attributes.getProperty("column");
-        if (stringHasValue(column)) {
-            voColumnRenderFunGeneratorConfiguration.setColumn(column);
+        String fieldNames = attributes.getProperty(PropertyRegistry.ELEMENT_FIELD_NAMES);
+        if (stringHasValue(fieldNames)) {
+            voColumnRenderFunGeneratorConfiguration.setFieldNames(spiltToList(fieldNames));
         }
-        String renderFun = attributes.getProperty("renderFun");
+        String renderFun = attributes.getProperty(PropertyRegistry.ELEMENT_RENDER_FUN);
         if (stringHasValue(renderFun)) {
             voColumnRenderFunGeneratorConfiguration.setRenderFun(renderFun);
         }
@@ -1716,8 +1743,10 @@ public class MyBatisGeneratorConfigurationParser {
         String keyColumn = attributes.getProperty(PropertyRegistry.ELEMENT_KEY_COLUMN);
         if (stringHasValue(keyColumn)) {
             voCacheGeneratorConfiguration.setKeyColumn(keyColumn);
+        }else{
+            voCacheGeneratorConfiguration.setKeyColumn(DefultColumnNameEnum.ID.columnName());
         }
-        String nameColumn = attributes.getProperty(PropertyRegistry.ELEMENT_NAME_COLUMN);
+        String nameColumn = attributes.getProperty(PropertyRegistry.ELEMENT_VALUE_COLUMN);
         if (stringHasValue(nameColumn)) {
             voCacheGeneratorConfiguration.setValueColumn(nameColumn);
         }

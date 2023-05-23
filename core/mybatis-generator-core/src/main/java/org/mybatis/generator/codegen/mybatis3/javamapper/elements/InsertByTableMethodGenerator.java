@@ -23,7 +23,7 @@ public class InsertByTableMethodGenerator extends AbstractJavaMapperMethodGenera
             return;
         }
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
-        Method method = serviceMethods.getSplitUnionByTableMethod(interfaze, configuration, true, true,false);
+        Method method = serviceMethods.getSplitUnionByTableMethod(interfaze, configuration, true, true);
         addMapperAnnotations(method);
         if (context.getPlugins().clientInsertOrDeleteByTableMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);

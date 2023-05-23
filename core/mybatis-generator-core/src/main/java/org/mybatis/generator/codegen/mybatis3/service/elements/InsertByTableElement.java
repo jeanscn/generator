@@ -23,7 +23,7 @@ public class InsertByTableElement extends AbstractServiceElementGenerator {
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableUnion)
                 .forEach(c -> {
-                    Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,true,true);
+                    Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,true);
                     method.addBodyLine("return mapper.{0}({1},{2});"
                             ,c.getUnionMethodName()
                             ,c.getThisColumn().getJavaProperty()

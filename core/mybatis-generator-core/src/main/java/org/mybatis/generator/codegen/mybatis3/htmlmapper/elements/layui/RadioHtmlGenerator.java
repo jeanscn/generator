@@ -38,8 +38,8 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator{
             switch (htmlElementDescriptor.getDataFormat()) {
                 case "sex":
                 case "性别":
-                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "男", "男", entityKey));
-                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "女", "女", entityKey));
+                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "1", "男", entityKey));
+                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "0", "女", entityKey));
                     break;
                 case "level":
                 case "级别":
@@ -50,13 +50,13 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator{
                 case "true":
                 case "是":
                 case "是否":
-                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "是", "是", entityKey));
-                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "否", "否", entityKey));
+                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "1", "是", entityKey));
+                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "0", "否", entityKey));
                     break;
                 case "有":
                 case "有无":
-                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "有", "有", entityKey));
-                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "无", "无", entityKey));
+                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "1", "有", entityKey));
+                    parent.addElement(this.drawLayuiRadio(introspectedColumn.getJavaProperty(), "0", "无", entityKey));
                     break;
                 case "急":
                 case "缓急":
@@ -78,9 +78,7 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator{
                 element1.addAttribute(new Attribute("th:checked", sb.toString()));
                 parent.addElement(element1);
             }
-            if (htmlElementDescriptor.getDataUrl() != null) {
-                parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-            }
+            addDataUrl(parent,htmlElementDescriptor,null);
         }
         //在parent中添加data-data属性，用于保存初始值
         parent.addAttribute(new Attribute("th:data-data", this.getFieldValueFormatPattern(introspectedColumn)));
@@ -93,7 +91,7 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator{
     @Override
     public String getFieldValueFormatPattern(IntrospectedColumn introspectedColumn) {
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
-        if (htmlElementDescriptor.getDataFormat().equals("急")) {
+        if (htmlElementDescriptor.getDataFormat()!=null && htmlElementDescriptor.getDataFormat().equals("急")) {
             return VStringUtil.format("$'{'{0}.{1} ne null?({0}.{1} <= 50?''正常'':''紧急''):''正常''}'", entityKey, introspectedColumn.getJavaProperty());
         } else {
            return thymeleafValue(introspectedColumn);

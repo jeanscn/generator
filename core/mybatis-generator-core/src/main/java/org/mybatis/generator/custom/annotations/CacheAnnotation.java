@@ -1,6 +1,7 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.dom.java.Parameter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +17,10 @@ import static com.vgosoft.tool.core.VStringUtil.*;
  * @version 3.0
  */
 public class CacheAnnotation {
-    private List<String> cacheNames = new ArrayList<>();
+    private final List<String> cacheNames = new ArrayList<>();
     private String unless;
-    private int parameters;
+    private List<Parameter> parameters = new ArrayList<>();
+
     private String serviceKey;
 
     private String key;
@@ -30,9 +32,8 @@ public class CacheAnnotation {
         this.serviceKey = serviceKey;
     }
 
-    public CacheAnnotation(String unless, int parameters, String serviceKey) {
+    public CacheAnnotation(String unless, String serviceKey) {
         this.unless = unless;
-        this.parameters = parameters;
         this.serviceKey = serviceKey;
     }
 
@@ -52,11 +53,11 @@ public class CacheAnnotation {
         this.unless = unless;
     }
 
-    public int getParameters() {
+    public List<Parameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(int parameters) {
+    public void setParameters(List<Parameter> parameters) {
         this.parameters = parameters;
     }
 
@@ -104,7 +105,7 @@ public class CacheAnnotation {
         sb.append(formatCacheNames());
         if (allEntries) {
             sb.append(",allEntries = true");
-        }else if(stringHasValue(key)){
+        } else if (stringHasValue(key)) {
             sb.append(",").append(formatKey());
         }
         sb.append(")");
@@ -112,7 +113,7 @@ public class CacheAnnotation {
     }
 
     private String formatKey() {
-        if (parameters == 0 && !stringHasValue(key)) {
+        if (parameters.size() == 0 && !stringHasValue(key)) {
             return "";
         }
         StringBuilder sb = new StringBuilder("key = \"'");
@@ -121,8 +122,15 @@ public class CacheAnnotation {
         if (stringHasValue(key)) {
             sb.append(format(".concat({0})", key));
         } else {
-            for (int i = 0; i < parameters; i++) {
-               sb.append(format(".concat(#p{0}!=null?#p{0}:'''')",i));
+            for (int i = 0; i < parameters.size(); i++) {
+                Parameter parameter = parameters.get(i);
+                if (parameter.getType().getShortName().equals("String")) {
+                    sb.append(format(".concat(#p{0}!=null?#p{0}:'''')", i));
+                } else if (parameter.getType().getShortNameWithoutTypeArguments().equals("Optional")) {
+                    sb.append(format(".concat(#p{0}!=null && #p{0}.isPresent()?#p{0}.get().toString():'''')", i));
+                } else {
+                    sb.append(format(".concat(#p{0}!=null?#p{0}.toString():'''')", i));
+                }
             }
         }
         sb.append("\"");

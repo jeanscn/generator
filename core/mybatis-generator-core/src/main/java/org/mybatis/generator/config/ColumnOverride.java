@@ -31,6 +31,8 @@ public class ColumnOverride extends PropertyHolder {
 
     private Integer scale;
 
+    private String columnComment;
+
     public ColumnOverride(String columnName) {
         super();
 
@@ -119,5 +121,13 @@ public class ColumnOverride extends PropertyHolder {
 
     public void setScale(Integer scale) {
         this.scale = scale;
+    }
+
+    public String getColumnComment() {
+        return columnComment;
+    }
+
+    public void setColumnComment(String columnComment) {
+        this.columnComment = columnComment;
     }
 }

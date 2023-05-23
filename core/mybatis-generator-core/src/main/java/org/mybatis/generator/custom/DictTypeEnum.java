@@ -16,7 +16,9 @@ public enum DictTypeEnum{
     /**
      * 3:系统字典
      */
-    DICT_SYS(4,"DictSys");
+    DICT_SYS(4,"DictSys"),
+
+    DICT_ENUM(5,"DictEnum");
 
     private final int value;
     private final String code;

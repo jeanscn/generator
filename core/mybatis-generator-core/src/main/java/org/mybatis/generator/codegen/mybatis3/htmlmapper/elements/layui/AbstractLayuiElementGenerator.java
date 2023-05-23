@@ -9,14 +9,13 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.custom.DictTypeEnum;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.mybatis.generator.internal.util.StringUtility.*;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -115,5 +114,18 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
         HtmlElement radio = this.drawRadio(propertyName, value, text, entityKey);
         radio.addAttribute(new Attribute("lay-filter", propertyName));
         return radio;
+    }
+
+    protected void addDataUrl(HtmlElement element,HtmlElementDescriptor htmlElementDescriptor,String defaultDataUrl) {
+        if (htmlElementDescriptor == null) {
+            return;
+        }
+        if (htmlElementDescriptor.getDataUrl() != null) {
+            element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+        }else if(htmlElementDescriptor.getDataSource()!=null && htmlElementDescriptor.getDataSource().equals(DictTypeEnum.DICT_ENUM.getCode()) && stringHasValue(htmlElementDescriptor.getEnumClassName())){
+            element.addAttribute(new Attribute("data-url", "/system/enum/options/" + htmlElementDescriptor.getEnumClassName()));
+        }else if(defaultDataUrl!=null){
+            element.addAttribute(new Attribute("data-url", defaultDataUrl));
+        }
     }
 }

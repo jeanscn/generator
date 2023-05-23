@@ -28,7 +28,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
-        Method method = serviceMethods.getDeleteByPrimaryKeyMethod(parentElement, false,true);
+        Method method = serviceMethods.getDeleteByPrimaryKeyMethod(parentElement, false);
         method.addAnnotation("@Override");
         method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);

@@ -42,6 +42,9 @@ public class ValidatorPlugin extends PluginAdapter {
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
+        if (introspectedColumn == null) {
+            return true;
+        }
         if (!introspectedTable.getRules().isGenerateVoModel()) {
             if (introspectedColumn.isIdentity()) {
                 addNotNullValidate(field, topLevelClass, introspectedColumn, updateValidate, introspectedTable, ignoreColumns);

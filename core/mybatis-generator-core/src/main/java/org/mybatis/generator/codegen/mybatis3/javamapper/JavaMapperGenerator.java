@@ -212,7 +212,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     protected void addSelectByColumnMethods(Interface interfaze) {
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
-                Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true, false);
+                Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true);
                  interfaze.addMethod(method);
             }
         }
@@ -240,7 +240,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration() != null
                 && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() > 0) {
             for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
-                Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, interfaze, configuration, true, false);
+                Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, interfaze, configuration, true);
                 /*Method selectByTable = serviceMethods.getMethodByType(configuration.getMethodName(),
                         ReturnTypeEnum.LIST,
                         configuration.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,

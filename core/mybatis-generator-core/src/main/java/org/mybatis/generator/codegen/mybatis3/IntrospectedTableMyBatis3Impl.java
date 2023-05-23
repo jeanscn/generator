@@ -141,6 +141,8 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
      */
     public void calculateCustom(List<String> warnings, ProgressCallback callback) {
 
+
+
     }
 
     protected AbstractJavaClientGenerator createJavaClientGenerator() {

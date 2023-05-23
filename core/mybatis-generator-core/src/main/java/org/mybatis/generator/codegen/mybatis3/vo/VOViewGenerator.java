@@ -27,10 +27,10 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2023-03-29 16:03
  * @version 3.0
  */
-public class VOViewGenerator extends AbstractVOGenerator{
+public class VOViewGenerator extends AbstractVOGenerator {
 
     public VOViewGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class VOViewGenerator extends AbstractVOGenerator{
         viewVOClass.addMultipleImports("lombok");
         ApiModel apiModel = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
         apiModel.addAnnotationToTopLevelClass(viewVOClass);
-        addViewTableMeta(voViewGeneratorConfiguration,viewVOClass);
+        addViewTableMeta(voViewGeneratorConfiguration, viewVOClass);
         viewVOClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addSerialVersionUID();
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voViewGeneratorConfiguration.getIncludeColumns(), voViewGeneratorConfiguration.getExcludeColumns());
@@ -60,19 +60,26 @@ public class VOViewGenerator extends AbstractVOGenerator{
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
         overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-        voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass).forEach(field -> plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)
-        );
+        voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass)
+                .forEach(field -> {
+                            if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
+                                viewVOClass.addField(field);
+                                viewVOClass.addImportedType(field.getType());
+                            }
+                        }
+                );
 
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        viewVOClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
-                    if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
-                        viewVOClass.addField(field);
-                        viewVOClass.addImportedType(field.getType());
-                    }
-                }
-        );
+        viewVOClass.getAddtionalPropertiesFields(additionalPropertyConfigurations)
+                .forEach(field -> {
+                            if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
+                                viewVOClass.addField(field);
+                                viewVOClass.addImportedType(field.getType());
+                            }
+                        }
+                );
 
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(viewVOType));
         mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), false));
@@ -81,7 +88,7 @@ public class VOViewGenerator extends AbstractVOGenerator{
         return viewVOClass;
     }
 
-    private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration,TopLevelClass viewVOClass) {
+    private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass) {
         ViewTableMeta viewTableMeta = new ViewTableMeta(introspectedTable);
         //createUrl
         String createUrl = "";

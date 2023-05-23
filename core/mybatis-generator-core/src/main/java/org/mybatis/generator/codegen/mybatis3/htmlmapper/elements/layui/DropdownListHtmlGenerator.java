@@ -8,7 +8,6 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
@@ -37,11 +36,7 @@ public class DropdownListHtmlGenerator extends AbstractLayuiElementGenerator{
         element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("th:data-value", this.getFieldValueFormatPattern(introspectedColumn)));
-        if (StringUtility.stringHasValue(htmlElementDescriptor.getDataUrl())) {
-            element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-        } else {
-            element.addAttribute(new Attribute("data-url", "/system/sys-dict-data-impl/option/" + introspectedColumn.getJavaProperty()));
-        }
+        addDataUrl(element,htmlElementDescriptor,"/system/sys-dict-data-impl/option/" + introspectedColumn.getJavaProperty());
         HtmlElement option = new HtmlElement("option");
         option.addAttribute(new Attribute("value", ""));
         option.addElement(new TextElement("请选择"));

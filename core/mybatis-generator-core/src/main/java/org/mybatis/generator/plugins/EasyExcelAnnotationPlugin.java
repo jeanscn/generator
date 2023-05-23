@@ -44,10 +44,24 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
             excelProperty.setOrder(introspectedColumn.getOrder());
         }
         if (field.getAnnotations().stream()
-                .anyMatch(annotation -> annotation.contains("@Dict") || annotation.contains("@DictSys") || annotation.contains("@DictUser") || annotation.contains("@DictData"))) {
+                .anyMatch(annotation -> annotation.contains("@Dict"))) {
             excelProperty.setConverter("ExportDictConverter.class");
-
             excelProperty.addImports("com.vgosoft.plugins.excel.converter.ExportDictConverter");
+        }else if(field.getType().getShortName().equals("LocalDateTime")){
+            excelProperty.setConverter("LocalDateTimeConverter.class");
+            excelProperty.addImports("com.vgosoft.plugins.excel.converter.LocalDateTimeConverter");
+        }else if (field.getType().getShortName().equals("LocalDate")){
+            excelProperty.setConverter("LocalDateConverter.class");
+            excelProperty.addImports("com.vgosoft.plugins.excel.converter.LocalDateConverter");
+        }else if (field.getType().getShortName().equals("LocalTime")){
+            excelProperty.setConverter("LocalTimeConverter.class");
+            excelProperty.addImports("com.vgosoft.plugins.excel.converter.LocalTimeConverter");
+        }else if (field.getType().getShortName().equals("Instant")){
+            excelProperty.setConverter("InstantConverter.class");
+            excelProperty.addImports("com.vgosoft.plugins.excel.converter.InstantConverter");
+        }
+        if (field.getInitializationString().isPresent()) {
+            field.addAnnotation("@Builder.Default");
         }
         field.addAnnotation(excelProperty.toAnnotation());
         topLevelClass.addImportedTypes(excelProperty.getImportedTypes());
