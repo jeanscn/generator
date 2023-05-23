@@ -49,7 +49,9 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
         selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
         selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(keys);");
+        selectByKeysDictMethod.addBodyLine("if (types!=null && types.isPresent()) {");
         selectByKeysDictMethod.addBodyLine("types.ifPresent(selDictByKeysParam::addTypeString);");
+        selectByKeysDictMethod.addBodyLine("}");
         selectByKeysDictMethod.addBodyLine("List<{0}> result = mapper.{1}(selDictByKeysParam);"
                 , entityType.getShortName()
                 , introspectedTable.getSelectByKeysDictStatementId());

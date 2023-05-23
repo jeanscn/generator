@@ -32,7 +32,12 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
-        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.TreeNodeConverterImpl");
+        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.ITreeNodeConverter");
+        parentElement.addImportedType("java.util.List");
+        parentElement.addImportedType("java.util.Optional");
+        parentElement.addImportedType("java.util.stream.Collectors");
+        parentElement.addImportedType("java.util.stream.Stream");
 
         //fetchTreeDataGenerate方法定义
         FullyQualifiedJavaType ztreeDataSimpleType = new FullyQualifiedJavaType(Z_TREE_DATA_SIMPLE);
@@ -103,7 +108,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
                     introspectedTable.getSelectByMultiStringIdsStatementId(),
                     "keys"));
 
-            methodCate.addBodyLine("List<ZtreeDataViewCate> ztreeDataViewCates = nodeConverter.convertTreeNodeDataViewCate(\"{0}\");",cateTreeConfig.getSPeL());
+            methodCate.addBodyLine("List<ZtreeDataViewCate> ztreeDataViewCates = nodeConverter.convertTreeNodeDataViewCate(\"{0}\");", cateTreeConfig.getSPeL());
             methodCate.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
             methodCate.addBodyLine("List<String> split = VStringUtil.splitter(true).splitToList(eids);");
             methodCate.addBodyLine("ztreeDataViewCates = ztreeDataViewCates.stream().filter(t -> !split.contains(t.getId())).collect(Collectors.toList());");
@@ -111,11 +116,9 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             methodCate.addBodyLine("return ResponseResult.success(ztreeDataViewCates);");
             parentElement.addMethod(methodCate);
         });
-        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.TreeNodeConverterImpl");
-        parentElement.addImportedType("com.vgosoft.core.pojo.ztree.cast.ITreeNodeConverter");
     }
 
-    private void addExcludeIdsData(){
+    private void addExcludeIdsData() {
 
     }
 }
