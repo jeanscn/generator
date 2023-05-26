@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -42,7 +42,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
         FullyQualifiedJavaType entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
-        FullyQualifiedJavaType entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVO"));
+        FullyQualifiedJavaType entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelImportVO"));
 
         List<CompilationUnit> answer = new ArrayList<>();
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
@@ -79,7 +79,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conTopClazz.addImportedType(supClazzType);
         conTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conTopClazz.addStaticImport(RESPONSE_RESULT + ".*");
-        conTopClazz.addImportedType(API_CODE_ENUM);
+        conTopClazz.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
         if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
             conTopClazz.addImportedType("org.springframework.security.access.prepost.PreAuthorize");
         }
@@ -184,7 +184,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");
             buildTemplateSampleData.setVisibility(JavaVisibility.PROTECTED);
             FullyQualifiedJavaType retType = FullyQualifiedJavaType.getNewListInstance();
-            retType.addTypeArgument(entityExcelVoType);
+            retType.addTypeArgument(entityExcelImportVoType);
             method.setReturnRemark("模板数据列表对象");
             buildTemplateSampleData.setReturnType(retType);
             commentGenerator.addMethodJavaDocLine(buildTemplateSampleData,
@@ -197,9 +197,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 buildTemplateSampleData.addBodyLine("return Collections.singletonList(");
                 conTopClazz.addImportedType("java.util.Collections");
             }
-            buildTemplateSampleData.addBodyLine("        {0}.builder()", entityExcelVoType.getShortName());
+            buildTemplateSampleData.addBodyLine("        {0}.builder()", entityExcelImportVoType.getShortName());
             VOExcelGeneratorConfiguration voExcelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration();
-            List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voExcelConfiguration.getIncludeColumns(), voExcelConfiguration.getExcludeColumns());
+            List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voExcelConfiguration.getImportIncludeColumns(), voExcelConfiguration.getImportExcludeColumns());
             CollectionUtil.addAllIfNotContains(introspectedColumns, voGenService.getAbstractVOColumns());
             for (IntrospectedColumn excelVOColumn : introspectedColumns) {
                 buildTemplateSampleData.addBodyLine("                .{0}({1})",
@@ -216,6 +216,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
             buildTemplateSampleData.addBodyLine("                .build());");
             conTopClazz.addMethod(buildTemplateSampleData);
+            conTopClazz.addImportedType(entityExcelImportVoType);
         }
 
         //追加一个example构造方法
@@ -274,7 +275,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                     } else {
                         buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.{1}())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
                     }
-                    conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
+                    conTopClazz.addImportedType(V_STRING_UTIL);
                 } else {
                     if (isBetween) {
                         buildExample.addBodyLine("if ({0}.{1}() != null  && {0}.{1}Other() != null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
@@ -331,7 +332,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                     buildExample.addBodyLine("}else{");
                     buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
                     buildExample.addBodyLine("}");
-                    conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
+                    conTopClazz.addImportedType(V_STRING_UTIL);
                 } else {
                     buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
                 }
@@ -340,7 +341,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("}");
-                    conTopClazz.addImportedType("com.vgosoft.tool.core.VStringUtil");
+                    conTopClazz.addImportedType(V_STRING_UTIL);
                 }
             }
 

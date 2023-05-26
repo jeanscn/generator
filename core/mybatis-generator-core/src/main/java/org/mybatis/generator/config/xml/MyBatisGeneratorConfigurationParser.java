@@ -1,7 +1,7 @@
 package org.mybatis.generator.config.xml;
 
 import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
@@ -235,12 +235,17 @@ public class MyBatisGeneratorConfigurationParser {
         TableConfiguration tc = new TableConfiguration(context);
         Properties attributes = parseAttributes(node);
         String tableName = attributes.getProperty("tableName");
+        if (stringHasValue(tableName)) {
+            tableName = removeSpaces(tableName);
+        } else {
+            return;
+        }
         String ignore = attributes.getProperty("ignore");
         String domainObjectName = attributes.getProperty("domainObjectName");
         if (!stringHasValue(domainObjectName)) {
             domainObjectName = JavaBeansUtil.getCamelCaseString(tableName, true);
         } else {
-            domainObjectName = JavaBeansUtil.getFirstCharacterUppercase(domainObjectName.trim());
+            domainObjectName = JavaBeansUtil.getFirstCharacterUppercase(removeSpaces(domainObjectName));
         }
         //先确认是否指定了生成范围
         List<String> tables = context.getOnlyTablesGenerate();
@@ -279,7 +284,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String alias = attributes.getProperty("alias"); //$NON-NLS-1$
         if (stringHasValue(alias)) {
-            tc.setAlias(alias);
+            tc.setAlias(removeSpaces(alias));
         }
 
         String tableType = attributes.getProperty("tableType"); //$NON-NLS-1$
@@ -556,8 +561,8 @@ public class MyBatisGeneratorConfigurationParser {
             configImpl.setNoServiceAnnotation(false);
             if (context.getJavaModelGeneratorConfiguration().getTargetProject() != null) {
                 String targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-                config.setTargetProject(StringUtility.getTargetProject(targetProject));
-                configImpl.setTargetProject(StringUtility.getTargetProject(targetProject));
+                config.setTargetProject(getTargetProject(targetProject));
+                configImpl.setTargetProject(getTargetProject(targetProject));
             }
             tc.setJavaServiceGeneratorConfiguration(config);
             tc.setJavaServiceImplGeneratorConfiguration(configImpl);
@@ -892,9 +897,9 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(viewPath)) {
             fullViewPath = htmlTargetPackage + "/" + viewPath;
             htmlGeneratorConfiguration.setViewPath(fullViewPath);
-            htmlGeneratorConfiguration.setTargetPackage(StringUtility.substringBeforeLast(fullViewPath, "/"));
+            htmlGeneratorConfiguration.setTargetPackage(substringBeforeLast(fullViewPath, "/"));
             htmlGeneratorConfiguration.setHtmlFileName(
-                    String.join(".", StringUtility.substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
+                    String.join(".", substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
         } else {
             htmlGeneratorConfiguration.setTargetPackage(htmlTargetPackage);
         }
@@ -986,7 +991,7 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(node);
         String column = attributes.getProperty("column");
         String tagType = attributes.getProperty("tagType");
-        HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
+        HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor(htmlGeneratorConfiguration);
         htmlElementDescriptor.setName(column);
         htmlElementDescriptor.setTagType(tagType);
         String dataSource = attributes.getProperty("dataSource");
@@ -1002,7 +1007,9 @@ public class MyBatisGeneratorConfigurationParser {
         String applyProperty = attributes.getProperty("applyProperty");
         htmlElementDescriptor.setApplyProperty(applyProperty);
         String verify = attributes.getProperty("verify");
-        htmlElementDescriptor.setVerify(verify);
+        if (stringHasValue(verify)) {
+            htmlElementDescriptor.setVerify(spiltToList(verify));
+        }
         String enumClassName = attributes.getProperty(PropertyRegistry.ELEMENT_ENUM_CLASS_FULL_NAME);
         if (stringHasValue(enumClassName)) {
             htmlElementDescriptor.setEnumClassName(enumClassName);
@@ -1010,6 +1017,14 @@ public class MyBatisGeneratorConfigurationParser {
         String switchText = attributes.getProperty(PropertyRegistry.ELEMENT_SWITCH_TEXT);
         if (stringHasValue(switchText)) {
             htmlElementDescriptor.setSwitchText(switchText);
+        }
+        String dictCode = attributes.getProperty(PropertyRegistry.ELEMENT_DICT_CODE);
+        if (stringHasValue(dictCode)) {
+            htmlElementDescriptor.setDictCode(dictCode);
+        }
+        String callback = attributes.getProperty("callback");
+        if (stringHasValue(callback)) {
+            htmlElementDescriptor.setCallback(callback);
         }
         htmlGeneratorConfiguration.addElementDescriptors(htmlElementDescriptor);
     }
@@ -1043,7 +1058,7 @@ public class MyBatisGeneratorConfigurationParser {
         javaModelGeneratorConfiguration.setTargetPackage(attributes.getProperty(PropertyRegistry.ANY_TARGET_PROJECT));
         String targetPackage = attributes.getProperty(PropertyRegistry.ANY_TARGET_PACKAGE);
         javaModelGeneratorConfiguration.setTargetPackage(targetPackage);
-        String baseTargetPackage = StringUtility.substringBeforeLast(targetPackage, ".");
+        String baseTargetPackage = substringBeforeLast(targetPackage, ".");
         javaModelGeneratorConfiguration.setBaseTargetPackage(baseTargetPackage);
         javaModelGeneratorConfiguration.setTargetPackageGen(String.join(baseTargetPackage, "codegen.entity"));
         context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
@@ -1095,8 +1110,8 @@ public class MyBatisGeneratorConfigurationParser {
         }
         if (context.getJavaModelGeneratorConfiguration().getTargetProject() != null) {
             String targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
-            javaServiceGeneratorConfiguration.setTargetProject(StringUtility.getTargetProject(targetProject));
-            javaServiceImplGeneratorConfiguration.setTargetProject(StringUtility.getTargetProject(targetProject));
+            javaServiceGeneratorConfiguration.setTargetProject(getTargetProject(targetProject));
+            javaServiceImplGeneratorConfiguration.setTargetProject(getTargetProject(targetProject));
         }
         parseAbstractConfigAttributes(attributes, javaServiceGeneratorConfiguration, node);
         parseAbstractConfigAttributes(attributes, javaServiceImplGeneratorConfiguration, node);
@@ -1618,6 +1633,26 @@ public class MyBatisGeneratorConfigurationParser {
             vOExcelGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
         }
 
+        String importInclude = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_INCLUDE_COLUMNS);
+        if (stringHasValue(importInclude)) {
+            vOExcelGeneratorConfiguration.setImportIncludeColumns(spiltToSet(importInclude));
+        }
+
+        String importExclude = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_EXCLUDE_COLUMNS);
+        if (stringHasValue(importExclude)) {
+            vOExcelGeneratorConfiguration.setImportExcludeColumns(spiltToSet(importExclude));
+        }
+
+        String ignoreFields = attributes.getProperty(PropertyRegistry.ELEMENT_IGNORE_FIELDS);
+        if (stringHasValue(ignoreFields)) {
+            vOExcelGeneratorConfiguration.setIgnoreFields(spiltToSet(ignoreFields));
+        }
+
+        String importIgnoreFields = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_IGNORE_FIELDS);
+        if (stringHasValue(importIgnoreFields)) {
+            vOExcelGeneratorConfiguration.setImportIgnoreFields(spiltToSet(importIgnoreFields));
+        }
+
         //EqualsAndHashCodeColumns
         String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(ehAttr)) {
@@ -1825,7 +1860,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         if (stringHasValue(targetProject)) {
-            configuration.setTargetProject(StringUtility.getTargetProject(targetProject));
+            configuration.setTargetProject(getTargetProject(targetProject));
         }
         if (stringHasValue(targetPackage)) {
             configuration.setTargetPackage(targetPackage);

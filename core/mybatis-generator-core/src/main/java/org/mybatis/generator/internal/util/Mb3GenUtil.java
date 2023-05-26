@@ -1,7 +1,6 @@
 package org.mybatis.generator.internal.util;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 

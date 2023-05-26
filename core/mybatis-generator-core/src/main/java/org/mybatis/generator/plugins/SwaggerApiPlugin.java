@@ -55,6 +55,13 @@ public class SwaggerApiPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
+        return true;
+    }
+
     /**
      * model属性注解@ApiModelProperty
      */
@@ -102,6 +109,11 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     @Override
     public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+    }
+
+    @Override
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
     }
 

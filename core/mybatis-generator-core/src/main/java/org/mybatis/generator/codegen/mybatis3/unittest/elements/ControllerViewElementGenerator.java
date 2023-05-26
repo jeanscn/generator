@@ -4,9 +4,10 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.unittest.AbstractUnitTestElementGenerator;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
 public class ControllerViewElementGenerator extends AbstractUnitTestElementGenerator {
@@ -21,7 +22,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
         parentElement.addImportedType("org.springframework.http.HttpStatus");
-        parentElement.addImportedType("com.vgosoft.core.constant.enums.ServiceCodeEnum");
+        parentElement.addImportedType(SERVICE_CODE_ENUM);
 
         parentElement.addImportedType(entityType);
 

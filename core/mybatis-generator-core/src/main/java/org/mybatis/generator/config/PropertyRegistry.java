@@ -109,6 +109,13 @@ public class PropertyRegistry {
     public static final String ELEMENT_IGNORE_COLUMNS = "ignoreColumns";
     public static final String ELEMENT_EXCLUDE_COLUMNS = "excludeColumns";
     public static final String ELEMENT_INCLUDE_COLUMNS = "includeColumns";
+
+    public static final String ELEMENT_IMPORT_INCLUDE_COLUMNS = "importIncludeColumns";
+
+    public static final String ELEMENT_IMPORT_EXCLUDE_COLUMNS = "importExcludeColumns";
+
+    public static final String ELEMENT_IGNORE_FIELDS = "ignoreFields";
+    public static final String ELEMENT_IMPORT_IGNORE_FIELDS = "importIgnoreFields";
     public static final String ELEMENT_REQUIRED_COLUMNS = "requiredColumns";
     public static final String ELEMENT_TYPE_COLUMN = "typeColumn";
     public static final String ELEMENT_KEY_COLUMN = "keyColumn";
@@ -137,6 +144,8 @@ public class PropertyRegistry {
     public static final String ELEMENT_ENUM_CLASS_FULL_NAME = "enumClassFullName";
 
     public static final String ELEMENT_SWITCH_TEXT = "switchText";
+
+    public static final String ELEMENT_DICT_CODE = "dictCode";
 
     public static final String ELEMENT_FIELD_NAMES = "fieldNames";
 

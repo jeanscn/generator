@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.230523001-->
+        <!--version:1.5.0.230526001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -533,7 +533,9 @@
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
             7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
             8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
-            9、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
+            9、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
+            10、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
+            11、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
             说明：
             department|user：仅在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -554,7 +556,9 @@
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
                 verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED
-                enumClassFullName CDATA #IMPLIED>
+                enumClassFullName CDATA #IMPLIED
+                dictCode CDATA #IMPLIED
+                callback CDATA #IMPLIED>
 
 
         <!--
@@ -818,10 +822,12 @@
            属性信息：
            1、generate 可选 是否生成,true生成（ExcelVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
                当父类的generateVO的generate属性为false时，该属性始终false。
-           2、includeColumns 可选 Excel模型包含的字段名,多值使用","。
-           3、excludeColumns 可选 当没有配置includeColumns时，ExcelVO排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
-                当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。
-           4、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           2、includeColumns 可选 Excel导出模型包含的字段名,多值使用","。
+           3、excludeColumns 可选 Excel导出模型排除的字段名，多值使用","，
+                当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。如果配置includeColumns属性，本配置项不生效;
+           4、importIncludeColumns 可选 Excel导入模型包含的字段名,多值使用","。
+           5、importExcludeColumns 可选 当没有配置importIncludeColumns时，Excel导入模型排除的字段名，多值使用","。如果配置importIncludeColumns属性，本配置项不生效;
+           6、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
            property配置：无
         -->
         <!ELEMENT excelVO (property*,overridePropertyValue*,additionalProperty*)>
@@ -829,6 +835,10 @@
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
                 excludeColumns CDATA #IMPLIED
+                importIncludeColumns CDATA #IMPLIED
+                importExcludeColumns CDATA #IMPLIED
+                ignoreFields CDATA #IMPLIED
+                importIgnoreFields CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
 
         <!--

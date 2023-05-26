@@ -1,30 +1,25 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
-import com.vgosoft.core.db.util.JDBCUtil;
-import com.vgosoft.tool.core.VStringUtil;
+import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
-import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.custom.htmlGenerator.HtmlDocumentGenerator;
 import org.mybatis.generator.custom.htmlGenerator.LayuiDocumentGenerated;
 import org.mybatis.generator.custom.htmlGenerator.ZuiDocumentGenerated;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_REPOSITORY;
+import static org.mybatis.generator.custom.ConstantsUtil.I_SIMPLE_KVP;
 
 /**
  * dao生成插件

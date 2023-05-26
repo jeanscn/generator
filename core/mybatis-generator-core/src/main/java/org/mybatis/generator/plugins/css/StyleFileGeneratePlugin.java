@@ -4,6 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
+import org.mybatis.generator.codegen.mybatis3.freeMaker.css.GeneratedStyleFile;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
@@ -36,13 +37,14 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                     .orElse("");
             if (VStringUtil.stringHasValue(styleFileName)) {
                 styleFileName = styleFileName + ".css";
-                GeneratedJqueryFile generatedJqueryFile = new GeneratedJqueryFile(
+                GeneratedStyleFile generatedStyleFile = new GeneratedStyleFile(
                         styleFileName,
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
                         "app_main_css.css.ftl");
-                answer.add(generatedJqueryFile);
+                generatedStyleFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                answer.add(generatedStyleFile);
             }
         }
         return answer;

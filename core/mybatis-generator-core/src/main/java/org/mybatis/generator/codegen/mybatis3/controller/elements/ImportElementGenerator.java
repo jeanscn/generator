@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -24,7 +24,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         FullyQualifiedJavaType responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType(MULTIPART_FILE);
         parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoEasyExcel");
-        parentElement.addImportedType(entityExcelVoType);
+        parentElement.addImportedType(entityExcelImportVoType);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addImportedType(multipartFile);
         parentElement.addImportedType(responseResult);
@@ -56,8 +56,8 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
 
         //方法体
         method.addBodyLine("int ret=0;");
-        method.addBodyLine("List<{0}> excelVOS = VgoEasyExcel.read(file, {0}.class);",entityExcelVoType.getShortName());
-        method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVOS);",entityType.getShortName(),listEntityVar,entityExcelVoType.getShortName());
+        method.addBodyLine("List<{0}> excelVOS = VgoEasyExcel.read(file, {0}.class);",entityExcelImportVoType.getShortName());
+        method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVOS);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());
 
         method.addBodyLine("for ({0} {1} : {1}s) '{'\n" +
                 "            ServiceResult<{0}> insert = {1}Impl.insert({1});\n" +

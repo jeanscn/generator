@@ -16,6 +16,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 import javax.annotation.Nullable;
 import java.sql.JDBCType;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 添加日期属性的JsonFormat
@@ -34,6 +35,25 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     @Override
     public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         addExcelAnnotation(topLevelClass,field,introspectedColumn);
+        Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getIgnoreFields();
+        if (ignoreFields.contains(field.getName())) {
+            field.addAnnotation("@ExcelIgnore");
+            topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        addExcelAnnotation(topLevelClass,field,introspectedColumn);
+        if (field.getInitializationString().isPresent()) {
+            field.addAnnotation("@Builder.Default");
+        }
+        Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getImportIgnoreFields();
+        if (ignoreFields.contains(field.getName())) {
+            field.addAnnotation("@ExcelIgnore");
+            topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");
+        }
         return true;
     }
 
@@ -59,9 +79,6 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         }else if (field.getType().getShortName().equals("Instant")){
             excelProperty.setConverter("InstantConverter.class");
             excelProperty.addImports("com.vgosoft.plugins.excel.converter.InstantConverter");
-        }
-        if (field.getInitializationString().isPresent()) {
-            field.addAnnotation("@Builder.Default");
         }
         field.addAnnotation(excelProperty.toAnnotation());
         topLevelClass.addImportedTypes(excelProperty.getImportedTypes());

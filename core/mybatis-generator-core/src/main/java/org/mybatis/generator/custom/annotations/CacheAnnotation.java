@@ -1,13 +1,13 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.Parameter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.vgosoft.tool.core.VStringUtil.*;
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 
 /**
  * spring cache annotation

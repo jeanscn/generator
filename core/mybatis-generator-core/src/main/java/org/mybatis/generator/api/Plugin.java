@@ -10,12 +10,10 @@ import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -1211,6 +1209,12 @@ public interface Plugin {
         return true;
     }
 
+    default boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                          IntrospectedColumn introspectedColumn,
+                                          IntrospectedTable introspectedTable) {
+        return true;
+    }
+
     default boolean voModelGetterMethodGenerated(Method method,
                                                TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
                                                IntrospectedTable introspectedTable) {
@@ -1374,6 +1378,11 @@ public interface Plugin {
 
     default boolean voModelExcelClassGenerated(TopLevelClass topLevelClass,
                                               IntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    default boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass,
+                                               IntrospectedTable introspectedTable) {
         return true;
     }
 

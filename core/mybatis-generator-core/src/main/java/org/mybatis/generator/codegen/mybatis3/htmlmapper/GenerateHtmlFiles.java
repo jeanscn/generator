@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
-import org.mybatis.generator.api.GeneratedHtmlFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;

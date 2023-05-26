@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VDateUtils;
 import com.vgosoft.tool.core.VStringUtil;

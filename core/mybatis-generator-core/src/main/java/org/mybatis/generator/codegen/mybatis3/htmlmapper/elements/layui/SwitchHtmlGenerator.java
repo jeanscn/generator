@@ -7,10 +7,7 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
 
 import java.util.List;
@@ -95,7 +92,7 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         //非空验证
-        addElementRequired(introspectedColumn.getActualColumnName(), element, this.htmlElementDescriptor);
+        addElementVerify(introspectedColumn.getActualColumnName(), element, this.htmlElementDescriptor);
     }
 
     @Override

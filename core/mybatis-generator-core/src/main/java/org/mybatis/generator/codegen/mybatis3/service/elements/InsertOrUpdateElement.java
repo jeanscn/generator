@@ -26,6 +26,7 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
+        parentElement.addImportedType(SERVICE_CODE_ENUM);
 
         Method method = serviceMethods.getInsertOrUpdateMethod(parentElement, false,true);
         if (introspectedTable.getRules().isGenerateCachePO()) {
@@ -48,7 +49,6 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
         }
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
         method.addBodyLine("}");
-        parentElement.addImportedType(SERVICE_CODE_ENUM);
         parentElement.addMethod(method);
 
     }

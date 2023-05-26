@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VMD5Util;
@@ -113,7 +113,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             bizINF.addMethod(serviceMethods.getSelectByKeysDictMethod(bizINF,
                     introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration(),
                     true, true));
-            bizINF.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         }
 
         //deleteByTableXXXX
@@ -127,7 +126,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         if (introspectedTable.getRules().isModelEnableChildren()) {
             Method method = serviceMethods.getSelectByMultiStringIdsMethod(bizINF, true);
             bizINF.addMethod(method);
-            bizINF.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         }
 
         List<CompilationUnit> answer = new ArrayList<>();

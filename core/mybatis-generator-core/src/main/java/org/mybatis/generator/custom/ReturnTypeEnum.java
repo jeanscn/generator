@@ -1,6 +1,5 @@
 package org.mybatis.generator.custom;
 
-import com.vgosoft.core.constant.enums.ApiCodeEnum;
 import com.vgosoft.core.constant.enums.IBaseEnum;
 
 import java.util.EnumSet;
@@ -10,7 +9,7 @@ import java.util.EnumSet;
  * 2022-09-12 20:32
  * @version 3.0
  */
-public enum ReturnTypeEnum{
+public enum ReturnTypeEnum implements IBaseEnum<String>{
 
     LIST("l","列表"),
     MODEL("m","对象"),

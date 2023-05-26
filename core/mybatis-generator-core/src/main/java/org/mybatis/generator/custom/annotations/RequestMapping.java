@@ -1,6 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 
 import java.util.ArrayList;

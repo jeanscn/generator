@@ -6,12 +6,12 @@ import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
 import org.mybatis.generator.codegen.mybatis3.controller.JavaControllerGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateHtmlFiles;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.AnnotatedClientGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.JavaMapperGenerator;
@@ -28,7 +28,6 @@ import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataPermissionScriptG
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlSchemaScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaControllerUnitTestGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaServiceUnitTestGenerator;
-import org.mybatis.generator.codegen.mybatis3.po.POCacheGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.ViewObjectClassGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
 import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
@@ -41,7 +40,6 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Introspected table implementation for generating MyBatis3 artifacts.

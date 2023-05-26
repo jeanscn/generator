@@ -207,7 +207,7 @@ public class StringUtility {
     public static  List<String> spiltToList(String str) {
         List<String> ret = new ArrayList<>();
         if (stringHasValue(str)) {
-            String[] split = str.split("[,;，；、]");
+            String[] split = removeSpaces(str).split("[|,;，；、]");
             Collections.addAll(ret, split);
         }
         return ret;
@@ -216,10 +216,17 @@ public class StringUtility {
     public static  Set<String> spiltToSet(String str){
         Set<String> ret = new HashSet<>();
         if (stringHasValue(str)) {
-            String[] split = str.split("[,;，；、]");
+            String[] split = removeSpaces(str).split("[|,;，；、]");
             Collections.addAll(ret, split);
         }
         return ret;
     }
 
+    public static String removeSpaces(String str) {
+        if (str == null) {
+            return null;
+        }
+        // 使用正则表达式替换所有空格
+        return str.replaceAll("\\s", "");
+    }
 }

@@ -1,6 +1,6 @@
 package org.mybatis.generator.config;
 
-import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -749,13 +749,13 @@ public class TableConfiguration extends PropertyHolder {
                                 && !htmlConfiguration.getHiddenColumns().contains(column.getActualColumnName()) ) {
                             List<HtmlElementDescriptor> elementDescriptors = htmlConfiguration.getElementDescriptors();
                             if (column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.STATE.columnName())) { //列名state_，自动添加页面switch（启用停用）元素
-                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
+                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
                                 elementDescriptor.setName(column.getActualColumnName());
                                 elementDescriptor.setTagType("switch");
                                 elementDescriptor.setDataFormat("启停");
                                 elementDescriptors.add(elementDescriptor);
                             }else if(column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.PARENT_ID.columnName())){   //选择上级
-                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
+                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
                                 elementDescriptor.setName(column.getActualColumnName());
                                 elementDescriptor.setTagType("select");
                                 elementDescriptor.setDataSource("Dict");
@@ -764,7 +764,7 @@ public class TableConfiguration extends PropertyHolder {
                                 elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)+"/tree");
                                 elementDescriptors.add(elementDescriptor);
                             }else if (column.getRemarks(true) != null && column.getRemarks(true).startsWith("是否")) { //如果列注释以“是否”开头，则自动添加页面switch元素
-                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
+                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
                                 elementDescriptor.setName(column.getActualColumnName());
                                 elementDescriptor.setDataSource("DictEnum");
                                 elementDescriptor.setEnumClassName(ConstantsUtil.YES_NO_ENUM_CLASS_NAME);

@@ -16,7 +16,6 @@ import java.util.Objects;
 public class ConstantsUtil {
 
     public static final String GENERATED_FLAG = "@VCF.generated";
-
     //实体接口
     public static final String I_BASE_DTO = "com.vgosoft.core.pojo.IBaseDTO";
     public static final String I_SHOW_IN_VIEW = "com.vgosoft.core.entity.IShowInView";
@@ -69,14 +68,17 @@ public class ConstantsUtil {
     public static final String DATATABLES_UTIL = "com.vgosoft.web.plugins.datatables.util.DataTablesUtil";
 
     //枚举
-    public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.ServiceCodeEnum";
-    public static final String API_CODE_ENUM = "com.vgosoft.core.constant.enums.ApiCodeEnum";
-    public static final String ACTION_CATE_ENUM = "com.vgosoft.core.constant.enums.ActionCateEnum";
+    public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.core.ServiceCodeEnum";
+    public static final String API_CODE_ENUM = "com.vgosoft.core.constant.enums.core.ApiCodeEnum";
+    public static final String ACTION_CATE_ENUM = "com.vgosoft.core.constant.enums.core.ActionCateEnum";
+    public static final String LOG_TYPES_ENUM = "com.vgosoft.core.constant.enums.log.LogTypesEnum";
+    public static final String LOG_TARGET_TABLE_ENUM = "com.vgosoft.core.constant.enums.log.LogTargetTableEnum";
 
     //annotation
     public static final String ANNOTATION_SYSTEM_LOG = "com.vgosoft.core.annotation.SystemLog";
     public static final String ANNOTATION_TABLE_META = "com.vgosoft.core.annotation.TableMeta";
     public static final String ANNOTATION_COLUMN_META = "com.vgosoft.core.annotation.ColumnMeta";
+    public static final String ANNOTATION_REQUEST_PARAM_SPLIT = "com.vgosoft.web.resolver.annotation.RequestParamSplit";
 
     //其他
     public static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
@@ -130,5 +132,5 @@ public class ConstantsUtil {
 
     public static final String ANNOTATION_NULLABLE = "javax.annotation.Nullable";
 
-    public static final String YES_NO_ENUM_CLASS_NAME = "com.vgosoft.core.constant.enums.YesNoEnum";
+    public static final String YES_NO_ENUM_CLASS_NAME = "com.vgosoft.core.constant.enums.core.YesNoEnum";
 }

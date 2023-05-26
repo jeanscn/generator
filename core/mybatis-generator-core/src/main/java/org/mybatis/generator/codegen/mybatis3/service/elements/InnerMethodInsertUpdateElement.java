@@ -134,7 +134,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                 innerInsertUpdateMethod.addBodyLine("}");
                                 parentElement.addImportedType(SPRING_CONTEXT_HOLDER);
                                 parentElement.addImportedType(beanClass);
-                                parentElement.addImportedType(SERVICE_CODE_ENUM);
+                                parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
                             } else {
                                 warnings.add("生成配置未指定子级的[beanClassFullName]或者[relationProperty]属性，无法生成方法体处理逻辑。");
                                 innerInsertUpdateMethod.addBodyLine("//!生成配置未指定子级的[beanClassFullName]或者[relationProperty]属性，无法生成方法体处理逻辑。");
@@ -145,7 +145,7 @@ public class InnerMethodInsertUpdateElement extends AbstractServiceElementGenera
                                     innerInsertUpdateMethod.addBodyLine("return ServiceResult.success(null);");
                                 }
                             }
-                            parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
+                            parentElement.addImportedType(V_STRING_UTIL);
                             parentElement.addMethod(innerInsertUpdateMethod);
                         }
                 );

@@ -15,8 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -189,6 +188,7 @@ public class ServiceMethods {
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method, "获取带child集合的数据，允许指定返回的数根的数据的方法");
+        parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         return method;
     }
 

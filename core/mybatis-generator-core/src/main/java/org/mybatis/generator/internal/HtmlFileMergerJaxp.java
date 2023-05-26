@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal;
 
-import org.mybatis.generator.api.GeneratedHtmlFile;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.MergeConstants;
 import org.mybatis.generator.exception.ShellException;
 import org.w3c.dom.*;

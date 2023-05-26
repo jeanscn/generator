@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
@@ -27,6 +28,8 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
+        parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
+        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
 
         Method method = serviceMethods.getUpdateBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
@@ -35,7 +38,6 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
             method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
         }
         method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableUpdate)
                 .collect(Collectors.toList());
@@ -53,7 +55,6 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         }
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
         method.addBodyLine("}");
-        parentElement.addImportedType(SERVICE_CODE_ENUM);
         parentElement.addMethod(method);
     }
 }

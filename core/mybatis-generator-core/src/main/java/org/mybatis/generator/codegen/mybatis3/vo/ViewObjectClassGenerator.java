@@ -55,7 +55,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             return answer;
         }
 
-        TopLevelClass abstractVo = new VOAbstractGenerator(introspectedTable, "project", progressCallback, warnings,null).generate();
+        TopLevelClass abstractVo = new VOAbstractGenerator(introspectedTable, "project", progressCallback, warnings, null).generate();
 
         List<String> absExampleFields = abstractVo.getFields().stream().map(Field::getName).collect(Collectors.toList());
         introspectedTable.getTopLevelClassExampleFields().put(abstractVo.getType().getShortName(), absExampleFields);
@@ -67,7 +67,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         /*
          * 生成mappings类
          * */
-        CreateMappingsInterface createMappingsInterface = new CreateMappingsInterface(introspectedTable, "project", progressCallback, warnings,null);
+        CreateMappingsInterface createMappingsInterface = new CreateMappingsInterface(introspectedTable, "project", progressCallback, warnings, null);
         Interface mappingsInterface = createMappingsInterface.generate();
         //先添加指定的转换方法
         introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getMappingConfigurations().forEach(c -> {
@@ -93,7 +93,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
          * */
         if (introspectedTable.getRules().isGenerateVoModel()) {
             generated = true;
-            TopLevelClass voClass = new VOModelGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
+            TopLevelClass voClass = new VOModelGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.modelVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, voClass.getType().getShortName())) {
                 if (context.getPlugins().voModelRecordClassGenerated(voClass, introspectedTable)) {
                     answer.add(voClass);
@@ -110,7 +110,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
          *  */
         if (introspectedTable.getRules().isGenerateCreateVO()) {
             generated = true;
-            TopLevelClass createVoClass = new VOCreateGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
+            TopLevelClass createVoClass = new VOCreateGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.createVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, createVoClass.getType().getShortName())) {
                 if (context.getPlugins().voModelCreateClassGenerated(createVoClass, introspectedTable)) {
                     answer.add(createVoClass);
@@ -122,7 +122,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
          *  */
         if (introspectedTable.getRules().isGenerateUpdateVO()) {
             generated = true;
-            TopLevelClass updateVoClass = new VOUpdateGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
+            TopLevelClass updateVoClass = new VOUpdateGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.updateVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, updateVoClass.getType().getShortName())) {
                 if (context.getPlugins().voModelUpdateClassGenerated(updateVoClass, introspectedTable)) {
                     answer.add(updateVoClass);
@@ -134,7 +134,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
          * */
         if (introspectedTable.getRules().isGenerateViewVO()) {
             generated = true;
-            TopLevelClass viewVOClass = new VOViewGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
+            TopLevelClass viewVOClass = new VOViewGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             //添加生成viewVO到生成列表及菜单项
             boolean genViewVo = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.viewVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, viewVOClass.getType().getShortName());
             if (genViewVo) {
@@ -156,7 +156,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         sqlBuilder.updateStringValues("title_", title);
                         sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/open-view");
                         sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
-                        introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql()+";");
+                        introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql() + ";");
                     }
                 }
 
@@ -166,20 +166,34 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
          *  生成ExcelVO
          *  */
         if (introspectedTable.getRules().isGenerateExcelVO()) {
-            TopLevelClass excelVoClass = new VOExcelGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
+            TopLevelClass excelVoClass = new VOExcelGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             //添加生成excelVO到生成列表
-            if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.excelVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, excelVoClass.getType().getShortName())){
+            if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.excelVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, excelVoClass.getType().getShortName())) {
                 if (context.getPlugins().voModelExcelClassGenerated(excelVoClass, introspectedTable)) {
                     answer.add(excelVoClass);
                 }
             }
         }
+
+        /*
+         * 生成ExcelImportVO
+         * */
+        if (introspectedTable.getRules().isGenerateExcelVO()) {
+            TopLevelClass excelImportVoClass = new VOExcelImportGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
+            //添加生成excelImportVO到生成列表
+            if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.excelVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, excelImportVoClass.getType().getShortName())) {
+                if (context.getPlugins().voModelExcelImportClassGenerated(excelImportVoClass, introspectedTable)) {
+                    answer.add(excelImportVoClass);
+                }
+            }
+        }
+
         /*
          * 生成RequestVO
          * */
         if (introspectedTable.getRules().isGenerateRequestVO()) {
             generated = true;
-            requestVoClass = new VORequestGenerator(introspectedTable, "project", progressCallback, warnings,mappingsInterface).generate();
+            requestVoClass = new VORequestGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             //增加between的other属性
             voGeneratorConfiguration.getVoRequestConfiguration().getVoNameFragmentGeneratorConfigurations().stream()
                     .filter(c -> "Between".equals(c.getFragment()))
@@ -212,12 +226,13 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         }
         return answer;
     }
+
     private boolean fileNotExist(String subPackage, String fileName) {
         File project = new File(getProject());
         if (!project.isDirectory()) {
             return true;
         }
-        String baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+subPackagePojo;
+        String baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "." + subPackagePojo;
         File directory = new File(project, packageToDir(String.join(".", baseTargetPackage, subPackage)));
         if (!directory.isDirectory()) {
             return true;
@@ -225,6 +240,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         File file = new File(directory, fileName + ".java");
         return !file.exists();
     }
+
     private void addFieldToTopLevelClass(final Field field, TopLevelClass topLevelClass, TopLevelClass abstractVo) {
         if (Stream.of(topLevelClass.getFields().stream(), abstractVo.getFields().stream())
                 .flatMap(Function.identity())

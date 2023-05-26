@@ -1,16 +1,13 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.annotation.CompositeQuery;
-import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.ViewActionColumnEnum;
-import com.vgosoft.core.constant.enums.ViewIndexColumnEnum;
-import com.vgosoft.core.constant.enums.ViewToolBarsEnum;
+import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
+import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
+import com.vgosoft.core.constant.enums.view.ViewToolBarsEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.config.Context;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,14 +79,14 @@ public class ViewTableMeta  extends AbstractAnnotation{
         }
         if (!this.getIndexColumn().equals(ViewIndexColumnEnum.ROW_INDEX)) {
             items.add(VStringUtil.format("indexColumn = ViewIndexColumnEnum.{0}", this.getIndexColumn().name()));
-            this.addImports("com.vgosoft.core.constant.enums.ViewIndexColumnEnum");
+            this.addImports("com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum");
         }
         if (this.actionColumn.length>0) {
             List<ViewActionColumnEnum> viewActionColumnEnums = new ArrayList<>(Arrays.asList(this.actionColumn));
             if (!(viewActionColumnEnums.size()==2 && viewActionColumnEnums.contains(ViewActionColumnEnum.VIEW) && viewActionColumnEnums.contains(ViewActionColumnEnum.EDIT))) {
                 String collect = Arrays.stream(this.actionColumn).map(e -> "ViewActionColumnEnum." + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("actionColumn = '{'{0}'}'", collect));
-                this.addImports("com.vgosoft.core.constant.enums.ViewActionColumnEnum");
+                this.addImports("com.vgosoft.core.constant.enums.view.ViewActionColumnEnum");
             }
         }
         if (this.toolbarActions.length>0) {
@@ -97,7 +94,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
             if (!(viewToolBarsEnums.size()==2 && viewToolBarsEnums.contains(ViewToolBarsEnum.CREATE) && viewToolBarsEnums.contains(ViewToolBarsEnum.REMOVE))) {
                 String collect = Arrays.stream(this.toolbarActions).map(e -> "ViewToolBarsEnum" + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", collect));
-                this.addImports("com.vgosoft.core.constant.enums.ViewToolBarsEnum");
+                this.addImports("com.vgosoft.core.constant.enums.view.ViewToolBarsEnum");
             }
         }
         if (this.ignoreFields.length>0) {

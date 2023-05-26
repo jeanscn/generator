@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen;
 
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;

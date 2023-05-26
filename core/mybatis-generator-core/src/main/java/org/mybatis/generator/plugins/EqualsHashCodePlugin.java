@@ -146,6 +146,18 @@ public class EqualsHashCodePlugin extends PluginAdapter {
     }
 
     @Override
+    public  boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
+                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration());
+        if (columns.size()>0) {
+            generateEquals(topLevelClass, columns, introspectedTable);
+            generateHashCode(topLevelClass, columns, introspectedTable);
+            topLevelClass.getAnnotations().remove("@EqualsAndHashCode(callSuper = true)");
+        }
+        return true;
+    }
+
+    @Override
     public  boolean voModelRequestClassGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
         List<IntrospectedColumn> columns = getEqualsAndHashCodeColumns(introspectedTable
                 , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration());

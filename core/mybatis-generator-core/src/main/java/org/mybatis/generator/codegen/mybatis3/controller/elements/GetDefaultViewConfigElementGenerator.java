@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -23,7 +23,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         parentElement.addImportedType(DATATABLES_CONFIG);
         parentElement.addImportedType(DATATABLES_UTIL);
         parentElement.addImportedType(VIEW_DT_TABLE);
-        parentElement.addImportedType(API_CODE_ENUM);
+        parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
         parentElement.addImportedType("com.vgosoft.web.plugins.datatables.DataTablesMappings");
         final String methodPrefix = "getDefaultViewConfig";
         Method method = createMethod(methodPrefix);

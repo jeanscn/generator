@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.mybatis.generator.api.CompositePlugin;
-import org.mybatis.generator.api.GeneratedHtmlFile;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.Context;
 
 /**

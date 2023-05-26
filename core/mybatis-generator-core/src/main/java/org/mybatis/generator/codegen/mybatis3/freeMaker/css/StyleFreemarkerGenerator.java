@@ -4,6 +4,7 @@ import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.io.StringWriter;
@@ -18,9 +19,12 @@ public class StyleFreemarkerGenerator extends AbstractFreemarkerGenerator {
 
     private final IntrospectedTable introspectedTable;
 
-    public StyleFreemarkerGenerator(String project, IntrospectedTable introspectedTable) {
+    private final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
+
+    public StyleFreemarkerGenerator(String project, IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(project);
         this.introspectedTable = introspectedTable;
+        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
 
     @Override

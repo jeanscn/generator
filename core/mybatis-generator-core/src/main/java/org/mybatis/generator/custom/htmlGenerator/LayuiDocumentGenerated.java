@@ -13,6 +13,7 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlLayoutDescriptor;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -316,6 +317,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     dpRead.addAttribute(new Attribute(thisDialect, dropdownListHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
                     addEnumClassNamAttribute(htmlElementDescriptor, dpRead);
                     addBeanNameApplyProperty(htmlElementDescriptor, dpRead);
+                    addDictCodeAttribute(htmlElementDescriptor,dpRead);
                     break;
                 case "switch":
                     //增加美化的switch
@@ -327,6 +329,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     sRead.addAttribute(new Attribute(thisDialect, switchHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
                     addBeanNameApplyProperty(htmlElementDescriptor, sRead);
                     addEnumClassNamAttribute(htmlElementDescriptor, sRead);
+                    addDictCodeAttribute(htmlElementDescriptor,sRead);
                     break;
                 case "radio":
                     RadioHtmlGenerator radioHtmlGenerator = new RadioHtmlGenerator(generatorInitialParameters);
@@ -337,6 +340,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     rRead.addAttribute(new Attribute(thisDialect, radioHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
                     addBeanNameApplyProperty(htmlElementDescriptor, rRead);
                     addEnumClassNamAttribute(htmlElementDescriptor, rRead);
+                    addDictCodeAttribute(htmlElementDescriptor,rRead);
                     break;
                 case "checkbox":
                     CheckBoxHtmlGenerator checkBoxHtmlGenerator = new CheckBoxHtmlGenerator(generatorInitialParameters);
@@ -344,28 +348,32 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     checkBoxHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     checkBoxHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement cRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    addBeanNameApplyProperty(htmlElementDescriptor, cRead);
                     cRead.addAttribute(new Attribute(thisDialect, checkBoxHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
                     addBeanNameApplyProperty(htmlElementDescriptor, cRead);
                     addEnumClassNamAttribute(htmlElementDescriptor, cRead);
+                    addDictCodeAttribute(htmlElementDescriptor,cRead);
                     break;
                 case "date":
                     DateHtmlElementGenerator dateHtmlElementGenerator = new DateHtmlElementGenerator(generatorInitialParameters);
+                    dateHtmlElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                     dateHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     dateHtmlElementGenerator.addHtmlElement(introspectedColumn, parent);
                     break;
                 case "select":
                     SelectElementGenerator selectElementGenerator = new SelectElementGenerator(generatorInitialParameters);
+                    selectElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                     selectElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     selectElementGenerator.addHtmlElement(introspectedColumn, parent);
                     break;
                 default:
                     if (GenerateUtils.isDateType(introspectedColumn)) {
                         DateHtmlElementGenerator date = new DateHtmlElementGenerator(generatorInitialParameters);
+                        date.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                         date.setHtmlElementDescriptor(htmlElementDescriptor);
                         date.addHtmlElement(introspectedColumn, parent);
                     } else {
                         InputHtmlElementGenerator inputHtmlElementGenerator = new InputHtmlElementGenerator(generatorInitialParameters);
+                        inputHtmlElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                         inputHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                         inputHtmlElementGenerator.addHtmlElement(introspectedColumn, parent);
                     }
@@ -374,11 +382,19 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         } else {
             if (GenerateUtils.isDateType(introspectedColumn)) {
                 DateHtmlElementGenerator date = new DateHtmlElementGenerator(generatorInitialParameters);
+                date.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 date.addHtmlElement(introspectedColumn, parent);
             } else {
                 InputHtmlElementGenerator inputHtmlElementGenerator = new InputHtmlElementGenerator(generatorInitialParameters);
+                inputHtmlElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 inputHtmlElementGenerator.addHtmlElement(introspectedColumn, parent);
             }
+        }
+    }
+
+    private void addDictCodeAttribute(HtmlElementDescriptor htmlElementDescriptor, HtmlElement htmlElement) {
+        if (VStringUtil.stringHasValue(htmlElementDescriptor.getDictCode())) {
+            htmlElement.addAttribute(new Attribute(HTML_ATTRIBUTE_DICT_CODE, htmlElementDescriptor.getDictCode()));
         }
     }
 

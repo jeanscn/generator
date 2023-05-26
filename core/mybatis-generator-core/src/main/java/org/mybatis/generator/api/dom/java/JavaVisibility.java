@@ -1,7 +1,5 @@
 package org.mybatis.generator.api.dom.java;
 
-import com.vgosoft.core.constant.enums.DDLDefaultValueEnum;
-
 import java.util.EnumSet;
 
 /**

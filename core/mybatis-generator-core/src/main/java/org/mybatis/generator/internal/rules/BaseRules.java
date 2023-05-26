@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
-import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;

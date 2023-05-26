@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.ApiOperation;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
-import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
 
@@ -36,6 +36,7 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     listInstance.addTypeArgument(c.getOtherColumn().getFullyQualifiedJavaType());
                     Parameter p2 = new Parameter(listInstance, c.getOtherColumn().getJavaProperty()+"s");
                     p2.addAnnotation("@RequestParam");
+                    p2.addAnnotation("@RequestParamSplit");
                     p2.setRemark(c.getOtherColumn().getRemarks(false));
                     method.addParameter(p2);
                     FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
@@ -55,8 +56,12 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                             ,c.getSplitMethodName()
                             ,Stream.of(p1,p2).map(Parameter::getName).collect(Collectors.joining(",")));
                     method.addBodyLine("if (rows > 0) return success((long) rows,rows);");
-                    method.addBodyLine("else return failure(ApiCodeEnum.FAIL_OPERATION);");
+                    method.addBodyLine("else return success(null,0);");
                     parentElement.addMethod(method);
+                    parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
+                    parentElement.addImportedType(new FullyQualifiedJavaType(RESPONSE_RESULT));
+                    parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_REQUEST_PARAM_SPLIT));
+
                 });
 
     }

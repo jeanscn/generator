@@ -1,6 +1,6 @@
 package org.mybatis.generator.custom.htmlGenerator;
 
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VArrayUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;

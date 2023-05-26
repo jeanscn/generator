@@ -1,15 +1,18 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.vgosoft.core.annotation.*;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
 
@@ -18,10 +21,10 @@ import java.util.List;
  * 2023-03-29 16:45
  * @version 3.0
  */
-public class VOExcelGenerator extends AbstractVOGenerator{
+public class VOExcelGenerator extends AbstractVOGenerator {
 
     public VOExcelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
@@ -34,7 +37,6 @@ public class VOExcelGenerator extends AbstractVOGenerator{
         excelVoClass.addImportedType(superInterface);
         excelVoClass.addImportedType("lombok.*");
         excelVoClass.addAnnotation("@Data");
-        excelVoClass.addAnnotation("@Builder");
         excelVoClass.addAnnotation("@NoArgsConstructor");
         excelVoClass.addSerialVersionUID();
         //添加属性
@@ -56,13 +58,35 @@ public class VOExcelGenerator extends AbstractVOGenerator{
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
         overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-        voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass).forEach(field -> {
-            if(plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)){
+        List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
+        fields.forEach(field -> {
+            if (plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)) {
                 if (!excelVoClass.isContainField(field.getName())) {
                     excelVoClass.addField(field);
                 }
             }
         });
+        //重写get方法，为转换字段赋值
+        overridePropertyConfigurations.stream()
+                .filter(Configuration -> Configuration.getAnnotationType().contains("Dict"))
+                .forEach(overridePropertyConfiguration -> {
+                    introspectedTable.getColumn(overridePropertyConfiguration.getSourceColumnName()).ifPresent(column -> {
+                        String fieldName = overridePropertyConfiguration.getTargetPropertyName();
+                        FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(overridePropertyConfiguration.getTargetPropertyType());
+                        String getterMethodName = JavaBeansUtil.getGetterMethodName(fieldName, javaType);
+                        Method method = new Method(getterMethodName);
+                        method.setVisibility(JavaVisibility.PUBLIC);
+                        method.setReturnType(javaType);
+                        StringBuilder sb = new StringBuilder("return ");
+                        if (javaType.getShortName().equals("String") && !column.isStringColumn()) {
+                            sb.append("String.valueOf(").append(column.getJavaProperty()).append(")");
+                        } else {
+                            sb.append(column.getJavaProperty());
+                        }
+                        method.addBodyLine(sb + ";");
+                        excelVoClass.addMethod(method);
+                    });
+                });
 
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();

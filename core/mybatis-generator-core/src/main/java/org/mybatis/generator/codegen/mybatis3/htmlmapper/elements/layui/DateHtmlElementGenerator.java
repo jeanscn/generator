@@ -47,7 +47,7 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
         input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(introspectedColumn)));
         addClassNameToElement(input, "layui-input");
         input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-        addElementRequired(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
+        addElementVerify(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
         parent.addElement(input);
         parent.addAttribute(new Attribute("for-type", "lay-date"));
         addClassNameToElement(input, "oas-form-item-edit");

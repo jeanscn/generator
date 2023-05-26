@@ -1,11 +1,12 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.constant.enums.LogTargetTableEnum;
-import com.vgosoft.core.constant.enums.LogTypesEnum;
+import com.vgosoft.core.constant.enums.log.LogTargetTableEnum;
+import com.vgosoft.core.constant.enums.log.LogTypesEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.custom.ConstantsUtil;
 
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_SYSTEM_LOG;
 
 /**
@@ -26,7 +27,7 @@ public class SystemLog extends AbstractAnnotation {
         super();
         this.value = value;
         this.introspectedTable = introspectedTable;
-        this.addImports(ConstantsUtil.ANNOTATION_SYSTEM_LOG);
+        this.addImports(ANNOTATION_SYSTEM_LOG);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class SystemLog extends AbstractAnnotation {
 
     public void setLogType(LogTypesEnum logType) {
         this.logType = logType;
-        this.addImports("com.vgosoft.core.constant.enums.LogTypesEnum");
+        this.addImports(LOG_TYPES_ENUM);
     }
 
     public LogTargetTableEnum getTargetTable() {
@@ -62,6 +63,6 @@ public class SystemLog extends AbstractAnnotation {
 
     public void setTargetTable(LogTargetTableEnum targetTable) {
         this.targetTable = targetTable;
-        this.addImports("com.vgosoft.core.constant.enums.LogTargetTableEnum");
+        this.addImports(LOG_TARGET_TABLE_ENUM);
     }
 }

@@ -14,7 +14,6 @@ import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_SIMPLE;
 

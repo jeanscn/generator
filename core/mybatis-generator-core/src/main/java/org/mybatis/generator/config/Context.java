@@ -1,6 +1,7 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.*;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.custom.db.ValidateDatabaseTable;
 import org.mybatis.generator.internal.JDBCConnectionFactory;
 import org.mybatis.generator.internal.ObjectFactory;

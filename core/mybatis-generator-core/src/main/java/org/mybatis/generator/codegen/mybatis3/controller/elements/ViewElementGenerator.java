@@ -4,7 +4,7 @@ import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;

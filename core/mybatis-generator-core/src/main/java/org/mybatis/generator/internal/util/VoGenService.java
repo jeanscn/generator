@@ -1,7 +1,7 @@
 package org.mybatis.generator.internal.util;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;

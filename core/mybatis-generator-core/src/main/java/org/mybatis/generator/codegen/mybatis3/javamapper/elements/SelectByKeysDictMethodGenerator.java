@@ -1,17 +1,9 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
-import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SelectByKeysDictMethodGenerator extends AbstractJavaMapperMethodGenerator {
 

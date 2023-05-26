@@ -26,11 +26,13 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
+        parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+        parentElement.addImportedType(SERVICE_CODE_ENUM);
+        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
 
         Method method = serviceMethods.getInsertBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
         method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
@@ -40,16 +42,13 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
             method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
-        method.addBodyLine("if (i > 0) {");
-        method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase() + "s");
-        method.addBodyLine("}else{");
+        method.addBodyLine("if (i > 0) return ServiceResult.success({0},i);",entityType.getShortNameFirstLowCase() + "s");
+        method.addBodyLine("else{");
         if (configs.size() > 0) {
             method.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
         }
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
         method.addBodyLine("}");
         parentElement.addMethod(method);
-        parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
-        parentElement.addImportedType(SERVICE_CODE_ENUM);
     }
 }

@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import com.vgosoft.core.constant.enums.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import org.apache.commons.lang3.ObjectUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;

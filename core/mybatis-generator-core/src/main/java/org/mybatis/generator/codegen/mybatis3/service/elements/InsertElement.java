@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
@@ -26,11 +27,12 @@ public class InsertElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
+        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
 
         Method insertMethod = serviceMethods.getInsertMethod(parentElement, false, false,true);
         insertMethod.addAnnotation("@Override");
         insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
@@ -45,6 +47,5 @@ public class InsertElement extends AbstractServiceElementGenerator {
                 "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                 "        }");
         parentElement.addMethod(insertMethod);
-        parentElement.addImportedType(SERVICE_CODE_ENUM);
     }
 }

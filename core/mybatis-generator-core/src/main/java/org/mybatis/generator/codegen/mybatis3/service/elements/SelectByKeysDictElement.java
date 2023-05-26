@@ -31,7 +31,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
         parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
         parentElement.addImportedType("com.vgosoft.core.pojo.parameter.SelDictByKeysParam");
-        parentElement.addImportedType(SERVICE_CODE_ENUM);
+        parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
         parentElement.addImportedType(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType());
 
         VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();

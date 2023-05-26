@@ -47,6 +47,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected FullyQualifiedJavaType entityExcelVoType;
 
+    protected FullyQualifiedJavaType entityExcelImportVoType;
+
     protected FullyQualifiedJavaType responseResult;
 
     protected FullyQualifiedJavaType responsePagehelperResult;
@@ -81,6 +83,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"CreateVO"));
         entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"UpdateVO"));
         entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelVO"));
+        entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelImportVO"));
         entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"po",entityType.getShortName()+"CachePO"));
     }
 

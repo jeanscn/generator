@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -44,8 +44,8 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
 
         commentGenerator.addMethodJavaDocLine(method, "下载数据导入模板");
 
-        method.addBodyLine("List<{0}> list = buildTemplateSampleData();",entityExcelVoType.getShortName());
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list);",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
+        method.addBodyLine("List<{0}> list = buildTemplateSampleData();",entityExcelImportVoType.getShortName());
+        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list);",entityExcelImportVoType.getShortName(),introspectedTable.getRemarks(true));
 
         parentElement.addMethod(method);
     }

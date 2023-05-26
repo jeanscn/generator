@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.codegen.mybatis3.sqlschema.AbstractSqlScriptGenerator;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
 /**

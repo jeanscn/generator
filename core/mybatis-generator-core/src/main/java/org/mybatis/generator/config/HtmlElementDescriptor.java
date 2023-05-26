@@ -2,9 +2,15 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class HtmlElementDescriptor {
 
     private IntrospectedColumn column;
+
+    private final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
     private String name;
 
@@ -22,11 +28,23 @@ public class HtmlElementDescriptor {
 
     private String applyProperty;
 
-    private String verify;
+    private List<String> verify = new ArrayList<>();
 
     private String enumClassName;
 
     private String switchText;
+
+    private String dictCode;
+
+    private String callback;
+
+    public HtmlElementDescriptor(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
+    }
+
+    public HtmlGeneratorConfiguration getHtmlGeneratorConfiguration() {
+        return htmlGeneratorConfiguration;
+    }
 
     public String getDataFormat() {
         return dataFormat;
@@ -100,11 +118,11 @@ public class HtmlElementDescriptor {
         this.applyProperty = applyProperty;
     }
 
-    public String getVerify() {
+    public List<String> getVerify() {
         return verify;
     }
 
-    public void setVerify(String verify) {
+    public void setVerify(List<String> verify) {
         this.verify = verify;
     }
 
@@ -122,5 +140,21 @@ public class HtmlElementDescriptor {
 
     public void setSwitchText(String switchText) {
         this.switchText = switchText;
+    }
+
+    public String getDictCode() {
+        return dictCode;
+    }
+
+    public void setDictCode(String dictCode) {
+        this.dictCode = dictCode;
+    }
+
+    public String getCallback() {
+        return callback;
+    }
+
+    public void setCallback(String callback) {
+        this.callback = callback;
     }
 }

@@ -16,7 +16,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     private Set<String> hiddenColumns;
 
     //指定页面表单不允许为空的字段
-    private List<String> elementRequired;
+    private Set<String> elementRequired;
 
     private List<HtmlElementDescriptor> elementDescriptors;
 
@@ -25,7 +25,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
         hiddenColumns = new HashSet<>();
-        elementRequired = new ArrayList<>();
+        elementRequired = new HashSet<>();
         elementDescriptors = new ArrayList<>();
         overWriteFile = false;
         targetProject = "src/main/resources/templates";
@@ -68,11 +68,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.hiddenColumns = hiddenColumns;
     }
 
-    public List<String> getElementRequired() {
+    public Set<String> getElementRequired() {
         return elementRequired;
     }
 
-    public void setElementRequired(List<String> elementRequired) {
+    public void setElementRequired(Set<String> elementRequired) {
         this.elementRequired = elementRequired;
     }
 

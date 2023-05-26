@@ -1,8 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import com.vgosoft.core.constant.enums.EntityAbstractParentEnum;
-import com.vgosoft.core.constant.enums.ViewActionColumnEnum;
-import com.vgosoft.core.constant.enums.ViewIndexColumnEnum;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
+import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;

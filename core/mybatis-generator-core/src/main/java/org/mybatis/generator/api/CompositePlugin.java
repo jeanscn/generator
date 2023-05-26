@@ -10,12 +10,11 @@ import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -1036,6 +1035,18 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass,
+                                         IntrospectedColumn introspectedColumn,
+                                         IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voExcelImportFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass,
                                          IntrospectedColumn introspectedColumn,
                                          IntrospectedTable introspectedTable) {
@@ -1153,6 +1164,16 @@ public abstract class CompositePlugin implements Plugin {
     public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.voModelExcelClassGenerated(topLevelClass, introspectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.voModelExcelImportClassGenerated(topLevelClass, introspectedTable)) {
                 return false;
             }
         }

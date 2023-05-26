@@ -1,6 +1,7 @@
 package org.mybatis.generator.api;
 
 import org.mybatis.generator.codegen.RootClassInfo;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.MergeConstants;

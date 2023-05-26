@@ -30,6 +30,7 @@ public class JQueryPlugin extends PluginAdapter {
                     .reduce((first, second) -> second)
                     .orElse("");
             if (VStringUtil.stringHasValue(jqueryFileName)) {
+                //生成jquery file
                 jqueryFileName = jqueryFileName + ".js";
                 GeneratedJqueryFile generatedJqueryFile = new GeneratedJqueryFile(
                         jqueryFileName,
@@ -37,6 +38,7 @@ public class JQueryPlugin extends PluginAdapter {
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
                         "app_main_js.js.ftl");
+                generatedJqueryFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 answer.add(generatedJqueryFile);
             }
         }

@@ -1,8 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.constant.enums.FieldTypeEnum;
-import com.vgosoft.core.constant.enums.QueryModesEnum;
-import com.vgosoft.core.constant.enums.TagNamesEnum;
+import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
+import com.vgosoft.core.constant.enums.core.QueryModesEnum;
+import com.vgosoft.core.constant.enums.view.TagNamesEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
