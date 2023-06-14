@@ -712,68 +712,125 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     public void validateConfig(List<String> warnings, IntrospectedTable introspectedTable) {
-        //先更新TC与表结构相关的自定义属性
-        this.updateTableConfiguration(introspectedTable);
-
+        //更新context、table中隐藏列名列表，计算隐藏列
+        calculateHtmlHiddenColumns(introspectedTable);
         //根据表字段的注释，自动生成某些配置项目
-        this.autoGenerateConfigurations(introspectedTable);
-
+        autoGenerateConfigurations(introspectedTable);
+        //更新TC与表结构相关的自定义属性
+        updateTableConfiguration(introspectedTable);
+        //计算页内列表元素描述
+        calculateInnerListElementDescriptor(introspectedTable);
+        //计算selectByTable配置
         calculateSelectByTableProperty();
-
-        //计算html
-        calculateHtmlAttributes(introspectedTable);
-
         //增加SelectBaseByPrimaryKey配置
         calculateSelectBaseByPrimaryKeyConfig(introspectedTable);
-
         //计算所有的selectByColumn配置，去重、计算列信息
         calculateSelectByColumnConfigurations(introspectedTable);
-
         //根据所有配置信息，进行调整
-        //1、enableChildren.
+        //enableChildren.
         calculateSelectByParentIdConfig(warnings, introspectedTable);
         //如果存在parent_id字段，则自动添加children属性
         calculateChildrenRelationConfig(introspectedTable);
-
+        //计算selectBySql配置
         calculateSelectBySqlMethodProperty(introspectedTable);
+    }
+
+    private void calculateHtmlHiddenColumns(IntrospectedTable introspectedTable) {
+        String property = introspectedTable.getContext().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
+        final Set<String> hiddenColumnNames = new HashSet<>();
+        if (stringHasValue(property)) {
+            hiddenColumnNames.addAll(spiltToSet(property));
+        }
+        String property1 = introspectedTable.getTableConfiguration().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
+        if (stringHasValue(property1)) {
+            hiddenColumnNames.addAll(spiltToSet(property1));
+        }
+        this.getHtmlMapGeneratorConfigurations()
+                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumnNames().addAll(hiddenColumnNames));
+        introspectedTable.getAllColumns().forEach(column -> {
+            this.getHtmlMapGeneratorConfigurations()
+                    .forEach(htmlGeneratorConfiguration -> {
+                        if (htmlGeneratorConfiguration.getHiddenColumnNames().contains(column.getActualColumnName())) {
+                            htmlGeneratorConfiguration.getHiddenColumns().add(column);
+                        }
+                        if (!column.isNullable()) {
+                            htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
+                        }
+                        htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
+                            if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
+                                introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
+                            }
+                            //添加附件属性
+                            if (elementDescriptor.getOtherFieldName() != null) {
+                                addHtmlElementAddtionalAttribute(elementDescriptor, introspectedTable);
+                            }
+                        });
+
+                    });
+        });
+    }
+
+    private void calculateInnerListElementDescriptor(IntrospectedTable introspectedTable) {
+        if (this.getVoGeneratorConfiguration() == null
+                || this.getVoGeneratorConfiguration().getVoViewConfiguration() == null
+                || this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().size() == 0) {
+            return;
+        }
+        introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations()
+                .forEach(innerListViewConfiguration -> {
+                    Set<HtmlElementDescriptor> htmlElements = new HashSet<>(innerListViewConfiguration.getHtmlElements());
+                    if (stringHasValue(innerListViewConfiguration.getEditExtendsForm())) {
+                        introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
+                                .filter(htmlConfiguration -> htmlConfiguration.getSimpleViewPath().equals(innerListViewConfiguration.getEditExtendsForm()))
+                                .findFirst()
+                                .ifPresent(htmlGeneratorConfiguration -> {
+                                    innerListViewConfiguration.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                                    htmlElements.addAll(htmlGeneratorConfiguration.getElementDescriptors());
+                                });
+                    }
+                    innerListViewConfiguration.setHtmlElements(new ArrayList<>(htmlElements));
+                });
     }
 
     private void autoGenerateConfigurations(IntrospectedTable introspectedTable) {
 
         // 获取context、table中设置的隐藏列名
-        Set<String> hiddenColumnNames = this.getHtmlHiddenColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toSet());
-        introspectedTable.getAllColumns().stream().filter(column -> !hiddenColumnNames.contains(column.getActualColumnName()))
-                .forEach(column -> {
-                    this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> {
-                        if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
-                                && !htmlConfiguration.getHiddenColumns().contains(column.getActualColumnName()) ) {
-                            List<HtmlElementDescriptor> elementDescriptors = htmlConfiguration.getElementDescriptors();
-                            if (column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.STATE.columnName())) { //列名state_，自动添加页面switch（启用停用）元素
-                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
-                                elementDescriptor.setName(column.getActualColumnName());
-                                elementDescriptor.setTagType("switch");
-                                elementDescriptor.setDataFormat("启停");
-                                elementDescriptors.add(elementDescriptor);
-                            }else if(column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.PARENT_ID.columnName())){   //选择上级
-                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
-                                elementDescriptor.setName(column.getActualColumnName());
-                                elementDescriptor.setTagType("select");
-                                elementDescriptor.setDataSource("Dict");
-                                elementDescriptor.setBeanName(this.getIntrospectedTableBeanName());
-                                elementDescriptor.setApplyProperty(DefultColumnNameEnum.NAME.fieldName());
-                                elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)+"/tree");
-                                elementDescriptors.add(elementDescriptor);
-                            }else if (column.getRemarks(true) != null && column.getRemarks(true).startsWith("是否")) { //如果列注释以“是否”开头，则自动添加页面switch元素
-                                HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
-                                elementDescriptor.setName(column.getActualColumnName());
-                                elementDescriptor.setDataSource("DictEnum");
-                                elementDescriptor.setEnumClassName(ConstantsUtil.YES_NO_ENUM_CLASS_NAME);
-                                elementDescriptor.setTagType("switch");
-                                elementDescriptors.add(elementDescriptor);
+        //Set<String> hiddenColumnNames = this.getHtmlHiddenColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toSet());
+        introspectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenColumns().contains(column))
+                .forEach(column -> this.getHtmlMapGeneratorConfigurations()
+                        .forEach(htmlConfiguration -> {
+                            if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
+                                    && !htmlConfiguration.getHiddenColumnNames().contains(column.getActualColumnName())) {
+                                List<HtmlElementDescriptor> elementDescriptors = htmlConfiguration.getElementDescriptors();
+                                if (column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.STATE.columnName())) { //列名state_，自动添加页面switch（启用停用）元素
+                                    HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
+                                    elementDescriptor.setName(column.getActualColumnName());
+                                    elementDescriptor.setDataSource("DictEnum");
+                                    elementDescriptor.setEnumClassName(ConstantsUtil.COMMON_STATUS_ENUM_CLASS_NAME);
+                                    elementDescriptor.setTagType("switch");
+                                    elementDescriptor.setColumn(column);
+                                    elementDescriptors.add(elementDescriptor);
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.PARENT_ID.columnName())) {   //选择上级
+                                    HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
+                                    elementDescriptor.setName(column.getActualColumnName());
+                                    elementDescriptor.setTagType("select");
+                                    elementDescriptor.setDataSource("Dict");
+                                    elementDescriptor.setBeanName(this.getIntrospectedTableBeanName());
+                                    elementDescriptor.setApplyProperty(DefultColumnNameEnum.NAME.fieldName());
+                                    elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/tree");
+                                    elementDescriptor.setColumn(column);
+                                    elementDescriptors.add(elementDescriptor);
+                                } else if (column.getRemarks(true) != null && column.getRemarks(true).startsWith("是否")) { //如果列注释以“是否”开头，则自动添加页面switch元素
+                                    HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
+                                    elementDescriptor.setName(column.getActualColumnName());
+                                    elementDescriptor.setDataSource("DictEnum");
+                                    elementDescriptor.setEnumClassName(ConstantsUtil.YES_NO_ENUM_CLASS_NAME);
+                                    elementDescriptor.setTagType("switch");
+                                    elementDescriptor.setColumn(column);
+                                    elementDescriptors.add(elementDescriptor);
+                                }
                             }
-                        }
-                    });
-                });
+                        }));
     }
 
     private void calculateSelectByParentIdConfig(List<String> warnings, IntrospectedTable introspectedTable) {
@@ -831,27 +888,17 @@ public class TableConfiguration extends PropertyHolder {
 
     //更新TC与表结构相关的自定义属性
     private void updateTableConfiguration(final IntrospectedTable introspectedTable) {
-        String property = introspectedTable.getContext().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        final Set<String> hiddenColumnNames = new HashSet<>();
-        if (stringHasValue(property)) {
-            hiddenColumnNames.addAll(spiltToSet(property));
-        }
-        String property1 = introspectedTable.getTableConfiguration().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        if (stringHasValue(property1)) {
-            hiddenColumnNames.addAll(spiltToSet(property1));
-        }
+
+        List<HtmlElementDescriptor> htmlElementDescriptorList = this.getHtmlMapGeneratorConfigurations().stream()
+                .flatMap(h -> h.getElementDescriptors().stream())
+                .collect(Collectors.toList());
 
         introspectedTable.getAllColumns().forEach(column -> {
             //1、更新tableConfiguration的FieldNames、ColumnNames列表
             this.getFieldNames().add(column.getJavaProperty());
             this.getColumnNames().add(column.getActualColumnName());
 
-            //2、更新context、table中htmlHiddenColumns列表
-            if (hiddenColumnNames.contains(column.getActualColumnName())) {
-                this.getHtmlHiddenColumns().add(column);
-            }
-
-            //3、根据自定义的列长度属性，更新introspectedTable的列长度，是否需要修改注释
+            //2、根据自定义的列长度属性，更新introspectedTable的列长度，是否需要修改注释
             ColumnOverride columnOverride = this.getColumnOverride(column.getActualColumnName());
             if (columnOverride != null) {
                 column.setLength(columnOverride.getMaxLength() != null && columnOverride.getMaxLength() <= column.getLength() ? columnOverride.getMaxLength() : column.getLength());
@@ -863,14 +910,30 @@ public class TableConfiguration extends PropertyHolder {
                 }
             }
 
-            //4、设置是否需要验证的属性
+            //3、设置是否需要验证的属性
             if ((column.isNullable() || column.getLength() > 0) && !column.isAutoIncrement() && !this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {
                 column.setBeValidated(true);
             }
+
+            //4、设置所有htmlGeneratorConfiguration的隐藏列
+           /* this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+                if (htmlGeneratorConfiguration.getHiddenColumnNames().contains(column.getActualColumnName())) {
+                    htmlGeneratorConfiguration.getHiddenColumns().add(column);
+                }
+            });*/
+
+            //4、设置所有htmlElementDiscriminatorColumns
+            htmlElementDescriptorList.forEach(htmlElementDescriptor -> {
+                if (htmlElementDescriptor.getName().equalsIgnoreCase(column.getActualColumnName())) {
+                    htmlElementDescriptor.setColumn(column);
+                }
+            });
         });
 
-        //5、更新HTMLHiddenColumns列表
-        this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumns().addAll(hiddenColumnNames));
+        //6、移除无效的htmlElementDescriptor
+        /*this.getHtmlMapGeneratorConfigurations()
+                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
+                        .removeIf(htmlElementDescriptor -> htmlElementDescriptor.getColumn() == null));*/
     }
 
     private void calculateSelectBySqlMethodProperty(IntrospectedTable introspectedTable) {
@@ -923,25 +986,6 @@ public class TableConfiguration extends PropertyHolder {
                 this.getSelectByColumnGeneratorConfigurations().add(selectByColumnGeneratorConfiguration);
             }
         }
-    }
-
-    protected void calculateHtmlAttributes(IntrospectedTable introspectedTable) {
-        //重新计算不为空字段，根据数据库字段不为空属性，追加数据库表不允许空的字段
-        introspectedTable.getAllColumns().stream().filter(c -> !c.isNullable()).map(IntrospectedColumn::getActualColumnName).forEach(c -> this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> htmlConfiguration.getElementRequired().add(c)));
-
-        //获取所有HtmlGeneratorConfiguration中所有的HtmlElementDescriptor
-        this.getHtmlMapGeneratorConfigurations().forEach(htmlConfiguration -> htmlConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
-            //如果tagType为select的，需要计算dataFormat对应的数据
-            //如果elementDescriptor的otherFieldName为null，则通过当前字段属性计算补齐otherFieldName
-            if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
-                introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
-            }
-            //添加附件属性
-            if (elementDescriptor.getOtherFieldName() != null) {
-                addHtmlElementAddtionalAttribute(elementDescriptor, introspectedTable);
-            }
-        }));
-
     }
 
     private void addHtmlElementAddtionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {

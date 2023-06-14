@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom.htmlGenerator;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;

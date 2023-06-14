@@ -13,6 +13,7 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.custom.annotations.ApiOperation;
 import org.mybatis.generator.custom.annotations.RequestMapping;
 import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 public class ViewElementGenerator extends AbstractControllerElementGenerator {
@@ -60,9 +61,18 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (id != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
                 entityType.getShortName(), serviceBeanName));
-        method.addBodyLine("if (serviceResult.isSuccess()) {");
-        method.addBodyLine(format("mv.addObject(\"{0}\",{1});",this.entityNameKey,
-                introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName()+"(serviceResult.getResult())":"serviceResult.getResult()"));
+        method.addBodyLine("if (serviceResult.hasResult()) {");
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            method.addBodyLine("{0}VO object = mappings.to{0}VO(serviceResult.getResult());",
+                    entityType.getShortName());
+            method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
+            method.addBodyLine(" mv.addObject(\"{0}\", JsonUtil.serializeObject(object));",this.entityNameKey);
+            parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
+            parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
+            parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
+        }else{
+            method.addBodyLine("mv.addObject(\"{0}\", serviceResult.getResult());",this.entityNameKey);
+        }
         method.addBodyLine("}else{");
         method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");

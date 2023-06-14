@@ -89,6 +89,12 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         //是否有启用insert的JavaCollectionRelation
         addJavaCollectionRelation(createVoClass, "insert");
 
+        //添加静态代码块
+        InitializationBlock initializationBlock = new InitializationBlock(false);
+        //在静态代码块中添加默认值
+        addInitialization(initializationBlock, createVoClass);
+        createVoClass.addInitializationBlock(initializationBlock);
+
         /*
           生成映射方法
          */

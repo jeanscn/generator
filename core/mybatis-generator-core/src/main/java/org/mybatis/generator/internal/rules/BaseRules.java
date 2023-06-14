@@ -1,7 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
 import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -12,8 +11,6 @@ import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class centralizes all the rules related to code generation - including
@@ -58,7 +55,7 @@ public abstract class BaseRules implements Rules {
         isModelOnly = StringUtility.isTrue(modelOnly);
 
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = tc.getJavaControllerGeneratorConfiguration();
-        isGenerateCont = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isGenerate();
+        isGenerateCont = javaControllerGeneratorConfiguration != null && javaControllerGeneratorConfiguration.isGenerate();
 
         for (HtmlGeneratorConfiguration htmlGeneratorConfiguration : tc.getHtmlMapGeneratorConfigurations()) {
             if (htmlGeneratorConfiguration.isGenerate()) {
@@ -68,17 +65,17 @@ public abstract class BaseRules implements Rules {
         }
 
         JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
-        generateService = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isGenerate();
+        generateService = javaServiceImplGeneratorConfiguration != null && javaServiceImplGeneratorConfiguration.isGenerate();
 
         JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = tc.getJavaClientGeneratorConfiguration();
-        generateDao = javaClientGeneratorConfiguration!=null && javaClientGeneratorConfiguration.isGenerate();
+        generateDao = javaClientGeneratorConfiguration != null && javaClientGeneratorConfiguration.isGenerate();
 
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = tc.getJavaModelGeneratorConfiguration();
-        noMetaAnnotation = javaModelGeneratorConfiguration!=null && javaModelGeneratorConfiguration.isNoMetaAnnotation();
+        noMetaAnnotation = javaModelGeneratorConfiguration != null && javaModelGeneratorConfiguration.isNoMetaAnnotation();
 
-        noSwaggerAnnotation = javaControllerGeneratorConfiguration!=null && javaControllerGeneratorConfiguration.isNoSwaggerAnnotation();
+        noSwaggerAnnotation = javaControllerGeneratorConfiguration != null && javaControllerGeneratorConfiguration.isNoSwaggerAnnotation();
 
-        noServiceAnnotation = javaServiceImplGeneratorConfiguration!=null && javaServiceImplGeneratorConfiguration.isNoServiceAnnotation();
+        noServiceAnnotation = javaServiceImplGeneratorConfiguration != null && javaServiceImplGeneratorConfiguration.isNoServiceAnnotation();
 
         this.integrateMybatisPlus = introspectedTable.getContext().isIntegrateMybatisPlus();
 
@@ -87,29 +84,29 @@ public abstract class BaseRules implements Rules {
         this.generateUnitTest = true;
     }
 
-    public boolean generateController(){
+    public boolean generateController() {
         if (isModelOnly) {
             return false;
         }
         return isGenerateCont;
     }
 
-    public boolean generateService(){
+    public boolean generateService() {
         if (isModelOnly) {
             return false;
         }
         return generateService;
     }
 
-    public boolean isNoMetaAnnotation(){
+    public boolean isNoMetaAnnotation() {
         return noMetaAnnotation;
     }
 
-    public boolean isNoSwaggerAnnotation(){
+    public boolean isNoSwaggerAnnotation() {
         return noSwaggerAnnotation;
     }
 
-    public boolean isNoServiceAnnotation(){
+    public boolean isNoServiceAnnotation() {
         return noServiceAnnotation;
     }
 
@@ -260,7 +257,7 @@ public abstract class BaseRules implements Rules {
         return tc.isUpdateByPrimaryKeyStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
                 && (introspectedTable.hasBLOBColumns() || introspectedTable
-                        .hasBaseColumns());
+                .hasBaseColumns());
     }
 
     @Override
@@ -408,7 +405,7 @@ public abstract class BaseRules implements Rules {
         return tc.isSelectByPrimaryKeyStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
                 && (introspectedTable.hasBaseColumns() || introspectedTable
-                        .hasBLOBColumns());
+                .hasBLOBColumns());
     }
 
     /**
@@ -491,7 +488,7 @@ public abstract class BaseRules implements Rules {
 
         return tc.isUpdateByExampleStatementEnabled()
                 && (introspectedTable.hasPrimaryKeyColumns() || introspectedTable
-                        .hasBaseColumns());
+                .hasBaseColumns());
     }
 
     @Override
@@ -527,7 +524,7 @@ public abstract class BaseRules implements Rules {
 
         return introspectedTable.hasBLOBColumns()
                 && (tc.isSelectByExampleStatementEnabled() || tc
-                        .isSelectByPrimaryKeyStatementEnabled());
+                .isSelectByPrimaryKeyStatementEnabled());
     }
 
     @Override
@@ -536,7 +533,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean generateRelationWithSubSelected(){
+    public boolean generateRelationWithSubSelected() {
         return tc.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isSubSelected);
     }
 
@@ -559,12 +556,12 @@ public abstract class BaseRules implements Rules {
         String property = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST);
         if (StringUtility.stringHasValue(property)) {
             if (forceUpdateScalableElement && Arrays.stream(property.split(","))
-                    .anyMatch(e->e.equalsIgnoreCase(element))) {
+                    .anyMatch(e -> e.equalsIgnoreCase(element))) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return forceUpdateScalableElement;
         }
     }
@@ -590,67 +587,79 @@ public abstract class BaseRules implements Rules {
     public boolean isGenerateAnyVO() {
         return isGenerateCreateVO() || isGenerateUpdateVO()
                 || isGenerateVoModel() || isGenerateExcelVO()
-                || isGenerateRequestVO() || isGenerateViewVO() ;
+                || isGenerateRequestVO() || isGenerateViewVO();
     }
 
     @Override
     public boolean isGenerateVO() {
-        return tc.getVoGeneratorConfiguration()!=null && tc.getVoGeneratorConfiguration().isGenerate()
+        return tc.getVoGeneratorConfiguration() != null && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getTableType().equals(TableTypeEnum.DATA_TABLE.code());
     }
 
     @Override
-    public boolean isGenerateVoModel(){
-        return  tc.getVoGeneratorConfiguration()!=null
+    public boolean isGenerateVoModel() {
+        return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
-                && tc.getVoGeneratorConfiguration().getVoModelConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().getVoModelConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate();
     }
 
     @Override
-    public boolean isGenerateCreateVO(){
-        return  tc.getVoGeneratorConfiguration()!=null
+    public boolean isGenerateCreateVO() {
+        return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
-                && tc.getVoGeneratorConfiguration().getVoCreateConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().getVoCreateConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoCreateConfiguration().isGenerate();
     }
 
     @Override
-    public boolean isGenerateUpdateVO(){
-        return  tc.getVoGeneratorConfiguration()!=null
+    public boolean isGenerateUpdateVO() {
+        return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
-                && tc.getVoGeneratorConfiguration().getVoUpdateConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().getVoUpdateConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoUpdateConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateExcelVO() {
-        return  tc.getVoGeneratorConfiguration()!=null
+        return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
-                && tc.getVoGeneratorConfiguration().getVoExcelConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().getVoExcelConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoExcelConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateRequestVO() {
-        return  tc.getVoGeneratorConfiguration()!=null
+        return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
-                && tc.getVoGeneratorConfiguration().getVoRequestConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().getVoRequestConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoRequestConfiguration().isGenerate();
     }
 
     @Override
     public boolean isGenerateViewVO() {
-        return  tc.getVoGeneratorConfiguration()!=null
+        return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
-                && tc.getVoGeneratorConfiguration().getVoViewConfiguration()!=null
+                && tc.getVoGeneratorConfiguration().getVoViewConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate();
+    }
+
+    @Override
+    public boolean isGenerateInnerTable() {
+        return tc.getVoGeneratorConfiguration() != null
+                && tc.getVoGeneratorConfiguration().getVoViewConfiguration() != null
+                && tc.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().size() > 0;
+    }
+
+    @Override
+    public boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        return htmlGeneratorConfiguration != null  && htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration() != null;
     }
 
     @Override
     public boolean isGenerateCachePO() {
         VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
-        return voCacheGeneratorConfiguration!=null && voCacheGeneratorConfiguration.isGenerate();
+        return voCacheGeneratorConfiguration != null && voCacheGeneratorConfiguration.isGenerate();
     }
 
     @Override
@@ -658,13 +667,13 @@ public abstract class BaseRules implements Rules {
         if (tc.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
             return tc.getFieldNames().contains(DefultColumnNameEnum.PARENT_ID.fieldName());
         }
-        return  false;
+        return false;
     }
 
     @Override
     public boolean isGenerateCachePOWithMultiKey() {
         VOCacheGeneratorConfiguration config = tc.getVoCacheGeneratorConfiguration();
-        return config!=null && config.isGenerate() && (config.getTypeColumn()!=null || config.getKeyColumn()!=null);
+        return config != null && config.isGenerate() && (config.getTypeColumn() != null || config.getKeyColumn() != null);
     }
 
     @Override
@@ -674,7 +683,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateSelectByTable() {
-        return tc.getSelectByTableGeneratorConfiguration().size()>0;
+        return tc.getSelectByTableGeneratorConfiguration().size() > 0;
     }
 
     @Override

@@ -55,7 +55,7 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
                 , serviceBeanName
                 , introspectedTable.getUpdateBatchStatementId()
                 , getServiceMethodEntityParameter(true, "update"));
-        method.addBodyLine("if (result.isSuccess()) {");
+        method.addBodyLine("if (result.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("return success(mappings.to{0}VOs(result.getResult()),result.getAffectedRows());"
                     , entityType.getShortName());

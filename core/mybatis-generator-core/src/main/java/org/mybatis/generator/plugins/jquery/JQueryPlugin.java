@@ -31,15 +31,26 @@ public class JQueryPlugin extends PluginAdapter {
                     .orElse("");
             if (VStringUtil.stringHasValue(jqueryFileName)) {
                 //生成jquery file
-                jqueryFileName = jqueryFileName + ".js";
+                String jqueryFileNameDev = jqueryFileName + ".js";
                 GeneratedJqueryFile generatedJqueryFile = new GeneratedJqueryFile(
-                        jqueryFileName,
+                        jqueryFileNameDev,
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
                         "app_main_js.js.ftl");
                 generatedJqueryFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 answer.add(generatedJqueryFile);
+
+                //生成jquery min file
+                String jqueryFileNameMin = jqueryFileName + ".min.js";
+                GeneratedJqueryFile generatedJqueryFileMin = new GeneratedJqueryFile(
+                        jqueryFileNameMin,
+                        project,
+                        introspectedTable.getContext().getModuleKeyword(),
+                        introspectedTable,
+                        "app_main_js.js.ftl");
+                generatedJqueryFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                answer.add(generatedJqueryFileMin);
             }
         }
         return answer;

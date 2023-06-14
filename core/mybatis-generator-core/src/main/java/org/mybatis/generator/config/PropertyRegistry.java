@@ -105,6 +105,8 @@ public class PropertyRegistry {
 
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
 
+    public static final String ELEMENT_HTML_ELEMENT_INNER_LIST = "htmlElementInnerList";
+
     public static final String ELEMENT_HTML_LAYOUT = "layout";
     public static final String ELEMENT_IGNORE_COLUMNS = "ignoreColumns";
     public static final String ELEMENT_EXCLUDE_COLUMNS = "excludeColumns";

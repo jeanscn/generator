@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom.htmlGenerator;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -6,7 +6,6 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class GenerateUtils {
          if (htmlGeneratorConfiguration == null) {
              return false;
          }
-        Set<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumns();
+        Set<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumnNames();
          Set<String> collect = introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
                  .stream()
                  .map(IntrospectedColumn::getActualColumnName)
@@ -35,11 +34,13 @@ public class GenerateUtils {
     };
 
     public static String getLocalCssFilePath(String path, String filename) {
-        return GenerateUtils.genLocalFilePath(path, filename, "css");
+        String css = GenerateUtils.genLocalFilePath(path, filename, "css");
+        return css.replace(".css", ".min.css");
     }
 
     public static String getLocalJsFilePath(String path, String filename) {
-        return GenerateUtils.genLocalFilePath(path, filename, "js");
+        String js = GenerateUtils.genLocalFilePath(path, filename, "js");
+        return js.replace(".js", ".min.js");
     }
 
     /*构造文件路径*/

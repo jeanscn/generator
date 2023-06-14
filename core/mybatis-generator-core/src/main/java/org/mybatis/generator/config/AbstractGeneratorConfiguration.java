@@ -14,6 +14,8 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
     protected String baseTargetPackage;
     protected String subTargetPackage;
 
+    protected Context context;
+
     public AbstractGeneratorConfiguration() {
         super();
         generate = false;
@@ -77,4 +79,12 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
     }
 
     abstract void validate(List<String> errors, String contextId);
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
 }

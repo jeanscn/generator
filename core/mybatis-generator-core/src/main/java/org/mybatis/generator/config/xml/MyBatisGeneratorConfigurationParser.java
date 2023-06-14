@@ -9,7 +9,6 @@ import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -894,7 +893,9 @@ public class MyBatisGeneratorConfigurationParser {
         String htmlTargetPackage = Optional.ofNullable(attributes.getProperty(PropertyRegistry.ANY_TARGET_PACKAGE))
                 .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
                         .orElse(Optional.ofNullable(context.getModuleKeyword()).orElse("html")));
+        htmlGeneratorConfiguration.setBaseTargetPackage(htmlTargetPackage);
         if (stringHasValue(viewPath)) {
+            htmlGeneratorConfiguration.setSimpleViewPath(viewPath);
             fullViewPath = htmlTargetPackage + "/" + viewPath;
             htmlGeneratorConfiguration.setViewPath(fullViewPath);
             htmlGeneratorConfiguration.setTargetPackage(substringBeforeLast(fullViewPath, "/"));
@@ -921,10 +922,15 @@ public class MyBatisGeneratorConfigurationParser {
                     parseProperty(htmlGeneratorConfiguration, childNode);
                     break;
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_DESCRIPTOR:
-                    parseHtmlElementDescriptor(htmlGeneratorConfiguration, childNode);
+                    HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
+                    htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    htmlGeneratorConfiguration.getElementDescriptors().add(htmlElementDescriptor);
                     break;
                 case PropertyRegistry.ELEMENT_HTML_LAYOUT:
                     parseHtmlLayout(htmlGeneratorConfiguration, childNode);
+                    break;
+                case PropertyRegistry.ELEMENT_HTML_ELEMENT_INNER_LIST:
+                    parseHtmlElementInnerList(htmlGeneratorConfiguration, childNode);
                     break;
             }
         }
@@ -932,6 +938,32 @@ public class MyBatisGeneratorConfigurationParser {
             htmlGeneratorConfiguration.setLayoutDescriptor(new HtmlLayoutDescriptor());
         }
         tc.addHtmlMapGeneratorConfigurations(htmlGeneratorConfiguration);
+    }
+
+    private void parseHtmlElementInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
+        Properties attributes = parseAttributes(childNode);
+        HtmlElementInnerListConfiguration htmlElementInnerList = new HtmlElementInnerListConfiguration();
+        String tagId = attributes.getProperty("tagId");
+        htmlElementInnerList.setTagId(tagId);
+        String dataField = attributes.getProperty("dataField");
+        if (stringHasValue(dataField)) {
+            htmlElementInnerList.setDataField(dataField);
+        }
+        String dataUrl = attributes.getProperty("dataUrl");
+        if (stringHasValue(dataUrl)) {
+            htmlElementInnerList.setDataUrl(dataUrl);
+        }
+        String sourceBeanName = attributes.getProperty("sourceBeanName");
+        if (stringHasValue(sourceBeanName)) {
+            htmlElementInnerList.setSourceBeanName(VStringUtil.toHyphenCase(sourceBeanName).toLowerCase());
+        }
+        String sourceViewPath = attributes.getProperty("sourceViewPath");
+        if (stringHasValue(sourceViewPath)) {
+            htmlElementInnerList.setSourceViewPath(sourceViewPath.toLowerCase());
+        }
+        htmlElementInnerList.setRelationField(attributes.getProperty("relationField"));
+        htmlElementInnerList.setAppKey(htmlGeneratorConfiguration.getContext().getModuleKeyword().toLowerCase());
+        htmlGeneratorConfiguration.setHtmlElementInnerListConfiguration(htmlElementInnerList);
     }
 
     private void parseHtmlLayout(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
@@ -975,7 +1007,7 @@ public class MyBatisGeneratorConfigurationParser {
             case PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS:
                 String htmlHiddenColumns = properties.get("value").toString();
                 if (stringHasValue(htmlHiddenColumns)) {
-                    htmlGeneratorConfiguration.getHiddenColumns().addAll(spiltToList(htmlHiddenColumns));
+                    htmlGeneratorConfiguration.getHiddenColumnNames().addAll(spiltToList(htmlHiddenColumns));
                 }
                 break;
             case PropertyRegistry.TABLE_HTML_REQUIRED_COLUMNS:
@@ -987,11 +1019,11 @@ public class MyBatisGeneratorConfigurationParser {
         }
     }
 
-    protected void parseHtmlElementDescriptor(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node node) {
+    protected HtmlElementDescriptor parseHtmlElementDescriptor(Node node) {
         Properties attributes = parseAttributes(node);
         String column = attributes.getProperty("column");
         String tagType = attributes.getProperty("tagType");
-        HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor(htmlGeneratorConfiguration);
+        HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
         htmlElementDescriptor.setName(column);
         htmlElementDescriptor.setTagType(tagType);
         String dataSource = attributes.getProperty("dataSource");
@@ -1017,6 +1049,8 @@ public class MyBatisGeneratorConfigurationParser {
         String switchText = attributes.getProperty(PropertyRegistry.ELEMENT_SWITCH_TEXT);
         if (stringHasValue(switchText)) {
             htmlElementDescriptor.setSwitchText(switchText);
+        }else{
+            htmlElementDescriptor.setSwitchText("启用|禁用");
         }
         String dictCode = attributes.getProperty(PropertyRegistry.ELEMENT_DICT_CODE);
         if (stringHasValue(dictCode)) {
@@ -1026,7 +1060,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(callback)) {
             htmlElementDescriptor.setCallback(callback);
         }
-        htmlGeneratorConfiguration.addElementDescriptors(htmlElementDescriptor);
+        return htmlElementDescriptor;
     }
 
     protected void parseJavaTypeResolver(Context context, Node node) {
@@ -1473,11 +1507,95 @@ public class MyBatisGeneratorConfigurationParser {
                 case ("nameFragment"):
                     parseNameFragment(context, tc, childNode, configuration);
                     break;
-                case ("columnRenderFun"):
-                    parseColumnRenderFun(context, tc, configuration, childNode);
+            }
+        }
+    }
+
+    private void parseInnerListView(Context context, TableConfiguration tc, Node node, VOViewGeneratorConfiguration configuration) {
+        InnerListViewConfiguration innerListViewGeneratorConfiguration = new InnerListViewConfiguration();
+        Properties attributes = parseAttributes(node);
+        String size = attributes.getProperty("size");
+        if (stringHasValue(size)) {
+            innerListViewGeneratorConfiguration.setSize(size);
+        }
+        String height = attributes.getProperty("height");
+        if (stringHasValue(height)) {
+            innerListViewGeneratorConfiguration.setHeight(height);
+        }
+        String width = attributes.getProperty("width");
+        if (stringHasValue(width)) {
+            innerListViewGeneratorConfiguration.setWidth(Integer.parseInt(width));
+        }
+        String skin = attributes.getProperty("skin");
+        if (stringHasValue(skin)) {
+            innerListViewGeneratorConfiguration.setSkin(skin);
+        }
+        String page = attributes.getProperty("enablePage");
+        if (stringHasValue(page)) {
+            innerListViewGeneratorConfiguration.setEnablePage(page);
+        }
+        String evenRow = attributes.getProperty("evenRow");
+        if (stringHasValue(evenRow)) {
+            innerListViewGeneratorConfiguration.setEven(Boolean.parseBoolean(evenRow));
+        }
+        String totalRow = attributes.getProperty("totalRow");
+        if (stringHasValue(totalRow)) {
+            innerListViewGeneratorConfiguration.setTotalRow(Boolean.parseBoolean(totalRow));
+        }
+        String indexColumn = attributes.getProperty("indexColumn");
+        if (stringHasValue(indexColumn)) {
+            innerListViewGeneratorConfiguration.setIndexColumn(indexColumn);
+        }
+        String actionColumn = attributes.getProperty("actionColumn");
+        if (stringHasValue(actionColumn)) {
+            innerListViewGeneratorConfiguration.setActionColumn(spiltToList(actionColumn));
+        }
+        String defaultToolbar = attributes.getProperty("defaultToolbar");
+        if (stringHasValue(defaultToolbar)) {
+            innerListViewGeneratorConfiguration.setDefaultToolbar(spiltToList(defaultToolbar));
+        }
+        String defaultDisplayFields = attributes.getProperty("defaultDisplayFields");
+        if (stringHasValue(defaultDisplayFields)) {
+            innerListViewGeneratorConfiguration.setDefaultDisplayFields(spiltToSet(defaultDisplayFields));
+        }
+        String defaultHiddenFields = attributes.getProperty("defaultHiddenFields");
+        if (stringHasValue(defaultHiddenFields)) {
+            innerListViewGeneratorConfiguration.setDefaultHiddenFields(spiltToSet(defaultHiddenFields));
+        }
+        String enableEditFields = attributes.getProperty("enableEditFields");
+        if (stringHasValue(enableEditFields)) {
+            innerListViewGeneratorConfiguration.setEnableEditFields(spiltToList(enableEditFields));
+        }
+        String editExtendsForm = attributes.getProperty("editExtendsForm");
+        if (stringHasValue(editExtendsForm)) {
+            if (!editExtendsForm.equals("none")) {
+                innerListViewGeneratorConfiguration.setEditExtendsForm(editExtendsForm);
+            }
+        } else {
+            if (tc.getHtmlMapGeneratorConfigurations().size() > 0) {
+                String simpleViewPath = tc.getHtmlMapGeneratorConfigurations().get(0).getSimpleViewPath();
+                String fileName = substringAfterLast(substringAfterLast(simpleViewPath, "/"), "\\");
+                innerListViewGeneratorConfiguration.setEditExtendsForm(fileName);
+            }
+        }
+        //计算属性及子元素
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(innerListViewGeneratorConfiguration, childNode);
+                    break;
+                case PropertyRegistry.ELEMENT_HTML_ELEMENT_DESCRIPTOR:
+                    HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
+                    innerListViewGeneratorConfiguration.getHtmlElements().add(htmlElementDescriptor);
                     break;
             }
         }
+        configuration.getInnerListViewConfigurations().add(innerListViewGeneratorConfiguration);
     }
 
     private void parseColumnRenderFun(Context context, TableConfiguration tc, AbstractModelGeneratorConfiguration configuration, Node childNode) {
@@ -1727,7 +1845,32 @@ public class MyBatisGeneratorConfigurationParser {
             voViewGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
         }
 
-        parseModelChildNodeProperty(context, tc, node, voViewGeneratorConfiguration);
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node childNode = nodeList.item(i);
+
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            switch (childNode.getNodeName()) {
+                case "property":  //$NON-NLS-1$
+                    parseProperty(voViewGeneratorConfiguration, childNode);
+                    break;
+                case ("overridePropertyValue"):
+                    parseVoOverrideColumn(context, tc, childNode, voViewGeneratorConfiguration);
+                    break;
+                case ("additionalProperty"):
+                    parseAdditionalProperty(context, tc, childNode, voViewGeneratorConfiguration);
+                    break;
+                case ("columnRenderFun"):
+                    parseColumnRenderFun(context, tc, voViewGeneratorConfiguration, childNode);
+                    break;
+                case ("innerListView"):
+                    parseInnerListView(context, tc, childNode, voViewGeneratorConfiguration);
+                    break;
+            }
+        }
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
     }
 
@@ -1778,7 +1921,7 @@ public class MyBatisGeneratorConfigurationParser {
         String keyColumn = attributes.getProperty(PropertyRegistry.ELEMENT_KEY_COLUMN);
         if (stringHasValue(keyColumn)) {
             voCacheGeneratorConfiguration.setKeyColumn(keyColumn);
-        }else{
+        } else {
             voCacheGeneratorConfiguration.setKeyColumn(DefultColumnNameEnum.ID.columnName());
         }
         String nameColumn = attributes.getProperty(PropertyRegistry.ELEMENT_VALUE_COLUMN);

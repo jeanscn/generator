@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.api.IntrospectedColumn;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,26 +11,32 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private String viewPath;
 
+    private String simpleViewPath;
+
     private String htmlFileName;
 
     private boolean overWriteFile;
 
-    private Set<String> hiddenColumns;
+    private Set<String> hiddenColumnNames = new HashSet<>();
+
+    private Set<IntrospectedColumn> hiddenColumns = new HashSet<>();
 
     //指定页面表单不允许为空的字段
-    private Set<String> elementRequired;
+    private Set<String> elementRequired = new HashSet<>();
 
-    private List<HtmlElementDescriptor> elementDescriptors;
+    private List<HtmlElementDescriptor> elementDescriptors = new ArrayList<>();
 
     private HtmlLayoutDescriptor layoutDescriptor;
 
+    private HtmlElementInnerListConfiguration htmlElementInnerListConfiguration;
+
+    private String htmlBaseTargetPackage;
+
     public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
-        hiddenColumns = new HashSet<>();
-        elementRequired = new HashSet<>();
-        elementDescriptors = new ArrayList<>();
         overWriteFile = false;
         targetProject = "src/main/resources/templates";
+        this.context = context;
     }
 
     @Override
@@ -60,11 +68,19 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.overWriteFile = overWriteFile;
     }
 
-    public Set<String> getHiddenColumns() {
+    public Set<String> getHiddenColumnNames() {
+        return hiddenColumnNames;
+    }
+
+    public void setHiddenColumnNames(Set<String> hiddenColumnNames) {
+        this.hiddenColumnNames = hiddenColumnNames;
+    }
+
+    public Set<IntrospectedColumn> getHiddenColumns() {
         return hiddenColumns;
     }
 
-    public void setHiddenColumns(Set<String> hiddenColumns) {
+    public void setHiddenColumns(Set<IntrospectedColumn> hiddenColumns) {
         this.hiddenColumns = hiddenColumns;
     }
 
@@ -95,5 +111,29 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     public List<HtmlElementDescriptor> addElementDescriptors(HtmlElementDescriptor htmlElementDescriptor) {
         this.elementDescriptors.add(htmlElementDescriptor);
         return this.elementDescriptors;
+    }
+
+    public String getSimpleViewPath() {
+        return simpleViewPath;
+    }
+
+    public void setSimpleViewPath(String simpleViewPath) {
+        this.simpleViewPath = simpleViewPath;
+    }
+
+    public String getHtmlBaseTargetPackage() {
+        return htmlBaseTargetPackage;
+    }
+
+    public void setHtmlBaseTargetPackage(String htmlBaseTargetPackage) {
+        this.htmlBaseTargetPackage = htmlBaseTargetPackage;
+    }
+
+    public HtmlElementInnerListConfiguration getHtmlElementInnerListConfiguration() {
+        return htmlElementInnerListConfiguration;
+    }
+
+    public void setHtmlElementInnerListConfiguration(HtmlElementInnerListConfiguration htmlElementInnerListConfiguration) {
+        this.htmlElementInnerListConfiguration = htmlElementInnerListConfiguration;
     }
 }

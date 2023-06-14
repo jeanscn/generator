@@ -36,15 +36,26 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                     .reduce((first, second) -> second)
                     .orElse("");
             if (VStringUtil.stringHasValue(styleFileName)) {
-                styleFileName = styleFileName + ".css";
+                String styleFileNameDev = styleFileName + ".css";
                 GeneratedStyleFile generatedStyleFile = new GeneratedStyleFile(
-                        styleFileName,
+                        styleFileNameDev,
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
                         "app_main_css.css.ftl");
                 generatedStyleFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 answer.add(generatedStyleFile);
+
+                String min = styleFileName + ".min.css";
+                GeneratedStyleFile generatedStyleFileMin = new GeneratedStyleFile(
+                        min,
+                        project,
+                        introspectedTable.getContext().getModuleKeyword(),
+                        introspectedTable,
+                        "app_main_css.css.ftl");
+                generatedStyleFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                answer.add(generatedStyleFileMin);
+
             }
         }
         return answer;

@@ -252,7 +252,7 @@ public class ValidatorPlugin extends PluginAdapter {
                                     IntrospectedColumn introspectedColumn,
                                     String[] validateGroups,
                                     IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
-        if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || introspectedColumn.isNullable()) {
+        if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey())) {
             return;
         }
         String message = introspectedColumn.getRemarks(true) + "不能为空";

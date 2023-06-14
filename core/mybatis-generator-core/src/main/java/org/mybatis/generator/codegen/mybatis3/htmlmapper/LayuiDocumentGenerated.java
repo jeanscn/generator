@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom.htmlGenerator;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -10,10 +10,10 @@ import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.HtmlElementDescriptor;
+import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlLayoutDescriptor;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -66,6 +66,10 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         addSubjectInput(form);
         /*表单验证button*/
         addVerifyButton(form);
+        //是否需要插入页面列表
+        if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+            addInnerList(content,htmlGeneratorConfiguration);
+        }
         // if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
         /* 查看状态*/
         HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
@@ -82,13 +86,39 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 .reduce((first, second) -> second)
                 .orElse("");
         if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-non-wf-form.js");
+            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-non-wf-form.min.js");
         } else {
-            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-wf-form.js");
+            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-wf-form.min.js");
         }
-        addStaticJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".js");
-        //addLayJavaScriptFragment(body.get("body"));
+        addStaticJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".min.js");
+        //增加页面列表的编辑器模板页面片段
+        if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElement div = new HtmlElement("div");
+            String format = VStringUtil.format("{0}/fragments/{1}_{2}.html::{2}", introspectedTable.getContext().getModuleKeyword(), listConfiguration.getSourceViewPath(), ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
+            div.addAttribute(new Attribute("th:replace", format));
+            body.get("body").addElement(div);
+            //根据数据源添加
+            if (VStringUtil.stringHasValue(listConfiguration.getDataField())) {
+                HtmlElement script = new HtmlElement("script");
+                script.addAttribute(new Attribute("th:inline", "javascript"));
+                String format1 = VStringUtil.format("var {0} = JSON.stringify(/*[[$'{'{1}.{0}'}']]*/ null);", listConfiguration.getDataField(), GenerateUtils.getEntityKeyStr(introspectedTable));
+                script.addElement(new TextElement(format1));
+                body.get("body").addElement(script);
+            }
+        }
         return true;
+    }
+
+    private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+        HtmlElement div = new HtmlElement("div");
+        div.addAttribute(new Attribute( "class", "inner-list-container"));
+        HtmlElement table = new HtmlElement("table");
+        table.addAttribute(new Attribute("lay-filter", htmlElementInnerList.getTagId()));
+        table.addAttribute(new Attribute("id", htmlElementInnerList.getTagId()));
+        div.addElement(table);
+        content.addElement(div);
     }
 
     private void addVerifyButton(HtmlElement parent) {
@@ -111,6 +141,9 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::neditorRequired");
         }
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::contextMemuOnly");
+        if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+            addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layTable");
+        }
         addStaticJavaScript(head, "/webjars/plugins/js/mainform.min.js");
         addLocalStaticResource(head);
         //添加自定义样式
@@ -138,7 +171,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         List<IntrospectedColumn> columns = Stream.of(introspectedTable.getPrimaryKeyColumns().stream()
                         , introspectedTable.getBaseColumns().stream()).flatMap(Function.identity())
                 .collect(Collectors.toList());
-
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
         Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
@@ -314,7 +346,11 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     dropdownListHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     dropdownListHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement dpRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    dpRead.addAttribute(new Attribute(thisDialect, dropdownListHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
+                        dpRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
+                    }else{
+                        dpRead.addAttribute(new Attribute(thisDialect, dropdownListHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    }
                     addEnumClassNamAttribute(htmlElementDescriptor, dpRead);
                     addBeanNameApplyProperty(htmlElementDescriptor, dpRead);
                     addDictCodeAttribute(htmlElementDescriptor,dpRead);
@@ -326,7 +362,11 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     switchHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     switchHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement sRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    sRead.addAttribute(new Attribute(thisDialect, switchHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
+                        sRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
+                    }else{
+                        sRead.addAttribute(new Attribute(thisDialect, switchHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    }
                     addBeanNameApplyProperty(htmlElementDescriptor, sRead);
                     addEnumClassNamAttribute(htmlElementDescriptor, sRead);
                     addDictCodeAttribute(htmlElementDescriptor,sRead);
@@ -337,7 +377,11 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     radioHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     radioHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement rRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    rRead.addAttribute(new Attribute(thisDialect, radioHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
+                        rRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
+                    }else{
+                        rRead.addAttribute(new Attribute(thisDialect, radioHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    }
                     addBeanNameApplyProperty(htmlElementDescriptor, rRead);
                     addEnumClassNamAttribute(htmlElementDescriptor, rRead);
                     addDictCodeAttribute(htmlElementDescriptor,rRead);
@@ -348,7 +392,11 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     checkBoxHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     checkBoxHtmlGenerator.addHtmlElement(introspectedColumn, parent);
                     HtmlElement cRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    cRead.addAttribute(new Attribute(thisDialect, checkBoxHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
+                        cRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
+                    }else {
+                        cRead.addAttribute(new Attribute(thisDialect, checkBoxHtmlGenerator.getFieldValueFormatPattern(introspectedColumn)));
+                    }
                     addBeanNameApplyProperty(htmlElementDescriptor, cRead);
                     addEnumClassNamAttribute(htmlElementDescriptor, cRead);
                     addDictCodeAttribute(htmlElementDescriptor,cRead);
@@ -421,7 +469,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         HtmlElement label = new HtmlElement("label");
-        label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         addClassNameToElement(label, "layui-form-label");
         label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
         parent.addElement(label);

@@ -42,6 +42,12 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        addWebProperties(topLevelClass, introspectedTable, "view");
+        return true;
+    }
+
     private void addWebProperties(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String type) {
         //追加respBasePath属性
         addRespBasePath(topLevelClass, introspectedTable, type);

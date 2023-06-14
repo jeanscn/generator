@@ -8,7 +8,8 @@ public enum HtmlElementTagTypeEnum {
     RADIO(2, "radio"),
     CHECKBOX(3, "checkbox"),
     SWITCH(4, "switch"),
-    SELECT(5, "select");
+    SELECT(5, "select"),
+    INPUT(6,"input");
 
     private final int value;
     private final String code;

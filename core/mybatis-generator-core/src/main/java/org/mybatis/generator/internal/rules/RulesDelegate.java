@@ -2,6 +2,7 @@ package org.mybatis.generator.internal.rules;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 /**
  * This class can be used by plugins to easily implement a custom rules
@@ -247,6 +248,16 @@ public class RulesDelegate implements Rules {
 
     @Override
     public boolean isGenerateViewVO() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateInnerTable() {
+        return false;
+    }
+
+    @Override
+    public boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         return false;
     }
 

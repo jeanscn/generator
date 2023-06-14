@@ -419,6 +419,22 @@ public class DatabaseIntrospector {
             logger.debug(getString("Tracing.1", fullTableName)); //$NON-NLS-1$
         }
 
+        Set<String> fkColumnNames = new HashSet<>();
+        ResultSet importedKeys = databaseMetaData.getImportedKeys(localCatalog, localSchema, localTableName);
+        if (importedKeys.next()) {
+            String pkTableName = importedKeys.getString("PKTABLE_NAME"); //$NON-NLS-1$
+            String pkColumnName = importedKeys.getString("PKCOLUMN_NAME"); //$NON-NLS-1$
+            String fkTableName = importedKeys.getString("FKTABLE_NAME"); //$NON-NLS-1$
+            String fkColumnName = importedKeys.getString("FKCOLUMN_NAME"); //$NON-NLS-1$
+            String fkName = importedKeys.getString("FK_NAME"); //$NON-NLS-1$
+            String pkName = importedKeys.getString("PK_NAME");//$NON-NLS-1$
+            short keySeq = importedKeys.getShort("KEY_SEQ");//$NON-NLS-1$
+            short updateRule = importedKeys.getShort("UPDATE_RULE");//$NON-NLS-1$
+            short deleteRule = importedKeys.getShort("DELETE_RULE");//$NON-NLS-1$
+            fkColumnNames.add(fkColumnName);
+        }
+        closeResultSet(importedKeys);
+
         ResultSet rs = databaseMetaData.getColumns(localCatalog, localSchema,localTableName, "%"); //$NON-NLS-1$
 
         boolean supportsIsAutoIncrement = false;
@@ -446,6 +462,9 @@ public class DatabaseIntrospector {
             introspectedColumn.setActualColumnName(rs.getString("COLUMN_NAME")); //$NON-NLS-1$
             introspectedColumn.setNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable); //$NON-NLS-1$
             introspectedColumn.setScale(rs.getInt("DECIMAL_DIGITS")); //$NON-NLS-1$
+            if (fkColumnNames.contains(introspectedColumn.getActualColumnName())) {
+                introspectedColumn.setForeignKey(true);
+            }
             //introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
             String remark = null;
             if (remarks.size() > 0) {

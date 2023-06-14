@@ -440,13 +440,13 @@
 
         <!--
             添加一个实体列表的属性，并实现一对多的collection查询
-            需要再相关表需要增加对应的外键属性，并生成对应的查询方法。
+            需要在相关表增加对应的外键（一般为selectByXXXX，如果外键关联主键则selectByPrimaryKey）属性，并生成对应的查询方法。
             *通过调用自己的外键查询可以达到递归查询的效果（慎用，大量递归可能引发效率问题）
             *如果该实体可能用于生成菜单或层级列表的通过转换方法，必须生成children为属性名的一对多的属性
-            *如果仅仅指定field、fieldModel，则仅在实体中添加一个List<model> field的属性。
+            *如果仅仅指定field、modelType，则仅在实体中添加一个List<modelType> field的属性。
             属性信息：
-            1、field 生成的属性名
-            2、modelType 属性类型完整类名，PO类中使用
+            1、field 必须，生成的属性名
+            2、modelType 必须，属性类型完整类名，PO类中使用；
                 voModelType  VO类中使用
             3、whereColumn 条件字段列名
             4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
@@ -486,7 +486,7 @@
             5、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
         -->
 
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlElementInnerList?)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
                 viewPath CDATA #IMPLIED
@@ -536,6 +536,7 @@
             9、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
             10、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
             11、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
+            12、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
             说明：
             department|user：仅在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -558,9 +559,27 @@
                 verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED
                 enumClassFullName CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
-                callback CDATA #IMPLIED>
+                callback CDATA #IMPLIED
+                switchText CDATA #IMPLIED>
 
+        <!--
+            用来描述页面列表元素的配置
+            1、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
+            2、sourceBeanName 引用的源表的beanName，必须
+            3、relationField 关联字段，必须，表示当前列表与源表的关联字段
+            4、tagId 要绑定的列表的目页面标签的id属性名
+            5、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
+            6、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
 
+        -->
+        <!ELEMENT htmlElementInnerList EMPTY>
+        <!ATTLIST htmlElementInnerList
+                sourceViewPath CDATA #REQUIRED
+                sourceBeanName CDATA #REQUIRED
+                relationField CDATA #REQUIRED
+                tagId CDATA #REQUIRED
+                dataField CDATA #IMPLIED
+                dataUrl CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
@@ -802,7 +821,8 @@
            11、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
             property配置：无
         -->
-        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*)>
+
+        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView?)>
         <!ATTLIST viewVO
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
@@ -816,6 +836,48 @@
                 viewMenuIcon CDATA #IMPLIED
                 categoryTreeUrl CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+           基于默认视图（viewVO）配置信息配置一个页面内部的列表描述
+           属性信息
+           1、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
+           2、height：列表的高度。设置表格容器高度，默认自适应。其他可选值的规则如下：
+                    height=“315” 设置固定高度
+                    height=“full-30” 设置自适应高度。这是一个特定的语法格式：full 表示铺满；后面的数字表示当前 table 之外的元素占用的高度，如：表格头部到页面最顶部加表格底部距离页面最底部的“距离和”
+                    height=“#id-30” 设置相对父元素的高度自适应，其中 #id 即父元素的 ID 选择器，其计算原理和上述 full 相同。
+           3、width：设置容器宽度，默认自适应。
+           4、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式
+           5、enablePage 是否启用分页，true分页，false不分页，simple简单分页。缺省值false
+           6、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true
+           7、totalRow 是否显示总计行，true显示，false不显示。缺省值false
+           8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
+           9、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
+           10、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: filter,exports,print （分别代表：筛选图标、导出图标、打印图标）
+           11、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           12、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           13、enableEditFields：可编辑的属性名列表,多值使用","。
+           14、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
+                    如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
+                    如果不指定，则使用默认的表单（配置的第一个）viewPath。
+                    可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
+           property配置：无
+       -->
+        <!ELEMENT innerListView (property*,htmlElementDescriptor*)>
+        <!ATTLIST innerListView
+                size (sm|md|lg) #IMPLIED
+                height CDATA #IMPLIED
+                width CDATA #IMPLIED
+                skin (grid|line|row|nob) #IMPLIED
+                enablePage (true|false|simple) #IMPLIED
+                evenRow (true|false) #IMPLIED
+                totalRow (true|false) #IMPLIED
+                indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
+                actionColumn CDATA #IMPLIED
+                defaultToolbar CDATA #IMPLIED
+                defaultDisplayFields CDATA #IMPLIED
+                defaultHiddenFields CDATA #IMPLIED
+                enableEditFields CDATA #IMPLIED
+                editExtendsForm CDATA #IMPLIED>
 
         <!--
            Excel导入导出模型配置的生成描述，该模型不继承抽象VO抽象类

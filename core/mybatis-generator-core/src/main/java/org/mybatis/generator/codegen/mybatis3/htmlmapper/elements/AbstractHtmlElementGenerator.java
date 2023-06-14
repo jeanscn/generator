@@ -11,7 +11,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 
 import java.util.List;
 

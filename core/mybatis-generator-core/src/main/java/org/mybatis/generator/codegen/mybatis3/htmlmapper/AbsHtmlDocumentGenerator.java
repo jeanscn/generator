@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom.htmlGenerator;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VArrayUtil;
@@ -6,11 +6,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.HtmlLayoutDescriptor;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.VOModelGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 
 import java.util.*;
 
@@ -325,5 +321,13 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
             ret = VArrayUtil.contains(property.split(","), introspectedColumn.getActualColumnName());
         }
         return ret || allFields.contains(introspectedColumn.getJavaProperty());
+    }
+
+    protected String getOtherValueFormatPattern(HtmlElementDescriptor htmlElementDescriptor){
+        if (htmlElementDescriptor.getOtherFieldName() != null) {
+            return "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + htmlElementDescriptor.getOtherFieldName() +
+                    "}?:_";
+        }
+        return null;
     }
 }

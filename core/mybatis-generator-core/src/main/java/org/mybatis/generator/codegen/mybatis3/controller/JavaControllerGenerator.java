@@ -115,6 +115,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 .findFirst()
                 .map(HtmlGeneratorConfiguration::getViewPath)
                 .ifPresent(viewpath -> addViewElement(conTopClazz));
+        addNewInstanceElement(conTopClazz);
         addGetElement(conTopClazz);
         addListElement(conTopClazz);
         addCreateElement(conTopClazz);
@@ -147,6 +148,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addDeleteByTableElement(conTopClazz);
         addInsertByTableElement(conTopClazz);
         addGetTreeElement(conTopClazz);
+        addGetLayuiTableElement(conTopClazz);
 
 
         //重写getListData，如果存在VO的时候
@@ -171,7 +173,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             getListData.addParameter(parameter3);
             commentGenerator.addMethodJavaDocLine(getListData, "为了转换返回结果为VO对象而重写父类的方法");
             getListData.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectBySql(selectSqlBuilder);", entityType.getShortName(), introspectedTable.getControllerBeanName());
+            getListData.addBodyLine("if (result.hasResult()) {");
             getListData.addBodyLine("returnResult.addAll(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
+            getListData.addBodyLine("}else{");
+            getListData.addBodyLine("returnResult.addAll(new ArrayList<>());");
+            getListData.addBodyLine("}");
             getListData.addBodyLine("return (Page<{0}>) result.getResult();", entityType.getShortName());
             conTopClazz.addMethod(getListData);
             conTopClazz.addImportedType("java.util.List");
@@ -395,6 +401,18 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
         }
         return answer;
+    }
+
+    private void addNewInstanceElement(TopLevelClass conTopClazz) {
+        AbstractControllerElementGenerator elementGenerator = new NewInstanceElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, conTopClazz);
+    }
+
+    private void addGetLayuiTableElement(TopLevelClass conTopClazz) {
+        if (introspectedTable.getRules().isGenerateInnerTable()) {
+            AbstractControllerElementGenerator elementGenerator = new GetLayuiTableElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, conTopClazz);
+        }
     }
 
     private void addGetTreeElement(TopLevelClass parentElement) {

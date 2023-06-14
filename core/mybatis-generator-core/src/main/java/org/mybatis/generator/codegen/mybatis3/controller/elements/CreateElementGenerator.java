@@ -81,11 +81,11 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine("}");
         }
 
-        method.addBodyLine("if (!serviceResult.isSuccess()) {");
-        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
-        method.addBodyLine("}else{");
+        method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine("return success({0},serviceResult.getAffectedRows());"
                 , introspectedTable.getRules().isGenerateVoModel() ? "mappings.to" + entityVoType.getShortName() + "(serviceResult.getResult())" : "serviceResult.getResult()");
+        method.addBodyLine("}else{");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}");
 
         parentElement.addMethod(method);

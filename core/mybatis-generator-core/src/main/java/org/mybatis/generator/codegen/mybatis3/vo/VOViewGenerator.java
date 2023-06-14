@@ -41,7 +41,6 @@ public class VOViewGenerator extends AbstractVOGenerator {
         viewVOClass.addMultipleImports("lombok");
         ApiModel apiModel = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
         apiModel.addAnnotationToTopLevelClass(viewVOClass);
-        addViewTableMeta(voViewGeneratorConfiguration, viewVOClass);
         viewVOClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addSerialVersionUID();
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voViewGeneratorConfiguration.getIncludeColumns(), voViewGeneratorConfiguration.getExcludeColumns());
@@ -56,111 +55,30 @@ public class VOViewGenerator extends AbstractVOGenerator {
                 }
             }
         }
-
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
         overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
         voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass)
                 .forEach(field -> {
-                            if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
-                                viewVOClass.addField(field);
-                                viewVOClass.addImportedType(field.getType());
-                            }
-                        }
-                );
-
+                    if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
+                        viewVOClass.addField(field);
+                        viewVOClass.addImportedType(field.getType());
+                    }
+                });
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         viewVOClass.getAddtionalPropertiesFields(additionalPropertyConfigurations)
                 .forEach(field -> {
-                            if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
-                                viewVOClass.addField(field);
-                                viewVOClass.addImportedType(field.getType());
-                            }
-                        }
-                );
+                    if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
+                        viewVOClass.addField(field);
+                        viewVOClass.addImportedType(field.getType());
+                    }
+                });
 
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(viewVOType));
         mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), false));
         mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), true));
-
         return viewVOClass;
-    }
-
-    private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass) {
-        ViewTableMeta viewTableMeta = new ViewTableMeta(introspectedTable);
-        //createUrl
-        String createUrl = "";
-        FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass());
-        if (stringHasValue(rootType.getShortName())) {
-            if (EntityAbstractParentEnum.ofCode(rootType.getShortName()) == null
-                    || (EntityAbstractParentEnum.ofCode(rootType.getShortName()) != null
-                    && EntityAbstractParentEnum.ofCode(rootType.getShortName()).scope() != 1)) {
-                createUrl = String.join("/"
-                        , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
-                        , "view");
-            }
-        }
-        if (stringHasValue(createUrl)) {
-            viewTableMeta.setCreateUrl(createUrl);
-        }
-        //dataUrl
-        viewTableMeta.setDataUrl(String.join("/"
-                , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
-                , "getdtdata"));
-
-        //indexColumn
-        ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
-        if (viewIndexColumnEnum != null) {
-            viewTableMeta.setIndexColumn(viewIndexColumnEnum);
-        }
-        //actionColumn
-        if (voViewGeneratorConfiguration.getActionColumn().size() > 0) {
-            ViewActionColumnEnum[] viewActionColumnEnums = voViewGeneratorConfiguration.getActionColumn().stream()
-                    .map(ViewActionColumnEnum::ofCode)
-                    .filter(Objects::nonNull)
-                    .distinct().toArray(ViewActionColumnEnum[]::new);
-            viewTableMeta.setActionColumn(viewActionColumnEnums);
-        }
-        //querys
-        if (voViewGeneratorConfiguration.getQueryColumns().size() > 0) {
-            String[] strings = voViewGeneratorConfiguration.getQueryColumns().stream()
-                    .distinct()
-                    .map(f -> introspectedTable.getColumn(f).orElse(null))
-                    .filter(Objects::nonNull)
-                    .map(c -> CompositeQuery.create(c).toAnnotation())
-                    .toArray(String[]::new);
-            viewTableMeta.setQuerys(strings);
-        }
-        //columns
-        if (voViewGeneratorConfiguration.getIncludeColumns().size() > 0) {
-            String[] strings = voViewGeneratorConfiguration.getIncludeColumns().stream()
-                    .distinct()
-                    .map(f -> introspectedTable.getColumn(f).orElse(null))
-                    .filter(Objects::nonNull)
-                    .map(c -> ViewColumnMeta.create(c, introspectedTable).toAnnotation())
-                    .toArray(String[]::new);
-            viewTableMeta.setColumns(strings);
-        }
-        if (stringHasValue(voViewGeneratorConfiguration.getCategoryTreeUrl())) {
-            viewTableMeta.setCategoryTreeUrl(voViewGeneratorConfiguration.getCategoryTreeUrl());
-        }
-        //ignoreFields
-        if (voViewGeneratorConfiguration.getExcludeColumns().size() > 0) {
-            String[] columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()
-                    .distinct()
-                    .map(f -> introspectedTable.getColumn(f).orElse(null))
-                    .filter(Objects::nonNull)
-                    .map(IntrospectedColumn::getJavaProperty)
-                    .toArray(String[]::new);
-            viewTableMeta.setIgnoreFields(columns2);
-        }
-        //className
-        viewTableMeta.setClassName(viewVOClass.getType().getFullyQualifiedName());
-
-        //构造ViewTableMeta
-        viewVOClass.addAnnotation(viewTableMeta.toAnnotation());
-        viewVOClass.addImportedTypes(viewTableMeta.getImportedTypes());
     }
 }

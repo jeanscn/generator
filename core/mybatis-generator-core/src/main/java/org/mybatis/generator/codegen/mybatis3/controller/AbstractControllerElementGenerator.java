@@ -8,7 +8,7 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.IAnnotation;
-import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.annotations.CacheAnnotation;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;

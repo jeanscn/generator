@@ -41,6 +41,8 @@ public class IntrospectedColumn {
 
     protected boolean isSequenceColumn;
 
+    protected boolean isForeignKey;
+
     protected String javaProperty;
 
     protected FullyQualifiedJavaType fullyQualifiedJavaType;
@@ -471,4 +473,11 @@ public class IntrospectedColumn {
         this.beValidated = beValidated;
     }
 
+    public boolean isForeignKey() {
+        return isForeignKey;
+    }
+
+    public void setForeignKey(boolean foreignKey) {
+        isForeignKey = foreignKey;
+    }
 }

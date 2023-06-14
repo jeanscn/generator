@@ -27,6 +27,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private String categoryTreeUrl;
 
+    private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
+
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
         this.generate = false;
@@ -109,5 +111,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setCategoryTreeUrl(String categoryTreeUrl) {
         this.categoryTreeUrl = categoryTreeUrl;
+    }
+
+    public List<InnerListViewConfiguration> getInnerListViewConfigurations() {
+        return innerListViewConfigurations;
+    }
+
+    public void setInnerListViewConfigurations(List<InnerListViewConfiguration> innerListViewConfigurations) {
+        this.innerListViewConfigurations = innerListViewConfigurations;
     }
 }

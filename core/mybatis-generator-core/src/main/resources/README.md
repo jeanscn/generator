@@ -1,4 +1,20 @@
 更新日志：
+# 2023-6-9
+## 一、新增功能：
+* 1、增加新配置元素innerListView，用于页内列表生成功能，可以生成页面带编辑的列表，可以单独配置编辑器也可以继承指定页面的编辑器配置。
+* 2、htmlElementDescriptor增加属性：switchText，用来指定当值为1、0的开关时对应文本。
+* 3、新增实例化空对象的api接口，用于生成空对象的实例（newInstance）。
+## 二、更新功能：
+  * 1、htmlElementDescriptor指定dataFormat时，转换dataSource为DictEnum类型，enumClassFullName赋值对应的枚举。
+
+| dataFormat | dataSource | enumClassFullName |
+|:---|:---|:---|
+| yes、true、是、是否 | DictEnum | com.vgosoft.core.constant.enums.core.YesNoEnum |
+|exist、有、有无|DictEnum|com.vgosoft.core.constant.enums.core.ExistOrNotEnum|
+|sex、性别|DictEnum|com.vgosoft.core.constant.enums.core.GenderEnum|
+|state、启停、启用停用|DictEnum|com.vgosoft.core.constant.enums.core.CommonStatusEnum|
+|level、级别|DictEnum|com.vgosoft.core.constant.enums.core.LevelListEnum|
+|急、缓急|DictEnum|com.vgosoft.core.constant.enums.core.UrgencyEnum|
 # 2023-5-26
 ## 一、新增功能：
 * 1、htmlElementDescriptor增加callback属性，可以在生成select（弹窗选择时），同时在js中增加一个回调函数，当前用于处理关系表的操作，比如在编辑用户时，更新用户-部门关系表数据。

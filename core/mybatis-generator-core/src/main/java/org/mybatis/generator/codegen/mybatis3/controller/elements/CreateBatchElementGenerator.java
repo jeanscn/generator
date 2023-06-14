@@ -55,15 +55,15 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
                 , serviceBeanName
                 , introspectedTable.getInsertBatchStatementId()
                 , getServiceMethodEntityParameter(true, "create"));
-        method.addBodyLine("if (!serviceResult.isSuccess()) {");
-        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
-        method.addBodyLine("}else{");
+        method.addBodyLine("if (serviceResult.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("return success(mappings.to{0}VOs(serviceResult.getResult()),serviceResult.getAffectedRows());",
                     entityType.getShortName());
         } else {
             method.addBodyLine("return success(serviceResult.getResult(),serviceResult.getAffectedRows());");
         }
+        method.addBodyLine("}else{");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
         method.addBodyLine("}");
 
         parentElement.addMethod(method);

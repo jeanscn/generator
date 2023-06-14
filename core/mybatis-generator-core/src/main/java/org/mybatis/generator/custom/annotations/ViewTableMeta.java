@@ -43,6 +43,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
     private int wfStatus = 6;
     private String areaWidth;
     private String areaHeight;
+    private String restBasePath;
 
     public static ViewTableMeta create(IntrospectedTable introspectedTable){
         return new ViewTableMeta(introspectedTable);
@@ -130,7 +131,9 @@ public class ViewTableMeta  extends AbstractAnnotation{
         if (VStringUtil.isNotBlank(this.areaHeight)) {
             items.add(VStringUtil.format("areaHeight = \"{0}\"",this.getAreaHeight()));
         }
-
+        if (VStringUtil.isNotBlank(this.restBasePath)) {
+            items.add(VStringUtil.format("restBasePath = \"{0}\"",this.getRestBasePath()));
+        }
         return ANNOTATION_NAME+"("+ String.join("\n       ,",items.toArray(new String[0])) +")";
     }
 
@@ -280,5 +283,13 @@ public class ViewTableMeta  extends AbstractAnnotation{
 
     public void setAreaHeight(String areaHeight) {
         this.areaHeight = areaHeight;
+    }
+
+    public String getRestBasePath() {
+        return restBasePath;
+    }
+
+    public void setRestBasePath(String restBasePath) {
+        this.restBasePath = restBasePath;
     }
 }

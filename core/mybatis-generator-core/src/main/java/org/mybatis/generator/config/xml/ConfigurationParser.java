@@ -163,50 +163,71 @@ public class ConfigurationParser {
             }
 
             //添加generator plugin
+            //JavaClientGeneratePlugins do nothing
             PluginConfiguration javaClientGeneratePlugins = new PluginConfiguration();
             javaClientGeneratePlugins.setConfigurationType("org.mybatis.generator.plugins.JavaClientGeneratePlugins");
             context.addPluginConfiguration(javaClientGeneratePlugins);
-            PluginConfiguration fieldJsonFormatPlugin = new PluginConfiguration();
-            fieldJsonFormatPlugin.setConfigurationType("org.mybatis.generator.plugins.FieldJsonFormatPlugin");
-            context.addPluginConfiguration(fieldJsonFormatPlugin);
+
+            //属性 - serialVersionUID
             PluginConfiguration serializablePlugin = new PluginConfiguration();
             serializablePlugin.setConfigurationType("org.mybatis.generator.plugins.SerializablePlugin");
             serializablePlugin.addProperty("suppressJavaInterface", "false");
             context.addPluginConfiguration(serializablePlugin);
-            PluginConfiguration swaggerApiPlugin = new PluginConfiguration();
-            swaggerApiPlugin.setConfigurationType("org.mybatis.generator.plugins.SwaggerApiPlugin");
-            context.addPluginConfiguration(swaggerApiPlugin);
-            PluginConfiguration tableMetaAnnotationPlugin = new PluginConfiguration();
-            tableMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.TableMetaAnnotationPlugin");
-            context.addPluginConfiguration(tableMetaAnnotationPlugin);
-            PluginConfiguration mybatisPlusAnnotationPlugin = new PluginConfiguration();
-            mybatisPlusAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.MybatisPlusAnnotationPlugin");
-            context.addPluginConfiguration(mybatisPlusAnnotationPlugin);
-            PluginConfiguration viewMetaAnnotationPlugin  = new PluginConfiguration();
-            viewMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.ViewMetaAnnotationPlugin");
-            context.addPluginConfiguration(viewMetaAnnotationPlugin);
-            PluginConfiguration validatorPlugin  = new PluginConfiguration();
-            validatorPlugin.setConfigurationType("org.mybatis.generator.plugins.ValidatorPlugin");
-            context.addPluginConfiguration(validatorPlugin);
-            PluginConfiguration easyExcelAnnotationPlugin  = new PluginConfiguration();
-            easyExcelAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.EasyExcelAnnotationPlugin");
-            context.addPluginConfiguration(easyExcelAnnotationPlugin);
-            PluginConfiguration modelWebPropertiesPlugin  = new PluginConfiguration();
-            modelWebPropertiesPlugin.setConfigurationType("org.mybatis.generator.plugins.ModelWebPropertiesPlugin");
-            context.addPluginConfiguration(modelWebPropertiesPlugin);
-            PluginConfiguration generateAdditionalFilesPlugin  = new PluginConfiguration();
-            generateAdditionalFilesPlugin.setConfigurationType("org.mybatis.generator.plugins.GenerateAdditionalFilesPlugin");
-            context.addPluginConfiguration(generateAdditionalFilesPlugin);
+            //重写方法 - EqualsHashCode方法
             PluginConfiguration equalsAndHashCode = new PluginConfiguration();
             equalsAndHashCode.setConfigurationType("org.mybatis.generator.plugins.EqualsHashCodePlugin");
             context.addPluginConfiguration(equalsAndHashCode);
-            PluginConfiguration jqueryPlugin = new PluginConfiguration();
-            jqueryPlugin.setConfigurationType("org.mybatis.generator.plugins.jquery.JQueryPlugin");
-            context.addPluginConfiguration(jqueryPlugin);
+            //属性 - 附加的
+            PluginConfiguration generateAdditionalFilesPlugin  = new PluginConfiguration();
+            generateAdditionalFilesPlugin.setConfigurationType("org.mybatis.generator.plugins.GenerateAdditionalFilesPlugin");
+            context.addPluginConfiguration(generateAdditionalFilesPlugin);
+            //属性 - 工作流相关
             PluginConfiguration workflowPropertyPlugin = new PluginConfiguration();
             workflowPropertyPlugin.setConfigurationType("org.mybatis.generator.plugins.WorkflowPropertyPlugin");
             context.addPluginConfiguration(workflowPropertyPlugin);
+            //属性 - web相关
+            PluginConfiguration modelWebPropertiesPlugin  = new PluginConfiguration();
+            modelWebPropertiesPlugin.setConfigurationType("org.mybatis.generator.plugins.ModelWebPropertiesPlugin");
+            context.addPluginConfiguration(modelWebPropertiesPlugin);
 
+            //注解 - TableMeta、ColumnMeta
+            PluginConfiguration tableMetaAnnotationPlugin = new PluginConfiguration();
+            tableMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.TableMetaAnnotationPlugin");
+            context.addPluginConfiguration(tableMetaAnnotationPlugin);
+            //注解 - MybatisPlus
+            PluginConfiguration mybatisPlusAnnotationPlugin = new PluginConfiguration();
+            mybatisPlusAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.MybatisPlusAnnotationPlugin");
+            context.addPluginConfiguration(mybatisPlusAnnotationPlugin);
+            //注解 - hibernate validator
+            PluginConfiguration validatorPlugin  = new PluginConfiguration();
+            validatorPlugin.setConfigurationType("org.mybatis.generator.plugins.ValidatorPlugin");
+            context.addPluginConfiguration(validatorPlugin);
+            //注解 - JsonFormat
+            PluginConfiguration fieldJsonFormatPlugin = new PluginConfiguration();
+            fieldJsonFormatPlugin.setConfigurationType("org.mybatis.generator.plugins.FieldJsonFormatPlugin");
+            context.addPluginConfiguration(fieldJsonFormatPlugin);
+            //注解 - ViewMeta、layuiTable
+            PluginConfiguration viewMetaAnnotationPlugin  = new PluginConfiguration();
+            viewMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.ViewMetaAnnotationPlugin");
+            context.addPluginConfiguration(viewMetaAnnotationPlugin);
+            //注解 - EasyExcel
+            PluginConfiguration easyExcelAnnotationPlugin  = new PluginConfiguration();
+            easyExcelAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.EasyExcelAnnotationPlugin");
+            context.addPluginConfiguration(easyExcelAnnotationPlugin);
+            //注解 - Swagger
+            PluginConfiguration swaggerApiPlugin = new PluginConfiguration();
+            swaggerApiPlugin.setConfigurationType("org.mybatis.generator.plugins.SwaggerApiPlugin");
+            context.addPluginConfiguration(swaggerApiPlugin);
+
+            //工具 - 生成js、css文件
+            PluginConfiguration jqueryPlugin = new PluginConfiguration();
+            jqueryPlugin.setConfigurationType("org.mybatis.generator.plugins.jquery.JQueryPlugin");
+            context.addPluginConfiguration(jqueryPlugin);
+
+            //生成html编辑器模板的片段文件
+            PluginConfiguration htmlEditorPlugin = new PluginConfiguration();
+            htmlEditorPlugin.setConfigurationType("org.mybatis.generator.plugins.html.HtmlFragmentsPlugin");
+            context.addPluginConfiguration(htmlEditorPlugin);
 
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())

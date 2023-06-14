@@ -54,7 +54,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
                 , serviceBeanName
                 , getServiceMethodEntityParameter(false, "update")
                 , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
-        method.addBodyLine("if (serviceResult.isSuccess()) {");
+        method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine("return success({0},serviceResult.getAffectedRows());"
                 , introspectedTable.getRules().isGenerateVoModel() ? "mappings.to" + entityVoType.getShortName() + "(serviceResult.getResult())" : "serviceResult.getResult()");
         method.addBodyLine("}else{");

@@ -2,6 +2,7 @@ package org.mybatis.generator.internal.rules;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 /**
  * This interface centralizes all the rules related to code generation -
@@ -256,6 +257,10 @@ public interface Rules {
     boolean isGenerateUpdateVO();
 
     boolean isGenerateViewVO();
+
+    boolean isGenerateInnerTable();
+
+    boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
 
     boolean isGenerateExcelVO();
 

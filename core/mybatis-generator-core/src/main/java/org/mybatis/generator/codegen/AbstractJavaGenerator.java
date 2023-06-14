@@ -5,7 +5,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.htmlGenerator.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 
 import java.util.ArrayList;
 import java.util.List;
