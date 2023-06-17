@@ -20,6 +20,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
+        parentElement.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
         parentElement.addImportedType(entityType);
         parentElement.addImportedType(exampleType);
         parentElement.addImportedType(responseResult);

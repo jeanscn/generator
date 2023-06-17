@@ -7,7 +7,9 @@ public enum HtmlElementDataSourceEnum {
     DICT_SYS(3, "DictSys"),
     DICT_USER(4, "DictUser"),
     DEPARTMENT(5, "Department"),
-    USER(6, "User");
+    USER(6, "User"),
+
+    DICT_ENUM(7,"DictEnum");
 
     private final int value;
     private final String code;

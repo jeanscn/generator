@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.230526001-->
+        <!--version:1.5.0.230616005-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -530,6 +530,7 @@
                                     Department-部门选择，来自org_department表缓存数据，当使用select类型时，在dataFormat为department时默认为此值
                                     User-来自org_department表缓存数据，当使用select类型时，在dataFormat为user时默认为此值
                                     DictEnum-来自枚举类型
+                                    DictModule-来自sys_cfg_module表缓存数据
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
             7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
             8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
@@ -553,7 +554,7 @@
                 dataUrl CDATA #IMPLIED
                 dataFormat (启停|有无|是否|性别|缓急|级别) #IMPLIED
                 otherFieldName CDATA #IMPLIED
-                dataSource (DictData|Dict|DictSys|DictUser|Department|User|DictEnum) #IMPLIED
+                dataSource (DictData|Dict|DictSys|DictUser|DictModule|Department|User|DictEnum) #IMPLIED
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
                 verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED

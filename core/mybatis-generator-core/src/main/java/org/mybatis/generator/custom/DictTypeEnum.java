@@ -18,7 +18,9 @@ public enum DictTypeEnum{
      */
     DICT_SYS(4,"DictSys"),
 
-    DICT_ENUM(5,"DictEnum");
+    DICT_ENUM(5,"DictEnum"),
+
+    DICT_MODULE(6,"DictModule");
 
     private final int value;
     private final String code;

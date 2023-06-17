@@ -362,23 +362,18 @@ public class JavaBeansUtil {
 
     //是否某个类的子类
     public static boolean isAssignable(String parentClassName, String childClassName, IntrospectedTable introspectedTable) {
-        try {
-            //处理生成key类未加载的问题
-            Class<?> cClazz = getClass(childClassName);
-            if (cClazz == null) {
-                childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
-                if (childClassName == null) {
-                    Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
-                    childClassName = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
-                }
-                cClazz = Class.forName(childClassName);
+        //处理生成key类未加载的问题
+        Class<?> cClazz = getClass(childClassName);
+        if (cClazz == null) {
+            childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+            if (childClassName == null) {
+                Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
+                childClassName = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
             }
-            Class<?> pClazz = Class.forName(parentClassName);
-            return ClassUtils.isAssignable(cClazz, pClazz);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return false;
+            cClazz = getClass(childClassName);
         }
+        Class<?> pClazz = getClass(parentClassName);
+        return ClassUtils.isAssignable(cClazz, pClazz);
     }
 
     private static Class<?> getClass(String className) {

@@ -894,16 +894,15 @@ public class MyBatisGeneratorConfigurationParser {
                 .orElse(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
                         .orElse(Optional.ofNullable(context.getModuleKeyword()).orElse("html")));
         htmlGeneratorConfiguration.setBaseTargetPackage(htmlTargetPackage);
-        if (stringHasValue(viewPath)) {
-            htmlGeneratorConfiguration.setSimpleViewPath(viewPath);
-            fullViewPath = htmlTargetPackage + "/" + viewPath;
-            htmlGeneratorConfiguration.setViewPath(fullViewPath);
-            htmlGeneratorConfiguration.setTargetPackage(substringBeforeLast(fullViewPath, "/"));
-            htmlGeneratorConfiguration.setHtmlFileName(
-                    String.join(".", substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
-        } else {
-            htmlGeneratorConfiguration.setTargetPackage(htmlTargetPackage);
+        if (!stringHasValue(viewPath)) {
+            viewPath = tc.getTableName().toLowerCase();
         }
+        htmlGeneratorConfiguration.setSimpleViewPath(viewPath);
+        fullViewPath = htmlTargetPackage + "/" + viewPath;
+        htmlGeneratorConfiguration.setViewPath(fullViewPath);
+        htmlGeneratorConfiguration.setTargetPackage(substringBeforeLast(fullViewPath, "/"));
+        htmlGeneratorConfiguration.setHtmlFileName(
+                String.join(".", substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
         String overWriteFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_FILE);
         if (stringHasValue(overWriteFile)) {
             htmlGeneratorConfiguration.setOverWriteFile(Boolean.parseBoolean(overWriteFile));
@@ -1049,7 +1048,7 @@ public class MyBatisGeneratorConfigurationParser {
         String switchText = attributes.getProperty(PropertyRegistry.ELEMENT_SWITCH_TEXT);
         if (stringHasValue(switchText)) {
             htmlElementDescriptor.setSwitchText(switchText);
-        }else{
+        } else {
             htmlElementDescriptor.setSwitchText("启用|禁用");
         }
         String dictCode = attributes.getProperty(PropertyRegistry.ELEMENT_DICT_CODE);

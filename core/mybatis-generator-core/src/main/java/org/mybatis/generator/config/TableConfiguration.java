@@ -1,11 +1,14 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.enums.core.*;
 import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
+import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -712,10 +715,10 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     public void validateConfig(List<String> warnings, IntrospectedTable introspectedTable) {
+        //根据表字段的注释，生成类型等，自动生成某些配置项目
+        autoGenerateConfigurations(introspectedTable);
         //更新context、table中隐藏列名列表，计算隐藏列
         calculateHtmlHiddenColumns(introspectedTable);
-        //根据表字段的注释，自动生成某些配置项目
-        autoGenerateConfigurations(introspectedTable);
         //更新TC与表结构相关的自定义属性
         updateTableConfiguration(introspectedTable);
         //计算页内列表元素描述
@@ -793,6 +796,78 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     private void autoGenerateConfigurations(IntrospectedTable introspectedTable) {
+        //更新制定了dataType的html元素描述器配置
+        this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+            htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
+                if (!stringHasValue(elementDescriptor.getDataFormat())) {
+                    return;
+                }
+
+               introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(col->{
+                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(col.getJavaProperty()));
+                    elementDescriptor.setColumn(col);
+                });
+                switch (elementDescriptor.getDataFormat()) {
+                    case "exist":
+                    case "有":
+                    case "有无":
+                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                        elementDescriptor.setEnumClassName(ExistOrNotEnum.class.getCanonicalName());
+                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                            elementDescriptor.setSwitchText(ExistOrNotEnum.switchText());
+                        }
+                        elementDescriptor.setDataFormat(null);
+                        break;
+                    case "yes":
+                    case "true":
+                    case "是":
+                    case "是否":
+                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                        elementDescriptor.setEnumClassName(YesNoEnum.class.getCanonicalName());
+                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                            elementDescriptor.setSwitchText(YesNoEnum.switchText());
+                        }
+                        elementDescriptor.setDataFormat(null);
+                        break;
+                    case "sex":
+                    case "性别":
+                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                        elementDescriptor.setEnumClassName(GenderEnum.class.getCanonicalName());
+                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                            elementDescriptor.setSwitchText(GenderEnum.switchText());
+                        }
+                        elementDescriptor.setDataFormat(null);
+                        break;
+                    case "启停":
+                    case "启用停用":
+                    case "state":
+                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                        elementDescriptor.setEnumClassName(CommonStatusEnum.class.getCanonicalName());
+                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                            elementDescriptor.setSwitchText(CommonStatusEnum.switchText());
+                        }
+                        elementDescriptor.setDataFormat(null);
+                        break;
+                    case "急":
+                    case "缓急":
+                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                        elementDescriptor.setEnumClassName(UrgencyEnum.class.getCanonicalName());
+                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                            elementDescriptor.setSwitchText(UrgencyEnum.switchText());
+                        }
+                        elementDescriptor.setDataFormat(null);
+                        break;
+                    case "level":
+                    case "级别":
+                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                        elementDescriptor.setEnumClassName(LevelListEnum.class.getCanonicalName());
+                        elementDescriptor.setDataFormat(null);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
 
         // 获取context、table中设置的隐藏列名
         //Set<String> hiddenColumnNames = this.getHtmlHiddenColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toSet());
@@ -809,6 +884,7 @@ public class TableConfiguration extends PropertyHolder {
                                     elementDescriptor.setEnumClassName(ConstantsUtil.COMMON_STATUS_ENUM_CLASS_NAME);
                                     elementDescriptor.setTagType("switch");
                                     elementDescriptor.setColumn(column);
+                                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty()));
                                     elementDescriptors.add(elementDescriptor);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefultColumnNameEnum.PARENT_ID.columnName())) {   //选择上级
                                     HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor(htmlConfiguration);
@@ -827,6 +903,7 @@ public class TableConfiguration extends PropertyHolder {
                                     elementDescriptor.setEnumClassName(ConstantsUtil.YES_NO_ENUM_CLASS_NAME);
                                     elementDescriptor.setTagType("switch");
                                     elementDescriptor.setColumn(column);
+                                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty()));
                                     elementDescriptors.add(elementDescriptor);
                                 }
                             }
@@ -988,7 +1065,8 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
-    private void addHtmlElementAddtionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {
+    private void addHtmlElementAddtionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable
+            introspectedTable) {
         //如果已经存在，不再追加
         if (ConfigUtil.javaPropertyExist(elementDescriptor.getOtherFieldName(), introspectedTable) || !VStringUtil.stringHasValue(elementDescriptor.getDataSource())) {
             return;
