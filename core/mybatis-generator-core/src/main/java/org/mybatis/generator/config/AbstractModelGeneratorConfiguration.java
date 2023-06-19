@@ -11,7 +11,7 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     protected Set<String> excludeColumns = new HashSet<>();
 
-    private final List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
+    private List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
 
     private List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
@@ -51,6 +51,10 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     public void addOverrideColumnConfigurations(OverridePropertyValueGeneratorConfiguration overridePropertyConfiguration) {
         this.overridePropertyConfigurations.add(overridePropertyConfiguration );
+    }
+
+    public void setOverridePropertyConfigurations(List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
+        this.overridePropertyConfigurations = overridePropertyConfigurations;
     }
 
     public VOGeneratorConfiguration getVoGeneratorConfiguration() {

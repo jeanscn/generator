@@ -3,6 +3,8 @@ package org.mybatis.generator.config;
 import com.vgosoft.core.constant.GlobalConstant;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
+import java.util.Objects;
+
 public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHolder {
 
     private final TableConfiguration tc;
@@ -122,5 +124,22 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     public void setEnumClassName(String enumClassName) {
         this.enumClassName = enumClassName;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OverridePropertyValueGeneratorConfiguration)) return false;
+        OverridePropertyValueGeneratorConfiguration that = (OverridePropertyValueGeneratorConfiguration) o;
+        return Objects.equals(getSourceColumnName(), that.getSourceColumnName())
+                && (Objects.equals(getTargetColumnName(), that.getTargetColumnName())
+                || Objects.equals(getTargetPropertyName(), that.getTargetPropertyName()));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSourceColumnName(), getTargetColumnName(), getTargetPropertyName());
     }
 }

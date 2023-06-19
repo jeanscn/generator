@@ -83,4 +83,16 @@ public class ConfigUtil {
         introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> overrideConfiguration.setRemark(c.getRemarks(true)));
         return overrideConfiguration;
     }
+
+    public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(
+            Context context,TableConfiguration tc,String columnName,String beanName,String annotationType,String targetPropertyName,String targetPropertyType,String remark) {
+        OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(context, tc);
+        overrideConfiguration.setSourceColumnName(columnName);
+        overrideConfiguration.setBeanName(beanName);
+        overrideConfiguration.setAnnotationType(annotationType);
+        overrideConfiguration.setTargetPropertyName(targetPropertyName);
+        overrideConfiguration.setTargetPropertyType(targetPropertyType);
+        overrideConfiguration.setRemark(remark);
+        return overrideConfiguration;
+    }
 }

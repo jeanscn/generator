@@ -9,7 +9,7 @@ import com.vgosoft.tool.core.VStringUtil;
  * @version 3.0
  */
 
-public class Dict extends AbstractAnnotation{
+public class DictDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@Dict";
 
@@ -21,17 +21,17 @@ public class Dict extends AbstractAnnotation{
 
     private String source;
 
-    public static Dict create(String beanName){
-        return new Dict(beanName);
+    public static DictDesc create(String beanName){
+        return new DictDesc(beanName);
     }
 
-    public Dict(String beanName) {
+    public DictDesc(String beanName) {
         super();
         this.beanName = beanName;
         this.addImports("com.vgosoft.core.annotation.Dict");
     }
 
-    public Dict(String value,String beanName) {
+    public DictDesc(String value, String beanName) {
         this(beanName);
         this.value = value;
     }

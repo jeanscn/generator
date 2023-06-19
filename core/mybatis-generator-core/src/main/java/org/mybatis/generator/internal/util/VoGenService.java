@@ -1,6 +1,7 @@
 package org.mybatis.generator.internal.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -9,7 +10,6 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.DictTypeEnum;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.rules.BaseRules;
@@ -180,73 +180,87 @@ public class VoGenService {
 
         List<Field> answer = new ArrayList<>();
         for (OverridePropertyValueGeneratorConfiguration configuration : configurations) {
+            //如果指定的列不存在，则跳过
             IntrospectedColumn sourceColumn = introspectedTable.getColumn(configuration.getSourceColumnName()).orElse(null);
             if (sourceColumn == null) {
                 continue;
             }
 
-            Field field = null;
+            //创建转换后的属性对象
+            FullyQualifiedJavaType javaType;
+            String propertyName;
             IntrospectedColumn targetColumn = introspectedTable.getColumn(configuration.getTargetColumnName()).orElse(null);
             if (targetColumn != null) {
-                field = new Field(targetColumn.getJavaProperty(), targetColumn.getFullyQualifiedJavaType());
+                javaType = targetColumn.getFullyQualifiedJavaType();
+                propertyName = targetColumn.getJavaProperty();
             } else {
-                if (configuration.getTargetPropertyName() != null && configuration.getTargetPropertyType() != null) {
-                    field = new Field(configuration.getTargetPropertyName(), new FullyQualifiedJavaType(configuration.getTargetPropertyType()));
+                propertyName = configuration.getTargetPropertyName() == null ? ConfigUtil.getOverrideJavaProperty(sourceColumn.getJavaProperty()) : configuration.getTargetPropertyName();
+                javaType = configuration.getTargetPropertyType() == null ? FullyQualifiedJavaType.getStringInstance() : new FullyQualifiedJavaType(configuration.getTargetPropertyType());
+            }
+            Field field = new Field(propertyName, javaType);
+            field.setRemark(configuration.getRemark() != null ? configuration.getRemark() : sourceColumn.getRemarks(true));
+            field.setVisibility(JavaVisibility.PRIVATE);
+            if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
+                field.setInitializationString("\"-\"");
+            } else if (field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())) {
+                field.setInitializationString("0");
+            }
+            switch (configuration.getAnnotationType()) {
+                case "DictUser":
+                    DictUserDesc dictUserDesc = new DictUserDesc();
+                    dictUserDesc.setSource(sourceColumn.getJavaProperty());
+                    dictUserDesc.addAnnotationToField(field, topLevelClass);
+                    break;
+                case "DictDepartment":
+                    DictDepartmentDesc dictDepartmentDesc = new DictDepartmentDesc();
+                    dictDepartmentDesc.setSource(sourceColumn.getJavaProperty());
+                    dictDepartmentDesc.addAnnotationToField(field, topLevelClass);
+                    break;
+                case "DictModule":
+                    DictModuleDesc dictModuleDesc = new DictModuleDesc();
+                    dictModuleDesc.setSource(sourceColumn.getJavaProperty());
+                    dictModuleDesc.addAnnotationToField(field, topLevelClass);
+                    break;
+                case "DictSys":
+                    DictSysDesc dictSysDesc = new DictSysDesc();
+                    dictSysDesc.setSource(sourceColumn.getJavaProperty());
+                    dictSysDesc.addAnnotationToField(field, topLevelClass);
+                    break;
+                case "DictData":
+                    DictDataDesc dictDataDesc = new DictDataDesc();
+                    dictDataDesc.setSource(sourceColumn.getJavaProperty());
+                    dictDataDesc.addAnnotationToField(field, topLevelClass);
+                    break;
+                case "Dict":
+                    if (configuration.getBeanName() != null) {
+                        DictDesc anno = new DictDesc(configuration.getBeanName());
+                        if (configuration.getTypeValue() != null) {
+                            anno.setValue(configuration.getTypeValue());
+                        }
+                        if (configuration.getApplyProperty() != null) {
+                            anno.setApplyProperty(configuration.getApplyProperty());
+                        }
+                        anno.setSource(sourceColumn.getJavaProperty());
+                        anno.addAnnotationToField(field, topLevelClass);
+                    }
+                    break;
+                case "DictEnum":
+                    if (configuration.getEnumClassName() != null) {
+                        DictEnumDesc anno = new DictEnumDesc(configuration.getEnumClassName());
+                        anno.setSource(sourceColumn.getJavaProperty());
+                        anno.addAnnotationToField(field, topLevelClass);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
+                if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
+                    topLevelClass.addAnnotation("@EnableDictionary");
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
                 }
             }
-            if (field == null) {
-                sourceColumn = introspectedTable.getColumn(configuration.getSourceColumnName()).orElse(null);
-                if (sourceColumn != null) {
-                    field = new Field(sourceColumn.getJavaProperty(), sourceColumn.getFullyQualifiedJavaType());
-                    field.setRemark(sourceColumn.getRemarks(true));
-                }
-            }
-            if (field != null) {
-                if (field.getRemark() == null) {
-                    field.setRemark(configuration.getRemark()!=null?configuration.getRemark():sourceColumn.getRemarks(true));
-                }
-                field.setVisibility(JavaVisibility.PRIVATE);
-                if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
-                    field.setInitializationString("\"-\"");
-                }else if(field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())){
-                    field.setInitializationString("0");
-                }
-                if (DictTypeEnum.DICT_USER.getCode().equals(configuration.getAnnotationType())) {
-                    DictUser anno = configuration.getTypeValue() != null ? new DictUser(configuration.getTypeValue()) : new DictUser();
-                    anno.setSource(sourceColumn.getJavaProperty());
-                    anno.addAnnotationToField(field, topLevelClass);
-                } else if (DictTypeEnum.DICT_SYS.getCode().equals(configuration.getAnnotationType())) {
-                    DictSys anno = configuration.getTypeValue() != null ? new DictSys(configuration.getTypeValue()) : new DictSys();
-                    anno.setSource(sourceColumn.getJavaProperty());
-                    anno.addAnnotationToField(field, topLevelClass);
-                } else if (DictTypeEnum.DICT_DATA.getCode().equals(configuration.getAnnotationType())) {
-                    DictData anno = configuration.getTypeValue() != null ? new DictData(configuration.getTypeValue()) : new DictData();
-                    anno.setSource(sourceColumn.getJavaProperty());
-                    anno.addAnnotationToField(field, topLevelClass);
-                } else if (DictTypeEnum.DICT.getCode().equals(configuration.getAnnotationType()) && configuration.getBeanName() != null) {
-                    Dict anno = new Dict(configuration.getBeanName());
-                    if (configuration.getTypeValue() != null) {
-                        anno.setValue(configuration.getTypeValue());
-                    }
-                    if (configuration.getApplyProperty() != null) {
-                        anno.setApplyProperty(configuration.getApplyProperty());
-                    }
-                    anno.setSource(sourceColumn.getJavaProperty());
-                    anno.addAnnotationToField(field, topLevelClass);
-                } else if(DictTypeEnum.DICT_ENUM.getCode().equals(configuration.getAnnotationType()) && configuration.getEnumClassName() != null){
-                    DictEnum anno = new DictEnum(configuration.getEnumClassName());
-                    anno.setSource(sourceColumn.getJavaProperty());
-                    anno.addAnnotationToField(field, topLevelClass);
-                }
-                if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
-                    if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
-                        topLevelClass.addAnnotation("@EnableDictionary");
-                        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
-                    }
-                }
-
-                answer.add(field);
-            }
+            answer.add(field);
         }
         return answer;
     }

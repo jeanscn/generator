@@ -7,7 +7,7 @@ import com.vgosoft.tool.core.VStringUtil;
  * 2023-05-17 23:10
  * @version 3.0
  */
-public class DictEnum extends AbstractAnnotation {
+public class DictEnumDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@DictEnum";
 
@@ -17,16 +17,16 @@ public class DictEnum extends AbstractAnnotation {
 
     private String source;
 
-    public static DictEnum create() {
-        return new DictEnum();
+    public static DictEnumDesc create() {
+        return new DictEnumDesc();
     }
 
-    public DictEnum() {
+    public DictEnumDesc() {
         super();
         this.addImports("com.vgosoft.core.annotation.DictEnum");
     }
 
-    public DictEnum(String value) {
+    public DictEnumDesc(String value) {
         this();
         this.value = value;
     }

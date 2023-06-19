@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.230616005-->
+        <!--version:1.5.0.230619001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -935,7 +935,7 @@
              用于配置VO对象转换值的属性值得配置描述
              属性信息：
              1、sourceColumn 必须，转换前的原值保存的字段名。
-             2、annotationType 注解类型(DictUser|DictSys|Dict|DictData|DictEnum)
+             2、annotationType 注解类型(DictUser|DictSys|DictModule|Dict|DictData|DictEnum)
              3、beanName 如果是Dict类型，需要提供beanName用来获取service对象。
              4、targetColumn 转换后需要显示的属性对应的列名（如果转换到一个数据库存在的列对应的属性时，填写此属性）
              5、targetProperty 转换后需要显示的转换结果的属性名（如果转换到一个新属性时，填写此属性，将在vo类中添加一个新属性）
@@ -956,7 +956,7 @@
         <!ELEMENT overridePropertyValue  (property*)>
         <!ATTLIST overridePropertyValue
                 sourceColumn CDATA #REQUIRED
-                annotationType (DictUser|DictSys|Dict|DictData|DictEnum) #REQUIRED
+                annotationType (DictUser|DictSys|DictModule|Dict|DictData|DictEnum) #REQUIRED
                 beanName CDATA #IMPLIED
                 targetColumn CDATA #IMPLIED
                 targetProperty CDATA #IMPLIED

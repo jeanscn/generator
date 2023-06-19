@@ -57,8 +57,7 @@ public class VOExcelGenerator extends AbstractVOGenerator {
 
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
-        overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
-        List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
+         List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
         fields.forEach(field -> {
             if (plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)) {
                 if (!excelVoClass.isContainField(field.getName())) {
@@ -67,7 +66,7 @@ public class VOExcelGenerator extends AbstractVOGenerator {
             }
         });
         //重写get方法，为转换字段赋值
-        overridePropertyConfigurations.stream()
+        /*overridePropertyConfigurations.stream()
                 .filter(Configuration -> Configuration.getAnnotationType().contains("Dict"))
                 .forEach(overridePropertyConfiguration -> {
                     introspectedTable.getColumn(overridePropertyConfiguration.getSourceColumnName()).ifPresent(column -> {
@@ -86,7 +85,7 @@ public class VOExcelGenerator extends AbstractVOGenerator {
                         method.addBodyLine(sb + ";");
                         excelVoClass.addMethod(method);
                     });
-                });
+                });*/
 
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();

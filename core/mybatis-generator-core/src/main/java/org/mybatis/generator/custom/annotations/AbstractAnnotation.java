@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 

@@ -1304,6 +1304,12 @@ public class MyBatisGeneratorConfigurationParser {
             configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
         }
 
+        // 继承model的overridePropertyValue、additionalProperty
+        if (tc.getJavaModelGeneratorConfiguration() != null) {
+            configuration.getOverridePropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
+            configuration.getAdditionalPropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations());
+        }
+
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
@@ -1634,12 +1640,6 @@ public class MyBatisGeneratorConfigurationParser {
         if (vOModelGeneratorConfiguration.getEqualsAndHashCodeColumns().size() > 0) {
             List<String> distinct = vOModelGeneratorConfiguration.getEqualsAndHashCodeColumns().stream().distinct().collect(Collectors.toList());
             vOModelGeneratorConfiguration.setEqualsAndHashCodeColumns(distinct);
-        }
-
-        // 继承model的overridePropertyValue、additionalProperty
-        if (tc.getJavaModelGeneratorConfiguration() != null) {
-            vOModelGeneratorConfiguration.getOverridePropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
-            vOModelGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations());
         }
 
         // 继承model的javaModelCollection创建的属性

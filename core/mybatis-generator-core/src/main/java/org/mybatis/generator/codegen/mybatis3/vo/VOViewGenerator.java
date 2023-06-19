@@ -57,7 +57,6 @@ public class VOViewGenerator extends AbstractVOGenerator {
         }
         //增加映射
         List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
-        overridePropertyConfigurations.addAll(voGeneratorConfiguration.getOverridePropertyConfigurations());
         voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass)
                 .forEach(field -> {
                     if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
