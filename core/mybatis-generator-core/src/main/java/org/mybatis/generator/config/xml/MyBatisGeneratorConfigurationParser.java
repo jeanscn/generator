@@ -147,8 +147,8 @@ public class MyBatisGeneratorConfigurationParser {
         context.setModuleName(moduleName);
 
         context.setParentMenuId(attributes.getProperty("parentMenuId"));
-        String integrateMybatisPlus = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
-        context.setIntegrateMybatisPlus(!stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus));
+        /*String integrateMybatisPlus = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
+        context.setIntegrateMybatisPlus(!stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus));*/
         String integrateSpringSecurity = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_SPRING_SECURITY);
         context.setIntegrateSpringSecurity(!stringHasValue(integrateSpringSecurity) || Boolean.parseBoolean(integrateSpringSecurity));
         String forceUpdateScalableElement = attributes.getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_SCALABLE_ELEMENT);
@@ -903,9 +903,17 @@ public class MyBatisGeneratorConfigurationParser {
         htmlGeneratorConfiguration.setTargetPackage(substringBeforeLast(fullViewPath, "/"));
         htmlGeneratorConfiguration.setHtmlFileName(
                 String.join(".", substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
-        String overWriteFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_FILE);
-        if (stringHasValue(overWriteFile)) {
-            htmlGeneratorConfiguration.setOverWriteFile(Boolean.parseBoolean(overWriteFile));
+        String overWriteHtmlFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_HTML_FILE);
+        if (stringHasValue(overWriteHtmlFile)) {
+            htmlGeneratorConfiguration.setOverWriteHtmlFile(Boolean.parseBoolean(overWriteHtmlFile));
+        }
+        String overWriteJsFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_JS_FILE);
+        if (stringHasValue(overWriteJsFile)) {
+            htmlGeneratorConfiguration.setOverWriteJsFile(Boolean.parseBoolean(overWriteJsFile));
+        }
+        String overWriteCssFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_CSS_FILE);
+        if (stringHasValue(overWriteCssFile)) {
+            htmlGeneratorConfiguration.setOverWriteCssFile(Boolean.parseBoolean(overWriteCssFile));
         }
 
         //计算属性及子元素
@@ -928,6 +936,12 @@ public class MyBatisGeneratorConfigurationParser {
                 case PropertyRegistry.ELEMENT_HTML_LAYOUT:
                     parseHtmlLayout(htmlGeneratorConfiguration, childNode);
                     break;
+                case PropertyRegistry.ELEMENT_HTML_FILE_ATTACHMENT:
+                    parseHtmlFileAttachment(htmlGeneratorConfiguration, childNode);
+                    break;
+                case PropertyRegistry.ELEMENT_APPROVAL_COMMENT:
+                    parseApprovalComment(htmlGeneratorConfiguration, childNode);
+                    break;
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_INNER_LIST:
                     parseHtmlElementInnerList(htmlGeneratorConfiguration, childNode);
                     break;
@@ -937,6 +951,52 @@ public class MyBatisGeneratorConfigurationParser {
             htmlGeneratorConfiguration.setLayoutDescriptor(new HtmlLayoutDescriptor());
         }
         tc.addHtmlMapGeneratorConfigurations(htmlGeneratorConfiguration);
+    }
+
+    private void parseApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
+        Properties attributes = parseAttributes(childNode);
+        HtmlApprovalCommentConfiguration approvalCommentConfiguration = new HtmlApprovalCommentConfiguration();
+        String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
+        if (stringHasValue(generate)) {
+            approvalCommentConfiguration.setGenerate(Boolean.parseBoolean(generate));
+        }
+        String afterColumn = attributes.getProperty("afterColumn");
+        if (stringHasValue(afterColumn)) {
+            approvalCommentConfiguration.setAfterColumn(afterColumn);
+        }
+        String label = attributes.getProperty("label");
+        if (stringHasValue(label)) {
+            approvalCommentConfiguration.setLabel(label);
+        }
+        String locationTag = attributes.getProperty("locationTag");
+        if (stringHasValue(locationTag)) {
+            approvalCommentConfiguration.setLocationTag(locationTag);
+        }
+        htmlGeneratorConfiguration.addHtmlApprovalCommentConfiguration(approvalCommentConfiguration);
+    }
+
+    private void parseHtmlFileAttachment(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
+        HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration = new HtmlFileAttachmentConfiguration();
+        Properties attributes = parseAttributes(childNode);
+
+        String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
+        if (stringHasValue(generate)) {
+            htmlFileAttachmentConfiguration.setGenerate(Boolean.parseBoolean(generate));
+        }
+
+        String exclusive = attributes.getProperty("exclusive");
+        if (stringHasValue(exclusive)) {
+            htmlFileAttachmentConfiguration.setExclusive(Boolean.parseBoolean(exclusive));
+        }
+        String afterColumn = attributes.getProperty("afterColumn");
+        if (stringHasValue(afterColumn)) {
+            htmlFileAttachmentConfiguration.setAfterColumn(afterColumn);
+        }
+        String label = attributes.getProperty("label");
+        if (stringHasValue(label)) {
+            htmlFileAttachmentConfiguration.setLabel(label);
+        }
+        htmlGeneratorConfiguration.setHtmlFileAttachmentConfiguration(htmlFileAttachmentConfiguration);
     }
 
     private void parseHtmlElementInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
@@ -1048,8 +1108,6 @@ public class MyBatisGeneratorConfigurationParser {
         String switchText = attributes.getProperty(PropertyRegistry.ELEMENT_SWITCH_TEXT);
         if (stringHasValue(switchText)) {
             htmlElementDescriptor.setSwitchText(switchText);
-        } else {
-            htmlElementDescriptor.setSwitchText("启用|禁用");
         }
         String dictCode = attributes.getProperty(PropertyRegistry.ELEMENT_DICT_CODE);
         if (stringHasValue(dictCode)) {

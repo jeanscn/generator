@@ -65,7 +65,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         method.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
         method.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.{1}({2}));",
                 serviceBeanName,
-                introspectedTable.getSelectByMultiStringIdsStatementId(),
+                introspectedTable.getSelectByPrimaryKeysStatementId(),
                 "keys"));
         method.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
         method.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
@@ -101,7 +101,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             }
             methodCate.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.{1}({2}));",
                     serviceBeanName,
-                    introspectedTable.getSelectByMultiStringIdsStatementId(),
+                    introspectedTable.getSelectByPrimaryKeysStatementId(),
                     "keys"));
 
             methodCate.addBodyLine("List<ZtreeDataViewCate> ztreeDataViewCates = nodeConverter.convertTreeNodeDataViewCate(\"{0}\");", cateTreeConfig.getSPeL());

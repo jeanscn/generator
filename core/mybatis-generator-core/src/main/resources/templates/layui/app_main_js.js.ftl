@@ -22,7 +22,7 @@ $(function () {
         params['viewStatus'] 目标表的视图读写状态
         params['dataUrl'] 目标表的数据url
         dataSet 目标数据集合,如果不传入,则从params['dataUrl']获取,如果两者都没有，则使用默认list接口
-        $('#detail').renderInnerTable(params, table,dataSet);
+        $('#${innerList.tagId}').renderInnerTable(params, table,dataSet);
         */
         let params = {};
         params['baseUrl'] = "/${innerList.appKey}/${innerList.sourceBeanName}";
@@ -38,7 +38,7 @@ $(function () {
     <#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
             $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
     <#else>
-            $('#detail').renderInnerTable(params, table);
+            $('#${innerList.tagId}').renderInnerTable(params, table);
     </#if>
         }
         $(document).on('toggleEditMode', function (e) {
@@ -48,7 +48,7 @@ $(function () {
     <#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
                 $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
     <#else>
-                $('#detail').renderInnerTable(params, table);
+                $('#${innerList.tagId}').renderInnerTable(params, table);
     </#if>
             }
         });

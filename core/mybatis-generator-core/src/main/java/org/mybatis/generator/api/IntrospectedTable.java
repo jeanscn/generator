@@ -1,5 +1,6 @@
 package org.mybatis.generator.api;
 
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
@@ -124,6 +125,9 @@ public abstract class IntrospectedTable {
      * Table type retrieved from database metadata.
      */
     protected String tableType;
+
+    protected FullyQualifiedJavaType voModelType;
+    protected FullyQualifiedJavaType voCreateType;
 
     protected IntrospectedTable(TargetRuntime targetRuntime) {
         this.targetRuntime = targetRuntime;
@@ -341,6 +345,7 @@ public abstract class IntrospectedTable {
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
             if (introspectedColumn.getActualColumnName().equals(columnName)) {
+                introspectedColumn.setPrimaryKey(true);
                 primaryKeyColumns.add(introspectedColumn);
                 iter.remove();
                 found = true;
@@ -354,6 +359,7 @@ public abstract class IntrospectedTable {
             while (iter.hasNext()) {
                 IntrospectedColumn introspectedColumn = iter.next();
                 if (introspectedColumn.getActualColumnName().equals(columnName)) {
+                    introspectedColumn.setPrimaryKey(true);
                     primaryKeyColumns.add(introspectedColumn);
                     iter.remove();
                     break;
@@ -656,8 +662,8 @@ public abstract class IntrospectedTable {
         return "updateBySql";
     }
 
-    public String getSelectByMultiStringIdsStatementId() {
-        return "selectTreeDataByMultiIds";
+    public String getSelectByPrimaryKeysStatementId() {
+        return "selectByPrimaryKeys";
     }
 
     public String getInsertSelectiveStatementId() {
@@ -1208,5 +1214,21 @@ public abstract class IntrospectedTable {
             default:
                 return null;
         }
+    }
+
+    public FullyQualifiedJavaType getVoModelType() {
+        return voModelType;
+    }
+
+    public void setVoModelType(FullyQualifiedJavaType voModelType) {
+        this.voModelType = voModelType;
+    }
+
+    public FullyQualifiedJavaType getVoCreateType() {
+        return voCreateType;
+    }
+
+    public void setVoCreateType(FullyQualifiedJavaType voCreateType) {
+        this.voCreateType = voCreateType;
     }
 }

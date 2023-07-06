@@ -44,6 +44,7 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                         introspectedTable,
                         "app_main_css.css.ftl");
                 generatedStyleFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                generatedStyleFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteCssFile());
                 answer.add(generatedStyleFile);
 
                 String min = styleFileName + ".min.css";
@@ -53,6 +54,7 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
                         "app_main_css.css.ftl");
+                generatedStyleFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteCssFile());
                 generatedStyleFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 answer.add(generatedStyleFileMin);
 

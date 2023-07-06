@@ -63,9 +63,13 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
      * @return thymeleaf模板的值部分
      */
     protected String thymeleafValue(IntrospectedColumn baseColumn) {
+        return thymeleafValue(baseColumn.getJavaProperty(), GenerateUtils.getEntityKeyStr(introspectedTable));
+    }
+
+    protected String thymeleafValue(String propertyName,String entityKey){
         StringBuilder sb = new StringBuilder();
-        sb.append("${").append(GenerateUtils.getEntityKeyStr(introspectedTable)).append("?.").append(baseColumn.getJavaProperty());
-        if ("version".equals(baseColumn.getJavaProperty())) {
+        sb.append("${").append(entityKey).append("?.").append(propertyName);
+        if ("version".equals(propertyName)) {
             sb.append("}?:1");
         } else {
             sb.append("}?:_");

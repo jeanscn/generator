@@ -10,6 +10,7 @@ import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.io.File;
@@ -145,7 +146,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                             .orElse(context.getParentMenuId());
                     if (stringHasValue(parentMenuId) && context.isUpdateMenuData() && introspectedTable.getTableConfiguration().isModules()) {
                         int sort = context.getSysMenuDataScriptLines().size() + 1;
-                        String id = VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
+                        String id = Mb3GenUtil.getDefaultViewId(introspectedTable);
                         String title = introspectedTable.getRemarks(true);
                         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
                         sqlBuilder.updateStringValues("id_", id);

@@ -37,8 +37,9 @@ public class JQueryPlugin extends PluginAdapter {
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
-                        "app_main_js.js.ftl");
-                generatedJqueryFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                        "app_main_js.js.ftl",htmlGeneratorConfiguration);
+                generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
+                //generatedJqueryFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 answer.add(generatedJqueryFile);
 
                 //生成jquery min file
@@ -48,8 +49,9 @@ public class JQueryPlugin extends PluginAdapter {
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
-                        "app_main_js.js.ftl");
-                generatedJqueryFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                        "app_main_js.js.ftl",htmlGeneratorConfiguration);
+                //generatedJqueryFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFileMin);
             }
         }

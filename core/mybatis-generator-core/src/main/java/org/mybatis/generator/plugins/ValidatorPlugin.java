@@ -46,7 +46,7 @@ public class ValidatorPlugin extends PluginAdapter {
             return true;
         }
         if (!introspectedTable.getRules().isGenerateVoModel()) {
-            if (introspectedColumn.isIdentity()) {
+            if (introspectedColumn.isPrimaryKey()) {
                 addNotNullValidate(field, topLevelClass, introspectedColumn, updateValidate, introspectedTable, ignoreColumns);
             } else {
                 addNotNullValidate(field, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
@@ -61,11 +61,7 @@ public class ValidatorPlugin extends PluginAdapter {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         ignoreColumns.addAll(tc.getVoGeneratorConfiguration().getValidateIgnoreColumns());
-        if (introspectedColumn.isIdentity()) {
-            addNotNullValidate(field, topLevelClass, introspectedColumn, updateValidate, introspectedTable, ignoreColumns);
-        } else {
-            addNotNullValidate(field, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
-        }
+        addNotNullValidate(field, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey()?updateValidate:insertAndUpdateValidate, introspectedTable, ignoreColumns);
         addLengthValidate(field, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
         return true;
     }
@@ -134,17 +130,15 @@ public class ValidatorPlugin extends PluginAdapter {
         boolean generateCreateVO = introspectedTable.getRules().isGenerateCreateVO();
         boolean generateUpdateVO = introspectedTable.getRules().isGenerateUpdateVO();
         if (!(generateCreateVO || generateUpdateVO)) {
-            if (introspectedColumn.isIdentity()) {
-                addNotNullValidate(javaElement, topLevelClass, introspectedColumn, updateValidate, introspectedTable, ignoreColumns);
-            } else {
-                addNotNullValidate(javaElement, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
-            }
-            addLengthValidate(javaElement, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
+            addNotNullValidate(javaElement, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey()?updateValidate:insertAndUpdateValidate, introspectedTable, ignoreColumns);
         } else if (!generateCreateVO) {
             addCreateValidate(javaElement, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
         } else if (!generateUpdateVO) {
             addUpdateValidate(javaElement, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
+        }else{
+            return true;
         }
+        addLengthValidate(javaElement, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
         return true;
     }
 
@@ -156,7 +150,7 @@ public class ValidatorPlugin extends PluginAdapter {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         Set<String> validateIgnoreColumns = tc.getVoGeneratorConfiguration().getVoCreateConfiguration().getValidateIgnoreColumns();
         ignoreColumns.addAll(validateIgnoreColumns);
-        if (introspectedColumn == null || ignoreColumns.contains(introspectedColumn.getActualColumnName())) {
+        if (introspectedColumn == null || ignoreColumns.contains(introspectedColumn.getActualColumnName()) || introspectedColumn.isPrimaryKey()) {
             return true;
         }
         addNotNullValidate(javaElement, topLevelClass, introspectedColumn, insertValidate, introspectedTable, ignoreColumns);

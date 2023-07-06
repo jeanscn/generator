@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
  * 2022-10-06 23:42
  * @version 3.0
  */
-public class ViewColumnMeta extends AbstractAnnotation {
+public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ViewColumnMeta";
 
@@ -52,29 +53,31 @@ public class ViewColumnMeta extends AbstractAnnotation {
 
     private final VOViewGeneratorConfiguration configuration;
 
-    public static ViewColumnMeta create(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return new ViewColumnMeta(introspectedColumn, introspectedTable);
+    Set<String> hiddenProperties;
+
+    public static ViewColumnMetaDesc create(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        return new ViewColumnMetaDesc(introspectedColumn, introspectedTable);
     }
 
-    public ViewColumnMeta(Field field, String title, IntrospectedTable introspectedTable) {
+    public ViewColumnMetaDesc(Field field, String title, IntrospectedTable introspectedTable) {
         super();
+        this.introspectedTable = introspectedTable;
         this.value = field.getName();
         this.title = title;
-        this.introspectedTable = introspectedTable;
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-        this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
-        parseDefaultFormatRender(field.getType(),field.getName());
+        this.addImports(ViewColumnMeta.class.getCanonicalName());
+        parseDefaultFormatRender(field.getType(), field.getName());
         parseRenderFun(field.getName());
     }
 
-    public ViewColumnMeta(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public ViewColumnMetaDesc(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         super();
-        this.value = introspectedColumn.getJavaProperty();
-        this.title = introspectedColumn.getRemarks(true) != null ? introspectedColumn.getRemarks(true) : introspectedColumn.getActualColumnName();
         this.introspectedColumn = introspectedColumn;
         this.introspectedTable = introspectedTable;
+        this.value = introspectedColumn.getJavaProperty();
+        this.title = introspectedColumn.getRemarks(true) != null ? introspectedColumn.getRemarks(true) : introspectedColumn.getActualColumnName();
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-        this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
+        this.addImports(ViewColumnMeta.class.getCanonicalName());
         parseDefaultFormatRender(introspectedColumn.getFullyQualifiedJavaType(), introspectedColumn.getJavaProperty());
         parseRenderFun(introspectedColumn.getJavaProperty());
     }
@@ -169,18 +172,20 @@ public class ViewColumnMeta extends AbstractAnnotation {
         if (this.ignore) {
             items.add("ignore = true");
         }
-        //计算defaultDisplay
-        Set<String> hiddenProperties = new HashSet<>();
-        if (this.introspectedTable != null) {
-            hiddenProperties = this.introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
-                    .stream()
-                    .map(IntrospectedColumn::getJavaProperty)
-                    .collect(Collectors.toSet());
-        }
-        if (!(hiddenProperties.contains(this.value)
-                || configuration.getDefaultHiddenFields().contains(this.value)
-                || (configuration.getDefaultDisplayFields().size() > 0 && !configuration.getDefaultDisplayFields().contains(this.value)))) {
-            items.add("defaultDisplay = true");
+        if (configuration.getDefaultDisplayFields().size() > 0) {
+            if (configuration.getDefaultDisplayFields().contains(this.value)) {
+                items.add("defaultDisplay = true");
+            }
+        }else{
+            Set<String> hiddenProperties = getHiddenProperties();
+            hiddenProperties.addAll(configuration.getDefaultHiddenFields());
+            if (hiddenProperties.size()>0){
+                if (!hiddenProperties.contains(this.value)) {
+                    items.add("defaultDisplay = true");
+                }
+            }else{
+                items.add("defaultDisplay = true");
+            }
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -279,5 +284,16 @@ public class ViewColumnMeta extends AbstractAnnotation {
 
     public void setDefaultDisplay(boolean defaultDisplay) {
         this.defaultDisplay = defaultDisplay;
+    }
+
+    public Set<String> getHiddenProperties() {
+        if (hiddenProperties != null) {
+            return hiddenProperties;
+        }
+        this.hiddenProperties = this.introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
+                .stream()
+                .map(IntrospectedColumn::getJavaProperty)
+                .collect(Collectors.toSet());
+        return hiddenProperties;
     }
 }

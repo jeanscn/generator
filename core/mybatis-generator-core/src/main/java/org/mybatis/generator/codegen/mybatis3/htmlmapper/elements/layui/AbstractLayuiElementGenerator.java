@@ -6,7 +6,6 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
@@ -15,7 +14,6 @@ import org.mybatis.generator.custom.DictTypeEnum;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +51,7 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
         List<String> verifyList = new ArrayList<>();
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = this.getHtmlGeneratorConfiguration();
         if (htmlElementDescriptor != null) {
+            htmlGeneratorConfiguration = htmlElementDescriptor.getHtmlGeneratorConfiguration();
             verifyList.addAll(htmlElementDescriptor.getVerify().stream().distinct().collect(Collectors.toList()));
         }
 
@@ -78,11 +77,11 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
         }
         //长度
         if (column.getLength() > 0 && !verifyList.contains("limit")) {
-            verifyList.add(0,"limit");
+            verifyList.add(0, "limit");
         }
         //非空
-        if ((!column.isNullable() || htmlGeneratorConfiguration.getElementRequired().contains(columnName)) && !verifyList.contains("required")) {
-            verifyList.add(0,"required");
+        if (htmlGeneratorConfiguration.getElementRequired().contains(columnName) && !verifyList.contains("required")) {
+            verifyList.add(0, "required");
         }
 
         //计算长度限制
@@ -96,7 +95,7 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
         if (minLength > 0) {
             element.addAttribute(new Attribute("min-length", String.valueOf(minLength)));
         }
-        if (verifyList.size()>0) {
+        if (verifyList.size() > 0) {
             element.addAttribute(new Attribute("lay-verify", String.join("|", verifyList)));
         }
     }
@@ -107,15 +106,15 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
         return radio;
     }
 
-    protected void addDataUrl(HtmlElement element,HtmlElementDescriptor htmlElementDescriptor,String defaultDataUrl) {
+    protected void addDataUrl(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor, String defaultDataUrl) {
         if (htmlElementDescriptor == null) {
             return;
         }
         if (htmlElementDescriptor.getDataUrl() != null) {
             element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-        }else if(htmlElementDescriptor.getDataSource()!=null && htmlElementDescriptor.getDataSource().equals(DictTypeEnum.DICT_ENUM.getCode()) && stringHasValue(htmlElementDescriptor.getEnumClassName())){
+        } else if (htmlElementDescriptor.getDataSource() != null && htmlElementDescriptor.getDataSource().equals(DictTypeEnum.DICT_ENUM.getCode()) && stringHasValue(htmlElementDescriptor.getEnumClassName())) {
             element.addAttribute(new Attribute("data-url", "/system/enum/options/" + htmlElementDescriptor.getEnumClassName()));
-        }else if(defaultDataUrl!=null){
+        } else if (defaultDataUrl != null) {
             element.addAttribute(new Attribute("data-url", defaultDataUrl));
         }
     }

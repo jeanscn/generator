@@ -180,14 +180,14 @@ public class ServiceMethods {
         ids.setRemark("指定的数据范围的标识，多个以逗号分隔");
         ids.addAnnotation("@Nullable");
         parameters.add(ids);
-        Method method = getMethodByType(introspectedTable.getSelectByMultiStringIdsStatementId(),
+        Method method = getMethodByType(introspectedTable.getSelectByPrimaryKeysStatementId(),
                 ReturnTypeEnum.LIST,
                 entityType,
-                "树形示例表对象列表",
+                "符合标识列表的全数据列表",
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "获取带child集合的数据，允许指定返回的数根的数据的方法");
+        context.getCommentGenerator().addMethodJavaDocLine(method, "根据给定的id列表，获取返回全数据对象列表的方法");
         parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         return method;
     }

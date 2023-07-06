@@ -222,8 +222,10 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
             method.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectByExample(example);",
                     entityType.getShortName(), serviceBeanName);
         }
-        method.addBodyLine("Page<{0}> page = (Page<{0}>)result.getResult();",entityType.getShortName());
-        parentElement.addImportedType("com.github.pagehelper.Page");
+        if (introspectedTable.getRules().isGenerateRequestVO()) {
+            method.addBodyLine("Page<{0}> page = (Page<{0}>)result.getResult();",entityType.getShortName());
+            parentElement.addImportedType("com.github.pagehelper.Page");
+        }
     }
 
     protected void addSecurityPreAuthorize(Method method,String methodPrefix,String nameKey) {

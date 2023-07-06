@@ -198,6 +198,14 @@ public class VoGenService {
                 javaType = configuration.getTargetPropertyType() == null ? FullyQualifiedJavaType.getStringInstance() : new FullyQualifiedJavaType(configuration.getTargetPropertyType());
             }
             Field field = new Field(propertyName, javaType);
+            //如果在topLevelClass以及父类中已经存在，则跳过
+            if (topLevelClass.getFields().contains(field)) {
+                continue;
+            }
+            if (introspectedTable.getAllColumns().stream().anyMatch(c -> c.getJavaProperty().equals(propertyName))) {
+                continue;
+            }
+            //设置属性的注释
             field.setRemark(configuration.getRemark() != null ? configuration.getRemark() : sourceColumn.getRemarks(true));
             field.setVisibility(JavaVisibility.PRIVATE);
             if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
@@ -254,6 +262,7 @@ public class VoGenService {
                 default:
                     break;
             }
+
             if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
                 if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
                     topLevelClass.addAnnotation("@EnableDictionary");

@@ -32,7 +32,7 @@ public class GenerateHtmlFiles {
                         targetProject,
                         false,
                         context.getHtmlFormatter(),introspectedTable);
-                ghf.setOverwriteFile(htmlGeneratorConfiguration.isOverWriteFile());
+                ghf.setOverwriteFile(htmlGeneratorConfiguration.isOverWriteHtmlFile());
                 if (context.getPlugins().htmlMapGenerated(ghf, introspectedTable, htmlGeneratorConfiguration)) {
                     answer.add(ghf);
                 }

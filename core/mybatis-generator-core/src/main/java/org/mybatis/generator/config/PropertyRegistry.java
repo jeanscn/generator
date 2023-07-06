@@ -95,7 +95,11 @@ public class PropertyRegistry {
 
     public static final String TABLE_VIEW_PATH = "viewPath";
     public static final String TABLE_HTML_FIE_SUFFIX = "html";
-    public static final String TABLE_OVERRIDE_FILE = "overWriteFile";
+    public static final String TABLE_OVERRIDE_HTML_FILE = "overWriteHtmlFile";
+
+    public static final String TABLE_OVERRIDE_JS_FILE = "overWriteJsFile";
+
+    public static final String TABLE_OVERRIDE_CSS_FILE = "overWriteCssFile";
     public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
     public static final String TABLE_ENABLE_UPDATE_BATCH = "enableUpdateBatch";
@@ -108,6 +112,10 @@ public class PropertyRegistry {
     public static final String ELEMENT_HTML_ELEMENT_INNER_LIST = "htmlElementInnerList";
 
     public static final String ELEMENT_HTML_LAYOUT = "layout";
+
+    public static final String ELEMENT_HTML_FILE_ATTACHMENT = "htmlFileAttachment";
+
+    public static final String ELEMENT_APPROVAL_COMMENT = "approvalComment";
     public static final String ELEMENT_IGNORE_COLUMNS = "ignoreColumns";
     public static final String ELEMENT_EXCLUDE_COLUMNS = "excludeColumns";
     public static final String ELEMENT_INCLUDE_COLUMNS = "includeColumns";

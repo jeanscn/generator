@@ -113,7 +113,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         addInsertByTableElement(bizGenClazzImpl);
 
-        addZtreeDataSimpleElement(bizGenClazzImpl);
+        addSelectByPrimaryKeysElement(bizGenClazzImpl);
 
         /*
          *  以下是重写的方法
@@ -190,11 +190,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         return answer;
     }
 
-    private void addZtreeDataSimpleElement(TopLevelClass bizGenClazzImpl) {
-        if (introspectedTable.getRules().isModelEnableChildren()) {
-            AbstractServiceElementGenerator elementGenerator = new SelectTreeDataByMultiIdsElement();
-            initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
-        }
+    private void addSelectByPrimaryKeysElement(TopLevelClass bizGenClazzImpl) {
+        AbstractServiceElementGenerator elementGenerator = new SelectByPrimaryKeysElement();
+        initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
     }
 
     private void addDeleteByTableElement(TopLevelClass parentElement) {

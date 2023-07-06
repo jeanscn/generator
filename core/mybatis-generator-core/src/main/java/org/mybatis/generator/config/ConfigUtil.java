@@ -3,6 +3,7 @@ package org.mybatis.generator.config;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.DictTypeEnum;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -36,7 +37,7 @@ public class ConfigUtil {
     }
 
     public static String getOverrideJavaProperty(final String propertyName) {
-        if (propertyName.endsWith("Id")) {
+        if (propertyName.length()>2 && propertyName.endsWith("Id")) {
             return propertyName.substring(0, propertyName.length() - 2) + "Text";
         } else {
             return propertyName + "Text";
@@ -46,34 +47,20 @@ public class ConfigUtil {
     public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(HtmlElementDescriptor elementDescriptor, final IntrospectedTable introspectedTable) {
         OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration());
         overrideConfiguration.setSourceColumnName(elementDescriptor.getName());
-        switch (elementDescriptor.getDataSource()) {
-            case "Department":
-                overrideConfiguration.setBeanName("orgDepartmentImpl");
-                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
-                break;
-            case "User":
-                overrideConfiguration.setBeanName("orgUserImpl");
-                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
-                break;
-            case "Role":
-                overrideConfiguration.setBeanName("orgRoleImpl");
-                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
-                break;
-            case "Organ":
-                overrideConfiguration.setBeanName("orgOrganizationImpl");
-                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
-                break;
-            case "Dict":
-                overrideConfiguration.setBeanName(elementDescriptor.getBeanName());
-                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
-                break;
-            case "DictEnum":
+        HtmlElementDataSourceEnum anEnum = HtmlElementDataSourceEnum.getEnum(elementDescriptor.getDataSource());
+        if (anEnum!=null) {
+            if (elementDescriptor.getDataSource().equals(HtmlElementDataSourceEnum.DICT_ENUM.getCode())) {
                 overrideConfiguration.setEnumClassName(elementDescriptor.getEnumClassName());
                 overrideConfiguration.setAnnotationType(DictTypeEnum.DICT_ENUM.getCode());
-                break;
-            default:
-                overrideConfiguration.setAnnotationType(elementDescriptor.getDataSource());
-                break;
+            }else if(elementDescriptor.getDataSource().equals(HtmlElementDataSourceEnum.DICT.getCode())){
+                overrideConfiguration.setBeanName(elementDescriptor.getBeanName());
+                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
+            }else{
+                overrideConfiguration.setBeanName(anEnum.getBeanName());
+                overrideConfiguration.setAnnotationType(DictTypeEnum.DICT.getCode());
+            }
+        }else{
+            overrideConfiguration.setAnnotationType(elementDescriptor.getDataSource());
         }
         overrideConfiguration.setTargetPropertyName(elementDescriptor.getOtherFieldName());
         overrideConfiguration.setTargetPropertyType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());

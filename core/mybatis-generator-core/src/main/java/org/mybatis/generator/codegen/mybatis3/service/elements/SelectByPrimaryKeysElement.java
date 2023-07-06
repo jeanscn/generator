@@ -9,27 +9,22 @@ import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGene
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_NULLABLE;
-import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-04-26 14:38
  * @version 3.0
  */
-public class SelectTreeDataByMultiIdsElement extends AbstractServiceElementGenerator {
+public class SelectByPrimaryKeysElement extends AbstractServiceElementGenerator {
 
 
-    public SelectTreeDataByMultiIdsElement() {
+    public SelectByPrimaryKeysElement() {
         super();
     }
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        List<String> collect = introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList());
-        if (!(collect.contains("parentId"))) {
-            return;
-        }
         Method method = serviceMethods.getSelectByMultiStringIdsMethod(parentElement, false);
         parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         //方法体
@@ -44,6 +39,7 @@ public class SelectTreeDataByMultiIdsElement extends AbstractServiceElementGener
         method.addBodyLine("}");
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addMethod(method);
+        parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(V_STRING_UTIL);
         parentElement.addImportedType(new FullyQualifiedJavaType("java.util.Arrays"));
         parentElement.addImportedType(new FullyQualifiedJavaType("java.util.stream.Collectors"));

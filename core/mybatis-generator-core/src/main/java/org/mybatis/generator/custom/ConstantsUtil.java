@@ -132,9 +132,5 @@ public class ConstantsUtil {
 
     public static final String ANNOTATION_NULLABLE = "javax.annotation.Nullable";
 
-    public static final String YES_NO_ENUM_CLASS_NAME = "com.vgosoft.core.constant.enums.core.YesNoEnum";
-
-    public static final String COMMON_STATUS_ENUM_CLASS_NAME = "com.vgosoft.core.constant.enums.core.CommonStatusEnum";
-
     public static final String SUFFIX_INNER_LIST_FRAGMENTS = "inner_list_fragments";
 }

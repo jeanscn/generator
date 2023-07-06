@@ -23,8 +23,6 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
         parentElement.addImportedType(entityType);
         parentElement.addImportedType(exampleType);
-        parentElement.addImportedType(responseResult);
-        parentElement.addImportedType(responsePagehelperResult);
         if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
@@ -57,10 +55,18 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
 
         selectByExampleWithPagehelper(parentElement, method);
         method.addBodyLine("if (result.hasResult()) {");
-        if (introspectedTable.getRules().isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateVoModel() && introspectedTable.getRules().isGenerateRequestVO()) {
             method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()),page);", entityVoType.getShortName());
-        } else {
+            parentElement.addImportedType(responsePagehelperResult);
+        } else if(introspectedTable.getRules().isGenerateVoModel()){
+            method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
+            parentElement.addImportedType(responseResult);
+        }else if(introspectedTable.getRules().isGenerateRequestVO()){
             method.addBodyLine("return ResponsePagehelperResult.success(result.getResult(),page);");
+            parentElement.addImportedType(responsePagehelperResult);
+        } else{
+            method.addBodyLine("return ResponseResult.success(result.getResult());");
+            parentElement.addImportedType(responseResult);
         }
         method.addBodyLine("}else{");
         method.addBodyLine("return ResponseResult.success(new ArrayList<>());");

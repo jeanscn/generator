@@ -299,7 +299,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 }
                 if (nameFragments.containsKey(column.getActualColumnName())) {
                     methodName = initializeAndMethodName(column) + nameFragments.get(column.getActualColumnName());
-                } else if (column.isJdbcCharacterColumn() && !column.isIdentity() && !isId) {
+                } else if (column.isJdbcCharacterColumn() && !column.isPrimaryKey() && !isId) {
                     methodName = initializeAndMethodName(column) + "LikeAny";
                 } else {
                     methodName = initializeAndMethodName(column) + "EqualTo";
@@ -417,8 +417,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
     private void addGetTreeElement(TopLevelClass parentElement) {
         Set<String> columnNames = introspectedTable.getTableConfiguration().getColumnNames();
-        if (introspectedTable.getRules().isModelEnableChildren()
-                && columnNames.contains(DefultColumnNameEnum.PARENT_ID.columnName())
+        if (columnNames.contains(DefultColumnNameEnum.PARENT_ID.columnName())
                 && columnNames.contains(DefultColumnNameEnum.ID.columnName())
                 && columnNames.contains(DefultColumnNameEnum.NAME.columnName())) {
             AbstractControllerElementGenerator elementGenerator = new FetchTreeDataElementGenerator();

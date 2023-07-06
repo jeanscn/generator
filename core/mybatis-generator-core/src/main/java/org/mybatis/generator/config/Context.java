@@ -26,7 +26,7 @@ public class Context extends PropertyHolder {
 
     private String moduleName;
 
-    private boolean integrateMybatisPlus;
+    private boolean integrateMybatisPlus = true;
 
     private boolean integrateSpringSecurity;
 
@@ -91,6 +91,8 @@ public class Context extends PropertyHolder {
     private int jdkVersion;
 
     protected Map<String, String> sysMenuDataScriptLines = new LinkedHashMap<>();
+
+    protected Map<String, String> moduleCateDataScriptLines = new LinkedHashMap<>();
 
     protected Map<String, String> moduleDataScriptLines = new LinkedHashMap<>();
 
@@ -663,6 +665,14 @@ public class Context extends PropertyHolder {
         this.moduleDataScriptLines.put(id, moduleDataScriptLine);
     }
 
+    public Map<String, String> getModuleCateDataScriptLines() {
+        return moduleCateDataScriptLines;
+    }
+
+    public void addModuleCateDataScriptLine(String id, String moduleCateDataScriptLine) {
+        this.moduleCateDataScriptLines.put(id, moduleCateDataScriptLine);
+    }
+
     public List<String> getOnlyTablesGenerate() {
         return onlyTablesGenerate;
     }
@@ -749,4 +759,6 @@ public class Context extends PropertyHolder {
             this.setJavaClientGeneratorConfiguration(javaClientGeneratorConfiguration);
         }
     }
+
+
 }

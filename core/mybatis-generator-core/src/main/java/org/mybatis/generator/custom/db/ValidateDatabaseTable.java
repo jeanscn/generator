@@ -87,7 +87,7 @@ public class ValidateDatabaseTable {
             for (IntrospectedColumn introspectedColumn : value) {
                 if (introspectedColumn.isBLOBColumn()) {
                     blobColumns.add(introspectedColumn);
-                } else if (introspectedColumn.isIdentity()) {
+                } else if (introspectedColumn.isPrimaryKey()) {
                     primaryKeyColumns.add(introspectedColumn);
                 } else {
                     baseColumns.add(introspectedColumn);
@@ -246,7 +246,7 @@ public class ValidateDatabaseTable {
             //增加主键
             List<String> affectPKs = Stream.of(addColumns.stream(), updateColumns.stream())
                     .flatMap(Function.identity())
-                    .filter(IntrospectedColumn::isIdentity)
+                    .filter(IntrospectedColumn::isPrimaryKey)
                     .map(IntrospectedColumn::getActualColumnName)
                     .collect(Collectors.toList());
             List<String> pkColumnName = introspectedTable.getPrimaryKeyColumns().stream()

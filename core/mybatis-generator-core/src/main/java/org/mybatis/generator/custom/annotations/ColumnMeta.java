@@ -39,7 +39,7 @@ public class ColumnMeta  extends AbstractAnnotation{
     public ColumnMeta(IntrospectedColumn introspectedColumn) {
         this.value = introspectedColumn.getActualColumnName();
         this.description = introspectedColumn.getRemarks(false);
-        this.pkid = introspectedColumn.isIdentity();
+        this.pkid = introspectedColumn.isPrimaryKey();
         this.summary = true;
         this.order = introspectedColumn.getOrder();
         this.sort = true;

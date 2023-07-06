@@ -1,26 +1,16 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
-import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModel;
-import org.mybatis.generator.custom.annotations.CompositeQuery;
-import org.mybatis.generator.custom.annotations.ViewColumnMeta;
-import org.mybatis.generator.custom.annotations.ViewTableMeta;
 
 import java.util.List;
-import java.util.Objects;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

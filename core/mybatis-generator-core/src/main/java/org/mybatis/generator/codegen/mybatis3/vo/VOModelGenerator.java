@@ -83,7 +83,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
 
         voClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         //persistenceBeanName属性
-        addPersistenceBeanNameProperty(voClass);
+        addPersistenceBeanNameProperty(voClass, introspectedTable.getControllerBeanName());
 
         //检查是否有定制的新属性
         introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().forEach(relationProperty -> {
@@ -122,8 +122,9 @@ public class VOModelGenerator extends AbstractVOGenerator {
         return voClass;
     }
 
-    private void addPersistenceBeanNameProperty(TopLevelClass voClass) {
+    private void addPersistenceBeanNameProperty(TopLevelClass voClass,String initString) {
         Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
+        persistenceBeanName.setInitializationString("\""+initString+"\"");
         persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
         persistenceBeanName.setRemark("对象服务java bean名称");
         ApiModelProperty apiModelProperty = new ApiModelProperty(persistenceBeanName.getRemark());

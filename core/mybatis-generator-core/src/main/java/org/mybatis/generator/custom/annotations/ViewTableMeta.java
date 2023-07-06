@@ -6,8 +6,8 @@ import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
 import com.vgosoft.core.constant.enums.view.ViewToolBarsEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
     private String[] querys = new String[0];
     private String indexColWidth;
     private String actionColWidth;
-    private int dataFilterType = 0;
+    private int dataFilterType;
     private String categoryTreeUrl;
     private int wfStatus = 6;
     private String areaWidth;
@@ -51,14 +51,14 @@ public class ViewTableMeta  extends AbstractAnnotation{
 
     public ViewTableMeta(IntrospectedTable introspectedTable) {
         super();
-        this.value = VMD5Util.MD5(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
+        this.value = Mb3GenUtil.getDefaultViewId(introspectedTable);
         items.add(VStringUtil.format("value = \"{0}\"", this.getValue()));
         this.listName = introspectedTable.getRemarks(true);
         items.add(VStringUtil.format("listName = \"{0}\"", this.getListName()));
         this.beanName = introspectedTable.getControllerBeanName();
         items.add(VStringUtil.format("beanName = \"{0}\"", this.getBeanName()));
         this.dataUrl = "/viewmgr/getdtdata";
-        this.listType = VMD5Util.MD5(StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword()));
+        this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
         this.dataFilterType = 0;
         this.addImports("com.vgosoft.core.annotation.ViewTableMeta");

@@ -2,21 +2,28 @@ package org.mybatis.generator.custom;
 
 public enum HtmlElementDataSourceEnum {
 
-    DICT_DATA(1, "DictData"),
-    DICT(2, "Dict"),
-    DICT_SYS(3, "DictSys"),
-    DICT_USER(4, "DictUser"),
-    DEPARTMENT(5, "Department"),
-    USER(6, "User"),
+    DICT_DATA(1, "DictData",""),
+    DICT(2, "Dict",""),
+    DICT_SYS(3, "DictSys",""),
+    DICT_USER(4, "DictUser",""),
+    DEPARTMENT(5, "Department","orgDepartmentImpl"),
+    USER(6, "User","orgUserImpl"),
 
-    DICT_ENUM(7,"DictEnum");
+    ROLE(7, "Role","orgRoleImpl"),
+
+    ORGANIZATION(8, "Organ","orgOrganizationImpl"),
+
+    DICT_ENUM(7,"DictEnum","");
 
     private final int value;
     private final String code;
 
-    HtmlElementDataSourceEnum(int value, String code) {
+    private final String beanName;
+
+    HtmlElementDataSourceEnum(int value, String code,String beanName) {
         this.value = value;
         this.code = code;
+        this.beanName = beanName;
     }
 
     public int getValue() {
@@ -42,6 +49,10 @@ public enum HtmlElementDataSourceEnum {
     }
     public String getCode() {
         return code;
+    }
+
+    public String getBeanName() {
+        return beanName;
     }
 
 }

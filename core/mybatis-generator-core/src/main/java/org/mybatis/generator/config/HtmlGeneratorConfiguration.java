@@ -15,7 +15,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private String htmlFileName;
 
-    private boolean overWriteFile;
+    private boolean overWriteHtmlFile;
+
+    private boolean overWriteCssFile;
+
+    private boolean overWriteJsFile;
 
     private Set<String> hiddenColumnNames = new HashSet<>();
 
@@ -32,9 +36,15 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private String htmlBaseTargetPackage;
 
+    private HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration;
+
+    private List<HtmlApprovalCommentConfiguration> htmlApprovalCommentConfigurations = new ArrayList<>();
+
     public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
-        overWriteFile = false;
+        overWriteHtmlFile = false;
+        overWriteCssFile = false;
+        overWriteJsFile = false;
         targetProject = "src/main/resources/templates";
         this.context = context;
     }
@@ -60,12 +70,28 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.htmlFileName = htmlFileName;
     }
 
-    public boolean isOverWriteFile() {
-        return overWriteFile;
+    public boolean isOverWriteHtmlFile() {
+        return overWriteHtmlFile;
     }
 
-    public void setOverWriteFile(boolean overWriteFile) {
-        this.overWriteFile = overWriteFile;
+    public void setOverWriteHtmlFile(boolean overWriteHtmlFile) {
+        this.overWriteHtmlFile = overWriteHtmlFile;
+    }
+
+    public boolean isOverWriteCssFile() {
+        return overWriteCssFile;
+    }
+
+    public void setOverWriteCssFile(boolean overWriteCssFile) {
+        this.overWriteCssFile = overWriteCssFile;
+    }
+
+    public boolean isOverWriteJsFile() {
+        return overWriteJsFile;
+    }
+
+    public void setOverWriteJsFile(boolean overWriteJsFile) {
+        this.overWriteJsFile = overWriteJsFile;
     }
 
     public Set<String> getHiddenColumnNames() {
@@ -135,5 +161,21 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public void setHtmlElementInnerListConfiguration(HtmlElementInnerListConfiguration htmlElementInnerListConfiguration) {
         this.htmlElementInnerListConfiguration = htmlElementInnerListConfiguration;
+    }
+
+    public HtmlFileAttachmentConfiguration getHtmlFileAttachmentConfiguration() {
+        return htmlFileAttachmentConfiguration;
+    }
+
+    public void setHtmlFileAttachmentConfiguration(HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration) {
+        this.htmlFileAttachmentConfiguration = htmlFileAttachmentConfiguration;
+    }
+
+    public List<HtmlApprovalCommentConfiguration> getHtmlApprovalCommentConfigurations() {
+        return htmlApprovalCommentConfigurations;
+    }
+
+    public void addHtmlApprovalCommentConfiguration(HtmlApprovalCommentConfiguration htmlApprovalCommentConfiguration) {
+        this.htmlApprovalCommentConfigurations.add(htmlApprovalCommentConfiguration);
     }
 }

@@ -1,5 +1,6 @@
 package org.mybatis.generator.api.dom.java;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class Field extends JavaElement {
@@ -80,5 +81,18 @@ public class Field extends JavaElement {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Field)) return false;
+        Field field = (Field) o;
+        return Objects.equals(getName(), field.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }

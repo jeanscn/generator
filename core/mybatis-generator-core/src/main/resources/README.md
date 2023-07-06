@@ -1,5 +1,20 @@
 更新日志：
+# 2023-7-06
+## 更新说明
+* 1、页面生成元素中添加approvalComment元素，用于生成审批意见组件。（一个页面可添加0或n个）
+* 2、页面生成元素中添加htmlFileAttachmentList元素，用于生成文件上传列表组件。（一个页面可添加0或1个）
+# 2023-7-02
+## 更新说明
+* 1、生成工作流相关内容调整
+* 2、配置文件中generateHtml标签的overWriteFile修改为overWriteHtmlFile，用于区分是否覆盖生成的html文件。
+* 3、配置文件中generateHtml标签中增加overWriteJsFile，用于定义是否覆盖生成的js文件。
+* 4、配置文件中generateHtml标签中增加overWriteCssFile，用于定义是否覆盖生成的css文件。
+## 修正bug：
+* 1、修正列表继承隐藏字段及指定显示属性列表不正确的问题。
 # 2023-6-19
+## 更新说明
+* 1、删除sys_cfg_module表或者修改字段名：module_tag->code_,module_name->name_。
+* 2、wf_per_done|wf_per_todo| 删除字段：module_name。
 ## 新增功能：
 * 1、当指定的父类中包含”cur_processors“、"module_id"字段时，自动生成翻译字段curProcessorsName和moduleId。
 # 2023-6-16

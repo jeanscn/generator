@@ -21,15 +21,17 @@ public class GeneratedJqueryFile extends AbstractGeneratedFile {
                                String targetProject,
                                String targetPackage,
                                IntrospectedTable introspectedTable,
-                               String templateName) {
+                               String templateName,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(targetProject,targetPackage,fileName,introspectedTable);
         this.templateName = templateName;
         this.introspectedTable = introspectedTable;
+        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
 
     @Override
     public String getFormattedContent() {
         JQueryFreemarkerGenerator freemarkerGenerator = new JQueryFreemarkerGenerator(this.targetProject,this.introspectedTable,this.htmlGeneratorConfiguration);
+
         return freemarkerGenerator.generate(templateName);
     }
 

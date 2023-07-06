@@ -35,6 +35,7 @@ import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
@@ -73,22 +74,31 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
 
         //增加一条模块分类数据
         if (context.isUpdateModuleData()) {
+            addModuleDataCateToMap();
             addModuleDataToMap();
         }
     }
 
+    private void addModuleDataCateToMap() {
+        String id = Mb3GenUtil.getModelCateId(context);
+        InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForModuleCate();
+        sqlBuilder.updateStringValues("id_", id);
+        sqlBuilder.updateStringValues("name_", context.getModuleName());
+        context.addModuleCateDataScriptLine(id, sqlBuilder.toSql() + ";");
+    }
+
     private void addModuleDataToMap() {
         String moduleKey = StringUtils.lowerCase(context.getModuleKeyword());
-        String id = VMD5Util.MD5(moduleKey);
+        String id = Mb3GenUtil.getModelCateId(context);
         int size = context.getModuleDataScriptLines().size() + 1;
         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForModule();
         sqlBuilder.updateStringValues("id_", id);
-        sqlBuilder.updateStringValues("module_tag", moduleKey);
-        sqlBuilder.updateStringValues("module_name", context.getModuleName());
+        sqlBuilder.updateStringValues("code_", moduleKey);
+        sqlBuilder.updateStringValues("name_", context.getModuleName());
         sqlBuilder.updateStringValues("parent_id", "0");
         sqlBuilder.updateValues("sort_", String.valueOf(size));
         sqlBuilder.updateValues("wf_apply", "0");
-        sqlBuilder.updateStringValues("category_", context.getModuleName());
+        sqlBuilder.updateStringValues("category_", id);
         context.addModuleDataScriptLine(id, sqlBuilder.toSql() + ";");
     }
 

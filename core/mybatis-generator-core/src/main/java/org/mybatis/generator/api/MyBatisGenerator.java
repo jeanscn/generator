@@ -337,9 +337,11 @@ public class MyBatisGenerator {
             }
 
             callback.checkCancel();
-            callback.startTask(getString(
-                    "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, gf.getFileEncoding());
+            if (!targetFile.exists() || gf.isOverWriteFile()) {
+                callback.startTask(getString(
+                        "Progress.15", targetFile.getName())); //$NON-NLS-1$
+                writeFile(targetFile, source, gf.getFileEncoding());
+            }
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         }

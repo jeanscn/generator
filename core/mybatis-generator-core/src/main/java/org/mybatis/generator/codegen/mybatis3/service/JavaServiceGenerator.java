@@ -17,6 +17,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,10 +124,8 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
                 .filter(SelectByTableGeneratorConfiguration::isEnableUnion).forEach(c -> bizINF.addMethod(serviceMethods.getSplitUnionByTableMethod(bizINF, c, true, true)));
 
-        if (introspectedTable.getRules().isModelEnableChildren()) {
-            Method method = serviceMethods.getSelectByMultiStringIdsMethod(bizINF, true);
-            bizINF.addMethod(method);
-        }
+        Method method = serviceMethods.getSelectByMultiStringIdsMethod(bizINF, true);
+        bizINF.addMethod(method);
 
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceGenerated(bizINF, introspectedTable)) {
@@ -152,20 +151,20 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //最后生成该数据库的模块数据
         if (introspectedTable.getTableConfiguration().isModules() && context.isUpdateModuleData()) {
-            String moduleKey = StringUtils.lowerCase(context.getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
-            String id = VMD5Util.MD5(moduleKey);
-            String pId = VMD5Util.MD5(StringUtils.lowerCase(context.getModuleKeyword()));
+            String moduleKey = Mb3GenUtil.getModelKey(introspectedTable);
+            String id = VMD5Util.MD5_15(moduleKey);
+            String pId = Mb3GenUtil.getModelCateId(context);
             int size = context.getModuleDataScriptLines().size() + 1;
             FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
             EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
             InsertSqlBuilder sqlForModule = GenerateSqlTemplate.insertSqlForModule();
             sqlForModule.updateStringValues("id_", id);
-            sqlForModule.updateStringValues("module_tag", moduleKey);
-            sqlForModule.updateStringValues("module_name", introspectedTable.getRemarks(true));
+            sqlForModule.updateStringValues("code_", moduleKey);
+            sqlForModule.updateStringValues("name_", introspectedTable.getRemarks(true));
             sqlForModule.updateStringValues("parent_id", pId);
             sqlForModule.updateValues("sort_", String.valueOf(size));
             sqlForModule.updateValues("wf_apply", entityAbstractParentEnum != null && entityAbstractParentEnum.scope() == 1 ? "1" : "0");
-            sqlForModule.updateStringValues("category_", context.getModuleName());
+            sqlForModule.updateStringValues("category_", pId);
             context.addModuleDataScriptLine(id, sqlForModule.toSql()+";");
         }
         return answer;

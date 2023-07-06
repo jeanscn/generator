@@ -493,7 +493,7 @@ public class JavaBeansUtil {
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, String> entry : levels.entrySet()) {
             String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
-            String id = VMD5Util.MD5(code);
+            String id = VMD5Util.MD5_15(code);
             keys.add(code);
             String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
             names.add(name);
@@ -501,7 +501,7 @@ public class JavaBeansUtil {
             sqlBuilder.updateStringValues("id_", id);
             sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
             if (index > 0) {
-                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5(keys.get(index - 1)));
+                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
             } else {
                 sqlBuilder.updateStringValues("parent_id", "0");
             }

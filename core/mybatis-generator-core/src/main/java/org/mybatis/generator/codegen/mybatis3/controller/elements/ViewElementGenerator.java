@@ -61,23 +61,25 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (id != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
                 entityType.getShortName(), serviceBeanName));
+        method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
+        parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
+        parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
+        parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
+        parentElement.addImportedType("com.vgosoft.tool.core.VBeanUtil");
         method.addBodyLine("if (serviceResult.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0}VO object = mappings.to{0}VO(serviceResult.getResult());",
-                    entityType.getShortName());
-            method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
-            method.addBodyLine(" mv.addObject(\"{0}\", JsonUtil.serializeObject(object));",this.entityNameKey);
-            parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
-            parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
-            parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
+            method.addBodyLine("{0}VO object = mappings.to{0}VO(serviceResult.getResult());",entityType.getShortName());
+            method.addBodyLine("{0}VO {1} = JsonUtil.serializeObject(object);",entityType.getShortName(),entityType.getShortNameFirstLowCase());
         }else{
-            method.addBodyLine("mv.addObject(\"{0}\", serviceResult.getResult());",this.entityNameKey);
+            method.addBodyLine("{0} object = serviceResult.getResult();",entityType.getShortName());
+            method.addBodyLine("{0} {1} = JsonUtil.serializeObject(object);",entityType.getShortName(),entityType.getShortNameFirstLowCase());
         }
+        method.addBodyLine("mv.addObject(\"{0}\", {1});",this.entityNameKey,entityType.getShortNameFirstLowCase());
         method.addBodyLine("}else{");
         method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");
         method.addBodyLine("}else{");
-        method.addBodyLine(format("mv.addObject(\"{0}\", new {1});",
+        method.addBodyLine(format("mv.addObject(\"{0}\", VBeanUtil.updateNewInstanceDefaultValue(new {1}));",
                 this.entityNameKey,introspectedTable.getRules().isGenerateVoModel()?this.entityVoType.getShortName()+"()"
                                 :entityType.getShortName()+"(0)"));
         method.addBodyLine("}");

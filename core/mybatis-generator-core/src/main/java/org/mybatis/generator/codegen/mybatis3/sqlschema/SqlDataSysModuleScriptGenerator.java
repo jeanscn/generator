@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
 import com.vgosoft.tool.core.VStringUtil;
+import jdk.nashorn.internal.ir.IfNode;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
@@ -27,7 +28,18 @@ public class SqlDataSysModuleScriptGenerator extends AbstractSqlScriptGenerator 
 
     @Override
     public String getSqlScript() {
+        if(this.context.getModuleCateDataScriptLines().size()>0){
+            lines.add("-- ----------------------------");
+            lines.add("-- 模块分类数据");
+            lines.add("-- ----------------------------");
+            lines.add("");
+            lines.addAll(this.context.getModuleCateDataScriptLines().values());
+        }
         if (this.context.getModuleDataScriptLines().size()>0) {
+            lines.add("-- ----------------------------");
+            lines.add("-- 模块数据");
+            lines.add("-- ----------------------------");
+            lines.add("");
             lines.addAll(this.context.getModuleDataScriptLines().values());
         }
         return String.join("\n", getLines());

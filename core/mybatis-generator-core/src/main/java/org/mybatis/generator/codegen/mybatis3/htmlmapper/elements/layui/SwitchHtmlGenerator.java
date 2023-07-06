@@ -108,19 +108,7 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
                 e.printStackTrace();
             }
             if (str == null && htmlElementDescriptor.getDataFormat()!=null) {
-                switch (htmlElementDescriptor.getDataFormat()) {
-                    case "有无":
-                        str = "} eq 1 ? '有':'无'";
-                        break;
-                    case "是否":
-                        str = "} eq 1 ? '是':'否'";
-                        break;
-                    case "性别":
-                        str = "} eq 1 ? '男':'女'";
-                        break;
-                    default:
-                        str = "} eq 1 ? '启用':'禁用'";
-                }
+                str = "} eq 1 ? '是':'否'";
             }
         } else {
             str = "}?:_";

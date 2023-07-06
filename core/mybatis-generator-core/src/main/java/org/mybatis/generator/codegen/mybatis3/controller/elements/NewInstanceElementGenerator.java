@@ -26,7 +26,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         if (introspectedTable.getRules().isGenerateCreateVO()) {
             parentElement.addImportedType(entityCreateVoType);
             type = entityCreateVoType;
-        }else if(introspectedTable.getRules().isGenerateVO()){
+        }else if(introspectedTable.getRules().isGenerateVoModel()){
             parentElement.addImportedType(entityVoType);
             type = entityVoType;
         }else{

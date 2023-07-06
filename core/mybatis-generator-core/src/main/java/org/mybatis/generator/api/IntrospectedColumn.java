@@ -94,7 +94,7 @@ public class IntrospectedColumn {
 
     protected boolean beValidated = false;
 
-
+    protected boolean isPrimaryKey = false;
 
     public IntrospectedColumn() {
         super();
@@ -479,5 +479,18 @@ public class IntrospectedColumn {
 
     public void setForeignKey(boolean foreignKey) {
         isForeignKey = foreignKey;
+    }
+
+    public boolean isRequired() {
+        return !this.isNullable() && !this.isAutoIncrement() && !this.isGeneratedColumn() && !this.isSequenceColumn();
+
+    }
+
+    public boolean isPrimaryKey() {
+        return isPrimaryKey;
+    }
+
+    public void setPrimaryKey(boolean primaryKey) {
+        isPrimaryKey = primaryKey;
     }
 }

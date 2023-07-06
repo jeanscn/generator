@@ -7,6 +7,7 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -39,15 +40,15 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
     public void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         String dataSource = this.htmlElementDescriptor.getDataSource();
         //计算使用方言
-        String thisDialect = null;
+       /* String thisDialect = null;
         if (stringHasValue(this.htmlElementDescriptor.getDataSource())) {
             thisDialect = "vgo:"+(dataSource.equals("Department")?"deptName":dataSource.equals("User")?"userName":dataSource.toLowerCase());
-        }
+        }*/
 
         this.otherFieldName = this.htmlElementDescriptor.getOtherFieldName();
         String javaProperty = introspectedColumn.getJavaProperty();
         if (!StringUtility.stringHasValue(this.otherFieldName)) {
-            this.otherFieldName = (javaProperty.length()>2 && javaProperty.endsWith("Id")?javaProperty.substring(0, javaProperty.length()-2):javaProperty)+"Text";
+            this.otherFieldName = ConfigUtil.getOverrideJavaProperty(javaProperty);
             this.htmlElementDescriptor.setOtherFieldName(this.otherFieldName);
         }
         HtmlElement input = generateHtmlInput(this.otherFieldName, false, false);
@@ -55,7 +56,8 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         addClassNameToElement(input, "layui-input");
         input.addAttribute(new Attribute("data-field", javaProperty));
         addElementVerify(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
-        input.addAttribute(new Attribute(thisDialect==null?"th:value":thisDialect, this.thymeleafValue(introspectedColumn)));
+        //input.addAttribute(new Attribute(thisDialect==null?"th:value":thisDialect, this.thymeleafValue(introspectedColumn)));
+        input.addAttribute(new Attribute("th:value", this.thymeleafValue(this.htmlElementDescriptor.getOtherFieldName(),GenerateUtils.getEntityKeyStr(introspectedTable))));
         input.addAttribute(new Attribute("for-type", "lay-select"));
         input.addAttribute(new Attribute("data-type", dataSource));
         if (stringHasValue(this.htmlElementDescriptor.getCallback())) {
@@ -65,7 +67,8 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         addDataUrl(input,htmlElementDescriptor,null);
         parent.addElement(input);
         HtmlElement divRead = addDivWithClassToParent(parent, "oas-form-item-read");
-        divRead.addAttribute(new Attribute(thisDialect==null?"th:text":thisDialect, this.thymeleafValue(introspectedColumn)));
+        //divRead.addAttribute(new Attribute(thisDialect==null?"th:text":thisDialect, this.thymeleafValue(introspectedColumn)));
+        divRead.addAttribute(new Attribute("th:text", this.thymeleafValue(this.htmlElementDescriptor.getOtherFieldName(),GenerateUtils.getEntityKeyStr(introspectedTable))));
         if (stringHasValue(htmlElementDescriptor.getBeanName())) {
             input.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
             divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.230619001-->
+        <!--version:1.5.0.2300706001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -481,16 +481,23 @@
              属性信息：
             1、generate 是否生成页面：”true“|”false“
             2、viewPath 视图文件名
-            3、overWriteFile 当页面存在时，是否覆盖。默认为false
-            4、targetProject 视图路径，默认"src/main/resources/templates"
-            5、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
+            3、overWriteHtmlFile 当页面存在时，是否覆盖。默认为false
+            4、overWriteJsFile 当页面存在时，是否覆盖。默认为false
+            5、overWriteCssFile 当页面存在时，是否覆盖。默认为false
+            6、targetProject 视图路径，默认"src/main/resources/templates"
+            7、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
+            可能的property配置：
+            1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
+            2、htmlElementRequired 页面文件中必填的列，多个”,“分隔。
         -->
 
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlElementInnerList?)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
                 viewPath CDATA #IMPLIED
-                overWriteFile (true|false) #IMPLIED
+                overWriteHtmlFile (true|false) #IMPLIED
+                overWriteJsFile (true|false) #IMPLIED
+                overWriteCssFile (true|false) #IMPLIED
                 targetPackage  CDATA #IMPLIED
                 targetProject CDATA #IMPLIED>
 
@@ -536,6 +543,12 @@
             8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
             9、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
             10、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
+                    * com.vgosoft.core.constant.enums.core.YesNoEnum  是否
+                    * com.vgosoft.core.constant.enums.core.ExistOrNotEnum 有无
+                    * com.vgosoft.core.constant.enums.core.GenderEnum 性别
+                    * com.vgosoft.core.constant.enums.core.CommonStatusEnum 启停
+                    * com.vgosoft.core.constant.enums.core.LevelListEnum 级别
+                    * com.vgosoft.core.constant.enums.core.UrgencyEnum 缓急
             11、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
             12、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
             说明：
@@ -554,7 +567,7 @@
                 dataUrl CDATA #IMPLIED
                 dataFormat (启停|有无|是否|性别|缓急|级别) #IMPLIED
                 otherFieldName CDATA #IMPLIED
-                dataSource (DictData|Dict|DictSys|DictUser|DictModule|Department|User|DictEnum) #IMPLIED
+                dataSource (DictData|Dict|DictSys|DictUser|DictModule|Organ|Department|User|DictEnum) #IMPLIED
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
                 verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED
@@ -564,11 +577,44 @@
                 switchText CDATA #IMPLIED>
 
         <!--
+            为页面添加一个附件上传组件
+            属性信息：
+            1、generate 是否生成附件上传组件，true-生成，false-不生成。默认为true
+            2、label 附件上传组件的标题，默认为“附件”
+            3、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
+
+        -->
+        <!ELEMENT htmlFileAttachment EMPTY>
+        <!ATTLIST htmlFileAttachment
+                generate (true|false) #IMPLIED
+                label  CDATA #IMPLIED
+                afterColumn CDATA #IMPLIED>
+
+        <!--
+            为页面添加一个审批意见组件
+            属性信息：
+            1、generate 是否生成审批意见组件，true-生成，false-不生成。默认为true
+            2、afterColumn 在指定列的后面添加审批意见组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            3、label 审批意见组件的标题，默认为“审批意见”
+            4、locationTag 审批意见组件的位置标签，默认为“审批意见”
+                -->
+        <!ELEMENT approvalComment EMPTY>
+        <!ATTLIST approvalComment
+                generate (true|false) #IMPLIED
+                afterColumn CDATA #IMPLIED
+                label  CDATA #IMPLIED
+                locationTag CDATA #IMPLIED>
+
+        <!--
             用来描述页面列表元素的配置
             1、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
             2、sourceBeanName 引用的源表的beanName，必须
             3、relationField 关联字段，必须，表示当前列表与源表的关联字段
-            4、tagId 要绑定的列表的目页面标签的id属性名
+            4、tagId 要绑定的列表的目表页面的标签id名，必须。
+                如指定tagId=“detail” 则会在页面中生成一个id=“detail”的table标签，用来绑定列表。
+                    <div class="inner-list-container">
+                        <table id="detail" lay-filter="detail"></table>
+                    </div>
             5、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
             6、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
 

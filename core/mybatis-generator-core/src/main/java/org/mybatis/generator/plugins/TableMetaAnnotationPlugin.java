@@ -1,23 +1,15 @@
 package org.mybatis.generator.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.annotations.ColumnMeta;
-import org.mybatis.generator.custom.annotations.TableMeta;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.custom.annotations.TableMetaDesc;
 
-import java.util.Arrays;
 import java.util.List;
-
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_COLUMN_META;
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TABLE_META;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * 添加TableMetaAnnotation
@@ -94,9 +86,15 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
         if (isNoMetaAnnotation(introspectedTable)) {
             return;
         }
-        TableMeta tableMeta = new TableMeta(introspectedTable);
-        topLevelClass.addAnnotation(tableMeta.toAnnotation());
-        topLevelClass.addImportedTypes(tableMeta.getImportedTypes());
+        TableMetaDesc tableMetaDesc = new TableMetaDesc(introspectedTable);
+        topLevelClass.getSuperClass().ifPresent(superClass -> {
+            tableMetaDesc.setSuperClass(superClass.getShortNameWithoutTypeArguments()+".class");
+        });
+        topLevelClass.getSuperInterfaceTypes().forEach(superInterface -> {
+            tableMetaDesc.addSuperInterface(superInterface.getShortNameWithoutTypeArguments()+".class");
+        });
+        topLevelClass.addAnnotation(tableMetaDesc.toAnnotation());
+        topLevelClass.addImportedTypes(tableMetaDesc.getImportedTypes());
     }
 
 }

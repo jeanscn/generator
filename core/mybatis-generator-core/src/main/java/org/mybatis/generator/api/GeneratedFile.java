@@ -9,6 +9,8 @@ public abstract class GeneratedFile {
 
     protected final String targetProject;
 
+    protected boolean isOverWriteFile = true;
+
     protected GeneratedFile(String targetProject) {
         this.targetProject = targetProject;
     }
@@ -66,4 +68,12 @@ public abstract class GeneratedFile {
     public abstract boolean isMergeable();
 
     public abstract String getFileEncoding();
+
+    public boolean isOverWriteFile(){
+        return this.isOverWriteFile;
+    }
+
+    public void setOverWriteFile(boolean isOverWriteFile){
+        this.isOverWriteFile = isOverWriteFile;
+    }
 }

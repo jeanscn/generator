@@ -62,10 +62,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (introspectedTable.getRules().isGenerateViewVO()) {
             //增加ViewMetaAnnotation
-            ViewColumnMeta viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
-            updateOrder(field, introspectedTable, viewColumnMeta);
-            field.addAnnotation(viewColumnMeta.toAnnotation());
-            topLevelClass.addImportedTypes(viewColumnMeta.getImportedTypes());
+            ViewColumnMetaDesc viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, introspectedTable);
+            updateOrder(field, introspectedTable, viewColumnMetaDesc);
+            field.addAnnotation(viewColumnMetaDesc.toAnnotation());
+            topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
         }
         addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, introspectedTable);
         return true;
@@ -79,26 +79,26 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (!introspectedTable.getRules().isGenerateViewVO()) {
             return true;
         }
-        ViewColumnMeta viewColumnMeta;
+        ViewColumnMetaDesc viewColumnMetaDesc;
         if (introspectedColumn != null) {
-            viewColumnMeta = ViewColumnMeta.create(introspectedColumn, introspectedTable);
+            viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, introspectedTable);
         } else {
-            viewColumnMeta = new ViewColumnMeta(field, field.getRemark(), introspectedTable);
+            viewColumnMetaDesc = new ViewColumnMetaDesc(field, field.getRemark(), introspectedTable);
         }
-        updateOrder(field, introspectedTable, viewColumnMeta);
-        field.addAnnotation(viewColumnMeta.toAnnotation());
-        topLevelClass.addImportedTypes(viewColumnMeta.getImportedTypes());
+        updateOrder(field, introspectedTable, viewColumnMetaDesc);
+        field.addAnnotation(viewColumnMetaDesc.toAnnotation());
+        topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
 
         addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, introspectedTable);
         return true;
     }
 
-    private void updateOrder(Field field, IntrospectedTable introspectedTable, ViewColumnMeta viewColumnMeta) {
+    private void updateOrder(Field field, IntrospectedTable introspectedTable, ViewColumnMetaDesc viewColumnMetaDesc) {
         //更新order
         if (introspectedTable.getRules().isGenerateViewVO()) {
             VOViewGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
             List<String> displayFields = configuration.getDefaultDisplayFields();
-            viewColumnMeta.setOrder(getOrder(field, displayFields));
+            viewColumnMetaDesc.setOrder(getOrder(field, displayFields));
         }
     }
 
@@ -162,7 +162,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> ViewColumnMeta.create(c, introspectedTable).toAnnotation())
+                    .map(c -> ViewColumnMetaDesc.create(c, introspectedTable).toAnnotation())
                     .toArray(String[]::new);
             viewTableMeta.setColumns(strings);
         }

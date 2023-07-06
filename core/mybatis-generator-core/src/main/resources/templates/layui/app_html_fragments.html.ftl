@@ -48,7 +48,7 @@
             <input class="table-inner-switch"
                    data-field="${item.fieldName}"
                    id="inner-${item.fieldName}{{d.LAY_NUM}}"
-                   title=<#if item.switchText?? && item.switchText!="" >"${item.switchText}"<#else>"启用|禁用"</#if>
+                   title=<#if item.switchText?? && item.switchText!="" >"${item.switchText}"<#else>"是|否"</#if>
             {{=d.${item.fieldName}==1?"checked":""}}
             type="checkbox"
             lay-skin="switch"
