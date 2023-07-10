@@ -23,6 +23,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private Set<String> hiddenColumnNames = new HashSet<>();
 
+    private Set<String> readonlyColumnNames = new HashSet<>();
+
     private Set<IntrospectedColumn> hiddenColumns = new HashSet<>();
 
     //指定页面表单不允许为空的字段
@@ -177,5 +179,13 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public void addHtmlApprovalCommentConfiguration(HtmlApprovalCommentConfiguration htmlApprovalCommentConfiguration) {
         this.htmlApprovalCommentConfigurations.add(htmlApprovalCommentConfiguration);
+    }
+
+    public Set<String> getReadonlyColumnNames() {
+        return readonlyColumnNames;
+    }
+
+    public void setReadonlyColumnNames(Set<String> readonlyColumnNames) {
+        this.readonlyColumnNames = readonlyColumnNames;
     }
 }

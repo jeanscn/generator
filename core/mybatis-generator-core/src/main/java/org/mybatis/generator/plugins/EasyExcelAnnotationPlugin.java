@@ -1,20 +1,12 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.annotations.AbstractAnnotation;
-import org.mybatis.generator.custom.annotations.ExcelProperty;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.custom.annotations.ExcelPropertyDesc;
 
-import javax.annotation.Nullable;
-import java.sql.JDBCType;
 import java.util.List;
 import java.util.Set;
 
@@ -59,28 +51,28 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
 
     private void addExcelAnnotation(TopLevelClass topLevelClass,Field field,IntrospectedColumn introspectedColumn){
         String remark = introspectedColumn == null ? field.getRemark() : introspectedColumn.getRemarks(true);
-        ExcelProperty excelProperty = new ExcelProperty(remark);
+        ExcelPropertyDesc excelPropertyDesc = new ExcelPropertyDesc(remark);
         if (introspectedColumn != null) {
-            excelProperty.setOrder(introspectedColumn.getOrder());
+            excelPropertyDesc.setOrder(introspectedColumn.getOrder());
         }
         if (field.getAnnotations().stream()
                 .anyMatch(annotation -> annotation.contains("@Dict"))) {
-            excelProperty.setConverter("ExportDictConverter.class");
-            excelProperty.addImports("com.vgosoft.plugins.excel.converter.ExportDictConverter");
+            excelPropertyDesc.setConverter("ExportDictConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.ExportDictConverter");
         }else if(field.getType().getShortName().equals("LocalDateTime")){
-            excelProperty.setConverter("LocalDateTimeConverter.class");
-            excelProperty.addImports("com.vgosoft.plugins.excel.converter.LocalDateTimeConverter");
+            excelPropertyDesc.setConverter("LocalDateTimeConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.LocalDateTimeConverter");
         }else if (field.getType().getShortName().equals("LocalDate")){
-            excelProperty.setConverter("LocalDateConverter.class");
-            excelProperty.addImports("com.vgosoft.plugins.excel.converter.LocalDateConverter");
+            excelPropertyDesc.setConverter("LocalDateConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.LocalDateConverter");
         }else if (field.getType().getShortName().equals("LocalTime")){
-            excelProperty.setConverter("LocalTimeConverter.class");
-            excelProperty.addImports("com.vgosoft.plugins.excel.converter.LocalTimeConverter");
+            excelPropertyDesc.setConverter("LocalTimeConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.LocalTimeConverter");
         }else if (field.getType().getShortName().equals("Instant")){
-            excelProperty.setConverter("InstantConverter.class");
-            excelProperty.addImports("com.vgosoft.plugins.excel.converter.InstantConverter");
+            excelPropertyDesc.setConverter("InstantConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.InstantConverter");
         }
-        field.addAnnotation(excelProperty.toAnnotation());
-        topLevelClass.addImportedTypes(excelProperty.getImportedTypes());
+        field.addAnnotation(excelPropertyDesc.toAnnotation());
+        topLevelClass.addImportedTypes(excelPropertyDesc.getImportedTypes());
     }
 }

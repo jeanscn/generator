@@ -3,15 +3,10 @@ package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 import com.vgosoft.core.constant.enums.IBaseEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.config.Context;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-
-import java.util.List;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -20,20 +15,12 @@ import java.util.List;
  */
 
 public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
-
-    public SwitchHtmlGenerator() {
-    }
-
-    public SwitchHtmlGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
-        super(context, introspectedTable, warnings, progressCallback);
-    }
-
-    public SwitchHtmlGenerator(GeneratorInitialParameters generatorInitialParameters) {
-        super(generatorInitialParameters);
+    public SwitchHtmlGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
+        super(generatorInitialParameters,introspectedColumn);
     }
 
     @Override
-    public void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent) {
+    public void addHtmlElement(HtmlElement parent) {
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
         HtmlElement element = new HtmlElement("input");
         element.addAttribute(new Attribute("type", "checkbox"));
@@ -70,14 +57,14 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("type", "hidden"));
-        element.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn)));
+        element.addAttribute(new Attribute("th:value", thymeleafValue()));
         parent.addElement(element);
 
         //读写状态区
         addClassNameToElement(parent, "oas-form-item-edit");
         parent.addAttribute(new Attribute("for-type", "lay-switch"));
         //在parent中添加data-data属性，用于保存初始值
-        parent.addAttribute(new Attribute("th:data-data", thymeleafValue(introspectedColumn)));
+        parent.addAttribute(new Attribute("th:data-data", thymeleafValue()));
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         //非空验证
@@ -85,7 +72,7 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
     }
 
     @Override
-    public String getFieldValueFormatPattern(IntrospectedColumn introspectedColumn) {
+    public String getFieldValueFormatPattern() {
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedColumn.getIntrospectedTable());
         StringBuilder sb = new StringBuilder();
         sb.append("${").append(entityKey).append("?.").append(introspectedColumn.getJavaProperty());

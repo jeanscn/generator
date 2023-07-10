@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 /**
@@ -27,8 +27,8 @@ public class DeleteByTableElement extends AbstractServiceElementGenerator {
                     Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,false);
                     method.addAnnotation("@Override");
                     if (introspectedTable.getRules().isGenerateCachePO()) {
-                        CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
-                        method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
+                        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+                        method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
                     }
                     method.addBodyLine("return mapper.{0}({1},{2});"
                             ,c.getSplitMethodName()

@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
+        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
 
         /* updateByPrimaryKeySelective */
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
@@ -35,8 +35,8 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
-            cacheAnnotation.setKey("#record.id");
-            updateByPrimaryKeySelective.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(false));
+            cacheAnnotationDesc.setKey("#record.id");
+            updateByPrimaryKeySelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(false));
         }
         if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
@@ -64,8 +64,8 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
-            cacheAnnotation.setKey("#record.id");
-            updateByPrimaryKey.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
+            cacheAnnotationDesc.setKey("#record.id");
+            updateByPrimaryKey.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()

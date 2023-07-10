@@ -67,7 +67,7 @@ public class Interface extends InnerInterface implements CompilationUnit {
     }
 
     @Override
-    public List<Field> getAddtionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAddtionalPropertiesFields(Set<VoAdditionalPropertyGeneratorConfiguration> configurations) {
         List<Field> fields = new ArrayList<>();
         configurations.stream()
                 .filter(c -> !(c.getName() == null || c.getType() == null))

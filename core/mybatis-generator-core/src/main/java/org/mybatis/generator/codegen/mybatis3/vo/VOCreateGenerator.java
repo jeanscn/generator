@@ -6,7 +6,7 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VOCreateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,10 +57,10 @@ public class VOCreateGenerator extends AbstractVOGenerator{
             Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
             selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
             selectiveUpdate.setRemark("插入时选择性更新");
-            ApiModelProperty apiModelProperty = new ApiModelProperty(selectiveUpdate.getRemark());
-            apiModelProperty.setExample("true");
-            selectiveUpdate.addAnnotation(apiModelProperty.toAnnotation());
-            createVoClass.addImportedTypes(apiModelProperty.getImportedTypes());
+            ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(selectiveUpdate.getRemark());
+            apiModelPropertyDesc.setExample("true");
+            selectiveUpdate.addAnnotation(apiModelPropertyDesc.toAnnotation());
+            createVoClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
             createVoClass.addField(selectiveUpdate);
         }
 
@@ -76,7 +76,7 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         }
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         createVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voCreateFieldGenerated(field, createVoClass, null, introspectedTable)) {

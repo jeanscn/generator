@@ -16,11 +16,11 @@ public abstract class AbstractGenerator {
     protected AbstractGenerator() {
     }
 
-    protected AbstractGenerator(GeneratorInitialParameters generatorInitialParameters) {
-        this.context = generatorInitialParameters.getContext();
-        this.introspectedTable = generatorInitialParameters.getIntrospectedTable();
-        this.warnings = generatorInitialParameters.getWarnings();
-        this.progressCallback = generatorInitialParameters.getProgressCallback();
+    protected AbstractGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
+        this.context = context;
+        this.introspectedTable = introspectedTable;
+        this.warnings = warnings;
+        this.progressCallback = progressCallback;
     }
 
     public Context getContext() {

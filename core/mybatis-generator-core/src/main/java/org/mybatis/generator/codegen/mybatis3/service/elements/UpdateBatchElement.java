@@ -4,7 +4,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 
 import java.util.List;
@@ -34,8 +34,8 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         Method method = serviceMethods.getUpdateBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
         if (introspectedTable.getRules().isGenerateCachePO()) {
-            CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
-            method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
+            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+            method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()

@@ -6,6 +6,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.Context;
 
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
@@ -18,7 +19,7 @@ import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 public class Mb3GenUtil {
 
     public static String getControllerBaseMappingPath(IntrospectedTable introspectedTable){
-        String beanName = introspectedTable.getTableConfiguration().getIntrospectedTableBeanName();
+        String beanName = ConfigUtil.getIntrospectedTableBeanName(introspectedTable.getTableConfiguration());
         String basePath = introspectedTable.getTableConfiguration().getServiceApiBasePath();
         if (StringUtility.stringHasValue(basePath)) {
             return basePath + "/" + toHyphenCase(beanName);

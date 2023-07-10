@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,10 +39,10 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(response);
         method.setReturnRemark("成功删除的记录数");
 
-        method.addAnnotation(new SystemLog("删除了一条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping(pathVariable, RequestMethod.DELETE),parentElement);
+        method.addAnnotation(new SystemLogDesc("删除了一条记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc(pathVariable, RequestMethod.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"删除");
-        method.addAnnotation(new ApiOperation("单条记录删除", "根据给定的id删除一条记录"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("单条记录删除", "根据给定的id删除一条记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "删除一条记录");
 

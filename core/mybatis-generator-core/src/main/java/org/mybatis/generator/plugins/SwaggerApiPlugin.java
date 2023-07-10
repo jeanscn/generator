@@ -8,9 +8,9 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.annotations.Api;
-import org.mybatis.generator.custom.annotations.ApiModel;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiDesc;
+import org.mybatis.generator.custom.annotations.ApiModelDesc;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +34,8 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-            apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
+            ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+            apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
@@ -43,22 +43,22 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     @Override
     public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-        apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
+        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
     @Override
     public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-        apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
+        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
     @Override
     public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        ApiModel apiModelAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
-        apiModelAnnotation.addAnnotationToTopLevelClass(topLevelClass);
+        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+        apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
@@ -75,7 +75,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
+        ApiModelPropertyDesc apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
         if (apiModelPropertyAnnotation != null) {
             if (!introspectedColumn.isNullable()) {
                 apiModelPropertyAnnotation.setRequired("true");
@@ -95,7 +95,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        ApiModelProperty apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
+        ApiModelPropertyDesc apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
         if (apiModelPropertyAnnotation != null) {
             apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
         }
@@ -154,7 +154,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!isNoSwaggerAnnotation(introspectedTable)) {
-            Api.create(introspectedTable.getRemarks(true)).addAnnotationToTopLevelClass(topLevelClass);
+            ApiDesc.create(introspectedTable.getRemarks(true)).addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
@@ -168,49 +168,49 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,boolean required) {
-        ApiModelProperty apiModelProperty = buildApiModelPropertyAnnotation(field, introspectedTable);
-        if (apiModelProperty == null) {
+        ApiModelPropertyDesc apiModelPropertyDesc = buildApiModelPropertyAnnotation(field, introspectedTable);
+        if (apiModelPropertyDesc == null) {
             return false;
         }
         if (required) {
-            apiModelProperty.setRequired("true");
+            apiModelPropertyDesc.setRequired("true");
         }else{
-            apiModelProperty.setRequired(null);
+            apiModelPropertyDesc.setRequired(null);
         }
-        apiModelProperty.addAnnotationToField(field, topLevelClass);
+        apiModelPropertyDesc.addAnnotationToField(field, topLevelClass);
         return true;
     }
 
     /**
      * 构造注解@ApiModelProperty
      */
-    private ApiModelProperty buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable) {
-        final ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark());
-        apiModelProperty.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
+    private ApiModelPropertyDesc buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable) {
+        final ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(field.getRemark());
+        apiModelPropertyDesc.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
         introspectedTable.getAllColumns().stream()
                 .filter(column -> column.getJavaProperty().equals(field.getName()))
                 .findFirst()
                 .ifPresent(column -> {
                     if (!column.isNullable()) {
-                        apiModelProperty.setRequired("true");
+                        apiModelPropertyDesc.setRequired("true");
                     }
         });
-        if (apiModelProperty.getValue() == null) {
+        if (apiModelPropertyDesc.getValue() == null) {
             return null;
         }
-        return apiModelProperty;
+        return apiModelPropertyDesc;
     }
 
     /**
      * model类的@apiModel
      */
-    private ApiModel buildApiModelAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
+    private ApiModelDesc buildApiModelAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
         FullyQualifiedJavaType fullyQualifiedJavaType =  topLevelClass.getType();
-        ApiModel apiModel = ApiModel.create(fullyQualifiedJavaType.getShortName());
-        apiModel.setDescription(introspectedTable.getRemarks(true));
+        ApiModelDesc apiModelDesc = ApiModelDesc.create(fullyQualifiedJavaType.getShortName());
+        apiModelDesc.setDescription(introspectedTable.getRemarks(true));
         final Optional<FullyQualifiedJavaType> superClass = topLevelClass.getSuperClass();
-        superClass.ifPresent(qualifiedJavaType -> apiModel.setParent(qualifiedJavaType.getShortNameWithoutTypeArguments() + ".class"));
-        return apiModel;
+        superClass.ifPresent(qualifiedJavaType -> apiModelDesc.setParent(qualifiedJavaType.getShortNameWithoutTypeArguments() + ".class"));
+        return apiModelDesc;
     }
 
 }

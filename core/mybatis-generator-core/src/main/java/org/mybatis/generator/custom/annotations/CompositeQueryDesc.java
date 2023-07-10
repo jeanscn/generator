@@ -5,15 +5,13 @@ import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.core.constant.enums.view.TagNamesEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.internal.util.StringUtility;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2022-10-07 06:58
  * @version 3.0
  */
-public class CompositeQuery extends AbstractAnnotation{
+public class CompositeQueryDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@CompositeQuery";
 
@@ -25,11 +23,11 @@ public class CompositeQuery extends AbstractAnnotation{
     private FieldTypeEnum fieldType = FieldTypeEnum.TEXT;
     private String dataUrl;
 
-    public static CompositeQuery create(IntrospectedColumn introspectedColumn){
-        return new CompositeQuery(introspectedColumn);
+    public static CompositeQueryDesc create(IntrospectedColumn introspectedColumn){
+        return new CompositeQueryDesc(introspectedColumn);
     }
 
-    public CompositeQuery(IntrospectedColumn introspectedColumn) {
+    public CompositeQueryDesc(IntrospectedColumn introspectedColumn) {
         super();
         this.value = introspectedColumn.getActualColumnName();
         this.items.add(VStringUtil.format("value=\"{0}\"", this.value));

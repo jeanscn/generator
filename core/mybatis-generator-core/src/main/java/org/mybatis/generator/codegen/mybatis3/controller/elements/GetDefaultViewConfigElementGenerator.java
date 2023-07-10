@@ -5,9 +5,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -32,10 +32,10 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         method.setReturnType(responseResult);
         method.setReturnRemark("视图配置数据对象");
 
-        method.addAnnotation(new SystemLog("查看表默认视图配置",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("dt/view-default", RequestMethod.POST),parentElement);
+        method.addAnnotation(new SystemLogDesc("查看表默认视图配置",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("dt/view-default", RequestMethod.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图配置");
-        method.addAnnotation(new ApiOperation("默认数据视图配置", "获取默认数据视图配置"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("默认数据视图配置", "获取默认数据视图配置"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "查看表默认视图配置");
 

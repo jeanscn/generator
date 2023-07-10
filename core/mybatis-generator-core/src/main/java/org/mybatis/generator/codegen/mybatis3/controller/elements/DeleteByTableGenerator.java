@@ -3,9 +3,9 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.stream.Collectors;
@@ -44,11 +44,11 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnType(response);
                     method.setReturnRemark("成功删除的记录数");
 
-                    method.addAnnotation(new SystemLog("删除数据关联",introspectedTable),parentElement);
-                    method.addAnnotation(new RequestMapping("split/"+ toHyphenCase(c.getMethodSuffix())
+                    method.addAnnotation(new SystemLogDesc("删除数据关联",introspectedTable),parentElement);
+                    method.addAnnotation(new RequestMappingDesc("split/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethod.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getSplitMethodName(),"删除关系");
-                    method.addAnnotation(new ApiOperation("删除数据关联关系", "删除中间表数据"),parentElement);
+                    method.addAnnotation(new ApiOperationDesc("删除数据关联关系", "删除中间表数据"),parentElement);
 
                     commentGenerator.addMethodJavaDocLine(method, "删除中间关系表数据（取消数据关联）");
 

@@ -8,9 +8,10 @@ import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModel;
+import org.mybatis.generator.custom.annotations.ApiModelDesc;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -29,8 +30,8 @@ public class VOViewGenerator extends AbstractVOGenerator {
         String viewVOType = voViewGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass viewVOClass = createTopLevelClass(viewVOType, getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addMultipleImports("lombok");
-        ApiModel apiModel = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
-        apiModel.addAnnotationToTopLevelClass(viewVOClass);
+        ApiModelDesc apiModelDesc = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
+        apiModelDesc.addAnnotationToTopLevelClass(viewVOClass);
         viewVOClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         viewVOClass.addSerialVersionUID();
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voViewGeneratorConfiguration.getIncludeColumns(), voViewGeneratorConfiguration.getExcludeColumns());
@@ -46,7 +47,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
             }
         }
         //增加映射
-        List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
+        Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
         voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass)
                 .forEach(field -> {
                     if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
@@ -55,7 +56,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
                     }
                 });
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         viewVOClass.getAddtionalPropertiesFields(additionalPropertyConfigurations)
                 .forEach(field -> {

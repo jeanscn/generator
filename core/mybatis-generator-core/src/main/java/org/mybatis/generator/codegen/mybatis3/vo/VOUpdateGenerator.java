@@ -6,11 +6,12 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * updateVO生成器
@@ -61,7 +62,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         }
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         updateVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voUpdateFieldGenerated(field, updateVoClass, null, introspectedTable)) {
@@ -76,7 +77,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
             Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
             selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
             selectiveUpdate.setRemark("更新时选择性插入");
-            ApiModelProperty apiModelProperty = new ApiModelProperty(selectiveUpdate.getRemark());
+            ApiModelPropertyDesc apiModelProperty = new ApiModelPropertyDesc(selectiveUpdate.getRemark());
             apiModelProperty.setExample("true");
             selectiveUpdate.addAnnotation(apiModelProperty.toAnnotation());
             updateVoClass.addImportedTypes(apiModelProperty.getImportedTypes());

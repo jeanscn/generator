@@ -7,7 +7,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 
 import java.util.List;
 
@@ -41,10 +41,10 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         selectByKeysDictMethod.addAnnotation("@Override");
         final List<Parameter> parameters = serviceMethods.getSelectByKeysDictMethodParameters();
         //添加缓存注解
-        CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
-        cacheAnnotation.setParameters(parameters);
-        cacheAnnotation.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.getResult()==null || #result.getResult().isEmpty()");
-        selectByKeysDictMethod.addAnnotation(cacheAnnotation.toCacheableAnnotation());
+        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+        cacheAnnotationDesc.setParameters(parameters);
+        cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.getResult()==null || #result.getResult().isEmpty()");
+        selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
         //方法体
         selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
         selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");

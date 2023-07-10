@@ -1,8 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
-import com.vgosoft.tool.core.VDateUtils;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
@@ -10,20 +8,16 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
@@ -128,7 +122,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
         //增加映射
         VoGenService voGenService = new VoGenService(introspectedTable);
-        List<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
+        Set<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
         voGenService.buildOverrideColumn(overrideProperty, topLevelClass, ModelClassTypeEnum.modelClass).forEach(f -> {
             if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
                 topLevelClass.addField(f);
@@ -137,7 +131,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         });
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
         List<Field> addtionalPropertiesFields = topLevelClass.getAddtionalPropertiesFields(additionalProperty);
         addtionalPropertiesFields.forEach(f -> {
             if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable,
@@ -204,7 +198,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 if (field.getRemark() == null) {
                     field.setRemark(relationProperty.getRemark());
                 }
-                ApiModelProperty apiModelProperty = new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
+                ApiModelPropertyDesc apiModelProperty = new ApiModelPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
                 apiModelProperty.addAnnotationToField(field, topLevelClass);
                 topLevelClass.addField(field, null, true);
                 topLevelClass.addImportedType(fullyQualifiedJavaType);

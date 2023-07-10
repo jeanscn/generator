@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.config.Context;
@@ -16,6 +17,8 @@ public class GeneratorInitialParameters {
     private IntrospectedTable introspectedTable;
     private List<String> warnings;
     private ProgressCallback progressCallback;
+
+    private IntrospectedColumn introspectedColumn;
 
     public GeneratorInitialParameters(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
         this.context = context;
@@ -54,5 +57,13 @@ public class GeneratorInitialParameters {
 
     public void setProgressCallback(ProgressCallback progressCallback) {
         this.progressCallback = progressCallback;
+    }
+
+    public IntrospectedColumn getIntrospectedColumn() {
+        return introspectedColumn;
+    }
+
+    public void setIntrospectedColumn(IntrospectedColumn introspectedColumn) {
+        this.introspectedColumn = introspectedColumn;
     }
 }

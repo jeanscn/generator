@@ -7,7 +7,7 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModel;
+import org.mybatis.generator.custom.annotations.ApiModelDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
@@ -86,11 +86,11 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         return new FullyQualifiedJavaType(baseTargetPackage + "." + subPackageAbs + "." + abstractName);
     }
 
-    protected ApiModel addApiModel(String voModelName) {
-        ApiModel apiModel = ApiModel.create(voModelName);
-        apiModel.setParent(getAbstractVOType().getShortName() + ".class");
-        apiModel.setDescription(introspectedTable.getRemarks(true));
-        return apiModel;
+    protected ApiModelDesc addApiModel(String voModelName) {
+        ApiModelDesc apiModelDesc = ApiModelDesc.create(voModelName);
+        apiModelDesc.setParent(getAbstractVOType().getShortName() + ".class");
+        apiModelDesc.setDescription(introspectedTable.getRemarks(true));
+        return apiModelDesc;
     }
 
     protected boolean isAbstractVOColumn(IntrospectedColumn introspectedColumn) {

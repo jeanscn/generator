@@ -11,9 +11,9 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     protected Set<String> excludeColumns = new HashSet<>();
 
-    private List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
+    private Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
 
-    private List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
+    private Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
 
     private final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
         return fullyQualifiedJavaType;
     }
 
-    public List<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
+    public Set<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
         return overridePropertyConfigurations;
     }
 
@@ -53,7 +53,7 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
         this.overridePropertyConfigurations.add(overridePropertyConfiguration );
     }
 
-    public void setOverridePropertyConfigurations(List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
+    public void setOverridePropertyConfigurations(Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
         this.overridePropertyConfigurations = overridePropertyConfigurations;
     }
 
@@ -65,11 +65,11 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
         this.voGeneratorConfiguration = voGeneratorConfiguration;
     }
 
-    public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
+    public Set<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
         return additionalPropertyConfigurations;
     }
 
-    public void setAdditionalPropertyConfigurations(List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
+    public void setAdditionalPropertyConfigurations(Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
         this.additionalPropertyConfigurations = additionalPropertyConfigurations;
     }
 

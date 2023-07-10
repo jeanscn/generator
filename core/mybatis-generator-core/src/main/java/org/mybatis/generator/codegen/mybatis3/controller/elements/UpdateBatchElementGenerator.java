@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
@@ -43,10 +43,10 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
                 parentElement));
         method.setReturnRemark("更新后的数据对象列表");
 
-        method.addAnnotation(new SystemLog("更新了多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("batch", RequestMethod.PUT),parentElement);
+        method.addAnnotation(new SystemLogDesc("更新了多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("batch", RequestMethod.PUT),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量更新");
-        method.addAnnotation(new ApiOperation("批量更新数据", "根据主键批量更新数据"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("批量更新数据", "根据主键批量更新数据"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "根据主键批量更新实体对象");
 

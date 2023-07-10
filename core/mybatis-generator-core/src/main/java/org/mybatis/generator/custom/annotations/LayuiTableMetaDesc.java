@@ -1,11 +1,9 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.tool.core.VStringUtil;
+import com.vgosoft.core.annotation.LayuiTableMeta;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.vgosoft.tool.core.VStringUtil.*;
 
@@ -14,9 +12,9 @@ import static com.vgosoft.tool.core.VStringUtil.*;
  * 2023-06-02 19:50
  * @version 4.0
  */
-public class LayuiTableMeta extends AbstractAnnotation {
+public class LayuiTableMetaDesc extends AbstractAnnotation {
 
-    public static final String ANNOTATION_NAME = "@LayuiTableMeta";
+    public static final String ANNOTATION_NAME = "@"+ LayuiTableMeta.class.getSimpleName();
 
     private List<String> defaultToolbar = new ArrayList<>();
 
@@ -29,9 +27,9 @@ public class LayuiTableMeta extends AbstractAnnotation {
     private String size;
     private boolean even;
 
-    public LayuiTableMeta() {
+    public LayuiTableMetaDesc() {
         super();
-        this.addImports("com.vgosoft.core.annotation.LayuiTableMeta");
+        this.addImports(LayuiTableMeta.class.getCanonicalName());
     }
 
     @Override

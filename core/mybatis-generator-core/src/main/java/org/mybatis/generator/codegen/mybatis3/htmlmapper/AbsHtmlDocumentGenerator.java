@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VArrayUtil;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
@@ -324,10 +325,8 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
     }
 
     protected String getOtherValueFormatPattern(HtmlElementDescriptor htmlElementDescriptor){
-        if (htmlElementDescriptor.getOtherFieldName() != null) {
-            return "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + htmlElementDescriptor.getOtherFieldName() +
-                    "}?:_";
-        }
-        return null;
+        String fieldName = stringHasValue(htmlElementDescriptor.getOtherFieldName())?
+                htmlElementDescriptor.getOtherFieldName():htmlElementDescriptor.getColumn().getJavaProperty();
+        return "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + fieldName + "}?:_";
     }
 }

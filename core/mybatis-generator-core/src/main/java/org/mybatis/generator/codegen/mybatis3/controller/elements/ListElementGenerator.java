@@ -7,9 +7,9 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 public class ListElementGenerator extends AbstractControllerElementGenerator {
 
@@ -46,10 +46,10 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
                 parentElement));
         method.setReturnRemark("结果对象列表");
 
-        method.addAnnotation(new SystemLog("查看数据列表", introspectedTable), parentElement);
-        method.addAnnotation(new RequestMapping("", RequestMethod.GET), parentElement);
+        method.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethod.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "数据列表");
-        method.addAnnotation(new ApiOperation("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
+        method.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "获取条件实体对象列表");
 

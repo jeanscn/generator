@@ -9,7 +9,7 @@ import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.IAnnotation;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.custom.annotations.CacheAnnotation;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -254,8 +254,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     protected void addCacheEvictAnnotation(Method method,TopLevelClass parentElement){
         if (introspectedTable.getRules().isGenerateCachePO()) {
-            CacheAnnotation cacheAnnotation = new CacheAnnotation(entityType.getShortName());
-            method.addAnnotation(cacheAnnotation.toCacheEvictAnnotation(true));
+            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+            method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
             method.setVisibility(JavaVisibility.PUBLIC);
         }

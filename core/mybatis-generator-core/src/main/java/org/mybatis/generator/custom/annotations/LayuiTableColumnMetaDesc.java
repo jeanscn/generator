@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.LayuiTableColumnMeta;
+
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 
@@ -10,7 +12,7 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2023-06-02 20:08
  * @version 4.0
  */
-public class LayuiTableColumnMeta extends AbstractAnnotation{
+public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         public static final String ANNOTATION_NAME = "@LayuiTableColumnMeta";
 
@@ -32,9 +34,9 @@ public class LayuiTableColumnMeta extends AbstractAnnotation{
 
         private String scope;
 
-        public LayuiTableColumnMeta() {
+        public LayuiTableColumnMetaDesc() {
             super();
-            this.addImports("com.vgosoft.core.annotation.LayuiTableColumnMeta");
+            this.addImports(LayuiTableColumnMeta.class.getCanonicalName());
         }
 
         @Override

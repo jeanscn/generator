@@ -1,9 +1,9 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.ColumnMeta;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.custom.ConstantsUtil;
 
 import java.sql.JDBCType;
 
@@ -12,7 +12,7 @@ import java.sql.JDBCType;
  * 2022-10-07 01:58
  * @version 3.0
  */
-public class ColumnMeta  extends AbstractAnnotation{
+public class ColumnMetaDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ColumnMeta";
 
@@ -32,11 +32,11 @@ public class ColumnMeta  extends AbstractAnnotation{
     private  String remarks;
     private  String position;
 
-    public static ColumnMeta create(IntrospectedColumn introspectedColumn){
-        return new ColumnMeta(introspectedColumn);
+    public static ColumnMetaDesc create(IntrospectedColumn introspectedColumn){
+        return new ColumnMetaDesc(introspectedColumn);
     }
 
-    public ColumnMeta(IntrospectedColumn introspectedColumn) {
+    public ColumnMetaDesc(IntrospectedColumn introspectedColumn) {
         this.value = introspectedColumn.getActualColumnName();
         this.description = introspectedColumn.getRemarks(false);
         this.pkid = introspectedColumn.isPrimaryKey();
@@ -52,14 +52,14 @@ public class ColumnMeta  extends AbstractAnnotation{
         this.defaultValue = "";
         this.remarks = introspectedColumn.getRemarks(true);
         this.position = "";
-        this.addImports(ConstantsUtil.ANNOTATION_COLUMN_META);
+        this.addImports(ColumnMeta.class.getCanonicalName());
     }
 
     @Override
     public String toAnnotation() {
         items.add(VStringUtil.format("value = \"{0}\"", this.getValue()));
         items.add(VStringUtil.format("description = \"{0}\"",
-                VStringUtil.isNotBlank(description)?this.getValue():this.getDescription()));
+                VStringUtil.isNotBlank(description)?this.getDescription():this.getValue()));
         if (pkid) {
             items.add("pkid = true");
         }

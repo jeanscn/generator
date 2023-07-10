@@ -7,17 +7,17 @@ import com.vgosoft.tool.core.VStringUtil;
  * 2022-10-03 16:24
  * @version 3.0
  */
-public class PreAuthorize extends AbstractAnnotation{
+public class PreAuthorizeDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@PreAuthorize";
 
     private final String value;
 
-    public static PreAuthorize create(String value){
-        return new PreAuthorize(value);
+    public static PreAuthorizeDesc create(String value){
+        return new PreAuthorizeDesc(value);
     }
 
-    public PreAuthorize(String value) {
+    public PreAuthorizeDesc(String value) {
         super();
         this.value = value;
         this.addImports("org.springframework.security.access.prepost.PreAuthorize");

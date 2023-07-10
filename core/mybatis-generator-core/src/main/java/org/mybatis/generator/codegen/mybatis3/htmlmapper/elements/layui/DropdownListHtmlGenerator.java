@@ -1,15 +1,10 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.config.Context;
-
-import java.util.List;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -18,24 +13,17 @@ import java.util.List;
  */
 public class DropdownListHtmlGenerator extends AbstractLayuiElementGenerator{
 
-    public DropdownListHtmlGenerator() {
-    }
-
-    public DropdownListHtmlGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
-        super(context, introspectedTable, warnings, progressCallback);
-    }
-
-    public DropdownListHtmlGenerator(GeneratorInitialParameters generatorInitialParameters) {
-        super(generatorInitialParameters);
+    public DropdownListHtmlGenerator(GeneratorInitialParameters generatorInitialParameters,IntrospectedColumn introspectedColumn) {
+        super(generatorInitialParameters,introspectedColumn);
     }
 
     @Override
-    public void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent) {
+    public void addHtmlElement(HtmlElement parent) {
         HtmlElement element = new HtmlElement("select");
         element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-        element.addAttribute(new Attribute("th:data-value", this.getFieldValueFormatPattern(introspectedColumn)));
+        element.addAttribute(new Attribute("th:data-value", this.getFieldValueFormatPattern()));
         addDataUrl(element,htmlElementDescriptor,"/system/sys-dict-data-impl/option/" + introspectedColumn.getJavaProperty());
         HtmlElement option = new HtmlElement("option");
         option.addAttribute(new Attribute("value", ""));
@@ -50,7 +38,7 @@ public class DropdownListHtmlGenerator extends AbstractLayuiElementGenerator{
     }
 
     @Override
-    public String getFieldValueFormatPattern(IntrospectedColumn introspectedColumn) {
-        return thymeleafValue(introspectedColumn);
+    public String getFieldValueFormatPattern() {
+        return thymeleafValue();
     }
 }

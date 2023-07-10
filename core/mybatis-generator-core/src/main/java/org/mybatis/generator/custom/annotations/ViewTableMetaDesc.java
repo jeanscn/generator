@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.ViewColumnMeta;
+import com.vgosoft.core.annotation.ViewTableMeta;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
@@ -19,9 +21,9 @@ import java.util.stream.Collectors;
  * 2022-10-07 04:48
  * @version 3.0
  */
-public class ViewTableMeta  extends AbstractAnnotation{
+public class ViewTableMetaDesc extends AbstractAnnotation{
 
-    public static final String ANNOTATION_NAME = "@ViewTableMeta";
+    public static final String ANNOTATION_NAME = "@"+ ViewTableMeta.class.getSimpleName();
 
     private final String value;
     private final String listName;
@@ -45,11 +47,11 @@ public class ViewTableMeta  extends AbstractAnnotation{
     private String areaHeight;
     private String restBasePath;
 
-    public static ViewTableMeta create(IntrospectedTable introspectedTable){
-        return new ViewTableMeta(introspectedTable);
+    public static ViewTableMetaDesc create(IntrospectedTable introspectedTable){
+        return new ViewTableMetaDesc(introspectedTable);
     }
 
-    public ViewTableMeta(IntrospectedTable introspectedTable) {
+    public ViewTableMetaDesc(IntrospectedTable introspectedTable) {
         super();
         this.value = Mb3GenUtil.getDefaultViewId(introspectedTable);
         items.add(VStringUtil.format("value = \"{0}\"", this.getValue()));
@@ -61,7 +63,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
         this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
         this.dataFilterType = 0;
-        this.addImports("com.vgosoft.core.annotation.ViewTableMeta");
+        this.addImports(ViewTableMeta.class.getCanonicalName());
     }
 
     @Override
@@ -80,14 +82,14 @@ public class ViewTableMeta  extends AbstractAnnotation{
         }
         if (!this.getIndexColumn().equals(ViewIndexColumnEnum.ROW_INDEX)) {
             items.add(VStringUtil.format("indexColumn = ViewIndexColumnEnum.{0}", this.getIndexColumn().name()));
-            this.addImports("com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum");
+            this.addImports(ViewIndexColumnEnum.class.getCanonicalName());
         }
         if (this.actionColumn.length>0) {
             List<ViewActionColumnEnum> viewActionColumnEnums = new ArrayList<>(Arrays.asList(this.actionColumn));
             if (!(viewActionColumnEnums.size()==2 && viewActionColumnEnums.contains(ViewActionColumnEnum.VIEW) && viewActionColumnEnums.contains(ViewActionColumnEnum.EDIT))) {
                 String collect = Arrays.stream(this.actionColumn).map(e -> "ViewActionColumnEnum." + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("actionColumn = '{'{0}'}'", collect));
-                this.addImports("com.vgosoft.core.constant.enums.view.ViewActionColumnEnum");
+                this.addImports(ViewActionColumnEnum.class.getCanonicalName());
             }
         }
         if (this.toolbarActions.length>0) {
@@ -95,7 +97,7 @@ public class ViewTableMeta  extends AbstractAnnotation{
             if (!(viewToolBarsEnums.size()==2 && viewToolBarsEnums.contains(ViewToolBarsEnum.CREATE) && viewToolBarsEnums.contains(ViewToolBarsEnum.REMOVE))) {
                 String collect = Arrays.stream(this.toolbarActions).map(e -> "ViewToolBarsEnum" + e.name()).collect(Collectors.joining(","));
                 items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", collect));
-                this.addImports("com.vgosoft.core.constant.enums.view.ViewToolBarsEnum");
+                this.addImports(ViewToolBarsEnum.class.getCanonicalName());
             }
         }
         if (this.ignoreFields.length>0) {
@@ -104,11 +106,11 @@ public class ViewTableMeta  extends AbstractAnnotation{
         }
         if (this.columns.length>0) {
             items.add(VStringUtil.format("columns = '{'{0}'}'",String.join("\n        , ", this.columns)));
-            this.addImports("com.vgosoft.core.annotation.ViewColumnMeta");
+            this.addImports(ViewColumnMeta.class.getCanonicalName());
         }
         if (this.querys.length>0) {
             items.add(VStringUtil.format("querys = '{'{0}'}'",String.join("\n        , ", this.querys)));
-            this.addImports("com.vgosoft.core.annotation.CompositeQuery");
+            this.addImports(CompositeQueryDesc.class.getCanonicalName());
         }
         if (VStringUtil.isNotBlank(this.indexColWidth)) {
             items.add(VStringUtil.format("indexColWidth = \"{0}\"",this.getIndexColWidth()));

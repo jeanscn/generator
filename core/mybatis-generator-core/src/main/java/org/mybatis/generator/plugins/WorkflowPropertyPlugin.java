@@ -5,7 +5,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 
 import java.util.List;
@@ -43,8 +43,8 @@ public class WorkflowPropertyPlugin extends PluginAdapter{
         } else {
             field.setInitializationString("0");
         }
-        ApiModelProperty apiModelProperty = new ApiModelProperty("是否工作流应用", "0");
-        field.addAnnotation(apiModelProperty.toAnnotation());
+        ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("是否工作流应用", "0");
+        field.addAnnotation(apiModelPropertyDesc.toAnnotation());
         topLevelClass.addField(field);
     }
 

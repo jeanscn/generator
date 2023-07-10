@@ -10,7 +10,7 @@ import java.util.List;
  * 2022-10-03 16:33
  * @version 3.0
  */
-public class ApiOperation extends AbstractAnnotation{
+public class ApiOperationDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ApiOperation";
     public static final String importClass = "io.swagger.annotations.ApiOperation";
@@ -23,11 +23,11 @@ public class ApiOperation extends AbstractAnnotation{
     private  boolean hidden;
     private  int code;
 
-    public static ApiOperation create(String value,String notes){
-        return new ApiOperation(value,notes);
+    public static ApiOperationDesc create(String value, String notes){
+        return new ApiOperationDesc(value,notes);
     }
 
-    public ApiOperation(String value,String notes) {
+    public ApiOperationDesc(String value, String notes) {
         super();
         this.value = value;
         this.notes = notes;

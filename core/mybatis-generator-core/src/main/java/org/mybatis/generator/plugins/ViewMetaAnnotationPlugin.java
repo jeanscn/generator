@@ -46,14 +46,14 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //增加InnerTableMetaAnnotation
             InnerListViewConfiguration listViewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration()
                     .getVoViewConfiguration().getInnerListViewConfigurations().get(0);
-            LayuiTableMeta layuiTableMeta = new LayuiTableMeta();
-            layuiTableMeta.setEven(listViewConfiguration.isEven());
-            layuiTableMeta.setEnablePage(listViewConfiguration.getEnablePage());
-            layuiTableMeta.setTotalRow(listViewConfiguration.isTotalRow());
-            layuiTableMeta.setHeight(listViewConfiguration.getHeight());
-            layuiTableMeta.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
-            topLevelClass.addAnnotation(layuiTableMeta.toAnnotation());
-            topLevelClass.addImportedTypes(layuiTableMeta.getImportedTypes());
+            LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
+            layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
+            layuiTableMetaDesc.setEnablePage(listViewConfiguration.getEnablePage());
+            layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
+            layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
+            layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
+            topLevelClass.addAnnotation(layuiTableMetaDesc.toAnnotation());
+            topLevelClass.addImportedTypes(layuiTableMetaDesc.getImportedTypes());
         }
         return true;
     }
@@ -112,7 +112,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     }
 
     private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass, IntrospectedTable introspectedTable) {
-        ViewTableMeta viewTableMeta = new ViewTableMeta(introspectedTable);
+        ViewTableMetaDesc viewTableMetaDesc = new ViewTableMetaDesc(introspectedTable);
         //createUrl
         String createUrl = "";
         FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));
@@ -126,17 +126,17 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             }
         }
         if (stringHasValue(createUrl)) {
-            viewTableMeta.setCreateUrl(createUrl);
+            viewTableMetaDesc.setCreateUrl(createUrl);
         }
         //dataUrl
-        viewTableMeta.setDataUrl(String.join("/"
+        viewTableMetaDesc.setDataUrl(String.join("/"
                 , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                 , "getdtdata"));
 
         //indexColumn
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
         if (viewIndexColumnEnum != null) {
-            viewTableMeta.setIndexColumn(viewIndexColumnEnum);
+            viewTableMetaDesc.setIndexColumn(viewIndexColumnEnum);
         }
         //actionColumn
         if (voViewGeneratorConfiguration.getActionColumn().size() > 0) {
@@ -144,7 +144,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .map(ViewActionColumnEnum::ofCode)
                     .filter(Objects::nonNull)
                     .distinct().toArray(ViewActionColumnEnum[]::new);
-            viewTableMeta.setActionColumn(viewActionColumnEnums);
+            viewTableMetaDesc.setActionColumn(viewActionColumnEnums);
         }
         //querys
         if (voViewGeneratorConfiguration.getQueryColumns().size() > 0) {
@@ -152,9 +152,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .distinct()
                     .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> CompositeQuery.create(c).toAnnotation())
+                    .map(c -> CompositeQueryDesc.create(c).toAnnotation())
                     .toArray(String[]::new);
-            viewTableMeta.setQuerys(strings);
+            viewTableMetaDesc.setQuerys(strings);
         }
         //columns
         if (voViewGeneratorConfiguration.getIncludeColumns().size() > 0) {
@@ -164,10 +164,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .filter(Objects::nonNull)
                     .map(c -> ViewColumnMetaDesc.create(c, introspectedTable).toAnnotation())
                     .toArray(String[]::new);
-            viewTableMeta.setColumns(strings);
+            viewTableMetaDesc.setColumns(strings);
         }
         if (stringHasValue(voViewGeneratorConfiguration.getCategoryTreeUrl())) {
-            viewTableMeta.setCategoryTreeUrl(voViewGeneratorConfiguration.getCategoryTreeUrl());
+            viewTableMetaDesc.setCategoryTreeUrl(voViewGeneratorConfiguration.getCategoryTreeUrl());
         }
         //ignoreFields
         if (voViewGeneratorConfiguration.getExcludeColumns().size() > 0) {
@@ -177,16 +177,16 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .filter(Objects::nonNull)
                     .map(IntrospectedColumn::getJavaProperty)
                     .toArray(String[]::new);
-            viewTableMeta.setIgnoreFields(columns2);
+            viewTableMetaDesc.setIgnoreFields(columns2);
         }
         //className
-        viewTableMeta.setClassName(viewVOClass.getType().getFullyQualifiedName());
+        viewTableMetaDesc.setClassName(viewVOClass.getType().getFullyQualifiedName());
         //restBasePath
-        viewTableMeta.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+        viewTableMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
 
         //构造ViewTableMeta
-        viewVOClass.addAnnotation(viewTableMeta.toAnnotation());
-        viewVOClass.addImportedTypes(viewTableMeta.getImportedTypes());
+        viewVOClass.addAnnotation(viewTableMetaDesc.toAnnotation());
+        viewVOClass.addImportedTypes(viewTableMetaDesc.getImportedTypes());
     }
 
     private void addLayuiTableColumnMeta(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
@@ -225,31 +225,31 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             return;
         }
 
-        LayuiTableColumnMeta layuiTableColumnMeta = new LayuiTableColumnMeta();
+        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = new LayuiTableColumnMetaDesc();
         InnerListEditTemplate innerListEditTemplate = new InnerListEditTemplate();
         innerListEditTemplate.setFieldName(field.getName());
         innerListEditTemplate.setFieldType(field.getType().getShortNameWithoutTypeArguments());
         //如果指定了显示范围则更新序号
         if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
-            layuiTableColumnMeta.setOrder(getOrder(field, new ArrayList<>(listViewConfiguration.getDefaultDisplayFields())));
+            layuiTableColumnMetaDesc.setOrder(getOrder(field, new ArrayList<>(listViewConfiguration.getDefaultDisplayFields())));
         }
 
         //判断是否允许编辑
         boolean enableEdit;
         List<String> enableEditFields = listViewConfiguration.getEnableEditFields();
         if (!enableEditFields.isEmpty()) {
-            enableEdit = enableEditFields.contains(field.getName());
+            enableEdit = enableEditFields.contains(field.getName()) && !listViewConfiguration.getReadonlyColumnNames().contains(field.getName());
         } else {
-            enableEdit = true;
+            enableEdit = !listViewConfiguration.getReadonlyColumnNames().contains(field.getName());
         }
 
         if (mapFields.contains(field.getName())) {
             elementDescriptorMap.forEach((fieldName, htmlElementDescriptor) -> {
                 if (field.getName().equals(htmlElementDescriptor.getOtherFieldName())) {
                     if (HtmlElementTagTypeEnum.SELECT.getCode().equals(htmlElementDescriptor.getTagType()) && enableEdit) {
-                        layuiTableColumnMeta.setEditor(htmlElementDescriptor.getTagType());
-                        layuiTableColumnMeta.setTemplet("#TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
-                        layuiTableColumnMeta.setEdit(true);
+                        layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
+                        layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
+                        layuiTableColumnMetaDesc.setEdit(true);
                         innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
                         innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
                         innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
@@ -259,14 +259,14 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                         innerListEditTemplate.setDataUrl(dataUrl);
                         innerListEditTemplate.setTitle(field.getRemark());
                     } else {
-                        layuiTableColumnMeta.setEdit(false);
-                        layuiTableColumnMeta.setScope("readonly");
+                        layuiTableColumnMetaDesc.setEdit(false);
+                        layuiTableColumnMetaDesc.setScope("readonly");
                     }
                 } else if (field.getName().equals(fieldName) && enableEdit) {
-                    layuiTableColumnMeta.setEditor(htmlElementDescriptor.getTagType());
-                    layuiTableColumnMeta.setTemplet("#TPL-inner-" + fieldName);
-                    layuiTableColumnMeta.setEdit(true);
-                    layuiTableColumnMeta.setScope("edit");
+                    layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
+                    layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + fieldName);
+                    layuiTableColumnMetaDesc.setEdit(true);
+                    layuiTableColumnMetaDesc.setScope("edit");
                     innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
                     innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
                     innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
@@ -281,60 +281,60 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 if (introspectedColumn != null
                         && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 255
                         || introspectedColumn.isBLOBColumn())) {
-                    layuiTableColumnMeta.setEditor("textarea");
-                    layuiTableColumnMeta.setEdit(true);
+                    layuiTableColumnMetaDesc.setEditor("textarea");
+                    layuiTableColumnMetaDesc.setEdit(true);
                 } else if (isDateType(field.getType())) {
-                    layuiTableColumnMeta.setEdit(false);
-                    layuiTableColumnMeta.setEditor("date");
-                    layuiTableColumnMeta.setTemplet("#TPL-inner-" + field.getName());
+                    layuiTableColumnMetaDesc.setEdit(false);
+                    layuiTableColumnMetaDesc.setEditor("date");
+                    layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + field.getName());
                     innerListEditTemplate.setThisFieldName(field.getName());
                     innerListEditTemplate.setType("date");
                     innerListEditTemplate.setTemplate("TPL-inner-" + field.getName());
                     innerListEditTemplate.setFieldType(getDateformat(field.getType().getShortNameWithoutTypeArguments()));
                 } else {
-                    layuiTableColumnMeta.setEdit(true);
-                    layuiTableColumnMeta.setEditor("text");
+                    layuiTableColumnMetaDesc.setEdit(true);
+                    layuiTableColumnMetaDesc.setEditor("text");
                 }
             } else {
-                layuiTableColumnMeta.setEdit(false);
+                layuiTableColumnMetaDesc.setEdit(false);
             }
         }
 
         //根据编辑器类型指定默认宽度
-        if (layuiTableColumnMeta.getEditor() != null) {
-            switch (layuiTableColumnMeta.getEditor()) {
+        if (layuiTableColumnMetaDesc.getEditor() != null) {
+            switch (layuiTableColumnMetaDesc.getEditor()) {
                 case "date":
                     switch (field.getType().getShortName()) {
                         case "LocalDateTime":
-                            layuiTableColumnMeta.setWidth("165");
+                            layuiTableColumnMetaDesc.setWidth("165");
                             break;
                         case "LocalTime":
-                            layuiTableColumnMeta.setWidth("90");
+                            layuiTableColumnMetaDesc.setWidth("90");
                             break;
                         default:
-                            layuiTableColumnMeta.setWidth("105");
+                            layuiTableColumnMetaDesc.setWidth("105");
                             break;
                     }
                     break;
                 case "checkbox":
                 case "switch":
-                    layuiTableColumnMeta.setWidth("90");
+                    layuiTableColumnMetaDesc.setWidth("90");
                     break;
                 case "dropdownlist":
                 case "textarea":
                 case "select":
-                    layuiTableColumnMeta.setWidth("125");
+                    layuiTableColumnMetaDesc.setWidth("125");
                     break;
                 default:
-                    layuiTableColumnMeta.setWidth("80");
+                    layuiTableColumnMetaDesc.setWidth("80");
                     break;
             }
         }
         if (stringHasValue(innerListEditTemplate.getType())) {
             listViewConfiguration.getInnerListEditTemplate().add(innerListEditTemplate);
         }
-        field.addAnnotation(layuiTableColumnMeta.toAnnotation());
-        topLevelClass.addImportedTypes(layuiTableColumnMeta.getImportedTypes());
+        field.addAnnotation(layuiTableColumnMetaDesc.toAnnotation());
+        topLevelClass.addImportedTypes(layuiTableColumnMetaDesc.getImportedTypes());
     }
 
     private boolean isDateType(FullyQualifiedJavaType fieldType) {

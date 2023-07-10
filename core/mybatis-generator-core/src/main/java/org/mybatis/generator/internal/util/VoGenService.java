@@ -176,12 +176,12 @@ public class VoGenService {
      *
      * @param type ModelClassTypeEnum
      */
-    public List<Field> buildOverrideColumn(List<OverridePropertyValueGeneratorConfiguration> configurations, TopLevelClass topLevelClass, ModelClassTypeEnum type) {
+    public List<Field> buildOverrideColumn(Set<OverridePropertyValueGeneratorConfiguration> configurations, TopLevelClass topLevelClass, ModelClassTypeEnum type) {
 
         List<Field> answer = new ArrayList<>();
-        for (OverridePropertyValueGeneratorConfiguration configuration : configurations) {
+        for (OverridePropertyValueGeneratorConfiguration overrideConfiguration : configurations) {
             //如果指定的列不存在，则跳过
-            IntrospectedColumn sourceColumn = introspectedTable.getColumn(configuration.getSourceColumnName()).orElse(null);
+            IntrospectedColumn sourceColumn = introspectedTable.getColumn(overrideConfiguration.getSourceColumnName()).orElse(null);
             if (sourceColumn == null) {
                 continue;
             }
@@ -189,13 +189,13 @@ public class VoGenService {
             //创建转换后的属性对象
             FullyQualifiedJavaType javaType;
             String propertyName;
-            IntrospectedColumn targetColumn = introspectedTable.getColumn(configuration.getTargetColumnName()).orElse(null);
+            IntrospectedColumn targetColumn = introspectedTable.getColumn(overrideConfiguration.getTargetColumnName()).orElse(null);
             if (targetColumn != null) {
                 javaType = targetColumn.getFullyQualifiedJavaType();
                 propertyName = targetColumn.getJavaProperty();
             } else {
-                propertyName = configuration.getTargetPropertyName() == null ? ConfigUtil.getOverrideJavaProperty(sourceColumn.getJavaProperty()) : configuration.getTargetPropertyName();
-                javaType = configuration.getTargetPropertyType() == null ? FullyQualifiedJavaType.getStringInstance() : new FullyQualifiedJavaType(configuration.getTargetPropertyType());
+                propertyName = overrideConfiguration.getTargetPropertyName() == null ? ConfigUtil.getOverrideJavaProperty(sourceColumn.getJavaProperty()) : overrideConfiguration.getTargetPropertyName();
+                javaType = overrideConfiguration.getTargetPropertyType() == null ? FullyQualifiedJavaType.getStringInstance() : new FullyQualifiedJavaType(overrideConfiguration.getTargetPropertyType());
             }
             Field field = new Field(propertyName, javaType);
             //如果在topLevelClass以及父类中已经存在，则跳过
@@ -206,14 +206,14 @@ public class VoGenService {
                 continue;
             }
             //设置属性的注释
-            field.setRemark(configuration.getRemark() != null ? configuration.getRemark() : sourceColumn.getRemarks(true));
+            field.setRemark(overrideConfiguration.getRemark() != null ? overrideConfiguration.getRemark() : sourceColumn.getRemarks(true));
             field.setVisibility(JavaVisibility.PRIVATE);
             if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
                 field.setInitializationString("\"-\"");
             } else if (field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())) {
                 field.setInitializationString("0");
             }
-            switch (configuration.getAnnotationType()) {
+            switch (overrideConfiguration.getAnnotationType()) {
                 case "DictUser":
                     DictUserDesc dictUserDesc = new DictUserDesc();
                     dictUserDesc.setSource(sourceColumn.getJavaProperty());
@@ -231,39 +231,41 @@ public class VoGenService {
                     break;
                 case "DictSys":
                     DictSysDesc dictSysDesc = new DictSysDesc();
+                    dictSysDesc.setValue(overrideConfiguration.getTypeValue());
                     dictSysDesc.setSource(sourceColumn.getJavaProperty());
                     dictSysDesc.addAnnotationToField(field, topLevelClass);
                     break;
                 case "DictData":
                     DictDataDesc dictDataDesc = new DictDataDesc();
                     dictDataDesc.setSource(sourceColumn.getJavaProperty());
+                    dictDataDesc.setValue(overrideConfiguration.getTypeValue());
                     dictDataDesc.addAnnotationToField(field, topLevelClass);
                     break;
                 case "Dict":
-                    if (configuration.getBeanName() != null) {
-                        DictDesc anno = new DictDesc(configuration.getBeanName());
-                        if (configuration.getTypeValue() != null) {
-                            anno.setValue(configuration.getTypeValue());
+                    if (overrideConfiguration.getBeanName() != null) {
+                        DictDesc dictDesc = new DictDesc(overrideConfiguration.getBeanName());
+                        if (overrideConfiguration.getTypeValue() != null) {
+                            dictDesc.setValue(overrideConfiguration.getTypeValue());
                         }
-                        if (configuration.getApplyProperty() != null) {
-                            anno.setApplyProperty(configuration.getApplyProperty());
+                        if (overrideConfiguration.getApplyProperty() != null) {
+                            dictDesc.setApplyProperty(overrideConfiguration.getApplyProperty());
                         }
-                        anno.setSource(sourceColumn.getJavaProperty());
-                        anno.addAnnotationToField(field, topLevelClass);
+                        dictDesc.setSource(sourceColumn.getJavaProperty());
+                        dictDesc.addAnnotationToField(field, topLevelClass);
                     }
                     break;
                 case "DictEnum":
-                    if (configuration.getEnumClassName() != null) {
-                        DictEnumDesc anno = new DictEnumDesc(configuration.getEnumClassName());
-                        anno.setSource(sourceColumn.getJavaProperty());
-                        anno.addAnnotationToField(field, topLevelClass);
+                    if (overrideConfiguration.getEnumClassName() != null) {
+                        DictEnumDesc dictEnumDesc = new DictEnumDesc(overrideConfiguration.getEnumClassName());
+                        dictEnumDesc.setSource(sourceColumn.getJavaProperty());
+                        dictEnumDesc.addAnnotationToField(field, topLevelClass);
                     }
                     break;
                 default:
                     break;
             }
 
-            if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
+            if (ModelClassTypeEnum.modelClass.equals(type) && overrideConfiguration.getAnnotationType().contains("Dict")) {
                 if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
                     topLevelClass.addAnnotation("@EnableDictionary");
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
@@ -272,6 +274,21 @@ public class VoGenService {
             answer.add(field);
         }
         return answer;
+    }
+
+    public OverridePropertyValueGeneratorConfiguration getOverridePropertyValueConfiguration(IntrospectedColumn introspectedColumn) {
+        final String actualColumnName = introspectedColumn.getActualColumnName();
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            return this.introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations()
+                    .stream()
+                    .filter(overridePropertyConfiguration -> overridePropertyConfiguration.getSourceColumnName().equals(actualColumnName))
+                    .findFirst().orElse(null);
+        }else{
+            return this.introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations()
+                    .stream()
+                    .filter(overridePropertyConfiguration -> overridePropertyConfiguration.getSourceColumnName().equals(actualColumnName))
+                    .findFirst().orElse(null);
+        }
     }
 
 }

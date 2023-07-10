@@ -10,10 +10,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.internal.util.StringUtility;
 
 public class ViewElementGenerator extends AbstractControllerElementGenerator {
@@ -47,10 +46,10 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(prefix);
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
 
-        method.addAnnotation(new SystemLog("通过表单查看或创建记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("view", RequestMethod.GET),parentElement);
+        method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("view", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"查看");
-        method.addAnnotation(new ApiOperation("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
+        method.addAnnotation(new ApiOperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                 "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "根据主键获取单个业务实例");

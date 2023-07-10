@@ -1,15 +1,14 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.core.constant.enums.core.RequestMethod;
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -56,14 +55,14 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("上传处理异常，含IO读写异常");
 
-        method.addAnnotation(new SystemLog("上传记录",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping("upload", RequestMethod.POST);
-        requestMapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
-        requestMapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
-        method.addAnnotation(requestMapping,parentElement);
+        method.addAnnotation(new SystemLogDesc("上传记录",introspectedTable),parentElement);
+        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("upload", RequestMethod.POST);
+        requestMappingDesc.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
+        requestMappingDesc.addProduces("MediaType.APPLICATION_JSON_VALUE");
+        method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"上传");
-        method.addAnnotation(new ApiOperation("单个文件上传", "单个文件上传接口"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("单个文件上传", "单个文件上传接口"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "单个文件上传");
 

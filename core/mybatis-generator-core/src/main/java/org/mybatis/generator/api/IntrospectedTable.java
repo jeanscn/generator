@@ -398,7 +398,7 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateControllerAttributes() {
-        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME, this.getTableConfiguration().getIntrospectedTableBeanName());
+        internalAttributes.put(InternalAttribute.ATTR_CONTROL_BEAN_NAME, ConfigUtil.getIntrospectedTableBeanName(this.getTableConfiguration()));
     }
 
     protected void calculateXmlAttributes() {

@@ -6,11 +6,10 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.StringUtility.*;
@@ -66,9 +65,9 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             viewPath.setInitializationString("\""+htmlGeneratorConfiguration.getViewPath()+"\"");
             if (topLevelClass.addField(viewPath,null,true)) {
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    ApiModelProperty apiModelProperty = new ApiModelProperty("视图路径",htmlGeneratorConfiguration.getViewPath());
-                    apiModelProperty.setHidden("true");
-                    apiModelProperty.addAnnotationToField(viewPath, topLevelClass);
+                    ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("视图路径",htmlGeneratorConfiguration.getViewPath());
+                    apiModelPropertyDesc.setHidden("true");
+                    apiModelPropertyDesc.addAnnotationToField(viewPath, topLevelClass);
                 }
                 if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     viewPath.addAnnotation("@TableField(exist = false)");
@@ -91,9 +90,9 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             field.setInitializationString("\""+ Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) +"\"");
             if(topLevelClass.addField(field, null, true)){
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    ApiModelProperty apiModelProperty = new ApiModelProperty("Restful请求中的跟路径", "api/serv");
-                    apiModelProperty.setHidden("true");
-                    apiModelProperty.addAnnotationToField(field, topLevelClass);
+                    ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("Restful请求中的跟路径", "api/serv");
+                    apiModelPropertyDesc.setHidden("true");
+                    apiModelPropertyDesc.addAnnotationToField(field, topLevelClass);
                 }
                 if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     field.addAnnotation("@TableField(exist = false)");

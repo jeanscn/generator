@@ -9,9 +9,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 public class DownloadElementGenerator extends AbstractControllerElementGenerator {
 
@@ -45,13 +45,13 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("下载处理异常，含IO异常");
 
-        method.addAnnotation(new SystemLog("下载数据",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping("download/{type}/{id}", RequestMethod.GET);
-        requestMapping.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
-        method.addAnnotation(requestMapping,parentElement);
+        method.addAnnotation(new SystemLogDesc("下载数据",introspectedTable),parentElement);
+        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethod.GET);
+        requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
+        method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"下载");
-        method.addAnnotation(new ApiOperation("单个文件下载", "单个文件下载接口"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("单个文件下载", "单个文件下载接口"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "单个文件下载");
 

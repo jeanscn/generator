@@ -12,6 +12,8 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
+import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.List;
 
@@ -21,26 +23,20 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
 
     protected HtmlElementDescriptor htmlElementDescriptor;
 
-    protected AbstractHtmlElementGenerator() {
-        super();
+    protected IntrospectedColumn introspectedColumn;
+
+    protected VoGenService voGenService;
+
+    protected AbstractHtmlElementGenerator(GeneratorInitialParameters generatorInitialParameters,IntrospectedColumn introspectedColumn) {
+        super(generatorInitialParameters.getContext(), generatorInitialParameters.getIntrospectedTable(), generatorInitialParameters.getWarnings(), generatorInitialParameters.getProgressCallback());
+        this.introspectedColumn = introspectedColumn;
+        this.voGenService = new VoGenService(this.introspectedTable);
     }
 
-    protected AbstractHtmlElementGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
-        super();
-        this.context = context;
-        this.introspectedTable = introspectedTable;
-        this.warnings = warnings;
-        this.progressCallback = progressCallback;
-    }
+    public abstract void addHtmlElement(HtmlElement parent);
 
-    protected AbstractHtmlElementGenerator(GeneratorInitialParameters generatorInitialParameters) {
-        super(generatorInitialParameters);
-    }
-
-    public abstract void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent);
-
-    protected HtmlElement generateHtmlInput(IntrospectedColumn baseColumn, boolean isHidden, boolean isTextArea) {
-        return generateHtmlInput(baseColumn.getJavaProperty(), isHidden, isTextArea);
+    protected HtmlElement generateHtmlInput(boolean isHidden, boolean isTextArea) {
+        return generateHtmlInput(this.introspectedColumn.getJavaProperty(), isHidden, isTextArea);
     }
 
     protected HtmlElement generateHtmlInput(String name, boolean isHidden, boolean isTextArea) {
@@ -49,7 +45,8 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
         input.addAttribute(new Attribute("id", name));
         input.addAttribute(new Attribute("name", name));
         if (isHidden) {
-            input.addAttribute(new Attribute("type", "hidden"));
+            addClassNameToElement(input, "layui-hide");
+            //input.addAttribute(new Attribute("type", "hidden"));
         } else {
             input.addAttribute(new Attribute("type", "text"));
         }
@@ -59,11 +56,10 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
     /**
      * 生成thymeleaf模板的值部分
      *
-     * @param baseColumn 基础列
      * @return thymeleaf模板的值部分
      */
-    protected String thymeleafValue(IntrospectedColumn baseColumn) {
-        return thymeleafValue(baseColumn.getJavaProperty(), GenerateUtils.getEntityKeyStr(introspectedTable));
+    protected String thymeleafValue() {
+        return thymeleafValue(this.introspectedColumn.getJavaProperty(), GenerateUtils.getEntityKeyStr(introspectedTable));
     }
 
     protected String thymeleafValue(String propertyName,String entityKey){
@@ -139,10 +135,13 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
         element.addAttribute(new Attribute("th:checked", sb.toString()));
         return element;
     }
-    public abstract String getFieldValueFormatPattern(IntrospectedColumn introspectedColumn);
+    public abstract String getFieldValueFormatPattern();
 
-
-    protected boolean isDateType(IntrospectedColumn introspectedColumn) {
+    protected boolean isDateType() {
         return GenerateUtils.isDateType(introspectedColumn);
+    }
+
+    protected boolean isReadonly(){
+        return this.htmlGeneratorConfiguration.getReadonlyColumnNames().contains(introspectedColumn.getActualColumnName());
     }
 }

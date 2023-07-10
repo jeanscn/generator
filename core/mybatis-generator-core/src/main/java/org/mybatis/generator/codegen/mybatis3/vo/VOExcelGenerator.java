@@ -15,6 +15,7 @@ import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -56,7 +57,7 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         }
 
         //增加映射
-        List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
+        Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
          List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
         fields.forEach(field -> {
             if (plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)) {
@@ -88,7 +89,7 @@ public class VOExcelGenerator extends AbstractVOGenerator {
                 });*/
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         excelVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)) {

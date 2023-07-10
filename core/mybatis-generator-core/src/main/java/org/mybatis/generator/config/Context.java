@@ -726,7 +726,7 @@ public class Context extends PropertyHolder {
             return;
         }
         this.getIntrospectedTables().forEach(introspectedTable -> {
-            introspectedTable.getTableConfiguration().validateConfig(warnings, introspectedTable);
+            introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable);
         });
     }
 

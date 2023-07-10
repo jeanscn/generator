@@ -7,7 +7,7 @@ import com.vgosoft.tool.core.VStringUtil;
  * 2023-02-20 15:27
  * @version 3.0
  */
-public class ApiModel extends AbstractAnnotation{
+public class ApiModelDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ApiModel";
     public static final  String importClass = "io.swagger.annotations.ApiModel";
@@ -19,11 +19,11 @@ public class ApiModel extends AbstractAnnotation{
     private String parent;
 
 
-    public static ApiModel create(String value){
-        return new ApiModel(value);
+    public static ApiModelDesc create(String value){
+        return new ApiModelDesc(value);
     }
 
-    public ApiModel(String value) {
+    public ApiModelDesc(String value) {
         super();
         this.value = value;
         this.addImports(importClass);

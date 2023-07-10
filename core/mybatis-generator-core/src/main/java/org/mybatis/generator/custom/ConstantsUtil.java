@@ -55,7 +55,7 @@ public class ConstantsUtil {
     public final static String SERVICE_RESULT = "com.vgosoft.core.adapter.ServiceResult";
     public final static String RESPONSE_RESULT = "com.vgosoft.core.adapter.web.respone.ResponseResult";
     public final static String RESPONSE_PAGEHELPER_RESULT = "com.vgosoft.mybatis.pojo.ResponsePagehelperResult";
-    public final static String PAGE_RESULT = "com.vgosoft.core.adapter.web.respone.PageResult";
+    //public final static String PAGE_RESULT = "com.vgosoft.core.adapter.web.respone.PageResult";
     public static final String MODEL_AND_VIEW = "org.springframework.web.servlet.ModelAndView";
     public static final String VIEW_DT_TABLE = "com.vgosoft.web.entity.ViewDtTable";
     public static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
@@ -75,9 +75,9 @@ public class ConstantsUtil {
     public static final String LOG_TARGET_TABLE_ENUM = "com.vgosoft.core.constant.enums.log.LogTargetTableEnum";
 
     //annotation
-    public static final String ANNOTATION_SYSTEM_LOG = "com.vgosoft.core.annotation.SystemLog";
-    public static final String ANNOTATION_TABLE_META = "com.vgosoft.core.annotation.TableMeta";
-    public static final String ANNOTATION_COLUMN_META = "com.vgosoft.core.annotation.ColumnMeta";
+    //public static final String ANNOTATION_SYSTEM_LOG = "com.vgosoft.core.annotation.SystemLog";
+    //public static final String ANNOTATION_TABLE_META = "com.vgosoft.core.annotation.TableMeta";
+    //public static final String ANNOTATION_COLUMN_META = "com.vgosoft.core.annotation.ColumnMeta";
     public static final String ANNOTATION_REQUEST_PARAM_SPLIT = "com.vgosoft.web.resolver.annotation.RequestParamSplit";
 
     //其他
@@ -105,7 +105,7 @@ public class ConstantsUtil {
     public static final String TEST_ASSERTIONS_ASSERT_THAT = "org.assertj.core.api.Assertions.assertThat";
 
     //easyExcel
-    public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
+    //public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
 
     public static final Map<String,String> childrenGenericClasses = new HashMap<>();
 

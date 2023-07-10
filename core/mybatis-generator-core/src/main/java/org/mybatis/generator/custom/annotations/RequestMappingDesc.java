@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * 2022-10-03 11:11
  * @version 3.0
  */
-public class RequestMapping extends AbstractAnnotation {
+public class RequestMappingDesc extends AbstractAnnotation {
 
     private String name;
     private final List<String> value = new ArrayList<>();
@@ -24,16 +24,16 @@ public class RequestMapping extends AbstractAnnotation {
     private final List<String> consumes = new ArrayList<>();
     private final List<String> produces = new ArrayList<>();
 
-    public static RequestMapping create(String value, RequestMethod method) {
-        return new RequestMapping(value, method);
+    public static RequestMappingDesc create(String value, RequestMethod method) {
+        return new RequestMappingDesc(value, method);
     }
 
-    public RequestMapping(String value) {
+    public RequestMappingDesc(String value) {
         super();
         this.addValue(value);
     }
 
-    public RequestMapping(String value, RequestMethod method) {
+    public RequestMappingDesc(String value, RequestMethod method) {
         super();
         this.addValue(value);
         this.addMethod(method);

@@ -7,11 +7,10 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.AbstractModelGeneratorConfiguration;
 import org.mybatis.generator.config.VORequestGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -77,7 +76,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
             Field cascade = new Field("cascadeResult", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
             cascade.setVisibility(JavaVisibility.PRIVATE);
             cascade.setRemark("结果是否包含子级");
-            new ApiModelProperty(cascade.getRemark(), "false").addAnnotationToField(cascade, requestVoClass);
+            new ApiModelPropertyDesc(cascade.getRemark(), "false").addAnnotationToField(cascade, requestVoClass);
             requestVoClass.addField(cascade);
         }
     }
@@ -86,7 +85,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         Field orderByClause = new Field("orderByClause", FullyQualifiedJavaType.getStringInstance());
         orderByClause.setVisibility(JavaVisibility.PRIVATE);
         orderByClause.setRemark("排序语句");
-        new ApiModelProperty(orderByClause.getRemark(), "SORT_").addAnnotationToField(orderByClause, requestVoClass);
+        new ApiModelPropertyDesc(orderByClause.getRemark(), "SORT_").addAnnotationToField(orderByClause, requestVoClass);
         requestVoClass.addField(orderByClause);
     }
 
@@ -99,11 +98,11 @@ public class VORequestGenerator extends AbstractVOGenerator {
             pNo.setVisibility(JavaVisibility.PRIVATE);
             pNo.setRemark("页码");
             pNo.setInitializationString("DEFAULT_FIRST_PAGE_NO");
-            new ApiModelProperty(pNo.getRemark(), "1").addAnnotationToField(pNo, topLevelClass);
+            new ApiModelPropertyDesc(pNo.getRemark(), "1").addAnnotationToField(pNo, topLevelClass);
             topLevelClass.addField(pNo);
             Field pSize = new Field("pageSize", FullyQualifiedJavaType.getIntInstance());
             pSize.setRemark("每页数据数量");
-            new ApiModelProperty(pSize.getRemark(), "10").addAnnotationToField(pSize, topLevelClass);
+            new ApiModelPropertyDesc(pSize.getRemark(), "10").addAnnotationToField(pSize, topLevelClass);
             pSize.setInitializationString("DEFAULT_PAGE_SIZE");
             pSize.setVisibility(JavaVisibility.PRIVATE);
             topLevelClass.addField(pSize);
@@ -112,7 +111,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
 
     //附加属性
     protected void addtionalProperties(AbstractModelGeneratorConfiguration configuration, TopLevelClass topLevelClass) {
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         topLevelClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voRequestFieldGenerated(field, topLevelClass, null, introspectedTable)) {

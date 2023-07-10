@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
@@ -43,10 +43,10 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
-        method.addAnnotation(new SystemLog("数据导出",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("export", RequestMethod.GET),parentElement);
+        method.addAnnotation(new SystemLogDesc("数据导出",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("export", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"导出");
-        method.addAnnotation(new ApiOperation("Excel数据导出", "Excel数据导出接口"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("Excel数据导出", "Excel数据导出接口"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导出");
 

@@ -25,23 +25,15 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * @version 3.0
  */
 public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementGenerator {
-
-    protected AbstractLayuiElementGenerator() {
-    }
-
-    protected AbstractLayuiElementGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
-        super(context, introspectedTable, warnings, progressCallback);
-    }
-
-    protected AbstractLayuiElementGenerator(GeneratorInitialParameters generatorInitialParameters) {
-        super(generatorInitialParameters);
+    protected AbstractLayuiElementGenerator(GeneratorInitialParameters generatorInitialParameters,IntrospectedColumn introspectedColumn) {
+        super(generatorInitialParameters,introspectedColumn);
     }
 
     @Override
-    public abstract void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent);
+    public abstract void addHtmlElement(HtmlElement parent);
 
     @Override
-    public abstract String getFieldValueFormatPattern(IntrospectedColumn introspectedColumn);
+    public abstract String getFieldValueFormatPattern();
 
     protected void addElementVerify(String columnName, HtmlElement element, @Nullable HtmlElementDescriptor htmlElementDescriptor) {
         IntrospectedColumn column = introspectedTable.getColumn(columnName).orElse(null);

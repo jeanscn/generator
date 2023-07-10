@@ -4,9 +4,9 @@ import com.vgosoft.core.constant.enums.core.RequestMethod;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
@@ -64,11 +64,11 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(response);
         method.setReturnRemark("FormSelectTreeOption对象列表");
 
-        method.addAnnotation(new SystemLog("调用数据选项接口",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("option/"+ toHyphenCase(column.getJavaProperty())
+        method.addAnnotation(new SystemLogDesc("调用数据选项接口",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("option/"+ toHyphenCase(column.getJavaProperty())
                 , RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"数据选项");
-        method.addAnnotation(new ApiOperation("获取Options-XX选项列表","根据给定条件获取Options-XXX选项列表，可以根据需要传入属性同名参数、消费端选中的值"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("获取Options-XX选项列表","根据给定条件获取Options-XXX选项列表，可以根据需要传入属性同名参数、消费端选中的值"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "获取Options-XX选项列表");
 

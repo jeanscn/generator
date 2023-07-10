@@ -12,7 +12,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ScalableElementEnum;
-import org.mybatis.generator.custom.annotations.RequestMapping;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -379,7 +379,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addImportedType(conClazzType);
         conSubTopClazz.addImportedType("org.springframework.web.bind.annotation.*");
         conSubTopClazz.addAnnotation("@RestController");
-        conSubTopClazz.addAnnotation(new RequestMapping(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)).toAnnotation());
+        conSubTopClazz.addAnnotation(new RequestMappingDesc(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)).toAnnotation());
         //构造器
         Method conMethod = new Method(subControllerName);
         conMethod.addParameter(new Parameter(bizInfType, introspectedTable.getControllerBeanName()));

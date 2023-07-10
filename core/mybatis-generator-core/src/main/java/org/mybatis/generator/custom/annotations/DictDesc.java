@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.Dict;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
 
@@ -11,7 +12,7 @@ import com.vgosoft.tool.core.VStringUtil;
 
 public class DictDesc extends AbstractAnnotation{
 
-    public static final String ANNOTATION_NAME = "@Dict";
+    public static final String ANNOTATION_NAME = "@"+Dict.class.getSimpleName();
 
     private String value;
 
@@ -28,7 +29,7 @@ public class DictDesc extends AbstractAnnotation{
     public DictDesc(String beanName) {
         super();
         this.beanName = beanName;
-        this.addImports("com.vgosoft.core.annotation.Dict");
+        this.addImports(Dict.class.getCanonicalName());
     }
 
     public DictDesc(String value, String beanName) {

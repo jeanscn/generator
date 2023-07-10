@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.MULTIPART_FILE;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
@@ -43,14 +43,14 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("导入处理异常，含IO读写异常");
 
-        method.addAnnotation(new SystemLog("数据导入",introspectedTable),parentElement);
-        RequestMapping requestMapping = new RequestMapping("import", RequestMethod.POST);
-        requestMapping.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
-        requestMapping.addProduces("MediaType.APPLICATION_JSON_VALUE");
-        method.addAnnotation(requestMapping,parentElement);
+        method.addAnnotation(new SystemLogDesc("数据导入",introspectedTable),parentElement);
+        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import", RequestMethod.POST);
+        requestMappingDesc.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
+        requestMappingDesc.addProduces("MediaType.APPLICATION_JSON_VALUE");
+        method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"导入");
-        method.addAnnotation(new ApiOperation("Excel数据导入", "Excel数据导入接口"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("Excel数据导入", "Excel数据导入接口"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导入");
 

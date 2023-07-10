@@ -25,19 +25,12 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
 
     private String otherFieldName;
 
-    public SelectElementGenerator() {
-    }
-
-    public SelectElementGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
-        super(context, introspectedTable, warnings, progressCallback);
-    }
-
-    public SelectElementGenerator(GeneratorInitialParameters generatorInitialParameters) {
-        super(generatorInitialParameters);
+    public SelectElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
+        super(generatorInitialParameters,introspectedColumn);
     }
 
     @Override
-    public void addHtmlElement(IntrospectedColumn introspectedColumn, HtmlElement parent) {
+    public void addHtmlElement(HtmlElement parent) {
         String dataSource = this.htmlElementDescriptor.getDataSource();
         //计算使用方言
        /* String thisDialect = null;
@@ -47,10 +40,6 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
 
         this.otherFieldName = this.htmlElementDescriptor.getOtherFieldName();
         String javaProperty = introspectedColumn.getJavaProperty();
-        if (!StringUtility.stringHasValue(this.otherFieldName)) {
-            this.otherFieldName = ConfigUtil.getOverrideJavaProperty(javaProperty);
-            this.htmlElementDescriptor.setOtherFieldName(this.otherFieldName);
-        }
         HtmlElement input = generateHtmlInput(this.otherFieldName, false, false);
         input.addAttribute(new Attribute("readonly", "readonly"));
         addClassNameToElement(input, "layui-input");
@@ -78,14 +67,14 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
             divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
         }
         //增加一个隐藏字段
-        HtmlElement hidden = generateHtmlInput(introspectedColumn, true, false);
-        hidden.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(introspectedColumn)));
+        HtmlElement hidden = generateHtmlInput(true, false);
+        hidden.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern()));
         parent.addElement(hidden);
     }
 
     @Override
-    public String getFieldValueFormatPattern(IntrospectedColumn introspectedColumn) {
-        return  thymeleafValue(introspectedColumn);
+    public String getFieldValueFormatPattern() {
+        return  thymeleafValue();
     }
 
     private String getOtherFieldValueFormatPattern(IntrospectedColumn introspectedColumn) {

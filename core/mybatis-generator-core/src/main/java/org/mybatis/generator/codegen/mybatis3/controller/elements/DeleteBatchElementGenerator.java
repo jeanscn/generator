@@ -6,10 +6,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -36,10 +35,10 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnType(response);
         method.setReturnRemark("成功删除的记录数");
 
-        method.addAnnotation(new SystemLog("删除了一条或多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("", RequestMethod.DELETE),parentElement);
+        method.addAnnotation(new SystemLogDesc("删除了一条或多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethod.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"批量删除");
-        method.addAnnotation(new ApiOperation("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "根据ids批量删除记录");
 

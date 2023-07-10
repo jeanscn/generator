@@ -7,7 +7,7 @@ import com.vgosoft.tool.core.VStringUtil;
  * 2022-10-03 16:24
  * @version 3.0
  */
-public class ExcelProperty extends AbstractAnnotation {
+public class ExcelPropertyDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ExcelProperty";
     public static final String importClass = "com.alibaba.excel.annotation.ExcelProperty";
@@ -19,11 +19,11 @@ public class ExcelProperty extends AbstractAnnotation {
     private int order;
     String converter;
 
-    public static ExcelProperty create(String... value) {
-        return new ExcelProperty(value);
+    public static ExcelPropertyDesc create(String... value) {
+        return new ExcelPropertyDesc(value);
     }
 
-    public ExcelProperty(String... value) {
+    public ExcelPropertyDesc(String... value) {
         super();
         this.value = value;
         this.addImports(importClass);

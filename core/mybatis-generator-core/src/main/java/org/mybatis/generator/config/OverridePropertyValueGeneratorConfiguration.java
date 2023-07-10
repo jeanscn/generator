@@ -11,7 +11,7 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     private final Context context;
 
-    private String sourceColumnName;
+    private final String sourceColumnName;
 
     private String targetColumnName;
 
@@ -32,10 +32,11 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
     private String enumClassName;
 
 
-    public OverridePropertyValueGeneratorConfiguration(Context context, TableConfiguration tc) {
+    public OverridePropertyValueGeneratorConfiguration(Context context, TableConfiguration tc,String sourceColumnNames) {
         super();
         this.context = context;
         this.tc = tc;
+        this.sourceColumnName = sourceColumnNames;
     }
 
     public TableConfiguration getTc() {
@@ -48,10 +49,6 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     public String getSourceColumnName() {
         return sourceColumnName;
-    }
-
-    public void setSourceColumnName(String sourceColumnName) {
-        this.sourceColumnName = sourceColumnName;
     }
 
     public String getTargetColumnName() {
@@ -133,13 +130,11 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
         if (this == o) return true;
         if (!(o instanceof OverridePropertyValueGeneratorConfiguration)) return false;
         OverridePropertyValueGeneratorConfiguration that = (OverridePropertyValueGeneratorConfiguration) o;
-        return Objects.equals(getSourceColumnName(), that.getSourceColumnName())
-                && (Objects.equals(getTargetColumnName(), that.getTargetColumnName())
-                || Objects.equals(getTargetPropertyName(), that.getTargetPropertyName()));
+        return Objects.equals(getSourceColumnName(), that.getSourceColumnName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getSourceColumnName(), getTargetColumnName(), getTargetPropertyName());
+        return Objects.hash(getSourceColumnName());
     }
 }

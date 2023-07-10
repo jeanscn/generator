@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
@@ -43,10 +43,10 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST, getMethodParameterVOType(""), parentElement));
         method.setReturnRemark("更新后的数据（对象）列表");
 
-        method.addAnnotation(new SystemLog("添加了多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("batch", RequestMethod.POST),parentElement);
+        method.addAnnotation(new SystemLogDesc("添加了多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("batch", RequestMethod.POST),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量创建");
-        method.addAnnotation(new ApiOperation("新增多条记录", "新增多条记录,返回影响条数及消息"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("新增多条记录", "新增多条记录,返回影响条数及消息"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "新增多条记录");
 

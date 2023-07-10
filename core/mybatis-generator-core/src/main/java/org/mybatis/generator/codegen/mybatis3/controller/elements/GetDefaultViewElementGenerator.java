@@ -5,9 +5,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
@@ -26,10 +26,10 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
         Method method = createMethod(methodPrefix);
         method.setReturnType(new FullyQualifiedJavaType(MODEL_AND_VIEW));
 
-        method.addAnnotation(new SystemLog("查看默认视图",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("dt/view-default/show", RequestMethod.GET),parentElement);
+        method.addAnnotation(new SystemLogDesc("查看默认视图",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("dt/view-default/show", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图");
-        method.addAnnotation(new ApiOperation("默认数据视图显示", "显示默认数据视图"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("默认数据视图显示", "显示默认数据视图"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "查看默认视图");
 
         method.addBodyLine("ModelAndView modelAndView = new ModelAndView(\"vgoweb/view/DataTables\");");

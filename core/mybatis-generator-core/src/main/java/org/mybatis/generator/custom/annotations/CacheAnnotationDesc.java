@@ -16,7 +16,7 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2022-09-16 03:33
  * @version 3.0
  */
-public class CacheAnnotation {
+public class CacheAnnotationDesc {
     private final List<String> cacheNames = new ArrayList<>();
     private String unless;
     private List<Parameter> parameters = new ArrayList<>();
@@ -25,14 +25,14 @@ public class CacheAnnotation {
 
     private String key;
 
-    public CacheAnnotation() {
+    public CacheAnnotationDesc() {
     }
 
-    public CacheAnnotation(String serviceKey) {
+    public CacheAnnotationDesc(String serviceKey) {
         this.serviceKey = serviceKey;
     }
 
-    public CacheAnnotation(String unless, String serviceKey) {
+    public CacheAnnotationDesc(String unless, String serviceKey) {
         this.unless = unless;
         this.serviceKey = serviceKey;
     }

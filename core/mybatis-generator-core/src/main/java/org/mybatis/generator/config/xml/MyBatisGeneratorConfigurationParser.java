@@ -147,8 +147,6 @@ public class MyBatisGeneratorConfigurationParser {
         context.setModuleName(moduleName);
 
         context.setParentMenuId(attributes.getProperty("parentMenuId"));
-        /*String integrateMybatisPlus = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
-        context.setIntegrateMybatisPlus(!stringHasValue(integrateMybatisPlus) || Boolean.parseBoolean(integrateMybatisPlus));*/
         String integrateSpringSecurity = attributes.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_SPRING_SECURITY);
         context.setIntegrateSpringSecurity(!stringHasValue(integrateSpringSecurity) || Boolean.parseBoolean(integrateSpringSecurity));
         String forceUpdateScalableElement = attributes.getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_SCALABLE_ELEMENT);
@@ -461,6 +459,12 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
                 case "columnRenamingRule":  //$NON-NLS-1$
                     parseColumnRenamingRule(tc, childNode);
+                    break;
+                case ("overridePropertyValue"):
+                    tc.addOverridePropertyConfigurations(parseVoOverrideColumn(context, tc, childNode));
+                    break;
+                case ("additionalProperty"):
+                    tc.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode));
                     break;
                 case "selectByTable":  //$NON-NLS-1$
                     parseSelectByTable(tc, childNode);
@@ -925,7 +929,7 @@ public class MyBatisGeneratorConfigurationParser {
             }
             switch (childNode.getNodeName()) {
                 case "property":
-                    parseHtmlMapGeneratorProperty(htmlGeneratorConfiguration, childNode, context);
+                    parseHtmlGeneratorProperty(htmlGeneratorConfiguration, childNode, context);
                     parseProperty(htmlGeneratorConfiguration, childNode);
                     break;
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_DESCRIPTOR:
@@ -1059,7 +1063,7 @@ public class MyBatisGeneratorConfigurationParser {
         htmlGeneratorConfiguration.setLayoutDescriptor(htmlLayoutDescriptor);
     }
 
-    protected void parseHtmlMapGeneratorProperty(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node node, Context context) {
+    protected void parseHtmlGeneratorProperty(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node node, Context context) {
         Properties properties = parseAttributes(node);
         String propertyName = properties.get("name").toString();
         switch (propertyName) {
@@ -1073,6 +1077,12 @@ public class MyBatisGeneratorConfigurationParser {
                 String required = properties.get("value").toString();
                 if (stringHasValue(required)) {
                     htmlGeneratorConfiguration.getElementRequired().addAll(spiltToList(required));
+                }
+                break;
+            case PropertyRegistry.ANY_HTML_READONLY_COLUMNS:
+                String readonly = properties.get("value").toString();
+                if (stringHasValue(readonly)) {
+                    htmlGeneratorConfiguration.getReadonlyColumnNames().addAll(spiltToList(readonly));
                 }
                 break;
         }
@@ -1092,7 +1102,9 @@ public class MyBatisGeneratorConfigurationParser {
         String dataFormat = attributes.getProperty("dataFormat");
         htmlElementDescriptor.setDataFormat(dataFormat);
         String otherFieldName = attributes.getProperty("otherFieldName");
-        htmlElementDescriptor.setOtherFieldName(otherFieldName);
+        if (stringHasValue(otherFieldName)) {
+            htmlElementDescriptor.setOtherFieldName(otherFieldName);
+        }
         String beanName = attributes.getProperty("beanName");
         htmlElementDescriptor.setBeanName(beanName);
         String applyProperty = attributes.getProperty("applyProperty");
@@ -1382,10 +1394,10 @@ public class MyBatisGeneratorConfigurationParser {
                     parseMapstructMapping(childNode, configuration);
                     break;
                 case ("overridePropertyValue"):
-                    parseVoOverrideColumn(context, tc, childNode, configuration);
+                    configuration.addOverrideColumnConfigurations(parseVoOverrideColumn(context, tc, childNode));
                     break;
                 case ("additionalProperty"):
-                    parseAdditionalProperty(context, tc, childNode, configuration);
+                    configuration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode ));
                     break;
                 case "modelVO":
                     parseGenerateModelVO(context, tc, childNode, configuration);
@@ -1430,13 +1442,10 @@ public class MyBatisGeneratorConfigurationParser {
         configuration.addMappingConfigurations(mapstructMappingConfiguration);
     }
 
-    private void parseVoOverrideColumn(Context context, TableConfiguration tc, Node node, AbstractModelGeneratorConfiguration configuration) {
-        OverridePropertyValueGeneratorConfiguration overrideColumnGeneratorConfiguration = new OverridePropertyValueGeneratorConfiguration(context, tc);
+    private OverridePropertyValueGeneratorConfiguration parseVoOverrideColumn(Context context, TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
         String sourceColumn = attributes.getProperty(PropertyRegistry.ELEMENT_SOURCE_COLUMN);
-        if (stringHasValue(sourceColumn)) {
-            overrideColumnGeneratorConfiguration.setSourceColumnName(sourceColumn);
-        }
+        OverridePropertyValueGeneratorConfiguration overrideColumnGeneratorConfiguration = new OverridePropertyValueGeneratorConfiguration(context, tc,sourceColumn);
         String targetColumn = attributes.getProperty(PropertyRegistry.ELEMENT_TARGET_COLUMN);
         if (stringHasValue(targetColumn)) {
             overrideColumnGeneratorConfiguration.setTargetColumnName(targetColumn);
@@ -1480,15 +1489,16 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(sourceColumn)) {
             if (annotationType.equals("Dict")) {
                 if (stringHasValue(beanName)) {
-                    configuration.addOverrideColumnConfigurations(overrideColumnGeneratorConfiguration);
+                    return overrideColumnGeneratorConfiguration;
                 }
             } else {
-                configuration.addOverrideColumnConfigurations(overrideColumnGeneratorConfiguration);
+                return overrideColumnGeneratorConfiguration;
             }
         }
+        return null;
     }
 
-    private void parseAdditionalProperty(Context context, TableConfiguration tc, Node childNode, AbstractModelGeneratorConfiguration configuration) {
+    private VoAdditionalPropertyGeneratorConfiguration parseAdditionalProperty(Context context, TableConfiguration tc, Node childNode) {
         VoAdditionalPropertyGeneratorConfiguration voAdditionalPropertyConfiguration = new VoAdditionalPropertyGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(childNode);
         String name = attributes.getProperty("name");
@@ -1529,8 +1539,9 @@ public class MyBatisGeneratorConfigurationParser {
             if (stringHasValue(remark)) {
                 voAdditionalPropertyConfiguration.setRemark(remark);
             }
-            configuration.addAdditionalPropertyConfigurations(voAdditionalPropertyConfiguration);
+            return voAdditionalPropertyConfiguration;
         }
+        return null;
 
     }
 
@@ -1562,10 +1573,10 @@ public class MyBatisGeneratorConfigurationParser {
                     parseProperty(configuration, childNode);
                     break;
                 case ("overridePropertyValue"):
-                    parseVoOverrideColumn(context, tc, childNode, configuration);
+                    configuration.addOverrideColumnConfigurations(parseVoOverrideColumn(context, tc, childNode));
                     break;
                 case ("additionalProperty"):
-                    parseAdditionalProperty(context, tc, childNode, configuration);
+                    configuration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode));
                     break;
                 case ("nameFragment"):
                     parseNameFragment(context, tc, childNode, configuration);
@@ -1915,10 +1926,10 @@ public class MyBatisGeneratorConfigurationParser {
                     parseProperty(voViewGeneratorConfiguration, childNode);
                     break;
                 case ("overridePropertyValue"):
-                    parseVoOverrideColumn(context, tc, childNode, voViewGeneratorConfiguration);
+                    voViewGeneratorConfiguration.addOverrideColumnConfigurations(parseVoOverrideColumn(context, tc, childNode));
                     break;
                 case ("additionalProperty"):
-                    parseAdditionalProperty(context, tc, childNode, voViewGeneratorConfiguration);
+                    voViewGeneratorConfiguration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode));
                     break;
                 case ("columnRenderFun"):
                     parseColumnRenderFun(context, tc, voViewGeneratorConfiguration, childNode);

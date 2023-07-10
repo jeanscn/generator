@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300706001-->
+        <!--version:1.5.0.2300709001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -219,7 +219,7 @@
             7、com.vgosoft.core.entity.abs.AbstractBlobBusinessEntity，包含以上及：subject_,priority_,module_name,file_category,fld_doc_code,author_
 
         -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,overridePropertyValue*,additionalProperty*,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
                 ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
@@ -489,6 +489,7 @@
             可能的property配置：
             1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             2、htmlElementRequired 页面文件中必填的列，多个”,“分隔。
+            3、htmlReadonlyColumns 页面文件中只读的列，多个”,“分隔。
         -->
 
         <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?)>

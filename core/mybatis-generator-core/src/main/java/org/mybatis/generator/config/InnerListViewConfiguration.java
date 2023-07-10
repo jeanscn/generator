@@ -45,6 +45,8 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private List<InnerListEditTemplate> innerListEditTemplate = new ArrayList<>();
 
+    private Set<String> readonlyColumnNames = new HashSet<>();
+
     public InnerListViewConfiguration() {
         defaultToolbar.add("filter");
         defaultToolbar.add("exports");
@@ -197,5 +199,13 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public void setInnerListEditTemplate(List<InnerListEditTemplate> innerListEditTemplate) {
         this.innerListEditTemplate = innerListEditTemplate;
+    }
+
+    public Set<String> getReadonlyColumnNames() {
+        return readonlyColumnNames;
+    }
+
+    public void setReadonlyColumnNames(Set<String> readonlyColumnNames) {
+        this.readonlyColumnNames = readonlyColumnNames;
     }
 }

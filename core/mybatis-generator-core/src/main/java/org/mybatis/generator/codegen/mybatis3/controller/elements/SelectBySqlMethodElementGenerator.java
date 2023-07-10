@@ -5,9 +5,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperation;
-import org.mybatis.generator.custom.annotations.RequestMapping;
-import org.mybatis.generator.custom.annotations.SystemLog;
+import org.mybatis.generator.custom.annotations.ApiOperationDesc;
+import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
@@ -39,10 +39,10 @@ public class SelectBySqlMethodElementGenerator extends AbstractControllerElement
                 getMethodParameterVOType(""),
                 parentElement));
 
-        method.addAnnotation(new SystemLog("获取上级或下级标识",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMapping("", RequestMethod.GET),parentElement);
+        method.addAnnotation(new SystemLogDesc("获取上级或下级标识",introspectedTable),parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethod.GET),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "调用获取上级或下级标识接口");
-        method.addAnnotation(new ApiOperation("集成sql方法的查询", "获取所有父级或子级记录"),parentElement);
+        method.addAnnotation(new ApiOperationDesc("集成sql方法的查询", "获取所有父级或子级记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "获取上级或下级标识");
 

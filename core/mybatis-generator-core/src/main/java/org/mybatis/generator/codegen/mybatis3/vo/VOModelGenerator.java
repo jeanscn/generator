@@ -10,11 +10,12 @@ import org.mybatis.generator.config.VOModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelProperty;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
 
@@ -62,7 +63,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         }
 
         //增加映射
-        List<OverridePropertyValueGeneratorConfiguration> overridePropertyVo = voModelGeneratorConfiguration.getOverridePropertyConfigurations();
+        Set<OverridePropertyValueGeneratorConfiguration> overridePropertyVo = voModelGeneratorConfiguration.getOverridePropertyConfigurations();
         voGenService.buildOverrideColumn(overridePropertyVo, voClass, ModelClassTypeEnum.voClass)
                 .forEach(field -> {
                     if (plugins.voModelFieldGenerated(field, voClass, null, introspectedTable)) {
@@ -72,7 +73,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
                 });
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyVo = voModelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyVo = voModelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyVo.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         voClass.getAddtionalPropertiesFields(additionalPropertyVo).forEach(field -> {
             if (plugins.voModelFieldGenerated(field, voClass, null, introspectedTable)) {
@@ -100,7 +101,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
             field = new Field(relationProperty.getPropertyName(), returnType);
             field.setVisibility(JavaVisibility.PRIVATE);
             field.setRemark(relationProperty.getRemark());
-            new ApiModelProperty(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0))
+            new ApiModelPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0))
                     .addAnnotationToField(field, voClass);
             voClass.addField(field, null, true);
             voClass.addImportedType(fullyQualifiedJavaType);
@@ -127,9 +128,9 @@ public class VOModelGenerator extends AbstractVOGenerator {
         persistenceBeanName.setInitializationString("\""+initString+"\"");
         persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
         persistenceBeanName.setRemark("对象服务java bean名称");
-        ApiModelProperty apiModelProperty = new ApiModelProperty(persistenceBeanName.getRemark());
-        persistenceBeanName.addAnnotation(apiModelProperty.toAnnotation());
-        voClass.addImportedTypes(apiModelProperty.getImportedTypes());
+        ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(persistenceBeanName.getRemark());
+        persistenceBeanName.addAnnotation(apiModelPropertyDesc.toAnnotation());
+        voClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
         voClass.addField(persistenceBeanName);
     }
 }

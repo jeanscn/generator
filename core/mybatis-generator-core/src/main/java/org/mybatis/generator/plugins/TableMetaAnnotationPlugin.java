@@ -6,7 +6,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.annotations.ColumnMeta;
+import org.mybatis.generator.custom.annotations.ColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.TableMetaDesc;
 
 import java.util.List;
@@ -74,9 +74,9 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
         if (isNoMetaAnnotation(introspectedTable) ||introspectedColumn==null) {
             return;
         }
-        ColumnMeta columnMeta = new ColumnMeta(introspectedColumn);
-        field.addAnnotation(columnMeta.toAnnotation());
-        topLevelClass.addImportedTypes(columnMeta.getImportedTypes());
+        ColumnMetaDesc columnMetaDesc = new ColumnMetaDesc(introspectedColumn);
+        field.addAnnotation(columnMetaDesc.toAnnotation());
+        topLevelClass.addImportedTypes(columnMetaDesc.getImportedTypes());
     }
 
     /**
