@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.CompositeQuery;
 import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.annotation.ViewTableMeta;
 import com.vgosoft.core.constant.GlobalConstant;
@@ -107,7 +108,7 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         }
         if (this.querys.length>0) {
             items.add(VStringUtil.format("querys = '{'{0}'}'",String.join("\n        , ", this.querys)));
-            this.addImports(CompositeQueryDesc.class.getCanonicalName());
+            this.addImports(CompositeQuery.class.getCanonicalName());
         }
         if (VStringUtil.isNotBlank(this.indexColWidth)) {
             items.add(VStringUtil.format("indexColWidth = \"{0}\"",this.getIndexColWidth()));
