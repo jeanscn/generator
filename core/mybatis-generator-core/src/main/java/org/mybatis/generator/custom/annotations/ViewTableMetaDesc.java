@@ -93,12 +93,9 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
             }
         }
         if (this.toolbarActions.length>0) {
-            List<ViewToolBarsEnum> viewToolBarsEnums = new ArrayList<>(Arrays.asList(this.toolbarActions));
-            if (!(viewToolBarsEnums.size()==2 && viewToolBarsEnums.contains(ViewToolBarsEnum.CREATE) && viewToolBarsEnums.contains(ViewToolBarsEnum.REMOVE))) {
-                String collect = Arrays.stream(this.toolbarActions).map(e -> "ViewToolBarsEnum" + e.name()).collect(Collectors.joining(","));
-                items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", collect));
-                this.addImports(ViewToolBarsEnum.class.getCanonicalName());
-            }
+            String collect = Arrays.stream(this.toolbarActions).map(e -> "ViewToolBarsEnum." + e.name()).collect(Collectors.joining(","));
+            items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", collect));
+            this.addImports(ViewToolBarsEnum.class.getCanonicalName());
         }
         if (this.ignoreFields.length>0) {
             String collect = Arrays.stream(this.ignoreFields).map(f -> "\"" + f + "\"").collect(Collectors.joining(","));

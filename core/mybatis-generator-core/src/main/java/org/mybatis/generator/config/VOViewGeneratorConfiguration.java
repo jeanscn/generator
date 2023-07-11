@@ -11,6 +11,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private Set<String> includeColumns = new HashSet<>();
 
+    private Set<String> toolbar = new HashSet<>();
+
     private String indexColumn;
 
     private List<String> actionColumn = new ArrayList<>();
@@ -119,5 +121,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setInnerListViewConfigurations(List<InnerListViewConfiguration> innerListViewConfigurations) {
         this.innerListViewConfigurations = innerListViewConfigurations;
+    }
+
+    public Set<String> getToolbar() {
+        return toolbar;
+    }
+
+    public void setToolbar(Set<String> toolbar) {
+        this.toolbar = toolbar;
     }
 }

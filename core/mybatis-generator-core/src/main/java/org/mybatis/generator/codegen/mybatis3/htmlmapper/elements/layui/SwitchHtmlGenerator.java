@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -57,14 +58,14 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("type", "hidden"));
-        element.addAttribute(new Attribute("th:value", thymeleafValue()));
+        element.addAttribute(new Attribute("th:value", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
         parent.addElement(element);
 
         //读写状态区
         addClassNameToElement(parent, "oas-form-item-edit");
         parent.addAttribute(new Attribute("for-type", "lay-switch"));
         //在parent中添加data-data属性，用于保存初始值
-        parent.addAttribute(new Attribute("th:data-data", thymeleafValue()));
+        parent.addAttribute(new Attribute("th:data-data", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         //非空验证
@@ -72,7 +73,7 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
     }
 
     @Override
-    public String getFieldValueFormatPattern() {
+    public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedColumn.getIntrospectedTable());
         StringBuilder sb = new StringBuilder();
         sb.append("${").append(entityKey).append("?.").append(introspectedColumn.getJavaProperty());

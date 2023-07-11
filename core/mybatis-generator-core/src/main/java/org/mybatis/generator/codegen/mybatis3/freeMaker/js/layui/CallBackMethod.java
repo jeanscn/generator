@@ -15,6 +15,9 @@ public class CallBackMethod {
 
     private String otherKey;
 
+    // 0:更新关系 1:普通回调方法
+    private int type = 1;
+
     public String getMethodName() {
         return methodName;
     }
@@ -45,5 +48,13 @@ public class CallBackMethod {
 
     public void setOtherKey(String otherKey) {
         this.otherKey = otherKey;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

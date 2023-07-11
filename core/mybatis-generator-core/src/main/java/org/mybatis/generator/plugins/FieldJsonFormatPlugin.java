@@ -57,6 +57,8 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
         if (StringUtility.stringHasValue(datePattern)) {
             topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
             field.addAnnotation("@JsonFormat(shape = JsonFormat.Shape.STRING,locale=\"zh\", timezone=\"GMT+8\", pattern=\"" + datePattern + "\")");
+            topLevelClass.addImportedType("com.alibaba.fastjson2.annotation.JSONField");
+            field.addAnnotation("@JSONField(format = \"" + datePattern + "\")");
         }
         return true;
     }

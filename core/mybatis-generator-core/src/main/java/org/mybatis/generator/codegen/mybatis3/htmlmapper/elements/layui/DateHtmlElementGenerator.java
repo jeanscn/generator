@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
 /**
@@ -47,12 +48,12 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
         }else{
             dateRead = addDivWithClassToParent(parent, "oas-form-item-readonly");
         }
-        input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern()));
-        dateRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern()));
+        input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
+        dateRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
     }
 
     @Override
-    public String getFieldValueFormatPattern() {
+    public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
         String entityName = GenerateUtils.getEntityKeyStr(introspectedTable);
         StringBuilder sb = new StringBuilder();
         sb.append("${").append(entityName).append("?.").append(introspectedColumn.getJavaProperty());

@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -23,7 +24,7 @@ public class DropdownListHtmlGenerator extends AbstractLayuiElementGenerator{
         element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
         element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
-        element.addAttribute(new Attribute("th:data-value", this.getFieldValueFormatPattern()));
+        element.addAttribute(new Attribute("th:data-value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
         addDataUrl(element,htmlElementDescriptor,"/system/sys-dict-data-impl/option/" + introspectedColumn.getJavaProperty());
         HtmlElement option = new HtmlElement("option");
         option.addAttribute(new Attribute("value", ""));
@@ -38,7 +39,7 @@ public class DropdownListHtmlGenerator extends AbstractLayuiElementGenerator{
     }
 
     @Override
-    public String getFieldValueFormatPattern() {
-        return thymeleafValue();
+    public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
+        return thymeleafValue(scope);
     }
 }

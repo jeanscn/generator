@@ -2,9 +2,7 @@ package org.mybatis.generator.custom;
 
 import com.vgosoft.core.constant.GlobalConstant;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 集中管理常量，如引用的类路径等
@@ -133,4 +131,18 @@ public class ConstantsUtil {
     public static final String ANNOTATION_NULLABLE = "javax.annotation.Nullable";
 
     public static final String SUFFIX_INNER_LIST_FRAGMENTS = "inner_list_fragments";
+
+    public static final List<String> DEFAULT_CORE_FIELDS = Arrays.asList("id", "version", "numberRule", "restBasePath", "persistenceBeanName"
+            , "fileCategoryId", "moduleTag", "defaultTitle", "currentUserOrgId", "currentOrgFullName", "currentOrgShortName"
+            , "currentUserId", "currentAccountName", "currentRealName", "currentUserId", "currentMainDeptId", "commentId"
+            , "signDeptId", "refreshPortlet");
+    public static final List<String> DEFAULT_WORKFLOW_FIELDS = Arrays.asList("id", "version", "numberRule", "restBasePath", "persistenceBeanName"
+            , "fileCategoryId", "moduleTag", "defaultTitle", "currentUserOrgId", "currentOrgFullName", "currentOrgShortName"
+            , "currentUserId", "currentAccountName", "currentRealName", "currentUserId", "currentMainDeptId", "commentId"
+            , "signDeptId", "refreshPortlet", "supperEditor", "moduleId","fileCategory","viewStatus","wfState"
+            ,"curProcessors","parentBusinessKey","branchCount","branchCompleteCount","sectionHidden","rootProcessInstanceId"
+            ,"processInstanceId","isSubflow","subFlowElement","subFlowProcessInstanceId","taskDefinitionKey","taskId"
+            ,"taskName","nodeExecNumber","actionList","sectionReadonly","sectionKeepEditable","sectionShow","assigneeType"
+            ,"assigmentType","assignee","enableEdit","addtionalSave","enableTransfer","enableTackback","enableSendback"
+            ,"allowCancel","lastAssignee","lastTaskId");
 }

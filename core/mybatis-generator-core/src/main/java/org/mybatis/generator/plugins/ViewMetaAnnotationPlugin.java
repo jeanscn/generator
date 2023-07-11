@@ -3,6 +3,7 @@ package org.mybatis.generator.plugins;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
+import com.vgosoft.core.constant.enums.view.ViewToolBarsEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -132,6 +133,16 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setDataUrl(String.join("/"
                 , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                 , "getdtdata"));
+
+        //toolbar
+        if (voViewGeneratorConfiguration.getToolbar().size() > 0) {
+            ViewToolBarsEnum[] toolBarsEnums = voViewGeneratorConfiguration.getToolbar().stream()
+                    .map(ViewToolBarsEnum::ofCode)
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparingInt(ViewToolBarsEnum::value).reversed())
+                    .toArray(ViewToolBarsEnum[]::new);
+            viewTableMetaDesc.setToolbarActions(toolBarsEnums);
+        }
 
         //indexColumn
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());

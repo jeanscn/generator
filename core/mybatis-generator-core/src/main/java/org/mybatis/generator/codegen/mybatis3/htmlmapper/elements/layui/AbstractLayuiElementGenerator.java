@@ -11,6 +11,7 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.DictTypeEnum;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
     public abstract void addHtmlElement(HtmlElement parent);
 
     @Override
-    public abstract String getFieldValueFormatPattern();
+    public abstract String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope);
 
     protected void addElementVerify(String columnName, HtmlElement element, @Nullable HtmlElementDescriptor htmlElementDescriptor) {
         IntrospectedColumn column = introspectedTable.getColumn(columnName).orElse(null);

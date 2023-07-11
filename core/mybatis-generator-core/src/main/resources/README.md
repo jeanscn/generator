@@ -1,4 +1,7 @@
 更新日志：
+# 2023-7-11
+## 更新说明
+* 1、viewVO增加toolbar属性，用于定制列表左上的操作按钮。可选值：CREATE、EDIT、REMOVE、SEARCH、REFRESH、EXPORT、IMPORT、PRINT、COLUMN。
 # 2023-7-06
 ## 更新说明
 * 1、页面生成元素中添加approvalComment元素，用于生成审批意见组件。（一个页面可添加0或n个）

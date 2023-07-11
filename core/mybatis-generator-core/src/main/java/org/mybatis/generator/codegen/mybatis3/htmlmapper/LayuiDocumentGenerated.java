@@ -12,6 +12,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.*;
@@ -517,7 +518,9 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         HtmlElement label = new HtmlElement("label");
         addClassNameToElement(label, "layui-form-label");
-        label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+        if (!Mb3GenUtil.isInDefaultFields(introspectedTable,introspectedColumn.getJavaProperty())) {
+            label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+        }
         VoGenService voGenService = new VoGenService(introspectedTable);
         OverridePropertyValueGeneratorConfiguration overrideConfig = voGenService.getOverridePropertyValueConfiguration(introspectedColumn);
         if (overrideConfig != null && overrideConfig.getRemark() != null) {

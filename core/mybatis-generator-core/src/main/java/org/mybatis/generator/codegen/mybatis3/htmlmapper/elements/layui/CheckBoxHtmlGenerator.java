@@ -8,6 +8,7 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class CheckBoxHtmlGenerator extends AbstractLayuiElementGenerator {
         }
         addDataUrl(parent,htmlElementDescriptor,null);
         //在parent中添加data-data属性，用于保存初始值
-        parent.addAttribute(new Attribute("th:data-data", thymeleafValue()));
+        parent.addAttribute(new Attribute("th:data-data", getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
         parent.addAttribute(new Attribute("for-type", "lay-checkbox"));
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
@@ -50,7 +51,7 @@ public class CheckBoxHtmlGenerator extends AbstractLayuiElementGenerator {
     }
 
     @Override
-    public String getFieldValueFormatPattern() {
-        return thymeleafValue();
+    public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
+        return thymeleafValue(scope);
     }
 }

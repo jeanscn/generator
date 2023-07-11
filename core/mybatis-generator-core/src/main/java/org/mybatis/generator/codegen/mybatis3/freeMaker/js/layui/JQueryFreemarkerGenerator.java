@@ -6,6 +6,7 @@ import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -15,6 +16,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -37,17 +39,30 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
     public String generate(String templateName) {
         List<CallBackMethod> callBackMethods = new ArrayList<>();
         this.htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
-            if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.getCode())
-                    && StringUtility.stringHasValue(elementDescriptor.getCallback())) {
+            if (StringUtility.stringHasValue(elementDescriptor.getCallback())) {
                 CallBackMethod callBackMethod = new CallBackMethod();
                 callBackMethod.setMethodName(VStringUtil.getFirstCharacterLowercase(elementDescriptor.getCallback()));
-                introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
-                        .filter(config -> config.getMethodSuffix().equals(elementDescriptor.getCallback()))
-                        .findFirst().ifPresent(config -> {
-                            callBackMethod.setRequestKey(VStringUtil.toHyphenCase(config.getMethodSuffix()));
-                            callBackMethod.setThisKey(config.getThisColumn().getJavaProperty());
-                            callBackMethod.setOtherKey(config.getOtherColumn().getJavaProperty()+"s");
-                        });
+                if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.getCode())) {
+                    // 如果是select标签，且存在selectByTableGeneratorConfiguration配置，生成更新关系的方法
+                    Optional<SelectByTableGeneratorConfiguration> byTableGeneratorConfiguration = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream()
+                            .filter(config -> config.getMethodSuffix().equals(elementDescriptor.getCallback()))
+                            .findFirst();
+                    byTableGeneratorConfiguration.ifPresent(config -> {
+                        callBackMethod.setType(0);
+                        callBackMethod.setRequestKey(VStringUtil.toHyphenCase(config.getMethodSuffix()));
+                        callBackMethod.setThisKey(config.getThisColumn().getJavaProperty());
+                        callBackMethod.setOtherKey(config.getOtherColumn().getJavaProperty() + "s");
+                    });
+                    if (!byTableGeneratorConfiguration.isPresent()) {
+                        callBackMethod.setRequestKey(VStringUtil.toHyphenCase(elementDescriptor.getCallback()));
+                        callBackMethod.setThisKey("param1");
+                        callBackMethod.setOtherKey("param2");
+                    }
+                } else {
+                    callBackMethod.setRequestKey(VStringUtil.toHyphenCase(elementDescriptor.getCallback()));
+                    callBackMethod.setThisKey("param1");
+                    callBackMethod.setOtherKey("param2");
+                }
                 callBackMethods.add(callBackMethod);
             }
         });

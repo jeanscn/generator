@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -39,7 +40,7 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator {
             parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
         }
         //在parent中添加data-data属性，用于保存初始值
-        parent.addAttribute(new Attribute("th:data-data", this.getFieldValueFormatPattern()));
+        parent.addAttribute(new Attribute("th:data-data", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
         parent.addAttribute(new Attribute("for-type", "lay-radio"));
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
@@ -47,12 +48,12 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator {
     }
 
     @Override
-    public String getFieldValueFormatPattern() {
+    public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
         if (htmlElementDescriptor.getDataFormat() != null && htmlElementDescriptor.getDataFormat().contains("急")) {
             return format("$'{'{0}.{1} ne null?({0}.{1} <= 50?''正常'':''紧急''):''正常''}'", entityKey, introspectedColumn.getJavaProperty());
         } else {
-            return thymeleafValue();
+            return thymeleafValue(scope);
         }
     }
 }

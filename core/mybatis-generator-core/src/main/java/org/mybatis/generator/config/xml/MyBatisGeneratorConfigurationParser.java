@@ -1863,6 +1863,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(includeColumns)) {
             voViewGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
         }
+        String toolbar = attributes.getProperty("toolbar");
+        if (stringHasValue(toolbar)) {
+            voViewGeneratorConfiguration.setToolbar(spiltToSet(toolbar));
+        }
         String indexColumn = attributes.getProperty("indexColumn");
         if (stringHasValue(indexColumn)) {
             voViewGeneratorConfiguration.setIndexColumn(indexColumn);

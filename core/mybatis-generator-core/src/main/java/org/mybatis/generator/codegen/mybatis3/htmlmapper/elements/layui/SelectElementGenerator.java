@@ -10,6 +10,7 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
@@ -23,8 +24,6 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  */
 public class SelectElementGenerator extends AbstractLayuiElementGenerator{
 
-    private String otherFieldName;
-
     public SelectElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
         super(generatorInitialParameters,introspectedColumn);
     }
@@ -32,21 +31,14 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
     @Override
     public void addHtmlElement(HtmlElement parent) {
         String dataSource = this.htmlElementDescriptor.getDataSource();
-        //计算使用方言
-       /* String thisDialect = null;
-        if (stringHasValue(this.htmlElementDescriptor.getDataSource())) {
-            thisDialect = "vgo:"+(dataSource.equals("Department")?"deptName":dataSource.equals("User")?"userName":dataSource.toLowerCase());
-        }*/
-
-        this.otherFieldName = this.htmlElementDescriptor.getOtherFieldName();
+        String otherFieldName = this.htmlElementDescriptor.getOtherFieldName();
         String javaProperty = introspectedColumn.getJavaProperty();
-        HtmlElement input = generateHtmlInput(this.otherFieldName, false, false);
+        HtmlElement input = generateHtmlInput(otherFieldName, false, false,true,false);
         input.addAttribute(new Attribute("readonly", "readonly"));
         addClassNameToElement(input, "layui-input");
         input.addAttribute(new Attribute("data-field", javaProperty));
         addElementVerify(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
-        //input.addAttribute(new Attribute(thisDialect==null?"th:value":thisDialect, this.thymeleafValue(introspectedColumn)));
-        input.addAttribute(new Attribute("th:value", this.thymeleafValue(this.htmlElementDescriptor.getOtherFieldName(),GenerateUtils.getEntityKeyStr(introspectedTable))));
+        input.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         input.addAttribute(new Attribute("for-type", "lay-select"));
         input.addAttribute(new Attribute("data-type", dataSource));
         if (stringHasValue(this.htmlElementDescriptor.getCallback())) {
@@ -56,8 +48,7 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         addDataUrl(input,htmlElementDescriptor,null);
         parent.addElement(input);
         HtmlElement divRead = addDivWithClassToParent(parent, "oas-form-item-read");
-        //divRead.addAttribute(new Attribute(thisDialect==null?"th:text":thisDialect, this.thymeleafValue(introspectedColumn)));
-        divRead.addAttribute(new Attribute("th:text", this.thymeleafValue(this.htmlElementDescriptor.getOtherFieldName(),GenerateUtils.getEntityKeyStr(introspectedTable))));
+        divRead.addAttribute(new Attribute("th:text", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         if (stringHasValue(htmlElementDescriptor.getBeanName())) {
             input.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
             divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
@@ -68,20 +59,12 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         }
         //增加一个隐藏字段
         HtmlElement hidden = generateHtmlInput(true, false);
-        hidden.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern()));
+        hidden.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
         parent.addElement(hidden);
     }
 
     @Override
-    public String getFieldValueFormatPattern() {
-        return  thymeleafValue();
-    }
-
-    private String getOtherFieldValueFormatPattern(IntrospectedColumn introspectedColumn) {
-        return  "${"
-                + GenerateUtils.getEntityKeyStr(introspectedTable)
-                + "?."
-                + (this.otherFieldName == null ? introspectedColumn.getJavaProperty() : this.otherFieldName)
-                + "}";
+    public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
+        return  thymeleafValue(scope);
     }
 }

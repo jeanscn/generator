@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300709001-->
+        <!--version:1.5.0.2300711001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -859,14 +859,15 @@
            2、includeColumns:视图包含的字段名,多值使用","。
            3、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
                 当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
-           4、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
-           5、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
-           6、queryColumns:应用复合查询的字段名,多值使用","。
-           7、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           8、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-           9、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-           10、viewMenuIcon view菜单项目的图标
-           11、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           4、toolbar：工具栏的操作列表。包括：CREATE-新增、EDIT-编辑、REMOVE-删除、SEARCH-查询、REFRESH-刷新、EXPORT-导出、IMPORT-导入、PRINT-打印、COLUMN-隐藏列中的0个或多个。
+           5、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
+           6、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
+           7、queryColumns:应用复合查询的字段名,多值使用","。
+           8、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           9、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           10、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           11、viewMenuIcon view菜单项目的图标
+           12、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
             property配置：无
         -->
 
@@ -875,6 +876,7 @@
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
                 excludeColumns CDATA #IMPLIED
+                toolbar CDATA #IMPLIED
                 indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
                 actionColumn CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED

@@ -6,8 +6,11 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.html.Attribute;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.custom.ConstantsUtil;
 
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 
@@ -18,17 +21,17 @@ import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
  */
 public class Mb3GenUtil {
 
-    public static String getControllerBaseMappingPath(IntrospectedTable introspectedTable){
+    public static String getControllerBaseMappingPath(IntrospectedTable introspectedTable) {
         String beanName = ConfigUtil.getIntrospectedTableBeanName(introspectedTable.getTableConfiguration());
         String basePath = introspectedTable.getTableConfiguration().getServiceApiBasePath();
         if (StringUtility.stringHasValue(basePath)) {
             return basePath + "/" + toHyphenCase(beanName);
-        }else {
+        } else {
             return toHyphenCase(beanName);
         }
     }
 
-    public static String getModelCateId(Context context){
+    public static String getModelCateId(Context context) {
         String aCase = StringUtils.lowerCase(context.getModuleKeyword());
         if (VStringUtil.stringHasValue(aCase)) {
             return VMD5Util.MD5_15(aCase);
@@ -36,19 +39,25 @@ public class Mb3GenUtil {
         return null;
     }
 
-    public static String getModelKey(IntrospectedTable introspectedTable){
+    public static String getModelKey(IntrospectedTable introspectedTable) {
         return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
     }
 
-    public static String getDefaultViewId(IntrospectedTable introspectedTable){
-        String aCase = StringUtils.lowerCase(introspectedTable.getControllerBeanName()+ GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
+    public static String getDefaultViewId(IntrospectedTable introspectedTable) {
+        String aCase = StringUtils.lowerCase(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
         if (VStringUtil.stringHasValue(aCase)) {
             return VMD5Util.MD5_15(aCase);
         }
         return null;
     }
 
-    public boolean isRequiredColumn(IntrospectedColumn introspectedColumn) {
+    public static boolean isRequiredColumn(IntrospectedColumn introspectedColumn) {
         return !introspectedColumn.isNullable() && introspectedColumn.getDefaultValue() == null && !introspectedColumn.isAutoIncrement() && !introspectedColumn.isGeneratedColumn() && !introspectedColumn.isSequenceColumn();
+    }
+
+    public static boolean isInDefaultFields(IntrospectedTable introspectedTable, String fieldName) {
+        if (GenerateUtils.isWorkflowInstance(introspectedTable) && ConstantsUtil.DEFAULT_WORKFLOW_FIELDS.contains(fieldName)) {
+            return true;
+        } else return ConstantsUtil.DEFAULT_CORE_FIELDS.contains(fieldName);
     }
 }

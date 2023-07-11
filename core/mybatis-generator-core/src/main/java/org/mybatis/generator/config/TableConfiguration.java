@@ -2,6 +2,8 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.enums.core.*;
 import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.tool.core.VBeanUtil;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -1083,14 +1085,16 @@ public class TableConfiguration extends PropertyHolder {
             }
 
             //当DataSource值分别为DictSys、DictData、DictUser，且没有配置dataUrl，且指定了DictCode，则分别自动配置dataUrl
-            if (stringHasValue(elementDescriptor.getDataSource())
-                    && !stringHasValue(elementDescriptor.getDataUrl())
-                    && stringHasValue(elementDescriptor.getDictCode())) {
+            if (stringHasValue(elementDescriptor.getDataSource()) && !stringHasValue(elementDescriptor.getDataUrl())) {
+                String camelCaseString = JavaBeansUtil.getCamelCaseString(elementDescriptor.getName(), false);
                 if (DictTypeEnum.DICT_SYS.getCode().equals(elementDescriptor.getDataSource())) {
+                    elementDescriptor.setDictCode(elementDescriptor.getDictCode() == null ? camelCaseString : elementDescriptor.getDictCode());
                     elementDescriptor.setDataUrl("/system/sys-cfg-dict-impl/option/" + elementDescriptor.getDictCode());
                 } else if (DictTypeEnum.DICT_DATA.getCode().equals(elementDescriptor.getDataSource())) {
+                    elementDescriptor.setDictCode(elementDescriptor.getDictCode() == null ? camelCaseString : elementDescriptor.getDictCode());
                     elementDescriptor.setDataUrl("/system/sys-dict-data-impl/option/" + elementDescriptor.getDictCode());
                 } else if (DictTypeEnum.DICT_USER.getCode().equals(elementDescriptor.getDataSource())) {
+                    elementDescriptor.setDictCode(elementDescriptor.getDictCode() == null ? camelCaseString : elementDescriptor.getDictCode());
                     elementDescriptor.setDataUrl("/system/dict-content-impl/option/" + elementDescriptor.getDictCode());
                 }
             }

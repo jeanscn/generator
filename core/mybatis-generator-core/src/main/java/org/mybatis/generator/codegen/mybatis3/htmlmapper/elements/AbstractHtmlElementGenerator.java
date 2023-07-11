@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -13,9 +14,15 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
+import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.VoGenService;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractHtmlElementGenerator extends AbstractGenerator implements HtmlConstant {
 
@@ -36,17 +43,25 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
     public abstract void addHtmlElement(HtmlElement parent);
 
     protected HtmlElement generateHtmlInput(boolean isHidden, boolean isTextArea) {
-        return generateHtmlInput(this.introspectedColumn.getJavaProperty(), isHidden, isTextArea);
+        return generateHtmlInput(this.introspectedColumn.getJavaProperty(), isHidden, isTextArea,true,true);
     }
 
-    protected HtmlElement generateHtmlInput(String name, boolean isHidden, boolean isTextArea) {
+    protected HtmlElement generateHtmlInput(String name, boolean isHidden, boolean isTextArea, boolean idAttribute,boolean nameAttribute) {
         String type = isTextArea ? "textarea" : "input";
         HtmlElement input = new HtmlElement(type);
-        input.addAttribute(new Attribute("id", name));
-        input.addAttribute(new Attribute("name", name));
+        if (!Mb3GenUtil.isInDefaultFields(introspectedTable, introspectedColumn.getJavaProperty())) {
+            input.addAttribute(new Attribute("id", name));
+            input.addAttribute(new Attribute("name", name));
+        }else{
+            if (idAttribute) {
+                input.addAttribute(new Attribute("id", name));
+            }
+            if (nameAttribute) {
+                input.addAttribute(new Attribute("name", name));
+            }
+        }
         if (isHidden) {
             addClassNameToElement(input, "layui-hide");
-            //input.addAttribute(new Attribute("type", "hidden"));
         } else {
             input.addAttribute(new Attribute("type", "text"));
         }
@@ -58,8 +73,20 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
      *
      * @return thymeleaf模板的值部分
      */
-    protected String thymeleafValue() {
-        return thymeleafValue(this.introspectedColumn.getJavaProperty(), GenerateUtils.getEntityKeyStr(introspectedTable));
+    protected String thymeleafValue(ThymeleafValueScopeEnum scopeEnum) {
+        String javaProperty = this.introspectedColumn.getJavaProperty();
+        String entityKeyStr = GenerateUtils.getEntityKeyStr(introspectedTable);
+        if (scopeEnum.equals(ThymeleafValueScopeEnum.READ)) {
+            if (this.htmlElementDescriptor!=null && VStringUtil.stringHasValue(this.htmlElementDescriptor.getOtherFieldName())) {
+                javaProperty = this.htmlElementDescriptor.getOtherFieldName();
+            }else{
+                OverridePropertyValueGeneratorConfiguration overridePropertyValueConfiguration = voGenService.getOverridePropertyValueConfiguration(this.introspectedColumn);
+                if (overridePropertyValueConfiguration != null && overridePropertyValueConfiguration.getTargetPropertyName() != null) {
+                    javaProperty = overridePropertyValueConfiguration.getTargetPropertyName();
+                }
+            }
+        }
+        return thymeleafValue(javaProperty, entityKeyStr);
     }
 
     protected String thymeleafValue(String propertyName,String entityKey){
@@ -135,7 +162,14 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
         element.addAttribute(new Attribute("th:checked", sb.toString()));
         return element;
     }
-    public abstract String getFieldValueFormatPattern();
+
+    /**
+     * 生成thymeleaf模板的值部分
+     * @param scopeEnum thymeleaf值的作用域
+     *
+     * @return thymeleaf模板的值部分
+     */
+    public abstract String getFieldValueFormatPattern(ThymeleafValueScopeEnum scopeEnum);
 
     protected boolean isDateType() {
         return GenerateUtils.isDateType(introspectedColumn);
