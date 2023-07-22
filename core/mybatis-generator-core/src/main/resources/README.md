@@ -1,4 +1,20 @@
 更新日志：
+# 2023-7-20
+## 一、新增功能：
+* 1、innerListView元素增加listKey属性，用来唯一标识innerListView，允许一个表定义多个list配置。
+        与之相对应的，htmlElementInnerList增加listKey属性，用来指定使用哪个innerListView。
+* 2、htmlElementInnerList元素增加appKeyword属性，当引用不同模块的列表时，指定模块的关键字。
+
+# 2023-7-15
+## 一、新增功能：
+* 1、新增默认生成缺省列表渲染包括：name（链接）、state启用状态、wfState（流程状态）、priority（缓急程度）。
+## 二、更新说明
+* 1、htmlElementDescriptor元素增加labelCss属性，可以为生成的元素label添加附加的css样式。
+* 2、htmlElementDescriptor元素增加elementCss属性，可以为生成的元素添加附加的css样式。
+* 3、innerListView元素增加listColumnDescriptor属性，用于指定列表的列配置参数。
+## 三、修正bug：
+* 1、内置列表无法正确继承context和table的html隐藏属性问题。
+
 # 2023-7-11
 ## 更新说明
 * 1、viewVO增加toolbar属性，用于定制列表左上的操作按钮。可选值：CREATE、EDIT、REMOVE、SEARCH、REFRESH、EXPORT、IMPORT、PRINT、COLUMN。

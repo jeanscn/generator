@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.apache.commons.lang3.ObjectUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -33,7 +33,7 @@ public class InsertByTableElementGenerator extends
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("insert ignore into " + configuration.getTableName()));
             StringBuilder sb = new StringBuilder("(");
-            sb.append(DefultColumnNameEnum.ID.columnName()+",").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
+            sb.append(DefaultColumnNameEnum.ID.columnName()+",").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
             sb.append(")");
             answer.addElement(new TextElement(sb.toString()));
             answer.addElement(new TextElement("values"));

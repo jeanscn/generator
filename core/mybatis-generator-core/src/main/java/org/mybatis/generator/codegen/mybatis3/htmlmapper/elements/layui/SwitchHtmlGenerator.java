@@ -9,6 +9,8 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-04-13 14:49
@@ -52,14 +54,15 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         addDataUrl(element, htmlElementDescriptor, null);
         String sb = "${" + entityKey + "?." +  introspectedColumn.getJavaProperty() + "} eq " + checkedValue;
         element.addAttribute(new Attribute("th:checked", sb));
+
         parent.addElement(element);
         //增加提交数据的隐藏域
-        element = new HtmlElement("input");
-        element.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
-        element.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
-        element.addAttribute(new Attribute("type", "hidden"));
-        element.addAttribute(new Attribute("th:value", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
-        parent.addElement(element);
+        HtmlElement hidden = new HtmlElement("input");
+        hidden.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
+        hidden.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
+        hidden.addAttribute(new Attribute("type", "hidden"));
+        hidden.addAttribute(new Attribute("th:value", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
+        parent.addElement(hidden);
 
         //读写状态区
         addClassNameToElement(parent, "oas-form-item-edit");
@@ -68,8 +71,15 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         parent.addAttribute(new Attribute("th:data-data", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
+        if (stringHasValue(this.htmlElementDescriptor.getCallback())) {
+            element.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
+        }
         //非空验证
-        addElementVerify(introspectedColumn.getActualColumnName(), element, this.htmlElementDescriptor);
+        addElementVerify(introspectedColumn.getActualColumnName(), hidden, this.htmlElementDescriptor);
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+        }
     }
 
     @Override

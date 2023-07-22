@@ -8,8 +8,10 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -29,11 +31,14 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
     protected final String input_subject_id = "subject";
     protected final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
+    protected final VoGenService voGenService;
+
     public AbsHtmlDocumentGenerator(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.document = document;
         this.introspectedTable = introspectedTable;
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
+        this.voGenService = new VoGenService(introspectedTable);
     }
 
     public int getPageColumnsConfig() {
@@ -329,4 +334,11 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
                 htmlElementDescriptor.getOtherFieldName():htmlElementDescriptor.getColumn().getJavaProperty();
         return "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + fieldName + "}?:_";
     }
+
+    protected HtmlElementDescriptor getHtmlElementDescriptor(IntrospectedColumn introspectedColumn) {
+        return this.htmlGeneratorConfiguration.getElementDescriptors().stream()
+                .filter(d->d.getColumn().getActualColumnName().equals(introspectedColumn.getActualColumnName()))
+                .findFirst().orElse(null);
+    }
+
 }

@@ -7,6 +7,10 @@ package org.mybatis.generator.config;
  */
 public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
+    private String listKey;
+
+    private String appKeyword;
+
     private String tagId;
 
     private String dataField;
@@ -17,9 +21,9 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private String sourceBeanName;
 
-    private String appKey;
-
     private String relationField;
+
+    private String relationKey;
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -67,12 +71,12 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.sourceBeanName = sourceBeanName;
     }
 
-    public String getAppKey() {
-        return appKey;
+    public String getAppKeyword() {
+        return appKeyword;
     }
 
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
+    public void setAppKeyword(String appKeyword) {
+        this.appKeyword = appKeyword;
     }
 
     public String getRelationField() {
@@ -81,5 +85,21 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setRelationField(String relationField) {
         this.relationField = relationField;
+    }
+
+    public String getRelationKey() {
+        return relationKey;
+    }
+
+    public void setRelationKey(String relationKey) {
+        this.relationKey = relationKey;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
     }
 }

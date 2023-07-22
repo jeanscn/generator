@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -11,6 +12,8 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import java.util.List;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -47,7 +50,14 @@ public class CheckBoxHtmlGenerator extends AbstractLayuiElementGenerator {
         parent.addAttribute(new Attribute("for-type", "lay-checkbox"));
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
+        if (stringHasValue(this.htmlElementDescriptor.getCallback())) {
+            parent.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
+        }
         addClassNameToElement(parent, "oas-form-item-edit");
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+        }
     }
 
     @Override

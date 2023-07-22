@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -234,24 +234,19 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                     .stream().collect(Collectors.toMap(VoNameFragmentGeneratorConfiguration::getColumn, VoNameFragmentGeneratorConfiguration::getFragment, (k1, k2) -> k2));
         }
 
-        Parameter parameter;
         Method buildExample = new Method("buildExample");
         buildExample.setVisibility(JavaVisibility.PROTECTED);
+        //actionType 用来区分查询应用场景的类型标识
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.setRemark("用来区分查询应用场景的类型标识");
         buildExample.addParameter(actionType);
-        if (introspectedTable.getRules().isGenerateRequestVO()) {
-            parameter = new Parameter(entityRequestVoType, entityRequestVoType.getShortNameFirstLowCase());
-        } else if (introspectedTable.getRules().isGenerateVoModel()) {
-            parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
-        } else {
-            parameter = new Parameter(entityType, entityType.getShortNameFirstLowCase());
-        }
+        //对象参数
+        FullyQualifiedJavaType paramType = introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType : introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType;
+        Parameter parameter = new Parameter(paramType, paramType.getShortNameFirstLowCase());
         parameter.setRemark("传入的条件值");
         buildExample.setReturnRemark("查询对象");
         buildExample.addParameter(parameter);
         buildExample.setReturnType(exampleType);
-
         commentGenerator.addMethodJavaDocLine(buildExample, "[请在子类中重写此方法]", "根据actionType构造不同的查询条件");
 
         FullyQualifiedJavaType type = parameter.getType();
@@ -270,11 +265,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
             for (IntrospectedColumn column : columns) {
-                boolean isBetween = false;
                 String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), column.getFullyQualifiedJavaType());
-                if (nameFragments.containsKey(column.getActualColumnName()) && "Between".equals(nameFragments.get(column.getActualColumnName()))) {
-                    isBetween = true;
-                }
+                boolean isBetween = nameFragments.containsKey(column.getActualColumnName()) && "between".equalsIgnoreCase(nameFragments.get(column.getActualColumnName()));
                 if (column.isJdbcCharacterColumn()) {
                     if (isBetween) {
                         buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.{1}())  && !VStringUtil.isBlank({0}.{1}Other())) '{'", type.getShortNameFirstLowCase(), getterMethodName);
@@ -289,21 +281,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                         buildExample.addBodyLine("if ({0}.{1}() != null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
                     }
                 }
-                String methodName;
-                boolean isId = false;
-                if (column.getJavaProperty().length() > 1) {
-                    String substring = StringUtils.substring(column.getJavaProperty(), column.getJavaProperty().length() - 2);
-                    if ("id".equalsIgnoreCase(substring)) {
-                        isId = true;
-                    }
-                }
-                if (nameFragments.containsKey(column.getActualColumnName())) {
-                    methodName = initializeAndMethodName(column) + nameFragments.get(column.getActualColumnName());
-                } else if (column.isJdbcCharacterColumn() && !column.isPrimaryKey() && !isId) {
-                    methodName = initializeAndMethodName(column) + "LikeAny";
-                } else {
-                    methodName = initializeAndMethodName(column) + "EqualTo";
-                }
+
+                String methodName = initializeAndMethodName(column) + nameFragments.getOrDefault(column.getActualColumnName(), "EqualTo");
                 if (isBetween) {
                     buildExample.addBodyLine("criteria.{0}({1}.{2}(),{1}.{2}Other());"
                             , methodName
@@ -417,9 +396,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
     private void addGetTreeElement(TopLevelClass parentElement) {
         Set<String> columnNames = introspectedTable.getTableConfiguration().getColumnNames();
-        if (columnNames.contains(DefultColumnNameEnum.PARENT_ID.columnName())
-                && columnNames.contains(DefultColumnNameEnum.ID.columnName())
-                && columnNames.contains(DefultColumnNameEnum.NAME.columnName())) {
+        if (columnNames.contains(DefaultColumnNameEnum.PARENT_ID.columnName())
+                && columnNames.contains(DefaultColumnNameEnum.ID.columnName())
+                && columnNames.contains(DefaultColumnNameEnum.NAME.columnName())) {
             AbstractControllerElementGenerator elementGenerator = new FetchTreeDataElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

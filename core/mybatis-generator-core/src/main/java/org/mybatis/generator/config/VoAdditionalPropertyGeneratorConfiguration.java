@@ -2,6 +2,7 @@ package org.mybatis.generator.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class VoAdditionalPropertyGeneratorConfiguration extends TypedPropertyHolder {
 
@@ -82,8 +83,8 @@ public class VoAdditionalPropertyGeneratorConfiguration extends TypedPropertyHol
         isFinal = aFinal;
     }
 
-    public String getInitializationString() {
-        return initializationString;
+    public Optional<String> getInitializationString() {
+        return Optional.ofNullable(initializationString);
     }
 
     public void setInitializationString(String initializationString) {

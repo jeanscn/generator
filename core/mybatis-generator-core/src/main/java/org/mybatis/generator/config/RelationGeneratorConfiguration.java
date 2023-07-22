@@ -4,6 +4,10 @@ import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 public class RelationGeneratorConfiguration extends PropertyHolder {
 
     /**
@@ -83,6 +87,10 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
     private boolean relationPropertyIsBoolean;
 
     private String remark;
+
+    private String initializationString;
+
+    private Set<String> importTypes = new HashSet<>();
 
     public RelationGeneratorConfiguration() {
         super();
@@ -223,5 +231,21 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Optional<String> getInitializationString() {
+        return Optional.ofNullable(initializationString);
+    }
+
+    public void setInitializationString(String initializationString) {
+        this.initializationString = initializationString;
+    }
+
+    public Set<String> getImportTypes() {
+        return importTypes;
+    }
+
+    public void addImportTypes(String importType) {
+        this.importTypes.add(importType);
     }
 }

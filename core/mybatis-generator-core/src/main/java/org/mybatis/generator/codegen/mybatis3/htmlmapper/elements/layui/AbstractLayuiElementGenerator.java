@@ -61,8 +61,7 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
             verifyList.add("datetime");
         }
         //数字类型
-        if ((column.getJdbcTypeName().equalsIgnoreCase("DECIMAL")
-                || column.getJdbcTypeName().equalsIgnoreCase("NUMERIC")
+        if ((column.getJdbcTypeName().equalsIgnoreCase("NUMERIC")
                 || column.getJdbcTypeName().equalsIgnoreCase("BIGINT")
                 || column.getJdbcTypeName().equalsIgnoreCase("INTEGER")
                 || column.getJdbcTypeName().equalsIgnoreCase("INT")) && !verifyList.contains("number")) {

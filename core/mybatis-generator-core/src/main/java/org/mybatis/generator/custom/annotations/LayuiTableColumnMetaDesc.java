@@ -16,6 +16,8 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         public static final String ANNOTATION_NAME = "@LayuiTableColumnMeta";
 
+        private String value;
+
         private String width;
         private int minWidth;
         private String fixed;
@@ -34,6 +36,8 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         private String scope;
 
+        private String align;
+
         public LayuiTableColumnMetaDesc() {
             super();
             this.addImports(LayuiTableColumnMeta.class.getCanonicalName());
@@ -41,6 +45,9 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         @Override
         public String toAnnotation() {
+            if (stringHasValue(value)) {
+                items.add(format("value = \"{0}\"", value));
+            }
             if (stringHasValue(width)) {
                 items.add(format("width = \"{0}\"", width));
             }
@@ -79,6 +86,9 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
             }
             if (stringHasValue(scope)) {
                 items.add(format("scope = \"{0}\"", scope));
+            }
+            if (stringHasValue(align)) {
+                items.add(format("align = \"{0}\"", align));
             }
             return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
         }
@@ -185,5 +195,21 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public String getAlign() {
+        return align;
+    }
+
+    public void setAlign(String align) {
+        this.align = align;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

@@ -135,6 +135,9 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
                 Field field = new Field(c.getPropertyName(), fullyQualifiedJavaType);
                 field.setVisibility(JavaVisibility.PRIVATE);
                 field.setRemark(c.getRemark());
+                if (c.getType().equals(RelationTypeEnum.collection)) {
+                    field.setInitializationString("new ArrayList<>()");
+                }
                 topLevelClass.addField(field);
                 topLevelClass.addImportedType(c.getVoModelTye());
             }

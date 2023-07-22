@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
@@ -7,6 +8,8 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -42,6 +45,9 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
             input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
             addClassNameToElement(input, "layui-input");
             addClassNameToElement(input, "oas-form-item-edit");
+            if (htmlElementDescriptor != null && stringHasValue(this.htmlElementDescriptor.getCallback())) {
+                input.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
+            }
             addElementVerify(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
             parent.addAttribute(new Attribute("for-type", "lay-date"));
             dateRead = addDivWithClassToParent(parent, "oas-form-item-read");
@@ -50,6 +56,10 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
         }
         input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
         dateRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+        }
     }
 
     @Override

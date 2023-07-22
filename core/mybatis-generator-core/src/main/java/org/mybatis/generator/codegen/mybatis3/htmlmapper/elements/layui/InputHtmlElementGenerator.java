@@ -53,6 +53,11 @@ public class InputHtmlElementGenerator extends AbstractLayuiElementGenerator {
             dRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         }
 
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+        }
+
     }
 
     @Override

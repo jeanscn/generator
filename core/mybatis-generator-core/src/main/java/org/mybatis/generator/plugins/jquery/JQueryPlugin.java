@@ -6,6 +6,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +52,7 @@ public class JQueryPlugin extends PluginAdapter {
                         introspectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
                 //generatedJqueryFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
-                generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
+                generatedJqueryFileMin.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFileMin);
             }
         }

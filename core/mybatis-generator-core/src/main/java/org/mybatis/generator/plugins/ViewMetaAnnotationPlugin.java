@@ -11,10 +11,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
-import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.InnerListViewConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -45,16 +42,26 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         if (introspectedTable.getRules().isGenerateInnerTable()) {
             //增加InnerTableMetaAnnotation
-            InnerListViewConfiguration listViewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration()
-                    .getVoViewConfiguration().getInnerListViewConfigurations().get(0);
-            LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
-            layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
-            layuiTableMetaDesc.setEnablePage(listViewConfiguration.getEnablePage());
-            layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
-            layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
-            layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
-            topLevelClass.addAnnotation(layuiTableMetaDesc.toAnnotation());
-            topLevelClass.addImportedTypes(layuiTableMetaDesc.getImportedTypes());
+            introspectedTable.getTableConfiguration().getVoGeneratorConfiguration()
+                    .getVoViewConfiguration().getInnerListViewConfigurations().forEach(listViewConfiguration -> {
+                        LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
+                        layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
+                        layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
+                        layuiTableMetaDesc.setEnablePage(listViewConfiguration.getEnablePage());
+                        layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
+                        layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
+                        layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
+                        layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
+                        layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
+                        layuiTableMetaDesc.setActionColumn(listViewConfiguration.getActionColumn());
+                        layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
+                        layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
+                        String annotation = layuiTableMetaDesc.toAnnotation();
+                        if (!topLevelClass.getAnnotations().contains(annotation)) {
+                            topLevelClass.addAnnotation(annotation);
+                            topLevelClass.addImportedTypes(layuiTableMetaDesc.getImportedTypes());
+                        }
+                    });
         }
         return true;
     }
@@ -204,148 +211,179 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (!introspectedTable.getRules().isGenerateInnerTable()) {
             return;
         }
-        InnerListViewConfiguration listViewConfiguration = introspectedTable.getTableConfiguration()
+        introspectedTable.getTableConfiguration()
                 .getVoGeneratorConfiguration().getVoViewConfiguration()
-                .getInnerListViewConfigurations().get(0);
-        //如果有默认显示字段且字段不在默认显示字段中，字段不生成layuiTableColumnMeta
-        if (!(listViewConfiguration.getDefaultDisplayFields().isEmpty() || listViewConfiguration.getDefaultDisplayFields().contains(field.getName()))) {
-            return;
-        }
-        //如果有描述器且描述器为select类型，map的key属性字段不生成layuiTableColumnMeta
-        Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap();
-        Set<String> mapFields = new HashSet<>();
-        elementDescriptorMap.forEach((key, value) -> {
-            if (!HtmlElementTagTypeEnum.INPUT.getCode().equals(value.getTagType())) {
-                mapFields.add(key);
-                mapFields.add(value.getOtherFieldName());
-            }
-        });
-        if (elementDescriptorMap.containsKey(field.getName()) && HtmlElementTagTypeEnum.SELECT.getCode().equals(elementDescriptorMap.get(field.getName()).getTagType())) {
-            return;
-        }
-        //如果是隐藏字段，不生成layuiTableColumnMeta
-        Set<String> htmlHiddenFieldNames = new HashSet<>();
-        if (listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
-            HtmlGeneratorConfiguration htmlGeneratorConfiguration = listViewConfiguration.getHtmlGeneratorConfiguration();
-            htmlHiddenFieldNames = htmlGeneratorConfiguration != null ? htmlGeneratorConfiguration.getHiddenColumns()
-                    .stream()
-                    .map(IntrospectedColumn::getJavaProperty)
-                    .collect(Collectors.toSet()) : listViewConfiguration.getDefaultHiddenFields();
-        }
-        if (htmlHiddenFieldNames.contains(field.getName())) {
-            return;
-        }
+                .getInnerListViewConfigurations().forEach(listViewConfiguration -> {
+                    //如果有默认显示字段且字段不在默认显示字段中，字段不生成layuiTableColumnMeta
+                    if (!(listViewConfiguration.getDefaultDisplayFields().isEmpty() || listViewConfiguration.getDefaultDisplayFields().contains(field.getName()))) {
+                        return;
+                    }
+                    //计算默认隐藏字段
+                    Set<String> hiddenFields = listViewConfiguration.getHtmlGeneratorConfiguration().getHiddenColumnNames().stream()
+                            .map(cName -> introspectedTable.getColumn(cName).orElse(null))
+                            .filter(Objects::nonNull)
+                            .map(IntrospectedColumn::getJavaProperty)
+                            .collect(Collectors.toSet());
+                    Set<String> defaultHiddenFieldNames = listViewConfiguration.getDefaultHiddenFields();
+                    defaultHiddenFieldNames.addAll(hiddenFields);
+                    //如果默认显示字段为空且字段在默认隐藏字段中，字段不生成layuiTableColumnMeta
+                    if (listViewConfiguration.getDefaultDisplayFields().isEmpty() && defaultHiddenFieldNames.contains(field.getName())) {
+                        return;
+                    }
 
-        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = new LayuiTableColumnMetaDesc();
-        InnerListEditTemplate innerListEditTemplate = new InnerListEditTemplate();
-        innerListEditTemplate.setFieldName(field.getName());
-        innerListEditTemplate.setFieldType(field.getType().getShortNameWithoutTypeArguments());
-        //如果指定了显示范围则更新序号
-        if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
-            layuiTableColumnMetaDesc.setOrder(getOrder(field, new ArrayList<>(listViewConfiguration.getDefaultDisplayFields())));
-        }
+                    Set<String> mapFields = new HashSet<>();
+                    Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap();
+                    if (elementDescriptorMap.containsKey(field.getName())) {
+                        HtmlElementDescriptor htmlElementDescriptor = elementDescriptorMap.get(field.getName());
+                        //如果有描述器且描述器为select类型，map的key属性字段不生成layuiTableColumnMeta
+                        if (HtmlElementTagTypeEnum.SELECT.getCode().equals(htmlElementDescriptor.getTagType())) {
+                            return;
+                        }
+                        if (HtmlElementTagTypeEnum.INPUT.getCode().equals(htmlElementDescriptor.getTagType()) && !htmlElementDescriptor.getName().equals(htmlElementDescriptor.getOtherFieldName())) {
+                            return;
+                        }
+                    }
+                    elementDescriptorMap.forEach((key, value) -> {
+                        if (!HtmlElementTagTypeEnum.INPUT.getCode().equals(value.getTagType())) {
+                            mapFields.add(key);
+                            mapFields.add(value.getOtherFieldName());
+                        }
+                    });
 
-        //判断是否允许编辑
-        boolean enableEdit;
-        List<String> enableEditFields = listViewConfiguration.getEnableEditFields();
-        if (!enableEditFields.isEmpty()) {
-            enableEdit = enableEditFields.contains(field.getName()) && !listViewConfiguration.getReadonlyColumnNames().contains(field.getName());
-        } else {
-            enableEdit = !listViewConfiguration.getReadonlyColumnNames().contains(field.getName());
-        }
+                    LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = new LayuiTableColumnMetaDesc();
+                    InnerListEditTemplate innerListEditTemplate = new InnerListEditTemplate();
+                    innerListEditTemplate.setFieldName(field.getName());
+                    innerListEditTemplate.setFieldType(field.getType().getShortNameWithoutTypeArguments());
+                    if (stringHasValue(listViewConfiguration.getListKey())) {
+                        layuiTableColumnMetaDesc.setValue(listViewConfiguration.getListKey());
+                    }
+                    //如果指定了显示范围则更新序号
+                    if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
+                        layuiTableColumnMetaDesc.setOrder(getOrder(field, new ArrayList<>(listViewConfiguration.getDefaultDisplayFields())));
+                    }
 
-        if (mapFields.contains(field.getName())) {
-            elementDescriptorMap.forEach((fieldName, htmlElementDescriptor) -> {
-                if (field.getName().equals(htmlElementDescriptor.getOtherFieldName())) {
-                    if (HtmlElementTagTypeEnum.SELECT.getCode().equals(htmlElementDescriptor.getTagType()) && enableEdit) {
-                        layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
-                        layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
-                        layuiTableColumnMetaDesc.setEdit(true);
-                        innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
-                        innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
-                        innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
-                        innerListEditTemplate.setTemplate("TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
-                        innerListEditTemplate.setDataType(htmlElementDescriptor.getDataSource());
-                        String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
-                        innerListEditTemplate.setDataUrl(dataUrl);
-                        innerListEditTemplate.setTitle(field.getRemark());
+                    //判断是否允许编辑
+                    boolean enableEdit;
+                    List<String> enableEditFields = listViewConfiguration.getEnableEditFields();
+                    if (!enableEditFields.isEmpty()) {
+                        enableEdit = enableEditFields.contains(field.getName()) && !listViewConfiguration.getReadonlyFields().contains(field.getName());
                     } else {
-                        layuiTableColumnMetaDesc.setEdit(false);
-                        layuiTableColumnMetaDesc.setScope("readonly");
+                        enableEdit = !listViewConfiguration.getReadonlyFields().contains(field.getName());
                     }
-                } else if (field.getName().equals(fieldName) && enableEdit) {
-                    layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
-                    layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + fieldName);
-                    layuiTableColumnMetaDesc.setEdit(true);
-                    layuiTableColumnMetaDesc.setScope("edit");
-                    innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
-                    innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
-                    innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
-                    innerListEditTemplate.setTemplate("TPL-inner-" + fieldName);
-                    String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
-                    innerListEditTemplate.setDataUrl(dataUrl);
-                    innerListEditTemplate.setTitle(field.getRemark());
-                }
-            });
-        } else {
-            if (enableEdit) {
-                if (introspectedColumn != null
-                        && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 255
-                        || introspectedColumn.isBLOBColumn())) {
-                    layuiTableColumnMetaDesc.setEditor("textarea");
-                    layuiTableColumnMetaDesc.setEdit(true);
-                } else if (isDateType(field.getType())) {
-                    layuiTableColumnMetaDesc.setEdit(false);
-                    layuiTableColumnMetaDesc.setEditor("date");
-                    layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + field.getName());
-                    innerListEditTemplate.setThisFieldName(field.getName());
-                    innerListEditTemplate.setType("date");
-                    innerListEditTemplate.setTemplate("TPL-inner-" + field.getName());
-                    innerListEditTemplate.setFieldType(getDateformat(field.getType().getShortNameWithoutTypeArguments()));
-                } else {
-                    layuiTableColumnMetaDesc.setEdit(true);
-                    layuiTableColumnMetaDesc.setEditor("text");
-                }
-            } else {
-                layuiTableColumnMetaDesc.setEdit(false);
-            }
-        }
 
-        //根据编辑器类型指定默认宽度
-        if (layuiTableColumnMetaDesc.getEditor() != null) {
-            switch (layuiTableColumnMetaDesc.getEditor()) {
-                case "date":
-                    switch (field.getType().getShortName()) {
-                        case "LocalDateTime":
-                            layuiTableColumnMetaDesc.setWidth("165");
-                            break;
-                        case "LocalTime":
-                            layuiTableColumnMetaDesc.setWidth("90");
-                            break;
-                        default:
-                            layuiTableColumnMetaDesc.setWidth("105");
-                            break;
+                    if (mapFields.contains(field.getName())) {
+                        elementDescriptorMap.forEach((fieldName, htmlElementDescriptor) -> {
+                            if (field.getName().equals(htmlElementDescriptor.getOtherFieldName())) {
+                                if (HtmlElementTagTypeEnum.SELECT.getCode().equals(htmlElementDescriptor.getTagType()) && enableEdit) {
+                                    layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
+                                    layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
+                                    layuiTableColumnMetaDesc.setEdit(true);
+                                    innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
+                                    innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
+                                    innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
+                                    innerListEditTemplate.setTemplate("TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
+                                    innerListEditTemplate.setDataType(htmlElementDescriptor.getDataSource());
+                                    String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
+                                    innerListEditTemplate.setDataUrl(dataUrl);
+                                    innerListEditTemplate.setTitle(field.getRemark());
+                                } else {
+                                    layuiTableColumnMetaDesc.setEdit(false);
+                                    layuiTableColumnMetaDesc.setScope("readonly");
+                                }
+                            } else if (field.getName().equals(fieldName) && enableEdit) {
+                                layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
+                                layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + fieldName);
+                                layuiTableColumnMetaDesc.setEdit(true);
+                                layuiTableColumnMetaDesc.setScope("edit");
+                                innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
+                                innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
+                                innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
+                                innerListEditTemplate.setTemplate("TPL-inner-" + fieldName);
+                                String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
+                                innerListEditTemplate.setDataUrl(dataUrl);
+                                innerListEditTemplate.setTitle(field.getRemark());
+                            }
+                        });
+                    } else {
+                        if (enableEdit) {
+                            if (introspectedColumn != null
+                                    && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 255
+                                    || introspectedColumn.isBLOBColumn())) {
+                                layuiTableColumnMetaDesc.setEditor("textarea");
+                                layuiTableColumnMetaDesc.setEdit(true);
+                            } else if (isDateType(field.getType())) {
+                                layuiTableColumnMetaDesc.setEdit(false);
+                                layuiTableColumnMetaDesc.setEditor("date");
+                                layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + field.getName());
+                                innerListEditTemplate.setThisFieldName(field.getName());
+                                innerListEditTemplate.setType("date");
+                                innerListEditTemplate.setTemplate("TPL-inner-" + field.getName());
+                                innerListEditTemplate.setFieldType(getDateformat(field.getType().getShortNameWithoutTypeArguments()));
+                            } else {
+                                layuiTableColumnMetaDesc.setEdit(true);
+                                layuiTableColumnMetaDesc.setEditor("text");
+                            }
+                        } else {
+                            layuiTableColumnMetaDesc.setEdit(false);
+                        }
                     }
-                    break;
-                case "checkbox":
-                case "switch":
-                    layuiTableColumnMetaDesc.setWidth("90");
-                    break;
-                case "dropdownlist":
-                case "textarea":
-                case "select":
-                    layuiTableColumnMetaDesc.setWidth("125");
-                    break;
-                default:
-                    layuiTableColumnMetaDesc.setWidth("80");
-                    break;
-            }
-        }
-        if (stringHasValue(innerListEditTemplate.getType())) {
-            listViewConfiguration.getInnerListEditTemplate().add(innerListEditTemplate);
-        }
-        field.addAnnotation(layuiTableColumnMetaDesc.toAnnotation());
-        topLevelClass.addImportedTypes(layuiTableColumnMetaDesc.getImportedTypes());
+
+                    //根据配置设置宽度及其他属性
+                    ListColumnConfiguration columnConfiguration = listViewConfiguration.getListColumnConfigurations().stream()
+                            .filter(listColumn -> listColumn.getField().equals(field.getName()))
+                            .findFirst().orElse(null);
+
+                    if (columnConfiguration != null) {
+                        if (columnConfiguration.getWidth() != null) {
+                            layuiTableColumnMetaDesc.setWidth(columnConfiguration.getWidth());
+                        }
+                        if (columnConfiguration.getMinWidth() != null) {
+                            layuiTableColumnMetaDesc.setMinWidth(columnConfiguration.getMinWidth());
+                        }
+                        if (columnConfiguration.getFixed() != null) {
+                            layuiTableColumnMetaDesc.setFixed(columnConfiguration.getFixed());
+                        }
+                        if (columnConfiguration.getAlign() != null) {
+                            layuiTableColumnMetaDesc.setAlign(columnConfiguration.getAlign());
+                        }
+                    } else if (layuiTableColumnMetaDesc.getEditor() != null) { //根据指定宽度
+                        switch (layuiTableColumnMetaDesc.getEditor()) {
+                            case "date":
+                                switch (field.getType().getShortName()) {
+                                    case "LocalDateTime":
+                                        layuiTableColumnMetaDesc.setWidth("165");
+                                        break;
+                                    case "LocalTime":
+                                        layuiTableColumnMetaDesc.setWidth("90");
+                                        break;
+                                    default:
+                                        layuiTableColumnMetaDesc.setWidth("105");
+                                        break;
+                                }
+                                break;
+                            case "checkbox":
+                            case "switch":
+                                layuiTableColumnMetaDesc.setWidth("90");
+                                break;
+                            case "dropdownlist":
+                            case "textarea":
+                            case "select":
+                                layuiTableColumnMetaDesc.setWidth("125");
+                                break;
+                            default:
+                                layuiTableColumnMetaDesc.setWidth("80");
+                                break;
+                        }
+                    }
+                    if (stringHasValue(innerListEditTemplate.getType())) {
+                        listViewConfiguration.getInnerListEditTemplate().add(innerListEditTemplate);
+                    }
+                    String annotation = layuiTableColumnMetaDesc.toAnnotation();
+                    if (!field.getAnnotations().contains(annotation)) {
+                        field.addAnnotation(annotation);
+                        topLevelClass.addImportedTypes(layuiTableColumnMetaDesc.getImportedTypes());
+                    }
+                });
     }
 
     private boolean isDateType(FullyQualifiedJavaType fieldType) {

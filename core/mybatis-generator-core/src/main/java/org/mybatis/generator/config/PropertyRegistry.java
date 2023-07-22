@@ -102,7 +102,7 @@ public class PropertyRegistry {
     public static final String TABLE_OVERRIDE_CSS_FILE = "overWriteCssFile";
     public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
 
-    public static final String ANY_HTML_READONLY_COLUMNS = "htmlReadonlyColumns";
+    public static final String ANY_HTML_READONLY_FIELDS = "htmlReadonlyFields";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
     public static final String TABLE_ENABLE_UPDATE_BATCH = "enableUpdateBatch";
     public static final String TABLE_ENABLE_INSERT_BATCH = "enableInsertBatch";
@@ -162,6 +162,10 @@ public class PropertyRegistry {
     public static final String ELEMENT_FIELD_NAMES = "fieldNames";
 
     public static final String ELEMENT_RENDER_FUN = "renderFun";
+
+    public static final String ELEMENT_INITIALIZATION_STRING = "initializationString";
+
+    public static final String ELEMENT_IMPORT_TYPE = "importType";
 
 
 

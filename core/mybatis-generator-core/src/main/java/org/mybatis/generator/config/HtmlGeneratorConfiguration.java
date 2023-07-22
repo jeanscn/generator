@@ -23,7 +23,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private Set<String> hiddenColumnNames = new HashSet<>();
 
-    private Set<String> readonlyColumnNames = new HashSet<>();
+    private Set<String> readonlyFields = new HashSet<>();
 
     private Set<IntrospectedColumn> hiddenColumns = new HashSet<>();
 
@@ -181,11 +181,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.htmlApprovalCommentConfigurations.add(htmlApprovalCommentConfiguration);
     }
 
-    public Set<String> getReadonlyColumnNames() {
-        return readonlyColumnNames;
+    public Set<String> getReadonlyFields() {
+        return readonlyFields;
     }
 
-    public void setReadonlyColumnNames(Set<String> readonlyColumnNames) {
-        this.readonlyColumnNames = readonlyColumnNames;
+    public void setReadonlyFields(Set<String> readonlyFields) {
+        this.readonlyFields = readonlyFields;
     }
 }

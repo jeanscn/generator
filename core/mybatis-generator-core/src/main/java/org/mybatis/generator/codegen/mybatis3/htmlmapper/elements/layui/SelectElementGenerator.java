@@ -41,11 +41,15 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         input.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         input.addAttribute(new Attribute("for-type", "lay-select"));
         input.addAttribute(new Attribute("data-type", dataSource));
-        if (stringHasValue(this.htmlElementDescriptor.getCallback())) {
-            input.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
-        }
         addClassNameToElement(input, "oas-form-item-edit");
         addDataUrl(input,htmlElementDescriptor,null);
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+        }
+        if (this.htmlElementDescriptor!=null && stringHasValue(this.htmlElementDescriptor.getCallback())) {
+            input.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
+        }
         parent.addElement(input);
         HtmlElement divRead = addDivWithClassToParent(parent, "oas-form-item-read");
         divRead.addAttribute(new Attribute("th:text", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));

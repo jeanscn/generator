@@ -183,8 +183,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     returnType = FullyQualifiedJavaType.getNewListInstance();
                     returnType.addTypeArgument(fullyQualifiedJavaType);
                     field = new Field(relationProperty.getPropertyName(), returnType);
+                    if (relationProperty.getInitializationString().isPresent()) {
+                        field.setInitializationString(relationProperty.getInitializationString().get());
+                    } else {
+                        field.setInitializationString("new ArrayList<>()");
+                    }
                     topLevelClass.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new ArrayList<>();", relationProperty.getPropertyName()));
                 } else {
                     returnType = fullyQualifiedJavaType;
                     field = new Field(relationProperty.getPropertyName(), returnType);

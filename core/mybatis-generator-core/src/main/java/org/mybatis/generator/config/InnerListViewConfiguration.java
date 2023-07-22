@@ -6,6 +6,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class InnerListViewConfiguration extends PropertyHolder{
+
+    private String listKey = "";
+
+    /**
+     * 设置表格尺寸，可选值有：lg、sm、xs
+     */
     private String size = "mg";
 
     /**
@@ -31,7 +37,7 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private List<String> actionColumn = new ArrayList<>();
 
-    private Set<String> defaultDisplayFields = new HashSet<>();
+    private List<String> defaultDisplayFields = new ArrayList<>();
 
     private Set<String> defaultHiddenFields = new HashSet<>();
 
@@ -45,14 +51,23 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private List<InnerListEditTemplate> innerListEditTemplate = new ArrayList<>();
 
-    private Set<String> readonlyColumnNames = new HashSet<>();
+    private Set<String> readonlyFields = new HashSet<>();
+
+    private List<String> toolbar = new ArrayList<>();
+
+    private List<ListColumnConfiguration> listColumnConfigurations = new ArrayList<>();
+
 
     public InnerListViewConfiguration() {
-        defaultToolbar.add("filter");
-        defaultToolbar.add("exports");
-        defaultToolbar.add("print");
-        defaultToolbar.add("columns");
-        defaultToolbar.add("fullscreen");
+       super();
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
     }
 
     public String getSize() {
@@ -79,14 +94,13 @@ public class InnerListViewConfiguration extends PropertyHolder{
         this.actionColumn = actionColumn;
     }
 
-    public Set<String> getDefaultDisplayFields() {
+    public List<String> getDefaultDisplayFields() {
         return defaultDisplayFields;
     }
 
-    public void setDefaultDisplayFields(Set<String> defaultDisplayFields) {
+    public void setDefaultDisplayFields(List<String> defaultDisplayFields) {
         this.defaultDisplayFields = defaultDisplayFields;
     }
-
 
     public List<String> getDefaultToolbar() {
         return defaultToolbar;
@@ -201,11 +215,27 @@ public class InnerListViewConfiguration extends PropertyHolder{
         this.innerListEditTemplate = innerListEditTemplate;
     }
 
-    public Set<String> getReadonlyColumnNames() {
-        return readonlyColumnNames;
+    public Set<String> getReadonlyFields() {
+        return readonlyFields;
     }
 
-    public void setReadonlyColumnNames(Set<String> readonlyColumnNames) {
-        this.readonlyColumnNames = readonlyColumnNames;
+    public void setReadonlyFields(Set<String> readonlyFields) {
+        this.readonlyFields = readonlyFields;
+    }
+
+    public List<String> getToolbar() {
+        return toolbar;
+    }
+
+    public void setToolbar(List<String> toolbar) {
+        this.toolbar = toolbar;
+    }
+
+    public List<ListColumnConfiguration> getListColumnConfigurations() {
+        return listColumnConfigurations;
+    }
+
+    public void setListColumnConfigurations(List<ListColumnConfiguration> listColumnConfigurations) {
+        this.listColumnConfigurations = listColumnConfigurations;
     }
 }

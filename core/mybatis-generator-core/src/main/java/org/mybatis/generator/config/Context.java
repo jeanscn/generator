@@ -721,12 +721,12 @@ public class Context extends PropertyHolder {
         this.appKeyword = appKeyword;
     }
 
-    public void validateTableConfig(ProgressCallback callback, List<String> warnings) {
+    public void validateTableConfig(ProgressCallback callback, List<String> warnings,Context context) {
         if (tableConfigurations == null || this.getIntrospectedTables().size()==0) {
             return;
         }
         this.getIntrospectedTables().forEach(introspectedTable -> {
-            introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable);
+            introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable,context);
         });
     }
 

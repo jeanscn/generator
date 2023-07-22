@@ -97,7 +97,8 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
             HtmlElement div = new HtmlElement("div");
-            String format = VStringUtil.format("{0}/fragments/{1}_{2}.html::{2}", introspectedTable.getContext().getModuleKeyword(), listConfiguration.getSourceViewPath(), ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
+            String appKey = VStringUtil.stringHasValue(listConfiguration.getAppKeyword()) ? listConfiguration.getAppKeyword() : introspectedTable.getContext().getModuleKeyword();
+            String format = VStringUtil.format("{0}/fragments/{1}_{2}.html::{2}", appKey, listConfiguration.getSourceViewPath(), ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
             div.addAttribute(new Attribute("th:replace", format));
             body.get("body").addElement(div);
             //根据数据源添加
@@ -192,7 +193,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 //指定一些列的默认生成的样式
                 for (HtmlElementDescriptor htmlElementDescriptor : htmlGeneratorConfiguration.getElementDescriptors()) {
                     if (htmlElementDescriptor.getName().equals(baseColumn.getActualColumnName())) {
-                        htmlElementDescriptor.setColumn(baseColumn);
                         waitRenderMap.put(baseColumn.getActualColumnName(), baseColumn);
                     }
                 }
@@ -240,6 +240,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     drawLabel(introspectedColumn, td);
                     //input
                     HtmlElement block = addDivWithClassToParent(td, "layui-input-block");
+                    addClassNameToElement(block,"class-"+introspectedColumn.getActualColumnName());
                     if (rowIntrospectedColumns.size() == 1
                             && (rowIntrospectedColumns.get(0).getLength() > 255
                             || this.htmlGeneratorConfiguration.getLayoutDescriptor().getExclusiveColumns().contains(rowIntrospectedColumns.get(0).getActualColumnName()))) {
@@ -288,10 +289,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 HtmlElement formItem = addDivWithClassToParent(form, "layui-form-item");
                 /*列*/
                 for (IntrospectedColumn introspectedColumn : introspectedColumns) {
+
                     //label
                     drawLabel(introspectedColumn, formItem);
                     //input
                     HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block");
+                    addClassNameToElement(inputInline,"class-"+introspectedColumn.getActualColumnName());
                     if (introspectedColumn.isLongVarchar()) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
@@ -513,20 +516,34 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement htmlElement = addDivWithClassToParent(inputInline, "rtf-content");
         htmlElement.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         htmlElement.addAttribute(new Attribute("th:utext", thymeleafValue(introspectedColumn, entityKey)));
+        //追加样式css
+        HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(htmlElement, htmlElementDescriptor.getElementCss());
+        }
     }
 
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
+        HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);
         HtmlElement label = new HtmlElement("label");
         addClassNameToElement(label, "layui-form-label");
         if (!Mb3GenUtil.isInDefaultFields(introspectedTable,introspectedColumn.getJavaProperty())) {
-            label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+            if (htmlElementDescriptor!=null && !htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.getCode())) {
+                label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+            }else{
+                label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+            }
         }
-        VoGenService voGenService = new VoGenService(introspectedTable);
         OverridePropertyValueGeneratorConfiguration overrideConfig = voGenService.getOverridePropertyValueConfiguration(introspectedColumn);
         if (overrideConfig != null && overrideConfig.getRemark() != null) {
             label.addElement(new TextElement(overrideConfig.getRemark()));
         } else {
             label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
+        }
+        addClassNameToElement(label, "class-"+introspectedColumn.getActualColumnName());
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getLabelCss() != null) {
+            voGenService.addCssStyleToElement(label, htmlElementDescriptor.getLabelCss());
         }
         parent.addElement(label);
     }

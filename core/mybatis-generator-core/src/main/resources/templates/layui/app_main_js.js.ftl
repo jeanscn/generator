@@ -1,23 +1,30 @@
 /**
-* 个性化处理的js文件
-* 如果对当前文件进行了修改，请务必修改生成配置的“generateHtml”元素的overWriteJsFile属性值改为false，
-*    即overWriteJsFile=“false”，否则再次生成时会被覆盖
-*/
+ * 个性化处理的js文件
+ * 如果对当前文件进行了修改，请务必修改生成配置的“generateHtml”元素的overWriteJsFile属性值改为false，
+ *    即overWriteJsFile=“false”，否则再次生成时会被覆盖
+ */
 $(function () {
-//更新标题
+    //更新标题
     window.updateSubject = function (data) {
-        //nothing to do
+        //data.subject = "【" + data.fileCategory + "】" + data.projectName + "(" + data.applyDate + ")";
     }
 <#list callBackMethods as methods>
-    <#if methods.type == 0>
-    //关联操作方法
+    <#if methods.tagName == 'select'>
+        <#if methods.type == 0>
+    // ${methods.columnName}-select 回调关联操作方法
     window.${methods.methodName} = function (o, n) {
         return window.relationHandle(o, n, '${methods.requestKey}', '${methods.thisKey}', '${methods.otherKey}');
     }
-    <#else>
-    //回调方法.执行扩展逻辑,并且返回true以便于继续执行调用方法的默认逻辑
+        <#else>
+    // ${methods.columnName}-select 回调方法.执行扩展逻辑,并且返回true以便于继续执行调用方法的默认逻辑
     window.${methods.methodName} = function (o, n,data) {
         return true;
+    }
+        </#if>
+    <#elseif methods.tagName == 'dropdownlist'>
+    // ${methods.columnName}-dropdownlist回调方法.执行扩展逻辑,并且返回true以便于继续执行调用方法的默认逻辑
+    window.${methods.methodName} = function (data) {
+        //nothing to do
     }
     </#if>
 </#list>
@@ -34,16 +41,17 @@ $(function () {
     $('#${innerList.tagId}').renderInnerTable(params, table,dataSet);
     */
     let params = {};
-    params['baseUrl'] = "/${innerList.appKey}/${innerList.sourceBeanName}";
+    params['baseUrl'] = "/${innerList.appKeyword}/${innerList.sourceBeanName}";
     params['mainRecordField'] = '${innerList.relationField}';
     <#if innerList ?? && innerList.dataUrl ?? && innerList.dataUrl != ''>
         params['dataUrl'] = '${innerList.dataUrl}';
     <#else>
         params['dataUrl'] = '/${innerList.appKey}/${innerList.sourceBeanName}';
     </#if>
-    if (!$.isBlank($('#id').val())) {
-    params['mainRecordId'] = $('#id').val();
-    params['viewStatus'] = $('#viewStatus').val();
+    if (!$.isBlank($('#${innerList.relationKey!'id'}').val())) {
+        params['mainRecordId'] = $('#${innerList.relationKey!'id'}').val();
+        params['viewStatus'] = $('#viewStatus').val();
+        params['listKey'] = '${innerList.listKey!''}';
     <#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
         $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
     <#else>
@@ -51,13 +59,13 @@ $(function () {
     </#if>
     }
     $(document).on('toggleEditMode', function (e) {
-    if (!$.isBlank($('#id').val())) {
-    params['mainRecordId'] = $('#id').val();
-    params['viewStatus'] = $('#viewStatus').val();
+        if (!$.isBlank($('#${innerList.relationKey!'id'}').val())) {
+            params['mainRecordId'] = $('#${innerList.relationKey!'id'}').val();
+            params['viewStatus'] = $('#viewStatus').val();
     <#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
-        $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
+            $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
     <#else>
-        $('#${innerList.tagId}').renderInnerTable(params, table);
+            $('#${innerList.tagId}').renderInnerTable(params, table);
     </#if>
     }
     });

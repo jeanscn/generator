@@ -223,7 +223,7 @@ public class MyBatisGenerator {
 
         //根据表结构验证配置类的正确性
         for (Context context : contextsToRun) {
-            context.validateTableConfig(callback, warnings);
+            context.validateTableConfig(callback, warnings,context);
         }
 
         // now run the generates

@@ -93,9 +93,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
             if (c.getAnnotations().size()>0) {
                 c.getAnnotations().forEach(field::addAnnotation);
             }
-            if (StringUtility.stringHasValue(c.getInitializationString())) {
-                field.setInitializationString(c.getInitializationString());
-            }
+            c.getInitializationString().ifPresent(field::setInitializationString);
             if (c.getImportedTypes().size() > 0) {
                 c.getImportedTypes().forEach(this::addImportedType);
             }

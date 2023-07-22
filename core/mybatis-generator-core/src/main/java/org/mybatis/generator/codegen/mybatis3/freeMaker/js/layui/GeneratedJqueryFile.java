@@ -21,7 +21,8 @@ public class GeneratedJqueryFile extends AbstractGeneratedFile {
                                String targetProject,
                                String targetPackage,
                                IntrospectedTable introspectedTable,
-                               String templateName,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+                               String templateName,
+                               HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(targetProject,targetPackage,fileName,introspectedTable);
         this.templateName = templateName;
         this.introspectedTable = introspectedTable;

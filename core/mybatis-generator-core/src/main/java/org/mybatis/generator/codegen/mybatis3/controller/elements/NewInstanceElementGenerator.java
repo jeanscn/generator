@@ -23,33 +23,42 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         parentElement.addImportedType(RESPONSE_RESULT);
 
         FullyQualifiedJavaType type;
+        FullyQualifiedJavaType returnType;
         if (introspectedTable.getRules().isGenerateCreateVO()) {
             parentElement.addImportedType(entityCreateVoType);
             type = entityCreateVoType;
-        }else if(introspectedTable.getRules().isGenerateVoModel()){
+            returnType = new FullyQualifiedJavaType("ResponseResult<" + entityVoType.getShortName() + ">");
+        } else if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             type = entityVoType;
-        }else{
+            returnType = new FullyQualifiedJavaType("ResponseResult<" + entityVoType.getShortName() + ">");
+        } else {
             parentElement.addImportedType(entityType);
             type = entityType;
+            returnType = new FullyQualifiedJavaType("ResponseResult<" + entityType.getShortName() + ">");
         }
 
         final String methodPrefix = "newInstance";
         Method method = createMethod(methodPrefix);
-
         Parameter parameter = new Parameter(type, type.getShortNameFirstLowCase());
         parameter.setRemark("需要实例化的类型");
         method.addParameter(parameter);
-
-        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("ResponseResult<" + type.getShortName() + ">");
         method.setReturnType(returnType);
 
-        method.addAnnotation(new SystemLogDesc("实例化空对象",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("实例化空对象", introspectedTable), parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("new-instance", RequestMethod.GET);
-        method.addAnnotation(requestMappingDesc,parentElement);
-        method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"),parentElement);
+        method.addAnnotation(requestMappingDesc, parentElement);
+        method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "实例化一个空对象，供前端使用.允许提供一些初始化值");
-        method.addBodyLine("return ResponseResult.success({0});",type.getShortNameFirstLowCase());
+        if (introspectedTable.getRules().isGenerateCreateVO() && introspectedTable.getRules().isGenerateVoModel()) {
+            method.addBodyLine("{0} {1} = mappings.from{2}({3});"
+                    , entityType.getShortName(), entityType.getShortNameFirstLowCase(), type.getShortName(), type.getShortNameFirstLowCase());
+            method.addBodyLine("{0} object = mappings.to{0}({1});"
+                    , entityVoType.getShortName(),entityType.getShortNameFirstLowCase());
+            method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue(object));");
+        }else{
+            method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue({0}));",type.getShortNameFirstLowCase());
+        }
         parentElement.addMethod(method);
     }
 }

@@ -1,6 +1,6 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
@@ -59,10 +59,10 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
 
         //检查是否存在children属性，如果存在则追加实现ISimpleKVP接口
         Set<String> fieldNames = introspectedTable.getTableConfiguration().getFieldNames();
-        if (fieldNames.contains(DefultColumnNameEnum.ID.fieldName())
-                && fieldNames.contains(DefultColumnNameEnum.NAME.fieldName())
-                && fieldNames.contains(DefultColumnNameEnum.PARENT_ID.fieldName())
-                && topLevelClass.getFields().stream().anyMatch(f->f.getName().equals(DefultColumnNameEnum.CHILDREN.fieldName()))) {
+        if (fieldNames.contains(DefaultColumnNameEnum.ID.fieldName())
+                && fieldNames.contains(DefaultColumnNameEnum.NAME.fieldName())
+                && fieldNames.contains(DefaultColumnNameEnum.PARENT_ID.fieldName())
+                && topLevelClass.getFields().stream().anyMatch(f->f.getName().equals(DefaultColumnNameEnum.CHILDREN.fieldName()))) {
             FullyQualifiedJavaType simpleKvpType = new FullyQualifiedJavaType(I_SIMPLE_KVP);
             topLevelClass.addImportedType(I_SIMPLE_KVP);
             simpleKvpType.addTypeArgument(topLevelClass.getType());

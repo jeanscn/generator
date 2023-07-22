@@ -22,6 +22,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType(RESPONSE_RESULT);
         parentElement.addImportedType("java.util.List");
         parentElement.addImportedType(exampleType);
+        parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
 
         //deleteXXX，预期返回测试方法
         String requestUri = VStringUtil.format("delete(\"/{0}/'{id}'\", id)", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));

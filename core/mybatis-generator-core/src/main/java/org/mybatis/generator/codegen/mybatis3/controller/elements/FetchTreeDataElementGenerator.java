@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.core.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -93,10 +93,10 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             commentGenerator.addMethodJavaDocLine(methodCate, "获取指定根或所有的树形结构数据");
             //函数体
             methodCate.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
-            if (!(cateTreeConfig.getIdProperty().equals(DefultColumnNameEnum.ID.fieldName()))) {
+            if (!(cateTreeConfig.getIdProperty().equals(DefaultColumnNameEnum.ID.fieldName()))) {
                 methodCate.addBodyLine(VStringUtil.format("nodeConverter.setIdPropertyName(\"{0}\");", cateTreeConfig.getIdProperty()));
             }
-            if (!(cateTreeConfig.getNameProperty().equals(DefultColumnNameEnum.NAME.fieldName()))) {
+            if (!(cateTreeConfig.getNameProperty().equals(DefaultColumnNameEnum.NAME.fieldName()))) {
                 methodCate.addBodyLine(VStringUtil.format("nodeConverter.setNamePropertyName(\"{0}\");", cateTreeConfig.getNameProperty()));
             }
             methodCate.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.{1}({2}));",

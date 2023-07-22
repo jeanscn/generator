@@ -101,6 +101,8 @@ public class VOModelGenerator extends AbstractVOGenerator {
             field = new Field(relationProperty.getPropertyName(), returnType);
             field.setVisibility(JavaVisibility.PRIVATE);
             field.setRemark(relationProperty.getRemark());
+            relationProperty.getInitializationString().ifPresent(field::setInitializationString);
+            relationProperty.getImportTypes().forEach(voClass::addImportedType);
             new ApiModelPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0))
                     .addAnnotationToField(field, voClass);
             voClass.addField(field, null, true);

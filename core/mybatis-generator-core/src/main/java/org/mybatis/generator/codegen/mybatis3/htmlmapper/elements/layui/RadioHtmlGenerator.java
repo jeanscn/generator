@@ -1,11 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -45,6 +47,13 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator {
         //在parent中添加data-field属性，用于保存属性名
         parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         addClassNameToElement(parent, "oas-form-item-edit");
+        if (StringUtility.stringHasValue(this.htmlElementDescriptor.getCallback())) {
+            parent.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
+        }
+        //追加样式css
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+        }
     }
 
     @Override

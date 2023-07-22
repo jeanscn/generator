@@ -25,6 +25,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
+        parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
         if (isGenerateVOModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);

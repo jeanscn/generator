@@ -14,9 +14,11 @@ import static com.vgosoft.tool.core.VStringUtil.*;
  */
 public class LayuiTableMetaDesc extends AbstractAnnotation {
 
-    public static final String ANNOTATION_NAME = "@"+ LayuiTableMeta.class.getSimpleName();
+    public static final String ANNOTATION_NAME = "@" + LayuiTableMeta.class.getSimpleName();
 
     private List<String> defaultToolbar = new ArrayList<>();
+
+    private String value;
 
     private int width;
     private String height;
@@ -27,6 +29,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private String size;
     private boolean even;
 
+    private List<String> toolbar = new ArrayList<>();
+
+    private List<String> actionColumn = new ArrayList<>();
+
+    private String indexColumn;
+
+
     public LayuiTableMetaDesc() {
         super();
         this.addImports(LayuiTableMeta.class.getCanonicalName());
@@ -34,8 +43,9 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        if (defaultToolbar.size() > 0) {
-            items.add("defaultToolbar = \"" + String.join(",", defaultToolbar) + "\"");
+        items.clear();
+        if(stringHasValue(value)){
+            return ANNOTATION_NAME + "(\"" + value + "\")";
         }
         if (width > 0) {
             items.add("width = " + width);
@@ -46,7 +56,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (totalRow) {
             items.add("totalRow = true");
         }
-        if (stringHasValue(enablePage)) {
+        if (stringHasValue(enablePage) && !"false".equals(enablePage)) {
             items.add("page = \"" + enablePage + "\"");
         }
         if (stringHasValue(title)) {
@@ -58,8 +68,24 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (stringHasValue(size)) {
             items.add("size = \"" + size + "\"");
         }
-        if (even) {
-            items.add("even = true");
+        if (!even) {
+            items.add("even = false");
+        }
+        if (defaultToolbar.contains("NONE") && toolbar.contains("NONE")) {
+            items.add("toolbar = \"false\"");
+        } else {
+            if (defaultToolbar.size()>0) {
+                items.add("defaultToolbar = \"" + String.join(",", defaultToolbar) + "\"");
+            }
+            if (toolbar.size()>0) {
+                items.add("toolbar = \"" + String.join(",", toolbar) + "\"");
+            }
+        }
+        if (actionColumn.size() > 0) {
+            items.add("actionColumn = \"" + String.join(",", actionColumn) + "\"");
+        }
+        if (stringHasValue(indexColumn)) {
+            items.add("indexColumn = \"" + indexColumn + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -134,5 +160,37 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setEven(boolean even) {
         this.even = even;
+    }
+
+    public List<String> getToolbar() {
+        return toolbar;
+    }
+
+    public void setToolbar(List<String> toolbar) {
+        this.toolbar = toolbar;
+    }
+
+    public List<String> getActionColumn() {
+        return actionColumn;
+    }
+
+    public void setActionColumn(List<String> actionColumn) {
+        this.actionColumn = actionColumn;
+    }
+
+    public String getIndexColumn() {
+        return indexColumn;
+    }
+
+    public void setIndexColumn(String indexColumn) {
+        this.indexColumn = indexColumn;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

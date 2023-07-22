@@ -3,7 +3,10 @@ package org.mybatis.generator.config;
 import com.vgosoft.core.constant.GlobalConstant;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHolder {
 
@@ -28,6 +31,10 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
     private String applyProperty = GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT;
 
     private String remark;
+
+    private String initializationString;
+
+    private final Set<String> importTypes = new HashSet<>();
 
     private String enumClassName;
 
@@ -136,5 +143,21 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
     @Override
     public int hashCode() {
         return Objects.hash(getSourceColumnName());
+    }
+
+    public Optional<String> getInitializationString() {
+        return Optional.ofNullable(initializationString);
+    }
+
+    public void setInitializationString(String initializationString) {
+        this.initializationString = initializationString;
+    }
+
+    public Set<String> getImportTypes() {
+        return importTypes;
+    }
+
+    public void addImportTypes(String importType) {
+        this.importTypes.add(importType);
     }
 }

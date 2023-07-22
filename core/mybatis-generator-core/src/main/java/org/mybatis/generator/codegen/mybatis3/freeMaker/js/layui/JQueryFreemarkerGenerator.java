@@ -41,6 +41,8 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
         this.htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
             if (StringUtility.stringHasValue(elementDescriptor.getCallback())) {
                 CallBackMethod callBackMethod = new CallBackMethod();
+                callBackMethod.setTagName(elementDescriptor.getTagType());
+                callBackMethod.setColumnName(elementDescriptor.getName());
                 callBackMethod.setMethodName(VStringUtil.getFirstCharacterLowercase(elementDescriptor.getCallback()));
                 if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.getCode())) {
                     // 如果是select标签，且存在selectByTableGeneratorConfiguration配置，生成更新关系的方法

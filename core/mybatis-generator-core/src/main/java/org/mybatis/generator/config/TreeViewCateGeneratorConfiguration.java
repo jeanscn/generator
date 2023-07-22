@@ -1,6 +1,6 @@
 package org.mybatis.generator.config;
 
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -11,11 +11,11 @@ public class TreeViewCateGeneratorConfiguration extends PropertyHolder {
 
     private String pathKeyWord = "view-cate";
 
-    private String idProperty = DefultColumnNameEnum.ID.fieldName();
+    private String idProperty = DefaultColumnNameEnum.ID.fieldName();
 
-    private String nameProperty = DefultColumnNameEnum.NAME.fieldName();
+    private String nameProperty = DefaultColumnNameEnum.NAME.fieldName();
 
-    private String SPeL = "'"+ DefultColumnNameEnum.PARENT_ID.columnName() +" = ''' + #this.id +''''";
+    private String SPeL = "'"+ DefaultColumnNameEnum.PARENT_ID.columnName() +" = ''' + #this.id +''''";
 
     public TreeViewCateGeneratorConfiguration() {
         super();

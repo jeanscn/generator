@@ -22,6 +22,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
         parentElement.addImportedType("org.springframework.http.HttpStatus");
+        parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
         if (isGenerateVOModel) {
             parentElement.addImportedType(entityVoType);

@@ -31,7 +31,12 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
 
         final String methodPrefix = "getLayuiTable";
         Method method = createMethod(methodPrefix);
-        method.addParameter(new Parameter(FullyQualifiedJavaType.getIntegerInstance(),"viewStatus","@RequestParam(required = false)"));
+        Parameter viewStatus = new Parameter(FullyQualifiedJavaType.getIntegerInstance(), "viewStatus", "@RequestParam(required = false)");
+        viewStatus.setRemark("读写状态，0：查看，1：编辑");
+        method.addParameter(viewStatus);
+        Parameter listKey = new Parameter(FullyQualifiedJavaType.getStringInstance(), "listKey", "@RequestParam(required = false)");
+        listKey.setRemark("可选参数，列表配置标识");
+        method.addParameter(listKey);
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
                 new FullyQualifiedJavaType("Layuitable<Object>"),
                 parentElement));
@@ -41,7 +46,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         commentGenerator.addMethodJavaDocLine(method, "根据ViewVO获得layui table配置对象");
         //函数体
         method.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
-        method.addBodyLine("Layuitable<Object> layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit);",
+        method.addBodyLine("Layuitable<Object> layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit,listKey);",
                 entityViewVoType.getShortName());
         method.addBodyLine("return success(layuitable);");
         parentElement.addMethod(method);

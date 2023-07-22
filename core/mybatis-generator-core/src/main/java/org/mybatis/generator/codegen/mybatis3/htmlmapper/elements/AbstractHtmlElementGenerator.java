@@ -2,27 +2,18 @@ package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
-import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
-import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.VoGenService;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public abstract class AbstractHtmlElementGenerator extends AbstractGenerator implements HtmlConstant {
 
@@ -176,6 +167,6 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
     }
 
     protected boolean isReadonly(){
-        return this.htmlGeneratorConfiguration.getReadonlyColumnNames().contains(introspectedColumn.getActualColumnName());
+        return this.htmlGeneratorConfiguration.getReadonlyFields().contains(introspectedColumn.getJavaProperty());
     }
 }

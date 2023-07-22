@@ -1,11 +1,12 @@
 package org.mybatis.generator.config.factory;
 
 import com.vgosoft.core.constant.enums.core.CommonStatusEnum;
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.HtmlElementDescriptor;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 /**
@@ -20,12 +21,12 @@ public class ParentIdElementDescriptor implements DefaultHtmlElementDescriptorFa
         HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
         elementDescriptor.setName(column.getActualColumnName());
         elementDescriptor.setTagType("select");
-        elementDescriptor.setDataSource("Dict");
+        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT.getCode());
         elementDescriptor.setBeanName(ConfigUtil.getIntrospectedTableBeanName(introspectedTable.getTableConfiguration()));
-        elementDescriptor.setApplyProperty(DefultColumnNameEnum.NAME.fieldName());
+        elementDescriptor.setApplyProperty(DefaultColumnNameEnum.NAME.fieldName());
         elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/tree");
         elementDescriptor.setColumn(column);
-        elementDescriptor.setOtherFieldName(DefultColumnNameEnum.PARENT_ID.otherFieldName());
+        elementDescriptor.setOtherFieldName(DefaultColumnNameEnum.PARENT_ID.otherFieldName());
         return elementDescriptor;
     }
 }

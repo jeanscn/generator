@@ -54,33 +54,29 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
 
         commentGenerator.addMethodJavaDocLine(method, "根据主键获取单个业务实例");
 
+        String entityName = introspectedTable.getRules().isGenerateVoModel()?this.entityVoType.getShortName():entityType.getShortName();
         //函数体
         sb.append("ModelAndView mv = new ModelAndView();");
         method.addBodyLine(sb.toString());
-        method.addBodyLine("if (id != null) {");
-        method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",
-                entityType.getShortName(), serviceBeanName));
         method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
-        parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
-        parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
-        parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
-        parentElement.addImportedType("com.vgosoft.tool.core.VBeanUtil");
+        method.addBodyLine("{0} object = null;",entityName);
+        method.addBodyLine("if (id != null) {");
+        method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);",entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0}VO object = mappings.to{0}VO(serviceResult.getResult());",entityType.getShortName());
-            method.addBodyLine("{0}VO {1} = JsonUtil.serializeObject(object);",entityType.getShortName(),entityType.getShortNameFirstLowCase());
+            method.addBodyLine("object = mappings.to{0}VO(serviceResult.getResult());",entityType.getShortName());
         }else{
-            method.addBodyLine("{0} object = serviceResult.getResult();",entityType.getShortName());
-            method.addBodyLine("{0} {1} = JsonUtil.serializeObject(object);",entityType.getShortName(),entityType.getShortNameFirstLowCase());
+            method.addBodyLine("object = serviceResult.getResult();",entityType.getShortName());
         }
-        method.addBodyLine("mv.addObject(\"{0}\", {1});",this.entityNameKey,entityType.getShortNameFirstLowCase());
         method.addBodyLine("}else{");
         method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");
         method.addBodyLine("}else{");
-        method.addBodyLine(format("mv.addObject(\"{0}\", VBeanUtil.updateNewInstanceDefaultValue(new {1}));",
-                this.entityNameKey,introspectedTable.getRules().isGenerateVoModel()?this.entityVoType.getShortName()+"()"
-                                :entityType.getShortName()+"(0)"));
+        method.addBodyLine("object = updateNewInstanceDefaultValue(new {0}());",entityName);
+        method.addBodyLine("}");
+        method.addBodyLine("if (object != null) {");
+        method.addBodyLine("{0} {1} = JsonUtil.serializeObject(object);",entityName,entityType.getShortNameFirstLowCase());
+        method.addBodyLine("mv.addObject(\"{0}\", {1});",this.entityNameKey,entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewStatus).orElse(\"1\"));");
         sb.setLength(0);
@@ -92,6 +88,10 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine(sb.toString());
         method.addBodyLine("mv.setViewName(viewName);");
         method.addBodyLine("return mv;");
+
+        parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
+        parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
+        parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
 
         parentElement.addMethod(method);
     }

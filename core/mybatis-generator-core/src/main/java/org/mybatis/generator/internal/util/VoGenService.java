@@ -5,6 +5,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.html.Attribute;
+import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
@@ -208,10 +210,16 @@ public class VoGenService {
             //设置属性的注释
             field.setRemark(overrideConfiguration.getRemark() != null ? overrideConfiguration.getRemark() : sourceColumn.getRemarks(true));
             field.setVisibility(JavaVisibility.PRIVATE);
-            if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
-                field.setInitializationString("\"-\"");
-            } else if (field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())) {
-                field.setInitializationString("0");
+
+            if (!overrideConfiguration.getInitializationString().isPresent()) {
+                if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
+                    field.setInitializationString("\"-\"");
+                } else if (field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())) {
+                    field.setInitializationString("0");
+                }
+            } else {
+                field.setInitializationString(overrideConfiguration.getInitializationString().get());
+                overrideConfiguration.getImportTypes().forEach(topLevelClass::addImportedType);
             }
             switch (overrideConfiguration.getAnnotationType()) {
                 case "DictUser":
@@ -283,11 +291,24 @@ public class VoGenService {
                     .stream()
                     .filter(overridePropertyConfiguration -> overridePropertyConfiguration.getSourceColumnName().equals(actualColumnName))
                     .findFirst().orElse(null);
-        }else{
+        } else {
             return this.introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations()
                     .stream()
                     .filter(overridePropertyConfiguration -> overridePropertyConfiguration.getSourceColumnName().equals(actualColumnName))
                     .findFirst().orElse(null);
+        }
+    }
+
+    public void addCssStyleToElement(HtmlElement element, String cssStyle) {
+        if (element.getAttributes().stream().noneMatch(a -> a.getName().equals("style"))) {
+            element.addAttribute(new Attribute("style", cssStyle));
+        } else {
+            Optional<Attribute> style = element.getAttributes().stream().filter(a -> a.getName().equals("style")).findFirst();
+            style.ifPresent(attribute -> {
+                if (!attribute.getValue().contains(cssStyle)) {
+                    attribute.setValue(attribute.getValue() + ";" + cssStyle);
+                }
+            });
         }
     }
 

@@ -1,7 +1,7 @@
 package org.mybatis.generator.config.xml;
 
 import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
@@ -816,13 +816,13 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(parentIdColumn)) {
             configuration.setParentIdColumnName(parentIdColumn);
         } else {
-            configuration.setParentIdColumnName(DefultColumnNameEnum.PARENT_ID.columnName());
+            configuration.setParentIdColumnName(DefaultColumnNameEnum.PARENT_ID.columnName());
         }
         String idColumnName = attributes.getProperty("primaryKeyColumn");
         if (stringHasValue(idColumnName)) {
             configuration.setPrimaryKeyColumnName(idColumnName);
         } else {
-            configuration.setPrimaryKeyColumnName(DefultColumnNameEnum.ID.columnName());
+            configuration.setPrimaryKeyColumnName(DefaultColumnNameEnum.ID.columnName());
         }
         tc.addSelectBySqlMethodGeneratorConfiguration(configuration);
     }
@@ -880,6 +880,14 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(remark)) {
             relationGeneratorConfiguration.setRemark(remark);
         }
+        String initalString = attributes.getProperty(PropertyRegistry.ELEMENT_INITIALIZATION_STRING);
+        if (stringHasValue(initalString)) {
+            relationGeneratorConfiguration.setInitializationString(initalString);
+        }
+        String importType = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_TYPE);
+        if (stringHasValue(importType)) {
+            relationGeneratorConfiguration.addImportTypes(importType);
+        }
         tc.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
     }
 
@@ -934,8 +942,10 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_DESCRIPTOR:
                     HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
-                    htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
-                    htmlGeneratorConfiguration.getElementDescriptors().add(htmlElementDescriptor);
+                    if (htmlElementDescriptor!=null) {
+                        htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                        htmlGeneratorConfiguration.getElementDescriptors().add(htmlElementDescriptor);
+                    }
                     break;
                 case PropertyRegistry.ELEMENT_HTML_LAYOUT:
                     parseHtmlLayout(htmlGeneratorConfiguration, childNode);
@@ -1006,6 +1016,16 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseHtmlElementInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
         Properties attributes = parseAttributes(childNode);
         HtmlElementInnerListConfiguration htmlElementInnerList = new HtmlElementInnerListConfiguration();
+        String listKey = attributes.getProperty("listKey");
+        if (stringHasValue(listKey)) {
+            htmlElementInnerList.setListKey(listKey);
+        }
+        String appKeyword = attributes.getProperty("appKeyword");
+        if (stringHasValue(appKeyword)) {
+            htmlElementInnerList.setAppKeyword(appKeyword.toLowerCase());
+        }else{
+            htmlElementInnerList.setAppKeyword(htmlGeneratorConfiguration.getContext().getModuleKeyword().toLowerCase());
+        }
         String tagId = attributes.getProperty("tagId");
         htmlElementInnerList.setTagId(tagId);
         String dataField = attributes.getProperty("dataField");
@@ -1025,7 +1045,10 @@ public class MyBatisGeneratorConfigurationParser {
             htmlElementInnerList.setSourceViewPath(sourceViewPath.toLowerCase());
         }
         htmlElementInnerList.setRelationField(attributes.getProperty("relationField"));
-        htmlElementInnerList.setAppKey(htmlGeneratorConfiguration.getContext().getModuleKeyword().toLowerCase());
+        String relationKey = attributes.getProperty("relationKey");
+        if (stringHasValue(relationKey)) {
+            htmlElementInnerList.setRelationKey(relationKey);
+        }
         htmlGeneratorConfiguration.setHtmlElementInnerListConfiguration(htmlElementInnerList);
     }
 
@@ -1079,10 +1102,10 @@ public class MyBatisGeneratorConfigurationParser {
                     htmlGeneratorConfiguration.getElementRequired().addAll(spiltToList(required));
                 }
                 break;
-            case PropertyRegistry.ANY_HTML_READONLY_COLUMNS:
+            case PropertyRegistry.ANY_HTML_READONLY_FIELDS:
                 String readonly = properties.get("value").toString();
                 if (stringHasValue(readonly)) {
-                    htmlGeneratorConfiguration.getReadonlyColumnNames().addAll(spiltToList(readonly));
+                    htmlGeneratorConfiguration.getReadonlyFields().addAll(spiltToList(readonly));
                 }
                 break;
         }
@@ -1092,6 +1115,9 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(node);
         String column = attributes.getProperty("column");
         String tagType = attributes.getProperty("tagType");
+        if (!stringHasValue(column) || !stringHasValue(tagType)) {
+            return null;
+        }
         HtmlElementDescriptor htmlElementDescriptor = new HtmlElementDescriptor();
         htmlElementDescriptor.setName(column);
         htmlElementDescriptor.setTagType(tagType);
@@ -1128,6 +1154,14 @@ public class MyBatisGeneratorConfigurationParser {
         String callback = attributes.getProperty("callback");
         if (stringHasValue(callback)) {
             htmlElementDescriptor.setCallback(callback);
+        }
+        String labelCss = attributes.getProperty("labelCss");
+        if (stringHasValue(labelCss)) {
+            htmlElementDescriptor.setLabelCss(labelCss);
+        }
+        String elementCss = attributes.getProperty("elementCss");
+        if (stringHasValue(elementCss)) {
+            htmlElementDescriptor.setElementCss(elementCss);
         }
         return htmlElementDescriptor;
     }
@@ -1397,7 +1431,7 @@ public class MyBatisGeneratorConfigurationParser {
                     configuration.addOverrideColumnConfigurations(parseVoOverrideColumn(context, tc, childNode));
                     break;
                 case ("additionalProperty"):
-                    configuration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode ));
+                    configuration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode));
                     break;
                 case "modelVO":
                     parseGenerateModelVO(context, tc, childNode, configuration);
@@ -1445,7 +1479,7 @@ public class MyBatisGeneratorConfigurationParser {
     private OverridePropertyValueGeneratorConfiguration parseVoOverrideColumn(Context context, TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
         String sourceColumn = attributes.getProperty(PropertyRegistry.ELEMENT_SOURCE_COLUMN);
-        OverridePropertyValueGeneratorConfiguration overrideColumnGeneratorConfiguration = new OverridePropertyValueGeneratorConfiguration(context, tc,sourceColumn);
+        OverridePropertyValueGeneratorConfiguration overrideColumnGeneratorConfiguration = new OverridePropertyValueGeneratorConfiguration(context, tc, sourceColumn);
         String targetColumn = attributes.getProperty(PropertyRegistry.ELEMENT_TARGET_COLUMN);
         if (stringHasValue(targetColumn)) {
             overrideColumnGeneratorConfiguration.setTargetColumnName(targetColumn);
@@ -1476,6 +1510,16 @@ public class MyBatisGeneratorConfigurationParser {
         String applyProperty = attributes.getProperty(PropertyRegistry.ELEMENT_APPLY_PROPERTY_VALUE);
         if (stringHasValue(applyProperty)) {
             overrideColumnGeneratorConfiguration.setApplyProperty(applyProperty);
+        }
+
+        String initializationString = attributes.getProperty(PropertyRegistry.ELEMENT_INITIALIZATION_STRING);
+        if (stringHasValue(initializationString)) {
+            overrideColumnGeneratorConfiguration.setInitializationString(initializationString);
+        }
+
+        String importType = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_TYPE);
+        if (stringHasValue(importType)) {
+            overrideColumnGeneratorConfiguration.addImportTypes(importType);
         }
 
         String remark = attributes.getProperty(PropertyRegistry.ELEMENT_FIELD_REMARK);
@@ -1517,7 +1561,7 @@ public class MyBatisGeneratorConfigurationParser {
             if (stringHasValue(annotations)) {
                 voAdditionalPropertyConfiguration.setAnnotations(new ArrayList<>(Arrays.asList(annotations.split("\\|"))));
             }
-            String initializationString = attributes.getProperty("initializationString");
+            String initializationString = attributes.getProperty(PropertyRegistry.ELEMENT_INITIALIZATION_STRING);
             if (stringHasValue(initializationString)) {
                 voAdditionalPropertyConfiguration.setInitializationString(initializationString);
             }
@@ -1546,17 +1590,17 @@ public class MyBatisGeneratorConfigurationParser {
     }
 
     private void parseNameFragment(Context context, TableConfiguration tc, Node childNode, AbstractModelGeneratorConfiguration configuration) {
-        VoNameFragmentGeneratorConfiguration voNameFragmentGeneratorConfiguration = new VoNameFragmentGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(childNode);
-        String column = attributes.getProperty("column");
-        if (stringHasValue(column)) {
-            voNameFragmentGeneratorConfiguration.setColumn(column);
-        }
+        List<String> columnNames = spiltToList(attributes.getProperty("column"));
         String fragment = attributes.getProperty("fragment");
-        if (stringHasValue(fragment)) {
-            voNameFragmentGeneratorConfiguration.setFragment(fragment);
-        }
-        configuration.addVoNameFragmentGeneratorConfiguration(voNameFragmentGeneratorConfiguration);
+        columnNames.forEach(columnName -> {
+            VoNameFragmentGeneratorConfiguration voNameFragmentGeneratorConfiguration = new VoNameFragmentGeneratorConfiguration(context, tc);
+            voNameFragmentGeneratorConfiguration.setColumn(columnName);
+            if (stringHasValue(fragment)) {
+                voNameFragmentGeneratorConfiguration.setFragment(fragment);
+            }
+            configuration.addVoNameFragmentGeneratorConfiguration(voNameFragmentGeneratorConfiguration);
+        });
     }
 
     private void parseModelChildNodeProperty(Context context, TableConfiguration tc, Node node, AbstractModelGeneratorConfiguration configuration) {
@@ -1588,6 +1632,10 @@ public class MyBatisGeneratorConfigurationParser {
     private void parseInnerListView(Context context, TableConfiguration tc, Node node, VOViewGeneratorConfiguration configuration) {
         InnerListViewConfiguration innerListViewGeneratorConfiguration = new InnerListViewConfiguration();
         Properties attributes = parseAttributes(node);
+        String listKey = attributes.getProperty("listKey");
+        if (stringHasValue(listKey)) {
+            innerListViewGeneratorConfiguration.setListKey(listKey);
+        }
         String size = attributes.getProperty("size");
         if (stringHasValue(size)) {
             innerListViewGeneratorConfiguration.setSize(size);
@@ -1628,9 +1676,13 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(defaultToolbar)) {
             innerListViewGeneratorConfiguration.setDefaultToolbar(spiltToList(defaultToolbar));
         }
+        String toolbar = attributes.getProperty("toolbar");
+        if (stringHasValue(toolbar)) {
+            innerListViewGeneratorConfiguration.setToolbar(spiltToList(toolbar));
+        }
         String defaultDisplayFields = attributes.getProperty("defaultDisplayFields");
         if (stringHasValue(defaultDisplayFields)) {
-            innerListViewGeneratorConfiguration.setDefaultDisplayFields(spiltToSet(defaultDisplayFields));
+            innerListViewGeneratorConfiguration.setDefaultDisplayFields(spiltToList(defaultDisplayFields));
         }
         String defaultHiddenFields = attributes.getProperty("defaultHiddenFields");
         if (stringHasValue(defaultHiddenFields)) {
@@ -1665,11 +1717,52 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_DESCRIPTOR:
                     HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
-                    innerListViewGeneratorConfiguration.getHtmlElements().add(htmlElementDescriptor);
+                    if (htmlElementDescriptor!=null) {
+                        innerListViewGeneratorConfiguration.getHtmlElements().add(htmlElementDescriptor);
+                    }
+                    break;
+                case "listColumnDescriptor":
+                    ListColumnConfiguration listColumnDescriptor = parseListColumnDescriptor(childNode);
+                    innerListViewGeneratorConfiguration.getListColumnConfigurations().add(listColumnDescriptor);
                     break;
             }
         }
         configuration.getInnerListViewConfigurations().add(innerListViewGeneratorConfiguration);
+    }
+
+    private ListColumnConfiguration parseListColumnDescriptor(Node node) {
+        Properties attributes = parseAttributes(node);
+        ListColumnConfiguration listColumnConfiguration = new ListColumnConfiguration();
+        String field = attributes.getProperty("field");
+        if (stringHasValue(field)) {
+            listColumnConfiguration.setField(field);
+        }
+        String width = attributes.getProperty("width");
+        if (stringHasValue(width)) {
+            listColumnConfiguration.setWidth(width);
+        }
+        String minWidth = attributes.getProperty("minWidth");
+        if (stringHasValue(minWidth)) {
+            listColumnConfiguration.setMinWidth(Integer.parseInt(minWidth));
+        }
+        String fixed = attributes.getProperty("fixed");
+        if (stringHasValue(fixed)) {
+            listColumnConfiguration.setFixed(fixed);
+        }
+        String templet = attributes.getProperty("templet");
+        if (stringHasValue(templet)) {
+            listColumnConfiguration.setTemplet(templet);
+        }
+        String style = attributes.getProperty("style");
+        if (stringHasValue(style)) {
+            listColumnConfiguration.setStyle(style);
+        }
+        String align = attributes.getProperty("align");
+        if (stringHasValue(align)) {
+            listColumnConfiguration.setAlign(align);
+        }
+        parseChildNodeOnlyProperty(listColumnConfiguration, node);
+        return listColumnConfiguration;
     }
 
     private void parseColumnRenderFun(Context context, TableConfiguration tc, AbstractModelGeneratorConfiguration configuration, Node childNode) {
@@ -1745,7 +1838,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         Set<String> validateIgnoreColumns = spiltToSet(attributes.getProperty(PropertyRegistry.ELEMENT_VALIDATE_IGNORE_COLUMNS));
         if (validateIgnoreColumns.size() == 0) {
-            validateIgnoreColumns.add(DefultColumnNameEnum.ID.columnName());
+            validateIgnoreColumns.add(DefaultColumnNameEnum.ID.columnName());
         }
 
         String isSelective = attributes.getProperty(PropertyRegistry.ELEMENT_ENABLE_SELECTIVE);
@@ -1994,7 +2087,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(keyColumn)) {
             voCacheGeneratorConfiguration.setKeyColumn(keyColumn);
         } else {
-            voCacheGeneratorConfiguration.setKeyColumn(DefultColumnNameEnum.ID.columnName());
+            voCacheGeneratorConfiguration.setKeyColumn(DefaultColumnNameEnum.ID.columnName());
         }
         String nameColumn = attributes.getProperty(PropertyRegistry.ELEMENT_VALUE_COLUMN);
         if (stringHasValue(nameColumn)) {

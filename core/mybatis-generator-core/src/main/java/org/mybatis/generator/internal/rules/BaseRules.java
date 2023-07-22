@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
-import com.vgosoft.core.constant.enums.db.DefultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -665,7 +665,7 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean isModelEnableChildren() {
         if (tc.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
-            return tc.getFieldNames().contains(DefultColumnNameEnum.PARENT_ID.fieldName());
+            return tc.getFieldNames().contains(DefaultColumnNameEnum.PARENT_ID.fieldName());
         }
         return false;
     }

@@ -40,6 +40,10 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String callback;
 
+    private String labelCss;
+
+    private String elementCss;
+
     public HtmlElementDescriptor() {
     }
 
@@ -235,5 +239,21 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setHtmlGeneratorConfiguration(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
+    }
+
+    public String getLabelCss() {
+        return labelCss;
+    }
+
+    public void setLabelCss(String labelCss) {
+        this.labelCss = labelCss;
+    }
+
+    public String getElementCss() {
+        return elementCss;
+    }
+
+    public void setElementCss(String elementCss) {
+        this.elementCss = elementCss;
     }
 }

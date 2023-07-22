@@ -135,7 +135,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             }
         });
         introspectedTable.getBaseColumns().forEach(c -> {
-            if (c.getDefaultValue() != null
+            if (c.getDefaultValue() != null && VStringUtil.stringHasValue(c.getDefaultValue())
                     && !c.getDefaultValue().equalsIgnoreCase("null")
                     && !defaultFields.contains(c.getJavaProperty())) {
                 if (c.getDefaultValue().equals("CURRENT_TIMESTAMP")) {
@@ -143,6 +143,9 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                     topLevelClass.addImportedType(V_DATE_UTILS);
                 } else if (c.isJdbcCharacterColumn()) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), c.getDefaultValue()));
+                } else if(c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")){
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.math.BigDecimal"));
                 } else {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), c.getDefaultValue()));
                 }

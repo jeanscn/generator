@@ -201,7 +201,7 @@ public class ValidateDatabaseTable {
         introspectedColumn.setDefaultValue(defaultValue);
         introspectedColumn.setNullable(columnMeta.nullable());
         introspectedColumn.setJdbcTypeName(columnMeta.type().getName());
-        introspectedColumn.setIdentity(columnMeta.pkid());
+        introspectedColumn.setPrimaryKey(columnMeta.pkid());
         introspectedColumn.setJavaProperty(declaredField.getName());
         introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType(declaredField.getType().getCanonicalName()));
 

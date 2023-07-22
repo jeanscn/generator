@@ -152,7 +152,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         testClazz.addStaticImport("org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*");
         testClazz.addImportedType("org.junit.jupiter.api.Test");
         testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
-        testClazz.addImportedType("com.alibaba.fastjson.JSONObject");
+        testClazz.addImportedType("com.alibaba.fastjson2.JSONObject");
         testClazz.addImportedType("org.springframework.http.MediaType");
 
         if (viewpath != null) {

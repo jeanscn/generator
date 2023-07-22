@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300711001-->
+        <!--version:1.5.0.2300719001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -209,15 +209,16 @@
             1、com.vgosoft.core.entity.abs.AbstractEntity，简单实体包含ID_,DELETE_FLAG字段
             2、com.vgosoft.core.entity.abs.AbstractPersistenceObjectEntity,包含以上及：created_,modified_,created_id,modified_id
             3、com.vgosoft.core.entity.abs.AbstractPersistenceLockEntity，包含以上及：version_
-            3.1.1、com.vgosoft.core.entity.abs.AbstractBusinessEntity，包含以上及：subject_、priority_、module_id、module_name、file_category、fld_ser_number、reg_doc_number、author_
-            3.1.2、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessEntity，包含以上及：business_key、wf_state、cur_processors、cur_processors_name
-            3.1.3、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessNumberable，包含以上及：fld_ser_number、reg_doc_number
+            3.1.1、com.vgosoft.core.entity.abs.AbstractBusinessEntity，包含以上及：subject_、priority_、module_id、file_category、fld_ser_number、reg_doc_number、author_
+            3.1.2、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessEntity，包含以上及：business_key、wf_state、cur_processors
+            3.1.3、com.vgosoft.workflow.absimpl.AbstractWorkflowBusinessNumberable，包含以上及：fld_ser_number、reg_doc_number、number_rule
+            3.1.4、com.vgosoft.workflow.absimpl.AbstractWorkflowSampleEntity，包含以上及：apply_dept_id、apply_user_id、apply_date、apply_handler_id、apply_contact、apply_org_id
+
             3.2、com.vgosoft.core.entity.abs.AbstractPersistenceLockSortableEntity，包含AbstractPersistenceLockEntity及：sort_
             4、com.vgosoft.core.entity.abs.AbstractBlobEntity，包含id_,delete_flag,name_,size_,bytes_
             5、com.vgosoft.core.entity.abs.AbstractBlobPersistenceObjectEntity，包含以上及：created_,modified_,created_id,modified_id
             6、com.vgosoft.core.entity.abs.AbstractBlobPersistenceLockEntity，包含以上及：version_
             7、com.vgosoft.core.entity.abs.AbstractBlobBusinessEntity，包含以上及：subject_,priority_,module_name,file_category,fld_doc_code,author_
-
         -->
         <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,overridePropertyValue*,additionalProperty*,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVO?,generateCachePO?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
@@ -489,7 +490,7 @@
             可能的property配置：
             1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             2、htmlElementRequired 页面文件中必填的列，多个”,“分隔。
-            3、htmlReadonlyColumns 页面文件中只读的列，多个”,“分隔。
+            3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
         -->
 
         <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?)>
@@ -529,20 +530,31 @@
             1、column 数据库字段名
             2、tagType 生成的类型，生成类型支持：dropdownlist、radio、checkbox、switch、select（弹窗选择）、input（为了指定特定属性，如增加验证verify）
             3、dataUrl 数据接口请求地址
-            4、dataFormat 数据格式：启停|有无|是否|性别，可应用在radio和switch；缓急|级别，仅在radio时有效；
+            4、dataFormat 数据格式：启停|有无|是否|性别，可应用在radio、switch、dropdownlist；缓急|级别，仅在radio、dropdownlist时有效；
             5、dataSource 数据来源：  DictData-来自sys_dict_data
                                     Dict-来自指定beanName对应的表，如果该bean的SelectByKeysDict方法存在，则使用该方法,否则使用SelectByPrimaryKey方法。
                                         建议使用SelectByKeysDict方法，该方法是缓存数据，SelectByPrimaryKey存在性能问题。
                                     DictSys-来自sys_cfg-dict表缓存数据
                                     DictUser-来自sys_dict_content表缓存数据
-                                    Department-部门选择，来自org_department表缓存数据，当使用select类型时，在dataFormat为department时默认为此值
-                                    User-来自org_department表缓存数据，当使用select类型时，在dataFormat为user时默认为此值
+                                    Department-部门选择，来自org_department表缓存数据
+                                    User-来自org_department表缓存数据
+                                    Organization-来自org_organization表缓存数据
                                     DictEnum-来自枚举类型
                                     DictModule-来自sys_cfg_module表缓存数据
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
             7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
             8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
+                    verify为多值时，使用管道分隔”|“，如：verify="required|number"
+                    * required|number|date|time|datetime|limit|phone|email|url|identity
             9、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
+                    可用的枚举类有：
+                    * com.vgosoft.core.constant.enums.core.YesNoEnum
+                    * com.vgosoft.core.constant.enums.core.ExistOrNotEnum
+                    * com.vgosoft.core.constant.enums.core.GenderEnum
+                    * com.vgosoft.core.constant.enums.core.CommonStatusEnum
+                    * com.vgosoft.core.constant.enums.core.LevelListEnum
+                    * com.vgosoft.core.constant.enums.core.UrgencyEnum
+                    * com.vgosoft.workflow.enums.WorkFlowStatusEnum（仅当引用工作流包时才可用）
             10、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
                     * com.vgosoft.core.constant.enums.core.YesNoEnum  是否
                     * com.vgosoft.core.constant.enums.core.ExistOrNotEnum 有无
@@ -552,14 +564,21 @@
                     * com.vgosoft.core.constant.enums.core.UrgencyEnum 缓急
             11、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
             12、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
+            13、labelCss 样式，用于指定生成的label的附加样式，如：display: none;width:100px;height:100px;等。
+            14、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
             说明：
-            department|user：仅在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
-            如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
-            verify为多值时，使用管道分隔”|“，如：verify="required|number"
+            ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
+            ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
+                    如：departmentId的otherFieldName为departmentText，userId的otherFieldName为userText。
             下属情况将自动生成页面组件：
-                1、列名为 state_ 为当做数据状态字段处理，既生成启停switch，数据格式为启用-1停用-0。
-                2、列名为 parent_id 为当做父级选择字段处理，既默认生成父级选择select。
-                3、当列注释以“是否”开头时，也会默认生成switch，数据格式为是-1否-0。
+                1、state_：列名为 state_ 为当做数据状态字段处理，既生成启停switch，数据格式为启用-1停用-0。
+                2、parent_id：列名为 parent_id 为当做父级选择字段处理，既默认生成父级选择select。
+                3、注释以“是否”开头：当列注释以“是否”开头时，也会默认生成switch，数据格式为是-1否-0。
+                4、priority_：列名为 priority_ 当做优先级处理，dataSource为DictEnum，枚举类名：com.vgosoft.core.constant.enums.core.UrgencyEnum。
+                5、wf_state：列名为 wf_state 当做流程状态处理，dataSource为DictEnum，枚举类名：com.vgosoft.workflow.enums.WorkFlowStatusEnum。
+                6、author_、apply_handler_id、apply_user_id：将生成带有当前用户标识初始数据的只读字段，tagType为input，dataSource为User。
+                7、apply_dept_id ：将生成带有当前用户部门标识初始数据的只读字段，tagType为input，dataSource为Department。
+                8、apply_org_id：将生成带有当前用户机构标识初始数据的只读字段，tagType为input，dataSource为Organization。
         -->
         <!ELEMENT htmlElementDescriptor EMPTY>
         <!ATTLIST htmlElementDescriptor
@@ -571,11 +590,13 @@
                 dataSource (DictData|Dict|DictSys|DictUser|DictModule|Organ|Department|User|DictEnum) #IMPLIED
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
-                verify (none|required|number|date|time|datetime|limit|phone|email|url|identity) #IMPLIED
+                verify (none|required|number|date|time|datetime|limit|phone|email|url|identity|amount) #IMPLIED
                 enumClassFullName CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
                 callback CDATA #IMPLIED
-                switchText CDATA #IMPLIED>
+                switchText CDATA #IMPLIED
+                labelCss CDATA #IMPLIED
+                elementCss CDATA #IMPLIED>
 
         <!--
             为页面添加一个附件上传组件
@@ -608,23 +629,28 @@
 
         <!--
             用来描述页面列表元素的配置
-            1、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
-            2、sourceBeanName 引用的源表的beanName，必须
-            3、relationField 关联字段，必须，表示当前列表与源表的关联字段
-            4、tagId 要绑定的列表的目表页面的标签id名，必须。
+            1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
+            2、appKeyword 应用标识，当引用的列表不在当前模块中时，需要指定对应的appKeyword，如果不指定则默认为当前context中的appKeyword
+            3、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
+            4、sourceBeanName 引用的源表的beanName，必须
+            5、relationField 关联字段，必须，表示当前列表与源表的关联字段
+            6、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
+            7、tagId 要绑定的列表的目表页面的标签id名，必须。
                 如指定tagId=“detail” 则会在页面中生成一个id=“detail”的table标签，用来绑定列表。
                     <div class="inner-list-container">
                         <table id="detail" lay-filter="detail"></table>
                     </div>
-            5、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
-            6、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
-
+            8、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
+            9、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
+                listKey CDATA #IMPLIED
+                appKeyword CDATA #IMPLIED
                 sourceViewPath CDATA #REQUIRED
                 sourceBeanName CDATA #REQUIRED
                 relationField CDATA #REQUIRED
+                relationKey CDATA #IMPLIED
                 tagId CDATA #REQUIRED
                 dataField CDATA #IMPLIED
                 dataUrl CDATA #IMPLIED>
@@ -871,7 +897,7 @@
             property配置：无
         -->
 
-        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView?)>
+        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*)>
         <!ATTLIST viewVO
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
@@ -900,9 +926,10 @@
            5、enablePage 是否启用分页，true分页，false不分页，simple简单分页。缺省值false
            6、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true
            7、totalRow 是否显示总计行，true显示，false不显示。缺省值false
-           8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
-           9、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
-           10、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: filter,exports,print （分别代表：筛选图标、导出图标、打印图标）
+           8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
+           9、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：VIEW,EDIT,REMOVE
+           10、toolbar：工具栏的操作列表。包括：NONE-无、CREATE-新增、REMOVE-删除中的0个或多个。缺省值：CREATE,REMOVE
+           10、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: NONE或者filter,exports,print （分别代表：无、筛选图标、导出图标、打印图标），默认值为：filter,exports,print
            11、defaultDisplayFields：默认显示的属性名列表,多值使用","。
            12、defaultHiddenFields：默不显示的属性名列表,多值使用","。
            13、enableEditFields：可编辑的属性名列表,多值使用","。
@@ -910,10 +937,12 @@
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
-           property配置：无
+           property配置：
+            1、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
        -->
-        <!ELEMENT innerListView (property*,htmlElementDescriptor*)>
+        <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*)>
         <!ATTLIST innerListView
+                listKey CDATA #IMPLIED
                 size (sm|md|lg) #IMPLIED
                 height CDATA #IMPLIED
                 width CDATA #IMPLIED
@@ -923,11 +952,22 @@
                 totalRow (true|false) #IMPLIED
                 indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
                 actionColumn CDATA #IMPLIED
+                toolbar CDATA #IMPLIED
                 defaultToolbar CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
                 defaultHiddenFields CDATA #IMPLIED
                 enableEditFields CDATA #IMPLIED
                 editExtendsForm CDATA #IMPLIED>
+
+        <!ELEMENT listColumnDescriptor (property*)>
+        <!ATTLIST listColumnDescriptor
+                field CDATA #REQUIRED
+                width CDATA #IMPLIED
+                minWidth CDATA #IMPLIED
+                fixed (left|right) #IMPLIED
+                templet CDATA #IMPLIED
+                style CDATA #IMPLIED
+                align (left|right|center) #IMPLIED>
 
         <!--
            Excel导入导出模型配置的生成描述，该模型不继承抽象VO抽象类
@@ -992,7 +1032,8 @@
              6、typeValue 转换查找原数据的附加检索的条件的值，如果字典查询是的字典类型。
              7、applyProperty 转换结果要使用的属性值，默认使用cachePo中的valueColumn的值。
              8、remark 属性中文描述
-             9、enumClassName 当annotationType为DictEnum时，需要指定enumClassName，该属性为枚举类的全类名
+             9、initializationString 属性初始化字符串
+             10、enumClassName 当annotationType为DictEnum时，需要指定enumClassName，该属性为枚举类的全类名
               说明：
              1、targetColumn、targetProperty根据实际情况只能选择其中一个，如果配置了targetColumn，则targetProperty无效
              2、如果指定了targetProperty、则按实际情况指定targetPropertyType的全类名，最终生成 private String field形式.缺省为java.lang.String
@@ -1013,7 +1054,9 @@
                 typeValue CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
                 remark CDATA #IMPLIED
-                enumClassFullName CDATA #IMPLIED>
+                initializationString CDATA #IMPLIED
+                enumClassFullName CDATA #IMPLIED
+                importType  CDATA #IMPLIED>
 
         <!--
              用于配置VO类添加附加属性
@@ -1040,7 +1083,8 @@
                 isFinal (true|false) #IMPLIED
                 visibility (public|private|protected) #IMPLIED
                 importedTypes CDATA #IMPLIED
-                remark CDATA #IMPLIED>
+                remark CDATA #IMPLIED
+                importType  CDATA #IMPLIED>
 
         <!--
              用于指定requestVO自动构建查询Example类，字段匹配类型
@@ -1051,7 +1095,7 @@
         <!ELEMENT nameFragment EMPTY>
         <!ATTLIST nameFragment
                 column  CDATA #REQUIRED
-                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeRight|LikeLeft|Between) #REQUIRED>
+                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeAny|LikeRight|LikeLeft|Between) #REQUIRED>
 
         <!--
              用于指定视图列渲染方法名
