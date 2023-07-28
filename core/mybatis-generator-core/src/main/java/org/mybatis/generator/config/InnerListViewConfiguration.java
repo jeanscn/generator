@@ -21,7 +21,7 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private String height;
 
-    private Integer width;
+    private int width = 0;
 
     private boolean totalRow = false;
 
@@ -118,11 +118,11 @@ public class InnerListViewConfiguration extends PropertyHolder{
         this.height = height;
     }
 
-    public Integer getWidth() {
+    public int getWidth() {
         return width;
     }
 
-    public void setWidth(Integer width) {
+    public void setWidth(int width) {
         this.width = width;
     }
 

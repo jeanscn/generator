@@ -7,6 +7,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -55,6 +56,9 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
                         callBackMethod.setThisKey(config.getThisColumn().getJavaProperty());
                         callBackMethod.setOtherKey(config.getOtherColumn().getJavaProperty() + "s");
                     });
+                    if (HtmlElementDataSourceEnum.INNER_TABLE.getCode().equals(elementDescriptor.getDataSource())) {
+                        callBackMethod.setType(1);
+                    }
                     if (!byTableGeneratorConfiguration.isPresent()) {
                         callBackMethod.setRequestKey(VStringUtil.toHyphenCase(elementDescriptor.getCallback()));
                         callBackMethod.setThisKey("param1");

@@ -11,7 +11,8 @@ public enum HtmlElementDataSourceEnum {
     ROLE(7, "Role","orgRoleImpl","Dict"),
     ORGANIZATION(8, "Organ","orgOrganizationImpl","Dict"),
     DICT_ENUM(7,"DictEnum","","DictEnum"),
-    DICT_MODULE(8,"DictModule","","DictModule");
+    DICT_MODULE(8,"DictModule","","DictModule"),
+    INNER_TABLE(9,"InnerList","","");
 
     private final int value;
     private final String code;

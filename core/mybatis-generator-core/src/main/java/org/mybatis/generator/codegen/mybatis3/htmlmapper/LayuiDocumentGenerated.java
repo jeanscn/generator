@@ -13,7 +13,6 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
-import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -65,10 +64,10 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         addSubjectInput(form);
         /*表单验证button*/
         addVerifyButton(form);
-        //是否需要插入页面列表
+        /*//是否需要插入页面列表
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             addInnerList(content, htmlGeneratorConfiguration);
-        }
+        }*/
         // if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
         /* 查看状态*/
         HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
@@ -97,8 +96,8 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
             HtmlElement div = new HtmlElement("div");
-            String appKey = VStringUtil.stringHasValue(listConfiguration.getAppKeyword()) ? listConfiguration.getAppKeyword() : introspectedTable.getContext().getModuleKeyword();
-            String format = VStringUtil.format("{0}/fragments/{1}_{2}.html::{2}", appKey, listConfiguration.getSourceViewPath(), ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
+            String moduleKeyword = VStringUtil.stringHasValue(listConfiguration.getModuleKeyword()) ? listConfiguration.getModuleKeyword() : introspectedTable.getContext().getModuleKeyword();
+            String format = VStringUtil.format("{0}/fragments/{1}::{2}", moduleKeyword,Mb3GenUtil.getInnerListFragmentFileName(listConfiguration,introspectedTable),ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
             div.addAttribute(new Attribute("th:replace", format));
             body.get("body").addElement(div);
             //根据数据源添加
@@ -171,6 +170,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private HtmlElement generateForm(HtmlElement parent) {
         HtmlElement form = addFormWithClassToParent(parent, "layui-form");
+        form.addAttribute(new Attribute("lay-filter", "mainForm"));
         List<IntrospectedColumn> columns = Stream.of(introspectedTable.getPrimaryKeyColumns().stream()
                         , introspectedTable.getBaseColumns().stream()).flatMap(Function.identity())
                 .collect(Collectors.toList());
@@ -220,6 +220,15 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 approvalCommentConfiguration.setAfterColumn(displayColumns.get(displayColumns.size() - 1).getActualColumnName());
             }
         });
+        //计算内置列表的位置
+        if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            if (listConfiguration.getAfterColumn() == null) {
+                listConfiguration.setAfterColumn(displayColumns.get(displayColumns.size() - 1).getActualColumnName());
+            } else if (displayColumns.stream().noneMatch(col -> col.getActualColumnName().equals(listConfiguration.getAfterColumn()))) {
+                listConfiguration.setAfterColumn(displayColumns.get(displayColumns.size() - 1).getActualColumnName());
+            }
+        }
 
         int pageColumnsConfig = getPageColumnsConfig();
         Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns);
@@ -281,6 +290,13 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                                 addApprovalCommentTag(pageColumnsConfig, approvalCommentConfiguration, table);
                             }
                         });
+                //是否需要插入页面列表
+                if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+                    HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+                    if (rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> listConfiguration.getAfterColumn().equals(col))) {
+                        addInnerList(table, htmlGeneratorConfiguration);
+                    }
+                }
             }
             form.addElement(table);
         } else {
@@ -316,6 +332,13 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                                     addApprovalCommentTag(pageColumnsConfig, approvalCommentConfiguration, form);
                                 }
                             });
+                    //是否需要插入页面列表
+                    if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+                        HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+                        if (introspectedColumn.getActualColumnName().equals(listConfiguration.getAfterColumn())) {
+                            addInnerList(form, htmlGeneratorConfiguration);
+                        }
+                    }
                 }
             }
         }

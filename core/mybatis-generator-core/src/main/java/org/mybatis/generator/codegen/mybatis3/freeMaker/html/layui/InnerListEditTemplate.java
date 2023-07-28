@@ -25,6 +25,16 @@ public class InnerListEditTemplate {
 
     private String title;
 
+    private String dateType = "date";
+
+    private String dateFormat = "yyyy-MM-dd";
+
+    private String listKey;
+
+    private String listViewClass;
+
+    private String callback;
+
     public String getFieldName() {
         return fieldName;
     }
@@ -97,5 +107,45 @@ public class InnerListEditTemplate {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDateType() {
+        return dateType;
+    }
+
+    public void setDateType(String dateType) {
+        this.dateType = dateType;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
+    }
+
+    public String getListViewClass() {
+        return listViewClass;
+    }
+
+    public void setListViewClass(String listViewClass) {
+        this.listViewClass = listViewClass;
+    }
+
+    public String getCallback() {
+        return callback;
+    }
+
+    public void setCallback(String callback) {
+        this.callback = callback;
     }
 }

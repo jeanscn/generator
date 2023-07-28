@@ -12,6 +12,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -44,18 +45,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //增加InnerTableMetaAnnotation
             introspectedTable.getTableConfiguration().getVoGeneratorConfiguration()
                     .getVoViewConfiguration().getInnerListViewConfigurations().forEach(listViewConfiguration -> {
-                        LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
-                        layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
-                        layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
-                        layuiTableMetaDesc.setEnablePage(listViewConfiguration.getEnablePage());
-                        layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
-                        layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
-                        layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
-                        layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
-                        layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
-                        layuiTableMetaDesc.setActionColumn(listViewConfiguration.getActionColumn());
-                        layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
-                        layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
+                        LayuiTableMetaDesc layuiTableMetaDesc = getLayuiTableMetaDesc(introspectedTable, listViewConfiguration);
                         String annotation = layuiTableMetaDesc.toAnnotation();
                         if (!topLevelClass.getAnnotations().contains(annotation)) {
                             topLevelClass.addAnnotation(annotation);
@@ -66,6 +56,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         return true;
     }
 
+    /**
+     * VO抽象父类的ColumnMetaAnnotation
+     */
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (introspectedTable.getRules().isGenerateViewVO()) {
@@ -96,27 +89,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         updateOrder(field, introspectedTable, viewColumnMetaDesc);
         field.addAnnotation(viewColumnMetaDesc.toAnnotation());
         topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
-
         addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, introspectedTable);
         return true;
-    }
-
-    private void updateOrder(Field field, IntrospectedTable introspectedTable, ViewColumnMetaDesc viewColumnMetaDesc) {
-        //更新order
-        if (introspectedTable.getRules().isGenerateViewVO()) {
-            VOViewGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-            List<String> displayFields = configuration.getDefaultDisplayFields();
-            viewColumnMetaDesc.setOrder(getOrder(field, displayFields));
-        }
-    }
-
-    private int getOrder(Field field, List<String> fieldNames) {
-        if (fieldNames.size() > 0) {
-            if (fieldNames.contains(field.getName())) {
-                return fieldNames.indexOf(field.getName()) + 100;
-            }
-        }
-        return 0;
     }
 
     private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass, IntrospectedTable introspectedTable) {
@@ -140,7 +114,6 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setDataUrl(String.join("/"
                 , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                 , "getdtdata"));
-
         //toolbar
         if (voViewGeneratorConfiguration.getToolbar().size() > 0) {
             ViewToolBarsEnum[] toolBarsEnums = voViewGeneratorConfiguration.getToolbar().stream()
@@ -150,7 +123,6 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .toArray(ViewToolBarsEnum[]::new);
             viewTableMetaDesc.setToolbarActions(toolBarsEnums);
         }
-
         //indexColumn
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
         if (viewIndexColumnEnum != null) {
@@ -201,7 +173,6 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setClassName(viewVOClass.getType().getFullyQualifiedName());
         //restBasePath
         viewTableMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
-
         //构造ViewTableMeta
         viewVOClass.addAnnotation(viewTableMetaDesc.toAnnotation());
         viewVOClass.addImportedTypes(viewTableMetaDesc.getImportedTypes());
@@ -211,29 +182,16 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (!introspectedTable.getRules().isGenerateInnerTable()) {
             return;
         }
-        introspectedTable.getTableConfiguration()
-                .getVoGeneratorConfiguration().getVoViewConfiguration()
-                .getInnerListViewConfigurations().forEach(listViewConfiguration -> {
-                    //如果有默认显示字段且字段不在默认显示字段中，字段不生成layuiTableColumnMeta
-                    if (!(listViewConfiguration.getDefaultDisplayFields().isEmpty() || listViewConfiguration.getDefaultDisplayFields().contains(field.getName()))) {
-                        return;
-                    }
-                    //计算默认隐藏字段
-                    Set<String> hiddenFields = listViewConfiguration.getHtmlGeneratorConfiguration().getHiddenColumnNames().stream()
-                            .map(cName -> introspectedTable.getColumn(cName).orElse(null))
-                            .filter(Objects::nonNull)
-                            .map(IntrospectedColumn::getJavaProperty)
-                            .collect(Collectors.toSet());
-                    Set<String> defaultHiddenFieldNames = listViewConfiguration.getDefaultHiddenFields();
-                    defaultHiddenFieldNames.addAll(hiddenFields);
-                    //如果默认显示字段为空且字段在默认隐藏字段中，字段不生成layuiTableColumnMeta
-                    if (listViewConfiguration.getDefaultDisplayFields().isEmpty() && defaultHiddenFieldNames.contains(field.getName())) {
-                        return;
-                    }
 
+        introspectedTable.getTableConfiguration()
+                .getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations()
+                .forEach(listViewConfiguration -> {
+                    if (toBeTermination(field, introspectedTable, listViewConfiguration)) return;
                     Set<String> mapFields = new HashSet<>();
                     Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap();
-                    if (elementDescriptorMap.containsKey(field.getName())) {
+                    if (elementDescriptorMap.containsKey(field.getName())
+                            && elementDescriptorMap.get(field.getName()).getDataSource() != null
+                            && !elementDescriptorMap.get(field.getName()).getDataSource().equals(HtmlElementDataSourceEnum.INNER_TABLE.getCode())) {
                         HtmlElementDescriptor htmlElementDescriptor = elementDescriptorMap.get(field.getName());
                         //如果有描述器且描述器为select类型，map的key属性字段不生成layuiTableColumnMeta
                         if (HtmlElementTagTypeEnum.SELECT.getCode().equals(htmlElementDescriptor.getTagType())) {
@@ -278,6 +236,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                                     layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());
                                     layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + htmlElementDescriptor.getOtherFieldName());
                                     layuiTableColumnMetaDesc.setEdit(true);
+
                                     innerListEditTemplate.setThisFieldName(htmlElementDescriptor.getColumn().getJavaProperty());
                                     innerListEditTemplate.setOtherFieldName(htmlElementDescriptor.getOtherFieldName());
                                     innerListEditTemplate.setType(htmlElementDescriptor.getTagType());
@@ -286,6 +245,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                                     String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
                                     innerListEditTemplate.setDataUrl(dataUrl);
                                     innerListEditTemplate.setTitle(field.getRemark());
+                                    innerListEditTemplate.setListKey(htmlElementDescriptor.getListKey());
+                                    innerListEditTemplate.setListViewClass(htmlElementDescriptor.getListViewClass());
+                                    innerListEditTemplate.setCallback(htmlElementDescriptor.getCallback());
                                 } else {
                                     layuiTableColumnMetaDesc.setEdit(false);
                                     layuiTableColumnMetaDesc.setScope("readonly");
@@ -302,6 +264,15 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                                 String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
                                 innerListEditTemplate.setDataUrl(dataUrl);
                                 innerListEditTemplate.setTitle(field.getRemark());
+                                if (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.getCode())) {
+                                    //dateType
+                                    String dateType = Mb3GenUtil.getDateType(htmlElementDescriptor, htmlElementDescriptor.getColumn());
+                                    innerListEditTemplate.setDateType(dateType);
+                                    //dateFormat
+                                    String dateFormat = Mb3GenUtil.getDateFormat(htmlElementDescriptor, htmlElementDescriptor.getColumn());
+                                    innerListEditTemplate.setDateFormat(dateFormat);
+                                }
+                                innerListEditTemplate.setCallback(htmlElementDescriptor.getCallback());
                             }
                         });
                     } else {
@@ -317,6 +288,17 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                                 layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + field.getName());
                                 innerListEditTemplate.setThisFieldName(field.getName());
                                 innerListEditTemplate.setType("date");
+                                if (introspectedColumn != null) {
+                                    //dateType
+                                    String dateType = Mb3GenUtil.getDateType(null, introspectedColumn);
+                                    innerListEditTemplate.setDateType(dateType);
+                                    //dateFormat
+                                    String dateFormat = Mb3GenUtil.getDateFormat(null, introspectedColumn);
+                                    innerListEditTemplate.setDateFormat(dateFormat);
+                                } else {
+                                    innerListEditTemplate.setDateType("date");
+                                    innerListEditTemplate.setDateFormat("yyyy-MM-dd");
+                                }
                                 innerListEditTemplate.setTemplate("TPL-inner-" + field.getName());
                                 innerListEditTemplate.setFieldType(getDateformat(field.getType().getShortNameWithoutTypeArguments()));
                             } else {
@@ -386,6 +368,35 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 });
     }
 
+    private boolean toBeTermination(Field field, IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration) {
+        //如果有默认显示字段且字段不在默认显示字段中，字段不生成layuiTableColumnMeta
+        if (!(listViewConfiguration.getDefaultDisplayFields().isEmpty() || listViewConfiguration.getDefaultDisplayFields().contains(field.getName()))) {
+            return true;
+        }
+        Set<String> defaultHiddenFieldNames = getHiddenFieldNames(introspectedTable, listViewConfiguration);
+        //如果默认显示字段为空且字段在默认隐藏字段中，字段不生成layuiTableColumnMeta
+        return listViewConfiguration.getDefaultDisplayFields().isEmpty() && defaultHiddenFieldNames.contains(field.getName());
+    }
+
+    /**
+     * 获取默认隐藏字段,集成了HtmlGeneratorConfiguration隐藏字段和配置隐藏字段
+     *
+     * @param introspectedTable     表
+     * @param listViewConfiguration 列表配置
+     * @return 默认隐藏字段
+     */
+    private Set<String> getHiddenFieldNames(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration) {
+        //计算默认隐藏字段
+        Set<String> defaultHiddenFieldNames = listViewConfiguration.getDefaultHiddenFields();
+        Set<String> hiddenFields = listViewConfiguration.getHtmlGeneratorConfiguration().getHiddenColumnNames().stream()
+                .map(cName -> introspectedTable.getColumn(cName).orElse(null))
+                .filter(Objects::nonNull)
+                .map(IntrospectedColumn::getJavaProperty)
+                .collect(Collectors.toSet());
+        defaultHiddenFieldNames.addAll(hiddenFields);
+        return defaultHiddenFieldNames;
+    }
+
     private boolean isDateType(FullyQualifiedJavaType fieldType) {
         String shortName = fieldType.getShortName();
         return shortName.equalsIgnoreCase("LocalDateTime")
@@ -436,6 +447,49 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             });
         }
         return url.get();
+    }
+
+    /**
+     * 获取LayuiTableMetaDesc
+     *
+     * @param introspectedTable     表
+     * @param listViewConfiguration 列表配置
+     * @return LayuiTableMetaDesc layuiTableMetaDesc
+     */
+    private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration) {
+        LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
+        layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
+        layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
+        layuiTableMetaDesc.setWidth(listViewConfiguration.getWidth());
+        layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
+        layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
+        layuiTableMetaDesc.setEnablePage(listViewConfiguration.getEnablePage());
+        layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
+        layuiTableMetaDesc.setSkin(listViewConfiguration.getSkin());
+        layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
+        layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
+        layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
+        layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
+        layuiTableMetaDesc.setActionColumn(listViewConfiguration.getActionColumn());
+        return layuiTableMetaDesc;
+    }
+
+    private void updateOrder(Field field, IntrospectedTable introspectedTable, ViewColumnMetaDesc viewColumnMetaDesc) {
+        //更新order
+        if (introspectedTable.getRules().isGenerateViewVO()) {
+            VOViewGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+            List<String> displayFields = configuration.getDefaultDisplayFields();
+            viewColumnMetaDesc.setOrder(getOrder(field, displayFields));
+        }
+    }
+
+    private int getOrder(Field field, List<String> fieldNames) {
+        if (fieldNames.size() > 0) {
+            if (fieldNames.contains(field.getName())) {
+                return fieldNames.indexOf(field.getName()) + 100;
+            }
+        }
+        return 0;
     }
 
 }

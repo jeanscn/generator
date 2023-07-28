@@ -1020,11 +1020,11 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(listKey)) {
             htmlElementInnerList.setListKey(listKey);
         }
-        String appKeyword = attributes.getProperty("appKeyword");
-        if (stringHasValue(appKeyword)) {
-            htmlElementInnerList.setAppKeyword(appKeyword.toLowerCase());
+        String moduleKeyword = attributes.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD);
+        if (stringHasValue(moduleKeyword)) {
+            htmlElementInnerList.setModuleKeyword(moduleKeyword.toLowerCase());
         }else{
-            htmlElementInnerList.setAppKeyword(htmlGeneratorConfiguration.getContext().getModuleKeyword().toLowerCase());
+            htmlElementInnerList.setModuleKeyword(htmlGeneratorConfiguration.getContext().getModuleKeyword().toLowerCase());
         }
         String tagId = attributes.getProperty("tagId");
         htmlElementInnerList.setTagId(tagId);
@@ -1048,6 +1048,10 @@ public class MyBatisGeneratorConfigurationParser {
         String relationKey = attributes.getProperty("relationKey");
         if (stringHasValue(relationKey)) {
             htmlElementInnerList.setRelationKey(relationKey);
+        }
+        String afterColumn = attributes.getProperty("afterColumn");
+        if (stringHasValue(afterColumn)) {
+            htmlElementInnerList.setAfterColumn(afterColumn);
         }
         htmlGeneratorConfiguration.setHtmlElementInnerListConfiguration(htmlElementInnerList);
     }
@@ -1162,6 +1166,22 @@ public class MyBatisGeneratorConfigurationParser {
         String elementCss = attributes.getProperty("elementCss");
         if (stringHasValue(elementCss)) {
             htmlElementDescriptor.setElementCss(elementCss);
+        }
+        String dateFmt = attributes.getProperty("dateFmt");
+        if (stringHasValue(dateFmt)) {
+            htmlElementDescriptor.setDateFmt(dateFmt);
+        }
+        String dateRange = attributes.getProperty("dateRange");
+        if (stringHasValue(dateRange) && "true".equals(dateRange)) {
+            htmlElementDescriptor.setDateRange(true);
+        }
+        String listKey = attributes.getProperty("listKey");
+        if (stringHasValue(listKey)) {
+            htmlElementDescriptor.setListKey(listKey);
+        }
+        String listViewClass = attributes.getProperty("listViewClass");
+        if (stringHasValue(listViewClass)) {
+            htmlElementDescriptor.setListViewClass(listViewClass);
         }
         return htmlElementDescriptor;
     }

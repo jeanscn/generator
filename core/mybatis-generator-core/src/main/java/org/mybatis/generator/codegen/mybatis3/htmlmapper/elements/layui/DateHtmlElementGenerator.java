@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -19,28 +20,25 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
 
 
-
-    public DateHtmlElementGenerator(GeneratorInitialParameters generatorInitialParameters,IntrospectedColumn introspectedColumn) {
-        super(generatorInitialParameters,introspectedColumn);
+    public DateHtmlElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
+        super(generatorInitialParameters, introspectedColumn);
     }
 
     @Override
     public void addHtmlElement(HtmlElement parent) {
-        HtmlElement input = generateHtmlInput(isReadonly(), false);
+        HtmlElement input = generateHtmlInput(true, false);
         parent.addElement(input);
         HtmlElement dateRead;
         if (!isReadonly()) {
-            String dateType = this.htmlElementDescriptor!=null && this.htmlElementDescriptor.getDataFormat() != null ? this.htmlElementDescriptor.getDataFormat() : null;
-            if (!StringUtility.stringHasValue(dateType)) {
-                if (introspectedColumn.getJdbcType()==93) {
-                    dateType = "datetime";
-                } else if (introspectedColumn.getJdbcType()==91) {
-                    dateType = "date";
-                } else if (introspectedColumn.getJdbcType()==92) {
-                    dateType = "time";
-                }
-            }
+            String dateType = Mb3GenUtil.getDateType(this.htmlElementDescriptor, introspectedColumn);
             input.addAttribute(new Attribute("lay-date", dateType));
+            //dateFmt
+            String dateFormat = Mb3GenUtil.getDateFormat(this.htmlElementDescriptor, introspectedColumn);
+            input.addAttribute(new Attribute("lay-date-format", dateFormat));
+            //range
+            if (this.htmlElementDescriptor != null && this.htmlElementDescriptor.isDateRange()) {
+                input.addAttribute(new Attribute("lay-date-range", "true"));
+            }
             input.addAttribute(new Attribute("readonly", "readonly"));
             input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
             addClassNameToElement(input, "layui-input");
@@ -48,10 +46,10 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
             if (htmlElementDescriptor != null && stringHasValue(this.htmlElementDescriptor.getCallback())) {
                 input.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
             }
-            addElementVerify(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
+            addElementVerify(introspectedColumn.getActualColumnName(), input, this.htmlElementDescriptor);
             parent.addAttribute(new Attribute("for-type", "lay-date"));
             dateRead = addDivWithClassToParent(parent, "oas-form-item-read");
-        }else{
+        } else {
             dateRead = addDivWithClassToParent(parent, "oas-form-item-readonly");
         }
         input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
@@ -75,11 +73,11 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
             sb.append("}?:_");
             return sb.toString();
         }
-        if (introspectedColumn.getJdbcType()==91) {
+        if (introspectedColumn.getJdbcType() == 91) {
             sb.append(introspectedColumn.getJavaProperty()).append(",'yyyy-MM-dd'):''}");
-        } else if (introspectedColumn.getJdbcType()==92) {
+        } else if (introspectedColumn.getJdbcType() == 92) {
             sb.append(introspectedColumn.getJavaProperty()).append(",'HH:mm:ss'):''}");
-        } else if (introspectedColumn.getJdbcType()==93) {
+        } else if (introspectedColumn.getJdbcType() == 93) {
             sb.append(introspectedColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
         }
         return sb.toString();

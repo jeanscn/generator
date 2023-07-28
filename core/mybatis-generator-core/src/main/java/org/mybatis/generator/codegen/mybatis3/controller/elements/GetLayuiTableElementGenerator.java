@@ -38,7 +38,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         listKey.setRemark("可选参数，列表配置标识");
         method.addParameter(listKey);
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
-                new FullyQualifiedJavaType("Layuitable<Object>"),
+                new FullyQualifiedJavaType("Layuitable"),
                 parentElement));
         method.setReturnRemark("layui table配置对象");
         method.addAnnotation(new RequestMappingDesc("lay-table-config", RequestMethod.GET),parentElement);
@@ -46,7 +46,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         commentGenerator.addMethodJavaDocLine(method, "根据ViewVO获得layui table配置对象");
         //函数体
         method.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
-        method.addBodyLine("Layuitable<Object> layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit,listKey);",
+        method.addBodyLine("Layuitable layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit,listKey);",
                 entityViewVoType.getShortName());
         method.addBodyLine("return success(layuitable);");
         parentElement.addMethod(method);

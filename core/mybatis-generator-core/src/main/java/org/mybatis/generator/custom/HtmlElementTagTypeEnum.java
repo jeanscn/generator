@@ -9,7 +9,9 @@ public enum HtmlElementTagTypeEnum {
     CHECKBOX(3, "checkbox"),
     SWITCH(4, "switch"),
     SELECT(5, "select"),
-    INPUT(6,"input");
+    INPUT(6,"input"),
+
+    DATE(7, "date"),;
 
     private final int value;
     private final String code;

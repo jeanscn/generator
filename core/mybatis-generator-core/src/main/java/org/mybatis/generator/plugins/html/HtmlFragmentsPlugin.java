@@ -9,6 +9,7 @@ import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJquery
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.InnerListViewConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
@@ -34,23 +35,15 @@ public class HtmlFragmentsPlugin extends PluginAdapter {
         List<InnerListViewConfiguration> innerListViewConfigurations = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
         if (innerListViewConfigurations != null && innerListViewConfigurations.size() > 0) {
             for (InnerListViewConfiguration innerListViewConfiguration : innerListViewConfigurations) {
-                HtmlGeneratorConfiguration htmlGeneratorConfiguration = innerListViewConfiguration.getHtmlGeneratorConfiguration();
-                String innerListFragmentsFileName;
-                if (htmlGeneratorConfiguration!=null) {
-                    innerListFragmentsFileName = htmlGeneratorConfiguration.getSimpleViewPath() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS+".html";
-                }else{
-                    innerListFragmentsFileName = introspectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS+".html";
-                }
-                if (VStringUtil.stringHasValue(innerListFragmentsFileName)) {
-                    GeneratedHtmlFragmentsFile generatedHtmlFragmentsFile = new GeneratedHtmlFragmentsFile(
-                            innerListFragmentsFileName,
-                            project,
-                            introspectedTable.getContext().getModuleKeyword()+"/fragments",
-                            introspectedTable,
-                            "app_html_fragments.html.ftl");
-                    generatedHtmlFragmentsFile.setInnerListViewConfiguration(innerListViewConfiguration);
-                    answer.add(generatedHtmlFragmentsFile);
-                }
+                String innerListFragmentsFileName = Mb3GenUtil.getHtmlInnerListFragmentFileName(innerListViewConfiguration,introspectedTable);
+                GeneratedHtmlFragmentsFile generatedHtmlFragmentsFile = new GeneratedHtmlFragmentsFile(
+                        innerListFragmentsFileName,
+                        project,
+                        introspectedTable.getContext().getModuleKeyword() + "/fragments",
+                        introspectedTable,
+                        "app_html_fragments.html.ftl");
+                generatedHtmlFragmentsFile.setInnerListViewConfiguration(innerListViewConfiguration);
+                answer.add(generatedHtmlFragmentsFile);
             }
         }
         return answer;

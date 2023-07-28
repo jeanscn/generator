@@ -9,7 +9,7 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private String listKey;
 
-    private String appKeyword;
+    private String moduleKeyword;
 
     private String tagId;
 
@@ -24,6 +24,8 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private String relationField;
 
     private String relationKey;
+
+    private String afterColumn;
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -71,12 +73,12 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.sourceBeanName = sourceBeanName;
     }
 
-    public String getAppKeyword() {
-        return appKeyword;
+    public String getModuleKeyword() {
+        return moduleKeyword;
     }
 
-    public void setAppKeyword(String appKeyword) {
-        this.appKeyword = appKeyword;
+    public void setModuleKeyword(String moduleKeyword) {
+        this.moduleKeyword = moduleKeyword;
     }
 
     public String getRelationField() {
@@ -101,5 +103,13 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setListKey(String listKey) {
         this.listKey = listKey;
+    }
+
+    public String getAfterColumn() {
+        return afterColumn;
+    }
+
+    public void setAfterColumn(String afterColumn) {
+        this.afterColumn = afterColumn;
     }
 }

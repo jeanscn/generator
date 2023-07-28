@@ -3,7 +3,7 @@
 ## 一、新增功能：
 * 1、innerListView元素增加listKey属性，用来唯一标识innerListView，允许一个表定义多个list配置。
         与之相对应的，htmlElementInnerList增加listKey属性，用来指定使用哪个innerListView。
-* 2、htmlElementInnerList元素增加appKeyword属性，当引用不同模块的列表时，指定模块的关键字。
+* 2、htmlElementInnerList元素增加moduleKeyword属性，当引用不同模块的列表时，指定模块的关键字。
 
 # 2023-7-15
 ## 一、新增功能：

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300719001-->
+        <!--version:1.5.0.2300726001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -255,9 +255,17 @@
         <!--
           The columnOverride element is used to change certain attributes of the column
           from their default values.
-          1、maxLength 列的最大长度，列长度应不大于数据中列的实际长度，同时在生成该字段的验证。
-          2、minLength 列的最小长度，列长度应大于1同时小于数据中列的实际长度，同时在生成该字段的验证。
-          3、columnComment 列的注释，用于生成字段的label、注释等。
+            属性信息：
+            1、column 列名
+            2、property 生成的属性名，如果不指定则使用列名。
+            3、javaType 生成的属性类型，如果不指定则使用数据库类型。
+            4、jdbcType 生成的属性对应的jdbc类型，如果不指定则使用数据库类型。
+            5、typeHandler 生成的属性对应的typeHandler，如果不指定则使用默认的typeHandler。
+            6、isGeneratedAlways 是否为自动生成列，用于生成字段的label、注释等。
+            7、delimitedColumnName 是否为自动生成列，用于生成字段的label、注释等。
+            8、maxLength 列的最大长度，列长度应不大于数据中列的实际长度，同时在生成该字段的验证。
+            9、minLength 列的最小长度，列长度应大于1同时小于数据中列的实际长度，同时在生成该字段的验证。
+            10、columnComment 列的注释，用于生成字段的label、注释等。
         -->
         <!ELEMENT columnOverride (property*)>
         <!ATTLIST columnOverride
@@ -528,9 +536,17 @@
             页面元素生成描述
             属性信息：
             1、column 数据库字段名
-            2、tagType 生成的类型，生成类型支持：dropdownlist、radio、checkbox、switch、select（弹窗选择）、input（为了指定特定属性，如增加验证verify）
+            2、tagType 生成的类型，生成类型支持：
+                            dropdownlist 下拉列表，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
+                            radio 单选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify
+                            checkbox 复选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify
+                            switch 开关，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、switchText
+                            select 弹窗选择，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
+                            input 输入框，为了指定特定属性，如增加验证verify、限制长度limit等
             3、dataUrl 数据接口请求地址
-            4、dataFormat 数据格式：启停|有无|是否|性别，可应用在radio、switch、dropdownlist；缓急|级别，仅在radio、dropdownlist时有效；
+            4、dataFormat 数据格式：  启停|有无|是否|性别，可应用在radio、switch、dropdownlist；
+                                    缓急|级别，仅在radio、dropdownlist时有效；
+                                    年|年月，仅在date时有效。
             5、dataSource 数据来源：  DictData-来自sys_dict_data
                                     Dict-来自指定beanName对应的表，如果该bean的SelectByKeysDict方法存在，则使用该方法,否则使用SelectByPrimaryKey方法。
                                         建议使用SelectByKeysDict方法，该方法是缓存数据，SelectByPrimaryKey存在性能问题。
@@ -541,6 +557,8 @@
                                     Organization-来自org_organization表缓存数据
                                     DictEnum-来自枚举类型
                                     DictModule-来自sys_cfg_module表缓存数据
+                                    InnerList - 引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
+                                                当指定为InnerList时，需要指定listKey（内嵌列表的标识）、listViewClass（内嵌列表的基类）。
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
             7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
             8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
@@ -566,6 +584,7 @@
             12、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
             13、labelCss 样式，用于指定生成的label的附加样式，如：display: none;width:100px;height:100px;等。
             14、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
+            15、dateFmt 日期格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -583,11 +602,11 @@
         <!ELEMENT htmlElementDescriptor EMPTY>
         <!ATTLIST htmlElementDescriptor
                 column CDATA #REQUIRED
-                tagType (dropdownlist|radio|checkbox|switch|select|input) #REQUIRED
+                tagType (dropdownlist|radio|checkbox|switch|select|input|date) #REQUIRED
                 dataUrl CDATA #IMPLIED
-                dataFormat (启停|有无|是否|性别|缓急|级别) #IMPLIED
+                dataFormat (启停|有无|是否|性别|缓急|级别|年|年月|日期|日期时间|时间) #IMPLIED
                 otherFieldName CDATA #IMPLIED
-                dataSource (DictData|Dict|DictSys|DictUser|DictModule|Organ|Department|User|DictEnum) #IMPLIED
+                dataSource (DictData|Dict|DictSys|DictUser|DictModule|Organ|Department|User|DictEnum|InnerList) #IMPLIED
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
                 verify (none|required|number|date|time|datetime|limit|phone|email|url|identity|amount) #IMPLIED
@@ -596,7 +615,11 @@
                 callback CDATA #IMPLIED
                 switchText CDATA #IMPLIED
                 labelCss CDATA #IMPLIED
-                elementCss CDATA #IMPLIED>
+                elementCss CDATA #IMPLIED
+                listKey CDATA #IMPLIED
+                listViewClass CDATA #IMPLIED
+                dateFmt CDATA #IMPLIED
+                dateRange (true|false) #IMPLIED>
 
         <!--
             为页面添加一个附件上传组件
@@ -630,7 +653,7 @@
         <!--
             用来描述页面列表元素的配置
             1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
-            2、appKeyword 应用标识，当引用的列表不在当前模块中时，需要指定对应的appKeyword，如果不指定则默认为当前context中的appKeyword
+            2、moduleKeyword 模块关键字，当引用的列表不在当前模块中时，需要指定列表所在模块的moduleKeyword，如果不指定则默认为当前context中的moduleKeyword
             3、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
             4、sourceBeanName 引用的源表的beanName，必须
             5、relationField 关联字段，必须，表示当前列表与源表的关联字段
@@ -646,7 +669,7 @@
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
                 listKey CDATA #IMPLIED
-                appKeyword CDATA #IMPLIED
+                moduleKeyword CDATA #IMPLIED
                 sourceViewPath CDATA #REQUIRED
                 sourceBeanName CDATA #REQUIRED
                 relationField CDATA #REQUIRED
@@ -959,6 +982,18 @@
                 enableEditFields CDATA #IMPLIED
                 editExtendsForm CDATA #IMPLIED>
 
+        <!--
+              内置列表列描述符，用于定制列表的列信息
+              属性信息：
+              1、field：属性名，必须
+              2、width：列宽，缺省值为不指定，自适应
+              3、minWidth：列最小宽度，缺省值为60
+              4、fixed：列固定，缺省值为left
+              5、templet：列模板，缺省值为无
+              6、style：列样式，缺省值为无
+              7、align：列对齐方式，缺省值为left
+              property配置：无
+        -->
         <!ELEMENT listColumnDescriptor (property*)>
         <!ATTLIST listColumnDescriptor
                 field CDATA #REQUIRED

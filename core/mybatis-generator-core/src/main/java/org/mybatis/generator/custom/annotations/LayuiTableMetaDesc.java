@@ -45,7 +45,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     public String toAnnotation() {
         items.clear();
         if(stringHasValue(value)){
-            return ANNOTATION_NAME + "(\"" + value + "\")";
+            items.add("value = \"" + value + "\"");
         }
         if (width > 0) {
             items.add("width = " + width);
@@ -62,10 +62,10 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (stringHasValue(title)) {
             items.add("title = \"" + title + "\"");
         }
-        if (stringHasValue(skin)) {
+        if (stringHasValue(skin) && !"grid".equals(skin)) {
             items.add("skin = \"" + skin + "\"");
         }
-        if (stringHasValue(size)) {
+        if (stringHasValue(size) && !"md".equals(size)) {
             items.add("size = \"" + size + "\"");
         }
         if (!even) {
@@ -74,17 +74,17 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (defaultToolbar.contains("NONE") && toolbar.contains("NONE")) {
             items.add("toolbar = \"false\"");
         } else {
-            if (defaultToolbar.size()>0) {
+            if (defaultToolbar.size()>0 && defaultToolbar.size()!=3) {
                 items.add("defaultToolbar = \"" + String.join(",", defaultToolbar) + "\"");
             }
-            if (toolbar.size()>0) {
+            if (toolbar.size()>0){
                 items.add("toolbar = \"" + String.join(",", toolbar) + "\"");
             }
         }
         if (actionColumn.size() > 0) {
             items.add("actionColumn = \"" + String.join(",", actionColumn) + "\"");
         }
-        if (stringHasValue(indexColumn)) {
+        if (stringHasValue(indexColumn) && !"CHECKBOX".equals(indexColumn)) {
             items.add("indexColumn = \"" + indexColumn + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";

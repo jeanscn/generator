@@ -44,6 +44,14 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String elementCss;
 
+    private String dateFmt;
+
+    private boolean dateRange = false;
+
+    private String listKey;
+
+    private String listViewClass;
+
     public HtmlElementDescriptor() {
     }
 
@@ -255,5 +263,37 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setElementCss(String elementCss) {
         this.elementCss = elementCss;
+    }
+
+    public String getDateFmt() {
+        return dateFmt;
+    }
+
+    public void setDateFmt(String dateFmt) {
+        this.dateFmt = dateFmt;
+    }
+
+    public boolean isDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(boolean dateRange) {
+        this.dateRange = dateRange;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
+    }
+
+    public String getListViewClass() {
+        return listViewClass;
+    }
+
+    public void setListViewClass(String listViewClass) {
+        this.listViewClass = listViewClass;
     }
 }
