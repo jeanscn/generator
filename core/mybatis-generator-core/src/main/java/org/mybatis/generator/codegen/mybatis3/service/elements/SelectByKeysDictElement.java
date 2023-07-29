@@ -55,7 +55,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         selectByKeysDictMethod.addBodyLine("List<{0}> result = mapper.{1}(selDictByKeysParam);"
                 , entityType.getShortName()
                 , introspectedTable.getSelectByKeysDictStatementId());
-        selectByKeysDictMethod.addBodyLine("if (result.size()>0) {");
+        selectByKeysDictMethod.addBodyLine("if (!result.isEmpty()) {");
         selectByKeysDictMethod.addBodyLine("return ServiceResult.success(mappings.to{0}CachePOs(result));"
                 , entityType.getShortName());
         selectByKeysDictMethod.addBodyLine("}else{");
