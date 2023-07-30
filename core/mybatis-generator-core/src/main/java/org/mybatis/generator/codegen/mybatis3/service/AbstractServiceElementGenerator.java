@@ -15,6 +15,8 @@ import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 public abstract class AbstractServiceElementGenerator extends AbstractGenerator {
 
+    protected JavaServiceImplGeneratorConfiguration serviceImplConfiguration;
+
     protected FullyQualifiedJavaType entityType;
 
     protected FullyQualifiedJavaType exampleType;
@@ -53,6 +55,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
 
     protected void initGenerator(){
         tc = introspectedTable.getTableConfiguration();
+        serviceImplConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         commentGenerator = context.getCommentGenerator();

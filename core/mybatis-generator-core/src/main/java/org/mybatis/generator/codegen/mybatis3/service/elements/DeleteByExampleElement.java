@@ -29,7 +29,6 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
 
         Method deleteByExampleMethod = serviceMethods.getDeleteByExampleMethod(parentElement, false);
         deleteByExampleMethod.addAnnotation("@Override");
-        deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
@@ -38,8 +37,10 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         List<RelationGeneratorConfiguration> collect = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());
-        if (collect.size() > 0) {
+        if (!collect.isEmpty()) {
+            deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             deleteByExampleMethod.addBodyLine("ServiceResult<List<{0}>> result = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+
             deleteByExampleMethod.addBodyLine("for ({0} {1} : result.getResult()) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, false);
             deleteByExampleMethod.addBodyLine("}");
@@ -47,7 +48,6 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
             deleteByExampleMethod.addBodyLine("if (affectedRows > 0) {");
             deleteByExampleMethod.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             deleteByExampleMethod.addBodyLine("}");
-            deleteByExampleMethod.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
             deleteByExampleMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         } else {
             deleteByExampleMethod.addBodyLine("return super.{0}(example);", introspectedTable.getDeleteByExampleStatementId());

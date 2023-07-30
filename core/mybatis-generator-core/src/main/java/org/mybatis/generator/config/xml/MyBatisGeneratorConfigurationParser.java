@@ -1112,6 +1112,12 @@ public class MyBatisGeneratorConfigurationParser {
                     htmlGeneratorConfiguration.getReadonlyFields().addAll(spiltToList(readonly));
                 }
                 break;
+            case PropertyRegistry.ANY_HTML_DISPLAY_ONLY_FIELDS:
+                String displayOnly = properties.get("value").toString();
+                if (stringHasValue(displayOnly)) {
+                    htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(spiltToList(displayOnly));
+                }
+                break;
         }
     }
 
@@ -1258,6 +1264,9 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(noServiceAnnotation)) {
             javaServiceImplGeneratorConfiguration.setNoServiceAnnotation(Boolean.parseBoolean(noServiceAnnotation));
         }
+
+
+
         tc.setJavaServiceImplGeneratorConfiguration(javaServiceImplGeneratorConfiguration);
 
         if (context.getJavaModelGeneratorConfiguration().getTargetPackage() != null) {
@@ -1272,6 +1281,12 @@ public class MyBatisGeneratorConfigurationParser {
         }
         parseAbstractConfigAttributes(attributes, javaServiceGeneratorConfiguration, node);
         parseAbstractConfigAttributes(attributes, javaServiceImplGeneratorConfiguration, node);
+        //更新javaServiceImplGeneratorConfiguration的entityEvent
+        String entityEvent = javaServiceImplGeneratorConfiguration.getProperty("entityEvent");
+        if (stringHasValue(entityEvent)) {
+            javaServiceImplGeneratorConfiguration.setEntityEvent(spiltToSet(entityEvent));
+        }
+
     }
 
     protected void parseGenerateController(Context context, TableConfiguration tc, Node node) {

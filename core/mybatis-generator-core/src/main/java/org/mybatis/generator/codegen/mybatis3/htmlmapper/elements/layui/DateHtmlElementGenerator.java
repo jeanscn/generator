@@ -8,7 +8,6 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -26,16 +25,16 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
 
     @Override
     public void addHtmlElement(HtmlElement parent) {
-        HtmlElement input = generateHtmlInput(true, false);
+        HtmlElement input = generateHtmlInput(isDisplayOnly(), false);
         parent.addElement(input);
         HtmlElement dateRead;
-        if (!isReadonly()) {
+        if (isDisplayOnly()) {
+            dateRead = addDivWithClassToParent(parent, "oas-form-item-readonly");
+        } else {
             String dateType = Mb3GenUtil.getDateType(this.htmlElementDescriptor, introspectedColumn);
             input.addAttribute(new Attribute("lay-date", dateType));
-            //dateFmt
             String dateFormat = Mb3GenUtil.getDateFormat(this.htmlElementDescriptor, introspectedColumn);
             input.addAttribute(new Attribute("lay-date-format", dateFormat));
-            //range
             if (this.htmlElementDescriptor != null && this.htmlElementDescriptor.isDateRange()) {
                 input.addAttribute(new Attribute("lay-date-range", "true"));
             }
@@ -49,8 +48,6 @@ public class DateHtmlElementGenerator extends AbstractLayuiElementGenerator {
             addElementVerify(introspectedColumn.getActualColumnName(), input, this.htmlElementDescriptor);
             parent.addAttribute(new Attribute("for-type", "lay-date"));
             dateRead = addDivWithClassToParent(parent, "oas-form-item-read");
-        } else {
-            dateRead = addDivWithClassToParent(parent, "oas-form-item-readonly");
         }
         input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
         dateRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));

@@ -13,7 +13,7 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     private String springBootApplicationClass;
 
-    private List<FormOptionGeneratorConfiguration> formOptionGeneratorConfigurations = new ArrayList<>();
+    private final List<FormOptionGeneratorConfiguration> formOptionGeneratorConfigurations = new ArrayList<>();
 
     private List<TreeViewCateGeneratorConfiguration> treeViewCateGeneratorConfigurations = new ArrayList<>();
 

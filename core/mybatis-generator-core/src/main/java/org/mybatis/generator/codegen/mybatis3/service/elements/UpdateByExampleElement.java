@@ -25,14 +25,12 @@ public class UpdateByExampleElement extends AbstractServiceElementGenerator {
         CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
         Method updateByExampleSelective = serviceMethods.getUpdateByExample(parentElement, false, true);
         updateByExampleSelective.addAnnotation("@Override");
-        updateByExampleSelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             updateByExampleSelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         updateByExampleSelective.addBodyLine("return super.{0}(record, example);", introspectedTable.getUpdateByExampleSelectiveStatementId());
         parentElement.addMethod(updateByExampleSelective);
-
 
         Method updateByExample = serviceMethods.getUpdateByExample(parentElement, false, false);
         updateByExample.addAnnotation("@Override");

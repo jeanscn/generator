@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -32,21 +33,27 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
 
         Method method = serviceMethods.getInsertBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
-        method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
-        if (configs.size() > 0) {
+        //增加PRE_INSERT事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+            method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_UPDATE.name());
+        }
+        if (!configs.isEmpty()) {
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             method.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "INSERT", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
             method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
-        method.addBodyLine("if (i > 0) return ServiceResult.success({0},i);",entityType.getShortNameFirstLowCase() + "s");
-        method.addBodyLine("else{");
-        if (configs.size() > 0) {
-            method.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
+        method.addBodyLine("if (i > 0) {");
+        //增加INSERTED事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.UPDATED.name());
         }
+        method.addBodyLine("return ServiceResult.success({0},i);",entityType.getShortNameFirstLowCase() + "s");
+        method.addBodyLine("}else{");
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
         method.addBodyLine("}");
         parentElement.addMethod(method);

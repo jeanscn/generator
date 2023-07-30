@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
@@ -32,7 +33,6 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         /* updateByPrimaryKeySelective */
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
-        updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             cacheAnnotationDesc.setKey("#record.id");
@@ -42,26 +42,29 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
+            updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             outSubBatchMethodBody(updateByPrimaryKeySelective, "UPDATE", "record", parentElement, configs, false);
-            updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
-                    , entityType.getShortName()
-                    , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+            if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()) || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+                overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+            }else{
+                updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
+                        , entityType.getShortName()
+                        , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+            }
             updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {\n" +
                     "            return result;\n" +
                     "        } else {\n" +
-                    "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
                     "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                     "        }");
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
-            updateByPrimaryKeySelective.addBodyLine("return super.{0}(record);", introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+            overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
         }
         parentElement.addMethod(updateByPrimaryKeySelective);
 
         /* updateByPrimaryKey */
         Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false, true);
         updateByPrimaryKey.addAnnotation("@Override");
-        updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             cacheAnnotationDesc.setKey("#record.id");
@@ -71,20 +74,46 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
+            updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             outSubBatchMethodBody(updateByPrimaryKey, "UPDATE", "record", parentElement, configs, false);
-            updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
-                    , entityType.getShortName()
-                    , introspectedTable.getUpdateByPrimaryKeyStatementId());
+            if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()) || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+                overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());
+            }else{
+                updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
+                        , entityType.getShortName()
+                        , introspectedTable.getUpdateByPrimaryKeyStatementId());
+            }
             updateByPrimaryKey.addBodyLine("if (result.hasResult()) {\n" +
                     "            return result;\n" +
                     "        } else {\n" +
-                    "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
                     "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                     "        }");
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
-            updateByPrimaryKey.addBodyLine("return super.{0}(record);", introspectedTable.getUpdateByPrimaryKeyStatementId());
+            overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());
         }
         parentElement.addMethod(updateByPrimaryKey);
+    }
+
+    /**
+     * 重写父类如下的方法。插入事件发布
+     */
+    private void  overwriteParentUpdate(Method method ,String methodName){
+        method.addBodyLine("try {");
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+            method.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
+        }
+        method.addBodyLine("int i = mapper.{0}(record);",methodName);
+        method.addBodyLine("if (i > 0) {");
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+            method.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+        }
+        method.addBodyLine("return ServiceResult.success(record,i);");
+        method.addBodyLine("} else {");
+        method.addBodyLine(" return ServiceResult.failure(ServiceCodeEnum.WARN);");
+        method.addBodyLine("}");
+        method.addBodyLine("} catch (Exception e) {");
+        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.RUNTIME_ERROR, e);");
+        method.addBodyLine("}");
     }
 }

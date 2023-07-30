@@ -8,6 +8,9 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.StringUtility;
 
 public abstract class AbstractGenerator {
+    //一些常量
+    public static final String PUBLISHER_FIELD_NAME = "publisher";
+
     protected Context context;
     protected IntrospectedTable introspectedTable;
     protected List<String> warnings;

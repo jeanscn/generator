@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -32,18 +33,25 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
 
         Method insertSelectiveMethod = serviceMethods.getInsertMethod(parentElement, false, true,true);
         insertSelectiveMethod.addAnnotation("@Override");
-        insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         List<RelationGeneratorConfiguration> configs1 = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
-        if (configs1.size() > 0) {
+        if (!configs1.isEmpty()) {
+            insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
+        }
+        //增加PRE_INSERT事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+            insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
         }
         insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
         insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
+        //增加INSERTED事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+            insertSelectiveMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+        }
         insertSelectiveMethod.addBodyLine("return serviceResult;");
         insertSelectiveMethod.addBodyLine("} else {\n" +
-                "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
                 "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
                 "        }");
         parentElement.addMethod(insertSelectiveMethod);

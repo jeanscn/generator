@@ -96,8 +96,6 @@ public class Context extends PropertyHolder {
 
     protected Map<String, String> moduleDataScriptLines = new LinkedHashMap<>();
 
-    protected File moduleDataSqlFile;
-
     public Context(ModelType defaultModelType) {
         super();
         if (defaultModelType == null) {

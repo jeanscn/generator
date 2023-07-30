@@ -169,4 +169,11 @@ public abstract class AbstractHtmlElementGenerator extends AbstractGenerator imp
     protected boolean isReadonly(){
         return this.htmlGeneratorConfiguration.getReadonlyFields().contains(introspectedColumn.getJavaProperty());
     }
+    protected boolean isHidden(){
+        return this.htmlGeneratorConfiguration.getHiddenColumnNames().contains(introspectedColumn.getActualColumnName());
+    }
+
+    protected boolean isDisplayOnly(){
+        return this.htmlGeneratorConfiguration.getDisplayOnlyFields().contains(introspectedColumn.getJavaProperty());
+    }
 }

@@ -131,6 +131,10 @@ public class TableConfiguration extends PropertyHolder {
 
     private final Set<IntrospectedColumn> htmlHiddenColumns = new HashSet<>();
 
+    private final Set<String> htmlReadonlyFields = new HashSet<>();
+
+    private final Set<String> htmlDisplayOnlyFields = new HashSet<>();
+
     private final Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
 
     private final Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
@@ -720,14 +724,22 @@ public class TableConfiguration extends PropertyHolder {
         return htmlHiddenColumns;
     }
 
-    public void reprocessConfiguration(List<String> warnings, IntrospectedTable introspectedTable,Context context) {
+    public Set<String> getHtmlReadonlyFields() {
+        return htmlReadonlyFields;
+    }
+
+    public Set<String> getHtmlDisplayOnlyFields() {
+        return htmlDisplayOnlyFields;
+    }
+
+    public void reprocessConfiguration(List<String> warnings, IntrospectedTable introspectedTable, Context context) {
         //根据配置更新introspectedTable的voModelType、voCreateType属性
         updateVoModelType(introspectedTable);
 
         //更新TC与表结构相关的自定义属性
         updateTableConfiguration(introspectedTable);
-        //更新context、table中隐藏列名列表，计算隐藏列
-        calculateHiddenColumns(introspectedTable);
+        //更新context、table中隐藏列名htmlHiddenColumns 列表，计算隐藏列，只读列htmlReadonlyFields和只显示htmlDisplayOnlyFields列
+        calculateHiddenReadDisplayonlyColumns(introspectedTable);
         //更新context、table中的readonly字段名列表
         calculateReadonlyColumns(introspectedTable);
         //对指定了dataFormat的快捷配置进行转换
@@ -791,6 +803,10 @@ public class TableConfiguration extends PropertyHolder {
         });
     }
 
+    /**
+     * 更新introspectedTable的VoModel和VoCreate属性的类名，用于生成TableMeta的参数
+     * @param introspectedTable introspectedTable对象
+     */
     private void updateVoModelType(IntrospectedTable introspectedTable) {
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoModelConfiguration() != null) {
             introspectedTable.setVoModelType(this.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType());
@@ -937,25 +953,24 @@ public class TableConfiguration extends PropertyHolder {
      * 2、所有HtmlMapGeneratorConfiguration的hiddenColumnNames
      * 3、所有HtmlMapGeneratorConfiguration的elementRequired
      */
-    private void calculateHiddenColumns(IntrospectedTable introspectedTable) {
-        String property = introspectedTable.getContext().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        final Set<String> hiddenColumnNames = new HashSet<>();
-        if (stringHasValue(property)) {
-            hiddenColumnNames.addAll(spiltToSet(property));
-        }
-        String property1 = introspectedTable.getTableConfiguration().getProperty(PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        if (stringHasValue(property1)) {
-            hiddenColumnNames.addAll(spiltToSet(property1));
-        }
+    private void calculateHiddenReadDisplayonlyColumns(IntrospectedTable introspectedTable) {
+        Set<String> hiddenColumnNames = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
         Set<IntrospectedColumn> columnSet = hiddenColumnNames.parallelStream().map(columnName -> {
             Optional<IntrospectedColumn> column = introspectedTable.getColumn(columnName);
             return column.orElse(null);
         }).filter(Objects::nonNull).collect(Collectors.toSet());
         this.getHtmlHiddenColumns().addAll(columnSet);
-
         //html的隐藏列
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumnNames().addAll(hiddenColumnNames));
+        //html只读列
+        Set<String> readOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_READONLY_FIELDS);
+        this.getHtmlMapGeneratorConfigurations()
+                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getReadonlyFields().addAll(readOnlyFields));
+        //html只显示列
+        Set<String> displayOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_DISPLAY_ONLY_FIELDS);
+        this.getHtmlMapGeneratorConfigurations()
+                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(displayOnlyFields));
         //html的必填列
         introspectedTable.getAllColumns().forEach(column -> this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> {
@@ -967,6 +982,19 @@ public class TableConfiguration extends PropertyHolder {
                         htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
                     }
                 }));
+    }
+
+    private Set<String> getHtmlAnyProperties(IntrospectedTable introspectedTable, String propertyName) {
+        Set<String> properties = new HashSet<>();
+        String contextProperty = introspectedTable.getContext().getProperty(propertyName);
+        if (stringHasValue(contextProperty)) {
+            properties.addAll(spiltToSet(contextProperty));
+        }
+        String tableProperty = introspectedTable.getTableConfiguration().getProperty(propertyName);
+        if (stringHasValue(tableProperty)) {
+            properties.addAll(spiltToSet(tableProperty));
+        }
+        return properties;
     }
 
     /**

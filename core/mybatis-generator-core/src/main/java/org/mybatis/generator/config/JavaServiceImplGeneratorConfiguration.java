@@ -2,13 +2,17 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorConfiguration {
 
     private boolean noServiceAnnotation;
 
     private boolean generateUnitTest;
+
+    private Set<String> entityEvent = new HashSet<>();
 
     public JavaServiceImplGeneratorConfiguration(Context context) {
         super(context);
@@ -34,6 +38,14 @@ public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorC
 
     public void setGenerateUnitTest(boolean generateUnitTest) {
         this.generateUnitTest = generateUnitTest;
+    }
+
+    public Set<String> getEntityEvent() {
+        return entityEvent;
+    }
+
+    public void setEntityEvent(Set<String> entityEvent) {
+        this.entityEvent = entityEvent;
     }
 
     @Override

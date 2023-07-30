@@ -27,6 +27,7 @@ public class SelectByPrimaryKeysElement extends AbstractServiceElementGenerator 
     public void addElements(TopLevelClass parentElement) {
         Method method = serviceMethods.getSelectByMultiStringIdsMethod(parentElement, false);
         parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
+        method.addAnnotation("@Override");
         //方法体
         method.addBodyLine("if (!VStringUtil.stringHasValue(ids)) {");
         method.addBodyLine("return this.selectByExample(new {0}Example()).getResult();",entityType.getShortName());

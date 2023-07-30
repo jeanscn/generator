@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -14,7 +15,9 @@ import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +27,14 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     public static final String SUFFIX_INSERT_UPDATE_BATCH = "InsertUpdateBatch";
+    private static final String APPLICATION_EVENT_PUBLISHER = "com.vgosoft.core.event.entity.EntityEventPublisher";
 
     TableConfiguration tc;
     FullyQualifiedJavaType entityType;
     FullyQualifiedJavaType exampleType;
     List<RelationGeneratorConfiguration> relationConfigurations;
+
+    private JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration;
 
     public JavaServiceImplGenerator(String project) {
         super(project);
@@ -37,7 +43,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         tc = introspectedTable.getTableConfiguration();
-        JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
+        javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.38", table.toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
@@ -71,7 +77,19 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             Field mapperProperty = getMapperProperty();
             bizGenClazzImpl.addField(mapperProperty);
             bizGenClazzImpl.addImportedType(mapperProperty.getType());
+            bizGenClazzImpl.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
+
+        //注入publisher
+        if (!javaServiceImplGeneratorConfiguration.getEntityEvent().isEmpty()) {
+            Field publisher = new Field(PUBLISHER_FIELD_NAME, new FullyQualifiedJavaType(APPLICATION_EVENT_PUBLISHER));
+            publisher.setVisibility(JavaVisibility.PROTECTED);
+            publisher.addAnnotation("@Autowired");
+            bizGenClazzImpl.addField(publisher);
+            bizGenClazzImpl.addImportedType(publisher.getType());
+            bizGenClazzImpl.addImportedType(Autowired.class.getCanonicalName());
+        }
+
         //增加构造器
         Method constructor = new Method(bizGenClazzImpl.getType().getShortName());
         constructor.setVisibility(JavaVisibility.PUBLIC);
@@ -80,6 +98,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         constructor.addBodyLine("super(mapper);");
         constructor.addBodyLine("this.mapper = mapper;");
         bizGenClazzImpl.addMethod(constructor);
+
 
         /*
          * insertBatch
@@ -284,7 +303,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      */
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
+                && (relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new InsertElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -292,7 +313,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addInsertSelectiveElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)) {
+                && (relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))){
             AbstractServiceElementGenerator elementGenerator = new InsertSelectiveElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -310,7 +333,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addDeleteByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByPrimaryKey()
                 && (introspectedTable.getRules().isGenerateCachePO()
-                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete))) {
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete)
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name()))) {
             AbstractServiceElementGenerator elementGenerator = new DeleteByPrimaryKeyElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -328,7 +353,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
                 && (introspectedTable.getRules().isGenerateCachePO()
-                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new UpdateByPrimaryKeyElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

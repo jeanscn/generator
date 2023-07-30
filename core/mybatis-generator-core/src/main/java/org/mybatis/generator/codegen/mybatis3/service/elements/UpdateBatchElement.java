@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -37,22 +38,27 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
-        method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableUpdate)
                 .collect(Collectors.toList());
-        if (configs.size() > 0) {
+        if (!configs.isEmpty()) {
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             method.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "UPDATE", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
             method.addBodyLine("}");
         }
+        //增加update事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.PRE_UPDATE.name());
+        }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getUpdateBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("if (i > 0) {");
+        //增加update事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.UPDATED.name());
+        }
         method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("}else{");
-        if (configs.size() > 0) {
-            method.addBodyLine("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
-        }
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
         method.addBodyLine("}");
         parentElement.addMethod(method);

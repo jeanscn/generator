@@ -27,7 +27,6 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class JavaControllerGenerator extends AbstractJavaGenerator {
-
     public JavaControllerGenerator(String project) {
         super(project);
     }
@@ -88,6 +87,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setFinal(true);
         conTopClazz.addField(field);
+
+
 
         //构造器
         Method method = new Method(controllerName);
@@ -333,7 +334,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             buildExample.addBodyLine("return example;");
         }
 
-        if (buildExample.getBodyLines().size() == 0) {
+        if (buildExample.getBodyLines().isEmpty()) {
             buildExample.addBodyLine("return new {0}();", exampleType.getShortName());
         }
         conTopClazz.addMethod(buildExample);
@@ -365,12 +366,13 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addImportedType(bizInfType);
         conMethod.setConstructor(true);
         conMethod.setVisibility(JavaVisibility.PUBLIC);
+
         if (introspectedTable.getRules().isGenerateAnyVO()) {
             conSubTopClazz.addImportedType(entityMappings);
             conMethod.addParameter(new Parameter(entityMappings, "mappings"));
-            conMethod.addBodyLine("super({0}, mappings);", introspectedTable.getControllerBeanName());
+            conMethod.addBodyLine("super({0}, mappings{1});", introspectedTable.getControllerBeanName());
         } else {
-            conMethod.addBodyLine("super({0});", introspectedTable.getControllerBeanName());
+            conMethod.addBodyLine("super({0}{1});", introspectedTable.getControllerBeanName());
         }
         conSubTopClazz.addMethod(conMethod);
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName);

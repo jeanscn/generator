@@ -1,20 +1,10 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.config.ConfigUtil;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -30,10 +20,14 @@ public class InputHtmlElementGenerator extends AbstractLayuiElementGenerator {
     @Override
     public void addHtmlElement(HtmlElement parent) {
         boolean isTextArea = introspectedColumn.getLength() > 500;
-        HtmlElement input = generateHtmlInput(isReadonly(), isTextArea);
+        HtmlElement input = generateHtmlInput(isDisplayOnly(), isTextArea);
         parent.addElement(input);
         HtmlElement dRead;
-        if (!isReadonly()) {
+        if (isDisplayOnly()) {
+            input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
+            input.addAttribute(new Attribute("readonly", "readonly"));
+            dRead = addDivWithClassToParent(parent, "oas-form-item-readonly");
+        } else {
             this.addElementVerify(introspectedColumn.getActualColumnName(), input, this.htmlElementDescriptor);
             if (isTextArea) {
                 addClassNameToElement(input, "layui-textarea");
@@ -42,17 +36,15 @@ public class InputHtmlElementGenerator extends AbstractLayuiElementGenerator {
                 addClassNameToElement(input, "layui-input");
                 input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
             }
+            if (isReadonly()) {
+                input.addAttribute(new Attribute("readonly", "readonly"));
+            }
             input.addAttribute(new Attribute("autocomplete", "off"));
             input.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
             addClassNameToElement(input, "oas-form-item-edit");
             dRead = addDivWithClassToParent(parent, "oas-form-item-read");
-            dRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
-        } else {
-            input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
-            dRead = addDivWithClassToParent(parent, "oas-form-item-readonly");
-            dRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         }
-
+        dRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
             voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());

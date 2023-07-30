@@ -86,29 +86,24 @@ public class PropertyRegistry {
     public static final String ANY_TARGET_PACKAGE = "targetPackage";
     public static final String ANY_TARGET_SUB_PACKAGE = "targetSubPackage";
     public static final String ANY_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
+    public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
+    public static final String ANY_HTML_READONLY_FIELDS = "htmlReadonlyFields";
+    public static final String ANY_HTML_DISPLAY_ONLY_FIELDS = "htmlDisplayOnlyFields";
     public static final String ANY_EQUALS_AND_HASH_CODE = "equalsAndHashCodeColumns";
-
     public static final String CONTROLLER_ENABLE_SYSLOG_ANNOTATION = "enableSysLogAnnotation";
     public static final String ANY_NO_SWAGGER_ANNOTATION = "noSwaggerAnnotation";
     public static final String SERVICE_NO_SERVICE_ANNOTATION = "noServiceAnnotation";
     public static final String ANY_NO_META_ANNOTATION = "noMetaAnnotation";
-
     public static final String TABLE_VIEW_PATH = "viewPath";
     public static final String TABLE_HTML_FIE_SUFFIX = "html";
     public static final String TABLE_OVERRIDE_HTML_FILE = "overWriteHtmlFile";
-
     public static final String TABLE_OVERRIDE_JS_FILE = "overWriteJsFile";
-
     public static final String TABLE_OVERRIDE_CSS_FILE = "overWriteCssFile";
-    public static final String TABLE_HTML_REQUIRED_COLUMNS = "htmlElementRequired";
-
-    public static final String ANY_HTML_READONLY_FIELDS = "htmlReadonlyFields";
     public static final String TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE = "javaModelByteStreamOutputMode";
     public static final String TABLE_ENABLE_UPDATE_BATCH = "enableUpdateBatch";
     public static final String TABLE_ENABLE_INSERT_BATCH = "enableInsertBatch";
     public static final String TABLE_ENABLE_INSERT_OR_UPDATE = "enableInsertOrUpdate";
     public static final String TABLE_ENABLE_FILE_UPLOAD = "enableFileUpLoad";
-
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
 
     public static final String ELEMENT_HTML_ELEMENT_INNER_LIST = "htmlElementInnerList";

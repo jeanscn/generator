@@ -21,16 +21,18 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean overWriteJsFile;
 
-    private Set<String> hiddenColumnNames = new HashSet<>();
+    private final Set<String> hiddenColumnNames = new HashSet<>();
 
-    private Set<String> readonlyFields = new HashSet<>();
+    private final Set<String> readonlyFields = new HashSet<>();
 
-    private Set<IntrospectedColumn> hiddenColumns = new HashSet<>();
+    private final Set<String> displayOnlyFields = new HashSet<>();
+
+    private final Set<IntrospectedColumn> hiddenColumns = new HashSet<>();
 
     //指定页面表单不允许为空的字段
-    private Set<String> elementRequired = new HashSet<>();
+    private final Set<String> elementRequired = new HashSet<>();
 
-    private List<HtmlElementDescriptor> elementDescriptors = new ArrayList<>();
+    private final List<HtmlElementDescriptor> elementDescriptors = new ArrayList<>();
 
     private HtmlLayoutDescriptor layoutDescriptor;
 
@@ -40,7 +42,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration;
 
-    private List<HtmlApprovalCommentConfiguration> htmlApprovalCommentConfigurations = new ArrayList<>();
+    private final List<HtmlApprovalCommentConfiguration> htmlApprovalCommentConfigurations = new ArrayList<>();
 
     public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
@@ -100,32 +102,20 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         return hiddenColumnNames;
     }
 
-    public void setHiddenColumnNames(Set<String> hiddenColumnNames) {
-        this.hiddenColumnNames = hiddenColumnNames;
-    }
-
     public Set<IntrospectedColumn> getHiddenColumns() {
         return hiddenColumns;
-    }
-
-    public void setHiddenColumns(Set<IntrospectedColumn> hiddenColumns) {
-        this.hiddenColumns = hiddenColumns;
     }
 
     public Set<String> getElementRequired() {
         return elementRequired;
     }
 
-    public void setElementRequired(Set<String> elementRequired) {
-        this.elementRequired = elementRequired;
+    public Set<String> getDisplayOnlyFields() {
+        return displayOnlyFields;
     }
 
     public List<HtmlElementDescriptor> getElementDescriptors() {
         return elementDescriptors;
-    }
-
-    public void setElementDescriptors(List<HtmlElementDescriptor> elementDescriptors) {
-        this.elementDescriptors = elementDescriptors;
     }
 
     public HtmlLayoutDescriptor getLayoutDescriptor() {
@@ -185,7 +175,4 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         return readonlyFields;
     }
 
-    public void setReadonlyFields(Set<String> readonlyFields) {
-        this.readonlyFields = readonlyFields;
-    }
 }

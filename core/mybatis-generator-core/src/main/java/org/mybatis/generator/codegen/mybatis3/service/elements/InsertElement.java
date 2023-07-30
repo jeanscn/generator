@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -32,20 +33,27 @@ public class InsertElement extends AbstractServiceElementGenerator {
 
         Method insertMethod = serviceMethods.getInsertMethod(parentElement, false, false,true);
         insertMethod.addAnnotation("@Override");
-        insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
-        if (configs.size() > 0) {
+        if (!configs.isEmpty()) {
+            insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
+        }
+        //增加PRE_UPDATE事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+            insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
         }
         insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
         insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
+        //增加UPDATED事件发布
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+            insertMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+        }
         insertMethod.addBodyLine("return serviceResult;");
-        insertMethod.addBodyLine("} else {\n" +
-                "            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();\n" +
-                "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
-                "        }");
+        insertMethod.addBodyLine("} else {");
+        insertMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
+        insertMethod.addBodyLine("}");
         parentElement.addMethod(insertMethod);
     }
 }
