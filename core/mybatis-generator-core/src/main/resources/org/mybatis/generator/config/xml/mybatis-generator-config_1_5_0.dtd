@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300728001-->
+        <!--version:1.5.0.2300801001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -183,6 +183,7 @@
           property配置：
             1、rootClass 指定生成对象的父类全类名
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
+            3、processDefinedKey 流程定义的key。当父类指定为流程类抽象类的时候，可以指定本参数，如果不为空，则会生成流程定义数据sql
             3、superInterface 对象实现的接口全类名，多值”,“分割
             4、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             5、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
@@ -501,7 +502,7 @@
             7、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
             可能的property配置：
             1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
-            2、htmlElementRequired 页面文件中必填的列，多个”,“分隔。
+            2、requiredColumns 页面文件中必填的列，多个”,“分隔。
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
         -->
@@ -971,7 +972,9 @@
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
            property配置：
-            1、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
+            1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
+            2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
+            3、requiredColumns 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
        -->
         <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*)>
         <!ATTLIST innerListView
@@ -987,10 +990,8 @@
                 actionColumn CDATA #IMPLIED
                 toolbar CDATA #IMPLIED
                 defaultToolbar CDATA #IMPLIED
-                defaultDisplayFields CDATA #IMPLIED
-                defaultHiddenFields CDATA #IMPLIED
-                enableEditFields CDATA #IMPLIED
-                editExtendsForm CDATA #IMPLIED>
+                editExtendsForm CDATA #IMPLIED
+                defaultDisplayFields CDATA #IMPLIED>
 
         <!--
               内置列表列描述符，用于定制列表的列信息

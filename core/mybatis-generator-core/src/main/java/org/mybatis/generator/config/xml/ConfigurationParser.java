@@ -206,10 +206,14 @@ public class ConfigurationParser {
             PluginConfiguration fieldJsonFormatPlugin = new PluginConfiguration();
             fieldJsonFormatPlugin.setConfigurationType("org.mybatis.generator.plugins.FieldJsonFormatPlugin");
             context.addPluginConfiguration(fieldJsonFormatPlugin);
-            //注解 - ViewMeta、layuiTable
+            //注解 - ViewMeta
             PluginConfiguration viewMetaAnnotationPlugin  = new PluginConfiguration();
             viewMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.ViewMetaAnnotationPlugin");
             context.addPluginConfiguration(viewMetaAnnotationPlugin);
+            //注解 - LayuiTableMeta、LayuiTableColumnMeta
+            PluginConfiguration layuiTableMetaAnnotationPlugin  = new PluginConfiguration();
+            layuiTableMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.LayuiTableMetaAnnotationPlugin");
+            context.addPluginConfiguration(layuiTableMetaAnnotationPlugin);
             //注解 - EasyExcel
             PluginConfiguration easyExcelAnnotationPlugin  = new PluginConfiguration();
             easyExcelAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.EasyExcelAnnotationPlugin");

@@ -23,10 +23,10 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2023-04-13 17:29
  * @version 3.0
  */
-public class SelectElementGenerator extends AbstractLayuiElementGenerator{
+public class SelectElementGenerator extends AbstractLayuiElementGenerator {
 
     public SelectElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
-        super(generatorInitialParameters,introspectedColumn);
+        super(generatorInitialParameters, introspectedColumn);
     }
 
     @Override
@@ -34,16 +34,16 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         String dataSource = this.htmlElementDescriptor.getDataSource();
         String otherFieldName = this.htmlElementDescriptor.getOtherFieldName();
         String javaProperty = introspectedColumn.getJavaProperty();
-        HtmlElement input = generateHtmlInput(otherFieldName, false, false,true,false);
+        HtmlElement input = generateHtmlInput(otherFieldName, false, false, true, false);
         input.addAttribute(new Attribute("readonly", "readonly"));
         addClassNameToElement(input, "layui-input");
         input.addAttribute(new Attribute("data-field", javaProperty));
-        addElementVerify(introspectedColumn.getActualColumnName(), input,this.htmlElementDescriptor);
+        addElementVerify(introspectedColumn.getActualColumnName(), input, this.htmlElementDescriptor);
         input.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
         input.addAttribute(new Attribute("for-type", "lay-select"));
         input.addAttribute(new Attribute("data-type", dataSource));
         addClassNameToElement(input, "oas-form-item-edit");
-        addDataUrl(input,htmlElementDescriptor,null);
+        addDataUrl(input, htmlElementDescriptor, null);
         if (htmlElementDescriptor != null && HtmlElementDataSourceEnum.INNER_TABLE.getCode().equals(dataSource)) {
             input.addAttribute(new Attribute("data-list-key", htmlElementDescriptor.getListKey()));
             input.addAttribute(new Attribute("data-list-view-class", htmlElementDescriptor.getListViewClass()));
@@ -52,7 +52,7 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
             voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
         }
-        if (this.htmlElementDescriptor!=null && stringHasValue(this.htmlElementDescriptor.getCallback())) {
+        if (this.htmlElementDescriptor != null && stringHasValue(this.htmlElementDescriptor.getCallback())) {
             input.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
         }
         parent.addElement(input);
@@ -66,19 +66,19 @@ public class SelectElementGenerator extends AbstractLayuiElementGenerator{
             input.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
             divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
         }
-        //增加一个隐藏字段
-        HtmlElement hidden = new HtmlElement("input");
-        hidden.addAttribute(new Attribute("type", "hidden"));
+        //如果有映射字段，增加一个隐藏字段
         if (!this.htmlElementDescriptor.getOtherFieldName().equals(introspectedColumn.getJavaProperty())) {
+            HtmlElement hidden = new HtmlElement("input");
             hidden.addAttribute(new Attribute("id", this.htmlElementDescriptor.getColumn().getJavaProperty()));
+            hidden.addAttribute(new Attribute("type", "hidden"));
+            hidden.addAttribute(new Attribute("name", this.htmlElementDescriptor.getColumn().getJavaProperty()));
+            hidden.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
+            parent.addElement(hidden);
         }
-        hidden.addAttribute(new Attribute("name", this.htmlElementDescriptor.getColumn().getJavaProperty()));
-        hidden.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
-        parent.addElement(hidden);
     }
 
     @Override
     public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
-        return  thymeleafValue(scope);
+        return thymeleafValue(scope);
     }
 }

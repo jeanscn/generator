@@ -370,9 +370,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         if (introspectedTable.getRules().isGenerateAnyVO()) {
             conSubTopClazz.addImportedType(entityMappings);
             conMethod.addParameter(new Parameter(entityMappings, "mappings"));
-            conMethod.addBodyLine("super({0}, mappings{1});", introspectedTable.getControllerBeanName());
+            conMethod.addBodyLine("super({0}, mappings);", introspectedTable.getControllerBeanName());
         } else {
-            conMethod.addBodyLine("super({0}{1});", introspectedTable.getControllerBeanName());
+            conMethod.addBodyLine("super({0});", introspectedTable.getControllerBeanName());
         }
         conSubTopClazz.addMethod(conMethod);
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName);

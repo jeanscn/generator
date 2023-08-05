@@ -258,6 +258,10 @@ public interface Rules {
 
     boolean isGenerateViewVO();
 
+    boolean isGenerateEventListener();
+
+    boolean isGenerateWfEventListener();
+
     boolean isGenerateInnerTable();
 
     boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration);

@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
 import org.mybatis.generator.codegen.mybatis3.controller.JavaControllerGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateHtmlFiles;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.AnnotatedClientGenerator;
@@ -20,6 +21,8 @@ import org.mybatis.generator.codegen.mybatis3.model.BaseRecordGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.ExampleGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.PrimaryKeyGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.RecordWithBLOBsGenerator;
+import org.mybatis.generator.codegen.mybatis3.other.JavaEntityListenerGenerator;
+import org.mybatis.generator.codegen.mybatis3.other.JavaFlowableListenerGenerator;
 import org.mybatis.generator.codegen.mybatis3.po.CachePoClassGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
@@ -208,6 +211,18 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             JavaServiceImplGenerator javaServiceImplGenerator = new JavaServiceImplGenerator(getServiceProject());
             initializeAbstractGenerator(javaServiceImplGenerator, warnings, progressCallback);
             javaGenerators.add(javaServiceImplGenerator);
+
+            if (getRules().isGenerateEventListener()) {
+                JavaEntityListenerGenerator javaEventListenerGenerator = new JavaEntityListenerGenerator(getServiceProject());
+                initializeAbstractGenerator(javaEventListenerGenerator, warnings, progressCallback);
+                javaGenerators.add(javaEventListenerGenerator);
+            }
+
+            if (getRules().isGenerateWfEventListener()) {
+                JavaFlowableListenerGenerator javaWfEventListenerGenerator = new JavaFlowableListenerGenerator(getServiceProject());
+                initializeAbstractGenerator(javaWfEventListenerGenerator, warnings, progressCallback);
+                javaGenerators.add(javaWfEventListenerGenerator);
+            }
 
             if (getRules().isGenerateServiceUnitTest()) {
                 JavaServiceUnitTestGenerator javaServiceUnitTestGenerator = new JavaServiceUnitTestGenerator("src/test/java");

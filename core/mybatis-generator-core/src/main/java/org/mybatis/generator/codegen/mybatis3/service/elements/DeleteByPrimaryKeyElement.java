@@ -48,7 +48,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("if (result.hasResult()) {");
             //增加PRE_DELETE事件发布
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
-                method.addBodyLine("publisher.publishClassEvent({0}.class, result.getResult(),EntityEventEnum.{2});",entityType.getShortName(), EntityEventEnum.PRE_DELETE.name());
+                method.addBodyLine("publisher.publishClassEvent({0}.class, result.getResult(),EntityEventEnum.{1});",entityType.getShortName(), EntityEventEnum.PRE_DELETE.name());
             }
             method.addBodyLine("{0} {1} = result.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, false);

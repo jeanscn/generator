@@ -46,7 +46,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         commentGenerator.addMethodJavaDocLine(method, "根据ViewVO获得layui table配置对象");
         //函数体
         method.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
-        method.addBodyLine("Layuitable layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit,listKey);",
+        method.addBodyLine("Layuitable layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit,listKey,null);",
                 entityViewVoType.getShortName());
         method.addBodyLine("return success(layuitable);");
         parentElement.addMethod(method);

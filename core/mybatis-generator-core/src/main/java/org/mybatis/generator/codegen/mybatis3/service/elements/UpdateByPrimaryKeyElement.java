@@ -50,12 +50,12 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                         , entityType.getShortName()
                         , introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+                updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {\n" +
+                        "            return result;\n" +
+                        "        } else {\n" +
+                        "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+                        "        }");
             }
-            updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {\n" +
-                    "            return result;\n" +
-                    "        } else {\n" +
-                    "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
-                    "        }");
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
             overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
@@ -82,12 +82,12 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                         , entityType.getShortName()
                         , introspectedTable.getUpdateByPrimaryKeyStatementId());
+                updateByPrimaryKey.addBodyLine("if (result.hasResult()) {\n" +
+                        "            return result;\n" +
+                        "        } else {\n" +
+                        "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+                        "        }");
             }
-            updateByPrimaryKey.addBodyLine("if (result.hasResult()) {\n" +
-                    "            return result;\n" +
-                    "        } else {\n" +
-                    "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
-                    "        }");
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
             overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());

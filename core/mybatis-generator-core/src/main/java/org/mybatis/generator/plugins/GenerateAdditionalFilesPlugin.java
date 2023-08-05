@@ -5,6 +5,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysMenuScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysModuleScriptGenerator;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataWfProcTypeScriptGenerator;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
         List<GeneratedFile> answer = new ArrayList<>();
 
         //menu data
-        if (this.context.getSysMenuDataScriptLines().size()>0 && context.isUpdateMenuData()) {
+        if (!this.context.getSysMenuDataScriptLines().isEmpty() && context.isUpdateMenuData()) {
             String menuDataFileName = context.getMenuDataFileName();
             GeneratedSqlSchemaFile generatedMenuDataFile = new GeneratedSqlSchemaFile(menuDataFileName,
                     "init",
@@ -43,7 +44,7 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
         }
 
         //module data
-        if (this.context.getModuleDataScriptLines().size()>0 && context.isUpdateModuleData()) {
+        if (!this.context.getModuleDataScriptLines().isEmpty() && context.isUpdateModuleData()) {
             String moduleDataFileName = context.getModuleDataFileName();
             GeneratedSqlSchemaFile generatedModuleDataFile = new GeneratedSqlSchemaFile(moduleDataFileName,
                     "init",
@@ -53,6 +54,16 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
             answer.add(generatedModuleDataFile);
         }
 
+        //WF ProcType data
+        if (!this.context.getWfProcTypeDataScriptLines().isEmpty()) {
+            String wfProcTypeDataFileName = "data-wf-proc-type-" + this.context.getModuleKeyword().toLowerCase() + ".sql";
+            GeneratedSqlSchemaFile generatedWfProcTypeDataFile = new GeneratedSqlSchemaFile(wfProcTypeDataFileName,
+                    "init",
+                    "src/main/resources/sql",
+                    null,
+                    new SqlDataWfProcTypeScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+            answer.add(generatedWfProcTypeDataFile);
+        }
         return answer;
     }
 

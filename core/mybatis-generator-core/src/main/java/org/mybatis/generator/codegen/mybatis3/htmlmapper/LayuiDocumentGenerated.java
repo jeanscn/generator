@@ -111,18 +111,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         }
         return true;
     }
-
-    private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
-        HtmlElement div = new HtmlElement("div");
-        div.addAttribute(new Attribute("class", "inner-list-container"));
-        HtmlElement table = new HtmlElement("table");
-        table.addAttribute(new Attribute("lay-filter", htmlElementInnerList.getTagId()));
-        table.addAttribute(new Attribute("id", htmlElementInnerList.getTagId()));
-        div.addElement(table);
-        content.addElement(div);
-    }
-
     private void addVerifyButton(HtmlElement parent) {
         String form_verify_id = "btn_form_verify";
         HtmlElement btn = new HtmlElement("button");
@@ -171,16 +159,11 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     private HtmlElement generateForm(HtmlElement parent) {
         HtmlElement form = addFormWithClassToParent(parent, "layui-form");
         form.addAttribute(new Attribute("lay-filter", "mainForm"));
-        List<IntrospectedColumn> columns = Stream.of(introspectedTable.getPrimaryKeyColumns().stream()
-                        , introspectedTable.getBaseColumns().stream()).flatMap(Function.identity())
-                .collect(Collectors.toList());
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
-        Map<String, IntrospectedColumn> waitRenderMap = new HashMap<>();
-        for (IntrospectedColumn baseColumn : columns) {
+        for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
             if (introspectedTable.getRules().isGenerateVoModel()) {
-                if (isIgnore(baseColumn
-                        , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
+                if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                         && !baseColumn.isPrimaryKey()
                         && !baseColumn.getActualColumnName().equalsIgnoreCase("version_")) {
                     continue;
@@ -190,12 +173,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 hiddenColumns.add(baseColumn);
             } else {
                 displayColumns.add(baseColumn);
-                //指定一些列的默认生成的样式
-                for (HtmlElementDescriptor htmlElementDescriptor : htmlGeneratorConfiguration.getElementDescriptors()) {
-                    if (htmlElementDescriptor.getName().equals(baseColumn.getActualColumnName())) {
-                        waitRenderMap.put(baseColumn.getActualColumnName(), baseColumn);
-                    }
-                }
             }
         }
         //可变对象包装变量，计算附件的前置列
@@ -237,13 +214,15 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (pageColumnsConfig > 1) {
             /*添加表格*/
             HtmlElement table = new HtmlElement("table");
-            table.addAttribute(new Attribute("class", "layui-table"));
+            table.addAttribute(new Attribute("class", "layui-table table-layout-fixed"));
             for (List<IntrospectedColumn> rowIntrospectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement tr = new HtmlElement("tr");
                 table.addElement(tr);
                 /*列*/
+                int colNum = 0;
                 for (IntrospectedColumn introspectedColumn : rowIntrospectedColumns) {
+                    colNum++;
                     HtmlElement td = new HtmlElement("td");
                     //label
                     drawLabel(introspectedColumn, td);
@@ -254,6 +233,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                             && (rowIntrospectedColumns.get(0).getLength() > 255
                             || this.htmlGeneratorConfiguration.getLayoutDescriptor().getExclusiveColumns().contains(rowIntrospectedColumns.get(0).getActualColumnName()))) {
                         td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
+                        colNum = pageColumnsConfig;
                     }
                     if (introspectedColumn.isLongVarchar()) {
                         rtfColumn.add(introspectedColumn);
@@ -264,8 +244,8 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     tr.addElement(td);
                 }
                 /*如果列数小于指定列数，则后面补充空单元格*/
-                if (rowIntrospectedColumns.size() < pageColumnsConfig && rowIntrospectedColumns.get(0).getLength() <= 255) {
-                    for (int i = pageColumnsConfig - rowIntrospectedColumns.size(); i > 0; i--) {
+                if (colNum < pageColumnsConfig && rowIntrospectedColumns.get(0).getLength() <= 255) {
+                    for (int i = pageColumnsConfig - colNum; i > 0; i--) {
                         HtmlElement td = new HtmlElement("td");
                         tr.addElement(td);
                     }
@@ -294,7 +274,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
                     HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
                     if (rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> listConfiguration.getAfterColumn().equals(col))) {
-                        addInnerList(table, htmlGeneratorConfiguration);
+                        addInnerList(table, htmlGeneratorConfiguration,pageColumnsConfig);
                     }
                 }
             }
@@ -336,7 +316,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
                         HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
                         if (introspectedColumn.getActualColumnName().equals(listConfiguration.getAfterColumn())) {
-                            addInnerList(form, htmlGeneratorConfiguration);
+                            addInnerList(form, htmlGeneratorConfiguration,pageColumnsConfig);
                         }
                     }
                 }
@@ -413,6 +393,22 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         div.addAttribute(new Attribute("data-location", configuration.getLocationTag()));
         div.addAttribute(new Attribute("class", "data-value layui-input-block comments-container"));
         td.addElement(div);
+    }
+
+    private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration,int pageColumnsConfig) {
+        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+        HtmlElement atr = new HtmlElement("tr");
+        content.addElement(atr);
+        HtmlElement td = new HtmlElement("td");
+        td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
+        atr.addElement(td);
+        HtmlElement div = new HtmlElement("div");
+        div.addAttribute(new Attribute("class", "inner-list-container"));
+        td.addElement(div);
+        HtmlElement table = new HtmlElement("table");
+        table.addAttribute(new Attribute("lay-filter", htmlElementInnerList.getTagId()));
+        table.addAttribute(new Attribute("id", htmlElementInnerList.getTagId()));
+        div.addElement(table);
     }
 
 

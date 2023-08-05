@@ -56,31 +56,37 @@ $(function () {
         let params = {};
         params['baseUrl'] = "/${innerList.moduleKeyword}/${innerList.sourceBeanName}";
         params['mainRecordField'] = '${innerList.relationField}';
-<#if innerList ?? && innerList.dataUrl ?? && innerList.dataUrl != ''>
+    <#if innerList ?? && innerList.dataUrl ?? && innerList.dataUrl != ''>
         params['dataUrl'] = '${innerList.dataUrl}';
-<#else>
-        params['dataUrl'] = '/${innerList.appKey}/${innerList.sourceBeanName}';
-</#if>
-        if (!$.isBlank($('#${innerList.relationKey!'id'}').val())) {
-            params['mainRecordId'] = $('#${innerList.relationKey!'id'}').val();
-            params['viewStatus'] = $('#viewStatus').val();
-            params['listKey'] = '${innerList.listKey!''}';
-<#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
-            $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
-<#else>
-            $('#${innerList.tagId}').renderInnerTable(params, table);
-</#if>
-        }
+    <#else>
+        params['dataUrl'] = '/${innerList.moduleKeyword}/${innerList.sourceBeanName}';
+    </#if>
+    <#if innerList ?? && innerList.relationKey ??>
+        let $relationKey = $('#${innerList.relationKey}');
+        params['mainRecordId'] = !$.isBlank($relationKey.val()) ? $relationKey.val() : $('#id').val()+'1';
+    <#else>
+        params['mainRecordId'] = $('#id').val();
+    </#if>
+        params['viewStatus'] = $('#viewStatus').val();
+        params['listKey'] = '${innerList.listKey!''}';
+    <#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
+        $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
+    <#else>
+        $('#${innerList.tagId}').renderInnerTable(params, table);
+    </#if>
         $(document).on('toggleEditMode', function (e) {
-            if (!$.isBlank($('#${innerList.relationKey!'id'}').val())) {
-                params['mainRecordId'] = $('#${innerList.relationKey!'id'}').val();
-                params['viewStatus'] = $('#viewStatus').val();
-<#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
-                $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
-<#else>
-                $('#${innerList.tagId}').renderInnerTable(params, table);
-</#if>
-            }
+    <#if innerList ?? && innerList.relationKey ??>
+            let $relationKey = $('#${innerList.relationKey}');
+            params['mainRecordId'] = !$.isBlank($relationKey.val()) ? $relationKey.val() : $('#id').val()+'1';
+    <#else>
+            params['mainRecordId'] = $('#id').val();
+    </#if>
+            params['viewStatus'] = $('#viewStatus').val();
+    <#if innerList ?? && innerList.dataField ?? && innerList.dataField != '' >
+            $('#${innerList.tagId}').renderInnerTable(params, table, JSON.parse(${innerList.dataField}));
+    <#else>
+            $('#${innerList.tagId}').renderInnerTable(params, table);
+    </#if>
         });
     });
 </#if>

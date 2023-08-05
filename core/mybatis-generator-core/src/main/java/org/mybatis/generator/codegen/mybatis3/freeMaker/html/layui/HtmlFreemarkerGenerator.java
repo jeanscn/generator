@@ -47,6 +47,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
         freeMakerContext.put("switch", map.containsKey("switch")?map.get("switch"):new ArrayList<>());
         freeMakerContext.put("radio", map.containsKey("radio")?map.get("radio"):new ArrayList<>());
         freeMakerContext.put("checkbox", map.containsKey("checkbox")?map.get("checkbox"):new ArrayList<>());
+        freeMakerContext.put("input", map.containsKey("input")?map.get("input"):new ArrayList<>());
         Template template = getLayuiTemplate(templateName);
         return generatorFileContent(template);
     }

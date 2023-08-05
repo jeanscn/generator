@@ -37,9 +37,6 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private List<String> actionColumn = new ArrayList<>();
 
-    private List<String> defaultDisplayFields = new ArrayList<>();
-
-    private Set<String> defaultHiddenFields = new HashSet<>();
 
     private String editExtendsForm;
 
@@ -47,17 +44,25 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
-    private Map<String, HtmlElementDescriptor> elementDescriptorMap = new HashMap<>();
+    private final Map<String, HtmlElementDescriptor> elementDescriptorMap = new HashMap<>();
 
-    private List<InnerListEditTemplate> innerListEditTemplate = new ArrayList<>();
+    private final List<InnerListEditTemplate> innerListEditTemplate = new ArrayList<>();
 
-    private Set<String> readonlyFields = new HashSet<>();
 
     private List<String> toolbar = new ArrayList<>();
 
-    private List<ListColumnConfiguration> listColumnConfigurations = new ArrayList<>();
+    private final List<ListColumnConfiguration> listColumnConfigurations = new ArrayList<>();
+    private List<String> defaultDisplayFields = new ArrayList<>();
+
+    private final Set<String> defaultHiddenFields = new HashSet<>();
+    private final  Set<String> readonlyFields = new HashSet<>();
+
+    private final Set<String> requiredColumns = new HashSet<>();
 
 
+    /**
+     * 构造器
+     */
     public InnerListViewConfiguration() {
        super();
     }
@@ -194,35 +199,24 @@ public class InnerListViewConfiguration extends PropertyHolder{
         return defaultHiddenFields;
     }
 
-    public void setDefaultHiddenFields(Set<String> defaultHiddenFields) {
-        this.defaultHiddenFields = defaultHiddenFields;
+    public Set<String> getRequiredColumns() {
+        return requiredColumns;
     }
 
     public Map<String, HtmlElementDescriptor> getElementDescriptorMap() {
-        if (elementDescriptorMap.size()>0) {
+        if (!elementDescriptorMap.isEmpty()) {
             return elementDescriptorMap;
         }
         Map<String, HtmlElementDescriptor> map = htmlElements.stream().collect(Collectors.toMap(h -> h.getColumn().getJavaProperty(), h -> h, (h1, h2) -> h1));
         elementDescriptorMap.putAll(map);
         return elementDescriptorMap;
     }
-
     public List<InnerListEditTemplate> getInnerListEditTemplate() {
         return innerListEditTemplate;
     }
-
-    public void setInnerListEditTemplate(List<InnerListEditTemplate> innerListEditTemplate) {
-        this.innerListEditTemplate = innerListEditTemplate;
-    }
-
     public Set<String> getReadonlyFields() {
         return readonlyFields;
     }
-
-    public void setReadonlyFields(Set<String> readonlyFields) {
-        this.readonlyFields = readonlyFields;
-    }
-
     public List<String> getToolbar() {
         return toolbar;
     }
@@ -233,9 +227,5 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public List<ListColumnConfiguration> getListColumnConfigurations() {
         return listColumnConfigurations;
-    }
-
-    public void setListColumnConfigurations(List<ListColumnConfiguration> listColumnConfigurations) {
-        this.listColumnConfigurations = listColumnConfigurations;
     }
 }

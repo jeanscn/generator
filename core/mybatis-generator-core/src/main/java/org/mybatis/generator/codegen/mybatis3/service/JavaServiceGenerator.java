@@ -3,24 +3,24 @@ package org.mybatis.generator.codegen.mybatis3.service;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
+import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VMD5Util;
+import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.JavaServiceGeneratorConfiguration;
-import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -43,7 +43,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         JavaServiceGeneratorConfiguration serviceInfConfiguration = introspectedTable.getTableConfiguration().getJavaServiceGeneratorConfiguration();
 
         Interface bizINF = new Interface(
-                getGenInterfaceClassShortName(serviceInfConfiguration.getTargetPackageGen(),entityType.getShortName()));
+                getGenInterfaceClassShortName(serviceInfConfiguration.getTargetPackageGen(), entityType.getShortName()));
         commentGenerator.addJavaFileComment(bizINF);
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
@@ -149,23 +149,46 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             }
         }
 
-        //最后生成该数据库的模块数据
+        FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
+        EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
+        String moduleKey = Mb3GenUtil.getModelKey(introspectedTable);
+        String mid = VMD5Util.MD5_15(moduleKey);
+        //生成该数据库的模块数据
         if (introspectedTable.getTableConfiguration().isModules() && context.isUpdateModuleData()) {
-            String moduleKey = Mb3GenUtil.getModelKey(introspectedTable);
-            String id = VMD5Util.MD5_15(moduleKey);
             String pId = Mb3GenUtil.getModelCateId(context);
             int size = context.getModuleDataScriptLines().size() + 1;
-            FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
-            EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
             InsertSqlBuilder sqlForModule = GenerateSqlTemplate.insertSqlForModule();
-            sqlForModule.updateStringValues("id_", id);
+            sqlForModule.updateStringValues("id_", mid);
             sqlForModule.updateStringValues("code_", moduleKey);
             sqlForModule.updateStringValues("name_", introspectedTable.getRemarks(true));
             sqlForModule.updateStringValues("parent_id", pId);
             sqlForModule.updateValues("sort_", String.valueOf(size));
             sqlForModule.updateValues("wf_apply", entityAbstractParentEnum != null && entityAbstractParentEnum.scope() == 1 ? "1" : "0");
             sqlForModule.updateStringValues("category_", pId);
-            context.addModuleDataScriptLine(id, sqlForModule.toSql()+";");
+            context.addModuleDataScriptLine(mid, sqlForModule.toSql() + ";");
+        }
+        //生成该数据库的流程定义数据
+        String processDefinedKey = introspectedTable.getTableConfiguration().getProperty("processDefinedKey");
+        if (GenerateUtils.isWorkflowInstance(introspectedTable) && VStringUtil.stringHasValue(processDefinedKey)) {
+            List<HtmlGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+            final String viewPath = configurations!=null && !configurations.isEmpty() ? configurations.get(0).getViewPath() : "";
+            VStringUtil.splitToList(processDefinedKey).stream()
+                    .map(String::trim)
+                    .filter(VStringUtil::stringHasValue)
+                    .forEach(procKey -> {
+                        int size = context.getWfProcTypeDataScriptLines().size() + 1;
+                        InsertSqlBuilder sqlForWfProcType = GenerateSqlTemplate.insertSqlForWfProcType();
+                        String id = VMD5Util.MD5_15(mid + procKey);
+                        sqlForWfProcType.updateStringValues("id_", id);
+                        sqlForWfProcType.updateStringValues("module_id", mid);
+                        sqlForWfProcType.updateValues("sort_", String.valueOf(1000+size));
+                        sqlForWfProcType.updateStringValues("file_category", introspectedTable.getRemarks(true));
+                        sqlForWfProcType.updateStringValues("proc_def_key", procKey);
+                        sqlForWfProcType.updateStringValues("biz_view_path", viewPath);
+                        sqlForWfProcType.updateStringValues("bean_name", introspectedTable.getControllerBeanName());
+                        sqlForWfProcType.updateStringValues("fld_number_rule", introspectedTable.getRemarks(true));
+                        context.addWfProcTypeDataScriptLines(id, sqlForWfProcType.toSql() + ";");
+                    });
         }
         return answer;
     }

@@ -5,7 +5,7 @@ import com.vgosoft.core.annotation.LayuiTableMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.vgosoft.tool.core.VStringUtil.*;
+import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -74,14 +74,14 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (defaultToolbar.contains("NONE") && toolbar.contains("NONE")) {
             items.add("toolbar = \"false\"");
         } else {
-            if (defaultToolbar.size()>0 && defaultToolbar.size()!=3) {
+            if (!defaultToolbar.isEmpty() && defaultToolbar.size()!=3) {
                 items.add("defaultToolbar = \"" + String.join(",", defaultToolbar) + "\"");
             }
-            if (toolbar.size()>0){
+            if (!toolbar.isEmpty()){
                 items.add("toolbar = \"" + String.join(",", toolbar) + "\"");
             }
         }
-        if (actionColumn.size() > 0) {
+        if (!actionColumn.isEmpty()) {
             items.add("actionColumn = \"" + String.join(",", actionColumn) + "\"");
         }
         if (stringHasValue(indexColumn) && !"CHECKBOX".equals(indexColumn)) {

@@ -11,7 +11,8 @@ public enum HtmlElementTagTypeEnum {
     SELECT(5, "select"),
     INPUT(6,"input"),
 
-    DATE(7, "date"),;
+    DATE(7, "date"),
+    UNKNOWN(0, "input");
 
     private final int value;
     private final String code;
@@ -31,7 +32,7 @@ public enum HtmlElementTagTypeEnum {
                 return htmlElementTagTypeEnum;
             }
         }
-        return null;
+        return UNKNOWN;
     }
 
     public static HtmlElementTagTypeEnum getEnum(String code) {
@@ -40,7 +41,7 @@ public enum HtmlElementTagTypeEnum {
                 return htmlElementTagTypeEnum;
             }
         }
-        return null;
+        return UNKNOWN;
     }
     public String getCode() {
         return code;

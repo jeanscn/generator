@@ -739,17 +739,15 @@ public class TableConfiguration extends PropertyHolder {
         //更新TC与表结构相关的自定义属性
         updateTableConfiguration(introspectedTable);
         //更新context、table中隐藏列名htmlHiddenColumns 列表，计算隐藏列，只读列htmlReadonlyFields和只显示htmlDisplayOnlyFields列
-        calculateHiddenReadDisplayonlyColumns(introspectedTable);
-        //更新context、table中的readonly字段名列表
-        calculateReadonlyColumns(introspectedTable);
+        calculateHiddenReadDisplayOnlyColumns(introspectedTable);
         //对指定了dataFormat的快捷配置进行转换
         convertDataFormatConfigurations(introspectedTable);
         //为已经配置存在的html元素描述器赋值introspectedColumn,自动配置dataUrl
-        assignHtmlIntrospectedColumn(introspectedTable,warnings);
+        assignHtmlIntrospectedColumn(introspectedTable, warnings);
         //根据表state_、parent_id和注释以”是否“开头的字段，自动生成HtmlElementDescriptor配置文件
         generateDefaultElementDescriptor(introspectedTable);
         //根据默认字段配置，生成默认的dataTables列表中column渲染默认配置
-        generateDefaultColumnRenderConfiguration(introspectedTable,context);
+        generateDefaultColumnRenderConfiguration(context);
         //计算页内列表元素描述
         calculateInnerListElementDescriptor(introspectedTable);
 
@@ -776,35 +774,39 @@ public class TableConfiguration extends PropertyHolder {
         calculateSelectBySqlMethodProperty(introspectedTable);
     }
 
-    private void generateDefaultColumnRenderConfiguration(IntrospectedTable introspectedTable,Context context) {
-        if (this.getVoGeneratorConfiguration()==null || !this.getVoGeneratorConfiguration().isGenerate()
-                || this.getVoGeneratorConfiguration().getVoViewConfiguration()==null
+    private void generateDefaultColumnRenderConfiguration(Context context) {
+        if (this.getVoGeneratorConfiguration() == null || !this.getVoGeneratorConfiguration().isGenerate()
+                || this.getVoGeneratorConfiguration().getVoViewConfiguration() == null
                 || !this.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate()) {
             return;
         }
         List<VoColumnRenderFunGeneratorConfiguration> funGeneratorConfigurationList = this.getVoGeneratorConfiguration().getVoViewConfiguration().getVoColumnRenderFunGeneratorConfigurations();
         //获得funGeneratorConfigurationList中所有的fieldNames
-        Set<String> fileds = funGeneratorConfigurationList.stream()
+        Set<String> fileds = funGeneratorConfigurationList
+                .stream()
                 .map(VoColumnRenderFunGeneratorConfiguration::getFieldNames)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
         //获得DefaultColumnNameEnum枚举的所有常量
-        this.fieldNames.forEach(columnName->{
-            if (!fileds.contains(columnName)) {
-                DefaultColumnNameEnum.ofFieldName(columnName).ifPresent(defaultColumnNameEnum->{
-                    if (VStringUtil.stringHasValue(defaultColumnNameEnum.columnRender())) {
-                        VoColumnRenderFunGeneratorConfiguration funGeneratorConfiguration = new VoColumnRenderFunGeneratorConfiguration(context,this);
-                        funGeneratorConfiguration.setFieldNames(Collections.singletonList(defaultColumnNameEnum.fieldName()));
-                        funGeneratorConfiguration.setRenderFun(defaultColumnNameEnum.columnRender());
-                        funGeneratorConfigurationList.add(funGeneratorConfiguration);
+        this.fieldNames
+                .forEach(columnName -> {
+                    if (!fileds.contains(columnName)) {
+                        DefaultColumnNameEnum.ofFieldName(columnName)
+                                .ifPresent(defaultColumnNameEnum -> {
+                                    if (VStringUtil.stringHasValue(defaultColumnNameEnum.columnRender())) {
+                                        VoColumnRenderFunGeneratorConfiguration funGeneratorConfiguration = new VoColumnRenderFunGeneratorConfiguration(context, this);
+                                        funGeneratorConfiguration.setFieldNames(Collections.singletonList(defaultColumnNameEnum.fieldName()));
+                                        funGeneratorConfiguration.setRenderFun(defaultColumnNameEnum.columnRender());
+                                        funGeneratorConfigurationList.add(funGeneratorConfiguration);
+                                    }
+                                });
                     }
                 });
-            }
-        });
     }
 
     /**
      * 更新introspectedTable的VoModel和VoCreate属性的类名，用于生成TableMeta的参数
+     *
      * @param introspectedTable introspectedTable对象
      */
     private void updateVoModelType(IntrospectedTable introspectedTable) {
@@ -870,79 +872,81 @@ public class TableConfiguration extends PropertyHolder {
     //对指定了dataFormat的快捷配置进行转换
     private void convertDataFormatConfigurations(IntrospectedTable introspectedTable) {
         //更新制定了dataType的html元素描述器配置
-        this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
-            if (!stringHasValue(elementDescriptor.getDataFormat())) {
-                return;
-            }
-            introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(column -> {
-                DefaultColumnNameEnum defaultColumnNameEnum = DefaultColumnNameEnum.ofColumnName(column.getActualColumnName()).orElse(null);
-                if (defaultColumnNameEnum != null) {
-                    elementDescriptor.setOtherFieldName(defaultColumnNameEnum.otherFieldName());
-                } else {
-                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty()));
-                }
-                elementDescriptor.setColumn(column);
-                switch (elementDescriptor.getDataFormat()) {
-                    case "exist":
-                    case "有":
-                    case "有无":
-                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
-                        elementDescriptor.setEnumClassName(ExistOrNotEnum.class.getCanonicalName());
-                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
-                            elementDescriptor.setSwitchText(ExistOrNotEnum.switchText());
-                        }
-                        elementDescriptor.setDataFormat(null);
-                        break;
-                    case "yes":
-                    case "true":
-                    case "是":
-                    case "是否":
-                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
-                        elementDescriptor.setEnumClassName(YesNoEnum.class.getCanonicalName());
-                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
-                            elementDescriptor.setSwitchText(YesNoEnum.switchText());
-                        }
-                        elementDescriptor.setDataFormat(null);
-                        break;
-                    case "sex":
-                    case "性别":
-                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
-                        elementDescriptor.setEnumClassName(GenderEnum.class.getCanonicalName());
-                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
-                            elementDescriptor.setSwitchText(GenderEnum.switchText());
-                        }
-                        elementDescriptor.setDataFormat(null);
-                        break;
-                    case "启停":
-                    case "启用停用":
-                    case "state":
-                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
-                        elementDescriptor.setEnumClassName(CommonStatusEnum.class.getCanonicalName());
-                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
-                            elementDescriptor.setSwitchText(CommonStatusEnum.switchText());
-                        }
-                        elementDescriptor.setDataFormat(null);
-                        break;
-                    case "急":
-                    case "缓急":
-                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
-                        elementDescriptor.setEnumClassName(UrgencyEnum.class.getCanonicalName());
-                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
-                            elementDescriptor.setSwitchText(UrgencyEnum.switchText());
-                        }
-                        elementDescriptor.setDataFormat(null);
-                        break;
-                    case "level":
-                    case "级别":
-                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
-                        elementDescriptor.setEnumClassName(LevelListEnum.class.getCanonicalName());
-                        elementDescriptor.setDataFormat(null);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }));
+        this.getHtmlMapGeneratorConfigurations()
+                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
+                        .forEach(elementDescriptor -> {
+                            if (!stringHasValue(elementDescriptor.getDataFormat())) {
+                                return;
+                            }
+                            introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(column -> {
+                                DefaultColumnNameEnum defaultColumnNameEnum = DefaultColumnNameEnum.ofColumnName(column.getActualColumnName()).orElse(null);
+                                if (defaultColumnNameEnum != null) {
+                                    elementDescriptor.setOtherFieldName(defaultColumnNameEnum.otherFieldName());
+                                } else {
+                                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty()));
+                                }
+                                elementDescriptor.setColumn(column);
+                                switch (elementDescriptor.getDataFormat()) {
+                                    case "exist":
+                                    case "有":
+                                    case "有无":
+                                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                                        elementDescriptor.setEnumClassName(ExistOrNotEnum.class.getCanonicalName());
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                            elementDescriptor.setSwitchText(ExistOrNotEnum.switchText());
+                                        }
+                                        elementDescriptor.setDataFormat(null);
+                                        break;
+                                    case "yes":
+                                    case "true":
+                                    case "是":
+                                    case "是否":
+                                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                                        elementDescriptor.setEnumClassName(YesNoEnum.class.getCanonicalName());
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                            elementDescriptor.setSwitchText(YesNoEnum.switchText());
+                                        }
+                                        elementDescriptor.setDataFormat(null);
+                                        break;
+                                    case "sex":
+                                    case "性别":
+                                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                                        elementDescriptor.setEnumClassName(GenderEnum.class.getCanonicalName());
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                            elementDescriptor.setSwitchText(GenderEnum.switchText());
+                                        }
+                                        elementDescriptor.setDataFormat(null);
+                                        break;
+                                    case "启停":
+                                    case "启用停用":
+                                    case "state":
+                                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                                        elementDescriptor.setEnumClassName(CommonStatusEnum.class.getCanonicalName());
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                            elementDescriptor.setSwitchText(CommonStatusEnum.switchText());
+                                        }
+                                        elementDescriptor.setDataFormat(null);
+                                        break;
+                                    case "急":
+                                    case "缓急":
+                                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                                        elementDescriptor.setEnumClassName(UrgencyEnum.class.getCanonicalName());
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                            elementDescriptor.setSwitchText(UrgencyEnum.switchText());
+                                        }
+                                        elementDescriptor.setDataFormat(null);
+                                        break;
+                                    case "level":
+                                    case "级别":
+                                        elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
+                                        elementDescriptor.setEnumClassName(LevelListEnum.class.getCanonicalName());
+                                        elementDescriptor.setDataFormat(null);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            });
+                        }));
     }
 
     /*
@@ -953,7 +957,7 @@ public class TableConfiguration extends PropertyHolder {
      * 2、所有HtmlMapGeneratorConfiguration的hiddenColumnNames
      * 3、所有HtmlMapGeneratorConfiguration的elementRequired
      */
-    private void calculateHiddenReadDisplayonlyColumns(IntrospectedTable introspectedTable) {
+    private void calculateHiddenReadDisplayOnlyColumns(IntrospectedTable introspectedTable) {
         Set<String> hiddenColumnNames = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
         Set<IntrospectedColumn> columnSet = hiddenColumnNames.parallelStream().map(columnName -> {
             Optional<IntrospectedColumn> column = introspectedTable.getColumn(columnName);
@@ -965,21 +969,27 @@ public class TableConfiguration extends PropertyHolder {
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumnNames().addAll(hiddenColumnNames));
         //html只读列
         Set<String> readOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_READONLY_FIELDS);
+        introspectedTable.getTableConfiguration().getHtmlReadonlyFields().addAll(readOnlyFields);
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getReadonlyFields().addAll(readOnlyFields));
         //html只显示列
         Set<String> displayOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_DISPLAY_ONLY_FIELDS);
+        introspectedTable.getTableConfiguration().getHtmlDisplayOnlyFields().addAll(displayOnlyFields);
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(displayOnlyFields));
         //html的必填列
         introspectedTable.getAllColumns().forEach(column -> this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> {
-                    boolean match = htmlGeneratorConfiguration.getElementDescriptors().stream()
-                            .anyMatch(elementDescriptor -> elementDescriptor.getVerify().contains("required") && elementDescriptor.getName().equals(column.getActualColumnName()));
-                    if (htmlGeneratorConfiguration.getHiddenColumnNames().contains(column.getActualColumnName())) {
-                        htmlGeneratorConfiguration.getHiddenColumns().add(column);
-                    } else if (match || column.isRequired()) {
+                    if (column.isRequired()) {
                         htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
+                    } else {
+                        htmlGeneratorConfiguration.getElementDescriptors().stream()
+                                .filter(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
+                                .forEach(elementDescriptor -> {
+                                    if (elementDescriptor.getVerify() != null && elementDescriptor.getVerify().contains("required")) {
+                                        htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
+                                    }
+                                });
                     }
                 }));
     }
@@ -997,28 +1007,6 @@ public class TableConfiguration extends PropertyHolder {
         return properties;
     }
 
-    /**
-     * 计算HtmlReadonlyColumnNames
-     *
-     * @param introspectedTable 内省表
-     */
-    private void calculateReadonlyColumns(IntrospectedTable introspectedTable) {
-        final Set<String> readonlyFields = new HashSet<>();
-        String contextReadonly = introspectedTable.getContext().getProperty(PropertyRegistry.ANY_HTML_READONLY_FIELDS);
-        if (stringHasValue(contextReadonly)) {
-            readonlyFields.addAll(spiltToSet(contextReadonly));
-        }
-        String tableReadonly = introspectedTable.getTableConfiguration().getProperty(PropertyRegistry.ANY_HTML_READONLY_FIELDS);
-        if (stringHasValue(tableReadonly)) {
-            readonlyFields.addAll(spiltToSet(tableReadonly));
-        }
-
-        //html的只读列
-        this.getHtmlMapGeneratorConfigurations()
-                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getReadonlyFields().addAll(readonlyFields));
-    }
-
-
     private void generateDefaultElementDescriptor(IntrospectedTable introspectedTable) {
         /*
          * 对于非隐藏列，根据列名自动添加页面元素
@@ -1035,24 +1023,24 @@ public class TableConfiguration extends PropertyHolder {
                                 HtmlElementDescriptor htmlElementDescriptor = null;
                                 if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.STATE.columnName())) {
                                     DefaultHtmlElementDescriptorFactory stateElementDescriptor = new StateElementDescriptor();
-                                    htmlElementDescriptor = stateElementDescriptor.getDefaultHtmlElementDescriptor(column,introspectedTable);
-                                } else if(column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.PRIORITY.columnName())){
+                                    htmlElementDescriptor = stateElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.PRIORITY.columnName())) {
                                     DefaultHtmlElementDescriptorFactory priorityElementDescriptor = new PriorityElementDescriptor();
-                                    htmlElementDescriptor = priorityElementDescriptor.getDefaultHtmlElementDescriptor(column,introspectedTable);
-                                } else if(column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.WF_STATE.columnName())){
+                                    htmlElementDescriptor = priorityElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.WF_STATE.columnName())) {
                                     DefaultHtmlElementDescriptorFactory wfStateElementDescriptor = new WfStateElementDescriptor();
-                                    htmlElementDescriptor = wfStateElementDescriptor.getDefaultHtmlElementDescriptor(column,introspectedTable);
-                                }else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.PARENT_ID.columnName())) {   //选择上级
+                                    htmlElementDescriptor = wfStateElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.PARENT_ID.columnName())) {   //选择上级
                                     htmlElementDescriptor = new ParentIdElementDescriptor().getDefaultHtmlElementDescriptor(column, introspectedTable);
                                 } else if (column.getRemarks(true) != null && column.getRemarks(true).startsWith("是否")) { //如果列注释以“是否”开头，则自动添加页面switch元素
                                     htmlElementDescriptor = new YesNoElementDescriptor().getDefaultHtmlElementDescriptor(column, introspectedTable);
-                                }else if(column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_DEPT_ID.columnName())){
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_DEPT_ID.columnName())) {
                                     DefaultHtmlElementDescriptorFactory deptElementDescriptor = new ApplyDeptIdInputElementDescriptor();
-                                    htmlElementDescriptor = deptElementDescriptor.getDefaultHtmlElementDescriptor(column,introspectedTable);
-                                }else if(column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_USER_ID.columnName())){
+                                    htmlElementDescriptor = deptElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_USER_ID.columnName())) {
                                     DefaultHtmlElementDescriptorFactory userElementDescriptor = new ApplyUserIdInputElementDescriptor();
-                                    htmlElementDescriptor = userElementDescriptor.getDefaultHtmlElementDescriptor(column,introspectedTable);
-                                }else if(column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_HANDLER_ID.columnName())) {
+                                    htmlElementDescriptor = userElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_HANDLER_ID.columnName())) {
                                     DefaultHtmlElementDescriptorFactory handlerElementDescriptor = new ApplyHandlerIdInputElementDescriptor();
                                     htmlElementDescriptor = handlerElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
                                 }
@@ -1121,13 +1109,13 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     //为已经配置存在的html元素描述器赋值introspectedColumn,自动配置dataUrl
-    private void assignHtmlIntrospectedColumn(IntrospectedTable introspectedTable,final List<String> warnings) {
+    private void assignHtmlIntrospectedColumn(IntrospectedTable introspectedTable, final List<String> warnings) {
         introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
                         .forEach(setHtmlElementDescriptorColumn(introspectedTable)));
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null
                 && this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations() != null
-                && this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().size() > 0) {
+                && !this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
             this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations()
                     .forEach(innerListViewConfiguration -> innerListViewConfiguration.getHtmlElements()
                             .forEach(setHtmlElementDescriptorColumn(introspectedTable)));
@@ -1156,7 +1144,6 @@ public class TableConfiguration extends PropertyHolder {
                     introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
                 }
             }
-
             //当DataSource值分别为DictSys、DictData、DictUser，且没有配置dataUrl，且指定了DictCode，则分别自动配置dataUrl
             if (stringHasValue(elementDescriptor.getDataSource()) && !stringHasValue(elementDescriptor.getDataUrl())) {
                 String camelCaseString = JavaBeansUtil.getCamelCaseString(elementDescriptor.getName(), false);
@@ -1178,10 +1165,11 @@ public class TableConfiguration extends PropertyHolder {
         //计算内联列表的元素描述器
         if (this.getVoGeneratorConfiguration() == null
                 || this.getVoGeneratorConfiguration().getVoViewConfiguration() == null
-                || this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().size() == 0) {
+                || this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
             return;
         }
-        introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations()
+        List<InnerListViewConfiguration> innerListViewConfigurations = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
+        innerListViewConfigurations
                 .forEach(innerListViewConfiguration -> {
                     Set<HtmlElementDescriptor> htmlElements = new HashSet<>(innerListViewConfiguration.getHtmlElements());
                     if (stringHasValue(innerListViewConfiguration.getEditExtendsForm())) {
@@ -1192,6 +1180,14 @@ public class TableConfiguration extends PropertyHolder {
                                     innerListViewConfiguration.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                                     htmlElements.addAll(htmlGeneratorConfiguration.getElementDescriptors());
                                     innerListViewConfiguration.getReadonlyFields().addAll(htmlGeneratorConfiguration.getReadonlyFields());
+                                    Set<String> fields = htmlGeneratorConfiguration.getHiddenColumnNames().stream()
+                                            .map(introspectedTable::getColumn)
+                                            .filter(Optional::isPresent)
+                                            .map(Optional::get)
+                                            .map(IntrospectedColumn::getJavaProperty)
+                                            .collect(Collectors.toSet());
+                                    innerListViewConfiguration.getDefaultHiddenFields().addAll(fields);
+                                    innerListViewConfiguration.getRequiredColumns().addAll(htmlGeneratorConfiguration.getElementRequired());
                                 });
                     }
                     innerListViewConfiguration.setHtmlElements(new ArrayList<>(htmlElements));
@@ -1265,7 +1261,7 @@ public class TableConfiguration extends PropertyHolder {
         this.setSelectBySqlMethodGeneratorConfigurations(collect);
 
         //生成SelectByTable基于关系表主键的查询方法
-        if (this.getSelectByTableGeneratorConfiguration().size() > 0) {
+        if (!this.getSelectByTableGeneratorConfiguration().isEmpty()) {
             for (SelectByTableGeneratorConfiguration selectByTableGeneratorConfiguration : this.getSelectByTableGeneratorConfiguration()) {
                 selectByTableGeneratorConfiguration.setParameterName(JavaBeansUtil.getCamelCaseString(selectByTableGeneratorConfiguration.getOtherPrimaryKeyColumn(), false));
             }
@@ -1274,7 +1270,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private void calculateSelectByColumnConfigurations(IntrospectedTable introspectedTable) {
         //生成selectByColumn查询方法
-        if (this.getSelectByColumnGeneratorConfigurations().size() > 0) {
+        if (!this.getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration configuration : this.getSelectByColumnGeneratorConfigurations()) {
                 configuration.getColumnNames().forEach(n -> introspectedTable.getColumn(n).ifPresent(configuration::addColumn));
                 configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
@@ -1288,7 +1284,7 @@ public class TableConfiguration extends PropertyHolder {
     private void calculateSelectBaseByPrimaryKeyConfig(IntrospectedTable introspectedTable) {
         if (this.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isSubSelected)) {
             //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
-            if (introspectedTable.getPrimaryKeyColumns().size() == 0) return;
+            if (introspectedTable.getPrimaryKeyColumns().isEmpty()) return;
             final String methodName = "selectBaseByPrimaryKey";
             if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(t -> methodName.equals(t.getMethodName()))) {
                 SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();

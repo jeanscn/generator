@@ -96,6 +96,8 @@ public class Context extends PropertyHolder {
 
     protected Map<String, String> moduleDataScriptLines = new LinkedHashMap<>();
 
+    protected Map<String, String> wfProcTypeDataScriptLines = new LinkedHashMap<>();
+
     public Context(ModelType defaultModelType) {
         super();
         if (defaultModelType == null) {
@@ -669,6 +671,14 @@ public class Context extends PropertyHolder {
 
     public void addModuleCateDataScriptLine(String id, String moduleCateDataScriptLine) {
         this.moduleCateDataScriptLines.put(id, moduleCateDataScriptLine);
+    }
+
+    public Map<String, String> getWfProcTypeDataScriptLines() {
+        return wfProcTypeDataScriptLines;
+    }
+
+    public void addWfProcTypeDataScriptLines(String id,String wfProcTypeDataScriptLine) {
+        this.wfProcTypeDataScriptLines.put(id, wfProcTypeDataScriptLine);
     }
 
     public List<String> getOnlyTablesGenerate() {

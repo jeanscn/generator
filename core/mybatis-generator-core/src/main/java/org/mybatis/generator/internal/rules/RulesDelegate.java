@@ -252,6 +252,16 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateEventListener() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateWfEventListener() {
+        return false;
+    }
+
+    @Override
     public boolean isGenerateInnerTable() {
         return false;
     }

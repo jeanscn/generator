@@ -99,6 +99,16 @@
             </div>
         </script>
     </#list>
+    <#list input as item>
+        <!--输入框-->
+        <script type="text/html" id="TPL-inner-${item.fieldName}">
+            <input class="layui-input table-inner-input" data-field="${item.thisFieldName}" data-other-field="${item.otherFieldName}"
+                   <#if item.dataUrl?? && item.dataUrl!="" >data-url="${item.dataUrl}"</#if> <#if item.title?? && item.title!="" >data-title="${item.title}"</#if>
+                   <#if item.callback?? && item.callback!="" >data-callback="${item.callback}"</#if> <#if item.listKey?? && item.listKey!="" >data-list-key="${item.listKey}"</#if>
+                   <#if item.listViewClass?? && item.listViewClass!="" >data-list-view-class="${item.listViewClass}"</#if>
+                   id="inner-${item.fieldName}{{d.LAY_NUM}}" type="text" value="{{=d.${item.fieldName}||''}}"/>
+        </script>
+    </#list>
 </th:block>
 </body>
 </html>

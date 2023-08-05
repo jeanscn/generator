@@ -84,7 +84,7 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
             if (stringHasValue(editor)) {
                 items.add(format("editor = \"{0}\"", editor));
             }
-            if (stringHasValue(scope)) {
+            if (stringHasValue(scope) && !scope.equals("both")) {
                 items.add(format("scope = \"{0}\"", scope));
             }
             if (stringHasValue(align)) {

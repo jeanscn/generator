@@ -45,6 +45,7 @@ public class Mb3GenUtil {
         return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
     }
 
+
     public static String getDefaultViewId(IntrospectedTable introspectedTable) {
         String aCase = StringUtils.lowerCase(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
         if (VStringUtil.stringHasValue(aCase)) {

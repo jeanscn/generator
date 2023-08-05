@@ -5,6 +5,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.TableTypeEnum;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
@@ -645,15 +646,25 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean isGenerateEventListener() {
+        return tc.getJavaServiceImplGeneratorConfiguration() != null
+                && tc.getJavaServiceImplGeneratorConfiguration().isGenerate()
+                && !tc.getJavaServiceImplGeneratorConfiguration().getEntityEvent().isEmpty();
+    }
+
+    @Override
+    public boolean isGenerateWfEventListener() {
+        return GenerateUtils.isWorkflowInstance(introspectedTable);
+    }
+
+    @Override
     public boolean isGenerateInnerTable() {
-        return tc.getVoGeneratorConfiguration() != null
-                && tc.getVoGeneratorConfiguration().getVoViewConfiguration() != null
-                && tc.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().size() > 0;
+        return isGenerateViewVO() && !tc.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty();
     }
 
     @Override
     public boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        return htmlGeneratorConfiguration != null  && htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration() != null;
+        return htmlGeneratorConfiguration != null && htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration() != null;
     }
 
     @Override
@@ -678,12 +689,12 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean generateSelectByColumn() {
-        return tc.getSelectByColumnGeneratorConfigurations().size() > 0;
+        return !tc.getSelectByColumnGeneratorConfigurations().isEmpty();
     }
 
     @Override
     public boolean generateSelectByTable() {
-        return tc.getSelectByTableGeneratorConfiguration().size() > 0;
+        return !tc.getSelectByTableGeneratorConfiguration().isEmpty();
     }
 
     @Override
