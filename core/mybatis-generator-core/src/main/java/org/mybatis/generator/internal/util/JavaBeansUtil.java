@@ -365,10 +365,10 @@ public class JavaBeansUtil {
         //处理生成key类未加载的问题
         Class<?> cClazz = getClass(childClassName);
         if (cClazz == null) {
-            childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+            childClassName = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
             if (childClassName == null) {
                 Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
-                childClassName = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+                childClassName = properties.getProperty(PropertyRegistry.ROOT_CLASS);
             }
             cClazz = getClass(childClassName);
         }
@@ -468,10 +468,10 @@ public class JavaBeansUtil {
     }
 
     public static String getRootClass(IntrospectedTable introspectedTable) {
-        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
         if (rootClass == null) {
             Properties properties = introspectedTable.getContext().getJavaModelGeneratorConfiguration().getProperties();
-            rootClass = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+            rootClass = properties.getProperty(PropertyRegistry.ROOT_CLASS);
         }
         return rootClass;
     }

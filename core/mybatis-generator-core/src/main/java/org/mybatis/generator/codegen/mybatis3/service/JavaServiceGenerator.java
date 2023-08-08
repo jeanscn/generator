@@ -165,6 +165,11 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             sqlForModule.updateValues("sort_", String.valueOf(size));
             sqlForModule.updateValues("wf_apply", entityAbstractParentEnum != null && entityAbstractParentEnum.scope() == 1 ? "1" : "0");
             sqlForModule.updateStringValues("category_", pId);
+            sqlForModule.updateStringValues("bean_name", introspectedTable.getControllerBeanName());
+            sqlForModule.updateStringValues("res_base_path", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            if (!introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().isEmpty()) {
+                sqlForModule.updateStringValues("view_path", introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath());
+            }
             context.addModuleDataScriptLine(mid, sqlForModule.toSql() + ";");
         }
         //生成该数据库的流程定义数据

@@ -1,11 +1,12 @@
-package org.mybatis.generator.codegen.mybatis3.htmlmapper;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
+import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import java.util.ArrayList;
@@ -21,10 +22,7 @@ import java.util.stream.Stream;
  *  2020-07-20 06:22
  * @version 3.0
  */
-public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
-
-    private final IntrospectedTable introspectedTable;
-
+public class ZuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerator {
     private final Document document;
 
     private final HtmlElement rootElement;
@@ -35,9 +33,8 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private HtmlElement content;
 
-    public ZuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        super(document, introspectedTable, htmlGeneratorConfiguration);
-        this.introspectedTable = introspectedTable;
+    public ZuiDocumentGenerated(GeneratorInitialParameters generatorInitialParameters, Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters,document, htmlGeneratorConfiguration);
         this.document = document;
         this.rootElement = document.getRootElement();
         this.head = generateZuiHead();
@@ -49,7 +46,6 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         rootElement.addElement(head);
         rootElement.addElement(body.get("body"));
         document.setRootElement(rootElement);
-        //List<HtmlElement> elements = getElementByClassName("content");
         this.content = body.get("content");
         HtmlElement form = generateZuiForm(content);
         generateZuiToolBar(content);
@@ -84,7 +80,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement caption = addDivWithClassToParent(form,"form-title");
         caption.addElement(new TextElement(introspectedTable.getRemarks(true)));
         /*计算响应式宽度*/
-        String colWidth = "col-sm-" + String.valueOf(12 / pageColumnsConfig);
+        String colWidth = "col-sm-" + 12 / pageColumnsConfig;
         for (List<IntrospectedColumn> value : baseColumnsRows.values()) {
             /*行*/
             HtmlElement row = addDivWithClassToParent(form, "row");
@@ -98,7 +94,7 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                 }
                 //输入框
                 HtmlElement ictrl = addDivWithClassToParent(td, "input-control");
-                addClassNameToElement(ictrl, "has-label-left");
+                addCssClassToElement(ictrl, "has-label-left");
                 drawInput(introspectedColumn, entityKey, ictrl);
                 drawLabel(introspectedColumn, ictrl);
             }
@@ -106,20 +102,18 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         return form;
     }
 
-    private HtmlElement generateZuiToolBar(HtmlElement parent) {
+    private void generateZuiToolBar(HtmlElement parent) {
         HtmlElement toolBar = generateToolBar(parent);
         HtmlElement btnClose = addZuiButton(toolBar, btn_close_id, "关闭", "icon-times");
         HtmlElement btnSubmit = addZuiButton(toolBar, btn_submit_id, "保存", "icon-check");
         String config = getHtmlBarPositionConfig();
         if (!HTML_KEY_WORD_TOP.equals(config)) {
-            addClassNameToElement(btnClose, "footer-btn");
-            addClassNameToElement(btnSubmit, "footer-btn");
+            addCssClassToElement(btnClose, "footer-btn");
+            addCssClassToElement(btnSubmit, "footer-btn");
         }
-        return toolBar;
     }
     private HtmlElement addZuiButton(HtmlElement parent, String id, String text, String unicode) {
-        HtmlElement btn = addButton(parent, id, null);
-        addClassNameToElement(btn, "btn btn-sm");
+        HtmlElement btn = addHtmlButton(parent, id, null,"btn btn-sm");
         addZuiIconFont(btn, unicode);
         if (text != null) {
             btn.addElement(new TextElement(text));
@@ -127,16 +121,15 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         return btn;
     }
 
-    private HtmlElement addZuiIconFont(HtmlElement parent, String unicode) {
+    private void addZuiIconFont(HtmlElement parent, String unicode) {
         HtmlElement icon = new HtmlElement("i");
-        addClassNameToElement(icon, "icon " + unicode);
+        addCssClassToElement(icon, "icon " + unicode);
         parent.addElement(icon);
-        return icon;
     }
 
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         HtmlElement label = new HtmlElement("label");
-        addClassNameToElement(label, "input-control-label-left");
+        addCssClassToElement(label, "input-control-label-left");
         label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
         parent.addElement(label);
@@ -145,10 +138,9 @@ public class ZuiDocumentGenerated extends AbsHtmlDocumentGenerator {
     private void drawInput(IntrospectedColumn introspectedColumn, String entityKey, HtmlElement parent) {
         HtmlElement input = generateHtmlInput(introspectedColumn, false,false);
         input.addAttribute(new Attribute("th:value", thymeleafValue(introspectedColumn, entityKey)));
-        addClassNameToElement(input, "form-control");
+        addCssClassToElement(input, "form-control");
         parent.addElement(input);
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            addClassNameToElement(input, "oas-form-item-edit");
             HtmlElement div = addDivWithClassToParent(parent, "oas-form-item-read");
             div.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, entityKey)));
         }

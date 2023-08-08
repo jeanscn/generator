@@ -16,7 +16,7 @@ public class PropertyRegistry {
     /**
      * recognized by table and java model generator.
      */
-    public static final String ANY_ROOT_CLASS = "rootClass";
+    public static final String ROOT_CLASS = "rootClass";
     public static final String  ROOT_CLASS_TYPE_ARGUMENTS = "rootClassTypeArguments";
     public static final String  ROOT_SUPER_INTERFACE = "superInterface";
     public static final String ANY_IMMUTABLE = "immutable";

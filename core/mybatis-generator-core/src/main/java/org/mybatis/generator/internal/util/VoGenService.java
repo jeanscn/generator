@@ -29,8 +29,8 @@ public class VoGenService {
     private final IntrospectedTable introspectedTable;
     private final VOGeneratorConfiguration voGeneratorConfiguration;
 
-    private List<IntrospectedColumn> abstractVOColumns;
-    private List<String> abstractVOColumnNames;
+    private List<IntrospectedColumn> abstractVOColumns = new ArrayList<>();
+    private List<String> abstractVOColumnNames = new ArrayList<>();
 
     public VoGenService(IntrospectedTable introspectedTable) {
         this.introspectedTable = introspectedTable;
@@ -50,7 +50,7 @@ public class VoGenService {
         excludeColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getExcludeColumns());
         //将排除列追加到abstractVO列表中，整体排除
         abstractVOColumnNames.addAll(excludeColumns);
-        if (includeColumns != null && includeColumns.size() > 0) {
+        if (includeColumns != null && !includeColumns.isEmpty()) {
             List<String> includes = CollectionUtil.subtractToList(includeColumns, abstractVOColumnNames);
             return getIntrospectedColumns(includes, false);
         } else {
@@ -68,18 +68,20 @@ public class VoGenService {
      */
     public List<IntrospectedColumn> getAllVoColumns(List<String> fields, Set<String> includeColumns, Set<String> excludeColumns) {
         List<IntrospectedColumn> voColumns = getVOColumns(this.getAbstractVOColumnNames(), includeColumns, excludeColumns); //排除abstractVO、指定排除、VO全局排除的列名
-        if (fields == null || fields.size() == 0) {
+        if (fields == null || fields.isEmpty()) {
             return voColumns;
         } else {
-            List<IntrospectedColumn> fieldColumns = introspectedTable.getAllColumns().stream()
-                    .filter(c -> fields.contains(c.getJavaProperty())).collect(Collectors.toList());
+            List<IntrospectedColumn> fieldColumns = introspectedTable.getAllColumns()
+                    .stream()
+                    .filter(c -> fields.contains(c.getJavaProperty()))
+                    .collect(Collectors.toList());
             return CollectionUtil.addAllIfNotContains(voColumns, fieldColumns);
         }
     }
 
     public Set<String> getDefaultExcludeColumnNames(Set<String> excludeNames) {
         Set<String> exclude = new HashSet<>();
-        if (excludeNames != null && excludeNames.size() > 0) {
+        if (excludeNames != null && !excludeNames.isEmpty()) {
             exclude.addAll(excludeNames);
         }
         EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode("AbstractPersistenceLockEntity");
@@ -90,16 +92,15 @@ public class VoGenService {
         return exclude;
     }
 
-
     public List<String> getAbstractVOColumnNames() {
-        if (this.abstractVOColumnNames == null) {
-            return this.getAbstractVOColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toList());
+        if (this.abstractVOColumnNames.isEmpty()) {
+            this.abstractVOColumnNames = this.getAbstractVOColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toList());
         }
         return this.abstractVOColumnNames;
     }
 
     public List<IntrospectedColumn> getAbstractVOColumns() {
-        if (abstractVOColumns == null) {
+        if (abstractVOColumns.isEmpty()) {
             this.abstractVOColumns = getAbsVOColumns();
         }
         return abstractVOColumns;
@@ -111,55 +112,55 @@ public class VoGenService {
         List<String> exclude = new ArrayList<>();
         if (rules.isGenerateVoModel()) {
             VOModelGeneratorConfiguration cfg = voGeneratorConfiguration.getVoModelConfiguration();
-            if (cfg.getIncludeColumns().size() > 0) {
+            if (!cfg.getIncludeColumns().isEmpty()) {
                 include.addAll(cfg.getIncludeColumns());
             }
-            if (cfg.getExcludeColumns().size() > 0) {
+            if (!cfg.getExcludeColumns().isEmpty()) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
         if (rules.isGenerateViewVO()) {
             VOViewGeneratorConfiguration cfg = voGeneratorConfiguration.getVoViewConfiguration();
-            if (cfg.getIncludeColumns().size() > 0) {
+            if (!cfg.getIncludeColumns().isEmpty()) {
                 include.retainAll(cfg.getIncludeColumns());
             }
-            if (cfg.getExcludeColumns().size() > 0) {
+            if (!cfg.getExcludeColumns().isEmpty()) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
         if (rules.isGenerateRequestVO()) {
             VORequestGeneratorConfiguration cfg = voGeneratorConfiguration.getVoRequestConfiguration();
-            if (cfg.getExcludeColumns().size() > 0) {
+            if (!cfg.getExcludeColumns().isEmpty()) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
 
         if (rules.isGenerateCreateVO()) {
             VOCreateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoCreateConfiguration();
-            if (cfg.getIncludeColumns().size() > 0) {
+            if (!cfg.getIncludeColumns().isEmpty()) {
                 include.addAll(cfg.getIncludeColumns());
             }
-            if (cfg.getExcludeColumns().size() > 0) {
+            if (!cfg.getExcludeColumns().isEmpty()) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
 
         if (rules.isGenerateUpdateVO()) {
             VOUpdateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoUpdateConfiguration();
-            if (cfg.getIncludeColumns().size() > 0) {
+            if (!cfg.getIncludeColumns().isEmpty()) {
                 include.addAll(cfg.getIncludeColumns());
             }
-            if (cfg.getExcludeColumns().size() > 0) {
+            if (!cfg.getExcludeColumns().isEmpty()) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
 
-        if (voGeneratorConfiguration.getExcludeColumns().size() > 0) {
+        if (!voGeneratorConfiguration.getExcludeColumns().isEmpty()) {
             exclude.addAll(voGeneratorConfiguration.getExcludeColumns());
         } else {
             exclude.addAll(getDefaultExcludeColumnNames(null));
         }
-        if (include.size() > 0) {
+        if (!include.isEmpty()) {
             return getIntrospectedColumns(include, false);
         } else {
             return getIntrospectedColumns(exclude, true);
@@ -298,18 +299,4 @@ public class VoGenService {
                     .findFirst().orElse(null);
         }
     }
-
-    public void addCssStyleToElement(HtmlElement element, String cssStyle) {
-        if (element.getAttributes().stream().noneMatch(a -> a.getName().equals("style"))) {
-            element.addAttribute(new Attribute("style", cssStyle));
-        } else {
-            Optional<Attribute> style = element.getAttributes().stream().filter(a -> a.getName().equals("style")).findFirst();
-            style.ifPresent(attribute -> {
-                if (!attribute.getValue().contains(cssStyle)) {
-                    attribute.setValue(attribute.getValue() + ";" + cssStyle);
-                }
-            });
-        }
-    }
-
 }

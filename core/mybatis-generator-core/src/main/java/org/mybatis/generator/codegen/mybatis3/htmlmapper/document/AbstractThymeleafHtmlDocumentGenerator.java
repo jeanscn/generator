@@ -1,17 +1,19 @@
-package org.mybatis.generator.codegen.mybatis3.htmlmapper;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VArrayUtil;
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.html.*;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.html.Attribute;
+import org.mybatis.generator.api.dom.html.Document;
+import org.mybatis.generator.api.dom.html.HtmlElement;
+import org.mybatis.generator.api.dom.html.TextElement;
+import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.AbstractThymeleafHtmlGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.internal.util.VoGenService;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -20,27 +22,20 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2020-07-23 00:57
  * @version 3.0
  */
-public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator, HtmlConstant {
-
+public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThymeleafHtmlGenerator implements HtmlDocumentGenerator, HtmlConstant {
     private final Document document;
-    private final IntrospectedTable introspectedTable;
-    private FullyQualifiedJavaType entityType;
     protected final String btn_submit_id = "btn_save";
     protected final String btn_close_id = "btn_close";
     protected final String btn_reset_id = "btn_reset";
     protected final String input_subject_id = "subject";
+
     protected final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
-    protected final VoGenService voGenService;
-
-    public AbsHtmlDocumentGenerator(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public AbstractThymeleafHtmlDocumentGenerator(GeneratorInitialParameters generatorInitialParameters, Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters.getContext(), generatorInitialParameters.getIntrospectedTable(), generatorInitialParameters.getWarnings(), generatorInitialParameters.getProgressCallback(),htmlGeneratorConfiguration);
         this.document = document;
-        this.introspectedTable = introspectedTable;
-        this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
-        this.voGenService = new VoGenService(introspectedTable);
     }
-
     public int getPageColumnsConfig() {
         int c = htmlGeneratorConfiguration.getLayoutDescriptor().getPageColumnsNum();
         if (c > 12) {
@@ -68,32 +63,6 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
         return head;
     }
 
-    protected void addStaticStyleSheet(HtmlElement htmlElement, String value) {
-        HtmlElement div = new HtmlElement("link");
-        div.addAttribute(new Attribute("rel", "stylesheet"));
-        div.addAttribute(new Attribute("type", "text/css"));
-        if (value != null) {
-            div.addAttribute(new Attribute("th:href", "@{" + value + "}"));
-        }
-        htmlElement.addElement(div);
-    }
-
-    protected void addStaticJavaScript(HtmlElement htmlElement, String value) {
-        HtmlElement div = new HtmlElement("script");
-        div.addAttribute(new Attribute("charset", "utf-8"));
-        if (value != null) {
-            div.addAttribute(new Attribute("th:src", "@{" + value + "}"));
-        }
-        div.addAttribute(new Attribute("type", "text/javascript"));
-        htmlElement.addElement(div);
-    }
-
-    protected void addStaticReplace(HtmlElement htmlElement, String value) {
-        HtmlElement div = new HtmlElement("div");
-        div.addAttribute(new Attribute("th:replace", value));
-        htmlElement.addElement(div);
-    }
-
     protected Map<String, HtmlElement> generateHtmlBody() {
         Map<String, HtmlElement> answer = new HashMap<>();
         HtmlElement body = new HtmlElement("body");
@@ -103,15 +72,15 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
         HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
         switch (layoutDescriptor.getLoadingFrameType()) {
             case "pop":
-                addClassNameToElement(out, "popContainer");
+                addCssClassToElement(out, "popContainer");
                 body.addAttribute(new Attribute("style", "background-color: #FFFFFF;"));
                 break;
             case "inner":
-                addClassNameToElement(out, "innerContainer");
+                addCssClassToElement(out, "innerContainer");
                 body.addAttribute(new Attribute("style", "background-color: #FFFFFF;"));
                 break;
             default:
-                addClassNameToElement(out, "outContainer");
+                addCssClassToElement(out, "outContainer");
         }
         HtmlElement inner = addDivWithClassToParent(out, "icontainer");
         HtmlElement content = addDivWithClassToParent(inner, "content");
@@ -167,72 +136,15 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
 
     protected void addLocalStaticResource(HtmlElement head) {
         String p = introspectedTable.getTableConfiguration().getHtmlBasePath();
-        addStaticStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
+        addStaticThymeleafStyleSheet(head, GenerateUtils.getLocalCssFilePath(p, p));
         //addStaticJavaScript(head, GenerateUtils.getLocalJsFilePath(p, p));
-    }
-
-    protected Document getDocument() {
-        return document;
-    }
-
-    protected IntrospectedTable getIntrospectedTable() {
-        return introspectedTable;
-    }
-
-    protected HtmlElement addDivWithClassToParent(HtmlElement parent, String className) {
-        HtmlElement div = new HtmlElement("div");
-        if (!className.isEmpty()) {
-            addClassNameToElement(div, className);
-        }
-        parent.addElement(div);
-        return div;
     }
 
     protected HtmlElement addFormWithClassToParent(HtmlElement parent, String className) {
         HtmlElement from = new HtmlElement("form");
-        addClassNameToElement(from, className);
+        addCssClassToElement(from, className);
         parent.addElement(from);
         return from;
-    }
-
-    protected void addClassNameToElement(HtmlElement element, String className) {
-        boolean classExist = false;
-        for (Attribute attribute : element.getAttributes()) {
-            if ("class".equals(attribute.getName())) {
-                String[] classNames = attribute.getValue().split(" ");
-                List<String> listClassNames = new ArrayList<>(Arrays.asList(classNames));
-                if (!listClassNames.contains(className)) {
-                    listClassNames.add(className);
-                    String v = String.join(" ", listClassNames);
-                    attribute.setValue(v);
-                }
-                classExist = true;
-            }
-        }
-        if (!classExist) {
-            element.addAttribute(new Attribute("class", className));
-        }
-    }
-
-    protected List<HtmlElement> getElementByClassName(String className) {
-        List<HtmlElement> answer = new ArrayList<>();
-        for (VisitableElement element : document.getRootElement().getAllElements()) {
-            if (element instanceof HtmlElement) {
-                HtmlElement htmlElement = (HtmlElement) element;
-                if (htmlElement.getAttributes().size() > 0) {
-                    for (Attribute attribute : htmlElement.getAttributes()) {
-                        if ("class".equals(attribute.getName())) {
-                            if (attribute.getValue() != null) {
-                                if (Arrays.asList(attribute.getValue().split(" ")).contains(className)) {
-                                    answer.add((HtmlElement) element);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return answer;
     }
 
     /*按配置列数分割总列数*/
@@ -280,25 +192,6 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
         }
     }
 
-    protected FullyQualifiedJavaType getEntityType() {
-        return entityType;
-    }
-
-    protected void setEntityType(FullyQualifiedJavaType entityType) {
-        this.entityType = entityType;
-    }
-
-    protected HtmlElement addButton(HtmlElement parent, String id, String text) {
-        HtmlElement btn = new HtmlElement("button");
-        btn.addAttribute(new Attribute("type", "button"));
-        btn.addAttribute(new Attribute("id", id));
-        if (text != null) {
-            btn.addElement(new TextElement(text));
-        }
-        parent.addElement(btn);
-        return btn;
-    }
-
     protected HtmlElement generateToolBar(HtmlElement parent) {
         String config = getHtmlBarPositionConfig();
         if (HTML_KEY_WORD_TOP.equals(config)) {
@@ -310,16 +203,8 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
         }
     }
 
-    protected HtmlElement addJavaScriptFragment(HtmlElement parent) {
-        HtmlElement js = new HtmlElement("script");
-        js.addAttribute(new Attribute("type", "text/javascript"));
-        parent.addElement(js);
-        return js;
-    }
-
     protected boolean isIgnore(IntrospectedColumn introspectedColumn, VOModelGeneratorConfiguration configuration) {
-        List<String> innerFields = EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields();
-        List<String> allFields = new ArrayList<>(innerFields);
+        List<String> allFields = new ArrayList<>(EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields());
         allFields.add("tenantId");
         String property = configuration.getProperty(PropertyRegistry.ELEMENT_IGNORE_COLUMNS);
         boolean ret = false;
@@ -329,16 +214,10 @@ public abstract class AbsHtmlDocumentGenerator implements HtmlDocumentGenerator,
         return ret || allFields.contains(introspectedColumn.getJavaProperty());
     }
 
-    protected String getOtherValueFormatPattern(HtmlElementDescriptor htmlElementDescriptor){
-        String fieldName = stringHasValue(htmlElementDescriptor.getOtherFieldName())?
-                htmlElementDescriptor.getOtherFieldName():htmlElementDescriptor.getColumn().getJavaProperty();
-        return "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + fieldName + "}?:_";
-    }
 
     protected HtmlElementDescriptor getHtmlElementDescriptor(IntrospectedColumn introspectedColumn) {
         return this.htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(d->d.getColumn().getActualColumnName().equals(introspectedColumn.getActualColumnName()))
                 .findFirst().orElse(null);
     }
-
 }

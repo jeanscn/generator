@@ -521,7 +521,7 @@
             页面布局生成描述
             属性信息：
             1、loadingFrameType 指定页面打开方式：pop-内容全屏弹窗，inner-页面嵌入含重置按钮，full-全屏弹窗内容居中，默认pop
-            2、pageColumnsNum 页面显示元素列数 默认2列
+            2、pageColumnsNum 页面显示元素列数 默认2列,可用值为1|2|3|4|6|12
             3、barPosition 工具条位置，"bottom"\"top" 默认”bottom“
             4、uiFrameType 页面框架名称，layui|zui，默认layui
             5、exclusiveColumns 独占一行的列名，多个列名用逗号分隔
@@ -531,7 +531,7 @@
         <!ELEMENT layout  EMPTY>
         <!ATTLIST layout
                 loadingFrameType (full|inner|pop) #IMPLIED
-                pageColumnsNum CDATA #IMPLIED
+                pageColumnsNum (1|2|3|4|6|12) #IMPLIED
                 barPosition (bottom|top) #IMPLIED
                 uiFrameType (layui|zui) #IMPLIED
                 exclusiveColumns CDATA #IMPLIED

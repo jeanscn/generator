@@ -1,13 +1,13 @@
-package org.mybatis.generator.codegen.mybatis3.htmlmapper;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.html.TextElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
@@ -16,19 +16,13 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:cjj@vip.sina.com">ChenJJ</a>
  * 2020-07-20 06:22
  * @version 3.0
  */
-public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
-
-    private final IntrospectedTable introspectedTable;
-
+public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerator {
     private final Document document;
 
     private final HtmlElement rootElement;
@@ -41,15 +35,14 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
 
     private final GeneratorInitialParameters generatorInitialParameters;
 
-    public LayuiDocumentGenerated(Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        super(document, introspectedTable, htmlGeneratorConfiguration);
+    public LayuiDocumentGenerated(GeneratorInitialParameters generatorInitialParameters,Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters,document, htmlGeneratorConfiguration);
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
-        this.introspectedTable = introspectedTable;
         this.document = document;
         this.rootElement = document.getRootElement();
         this.head = generateLayuiHead();
         this.body = generateHtmlBody();
-        this.generatorInitialParameters = new GeneratorInitialParameters(introspectedTable.getContext(), introspectedTable, null, null);
+        this.generatorInitialParameters = generatorInitialParameters;
     }
 
     @Override
@@ -57,18 +50,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         rootElement.addElement(head);
         rootElement.addElement(body.get("body"));
         document.setRootElement(rootElement);
-        //List<HtmlElement> elements = getElementByClassName("content");
         HtmlElement content = body.get("content");
         HtmlElement form = generateForm(content);
         /*标题区域*/
         addSubjectInput(form);
         /*表单验证button*/
         addVerifyButton(form);
-        /*//是否需要插入页面列表
-        if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            addInnerList(content, htmlGeneratorConfiguration);
-        }*/
-        // if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
         /* 查看状态*/
         HtmlElement viewStatus = generateHtmlInput("viewStatus", true, false);
         viewStatus.addAttribute(new Attribute("th:value", "${viewStatus}?:1"));
@@ -77,21 +64,20 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         HtmlElement isWorkflow = generateHtmlInput("workflowEnabled", true, false);
         isWorkflow.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.workflowEnabled}?:0"));
         content.addElement(isWorkflow);
-        // }
         generateLayuiToolbar(content);
 
         String fileName = Arrays.stream(htmlGeneratorConfiguration.getViewPath().split("[/\\\\]"))
                 .reduce((first, second) -> second)
                 .orElse("");
         if (!GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-non-wf-form.min.js");
+            this.addStaticThymeleafJavaScript(body.get("body"), "/webjars/plugins/js/app-non-wf-form.min.js");
         } else {
-            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/app-wf-form.min.js");
+            this.addStaticThymeleafJavaScript(body.get("body"), "/webjars/plugins/js/app-wf-form.min.js");
         }
         if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
-            addStaticJavaScript(body.get("body"), "/webjars/plugins/js/file-attachment.min.js");
+            this.addStaticThymeleafJavaScript(body.get("body"), "/webjars/plugins/js/file-attachment.min.js");
         }
-        addStaticJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".min.js");
+        this.addStaticThymeleafJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".min.js");
         //增加页面列表的编辑器模板页面片段
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
@@ -134,7 +120,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layTable");
         }
-        addStaticJavaScript(head, "/webjars/plugins/js/mainform.min.js");
+        addStaticThymeleafJavaScript(head, "/webjars/plugins/js/mainform.min.js");
         addLocalStaticResource(head);
         //添加自定义样式
         addCustomCss(head, this.htmlGeneratorConfiguration);
@@ -217,22 +203,22 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             table.addAttribute(new Attribute("class", "layui-table table-layout-fixed"));
             for (List<IntrospectedColumn> rowIntrospectedColumns : baseColumnsRows.values()) {
                 /*行*/
-                HtmlElement tr = new HtmlElement("tr");
-                table.addElement(tr);
+                HtmlElement tr = addTrWithClassToParent(table, "");
                 /*列*/
                 int colNum = 0;
                 for (IntrospectedColumn introspectedColumn : rowIntrospectedColumns) {
                     colNum++;
-                    HtmlElement td = new HtmlElement("td");
+
+                    HtmlElement td = addTdWithClassToTr(tr, "",0);
                     //label
                     drawLabel(introspectedColumn, td);
                     //input
-                    HtmlElement block = addDivWithClassToParent(td, "layui-input-block");
-                    addClassNameToElement(block,"class-"+introspectedColumn.getActualColumnName());
+                    HtmlElement block = addDivWithClassToParent(td, "layui-input-block","class-"+VStringUtil.toHyphenCase(introspectedColumn.getActualColumnName()));
+                    //如果是单独一列，且长度大于255，则占满一行
                     if (rowIntrospectedColumns.size() == 1
                             && (rowIntrospectedColumns.get(0).getLength() > 255
                             || this.htmlGeneratorConfiguration.getLayoutDescriptor().getExclusiveColumns().contains(rowIntrospectedColumns.get(0).getActualColumnName()))) {
-                        td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
+                        addColspanToTd(td, pageColumnsConfig);
                         colNum = pageColumnsConfig;
                     }
                     if (introspectedColumn.isLongVarchar()) {
@@ -241,7 +227,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     } else {
                         generateHtmlInputComponent(introspectedColumn, block, td);
                     }
-                    tr.addElement(td);
                 }
                 /*如果列数小于指定列数，则后面补充空单元格*/
                 if (colNum < pageColumnsConfig && rowIntrospectedColumns.get(0).getLength() <= 255) {
@@ -289,8 +274,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
                     //label
                     drawLabel(introspectedColumn, formItem);
                     //input
-                    HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block");
-                    addClassNameToElement(inputInline,"class-"+introspectedColumn.getActualColumnName());
+                    HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block","class-"+VStringUtil.toHyphenCase(introspectedColumn.getActualColumnName()));
                     if (introspectedColumn.isLongVarchar()) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
@@ -347,7 +331,7 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             form.addElement(input);
         }
 
-        if (hiddenColumns.size() > 0) {
+        if (!hiddenColumns.isEmpty()) {
             for (IntrospectedColumn hiddenColumn : hiddenColumns) {
                 HtmlElement input = generateHtmlInput(hiddenColumn, true, false);
                 input.addAttribute(new Attribute("th:value", thymeleafValue(hiddenColumn, entityKey)));
@@ -411,7 +395,6 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         div.addElement(table);
     }
 
-
     //生成页面dropdownlist、switch、radio、checkbox、date及其它元素
     private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, HtmlElement parent, HtmlElement td) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
@@ -419,79 +402,43 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         if (htmlElementDescriptor!=null) { //如果配置了当前字段的元素描述，则使用配置的元素描述
             switch (htmlElementDescriptor.getTagType().toLowerCase()) {
                 case "dropdownlist":
-                    DropdownListHtmlGenerator dropdownListHtmlGenerator = new DropdownListHtmlGenerator(generatorInitialParameters,introspectedColumn);
-                    dropdownListHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    DropdownListThymeleafHtmlGenerator dropdownListHtmlGenerator = new DropdownListThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                     dropdownListHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     dropdownListHtmlGenerator.addHtmlElement(parent);
-                    HtmlElement dpRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-                        dpRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-                    }
-                    addEnumClassNamAttribute(htmlElementDescriptor, dpRead);
-                    addBeanNameApplyProperty(htmlElementDescriptor, dpRead);
-                    addDictCodeAttribute(htmlElementDescriptor, dpRead);
                     break;
                 case "switch":
                     //增加美化的switch
-                    SwitchHtmlGenerator switchHtmlGenerator = new SwitchHtmlGenerator(generatorInitialParameters,introspectedColumn);
-                    switchHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    SwitchThymeleafHtmlGenerator switchHtmlGenerator = new SwitchThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                     switchHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     switchHtmlGenerator.addHtmlElement(parent);
-                    HtmlElement sRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-                        sRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-                    }
-                    addBeanNameApplyProperty(htmlElementDescriptor, sRead);
-                    addEnumClassNamAttribute(htmlElementDescriptor, sRead);
-                    addDictCodeAttribute(htmlElementDescriptor, sRead);
                     break;
                 case "radio":
-                    RadioHtmlGenerator radioHtmlGenerator = new RadioHtmlGenerator(generatorInitialParameters,introspectedColumn);
-                    radioHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    RadioThymeleafHtmlGenerator radioHtmlGenerator = new RadioThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                     radioHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     radioHtmlGenerator.addHtmlElement(parent);
-                    HtmlElement rRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-                        rRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-                    }
-                    addBeanNameApplyProperty(htmlElementDescriptor, rRead);
-                    addEnumClassNamAttribute(htmlElementDescriptor, rRead);
-                    addDictCodeAttribute(htmlElementDescriptor, rRead);
                     break;
                 case "checkbox":
-                    CheckBoxHtmlGenerator checkBoxHtmlGenerator = new CheckBoxHtmlGenerator(generatorInitialParameters,introspectedColumn);
-                    checkBoxHtmlGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    CheckBoxThymeleafHtmlGenerator checkBoxHtmlGenerator = new CheckBoxThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                     checkBoxHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     checkBoxHtmlGenerator.addHtmlElement(parent);
-                    HtmlElement cRead = addDivWithClassToParent(td, "oas-form-item-read");
-                    if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-                        cRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-                    }
-                    addBeanNameApplyProperty(htmlElementDescriptor, cRead);
-                    addEnumClassNamAttribute(htmlElementDescriptor, cRead);
-                    addDictCodeAttribute(htmlElementDescriptor, cRead);
                     break;
                 case "date":
-                    DateHtmlElementGenerator dateHtmlElementGenerator = new DateHtmlElementGenerator(generatorInitialParameters,introspectedColumn);
-                    dateHtmlElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    DateThymeleafHtmlElementGenerator dateHtmlElementGenerator = new DateThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                     dateHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     dateHtmlElementGenerator.addHtmlElement(parent);
                     break;
                 case "select":
-                    SelectElementGenerator selectElementGenerator = new SelectElementGenerator(generatorInitialParameters,introspectedColumn);
-                    selectElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    SelectElementGeneratorThymeleaf selectElementGenerator = new SelectElementGeneratorThymeleaf(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                     selectElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     selectElementGenerator.addHtmlElement(parent);
                     break;
                 default:
                     if (GenerateUtils.isDateType(introspectedColumn)) {
-                        DateHtmlElementGenerator date = new DateHtmlElementGenerator(generatorInitialParameters,introspectedColumn);
-                        date.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                        DateThymeleafHtmlElementGenerator date = new DateThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                         date.setHtmlElementDescriptor(htmlElementDescriptor);
                         date.addHtmlElement(parent);
                     } else {
-                        InputHtmlElementGenerator inputHtmlElementGenerator = new InputHtmlElementGenerator(generatorInitialParameters,introspectedColumn);
-                        inputHtmlElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                        InputThymeleafHtmlElementGenerator inputHtmlElementGenerator = new InputThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                         inputHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                         inputHtmlElementGenerator.addHtmlElement(parent);
                     }
@@ -499,35 +446,12 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
             }
         } else {
             if (GenerateUtils.isDateType(introspectedColumn)) {
-                DateHtmlElementGenerator date = new DateHtmlElementGenerator(generatorInitialParameters,introspectedColumn);
-                date.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                DateThymeleafHtmlElementGenerator date = new DateThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                 date.addHtmlElement(parent);
             } else {
-                InputHtmlElementGenerator inputHtmlElementGenerator = new InputHtmlElementGenerator(generatorInitialParameters,introspectedColumn);
-                inputHtmlElementGenerator.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                InputThymeleafHtmlElementGenerator inputHtmlElementGenerator = new InputThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
                 inputHtmlElementGenerator.addHtmlElement(parent);
             }
-        }
-    }
-
-    private void addDictCodeAttribute(HtmlElementDescriptor htmlElementDescriptor, HtmlElement htmlElement) {
-        if (VStringUtil.stringHasValue(htmlElementDescriptor.getDictCode())) {
-            htmlElement.addAttribute(new Attribute(HTML_ATTRIBUTE_DICT_CODE, htmlElementDescriptor.getDictCode()));
-        }
-    }
-
-    private void addBeanNameApplyProperty(HtmlElementDescriptor htmlElementDescriptor, HtmlElement element) {
-        if (htmlElementDescriptor.getBeanName() != null) {
-            element.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
-        }
-        if (htmlElementDescriptor.getApplyProperty() != null) {
-            element.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
-        }
-    }
-
-    private void addEnumClassNamAttribute(HtmlElementDescriptor htmlElementDescriptor, HtmlElement element) {
-        if (htmlElementDescriptor.getEnumClassName() != null) {
-            element.addAttribute(new Attribute(HTML_ATTRIBUTE_ENUM_CLASS_NAME, htmlElementDescriptor.getEnumClassName()));
         }
     }
 
@@ -538,20 +462,18 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         //追加样式css
         HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
-            voGenService.addCssStyleToElement(htmlElement, htmlElementDescriptor.getElementCss());
+            addCssStyleToElement(htmlElement, htmlElementDescriptor.getElementCss());
         }
     }
 
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement parent) {
         HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);
         HtmlElement label = new HtmlElement("label");
-        addClassNameToElement(label, "layui-form-label");
-        if (!Mb3GenUtil.isInDefaultFields(introspectedTable,introspectedColumn.getJavaProperty())) {
-            if (htmlElementDescriptor!=null && !htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.getCode())) {
-                label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
-            }else{
-                label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
-            }
+        addCssClassToElement(label, "layui-form-label");
+        if (htmlElementDescriptor == null) {
+            label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+        } else if(!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.getCode())){
+            label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         }
         OverridePropertyValueGeneratorConfiguration overrideConfig = voGenService.getOverridePropertyValueConfiguration(introspectedColumn);
         if (overrideConfig != null && overrideConfig.getRemark() != null) {
@@ -559,48 +481,37 @@ public class LayuiDocumentGenerated extends AbsHtmlDocumentGenerator {
         } else {
             label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
         }
-        addClassNameToElement(label, "class-"+introspectedColumn.getActualColumnName());
+        addCssClassToElement(label, "class-"+introspectedColumn.getActualColumnName());
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getLabelCss() != null) {
-            voGenService.addCssStyleToElement(label, htmlElementDescriptor.getLabelCss());
+            addCssStyleToElement(label, htmlElementDescriptor.getLabelCss());
         }
         parent.addElement(label);
     }
 
-    private HtmlElement generateLayuiToolbar(HtmlElement parent) {
+    private void generateLayuiToolbar(HtmlElement parent) {
         HtmlElement toolBar = generateToolBar(parent);
         String config = getHtmlBarPositionConfig();
         if (!HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
-            addClassNameToElement(btnClose, "footer-btn");
+            addCssClassToElement(btnClose, "footer-btn");
             if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
-                addClassNameToElement(btnReset, "footer-btn");
+                addCssClassToElement(btnReset, "footer-btn");
             }
         }
-        return toolBar;
     }
 
     private HtmlElement addLayButton(HtmlElement parent, String id, String text, String unicode) {
-        HtmlElement btn = addButton(parent, id, null);
-        addClassNameToElement(btn, "layui-btn layui-btn-sm btn-primary");
+        HtmlElement btn = addHtmlButton(parent, id, text,"layui-btn layui-btn-sm btn-primary");
         addLayIconFont(btn, unicode);
-        if (text != null) {
-            btn.addElement(new TextElement(text));
-        }
         return btn;
     }
 
-    private HtmlElement addLayIconFont(HtmlElement parent, String unicode) {
-        HtmlElement icon;
+    private void addLayIconFont(HtmlElement parent, String unicode) {
+        HtmlElement icon = addIconToParent(parent, "layui-icon");
         if (unicode != null) {
-            icon = new HtmlElement("i");
-            addClassNameToElement(icon, "layui-icon");
             icon.addElement(new TextElement(unicode));
-            parent.addElement(icon);
-            return icon;
-        } else {
-            return null;
         }
     }
 }

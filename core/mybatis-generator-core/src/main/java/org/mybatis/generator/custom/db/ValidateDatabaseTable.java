@@ -134,7 +134,7 @@ public class ValidateDatabaseTable {
     private void checkTable() {
         JavaTypeResolverDefaultImpl javaTypeResolverDefault = new JavaTypeResolverDefaultImpl(databaseProductName);
         TableConfiguration tc = introspectedTable.getTableConfiguration();
-        String rootClassName = tc.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        String rootClassName = tc.getProperty(PropertyRegistry.ROOT_CLASS);
         if (!stringHasValue(rootClassName)) {
             return;
         }

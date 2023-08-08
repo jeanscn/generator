@@ -1,16 +1,15 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
-import org.mybatis.generator.config.Context;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractThymeleafHtmlElementGenerator;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.DictTypeEnum;
+import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
+import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import javax.annotation.Nullable;
@@ -25,9 +24,11 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2023-04-13 13:47
  * @version 3.0
  */
-public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementGenerator {
-    protected AbstractLayuiElementGenerator(GeneratorInitialParameters generatorInitialParameters,IntrospectedColumn introspectedColumn) {
-        super(generatorInitialParameters,introspectedColumn);
+public abstract class AbstractThymeleafLayuiElementGenerator extends AbstractThymeleafHtmlElementGenerator {
+
+
+    protected AbstractThymeleafLayuiElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
     }
 
     @Override
@@ -87,15 +88,9 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
         if (minLength > 0) {
             element.addAttribute(new Attribute("min-length", String.valueOf(minLength)));
         }
-        if (verifyList.size() > 0) {
+        if (!verifyList.isEmpty()) {
             element.addAttribute(new Attribute("lay-verify", String.join("|", verifyList)));
         }
-    }
-
-    protected HtmlElement drawLayuiRadio(String propertyName, String value, String text, String entityKey) {
-        HtmlElement radio = this.drawRadio(propertyName, value, text, entityKey);
-        radio.addAttribute(new Attribute("lay-filter", propertyName));
-        return radio;
     }
 
     protected void addDataUrl(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor, String defaultDataUrl) {
@@ -108,6 +103,49 @@ public abstract class AbstractLayuiElementGenerator extends AbstractHtmlElementG
             element.addAttribute(new Attribute("data-url", "/system/enum/options/" + htmlElementDescriptor.getEnumClassName()));
         } else if (defaultDataUrl != null) {
             element.addAttribute(new Attribute("data-url", defaultDataUrl));
+        }
+    }
+
+    /**
+     * 添加layui输入框的后缀
+     */
+    protected void addLayuiInputSuffix(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor) {
+        if (htmlElementDescriptor == null) {
+            return;
+        }
+        HtmlElementTagTypeEnum tagType = HtmlElementTagTypeEnum.getEnum(htmlElementDescriptor.getTagType());
+        switch (tagType) {
+            case SELECT:
+                HtmlElementDataSourceEnum anEnum = HtmlElementDataSourceEnum.getEnum(htmlElementDescriptor.getDataSource());
+                if (anEnum != null) {
+                    switch (anEnum) {
+                        case DEPARTMENT:
+                            addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-transfer");
+                            break;
+                        case USER:
+                            addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-username");
+                            break;
+                        case ROLE:
+                        case ORGANIZATION:
+                            addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-user");
+                            break;
+                        case INNER_TABLE:
+                            addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-table");
+                            break;
+                        case DICT_MODULE:
+                            addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-set");
+                            break;
+                        default:
+                            addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-more-vertical");
+                            break;
+                    }
+                }
+                break;
+            case DATE:
+                addIconToParent(addDivWithClassToParent(element, "layui-input-suffix"), "layui-icon","layui-icon-date");
+                break;
+            default:
+                break;
         }
     }
 }

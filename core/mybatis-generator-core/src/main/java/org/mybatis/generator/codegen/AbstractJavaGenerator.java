@@ -19,9 +19,6 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     public abstract List<CompilationUnit> getCompilationUnits();
 
     protected final String project;
-
-
-
     protected AbstractJavaGenerator(String project) {
         super();
         this.project = project;
@@ -41,10 +38,10 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     }
 
     public String getRootClass() {
-        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_CLASS);
+        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
         if (rootClass == null) {
             Properties properties = context.getJavaModelGeneratorConfiguration().getProperties();
-            rootClass = properties.getProperty(PropertyRegistry.ANY_ROOT_CLASS);
+            rootClass = properties.getProperty(PropertyRegistry.ROOT_CLASS);
         }
         return rootClass;
     }

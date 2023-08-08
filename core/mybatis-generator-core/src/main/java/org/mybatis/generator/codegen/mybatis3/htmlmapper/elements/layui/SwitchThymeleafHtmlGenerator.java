@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -17,14 +18,15 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * @version 3.0
  */
 
-public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
-    public SwitchHtmlGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
-        super(generatorInitialParameters,introspectedColumn);
+public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementGenerator {
+    public SwitchThymeleafHtmlGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
     }
 
     @Override
     public void addHtmlElement(HtmlElement parent) {
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
+        HtmlElement editDiv = addDivWithClassToParent(parent, "oas-form-item-edit");
         HtmlElement element = new HtmlElement("input");
         element.addAttribute(new Attribute("type", "checkbox"));
         element.addAttribute(new Attribute("lay-skin", "switch"));
@@ -54,8 +56,8 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         addDataUrl(element, htmlElementDescriptor, null);
         String sb = "${" + entityKey + "?." +  introspectedColumn.getJavaProperty() + "} eq " + checkedValue;
         element.addAttribute(new Attribute("th:checked", sb));
+        parent.addElement(editDiv);
 
-        parent.addElement(element);
         //增加提交数据的隐藏域
         HtmlElement hidden = new HtmlElement("input");
         hidden.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
@@ -65,7 +67,6 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         parent.addElement(hidden);
 
         //读写状态区
-        addClassNameToElement(parent, "oas-form-item-edit");
         parent.addAttribute(new Attribute("for-type", "lay-switch"));
         //在parent中添加data-data属性，用于保存初始值
         parent.addAttribute(new Attribute("th:data-data", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
@@ -78,8 +79,17 @@ public class SwitchHtmlGenerator extends AbstractLayuiElementGenerator {
         addElementVerify(introspectedColumn.getActualColumnName(), hidden, this.htmlElementDescriptor);
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
-            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+            addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
         }
+
+        //只读状态区
+        HtmlElement sRead = addDivWithClassToParent(parent, this.isDisplayOnly(introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
+        if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
+            sRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
+        }
+        addBeanNameApplyProperty(htmlElementDescriptor, sRead);
+        addEnumClassNamAttribute(htmlElementDescriptor, sRead);
+        addDictCodeAttribute(htmlElementDescriptor, sRead);
     }
 
     @Override

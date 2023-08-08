@@ -5,7 +5,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractHtmlElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractThymeleafHtmlElementGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import static org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant.MYBATIS3_THYMELEAF_XMLNS_SEC;
@@ -22,19 +22,18 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
     protected HtmlElement getHtmlMapElement(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.121", table.toString(), htmlGeneratorConfiguration.getHtmlFileName())); //$NON-NLS-1$
-        HtmlElement answer = new HtmlElement("html"); //$NON-NLS-1$
+        HtmlElement answer = new HtmlElement("html");
         answer.addAttribute(new Attribute("xmlns:th",MYBATIS3_THYMELEAF_XMLNS_TH));
         answer.addAttribute(new Attribute("xmlns:sec",MYBATIS3_THYMELEAF_XMLNS_SEC));
         context.getCommentGenerator().addRootComment(answer);
         return answer;
     }
 
-    protected void initializeAndExecuteGenerator(AbstractHtmlElementGenerator elementGenerator,HtmlElement parentElement) {
+    protected void initializeAndExecuteGenerator(AbstractThymeleafHtmlElementGenerator elementGenerator, HtmlElement parentElement) {
         elementGenerator.setContext(context);
         elementGenerator.setIntrospectedTable(introspectedTable);
         elementGenerator.setProgressCallback(progressCallback);
         elementGenerator.setWarnings(warnings);
-        //elementGenerator.addElements(parentElement);
     }
 
     @Override
@@ -43,7 +42,6 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
                 MYBATIS3_THYMELEAF_XMLNS_TH,
                 MYBATIS3_THYMELEAF_XMLNS_SEC);
         document.setRootElement(getHtmlMapElement(htmlGeneratorConfiguration));
-
         if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable, htmlGeneratorConfiguration)) {
             document = null;
         }

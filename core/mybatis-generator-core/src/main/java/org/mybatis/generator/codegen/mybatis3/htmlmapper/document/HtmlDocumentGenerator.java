@@ -1,4 +1,4 @@
-package org.mybatis.generator.codegen.mybatis3.htmlmapper;
+package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
 /**
  *

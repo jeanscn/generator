@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -17,16 +18,15 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2023-04-13 14:37
  * @version 3.0
  */
-public class RadioHtmlGenerator extends AbstractLayuiElementGenerator {
+public class RadioThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementGenerator {
 
-    public RadioHtmlGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn) {
-        super(generatorInitialParameters,introspectedColumn);
+    public RadioThymeleafHtmlGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
     }
 
     @Override
     public void addHtmlElement(HtmlElement parent) {
-        StringBuilder sb = new StringBuilder();
-        String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
+        HtmlElement editDiv = addDivWithClassToParent(parent, "oas-form-item-edit");
         String enumClassName = htmlElementDescriptor.getEnumClassName();
         if (!stringHasValue(htmlElementDescriptor.getDataSource())) {
             htmlElementDescriptor.setDataSource("DictEnum");
@@ -37,23 +37,30 @@ public class RadioHtmlGenerator extends AbstractLayuiElementGenerator {
             }
         }
         if ("DictEnum".equals(htmlElementDescriptor.getDataSource()) && !stringHasValue(htmlElementDescriptor.getDataUrl())) {
-            parent.addAttribute(new Attribute("data-url", "/system/enum/options/" + enumClassName));
+            editDiv.addAttribute(new Attribute("data-url", "/system/enum/options/" + enumClassName));
         } else if (stringHasValue(htmlElementDescriptor.getDataUrl())) {
-            parent.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
+            editDiv.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
         }
         //在parent中添加data-data属性，用于保存初始值
-        parent.addAttribute(new Attribute("th:data-data", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
-        parent.addAttribute(new Attribute("for-type", "lay-radio"));
+        editDiv.addAttribute(new Attribute("th:data-data", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
+        editDiv.addAttribute(new Attribute("for-type", "lay-radio"));
         //在parent中添加data-field属性，用于保存属性名
-        parent.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
-        addClassNameToElement(parent, "oas-form-item-edit");
+        editDiv.addAttribute(new Attribute("data-field", introspectedColumn.getJavaProperty()));
         if (StringUtility.stringHasValue(this.htmlElementDescriptor.getCallback())) {
-            parent.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
+            editDiv.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
         }
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
-            voGenService.addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
+            addCssStyleToElement(editDiv, htmlElementDescriptor.getElementCss());
         }
+        //只读内容
+        HtmlElement rRead = addDivWithClassToParent(parent, this.isDisplayOnly(introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
+        if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
+            rRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
+        }
+        addBeanNameApplyProperty(htmlElementDescriptor, rRead);
+        addEnumClassNamAttribute(htmlElementDescriptor, rRead);
+        addDictCodeAttribute(htmlElementDescriptor, rRead);
     }
 
     @Override

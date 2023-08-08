@@ -21,8 +21,6 @@ public interface HtmlConstant {
 
     String HTML_KEY_WORD_BOTTOM = "bottom";
 
-    String HTML_KEY_WORD_ALL = "all";
-
     String HTML_ATTRIBUTE_ENUM_CLASS_NAME = "data-enum-class";
 
     String HTML_ATTRIBUTE_DICT_CODE = "data-dict-code";
