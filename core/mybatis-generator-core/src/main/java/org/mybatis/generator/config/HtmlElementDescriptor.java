@@ -52,6 +52,10 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String listViewClass;
 
+    private String multiple;
+
+    private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
+
     public HtmlElementDescriptor() {
     }
 
@@ -295,5 +299,17 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setListViewClass(String listViewClass) {
         this.listViewClass = listViewClass;
+    }
+
+    public String getMultiple() {
+        return multiple;
+    }
+
+    public void setMultiple(String multiple) {
+        this.multiple = multiple;
+    }
+
+    public List<HtmlHrefElementConfiguration> getHtmlHrefElementConfigurations() {
+        return htmlHrefElementConfigurations;
     }
 }

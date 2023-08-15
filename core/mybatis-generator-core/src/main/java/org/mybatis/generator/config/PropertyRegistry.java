@@ -9,6 +9,7 @@ package org.mybatis.generator.config;
  *
  */
 public class PropertyRegistry {
+
     private PropertyRegistry() {}
 
     public static final String ANY_ENABLE_SUB_PACKAGES = "enableSubPackages"; //$NON-NLS-1$
@@ -156,6 +157,8 @@ public class PropertyRegistry {
     public static final String ELEMENT_FIELD_NAMES = "fieldNames";
 
     public static final String ELEMENT_RENDER_FUN = "renderFun";
+
+    public static final String ELEMENT_EXTEND_FUNC_OTHER = "extendFuncOther";
 
     public static final String ELEMENT_INITIALIZATION_STRING = "initializationString";
 

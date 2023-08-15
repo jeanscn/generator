@@ -11,11 +11,13 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -23,10 +25,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * 2020-07-20 06:22
  * @version 3.0
  */
-public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerator {
+public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerator {
     private final Document document;
 
     private final HtmlElement rootElement;
+
+    private final HtmlElement head;
 
     private final Map<String, HtmlElement> body;
 
@@ -34,18 +38,19 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
 
     private final GeneratorInitialParameters generatorInitialParameters;
 
-    public LayuiDocumentGenerated(GeneratorInitialParameters generatorInitialParameters,Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public LayuiViewDocumentGenerated(GeneratorInitialParameters generatorInitialParameters, Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(generatorInitialParameters,document, htmlGeneratorConfiguration);
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
         this.document = document;
         this.rootElement = document.getRootElement();
+        this.head = generateLayuiHead();
         this.body = generateHtmlBody();
         this.generatorInitialParameters = generatorInitialParameters;
     }
 
     @Override
     public boolean htmlMapDocumentGenerated() {
-        rootElement.addElement(generateLayuiHead());
+        rootElement.addElement(head);
         rootElement.addElement(body.get("body"));
         document.setRootElement(rootElement);
         HtmlElement content = body.get("content");
@@ -176,8 +181,8 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
             }
         }
 
-        int pageColumnsConfig = getPageColumnsConfig(12);
-        Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns,12);
+        int pageColumnsConfig = getPageColumnsConfig(6);
+        Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns,6);
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
         List<IntrospectedColumn> rtfColumn = new ArrayList<>();
         if (pageColumnsConfig > 1) {
@@ -243,9 +248,6 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                     HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
                     if (rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> listConfiguration.getAfterColumn().equals(col))) {
                         addInnerList(table, htmlGeneratorConfiguration,pageColumnsConfig);
-                        HtmlElement listKey = generateHtmlInput("innerListKey", true, false, true, false);
-                        listKey.addAttribute(new Attribute("value", listConfiguration.getListKey()));
-                        form.addElement(listKey);
                     }
                 }
             }
@@ -287,9 +289,6 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                         HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
                         if (introspectedColumn.getActualColumnName().equals(listConfiguration.getAfterColumn())) {
                             addInnerList(form, htmlGeneratorConfiguration,pageColumnsConfig);
-                            HtmlElement listKey = generateHtmlInput("innerListKey", true, false, true, false);
-                            listKey.addAttribute(new Attribute("value", listConfiguration.getListKey()));
-                            form.addElement(listKey);
                         }
                     }
                 }
@@ -477,10 +476,6 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
                 addCssClassToElement(btnReset, "footer-btn");
             }
-        }
-        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream().anyMatch(t-> HtmlDocumentTypeEnum.PRINT.equals(t.getType()))) {
-            HtmlElement btnPrint = addLayButton(toolBar, btn_print_id, "打印预览", "&#xe66d;");
-            addCssClassToElement(btnPrint, "footer-btn");
         }
     }
 }

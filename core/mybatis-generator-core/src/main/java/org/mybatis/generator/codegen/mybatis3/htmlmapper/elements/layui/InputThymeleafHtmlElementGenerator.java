@@ -50,8 +50,8 @@ public class InputThymeleafHtmlElementGenerator extends AbstractThymeleafLayuiEl
         }
         editDiv.addElement(input);
         addCssClassToElement(input, isTextArea ? "layui-textarea" : "layui-input");
-        HtmlElement dRead = addDivWithClassToParent(parent, displayOnly ? "oas-form-item-readonly" : "oas-form-item-read");
-        dRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
+        HtmlElement dRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
+        parent.addElement(dRead);
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
             addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());

@@ -74,8 +74,8 @@ public class ZuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerator
                 displayColumns.add(baseColumn);
             }
         }
-        int pageColumnsConfig = getPageColumnsConfig();
-        Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns);
+        int pageColumnsConfig = getPageColumnsConfig(12);
+        Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns,12);
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
         HtmlElement caption = addDivWithClassToParent(form,"form-title");
         caption.addElement(new TextElement(introspectedTable.getRemarks(true)));

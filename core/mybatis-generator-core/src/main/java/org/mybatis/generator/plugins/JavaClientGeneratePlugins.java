@@ -8,10 +8,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.document.*;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.document.HtmlDocumentGenerator;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.document.LayuiDocumentGenerated;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.document.ZuiDocumentGenerated;
+import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
@@ -79,12 +78,18 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
         String uiFrame = htmlGeneratorConfiguration.getLayoutDescriptor().getUiFrameType();
         GeneratorInitialParameters generatorInitialParameters = new GeneratorInitialParameters(introspectedTable.getContext(), introspectedTable,null , null);
         if (HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);
+            if (HtmlDocumentTypeEnum.PRINT.equals(htmlGeneratorConfiguration.getType())) {
+                htmlDocumentGenerated = new LayuiPrintDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);
+            }else if(HtmlDocumentTypeEnum.VIEWONLY.equals(htmlGeneratorConfiguration.getType())){
+                htmlDocumentGenerated = new LayuiViewDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);
+            }else{
+                htmlDocumentGenerated = new LayuiDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);
+            }
+            return htmlDocumentGenerated.htmlMapDocumentGenerated();
         } else if (HTML_UI_FRAME_ZUI.equals(uiFrame)) {
             htmlDocumentGenerated = new ZuiDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);
-        } else {
-            htmlDocumentGenerated = new LayuiDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);
+            return htmlDocumentGenerated.htmlMapDocumentGenerated();
         }
-        return htmlDocumentGenerated.htmlMapDocumentGenerated();
+        return false;
     }
 }

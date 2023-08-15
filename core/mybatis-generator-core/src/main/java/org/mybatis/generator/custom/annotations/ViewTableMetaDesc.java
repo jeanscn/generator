@@ -41,7 +41,7 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private String[] querys = new String[0];
     private String indexColWidth;
     private String actionColWidth;
-    private int dataFilterType;
+    private int dataFilterType = 0;
     private String categoryTreeUrl;
     private int wfStatus = 6;
     private String areaWidth;
@@ -63,7 +63,6 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         this.dataUrl = "/viewmgr/getdtdata";
         this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
-        this.dataFilterType = 0;
         this.addImports(ViewTableMeta.class.getCanonicalName());
     }
 

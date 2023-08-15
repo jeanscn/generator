@@ -81,15 +81,9 @@ public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementG
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
             addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
         }
-
         //只读状态区
-        HtmlElement sRead = addDivWithClassToParent(parent, this.isDisplayOnly(introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
-        if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-            sRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-        }
-        addBeanNameApplyProperty(htmlElementDescriptor, sRead);
-        addEnumClassNamAttribute(htmlElementDescriptor, sRead);
-        addDictCodeAttribute(htmlElementDescriptor, sRead);
+        HtmlElement sRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
+        parent.addElement(sRead);
     }
 
     @Override

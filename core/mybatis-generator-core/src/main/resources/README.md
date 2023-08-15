@@ -1,4 +1,7 @@
 更新日志：
+# 2023-8-9
+## 一、更新说明：
+* 1、htmlElementDescriptor元素增加属性：multiple，用于指定生成select的元素是否支持多选的配置。
 # 2023-8-4
 ## 一、新增功能：
 * 1、table标签新增processDefinedKey属性：当生成对象为流程类对象时，指定该属性会生成流程定义数据。

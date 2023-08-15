@@ -51,8 +51,8 @@ public class DateThymeleafHtmlElementGenerator extends AbstractThymeleafLayuiEle
             addOrReplaceElementAttribute(input, "placeholder", "请选择" + introspectedColumn.getRemarks(true));
         }
         input.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
-        HtmlElement dateRead = addDivWithClassToParent(parent, isDisplayOnly(this.introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
-        dateRead.addAttribute(new Attribute("th:text", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
+        HtmlElement dateRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
+        parent.addElement(dateRead);
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
             addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
@@ -61,24 +61,6 @@ public class DateThymeleafHtmlElementGenerator extends AbstractThymeleafLayuiEle
 
     @Override
     public String getFieldValueFormatPattern(ThymeleafValueScopeEnum scope) {
-        String entityName = GenerateUtils.getEntityKeyStr(introspectedTable);
-        StringBuilder sb = new StringBuilder();
-        sb.append("${").append(entityName).append("?.").append(introspectedColumn.getJavaProperty());
-        if (introspectedColumn.isJava8TimeColumn()) {
-            sb.append("!=null?#temporals.format(").append(entityName).append(".");
-        } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJDBCDateColumn()) {
-            sb.append("!=null?#dates.format(").append(entityName).append(".");
-        } else {
-            sb.append("}?:_");
-            return sb.toString();
-        }
-        if (introspectedColumn.getJdbcType() == 91) {
-            sb.append(introspectedColumn.getJavaProperty()).append(",'yyyy-MM-dd'):''}");
-        } else if (introspectedColumn.getJdbcType() == 92) {
-            sb.append(introspectedColumn.getJavaProperty()).append(",'HH:mm:ss'):''}");
-        } else if (introspectedColumn.getJdbcType() == 93) {
-            sb.append(introspectedColumn.getJavaProperty()).append(",'yyyy-MM-dd HH:mm:ss'):''}");
-        }
-        return sb.toString();
+        return super.getDateFieldValueFormatPattern(introspectedColumn, scope);
     }
 }

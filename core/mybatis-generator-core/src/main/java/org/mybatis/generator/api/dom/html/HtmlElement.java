@@ -32,6 +32,10 @@ public class HtmlElement implements VisitableElement {
         return attributes;
     }
 
+    public Attribute getAttribute(String name) {
+        return attributes.stream().filter(attribute -> attribute.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
+
     public void addAttribute(Attribute attribute) {
         attributes.add(attribute);
     }
@@ -95,6 +99,16 @@ public class HtmlElement implements VisitableElement {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    //删除属性
+    public void removeAttribute(String name) {
+        attributes.removeIf(attribute -> attribute.getName().equalsIgnoreCase(name));
+    }
+
+    //删除属性
+    public void removeAttribute(Attribute attribute) {
+        attributes.remove(attribute);
     }
 
     @Override

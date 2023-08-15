@@ -86,6 +86,13 @@ public class AbstractHtmlGenerator extends AbstractGenerator implements HtmlCons
         return div;
     }
 
+    protected HtmlElement addDivWithIdToParent(HtmlElement parent, String id) {
+        HtmlElement div = new HtmlElement("div");
+        div.addAttribute(new Attribute("id",id));
+        parent.addElement(div);
+        return div;
+    }
+
     /**
      * 在父元素中添加一个带有class属性的i元素
      * @param parent    父元素
@@ -112,7 +119,7 @@ public class AbstractHtmlGenerator extends AbstractGenerator implements HtmlCons
     /**
      * 在tr元素中添加一个带有class属性的td元素
      */
-    protected HtmlElement addTdWithClassToTr(HtmlElement tr, String className,int colspan) {
+    protected HtmlElement addDtWithClassToTr(HtmlElement tr, String className, int colspan) {
         HtmlElement td = new HtmlElement("td");
         if (!className.isEmpty()) {
             addCssClassToElement(td, className);

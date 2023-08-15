@@ -23,6 +23,7 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.121", table.toString(), htmlGeneratorConfiguration.getHtmlFileName())); //$NON-NLS-1$
         HtmlElement answer = new HtmlElement("html");
+        answer.addAttribute(new Attribute("lang","zh-CN"));
         answer.addAttribute(new Attribute("xmlns:th",MYBATIS3_THYMELEAF_XMLNS_TH));
         answer.addAttribute(new Attribute("xmlns:sec",MYBATIS3_THYMELEAF_XMLNS_SEC));
         context.getCommentGenerator().addRootComment(answer);

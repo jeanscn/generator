@@ -1,6 +1,7 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,7 +10,11 @@ import java.util.Set;
 
 public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
+    private HtmlDocumentTypeEnum type;
+
     private String viewPath;
+
+    private String title;
 
     private String simpleViewPath;
 
@@ -58,12 +63,28 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         super.validate(errors, contextId, "HtmlMapGeneratorConfiguration");
     }
 
+    public HtmlDocumentTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(HtmlDocumentTypeEnum type) {
+        this.type = type;
+    }
+
     public String getViewPath() {
         return viewPath;
     }
 
     public void setViewPath(String viewPath) {
         this.viewPath = viewPath;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getHtmlFileName() {
@@ -174,5 +195,4 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     public Set<String> getReadonlyFields() {
         return readonlyFields;
     }
-
 }

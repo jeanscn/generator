@@ -21,6 +21,8 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private String sourceBeanName;
 
+    private String sourceViewVoClass;
+
     private String relationField;
 
     private String relationKey;
@@ -111,5 +113,13 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setAfterColumn(String afterColumn) {
         this.afterColumn = afterColumn;
+    }
+
+    public String getSourceViewVoClass() {
+        return sourceViewVoClass;
+    }
+
+    public void setSourceViewVoClass(String sourceViewVoClass) {
+        this.sourceViewVoClass = sourceViewVoClass;
     }
 }

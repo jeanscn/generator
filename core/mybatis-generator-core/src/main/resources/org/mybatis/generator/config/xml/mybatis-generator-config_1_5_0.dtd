@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300801001-->
+        <!--version:1.5.0.2300809001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -494,12 +494,14 @@
             是否生成页面
              属性信息：
             1、generate 是否生成页面：”true“|”false“
-            2、viewPath 视图文件名
-            3、overWriteHtmlFile 当页面存在时，是否覆盖。默认为false
-            4、overWriteJsFile 当页面存在时，是否覆盖。默认为false
-            5、overWriteCssFile 当页面存在时，是否覆盖。默认为false
-            6、targetProject 视图路径，默认"src/main/resources/templates"
-            7、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
+            2、type 页面类型：”editable“|”viewOnly“|”print“
+            3、viewPath 视图文件名
+            4、title 页面标题，缺省为表简要注释。当title="none"时，不生成标题。
+            5、overWriteHtmlFile 当页面存在时，是否覆盖。默认为false
+            6、overWriteJsFile 当页面存在时，是否覆盖。默认为false
+            7、overWriteCssFile 当页面存在时，是否覆盖。默认为false
+            8、targetProject 视图路径，默认"src/main/resources/templates"
+            9、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
             可能的property配置：
             1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             2、requiredColumns 页面文件中必填的列，多个”,“分隔。
@@ -510,7 +512,9 @@
         <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
+                type (editable|viewOnly|print) #REQUIRED
                 viewPath CDATA #IMPLIED
+                title CDATA #IMPLIED
                 overWriteHtmlFile (true|false) #IMPLIED
                 overWriteJsFile (true|false) #IMPLIED
                 overWriteCssFile (true|false) #IMPLIED
@@ -591,6 +595,7 @@
             13、labelCss 样式，用于指定生成的label的附加样式，如：display: none;width:100px;height:100px;等。
             14、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
             15、dateFmt 日期格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等。
+            16、multiple 是否允许多选，默认false，当tagType为select时有效。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -605,7 +610,7 @@
                 7、apply_dept_id ：将生成带有当前用户部门标识初始数据的只读字段，tagType为input，dataSource为Department。
                 8、apply_org_id：将生成带有当前用户机构标识初始数据的只读字段，tagType为input，dataSource为Organization。
         -->
-        <!ELEMENT htmlElementDescriptor EMPTY>
+        <!ELEMENT htmlElementDescriptor (property*,hrefElement?)>
         <!ATTLIST htmlElementDescriptor
                 column CDATA #REQUIRED
                 tagType (dropdownlist|radio|checkbox|switch|select|input|date) #REQUIRED
@@ -625,7 +630,30 @@
                 listKey CDATA #IMPLIED
                 listViewClass CDATA #IMPLIED
                 dateFmt CDATA #IMPLIED
-                dateRange (true|false) #IMPLIED>
+                dateRange (true|false) #IMPLIED
+                multiple (false|true) #IMPLIED>
+        <!--
+            为元素添加一个超级链接或操作
+            属性信息：
+            1、href 超级链接地址
+            2、target 超级链接打开方式，默认blank。blank-新窗口打开，self-当前窗口打开，parent-父窗口打开，top-顶级窗口打开
+            3、type 超级链接类型，默认slideRight。slideRight-右侧滑出，slideDown-下方滑出，slideLeft-左侧滑出，slideUp-上方滑出
+            3、text 超级链接显示的文本，默认为元素简单注释
+            4、icon 超级链接显示的图标，默认无
+            5、title 超级链接的title，默认为元素简单注释
+            6、method 超级链接的回调方法，默认为href,例如：method="javascript:showDetail()"。需要在js中定义showDetail方法。
+            7、keySelector 超级链接的回调方法的参数选择器，默认为id，例如：keySelector="#id"。
+        -->
+        <!ELEMENT hrefElement EMPTY>
+        <!ATTLIST hrefElement
+                href CDATA #REQUIRED
+                target (blank|self|parent|top) #IMPLIED
+                type (slideRight|slideDown|slideLeft|slideUp|pop) #IMPLIED
+                text CDATA #IMPLIED
+                icon CDATA #IMPLIED
+                title CDATA #IMPLIED
+                method CDATA #IMPLIED
+                keySelector CDATA #IMPLIED>
 
         <!--
             为页面添加一个附件上传组件
@@ -663,15 +691,16 @@
             3、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
             4、sourceBeanName 引用的源表的beanName，必须
             5、relationField 关联字段，必须，表示当前列表与源表的关联字段
-            6、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
-            7、tagId 要绑定的列表的目表页面的标签id名，必须。
+            6、sourceListViewClass 引用的源表的vo类名，可选，如果不指定则默认为当前页面的vo类名
+            7、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
+            8、tagId 要绑定的列表的目表页面的标签id名，必须。
                 如指定tagId=“detail” 则会在页面中生成一个id=“detail”的table标签，用来绑定列表。
                     <div class="inner-list-container">
                         <table id="detail" lay-filter="detail"></table>
                     </div>
-            8、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
-            9、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
-            10、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            9、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
+            10、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
+            11、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
@@ -680,6 +709,7 @@
                 sourceViewPath CDATA #REQUIRED
                 sourceBeanName CDATA #REQUIRED
                 relationField CDATA #REQUIRED
+                sourceListViewClass CDATA #IMPLIED
                 relationKey CDATA #IMPLIED
                 tagId CDATA #REQUIRED
                 dataField CDATA #IMPLIED
@@ -945,6 +975,7 @@
                 parentMenuId CDATA #IMPLIED
                 viewMenuIcon CDATA #IMPLIED
                 categoryTreeUrl CDATA #IMPLIED
+                categoryTreeMultiple (true|false) #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
 
         <!--
@@ -1157,10 +1188,12 @@
                 6、colDefsDatefmt 用于将字段值渲染为日期格式，按照指定的日期格式进行渲染，支持的日期格式有：yyyy-MM-dd HH:mm:ss、yyyy-MM-dd、HH:mm:ss
                 7、colDefsAsLink_parent 用于将字段值渲染为超链接，该方法用在父窗口打开链接
             -->
+        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLink_parent|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ELEMENT columnRenderFun (#PCDATA)>
         <!ATTLIST columnRenderFun
                 fieldNames  CDATA #REQUIRED
-                renderFun (colDefsAsLink|colDefsState|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLink_parent) #REQUIRED>
+                renderFun %renderFunValues; #REQUIRED
+                extendFuncOther CDATA #IMPLIED>
         <!--
              增加一个mapstruct转换方法
              属性信息：

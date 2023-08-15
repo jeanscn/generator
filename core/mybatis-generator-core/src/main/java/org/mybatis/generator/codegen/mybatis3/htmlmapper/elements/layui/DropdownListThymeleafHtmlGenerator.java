@@ -25,7 +25,7 @@ public class DropdownListThymeleafHtmlGenerator extends AbstractThymeleafLayuiEl
     @Override
     public void addHtmlElement(HtmlElement parent) {
         boolean displayOnly = this.isDisplayOnly(introspectedColumn);
-        HtmlElement editDiv = addDivWithClassToParent(parent, "oas-form-item-edit",displayOnly?"layui-hide":"");
+        HtmlElement editDiv = addDivWithClassToParent(parent, "oas-form-item-edit", displayOnly ? "layui-hide" : "");
         HtmlElement element;
         if (isReadonly(this.introspectedColumn)) {
             //生成一个显示的input
@@ -36,7 +36,7 @@ public class DropdownListThymeleafHtmlGenerator extends AbstractThymeleafLayuiEl
             HtmlElement hidden = this.generateHtmlInput(introspectedColumn.getJavaProperty(), true, false, true, true);
             hidden.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
             parent.addElement(hidden);
-        }else{
+        } else {
             element = this.generateHtmlSelect(introspectedColumn.getJavaProperty(), displayOnly, true, true);
             editDiv.addElement(element);
             element.addAttribute(new Attribute("th:data-value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.EDIT)));
@@ -58,13 +58,8 @@ public class DropdownListThymeleafHtmlGenerator extends AbstractThymeleafLayuiEl
             addCssStyleToElement(editDiv, htmlElementDescriptor.getElementCss());
         }
         //只读内容
-        HtmlElement dpRead = addDivWithClassToParent(parent, displayOnly ? "oas-form-item-readonly" : "oas-form-item-read");
-        if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-            dpRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-        }
-        addEnumClassNamAttribute(htmlElementDescriptor, dpRead);
-        addBeanNameApplyProperty(htmlElementDescriptor, dpRead);
-        addDictCodeAttribute(htmlElementDescriptor, dpRead);
+        HtmlElement dpRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
+        parent.addElement(dpRead);
     }
 
     @Override

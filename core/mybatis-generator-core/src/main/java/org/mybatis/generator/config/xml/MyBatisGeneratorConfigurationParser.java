@@ -5,6 +5,7 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
@@ -915,6 +916,14 @@ public class MyBatisGeneratorConfigurationParser {
         htmlGeneratorConfiguration.setTargetPackage(substringBeforeLast(fullViewPath, "/"));
         htmlGeneratorConfiguration.setHtmlFileName(
                 String.join(".", substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            htmlGeneratorConfiguration.setType(HtmlDocumentTypeEnum.getEnum(type));
+        }
+        String title = attributes.getProperty("title");
+        if (stringHasValue(title)) {
+            htmlGeneratorConfiguration.setTitle(title);
+        }
         String overWriteHtmlFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_HTML_FILE);
         if (stringHasValue(overWriteHtmlFile)) {
             htmlGeneratorConfiguration.setOverWriteHtmlFile(Boolean.parseBoolean(overWriteHtmlFile));
@@ -1043,6 +1052,10 @@ public class MyBatisGeneratorConfigurationParser {
         String sourceViewPath = attributes.getProperty("sourceViewPath");
         if (stringHasValue(sourceViewPath)) {
             htmlElementInnerList.setSourceViewPath(sourceViewPath.toLowerCase());
+        }
+        String sourceViewVoClass = attributes.getProperty("sourceListViewClass");
+        if (stringHasValue(sourceViewVoClass)) {
+            htmlElementInnerList.setSourceViewVoClass(sourceViewVoClass);
         }
         htmlElementInnerList.setRelationField(attributes.getProperty("relationField"));
         String relationKey = attributes.getProperty("relationKey");
@@ -1189,7 +1202,67 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(listViewClass)) {
             htmlElementDescriptor.setListViewClass(listViewClass);
         }
+
+        String multiple = attributes.getProperty("multiple");
+        if (stringHasValue(multiple) ) {
+            htmlElementDescriptor.setMultiple(multiple);
+        }
+
+        //计算属性及子元素
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(htmlElementDescriptor, childNode);
+                    break;
+                case "hrefElement":
+                    HtmlHrefElementConfiguration htmlHrefElementConfiguration = parseHtmlHrefElementConfiguration(childNode);
+                    if (htmlHrefElementConfiguration != null) {
+                        htmlElementDescriptor.getHtmlHrefElementConfigurations().add(htmlHrefElementConfiguration);
+                    }
+                    break;
+            }
+        }
         return htmlElementDescriptor;
+    }
+
+    private HtmlHrefElementConfiguration parseHtmlHrefElementConfiguration(Node node) {
+        Properties attributes = parseAttributes(node);
+        String href = attributes.getProperty("href");
+        if (!stringHasValue(href)) {
+            return null;
+        }
+        HtmlHrefElementConfiguration htmlHrefElementConfiguration = new HtmlHrefElementConfiguration();
+        htmlHrefElementConfiguration.setHref(href);
+        String target = attributes.getProperty("target");
+        if (stringHasValue(target)) {
+            htmlHrefElementConfiguration.setTarget(target);
+        }
+        String text = attributes.getProperty("text");
+        if (stringHasValue(text)) {
+            htmlHrefElementConfiguration.setText(text);
+        }
+        String icon = attributes.getProperty("icon");
+        if (stringHasValue(icon)) {
+            htmlHrefElementConfiguration.setIcon(icon);
+        }
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            htmlHrefElementConfiguration.setType(type);
+        }
+        String title = attributes.getProperty("title");
+        if (stringHasValue(title)) {
+            htmlHrefElementConfiguration.setTitle(title);
+        }
+        String keySelector = attributes.getProperty("keySelector");
+        if (stringHasValue(keySelector)) {
+            htmlHrefElementConfiguration.setKeySelector(keySelector);
+        }
+        return htmlHrefElementConfiguration;
     }
 
     protected void parseJavaTypeResolver(Context context, Node node) {
@@ -1813,7 +1886,16 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String renderFun = attributes.getProperty(PropertyRegistry.ELEMENT_RENDER_FUN);
         if (stringHasValue(renderFun)) {
-            voColumnRenderFunGeneratorConfiguration.setRenderFun(renderFun);
+            if (PropertyRegistry.ELEMENT_EXTEND_FUNC_OTHER.equals(renderFun)) {
+                String extendFuncOther = attributes.getProperty(PropertyRegistry.ELEMENT_EXTEND_FUNC_OTHER);
+                if (stringHasValue(extendFuncOther)) {
+                    voColumnRenderFunGeneratorConfiguration.setRenderFun(extendFuncOther);
+                }else{
+                    voColumnRenderFunGeneratorConfiguration.setRenderFun(renderFun);
+                }
+            }else{
+                voColumnRenderFunGeneratorConfiguration.setRenderFun(renderFun);
+            }
         }
         configuration.addVoColumnRenderFunGeneratorConfiguration(voColumnRenderFunGeneratorConfiguration);
     }
@@ -2035,6 +2117,11 @@ public class MyBatisGeneratorConfigurationParser {
         String categoryTreeUrl = attributes.getProperty("categoryTreeUrl");
         if (stringHasValue(categoryTreeUrl)) {
             voViewGeneratorConfiguration.setCategoryTreeUrl(categoryTreeUrl);
+        }
+
+        String multiple = attributes.getProperty("categoryTreeMultiple");
+        if (stringHasValue(multiple)) {
+            voViewGeneratorConfiguration.setCategoryTreeMultiple(multiple);
         }
 
         //EqualsAndHashCodeColumns

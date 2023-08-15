@@ -9,6 +9,8 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
+import javax.annotation.Nullable;
+
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
@@ -55,13 +57,7 @@ public class CheckBoxThymeleafHtmlGenerator extends AbstractThymeleafLayuiElemen
             addCssStyleToElement(editDiv, htmlElementDescriptor.getElementCss());
         }
         //只读内容
-        HtmlElement cRead = addDivWithClassToParent(parent, this.isDisplayOnly(introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
-        if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-            cRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-        }
-        addBeanNameApplyProperty(htmlElementDescriptor, cRead);
-        addEnumClassNamAttribute(htmlElementDescriptor, cRead);
-        addDictCodeAttribute(htmlElementDescriptor, cRead);
+        parent.addElement(generateReadElement(htmlElementDescriptor, introspectedColumn));
     }
 
     @Override

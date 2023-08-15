@@ -85,8 +85,8 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
             }
 
 
-            sb.append("select distinct business_key_ from vcore_ru_authority ");
-            sb.append("where authority_name_ in");
+            sb.append("select distinct business_key from sys_ru_authority ");
+            sb.append("where authority_name in");
             xmlElement.addElement(new TextElement(sb.toString()));
             //<foreach close=")" collection="principals" index="index" item="principal" open="(" separator=",">
             //  #{principal}

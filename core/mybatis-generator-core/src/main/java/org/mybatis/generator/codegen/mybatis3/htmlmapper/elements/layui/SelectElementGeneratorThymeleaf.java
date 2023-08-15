@@ -33,6 +33,9 @@ public class SelectElementGeneratorThymeleaf extends AbstractThymeleafLayuiEleme
         input.addAttribute(new Attribute("data-field", javaProperty));
         input.addAttribute(new Attribute("readonly", "readonly"));
         input.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
+        if (htmlElementDescriptor.getMultiple()!=null) {
+            input.addAttribute(new Attribute("data-multiple", htmlElementDescriptor.getMultiple()));
+        }
         if (!isReadonly(this.introspectedColumn)) {
             addElementVerify(introspectedColumn.getActualColumnName(), input, this.htmlElementDescriptor);
             input.addAttribute(new Attribute("for-type", "lay-select"));
@@ -53,15 +56,15 @@ public class SelectElementGeneratorThymeleaf extends AbstractThymeleafLayuiEleme
             addCssStyleToElement(editDiv, htmlElementDescriptor.getElementCss());
         }
         editDiv.addElement(input);
-        HtmlElement divRead = addDivWithClassToParent(parent, this.isDisplayOnly(introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
-        divRead.addAttribute(new Attribute("th:text", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
+
+        HtmlElement divRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
+        parent.addElement(divRead);
+
         if (stringHasValue(htmlElementDescriptor.getBeanName())) {
             input.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
-            divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_BEAN_NAME, htmlElementDescriptor.getBeanName()));
         }
         if (stringHasValue(htmlElementDescriptor.getApplyProperty())) {
             input.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
-            divRead.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
         }
         //如果有映射字段，增加一个隐藏字段
         if (!this.htmlElementDescriptor.getOtherFieldName().equals(introspectedColumn.getJavaProperty())) {

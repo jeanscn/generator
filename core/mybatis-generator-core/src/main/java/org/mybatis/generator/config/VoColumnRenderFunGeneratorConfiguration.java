@@ -18,7 +18,6 @@ public class VoColumnRenderFunGeneratorConfiguration extends TypedPropertyHolder
 
     private String renderFun;
 
-
     public VoColumnRenderFunGeneratorConfiguration(Context context, TableConfiguration tc) {
         this.tc = tc;
         this.context = context;

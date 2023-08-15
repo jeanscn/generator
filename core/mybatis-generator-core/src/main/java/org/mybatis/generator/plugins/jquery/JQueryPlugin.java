@@ -6,6 +6,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class JQueryPlugin extends PluginAdapter {
             String jqueryFileName = Arrays.stream(htmlGeneratorConfiguration.getViewPath().split("[/\\\\]"))
                     .reduce((first, second) -> second)
                     .orElse("");
-            if (VStringUtil.stringHasValue(jqueryFileName)) {
+            if (VStringUtil.stringHasValue(jqueryFileName) && htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.EDITABLE)) {
                 //生成jquery file
                 String jqueryFileNameDev = jqueryFileName + ".js";
                 GeneratedJqueryFile generatedJqueryFile = new GeneratedJqueryFile(

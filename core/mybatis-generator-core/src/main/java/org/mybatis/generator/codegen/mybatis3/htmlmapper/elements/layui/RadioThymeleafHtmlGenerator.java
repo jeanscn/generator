@@ -54,13 +54,8 @@ public class RadioThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementGe
             addCssStyleToElement(editDiv, htmlElementDescriptor.getElementCss());
         }
         //只读内容
-        HtmlElement rRead = addDivWithClassToParent(parent, this.isDisplayOnly(introspectedColumn)?"oas-form-item-readonly":"oas-form-item-read");
-        if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
-            rRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-        }
-        addBeanNameApplyProperty(htmlElementDescriptor, rRead);
-        addEnumClassNamAttribute(htmlElementDescriptor, rRead);
-        addDictCodeAttribute(htmlElementDescriptor, rRead);
+        HtmlElement rRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
+        parent.addElement(rRead);
     }
 
     @Override

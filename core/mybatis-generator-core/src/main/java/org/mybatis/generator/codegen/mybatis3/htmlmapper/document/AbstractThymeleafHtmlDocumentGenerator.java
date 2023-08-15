@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VArrayUtil;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.Document;
@@ -12,6 +13,8 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.AbstractThymeleafHtmlGe
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 
 import java.util.*;
 
@@ -27,6 +30,8 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     protected final String btn_submit_id = "btn_save";
     protected final String btn_close_id = "btn_close";
     protected final String btn_reset_id = "btn_reset";
+
+    protected final String btn_print_id = "btn_print";
     protected final String input_subject_id = "subject";
 
     protected final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
@@ -36,14 +41,14 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         this.document = document;
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
-    public int getPageColumnsConfig() {
+    public int getPageColumnsConfig(int maxColumns) {
         int c = htmlGeneratorConfiguration.getLayoutDescriptor().getPageColumnsNum();
-        if (c > 12) {
-            c = 12;
+        if (c > maxColumns) {
+            c = maxColumns;
         } else if (c <= 0) {
             c = 1;
         }
-        if (12 % c == 0) {
+        if (maxColumns % c == 0) {
             return c;
         } else {
             return 1;
@@ -66,9 +71,9 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     protected Map<String, HtmlElement> generateHtmlBody() {
         Map<String, HtmlElement> answer = new HashMap<>();
         HtmlElement body = new HtmlElement("body");
-        HtmlElement out = addDivWithClassToParent(body, "container");
         answer.put("body", body);
-        answer.put("out", out);
+        HtmlElement out = addDivWithClassToParent(body, "container");
+        out.addAttribute(new Attribute("id", "container"));
         HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
         switch (layoutDescriptor.getLoadingFrameType()) {
             case "pop":
@@ -82,12 +87,34 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
             default:
                 addCssClassToElement(out, "outContainer");
         }
-        HtmlElement inner = addDivWithClassToParent(out, "icontainer");
-        HtmlElement content = addDivWithClassToParent(inner, "content");
-        HtmlElement contentHeader = addDivWithClassToParent(content, "content-header");
-        HtmlElement headerText = new HtmlElement("span");
-        headerText.addElement(new TextElement(introspectedTable.getRemarks(true)));
-        contentHeader.addElement(headerText);
+        HtmlElement content = null;
+        String docTitle = getDocTitle();
+        if (htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.EDITABLE)) {
+            HtmlElement inner = addDivWithClassToParent(out, "icontainer");
+            content = addDivWithClassToParent(inner, "content");
+            if (docTitle != null) {
+                HtmlElement contentHeader = addDivWithClassToParent(content, "content-header");
+                HtmlElement headerText = new HtmlElement("span");
+                headerText.addElement(new TextElement(docTitle));
+                contentHeader.addElement(headerText);
+            }
+        }else if(htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.PRINT)) {
+            content = addDivWithIdToParent(out, "printArea");
+            HtmlElement div = addDivWithClassToParent(content, "print-title");
+            if (docTitle != null) {
+                addDivWithClassToParent(div, "title").addElement(new TextElement(docTitle));
+            }
+            HtmlElement div1 = new HtmlElement("div");
+            div1.addAttribute(new Attribute("id", "qrcode"));
+            div.addElement(div1);
+        }else if(htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.VIEWONLY)) {
+            content = addDivWithIdToParent(out, "viewArea");
+            if (docTitle != null) {
+                HtmlElement h2 = new HtmlElement("H2");
+                h2.addElement(new TextElement(docTitle));
+                content.addElement(h2);
+            }
+        }
         answer.put("content", content);
         return answer;
     }
@@ -148,8 +175,8 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     }
 
     /*按配置列数分割总列数*/
-    protected Map<Integer, List<IntrospectedColumn>> getHtmlRows(List<IntrospectedColumn> baseColumns) {
-        int pageColumnsConfig = getPageColumnsConfig();
+    protected Map<Integer, List<IntrospectedColumn>> getHtmlRows(List<IntrospectedColumn> baseColumns,int maxColumns) {
+        int pageColumnsConfig = getPageColumnsConfig(maxColumns);
         Map<Integer, List<IntrospectedColumn>> introspectedColumnRows = new HashMap<>();
         int rowIndex = 1, colIndex = 1;
         for (IntrospectedColumn baseColumn : baseColumns) {
@@ -183,24 +210,24 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     protected void addSubjectInput(HtmlElement parent) {
         if (introspectedTable.getNonBLOBColumns().stream()
                 .noneMatch(c -> input_subject_id.equals(c.getJavaProperty()))) {
-            HtmlElement input = new HtmlElement("input");
-            input.addAttribute(new Attribute("id", input_subject_id));
-            input.addAttribute(new Attribute("name", input_subject_id));
-            input.addAttribute(new Attribute("type", "hidden"));
-            input.addAttribute(new Attribute("value", introspectedTable.getRemarks(true)));
-            parent.addElement(input);
+            HtmlElement subject = generateHtmlInput(input_subject_id, true, false, true, true);
+            subject.addAttribute(new Attribute("th:value", getDocTitle()));
+            parent.addElement(subject);
         }
     }
 
     protected HtmlElement generateToolBar(HtmlElement parent) {
         String config = getHtmlBarPositionConfig();
+        HtmlElement div;
         if (HTML_KEY_WORD_TOP.equals(config)) {
-            return addDivWithClassToParent(parent, "breadcrumb _top");
+            div = addDivWithClassToParent(parent, "breadcrumb","_top");
         } else if (HTML_KEY_WORD_BOTTOM.equals(config)) {
-            return addDivWithClassToParent(parent, "breadcrumb _footer");
+            div = addDivWithClassToParent(parent, "breadcrumb","_footer");
         } else {
-            return addDivWithClassToParent(parent, "breadcrumb _footer");
+            div = addDivWithClassToParent(parent, "breadcrumb","_footer");
         }
+        div.addAttribute(new Attribute("id", "breadcrumb_footer"));
+        return div;
     }
 
     protected boolean isIgnore(IntrospectedColumn introspectedColumn, VOModelGeneratorConfiguration configuration) {
@@ -219,5 +246,56 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         return this.htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(d->d.getColumn().getActualColumnName().equals(introspectedColumn.getActualColumnName()))
                 .findFirst().orElse(null);
+    }
+
+    protected HtmlElement addLayButton(HtmlElement parent, String id, String text, String unicode) {
+        HtmlElement btn = addHtmlButton(parent, id, text, "layui-btn layui-btn-sm btn-primary");
+        addLayIconFont(btn, unicode);
+        return btn;
+    }
+
+    protected void addLayIconFont(HtmlElement parent, String unicode) {
+        if (VStringUtil.stringHasValue(unicode)) {
+            HtmlElement icon = addIconToParent(parent, "layui-icon");
+            icon.addElement(new TextElement(unicode));
+        }
+    }
+
+    protected void drawRtfContentDiv(String entityKey, IntrospectedColumn introspectedColumn, HtmlElement inputInline) {
+        HtmlElement htmlElement = addDivWithClassToParent(inputInline, "rtf-content");
+        htmlElement.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
+        htmlElement.addAttribute(new Attribute("th:utext", thymeleafValue(introspectedColumn, entityKey)));
+        //追加样式css
+        HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);
+        if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
+            addCssStyleToElement(htmlElement, htmlElementDescriptor.getElementCss());
+        }
+    }
+
+    protected void addCustomCss(HtmlElement head, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
+        if (layoutDescriptor.getBorderWidth() != 1 || !layoutDescriptor.getBorderColor().equals(ConstantsUtil.HTML_BORDER_COLOR_DEFAULT)) {
+            HtmlElement style = new HtmlElement("style");
+            style.addAttribute(new Attribute("type", "text/css"));
+            String styleStr = ".layui-table td,.layui-table th,.layui-table-col-set,.layui-table-fixed-r,.layui-table-grid-down,.layui-table-header,.layui-table-page,.layui-table-tips-main,.layui-table-tool,.layui-table-total,.layui-table-view,.layui-table[lay-skin=line],.layui-table[lay-skin=row] {\n";
+            styleStr += "            border-width: " + (layoutDescriptor.getBorderWidth() == 0 ? 0 : layoutDescriptor.getBorderWidth() + "px") + ";\n";
+            styleStr += "            border-color: " + layoutDescriptor.getBorderColor() + ";\n";
+            styleStr += "  i          border-style: solid;\n";
+            styleStr += "       }";
+            style.addElement(new TextElement(styleStr));
+            head.addElement(style);
+        }
+    }
+
+    protected String getDocTitle() {
+        if (htmlGeneratorConfiguration==null) {
+            return introspectedTable.getRemarks(true);
+        }else if (htmlGeneratorConfiguration.getTitle() == null) {
+            return introspectedTable.getRemarks(true);
+        }else if("none".equalsIgnoreCase(htmlGeneratorConfiguration.getTitle())){
+            return null;
+        }else{
+            return htmlGeneratorConfiguration.getTitle();
+        }
     }
 }

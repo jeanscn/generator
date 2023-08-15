@@ -10,12 +10,16 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.ViewColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.ViewTableMetaDesc;
+import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -99,6 +103,21 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setDataUrl(String.join("/"
                 , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                 , "getdtdata"));
+        //数据权限
+        String tableName = introspectedTable.getTableConfiguration().getTableName();
+        List<String> orgTables = Arrays.asList("org_user", "org_team","org_role","org_organization","org_group","org_department");
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            viewTableMetaDesc.setDataFilterType(1);
+        } else if ("wf_per_todo".equals(tableName) || "wf_per_done".equals(tableName)) {
+            viewTableMetaDesc.setDataFilterType(2);
+        } else if ("sys_per_unread".equals(tableName) || "sys_per_read".equals(tableName)) {
+            viewTableMetaDesc.setDataFilterType(3);
+        } else if (orgTables.contains(tableName)) {
+            viewTableMetaDesc.setDataFilterType(5);
+        } else {
+            viewTableMetaDesc.setDataFilterType(0);
+        }
+
         //toolbar
         if (!voViewGeneratorConfiguration.getToolbar().isEmpty()) {
             ViewToolBarsEnum[] toolBarsEnums = voViewGeneratorConfiguration.getToolbar().stream()

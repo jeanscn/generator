@@ -29,6 +29,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private String categoryTreeUrl;
 
+    private String categoryTreeMultiple = "true";
+
     private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
@@ -129,5 +131,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setToolbar(Set<String> toolbar) {
         this.toolbar = toolbar;
+    }
+
+    public String getCategoryTreeMultiple() {
+        return categoryTreeMultiple;
+    }
+
+    public void setCategoryTreeMultiple(String categoryTreeMultiple) {
+        this.categoryTreeMultiple = categoryTreeMultiple;
     }
 }
