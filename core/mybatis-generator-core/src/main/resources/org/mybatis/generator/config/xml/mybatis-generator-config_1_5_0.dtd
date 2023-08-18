@@ -462,14 +462,14 @@
             1、field 必须，生成的属性名
             2、modelType 必须，属性类型完整类名，PO类中使用；
                 voModelType  VO类中使用
-            3、whereColumn 条件字段列名
+            3、whereColumn 条件字段列名。例：假如主表的id_关联从表的apply_id，则此处为id_
             4、mapperMethod 相关表的完整Mapper查询方法名（一般为selectByColumnXXXX或也可以是其他返回多条记录的查询方法）
             5、enableInsert 是否支持级联insert处理
             6、enableUpdate 是否支持级联update处理
             7、enableDelete 是否支持级联delete处理
             8、enableInsertOrUpdate 是否支持级联insertOrUpdate处理
             9、beanClassFullName 集合类型modelType对应的service的完整类名，注意：是子类的，不能是genXXXX
-            10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作
+            10、relationProperty 子集记录对应的属性名，如果子数据关系字段（一般为外键），通过指定该值可以生成赋值操作.例：假如主表的id_关联从表的apply_id，则此处为applyId
             11、remark 备注
             说明：
             1、当启用enableInsert或enableUpdate或enableInsertOrUpdate时，relationProperty必须，否则生成方法错误。
@@ -494,7 +494,7 @@
             是否生成页面
              属性信息：
             1、generate 是否生成页面：”true“|”false“
-            2、type 页面类型：”editable“|”viewOnly“|”print“
+            2、type 页面类型：”editable“|”viewOnly“|”print“,默认值：editable
             3、viewPath 视图文件名
             4、title 页面标题，缺省为表简要注释。当title="none"时，不生成标题。
             5、overWriteHtmlFile 当页面存在时，是否覆盖。默认为false
@@ -512,7 +512,7 @@
         <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
-                type (editable|viewOnly|print) #REQUIRED
+                type (editable|viewOnly|print) #IMPLIED
                 viewPath CDATA #IMPLIED
                 title CDATA #IMPLIED
                 overWriteHtmlFile (true|false) #IMPLIED
@@ -1182,13 +1182,17 @@
              renderFun说明：
                 1、colDefsAsLink 用于将字段值渲染为超链接
                 2、colDefsState 用于将字段值渲染为状态，1->启用、0->停用
-                3、colDefsPriority 用于将字段值渲染为优先级，60->加急、70->紧急、80->特急
-                4、colDefsWfStatus 用于将字段值渲染为工作流状态，0->拟稿中、1->办理中、2->已办结、3->已挂起、4->未保存，否则->未知状态
-                5、colDefsReadState 用于将字段值渲染为阅读状态，0->未读、1->已读，否则->未知
-                6、colDefsDatefmt 用于将字段值渲染为日期格式，按照指定的日期格式进行渲染，支持的日期格式有：yyyy-MM-dd HH:mm:ss、yyyy-MM-dd、HH:mm:ss
-                7、colDefsAsLink_parent 用于将字段值渲染为超链接，该方法用在父窗口打开链接
+                3、colDefsYesNo 用于将字段值渲染为是或否，1->是、0->否
+                4、colDefsPriority 用于将字段值渲染为优先级，60->加急、70->紧急、80->特急
+                5、colDefsWfStatus 用于将字段值渲染为工作流状态，0->拟稿中、1->办理中、2->已办结、3->已挂起、4->未保存，否则->未知状态
+                6、colDefsReadState 用于将字段值渲染为阅读状态，0->未读、1->已读，否则->未知
+                7、colDefsDatefmt 用于将字段值渲染为日期格式，按照指定的日期格式进行渲染，支持的日期格式有：yyyy-MM-dd HH:mm:ss、yyyy-MM-dd、HH:mm:ss
+                8、colDefsAsLink_parent 用于将字段值渲染为超链接，该方法用在父窗口打开链接
+                9、extendFuncFirst 用于将字段值渲染为自定义方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
+                10、extendFuncSecond 用于将字段值渲染为自定义方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
+                11、extendFuncOther 用于将字段值渲染为自定义方法，如果选择此项，需要在extendFuncOther属性中指定方法名。
             -->
-        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLink_parent|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
+        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLink_parent|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ELEMENT columnRenderFun (#PCDATA)>
         <!ATTLIST columnRenderFun
                 fieldNames  CDATA #REQUIRED

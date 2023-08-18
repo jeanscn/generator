@@ -249,7 +249,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     }
 
     protected HtmlElement addLayButton(HtmlElement parent, String id, String text, String unicode) {
-        HtmlElement btn = addHtmlButton(parent, id, text, "layui-btn layui-btn-sm btn-primary");
+        HtmlElement btn = addHtmlButton(parent, id, text, "layui-btn layui-btn-sm");
         addLayIconFont(btn, unicode);
         return btn;
     }

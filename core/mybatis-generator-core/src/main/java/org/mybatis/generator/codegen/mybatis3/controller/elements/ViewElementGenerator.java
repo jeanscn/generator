@@ -12,6 +12,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
@@ -57,19 +58,28 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (viewParam.getId() != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(viewParam.getId());", entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
-        method.addBodyLine("if (\"true\".equals(viewParam.getWithTraceInfo())) {");
-        method.addBodyLine("// 流程审批记录");
-        method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-        method.addBodyLine("IWorkflowTraceInfo<{0}> workflowTraceInfo = SpringContextHolder.getBean(IWorkflowTraceInfo.class);", entityType.getShortName());
-        method.addBodyLine("List<WorkflowTraceInfo> traceInfo = workflowTraceInfo.getTraceInfo({0});", entityType.getShortNameFirstLowCase());
-        method.addBodyLine("mv.addObject(\"traceInfo\", traceInfo);");
-        method.addBodyLine("}");
-        method.addBodyLine("if (\"true\".equals(viewParam.getWithAttachments()) ) {");
-        method.addBodyLine("// 附件列表");
-        method.addBodyLine("IVbizFileAttachment fileAttachmentService = SpringContextHolder.getBean(IVbizFileAttachment.class);");
-        method.addBodyLine("mv.addObject(\"attachments\", fileAttachmentService.selectByColumnRecordId(viewParam.getId()));");
-        method.addBodyLine("}");
 
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            method.addBodyLine("if (\"true\".equals(viewParam.getWithTraceInfo())) {");
+            method.addBodyLine("// 流程审批记录");
+            method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+            method.addBodyLine("IWorkflowTraceInfo<{0}> workflowTraceInfo = SpringContextHolder.getBean(IWorkflowTraceInfo.class);", entityType.getShortName());
+            method.addBodyLine("List<WorkflowTraceInfo> traceInfo = workflowTraceInfo.getTraceInfo({0});", entityType.getShortNameFirstLowCase());
+            method.addBodyLine("mv.addObject(\"traceInfo\", traceInfo);");
+            method.addBodyLine("}");
+            parentElement.addImportedType("com.vgosoft.workflow.adapter.pojo.dto.WorkflowTraceInfo");
+            parentElement.addImportedType("com.vgosoft.core.entity.IWorkflowBaseEntity");
+            parentElement.addImportedType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
+        }
+
+        if (GenerateUtils.isBusinessInstance(introspectedTable)) {
+            method.addBodyLine("if (\"true\".equals(viewParam.getWithAttachments()) ) {");
+            method.addBodyLine("// 附件列表");
+            method.addBodyLine("IVbizFileAttachment fileAttachmentService = SpringContextHolder.getBean(IVbizFileAttachment.class);");
+            method.addBodyLine("mv.addObject(\"attachments\", fileAttachmentService.selectByColumnRecordId(viewParam.getId()));");
+            method.addBodyLine("}");
+            parentElement.addImportedType("com.vgosoft.bizcore.service.IVbizFileAttachment");
+        }
         HtmlElementInnerListConfiguration innerListConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
         if (innerListConfiguration!=null && innerListConfiguration.getSourceViewVoClass()!=null) {
             method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
@@ -81,6 +91,9 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine("if (innerList != null)  listHeaders = innerList.getCols().get(0);");
             method.addBodyLine("}");
             method.addBodyLine("mv.addObject(\"innerListHeaders\", listHeaders);");
+            parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
+            parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
+
         }
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("object = mappings.to{0}VO(serviceResult.getResult());", entityType.getShortName());
@@ -112,17 +125,11 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
         parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
         parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
-        parentElement.addImportedType("com.vgosoft.workflow.adapter.pojo.dto.WorkflowTraceInfo");
-        parentElement.addImportedType("com.vgosoft.bizcore.service.IVbizFileAttachment");
-        parentElement.addImportedType("com.vgosoft.core.entity.IWorkflowBaseEntity");
-        parentElement.addImportedType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
         parentElement.addImportedType("java.util.Optional");
         parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
         parentElement.addImportedType("com.vgosoft.web.pojo.ControllerViewParam");
         parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");
         parentElement.addImportedType(entityVoType);
-        parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
-        parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
         parentElement.addMethod(method);
     }
 }

@@ -33,7 +33,6 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parentElement.addImportedType("java.util.List");
         parentElement.addImportedType("java.util.Optional");
         parentElement.addImportedType("java.util.stream.Collectors");
-        parentElement.addImportedType("java.util.stream.Stream");
 
         //fetchTreeDataGenerate方法定义
         FullyQualifiedJavaType ztreeDataSimpleType = new FullyQualifiedJavaType(Z_TREE_DATA_SIMPLE);

@@ -471,10 +471,10 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         String config = getHtmlBarPositionConfig();
         if (!HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
-            addCssClassToElement(btnClose, "footer-btn");
+            addCssClassToElement(btnClose, "footer-btn","layui-btn-primary");
             if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
-                addCssClassToElement(btnReset, "footer-btn");
+                addCssClassToElement(btnReset, "footer-btn","btn-primary");
             }
         }
     }

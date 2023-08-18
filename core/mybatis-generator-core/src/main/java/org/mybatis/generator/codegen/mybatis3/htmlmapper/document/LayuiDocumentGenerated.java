@@ -183,7 +183,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         if (pageColumnsConfig > 1) {
             /*添加表格*/
             HtmlElement table = new HtmlElement("table");
-            table.addAttribute(new Attribute("class", "layui-table table-layout-fixed"));
+            addCssClassToElement(table, "layui-table","table-layout-fixed","main-form-table");
             for (List<IntrospectedColumn> rowIntrospectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement tr = addTrWithClassToParent(table, "");
@@ -376,10 +376,10 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
         atr.addElement(td);
         HtmlElement div = new HtmlElement("div");
-        div.addAttribute(new Attribute("class", "inner-list-container"));
+        addCssClassToElement(div, "inner-list-container");
         td.addElement(div);
         HtmlElement table = new HtmlElement("table");
-        table.addAttribute(new Attribute("lay-filter", htmlElementInnerList.getTagId()));
+        addCssClassToElement(table, "layui-hide");
         table.addAttribute(new Attribute("id", htmlElementInnerList.getTagId()));
         div.addElement(table);
     }
@@ -472,15 +472,15 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         String config = getHtmlBarPositionConfig();
         if (!HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
-            addCssClassToElement(btnClose, "footer-btn");
+            addCssClassToElement(btnClose, "footer-btn","layui-btn-primary");
             if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
-                addCssClassToElement(btnReset, "footer-btn");
+                addCssClassToElement(btnReset, "footer-btn","btn-primary");
             }
         }
         if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream().anyMatch(t-> HtmlDocumentTypeEnum.PRINT.equals(t.getType()))) {
             HtmlElement btnPrint = addLayButton(toolBar, btn_print_id, "打印预览", "&#xe66d;");
-            addCssClassToElement(btnPrint, "footer-btn");
+            addCssClassToElement(btnPrint, "footer-btn","btn-primary");
         }
     }
 }

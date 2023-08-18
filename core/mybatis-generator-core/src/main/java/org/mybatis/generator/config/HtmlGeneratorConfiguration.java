@@ -56,6 +56,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         overWriteJsFile = false;
         targetProject = "src/main/resources/templates";
         this.context = context;
+        type = HtmlDocumentTypeEnum.EDITABLE;
     }
 
     @Override

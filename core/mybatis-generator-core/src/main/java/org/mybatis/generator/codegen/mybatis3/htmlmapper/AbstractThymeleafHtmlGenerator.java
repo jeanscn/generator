@@ -6,6 +6,8 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.DateThymeleafHtmlElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.InputThymeleafHtmlElementGenerator;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -140,7 +142,7 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
                 case SWITCH:
                     if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
                         cRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-                    }else{
+                    } else {
                         cRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READ, htmlElementDescriptor)));
                     }
                     addBeanNameApplyProperty(htmlElementDescriptor, cRead);
@@ -148,12 +150,12 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
                     addDictCodeAttribute(htmlElementDescriptor, cRead);
                     break;
                 case DATE:
-                    cRead.addAttribute(new Attribute("th:text", this.getDateFieldValueFormatPattern(introspectedColumn,ThymeleafValueScopeEnum.READ)));
+                    cRead.addAttribute(new Attribute("th:text", this.getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READ)));
                     break;
                 case DROPDOWN_LIST:
                     if (getOtherValueFormatPattern(htmlElementDescriptor) != null) {
                         cRead.addAttribute(new Attribute("th:text", getOtherValueFormatPattern(htmlElementDescriptor)));
-                    }else{
+                    } else {
                         cRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READ, htmlElementDescriptor)));
                     }
                     addEnumClassNamAttribute(htmlElementDescriptor, cRead);
@@ -173,8 +175,12 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
                     }
                     break;
             }
-        }else{
-            cRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READ, null)));
+        } else {
+            if (GenerateUtils.isDateType(introspectedColumn)) {
+                cRead.addAttribute(new Attribute("th:text", this.getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READ)));
+            } else {
+                cRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READ, null)));
+            }
         }
         //增加一个链接
         if (htmlElementDescriptor != null && !htmlElementDescriptor.getHtmlHrefElementConfigurations().isEmpty()) {
@@ -202,7 +208,7 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
         return cRead;
     }
 
-    protected String getDateFieldValueFormatPattern(IntrospectedColumn introspectedColumn, ThymeleafValueScopeEnum scopeEnum){
+    protected String getDateFieldValueFormatPattern(IntrospectedColumn introspectedColumn, ThymeleafValueScopeEnum scopeEnum) {
         String entityName = GenerateUtils.getEntityKeyStr(introspectedTable);
         StringBuilder sb = new StringBuilder();
         sb.append("${").append(entityName).append("?.").append(introspectedColumn.getJavaProperty());

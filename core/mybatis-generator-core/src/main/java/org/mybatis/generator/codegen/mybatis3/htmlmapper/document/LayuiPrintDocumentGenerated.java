@@ -57,7 +57,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         l1.addElement(new TextElement("打印时间："));
         p.addElement(l1);
         HtmlElement l2 = new HtmlElement("span");
-        l2.addAttribute(new Attribute("th:text", "${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}"));
+        l2.addAttribute(new Attribute("th:text", "${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}"));
         p.addElement(l2);
         HtmlElement l3 = new HtmlElement("span");
         l3.addElement(new TextElement("&nbsp;打印人："));
@@ -66,6 +66,12 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         l4.addAttribute(new Attribute("th:text", "${currentUser?.name}?:_"));
         p.addElement(l4);
         //隐藏input
+        HtmlElement fileCategory = generateHtmlInput("fileCategory", true, false, true, false);
+        fileCategory.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.fileCategory}?:_"));
+        content.addElement(fileCategory);
+        HtmlElement regDocNumber = generateHtmlInput("regDocNumber", true, false, true, false);
+        regDocNumber.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.regDocNumber}?:_"));
+        content.addElement(regDocNumber);
         HtmlElement deptName = generateHtmlInput("deptName", true, false, true, false);
         deptName.addAttribute(new Attribute("th:value", "${currentDept?.name}?:_"));
         content.addElement(deptName);
@@ -196,7 +202,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             }
         }
         //添加附件
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
+        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration()!=null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
             String label = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getLabel();
             HtmlElement atr = new HtmlElement("tr");
             table.addElement(atr);
