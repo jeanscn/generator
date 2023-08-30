@@ -1,9 +1,8 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
+import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
-import com.vgosoft.core.constant.enums.view.ViewToolBarsEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -11,18 +10,18 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.config.ConfigUtil;
+import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
+import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 import org.mybatis.generator.custom.annotations.ViewColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.ViewTableMetaDesc;
-import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getRootClass;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -120,12 +119,23 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
 
         //toolbar
         if (!voViewGeneratorConfiguration.getToolbar().isEmpty()) {
-            ViewToolBarsEnum[] toolBarsEnums = voViewGeneratorConfiguration.getToolbar().stream()
-                    .map(ViewToolBarsEnum::ofCode)
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.comparingInt(ViewToolBarsEnum::value).reversed())
-                    .toArray(ViewToolBarsEnum[]::new);
-            viewTableMetaDesc.setToolbarActions(toolBarsEnums);
+            String collect = voViewGeneratorConfiguration.getToolbar().stream().map(s -> {
+                //是否默认按钮
+                ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(s);
+                if (viewDefaultToolBarsEnum != null) {
+                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
+                    return htmlButtonDesc.toAnnotation();
+                } else {
+                    HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
+                    if (htmlButtonGeneratorConfiguration != null) {
+                        HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
+                        return htmlButtonDesc.toAnnotation();
+                    }
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.joining(","));
+            viewTableMetaDesc.setToolbarActions(collect);
+
         }
         //indexColumn
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
@@ -134,11 +144,22 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         //actionColumn
         if (!voViewGeneratorConfiguration.getActionColumn().isEmpty()) {
-            ViewActionColumnEnum[] viewActionColumnEnums = voViewGeneratorConfiguration.getActionColumn().stream()
-                    .map(ViewActionColumnEnum::ofCode)
-                    .filter(Objects::nonNull)
-                    .distinct().toArray(ViewActionColumnEnum[]::new);
-            viewTableMetaDesc.setActionColumn(viewActionColumnEnums);
+            String collect = voViewGeneratorConfiguration.getActionColumn().stream().map(s -> {
+                //是否默认按钮
+                ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode("ROW_"+s);
+                if (viewDefaultToolBarsEnum != null) {
+                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
+                    return htmlButtonDesc.toAnnotation();
+                } else {
+                    HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
+                    if (htmlButtonGeneratorConfiguration != null) {
+                        HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
+                        return htmlButtonDesc.toAnnotation();
+                    }
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.joining(","));
+            viewTableMetaDesc.setActionColumn(collect);
         }
         //querys
         if (!voViewGeneratorConfiguration.getQueryColumns().isEmpty()) {

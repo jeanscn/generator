@@ -147,7 +147,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     if (stringHasValue(parentMenuId) && context.isUpdateMenuData() && introspectedTable.getTableConfiguration().isModules()) {
                         int sort = context.getSysMenuDataScriptLines().size() + 1;
                         String id = Mb3GenUtil.getDefaultViewId(introspectedTable);
-                        String title = introspectedTable.getRemarks(true);
+                        String title = voGeneratorConfiguration.getVoViewConfiguration().getTitle()!=null?voGeneratorConfiguration.getVoViewConfiguration().getTitle():introspectedTable.getRemarks(true);
                         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
                         sqlBuilder.updateStringValues("id_", id);
                         sqlBuilder.updateStringValues("name_", title);

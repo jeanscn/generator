@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -122,7 +123,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         topLevelClass.addAnnotation("@CacheConfig(cacheManager = CACHE_MANAGER_NAME)");
     }
 
-    protected void addInitialization(InitializationBlock initializationBlock, TopLevelClass topLevelClass){
+    protected void addInitialization(List<IntrospectedColumn> columns,InitializationBlock initializationBlock, TopLevelClass topLevelClass){
         //在静态代码块中添加默认值
         final List<String> defaultFields = new ArrayList<>();
         topLevelClass.getSuperClass().ifPresent(s -> {
@@ -131,7 +132,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 defaultFields.addAll(entityAbstractParentEnum.fields());
             }
         });
-        introspectedTable.getBaseColumns().forEach(c -> {
+        columns.forEach(c -> {
             if (c.getDefaultValue() != null && VStringUtil.stringHasValue(c.getDefaultValue())
                     && !c.getDefaultValue().equalsIgnoreCase("null")
                     && !defaultFields.contains(c.getJavaProperty())) {

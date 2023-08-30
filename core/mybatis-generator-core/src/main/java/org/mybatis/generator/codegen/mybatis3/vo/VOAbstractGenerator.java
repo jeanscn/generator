@@ -38,13 +38,14 @@ public class VOAbstractGenerator extends AbstractVOGenerator{
         commentGenerator.addModelClassComment(abstractVo, introspectedTable);
         abstractVo.addAnnotation("@Data");
         abstractVo.addAnnotation("@NoArgsConstructor");
-        if (voGenService.getAbstractVOColumns().size() > 0) {
+        if (!voGenService.getAbstractVOColumns().isEmpty()) {
             abstractVo.addAnnotation("@AllArgsConstructor");
         }
         abstractVo.addImportedType("lombok.*");
         abstractVo.addSerialVersionUID();
         //添加属性
-        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
+        List<IntrospectedColumn> abstractVOColumns = voGenService.getAbstractVOColumns();
+        for (IntrospectedColumn introspectedColumn : abstractVOColumns) {
             Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);
             field.setVisibility(JavaVisibility.PROTECTED);
             if (plugins.voAbstractFieldGenerated(field, abstractVo, introspectedColumn, introspectedTable)) {

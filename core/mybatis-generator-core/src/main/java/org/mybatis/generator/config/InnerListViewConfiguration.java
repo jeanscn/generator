@@ -59,6 +59,8 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private final Set<String> requiredColumns = new HashSet<>();
 
+    private final Set<HtmlButtonGeneratorConfiguration> htmlButtons = new HashSet<>();
+
 
     /**
      * 构造器
@@ -227,5 +229,9 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public List<ListColumnConfiguration> getListColumnConfigurations() {
         return listColumnConfigurations;
+    }
+
+    public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
+        return htmlButtons;
     }
 }

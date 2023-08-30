@@ -149,7 +149,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             method.setVisibility(JavaVisibility.PUBLIC);
             method.setConstructor(true);
             addConstructorBodyLine(method, true, topLevelClass, introspectedTable);
-            if (topLevelClass.getMethods().size() == 0) {
+            if (topLevelClass.getMethods().isEmpty()) {
                 topLevelClass.getMethods().add(method);
             } else {
                 topLevelClass.getMethods().add(0, method);
@@ -159,12 +159,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         //添加静态代码块
         InitializationBlock initializationBlock = new InitializationBlock(false);
         //在静态代码块中添加默认值
-        addInitialization(initializationBlock, topLevelClass);
+        addInitialization(introspectedColumns,initializationBlock, topLevelClass);
         String beanName = introspectedTable.getControllerBeanName();
         if (!StringUtility.isEmpty(beanName) && assignable1) {
             initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", introspectedTable.getControllerBeanName()));
         }
-        if (initializationBlock.getBodyLines().size() > 0) {
+        if (!initializationBlock.getBodyLines().isEmpty()) {
             topLevelClass.addInitializationBlock(initializationBlock);
         }
 

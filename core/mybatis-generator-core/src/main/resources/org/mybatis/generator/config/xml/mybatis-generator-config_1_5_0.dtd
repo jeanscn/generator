@@ -509,7 +509,7 @@
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
         -->
 
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?,htmlButton*)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
                 type (editable|viewOnly|print) #IMPLIED
@@ -946,24 +946,25 @@
            属性信息：
            1、generate 是否生成,true生成（ViewVO类不存时生成，如果存在则不再覆盖）,false忽略;缺省值false
                当父类的generateVO的generate属性为false时，该属性始终false。
-           2、includeColumns:视图包含的字段名,多值使用","。
-           3、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+           2、title 标题，缺省值为“表简要注释”，用来指定生成的菜单名称等
+           3、includeColumns:视图包含的字段名,多值使用","。
+           4、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
                 当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
-           4、toolbar：工具栏的操作列表。包括：CREATE-新增、EDIT-编辑、REMOVE-删除、SEARCH-查询、REFRESH-刷新、EXPORT-导出、IMPORT-导入、PRINT-打印、COLUMN-隐藏列中的0个或多个。
-           5、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
-           6、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。
-           7、queryColumns:应用复合查询的字段名,多值使用","。
-           8、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           9、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-           10、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-           11、viewMenuIcon view菜单项目的图标
-           12、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           5、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,EXPORT,IMPORT,PRINT以及自定义操作按钮的id值
+           6、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
+           7、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
+           8、queryColumns:应用复合查询的字段名,多值使用","。
+           9、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           10、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           11、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           12、viewMenuIcon view菜单项目的图标
+           13、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
             property配置：无
         -->
-
-        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*)>
+        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*,htmlButton*)>
         <!ATTLIST viewVO
                 generate (true|false) #IMPLIED
+                title CDATA #IMPLIED
                 includeColumns CDATA #IMPLIED
                 excludeColumns CDATA #IMPLIED
                 toolbar CDATA #IMPLIED
@@ -993,7 +994,7 @@
            7、totalRow 是否显示总计行，true显示，false不显示。缺省值false
            8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
            9、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：VIEW,EDIT,REMOVE
-           10、toolbar：工具栏的操作列表。包括：NONE-无、CREATE-新增、REMOVE-删除中的0个或多个。缺省值：CREATE,REMOVE
+           10、toolbar：表格顶部工具栏的设置。“false”-不显示工具条；“true"-仅显示右侧操作按钮；'default'-开启工具栏并显示默认模板；'#template-id'-自定义工具栏模板选择器
            10、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: NONE或者filter,exports,print （分别代表：无、筛选图标、导出图标、打印图标），默认值为：filter,exports,print
            11、defaultDisplayFields：默认显示的属性名列表,多值使用","。
            12、defaultHiddenFields：默不显示的属性名列表,多值使用","。
@@ -1007,7 +1008,7 @@
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
             3、requiredColumns 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
        -->
-        <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*)>
+        <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*,htmlButton*)>
         <!ATTLIST innerListView
                 listKey CDATA #IMPLIED
                 size (sm|md|lg) #IMPLIED
@@ -1160,8 +1161,7 @@
                 isFinal (true|false) #IMPLIED
                 visibility (public|private|protected) #IMPLIED
                 importedTypes CDATA #IMPLIED
-                remark CDATA #IMPLIED
-                importType  CDATA #IMPLIED>
+                remark CDATA #IMPLIED>
 
         <!--
              用于指定requestVO自动构建查询Example类，字段匹配类型
@@ -1187,17 +1187,54 @@
                 5、colDefsWfStatus 用于将字段值渲染为工作流状态，0->拟稿中、1->办理中、2->已办结、3->已挂起、4->未保存，否则->未知状态
                 6、colDefsReadState 用于将字段值渲染为阅读状态，0->未读、1->已读，否则->未知
                 7、colDefsDatefmt 用于将字段值渲染为日期格式，按照指定的日期格式进行渲染，支持的日期格式有：yyyy-MM-dd HH:mm:ss、yyyy-MM-dd、HH:mm:ss
-                8、colDefsAsLink_parent 用于将字段值渲染为超链接，该方法用在父窗口打开链接
-                9、extendFuncFirst 用于将字段值渲染为自定义方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
-                10、extendFuncSecond 用于将字段值渲染为自定义方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
-                11、extendFuncOther 用于将字段值渲染为自定义方法，如果选择此项，需要在extendFuncOther属性中指定方法名。
+                8、colDefsAsLinkSlide 用于将字段值渲染为超链接，该方法用在右侧窗口滑出并加载链接
+                9、colDefsAsLink_parent 用于将字段值渲染为超链接，该方法用在父窗口打开链接
+                10、extendFuncFirst 用于将字段值渲染为自定义方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
+                11、extendFuncSecond 用于将字段值渲染为自定义方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
+                12、extendFuncOther 用于将字段值渲染为自定义方法，如果选择此项，需要在extendFuncOther属性中指定方法名。
             -->
-        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLink_parent|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
+        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ELEMENT columnRenderFun (#PCDATA)>
         <!ATTLIST columnRenderFun
                 fieldNames  CDATA #REQUIRED
                 renderFun %renderFunValues; #REQUIRED
                 extendFuncOther CDATA #IMPLIED>
+
+        <!--
+            用于描述个性化的button按钮
+            属性信息：
+            1、id 必须，按钮id
+            2、text 可选，按钮显示的文本
+            3、icon 可选，按钮显示的图标
+            4、classes 可选，按钮的样式
+            5、handler 可选，按钮的点击事件处理方法
+            6、type 可选，按钮的类型，button-按钮|link-a标签
+            7、handlerParams 可选，按钮的点击事件处理方法的参数，多值用”,“分割
+            8、handlerParamsType 可选，按钮的点击事件处理方法的参数的类型，多值用”,“分割
+            9、handlerParamsValue 可选，按钮的点击事件处理方法的参数的值，多值用”,“分割
+            10、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
+            使用说明：
+            1、仅在个性化按钮或者链接时，需要定制。视图的默认操作包括：CREATE,EDIT,REMOVE,SEARCH,REFRESH,EXPORT,IMPORT,PRINT,COLUMN等不需要定制
+                    视图操作列中的VIEW,EDIT,DELETE不需要定制；
+            2、如果定义了个性化按钮，需要在视图的toolbar属性中指定该按钮的id，多个按钮用”,“分隔。
+            3、如果定义了个性化按钮，需要在视图的actionColumn属性中指定该按钮的id，多个按钮用”,“分隔。
+            4、如果定义了个性化按钮，需要在视图的defaultToolbar属性中指定该按钮的id，多个按钮用”,“分隔。
+            5、handler属性指定的方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
+                    视图的操作按钮中的参数为：function handlerFunc(e, dt, node, config,id)，其中id为定义的按钮id，可以通过这个id来区分不同的按钮
+            -->
+        <!ELEMENT htmlButton EMPTY>
+        <!ATTLIST htmlButton
+                id CDATA #REQUIRED
+                text CDATA #IMPLIED
+                icon CDATA #IMPLIED
+                classes CDATA #IMPLIED
+                handler CDATA #IMPLIED
+                type (button|link) #IMPLIED
+                handlerParams CDATA #IMPLIED
+                handlerParamsType CDATA #IMPLIED
+                handlerParamsValue CDATA #IMPLIED
+                css CDATA #IMPLIED>
+
         <!--
              增加一个mapstruct转换方法
              属性信息：

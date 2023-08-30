@@ -1,20 +1,17 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.CompositeQuery;
+import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.annotation.ViewTableMeta;
 import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.view.ViewActionColumnEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
-import com.vgosoft.core.constant.enums.view.ViewToolBarsEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -34,8 +31,8 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private String className;
     private String listType;
     private ViewIndexColumnEnum indexColumn;
-    private ViewActionColumnEnum[] actionColumn = new ViewActionColumnEnum[0];
-    private ViewToolBarsEnum[] toolbarActions = new ViewToolBarsEnum[0];
+    private String  actionColumn;
+    private String toolbarActions;
     private String[] ignoreFields = new String[0];
     private String[] columns = new String[0];
     private String[] querys = new String[0];
@@ -84,18 +81,13 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
             items.add(VStringUtil.format("indexColumn = ViewIndexColumnEnum.{0}", this.getIndexColumn().name()));
             this.addImports(ViewIndexColumnEnum.class.getCanonicalName());
         }
-        if (this.actionColumn.length>0) {
-            List<ViewActionColumnEnum> viewActionColumnEnums = new ArrayList<>(Arrays.asList(this.actionColumn));
-            if (!(viewActionColumnEnums.size()==2 && viewActionColumnEnums.contains(ViewActionColumnEnum.VIEW) && viewActionColumnEnums.contains(ViewActionColumnEnum.EDIT))) {
-                String collect = Arrays.stream(this.actionColumn).map(e -> "ViewActionColumnEnum." + e.name()).collect(Collectors.joining(","));
-                items.add(VStringUtil.format("actionColumn = '{'{0}'}'", collect));
-                this.addImports(ViewActionColumnEnum.class.getCanonicalName());
-            }
+        if (this.actionColumn!=null) {
+            items.add(VStringUtil.format("actionColumn = '{'{0}'}'", this.actionColumn));
+            this.addImports(HtmlButton.class.getCanonicalName());
         }
-        if (this.toolbarActions.length>0) {
-            String collect = Arrays.stream(this.toolbarActions).map(e -> "ViewToolBarsEnum." + e.name()).collect(Collectors.joining(","));
-            items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", collect));
-            this.addImports(ViewToolBarsEnum.class.getCanonicalName());
+        if (this.toolbarActions!=null) {
+            items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", this.toolbarActions));
+            this.addImports(HtmlButton.class.getCanonicalName());
         }
         if (this.ignoreFields.length>0) {
             String collect = Arrays.stream(this.ignoreFields).map(f -> "\"" + f + "\"").collect(Collectors.joining(","));
@@ -188,22 +180,6 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         this.indexColumn = indexColumn;
     }
 
-    public ViewActionColumnEnum[] getActionColumn() {
-        return actionColumn;
-    }
-
-    public void setActionColumn(ViewActionColumnEnum[] actionColumn) {
-        this.actionColumn = actionColumn;
-    }
-
-    public ViewToolBarsEnum[] getToolbarActions() {
-        return toolbarActions;
-    }
-
-    public void setToolbarActions(ViewToolBarsEnum[] toolbarActions) {
-        this.toolbarActions = toolbarActions;
-    }
-
     public String[] getIgnoreFields() {
         return ignoreFields;
     }
@@ -291,4 +267,22 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     public void setRestBasePath(String restBasePath) {
         this.restBasePath = restBasePath;
     }
+
+    public String getActionColumn() {
+        return actionColumn;
+    }
+
+    public void setActionColumn(String actionColumn) {
+        this.actionColumn = actionColumn;
+    }
+
+    public String getToolbarActions() {
+        return toolbarActions;
+    }
+
+    public void setToolbarActions(String toolbarActions) {
+        this.toolbarActions = toolbarActions;
+    }
+
+
 }

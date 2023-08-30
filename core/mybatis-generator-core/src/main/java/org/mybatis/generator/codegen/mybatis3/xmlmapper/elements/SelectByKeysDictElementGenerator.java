@@ -60,29 +60,12 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
                 choose.addElement(getKeysWhenMultiElement(introspectedColumn, "keys"));
             });
         }
-        introspectedTable.getColumn(config.getTypeColumn()).ifPresent(introspectedColumn -> {
-            choose.addElement(getKeysWhenSingleElement(introspectedColumn,"types"));
-            choose.addElement(getKeysWhenMultiElement(introspectedColumn,"types"));
-        });
-
-        //如果没有主键列，增加一个or条件
-        /*if (StringUtility.stringHasValue(config.getKeyColumn())) {
-            if (introspectedTable.getPrimaryKeyColumns().stream().noneMatch(introspectedColumn -> config.getKeyColumn().equals(introspectedColumn.getActualColumnName()))) {
-                for (IntrospectedColumn primaryKeyColumn : introspectedTable.getPrimaryKeyColumns()) {
-                    if (!config.getKeyColumn().equals(primaryKeyColumn.getActualColumnName())) {
-                        introspectedTable.getColumn(config.getKeyColumn()).ifPresent(introspectedColumn -> {
-                            choose.addElement(getKeysWhenElement(introspectedColumn,"keys","or"));
-                        });
-                    }
-                }
-            }
-        }*/
-        //排除的列
-       /* XmlElement choose1 = new XmlElement("choose");
+        XmlElement choose1 = new XmlElement("choose");
         trim.addElement(choose1);
-        introspectedTable.getPrimaryKeyColumns().forEach(introspectedColumn -> {
-            choose1.addElement(getKeysWhenElement(introspectedColumn,"excludeIds","and",false));
-        });*/
+        introspectedTable.getColumn(config.getTypeColumn()).ifPresent(introspectedColumn -> {
+            choose1.addElement(getKeysWhenSingleElement(introspectedColumn,"types"));
+            choose1.addElement(getKeysWhenMultiElement(introspectedColumn,"types"));
+        });
 
         //增加默认排序
         TextElement defaultOrderBy = buildOrderByDefault();

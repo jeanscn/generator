@@ -63,6 +63,9 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
 
     protected HtmlElement generateHtmlHead() {
         HtmlElement head = new HtmlElement("head");
+        HtmlElement title = new HtmlElement("title");
+        title.addElement(new TextElement(getDocTitle()));
+        head.addElement(title);
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::baseRequired('" + introspectedTable.getRemarks(true) + "')");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::jQueryRequired");
         return head;

@@ -49,6 +49,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private final List<HtmlApprovalCommentConfiguration> htmlApprovalCommentConfigurations = new ArrayList<>();
 
+    private final Set<HtmlButtonGeneratorConfiguration> htmlButtons = new HashSet<>();
+
     public HtmlGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
         overWriteHtmlFile = false;
@@ -195,5 +197,9 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public Set<String> getReadonlyFields() {
         return readonlyFields;
+    }
+
+    public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
+        return htmlButtons;
     }
 }

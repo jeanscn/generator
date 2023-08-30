@@ -22,7 +22,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         parentElement.addImportedType(responseResult);
         parentElement.addImportedType(DATATABLES_CONFIG);
         parentElement.addImportedType(DATATABLES_UTIL);
-        parentElement.addImportedType(VIEW_DT_TABLE);
+        parentElement.addImportedType(VIEW_DT_TABLE_VO);
         parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
         parentElement.addImportedType("com.vgosoft.web.plugins.datatables.DataTablesMappings");
         final String methodPrefix = "getDefaultViewConfig";
@@ -39,10 +39,10 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
 
         commentGenerator.addMethodJavaDocLine(method, "查看表默认视图配置");
 
-        method.addBodyLine("Optional<ViewDtTable> result = DataTablesUtil");
+        method.addBodyLine("Optional<ViewDtTableVO> result = DataTablesUtil");
         method.addBodyLine("        .getSingleViewDtTableByAnnotation(DataTablesUtil.getDefaultViewId(\"{0}\"), true);"
                 ,introspectedTable.getControllerBeanName());
-        method.addBodyLine("return result.map(viewDtTable -> success(DataTablesMappings.INSTANCE.fromViewDtTable(viewDtTable)))\n" +
+        method.addBodyLine("return result.map(viewDtTableVO -> success(DataTablesMappings.INSTANCE.fromViewDtTableVO(viewDtTableVO)))\n" +
                 "                .orElseGet(() -> failure(ApiCodeEnum.FAIL_NOT_FOUND,\"默认列表配置\"));");
         parentElement.addMethod(method);
         parentElement.addImportedType("java.util.Optional");

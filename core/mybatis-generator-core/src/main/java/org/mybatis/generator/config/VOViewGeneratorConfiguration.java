@@ -9,13 +9,17 @@ import java.util.Set;
 
 public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
+    private String title;
+
     private Set<String> includeColumns = new HashSet<>();
 
-    private Set<String> toolbar = new HashSet<>();
+    private List<String> toolbar = new ArrayList<>();
 
     private String indexColumn;
 
-    private List<String> actionColumn = new ArrayList<>();
+    private  List<String> actionColumn = new ArrayList<>();
+
+    private Set<HtmlButtonGeneratorConfiguration> htmlButtons = new HashSet<>();
 
     private List<String> queryColumns = new ArrayList<>();
 
@@ -45,20 +49,20 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
         super.validate(errors, contextId, "VOViewGeneratorConfiguration");
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getIndexColumn() {
         return indexColumn;
     }
 
     public void setIndexColumn(String indexColumn) {
         this.indexColumn = indexColumn;
-    }
-
-    public List<String> getActionColumn() {
-        return actionColumn;
-    }
-
-    public void setActionColumn(List<String> actionColumn) {
-        this.actionColumn = actionColumn;
     }
 
     public List<String> getQueryColumns() {
@@ -125,19 +129,35 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
         this.innerListViewConfigurations = innerListViewConfigurations;
     }
 
-    public Set<String> getToolbar() {
-        return toolbar;
-    }
-
-    public void setToolbar(Set<String> toolbar) {
-        this.toolbar = toolbar;
-    }
-
     public String getCategoryTreeMultiple() {
         return categoryTreeMultiple;
     }
 
     public void setCategoryTreeMultiple(String categoryTreeMultiple) {
         this.categoryTreeMultiple = categoryTreeMultiple;
+    }
+
+    public List<String> getToolbar() {
+        return toolbar;
+    }
+
+    public List<String> getActionColumn() {
+        return actionColumn;
+    }
+
+    public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
+        return htmlButtons;
+    }
+
+    public void setToolbar(List<String> toolbar) {
+        this.toolbar = toolbar;
+    }
+
+    public void setActionColumn(List<String> actionColumn) {
+        this.actionColumn = actionColumn;
+    }
+
+    public void setHtmlButtons(Set<HtmlButtonGeneratorConfiguration> htmlButtons) {
+        this.htmlButtons = htmlButtons;
     }
 }

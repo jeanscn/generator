@@ -483,7 +483,7 @@ public class MyBatisGeneratorConfigurationParser {
                     parseJavaModelRelation(tc, childNode, RelationTypeEnum.collection);
                     break;
                 case "generateHtml":  //$NON-NLS-1$
-                    parseGenerateHtml(context, tc, childNode);
+                    parseHtml(context, tc, childNode);
                     break;
                 case "generateService":
                     parseGenerateService(context, tc, childNode);
@@ -504,7 +504,7 @@ public class MyBatisGeneratorConfigurationParser {
                     parseGenerateSqlSchema(context, tc, childNode);
                     break;
                 case "generateVO":
-                    parseGenerateVO(context, tc, childNode);
+                    parseVO(context, tc, childNode);
                     break;
                 case "generateCachePO":
                     parseGenerateCachePO(context, tc, childNode);
@@ -892,7 +892,7 @@ public class MyBatisGeneratorConfigurationParser {
         tc.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
     }
 
-    private void parseGenerateHtml(Context context, TableConfiguration tc, Node node) {
+    private void parseHtml(Context context, TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = new HtmlGeneratorConfiguration(context, tc);
         htmlGeneratorConfiguration.setGenerate(Boolean.parseBoolean(attributes.getProperty(PropertyRegistry.ANY_GENERATE)));
@@ -967,6 +967,10 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
                 case PropertyRegistry.ELEMENT_HTML_ELEMENT_INNER_LIST:
                     parseHtmlElementInnerList(htmlGeneratorConfiguration, childNode);
+                    break;
+                case (PropertyRegistry.ELEMENT_HTML_BUTTON):
+                    HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
+                    htmlGeneratorConfiguration.getHtmlButtons().add(htmlButton);
                     break;
             }
         }
@@ -1204,7 +1208,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         String multiple = attributes.getProperty("multiple");
-        if (stringHasValue(multiple) ) {
+        if (stringHasValue(multiple)) {
             htmlElementDescriptor.setMultiple(multiple);
         }
 
@@ -1495,7 +1499,7 @@ public class MyBatisGeneratorConfigurationParser {
         tc.setSqlSchemaGeneratorConfiguration(sqlSchemaGeneratorConfiguration);
     }
 
-    private void parseGenerateVO(Context context, TableConfiguration tc, Node node) {
+    private void parseVO(Context context, TableConfiguration tc, Node node) {
         VOGeneratorConfiguration configuration = new VOGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(node);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
@@ -1513,12 +1517,6 @@ public class MyBatisGeneratorConfigurationParser {
         String ehAttr = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(ehAttr)) {
             configuration.setEqualsAndHashCodeColumns(spiltToList(ehAttr));
-        }
-
-        // 继承model的overridePropertyValue、additionalProperty
-        if (tc.getJavaModelGeneratorConfiguration() != null) {
-            configuration.getOverridePropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
-            configuration.getAdditionalPropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations());
         }
 
         NodeList nodeList = node.getChildNodes();
@@ -1541,25 +1539,28 @@ public class MyBatisGeneratorConfigurationParser {
                     configuration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode));
                     break;
                 case "modelVO":
-                    parseGenerateModelVO(context, tc, childNode, configuration);
+                    parseVOModel(context, tc, childNode, configuration);
                     break;
                 case "createVO":
-                    parseGenerateCreateVO(context, tc, childNode, configuration);
+                    parseVOCreate(context, tc, childNode, configuration);
                     break;
                 case "updateVO":
-                    parseGenerateUpdateVO(context, tc, childNode, configuration);
+                    parseVOUpdate(context, tc, childNode, configuration);
                     break;
                 case "viewVO":
-                    parseGenerateViewVO(context, tc, childNode, configuration);
+                    parseVOView(context, tc, childNode, configuration);
                     break;
                 case "excelVO":
-                    parseGenerateExcelVO(context, tc, childNode, configuration);
+                    parseVOExcel(context, tc, childNode, configuration);
                     break;
                 case "requestVO":
-                    parseGenerateRequestVO(context, tc, childNode, configuration);
+                    parseVORequest(context, tc, childNode, configuration);
                     break;
             }
         }
+        //继承table的附件属性
+        configuration.getAdditionalPropertyConfigurations().addAll(tc.getAdditionalPropertyConfigurations());
+        configuration.getOverridePropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
         tc.setVoGeneratorConfiguration(configuration);
     }
 
@@ -1682,9 +1683,13 @@ public class MyBatisGeneratorConfigurationParser {
             if (stringHasValue(visibility)) {
                 voAdditionalPropertyConfiguration.setVisibility(visibility);
             }
+            String importedType = attributes.getProperty("importedType");
+            if (stringHasValue(importedType)) {
+                voAdditionalPropertyConfiguration.getImportedTypes().add(importedType);
+            }
             String importedTypes = attributes.getProperty("importedTypes");
             if (stringHasValue(importedTypes)) {
-                voAdditionalPropertyConfiguration.setImportedTypes(spiltToList(importedTypes));
+                voAdditionalPropertyConfiguration.getImportedTypes().addAll(spiltToList(importedTypes));
             }
             String remark = attributes.getProperty(PropertyRegistry.ELEMENT_FIELD_REMARK);
             if (stringHasValue(remark)) {
@@ -1824,6 +1829,10 @@ public class MyBatisGeneratorConfigurationParser {
                     ListColumnConfiguration listColumnDescriptor = parseListColumnDescriptor(childNode);
                     innerListViewGeneratorConfiguration.getListColumnConfigurations().add(listColumnDescriptor);
                     break;
+                case (PropertyRegistry.ELEMENT_HTML_BUTTON):
+                    HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
+                    innerListViewGeneratorConfiguration.getHtmlButtons().add(htmlButton);
+                    break;
             }
         }
         //根据属性赋值
@@ -1890,10 +1899,10 @@ public class MyBatisGeneratorConfigurationParser {
                 String extendFuncOther = attributes.getProperty(PropertyRegistry.ELEMENT_EXTEND_FUNC_OTHER);
                 if (stringHasValue(extendFuncOther)) {
                     voColumnRenderFunGeneratorConfiguration.setRenderFun(extendFuncOther);
-                }else{
+                } else {
                     voColumnRenderFunGeneratorConfiguration.setRenderFun(renderFun);
                 }
-            }else{
+            } else {
                 voColumnRenderFunGeneratorConfiguration.setRenderFun(renderFun);
             }
         }
@@ -1901,7 +1910,7 @@ public class MyBatisGeneratorConfigurationParser {
     }
 
 
-    private void parseGenerateModelVO(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
+    private void parseVOModel(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
         Properties attributes = parseAttributes(node);
         VOModelGeneratorConfiguration vOModelGeneratorConfiguration = new VOModelGeneratorConfiguration(context, tc);
         parseColumnsList(attributes, vOModelGeneratorConfiguration, voGeneratorConfiguration);
@@ -1940,11 +1949,13 @@ public class MyBatisGeneratorConfigurationParser {
             additionalPropertyGeneratorConfiguration.getImportedTypes().add(type);
         });
         parseModelChildNodeProperty(context, tc, node, vOModelGeneratorConfiguration);
-
+        //继承vo的附加属性
+        vOModelGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        //添加到vo配置
         voGeneratorConfiguration.setVoModelConfiguration(vOModelGeneratorConfiguration);
     }
 
-    private void parseGenerateCreateVO(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
+    private void parseVOCreate(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
         Properties attributes = parseAttributes(node);
         VOCreateGeneratorConfiguration configuration = new VOCreateGeneratorConfiguration(context, tc);
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
@@ -1983,10 +1994,13 @@ public class MyBatisGeneratorConfigurationParser {
         configuration.setValidateIgnoreColumns(validateIgnoreColumns);
 
         parseModelChildNodeProperty(context, tc, node, configuration);
+        //继承vo的附加属性
+        configuration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        //添加到vo配置
         voGeneratorConfiguration.setVoCreateConfiguration(configuration);
     }
 
-    private void parseGenerateUpdateVO(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
+    private void parseVOUpdate(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
         Properties attributes = parseAttributes(node);
         VOUpdateGeneratorConfiguration configuration = new VOUpdateGeneratorConfiguration(context, tc);
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
@@ -2021,10 +2035,13 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         parseModelChildNodeProperty(context, tc, node, configuration);
+        //继承vo的附加属性
+        configuration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        //添加到vo配置
         voGeneratorConfiguration.setVoUpdateConfiguration(configuration);
     }
 
-    private void parseGenerateExcelVO(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
+    private void parseVOExcel(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
         Properties attributes = parseAttributes(node);
         VOExcelGeneratorConfiguration vOExcelGeneratorConfiguration = new VOExcelGeneratorConfiguration(context, tc);
         parseColumnsList(attributes, vOExcelGeneratorConfiguration, voGeneratorConfiguration);
@@ -2066,10 +2083,13 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         parseModelChildNodeProperty(context, tc, node, vOExcelGeneratorConfiguration);
+        //继承vo的附加属性
+        vOExcelGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        //添加到vo配置
         voGeneratorConfiguration.setVoExcelConfiguration(vOExcelGeneratorConfiguration);
     }
 
-    private void parseGenerateViewVO(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
+    private void parseVOView(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
         VOViewGeneratorConfiguration voViewGeneratorConfiguration = new VOViewGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(node);
         parseColumnsList(attributes, voViewGeneratorConfiguration, voGeneratorConfiguration);
@@ -2077,9 +2097,15 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(includeColumns)) {
             voViewGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
         }
+
+        String title = attributes.getProperty("title");
+        if (stringHasValue(title)) {
+            voViewGeneratorConfiguration.setTitle(title);
+        }
+
         String toolbar = attributes.getProperty("toolbar");
         if (stringHasValue(toolbar)) {
-            voViewGeneratorConfiguration.setToolbar(spiltToSet(toolbar));
+            voViewGeneratorConfiguration.setToolbar(spiltToList(toolbar));
         }
         String indexColumn = attributes.getProperty("indexColumn");
         if (stringHasValue(indexColumn)) {
@@ -2152,6 +2178,7 @@ public class MyBatisGeneratorConfigurationParser {
                     voViewGeneratorConfiguration.addOverrideColumnConfigurations(parseVoOverrideColumn(context, tc, childNode));
                     break;
                 case ("additionalProperty"):
+                    //继承vo的附件属性
                     voViewGeneratorConfiguration.addAdditionalPropertyConfigurations(parseAdditionalProperty(context, tc, childNode));
                     break;
                 case ("columnRenderFun"):
@@ -2160,13 +2187,63 @@ public class MyBatisGeneratorConfigurationParser {
                 case ("innerListView"):
                     parseInnerListView(tc, childNode, voViewGeneratorConfiguration);
                     break;
+                case (PropertyRegistry.ELEMENT_HTML_BUTTON):
+                    HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
+                    voViewGeneratorConfiguration.getHtmlButtons().add(htmlButton);
+                    break;
             }
         }
+        //继承vo的附件属性
+        voViewGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
     }
 
+    private HtmlButtonGeneratorConfiguration parseHtmlButton(Node childNode) {
+        HtmlButtonGeneratorConfiguration htmlButtonConfiguration = new HtmlButtonGeneratorConfiguration();
+        Properties attributes = parseAttributes(childNode);
+        String id = attributes.getProperty("id");
+        htmlButtonConfiguration.setId(id);
+        String text = attributes.getProperty("text");
+        if (stringHasValue(text)) {
+            htmlButtonConfiguration.setText(text);
+        }
+        String icon = attributes.getProperty("icon");
+        if (stringHasValue(icon)) {
+            htmlButtonConfiguration.setIcon(icon);
+        }
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            htmlButtonConfiguration.setType(type);
+        }
+        String classes = attributes.getProperty("classes");
+        if (stringHasValue(classes)) {
+            htmlButtonConfiguration.setClasses(classes);
+        }
+        String handler = attributes.getProperty("handler");
+        if (stringHasValue(handler)) {
+            htmlButtonConfiguration.setHandler(handler);
+        }
+        String handlerParams = attributes.getProperty("handlerParams");
+        if (stringHasValue(handlerParams)) {
+            htmlButtonConfiguration.setHandlerParams(spiltToList(handlerParams));
+        }
+        String handlerParamsType = attributes.getProperty("handlerParamsType");
+        if (stringHasValue(handlerParamsType)) {
+            htmlButtonConfiguration.setHandlerParamsType(spiltToList(handlerParamsType));
+        }
+        String handlerParamsValue = attributes.getProperty("handlerParamsValue");
+        if (stringHasValue(handlerParamsValue)) {
+            htmlButtonConfiguration.setHandlerParamsValue(spiltToList(handlerParamsValue));
+        }
+        String css = attributes.getProperty("css");
+        if (stringHasValue(css)) {
+            htmlButtonConfiguration.setCss(css);
+        }
+        return htmlButtonConfiguration;
+    }
 
-    private void parseGenerateRequestVO(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
+
+    private void parseVORequest(Context context, TableConfiguration tc, Node node, VOGeneratorConfiguration voGeneratorConfiguration) {
         VORequestGeneratorConfiguration voRequestGeneratorConfiguration = new VORequestGeneratorConfiguration(context, tc);
         Properties attributes = parseAttributes(node);
         parseColumnsList(attributes, voRequestGeneratorConfiguration, voGeneratorConfiguration);
@@ -2186,6 +2263,9 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         parseModelChildNodeProperty(context, tc, node, voRequestGeneratorConfiguration);
+        //继承vo的附加属性
+        voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        //添加到vo配置
         voGeneratorConfiguration.setVoRequestConfiguration(voRequestGeneratorConfiguration);
     }
 
@@ -2254,7 +2334,9 @@ public class MyBatisGeneratorConfigurationParser {
         modelConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
 
         parseModelChildNodeProperty(context, tc, node, modelConfiguration);
-
+        //继承tc的附加属性
+        modelConfiguration.getAdditionalPropertyConfigurations().addAll(tc.getAdditionalPropertyConfigurations());
+        //添加到tc配置
         tc.setJavaModelGeneratorConfiguration(modelConfiguration);
         parseAbstractConfigAttributes(attributes, modelConfiguration, node);
     }

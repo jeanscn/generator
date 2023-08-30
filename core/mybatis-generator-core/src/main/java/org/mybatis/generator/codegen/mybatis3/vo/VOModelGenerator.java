@@ -112,7 +112,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         //添加静态代码块
         InitializationBlock initializationBlock = new InitializationBlock(false);
         //在静态代码块中添加默认值
-        addInitialization(initializationBlock, voClass);
+        addInitialization(introspectedColumns,initializationBlock, voClass);
         voClass.addInitializationBlock(initializationBlock);
 
         //增加转换方法
