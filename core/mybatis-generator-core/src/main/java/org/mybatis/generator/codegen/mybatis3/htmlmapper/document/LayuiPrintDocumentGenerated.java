@@ -66,18 +66,28 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         l4.addAttribute(new Attribute("th:text", "${currentUser?.name}?:_"));
         p.addElement(l4);
         //隐藏input
-        HtmlElement fileCategory = generateHtmlInput("fileCategory", true, false, true, false);
-        fileCategory.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.fileCategory}?:_"));
-        content.addElement(fileCategory);
-        HtmlElement regDocNumber = generateHtmlInput("regDocNumber", true, false, true, false);
-        regDocNumber.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.regDocNumber}?:_"));
-        content.addElement(regDocNumber);
-        HtmlElement deptName = generateHtmlInput("deptName", true, false, true, false);
-        deptName.addAttribute(new Attribute("th:value", "${currentDept?.name}?:_"));
-        content.addElement(deptName);
-        HtmlElement userName = generateHtmlInput("wfState", true, false, true, false);
-        userName.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + ".wfState == 2 ? '文件审批通过': '文件没有正常完成审批'}"));
-        content.addElement(userName);
+        HtmlElement workflowEnabled = generateHtmlInput("workflowEnabled", true, false, true, false);
+        content.addElement(workflowEnabled);
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            HtmlElement fileCategory = generateHtmlInput("fileCategory", true, false, true, false);
+            fileCategory.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.fileCategory}?:_"));
+            content.addElement(fileCategory);
+            HtmlElement regDocNumber = generateHtmlInput("regDocNumber", true, false, true, false);
+            regDocNumber.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.regDocNumber}?:_"));
+            content.addElement(regDocNumber);
+            HtmlElement deptName = generateHtmlInput("deptName", true, false, true, false);
+            deptName.addAttribute(new Attribute("th:value", "${currentDept?.name}?:_"));
+            content.addElement(deptName);
+            HtmlElement userName = generateHtmlInput("wfState", true, false, true, false);
+            userName.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + ".wfState == 2 ? '文件审批通过': '文件没有正常完成审批'}"));
+            content.addElement(userName);
+            workflowEnabled.addAttribute(new Attribute("value", "1"));
+        }else{
+            workflowEnabled.addAttribute(new Attribute("value", "0"));
+        }
+        HtmlElement subject = generateHtmlInput(input_subject_id, true, false, true, true);
+        subject.addAttribute(new Attribute("value", getDocTitle()));
+        content.addElement(subject);
         generatePrintToolbar(content);
         if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
 
@@ -101,13 +111,15 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         HtmlElement t = new HtmlElement("title");
         t.addElement(new TextElement(getDocTitle()));
         head.addElement(t);
-        addStaticStyleSheet(head, "/webjars/plugins/printjs/css/print.min.css");
-        addStaticStyleSheet(head, "/webjars/plugins/css/printjs.css");
-       addStaticJavaScript(head, "/webjars/plugins/jquery/1.12.4/jquery.min.js");
-        addStaticJavaScript(head, "/webjars/plugins/printjs/js/print.min.js");
-        addStaticJavaScript(head, "/webjars/plugins/jquery/jquery.qrcode.min.js");
-        addStaticJavaScript(head, "/webjars/plugins/jquery/jquery.watermark.min.js");
-        addStaticJavaScript(head, "/webjars/plugins/js/printjs.js");
+       addStaticThymeleafJavaScript(head, "/webjars/plugins/jquery/1.12.4/jquery.min.js");
+        addStaticThymeleafStyleSheet(head, "/webjars/plugins/printjs/css/print.min.css");
+        addStaticThymeleafJavaScript(head, "/webjars/plugins/printjs/js/print.min.js");
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            addStaticThymeleafJavaScript(head, "/webjars/plugins/jquery/jquery.qrcode.min.js");
+            addStaticThymeleafJavaScript(head, "/webjars/plugins/jquery/jquery.watermark.min.js");
+        }
+        addStaticThymeleafStyleSheet(head, "/webjars/plugins/css/printjs.css");
+        addStaticThymeleafJavaScript(head, "/webjars/plugins/js/printjs.js");
         return head;
     }
 
@@ -339,8 +351,8 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         HtmlElement toolBar = generateToolBar(parent);
         String config = getHtmlBarPositionConfig();
         if (!HTML_KEY_WORD_TOP.equals(config)) {
-            addHtmlButton(toolBar, "btn_print", "打印", "button", "footer-btn");
             addHtmlButton(toolBar, "btn_close", "关闭", "button", "footer-btn");
+            addHtmlButton(toolBar, "btn_print", "打印", "button", "footer-btn");
         }
     }
 }

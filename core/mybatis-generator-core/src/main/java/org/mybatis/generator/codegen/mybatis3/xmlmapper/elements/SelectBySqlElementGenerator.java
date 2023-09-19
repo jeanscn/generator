@@ -27,7 +27,7 @@ public class SelectBySqlElementGenerator extends AbstractXmlElementGenerator{
         sb.append("(${sql}) ");
         String alias = introspectedTable.getFullyQualifiedTable().getAlias();
         if (stringHasValue(alias)) {
-            sb.append(' ');
+            sb.append(" as ");
             sb.append(alias);
         }
         ifElement.addElement(new TextElement(sb.toString()));

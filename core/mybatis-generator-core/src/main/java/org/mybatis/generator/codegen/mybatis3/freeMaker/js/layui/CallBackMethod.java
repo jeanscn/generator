@@ -1,7 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui;
 
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
-
 import java.util.ArrayList;
 import java.util.List;
 

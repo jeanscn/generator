@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2300809001-->
+        <!--version:1.5.0.2300831001-->
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -1205,14 +1205,16 @@
             属性信息：
             1、id 必须，按钮id
             2、text 可选，按钮显示的文本
-            3、icon 可选，按钮显示的图标
-            4、classes 可选，按钮的样式
-            5、handler 可选，按钮的点击事件处理方法
-            6、type 可选，按钮的类型，button-按钮|link-a标签
-            7、handlerParams 可选，按钮的点击事件处理方法的参数，多值用”,“分割
-            8、handlerParamsType 可选，按钮的点击事件处理方法的参数的类型，多值用”,“分割
-            9、handlerParamsValue 可选，按钮的点击事件处理方法的参数的值，多值用”,“分割
-            10、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
+            3、title 可选，按钮显示的提示信息
+            4、icon 可选，按钮显示的图标
+            5、classes 可选，按钮的样式
+            6、handler 可选，按钮的点击事件处理方法
+            7、type 可选，按钮的类型，button-按钮|link-a标签
+            8、handlerParams 可选，按钮的点击事件处理方法的参数，多值用”,“分割
+            9、handlerParamsType 可选，按钮的点击事件处理方法的参数的类型，多值用”,“分割
+            10、handlerParamsValue 可选，按钮的点击事件处理方法的参数的值，多值用”,“分割
+            11、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
+            12、showCondition 可选。按钮的显示条件。默认为“true”
             使用说明：
             1、仅在个性化按钮或者链接时，需要定制。视图的默认操作包括：CREATE,EDIT,REMOVE,SEARCH,REFRESH,EXPORT,IMPORT,PRINT,COLUMN等不需要定制
                     视图操作列中的VIEW,EDIT,DELETE不需要定制；
@@ -1221,11 +1223,13 @@
             4、如果定义了个性化按钮，需要在视图的defaultToolbar属性中指定该按钮的id，多个按钮用”,“分隔。
             5、handler属性指定的方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
                     视图的操作按钮中的参数为：function handlerFunc(e, dt, node, config,id)，其中id为定义的按钮id，可以通过这个id来区分不同的按钮
+            6、showCondition 表达式中可以使用data表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象），如：data.type==‘1’ and data.status==‘1’
             -->
         <!ELEMENT htmlButton EMPTY>
         <!ATTLIST htmlButton
                 id CDATA #REQUIRED
                 text CDATA #IMPLIED
+                title CDATA #IMPLIED
                 icon CDATA #IMPLIED
                 classes CDATA #IMPLIED
                 handler CDATA #IMPLIED
@@ -1233,7 +1237,8 @@
                 handlerParams CDATA #IMPLIED
                 handlerParamsType CDATA #IMPLIED
                 handlerParamsValue CDATA #IMPLIED
-                css CDATA #IMPLIED>
+                css CDATA #IMPLIED
+                showCondition CDATA #IMPLIED>
 
         <!--
              增加一个mapstruct转换方法

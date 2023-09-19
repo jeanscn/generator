@@ -7,9 +7,9 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractThymeleafHtmlElementGenerator;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.core.DictTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import javax.annotation.Nullable;

@@ -1,12 +1,10 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.annotation.DictData;
 import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 按钮注解描述类
@@ -22,6 +20,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     private String value;
     private String id;
     private String text;
+    private String title;
     private String icon;
     private String classes;
     private String handler;
@@ -30,6 +29,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     private List<String>  handlerParamsType;
     private List<String>  handlerParamsValue;
     private String css;
+    private String showCondition;
 
     public static HtmlButtonDesc create(ViewDefaultToolBarsEnum viewDefaultToolBarsEnum) {
         return new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
@@ -46,6 +46,8 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.setHandlerParamsType(htmlButtonGeneratorConfiguration.getHandlerParamsType());
         htmlButtonDesc.setHandlerParamsValue(htmlButtonGeneratorConfiguration.getHandlerParamsValue());
         htmlButtonDesc.setCss(htmlButtonGeneratorConfiguration.getCss());
+        htmlButtonDesc.setShowCondition(htmlButtonGeneratorConfiguration.getShowCondition());
+        htmlButtonDesc.setTitle(htmlButtonGeneratorConfiguration.getTitle());
         return htmlButtonDesc;
     }
 
@@ -61,6 +63,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         items.add("value = \""+this.value+"\"");
         if (this.text!=null) {
             items.add("text = \""+this.text+"\"");
+        }
+        if (this.title!=null) {
+            items.add("title = \""+this.title+"\"");
         }
         if (this.icon!=null) {
             items.add("icon = \""+this.icon+"\"");
@@ -85,6 +90,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         }
         if (this.css!=null) {
             items.add("css = \""+this.css+"\"");
+        }
+        if (this.showCondition!=null && !this.showCondition.equalsIgnoreCase("true")) {
+            items.add("showCondition = \""+this.showCondition+"\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -131,5 +139,13 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setCss(String css) {
         this.css = css;
+    }
+
+    public void setShowCondition(String showCondition) {
+        this.showCondition = showCondition;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

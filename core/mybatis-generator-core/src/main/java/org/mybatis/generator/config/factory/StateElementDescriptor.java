@@ -5,8 +5,8 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -22,7 +22,7 @@ public class StateElementDescriptor implements DefaultHtmlElementDescriptorFacto
         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
         elementDescriptor.setEnumClassName(CommonStatusEnum.class.getCanonicalName());
         elementDescriptor.setSwitchText(CommonStatusEnum.switchText());
-        elementDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.getCode());
+        elementDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.codeName());
         elementDescriptor.setColumn(column);
         elementDescriptor.setOtherFieldName(DefaultColumnNameEnum.STATE.otherFieldName());
         return elementDescriptor;

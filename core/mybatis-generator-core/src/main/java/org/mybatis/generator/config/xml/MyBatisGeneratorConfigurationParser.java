@@ -2207,6 +2207,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(text)) {
             htmlButtonConfiguration.setText(text);
         }
+        String title = attributes.getProperty("title");
+        if (stringHasValue(title)) {
+            htmlButtonConfiguration.setTitle(title);
+        }
         String icon = attributes.getProperty("icon");
         if (stringHasValue(icon)) {
             htmlButtonConfiguration.setIcon(icon);
@@ -2238,6 +2242,10 @@ public class MyBatisGeneratorConfigurationParser {
         String css = attributes.getProperty("css");
         if (stringHasValue(css)) {
             htmlButtonConfiguration.setCss(css);
+        }
+        String showCondition = attributes.getProperty("showCondition");
+        if (stringHasValue(showCondition)) {
+            htmlButtonConfiguration.setShowCondition(showCondition);
         }
         return htmlButtonConfiguration;
     }

@@ -11,7 +11,7 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.InnerListViewConfiguration;
 import org.mybatis.generator.config.ListColumnConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.annotations.LayuiTableColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableMetaDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -78,8 +78,8 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     private LayuiTableColumnMetaDesc buildLayuiTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn,IntrospectedTable introspectedTable) {
 
         Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap(); //所有的配置标签列表
-        Set<String> fieldNames = Stream.of(elementDescriptorMap.values().stream().filter(t->!t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.getCode())).map(t -> t.getColumn().getJavaProperty()),
-                        elementDescriptorMap.values().stream().filter(t->!t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.getCode())).map(HtmlElementDescriptor::getOtherFieldName))
+        Set<String> fieldNames = Stream.of(elementDescriptorMap.values().stream().filter(t->!t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())).map(t -> t.getColumn().getJavaProperty()),
+                        elementDescriptorMap.values().stream().filter(t->!t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())).map(HtmlElementDescriptor::getOtherFieldName))
                 .flatMap(stringStream -> stringStream)
                 .collect(Collectors.toSet());
         String fieldName = field.getName();
@@ -108,7 +108,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
                     .filter(t -> (t.getColumn().getJavaProperty().equals(field.getName()) || t.getOtherFieldName().equals(field.getName())))
                     .findFirst()
                     .ifPresent(htmlElementDescriptor -> {
-                        if (HtmlElementTagTypeEnum.SELECT.getCode().equals(htmlElementDescriptor.getTagType())) {
+                        if (HtmlElementTagTypeEnum.SELECT.codeName().equals(htmlElementDescriptor.getTagType())) {
                             if (htmlElementDescriptor.getOtherFieldName().equals(field.getName())) {
                                 if (enableEdit) {
                                     layuiTableColumnMetaDesc.setEditor(htmlElementDescriptor.getTagType());

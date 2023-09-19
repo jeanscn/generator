@@ -1,10 +1,12 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
 import com.vgosoft.core.constant.enums.core.QueryModesEnum;
-import com.vgosoft.core.constant.enums.view.TagNamesEnum;
+import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
+
+import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -17,11 +19,15 @@ public class CompositeQueryDesc extends AbstractAnnotation{
 
     private String value;
     private String description;
-    private TagNamesEnum tagName = TagNamesEnum.INPUT;
+    private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.INPUT;
     private QueryModesEnum queryMode = QueryModesEnum.EQUAL;
     private int order;
     private FieldTypeEnum fieldType = FieldTypeEnum.TEXT;
     private String dataUrl;
+    private String fieldName;
+    private String tableName;
+
+    private final IntrospectedColumn introspectedColumn;
 
     public static CompositeQueryDesc create(IntrospectedColumn introspectedColumn){
         return new CompositeQueryDesc(introspectedColumn);
@@ -30,15 +36,19 @@ public class CompositeQueryDesc extends AbstractAnnotation{
     public CompositeQueryDesc(IntrospectedColumn introspectedColumn) {
         super();
         this.value = introspectedColumn.getActualColumnName();
-        this.items.add(VStringUtil.format("value=\"{0}\"", this.value));
-        this.description = introspectedColumn.getRemarks(true);
-        this.items.add(VStringUtil.format("description=\"{0}\"", this.description));
         this.addImports("com.vgosoft.core.annotation.CompositeQuery");
+        this.introspectedColumn = introspectedColumn;
     }
 
     @Override
     public String toAnnotation() {
-        if (!this.tagName.equals(TagNamesEnum.INPUT)) {
+        this.items.add(VStringUtil.format("value=\"{0}\"", this.value));
+        if (stringHasValue(this.description)) {
+            this.items.add(VStringUtil.format("description=\"{0}\"", this.description));
+        }else{
+            this.items.add(VStringUtil.format("description=\"{0}\"", this.introspectedColumn.getRemarks(true)));
+        }
+        if (!this.tagName.equals(HtmlElementTagTypeEnum.INPUT)) {
             this.items.add(VStringUtil.format("tagName=TagNamesEnum.{0}", this.tagName.name()));
         }
         if (!this.getQueryMode().equals(QueryModesEnum.EQUAL)) {
@@ -52,6 +62,22 @@ public class CompositeQueryDesc extends AbstractAnnotation{
         }
         if (VStringUtil.isNotBlank(this.getDataUrl())) {
             this.items.add(VStringUtil.format("dataUrl=\"{0}\"", this.getDataUrl()));
+        }
+        if (VStringUtil.isNotBlank(this.getFieldName())) {
+            this.items.add(VStringUtil.format("fieldName=\"{0}\"", this.getFieldName()));
+        }else{
+            this.items.add(VStringUtil.format("fieldName=\"{0}\"", this.introspectedColumn.getJavaProperty()));
+        }
+        if (VStringUtil.isNotBlank(this.getTableName())) {
+            this.items.add(VStringUtil.format("tableName=\"{0}\"", this.getTableName()));
+        }else{
+            if (this.introspectedColumn.getIntrospectedTable() != null) {
+                if (stringHasValue(this.introspectedColumn.getIntrospectedTable().getTableConfiguration().getAlias())) {
+                    this.items.add(VStringUtil.format("tableName=\"{0}\"", this.introspectedColumn.getIntrospectedTable().getTableConfiguration().getAlias()));
+                }else{
+                    this.items.add(VStringUtil.format("tableName=\"{0}\"", this.introspectedColumn.getIntrospectedTable().getTableConfiguration().getTableName()));
+                }
+            }
         }
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
@@ -72,11 +98,11 @@ public class CompositeQueryDesc extends AbstractAnnotation{
         this.description = description;
     }
 
-    public TagNamesEnum getTagName() {
+    public HtmlElementTagTypeEnum getTagName() {
         return tagName;
     }
 
-    public void setTagName(TagNamesEnum tagName) {
+    public void setTagName(HtmlElementTagTypeEnum tagName) {
         this.tagName = tagName;
     }
 
@@ -110,5 +136,25 @@ public class CompositeQueryDesc extends AbstractAnnotation{
 
     public void setDataUrl(String dataUrl) {
         this.dataUrl = dataUrl;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    public IntrospectedColumn getIntrospectedColumn() {
+        return introspectedColumn;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 }

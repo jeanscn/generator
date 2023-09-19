@@ -2,20 +2,17 @@ package org.mybatis.generator.codegen.mybatis3.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.VoGenService;
 
 import java.sql.JDBCType;
@@ -35,21 +32,18 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     public List<CompilationUnit> getCompilationUnits() {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         VoGenService voGenService = new VoGenService(introspectedTable);
-        String voTargetPackage = context.getJavaModelGeneratorConfiguration()
-                .getBaseTargetPackage() + ".pojo";
+        String voTargetPackage = context.getJavaModelGeneratorConfiguration().getBaseTargetPackage() + ".pojo";
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         FullyQualifiedJavaType entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
         FullyQualifiedJavaType entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
         FullyQualifiedJavaType entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelImportVO"));
-
         List<CompilationUnit> answer = new ArrayList<>();
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.48", table.toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
         JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = tc.getJavaControllerGeneratorConfiguration();
         JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration = tc.getJavaServiceGeneratorConfiguration();
-
         String controllerName = "Gen" + entityType.getShortName() + "Controller";
         StringBuilder sb = new StringBuilder();
         sb.append(javaControllerGeneratorConfiguration.getTargetPackageGen());
@@ -69,7 +63,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             supClazzType.addTypeArgument(entityType);
         }
         conTopClazz.setSuperClass(supClazzType);
-
         sb.setLength(0);
         sb.append(javaServiceGeneratorConfiguration.getTargetPackage()).append(".I");
         sb.append(entityType.getShortName());
@@ -87,9 +80,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setFinal(true);
         conTopClazz.addField(field);
-
-
-
         //构造器
         Method method = new Method(controllerName);
         method.addParameter(new Parameter(bizInfType, introspectedTable.getControllerBeanName()));
@@ -110,7 +100,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             method.addBodyLine("this.mappings = mappings;");
         }
         conTopClazz.addMethod(method);
-
         tc.getHtmlMapGeneratorConfigurations().stream()
                 .filter(hc -> stringHasValue(hc.getViewPath()))
                 .findFirst()
@@ -125,12 +114,10 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addUpdateBatchElement(conTopClazz);
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
-
         if (introspectedTable.getRules().isGenerateViewVO()) {
             addGetDefaultViewConfigElement(conTopClazz);
             addGetDefaultViewElement(conTopClazz);
         }
-
         if (introspectedTable.hasBLOBColumns()) {
             addUploadElement(conTopClazz);
             addDownloadElement(conTopClazz);
@@ -141,17 +128,14 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             addExportElement(conTopClazz);
         }
 
-        if (tc.getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().size() > 0) {
+        if (!tc.getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().isEmpty()) {
             addOptionElement(conTopClazz);
         }
         addGetDictElement(conTopClazz);
-
         addDeleteByTableElement(conTopClazz);
         addInsertByTableElement(conTopClazz);
         addGetTreeElement(conTopClazz);
         addGetLayuiTableElement(conTopClazz);
-
-
         //重写getListData，如果存在VO的时候
         if (introspectedTable.getRules().isGenerateVoModel()) {
             Method getListData = new Method("getListData");
@@ -185,7 +169,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             conTopClazz.addImportedType("com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder");
             conTopClazz.addImportedType("com.github.pagehelper.Page");
         }
-
         //追加一个构造导入Excel模板的样例数据方法
         if (introspectedTable.getRules().isGenerateExcelVO()) {
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");
@@ -225,7 +208,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             conTopClazz.addMethod(buildTemplateSampleData);
             conTopClazz.addImportedType(entityExcelImportVoType);
         }
-
         //追加一个example构造方法
         Map<String, String> nameFragments = new HashMap<>();
         if (introspectedTable.getTableConfiguration().getVoGeneratorConfiguration() != null
@@ -234,7 +216,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             nameFragments = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().getVoNameFragmentGeneratorConfigurations()
                     .stream().collect(Collectors.toMap(VoNameFragmentGeneratorConfiguration::getColumn, VoNameFragmentGeneratorConfiguration::getFragment, (k1, k2) -> k2));
         }
-
         Method buildExample = new Method("buildExample");
         buildExample.setVisibility(JavaVisibility.PROTECTED);
         //actionType 用来区分查询应用场景的类型标识
@@ -249,7 +230,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         buildExample.addParameter(parameter);
         buildExample.setReturnType(exampleType);
         commentGenerator.addMethodJavaDocLine(buildExample, "[请在子类中重写此方法]", "根据actionType构造不同的查询条件");
-
         FullyQualifiedJavaType type = parameter.getType();
         List<IntrospectedColumn> columns;
         boolean isContainOrderByClause = false;
@@ -262,7 +242,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         } else {
             columns = introspectedTable.getNonBLOBColumns();
         }
-        if (columns.size() > 0) {
+        if (!columns.isEmpty()) {
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
             for (IntrospectedColumn column : columns) {
@@ -282,7 +262,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                         buildExample.addBodyLine("if ({0}.{1}() != null) '{'", type.getShortNameFirstLowCase(), getterMethodName);
                     }
                 }
-
                 String methodName = initializeAndMethodName(column) + nameFragments.getOrDefault(column.getActualColumnName(), "EqualTo");
                 if (isBetween) {
                     buildExample.addBodyLine("criteria.{0}({1}.{2}(),{1}.{2}Other());"
@@ -308,10 +287,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 }
                 buildExample.addBodyLine("}");
             }
-
             //排序语句
             List<IntrospectedColumn> sort = columns.stream().filter(c -> c.getActualColumnName().equalsIgnoreCase("SORT_")).collect(Collectors.toList());
-            if (sort.size() > 0) {
+            if (!sort.isEmpty()) {
                 if (isContainOrderByClause) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
@@ -330,20 +308,35 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                     conTopClazz.addImportedType(V_STRING_UTIL);
                 }
             }
-
             buildExample.addBodyLine("return example;");
         }
-
         if (buildExample.getBodyLines().isEmpty()) {
             buildExample.addBodyLine("return new {0}();", exampleType.getShortName());
         }
         conTopClazz.addMethod(buildExample);
 
+        //追加一个获取example构造方法返回的Criteria的工具方法
+        Method getCriteriaList = new Method("getCriteriaList");
+        getCriteriaList.setVisibility(JavaVisibility.PROTECTED);
+        getCriteriaList.addParameter(new Parameter(exampleType, "example"));
+        FullyQualifiedJavaType criteria = new FullyQualifiedJavaType(exampleType.getFullyQualifiedName() + ".Criteria");
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(criteria);
+        getCriteriaList.setReturnType(listInstance);
+        //方法体内容
+        getCriteriaList.addBodyLine("List<{0}.Criteria> criteriaList = new ArrayList<>(example.getOredCriteria());", exampleType.getShortName());
+        getCriteriaList.addBodyLine("if (criteriaList.isEmpty()) {");
+        getCriteriaList.addBodyLine("criteriaList.add(example.createCriteria());");
+        getCriteriaList.addBodyLine("}");
+        getCriteriaList.addBodyLine("return criteriaList;");
+        conTopClazz.addImportedType("java.util.ArrayList");
+        conTopClazz.addImportedType(listInstance);
+        conTopClazz.addImportedType(criteria);
+        conTopClazz.addMethod(getCriteriaList);
         //追加到列表
         if (context.getPlugins().controllerGenerated(conTopClazz, introspectedTable)) {
             answer.add(conTopClazz);
         }
-
         //生成子类
         String subControllerName = entityType.getShortName() + "Controller";
         sb.setLength(0);

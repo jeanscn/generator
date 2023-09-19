@@ -1,10 +1,8 @@
 package org.mybatis.generator.config;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import static com.vgosoft.tool.core.VStringUtil.*;

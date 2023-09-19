@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui;
 
-import com.vgosoft.core.constant.enums.view.TagNamesEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -8,14 +7,12 @@ import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +45,7 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
             if (StringUtility.stringHasValue(elementDescriptor.getCallback())) {
                 callBackMethod.setTagName(elementDescriptor.getTagType());
                 callBackMethod.setColumnName(elementDescriptor.getName());
-                if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.getCode())) {
+                if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.codeName())) {
                     //INNER_TABLE和树形结构的select标签，返回的方法的参数不同
                     if (HtmlElementDataSourceEnum.INNER_TABLE.getCode().equals(elementDescriptor.getDataSource())) {
                         callBackMethod.getRemarks().clear();

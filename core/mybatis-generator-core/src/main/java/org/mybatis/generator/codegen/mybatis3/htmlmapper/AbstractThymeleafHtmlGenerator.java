@@ -6,19 +6,16 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.DateThymeleafHtmlElementGenerator;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.InputThymeleafHtmlElementGenerator;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlHrefElementConfiguration;
 import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 

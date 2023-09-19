@@ -3,6 +3,7 @@ package org.mybatis.generator.api;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.sql.JDBCType;

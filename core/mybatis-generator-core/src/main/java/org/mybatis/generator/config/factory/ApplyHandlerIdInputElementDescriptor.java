@@ -4,8 +4,8 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 
 /**
  * priorityElementDescriptor 生成缓急程度的元素描述
@@ -19,7 +19,7 @@ public class ApplyHandlerIdInputElementDescriptor implements DefaultHtmlElementD
         elementDescriptor.setColumn(column);
         elementDescriptor.setOtherFieldName(DefaultColumnNameEnum.APPLY_HANDLER_ID.otherFieldName());
         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.USER.getCode());
-        elementDescriptor.setTagType(HtmlElementTagTypeEnum.INPUT.getCode());
+        elementDescriptor.setTagType(HtmlElementTagTypeEnum.INPUT.codeName());
         return elementDescriptor;
     }
 }

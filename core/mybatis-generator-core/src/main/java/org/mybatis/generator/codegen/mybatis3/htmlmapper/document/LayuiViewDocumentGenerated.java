@@ -11,7 +11,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
@@ -297,11 +297,11 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
 
         //添加checkbox的隐藏input，避免提交时没有值
         for (HtmlElementDescriptor htmlElementDescriptor : htmlGeneratorConfiguration.getElementDescriptors()) {
-            if (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.getCode())) {
+            if (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.codeName())) {
                 HtmlElement input = new HtmlElement("input");
                 input.addAttribute(new Attribute("name",
                         htmlElementDescriptor.getColumn().getJavaProperty() +
-                                (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.getCode()) ? "[]" : "")
+                                (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.codeName()) ? "[]" : "")
                 ));
                 input.addAttribute(new Attribute("type", "hidden"));
                 input.addAttribute(new Attribute("value", ""));
@@ -449,7 +449,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         addCssClassToElement(label, "layui-form-label");
         if (htmlElementDescriptor == null) {
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
-        } else if(!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.getCode())){
+        } else if(!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.codeName())){
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         }
         OverridePropertyValueGeneratorConfiguration overrideConfig = voGenService.getOverridePropertyValueConfiguration(introspectedColumn);

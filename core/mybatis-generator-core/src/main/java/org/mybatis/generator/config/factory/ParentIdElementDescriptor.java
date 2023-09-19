@@ -1,12 +1,11 @@
 package org.mybatis.generator.config.factory;
 
-import com.vgosoft.core.constant.enums.core.CommonStatusEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 /**

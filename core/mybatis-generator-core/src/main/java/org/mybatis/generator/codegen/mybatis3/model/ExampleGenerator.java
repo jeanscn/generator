@@ -25,7 +25,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         List<CompilationUnit> answer = new ArrayList<>();
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration()==null
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration() == null
                 || !introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerate()) {
             return answer;
         }
@@ -279,6 +279,23 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addBodyLine("super();"); //$NON-NLS-1$
         answer.addMethod(method);
 
+        /*
+         * 增加一个通用的equalTo方法
+         * public void andEqualTo(String fieldName, Object value) {
+            addCriterion(new StringBuilder(fieldName).append(" = ").append(value).toString());
+            }
+         */
+        method = new Method("andEqualTo");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "fieldName"));
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value"));
+        if (stringHasValue(introspectedTable.getTableConfiguration().getAlias())) {
+            method.addBodyLine("StringBuilder sb = new StringBuilder(\"{0}\").append(\".\").append(fieldName);",introspectedTable.getTableConfiguration().getAlias());
+        }else{
+            method.addBodyLine("StringBuilder sb = new StringBuilder(fieldName);");
+        }
+        method.addBodyLine("addCriterion(sb.append(\" = \").append(value).toString());");
+        answer.addMethod(method);
         return answer;
     }
 
@@ -450,7 +467,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             method.addBodyLine("if (values == null || values.size() == 0) {"); //$NON-NLS-1$
             method.addBodyLine(
                     "throw new RuntimeException(\"Value list for \" + property + \"" //$NON-NLS-1$
-                    + " cannot be null or empty\");"); //$NON-NLS-1$
+                            + " cannot be null or empty\");"); //$NON-NLS-1$
             method.addBodyLine("}"); //$NON-NLS-1$
             method.addBodyLine("List<java.sql.Date> dateList = new ArrayList<>();"); //$NON-NLS-1$
             method.addBodyLine("Iterator<Date> iter = values.iterator();"); //$NON-NLS-1$
@@ -469,11 +486,11 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             method.addBodyLine("if (value1 == null || value2 == null) {"); //$NON-NLS-1$
             method.addBodyLine(
                     "throw new RuntimeException(\"Between values for \" + property + \"" //$NON-NLS-1$
-                    + " cannot be null\");"); //$NON-NLS-1$
+                            + " cannot be null\");"); //$NON-NLS-1$
             method.addBodyLine("}"); //$NON-NLS-1$
             method.addBodyLine(
                     "addCriterion(condition, new java.sql.Date(value1.getTime())," //$NON-NLS-1$
-                    + " new java.sql.Date(value2.getTime()), property);"); //$NON-NLS-1$
+                            + " new java.sql.Date(value2.getTime()), property);"); //$NON-NLS-1$
             answer.addMethod(method);
         }
 
@@ -501,7 +518,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             method.addBodyLine("if (values == null || values.size() == 0) {"); //$NON-NLS-1$
             method.addBodyLine(
                     "throw new RuntimeException(\"Value list for \" + property + \"" //$NON-NLS-1$
-                    + " cannot be null or empty\");"); //$NON-NLS-1$
+                            + " cannot be null or empty\");"); //$NON-NLS-1$
             method.addBodyLine("}"); //$NON-NLS-1$
             method.addBodyLine("List<java.sql.Time> timeList = new ArrayList<>();"); //$NON-NLS-1$
             method.addBodyLine("Iterator<Date> iter = values.iterator();"); //$NON-NLS-1$
@@ -520,11 +537,11 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             method.addBodyLine("if (value1 == null || value2 == null) {"); //$NON-NLS-1$
             method.addBodyLine(
                     "throw new RuntimeException(\"Between values for \" + property + \"" //$NON-NLS-1$
-                    + " cannot be null\");"); //$NON-NLS-1$
+                            + " cannot be null\");"); //$NON-NLS-1$
             method.addBodyLine("}"); //$NON-NLS-1$
             method.addBodyLine(
                     "addCriterion(condition, new java.sql.Time(value1.getTime())," //$NON-NLS-1$
-                    + " new java.sql.Time(value2.getTime()), property);"); //$NON-NLS-1$
+                            + " new java.sql.Time(value2.getTime()), property);"); //$NON-NLS-1$
             answer.addMethod(method);
         }
 
@@ -582,7 +599,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
     }
 
     private Method getSetGreaterThenOrEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn,"GreaterThanOrEqualTo", ">="); //$NON-NLS-1$ //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "GreaterThanOrEqualTo", ">="); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private Method getSetLessThanMethod(IntrospectedColumn introspectedColumn) {
@@ -590,7 +607,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
     }
 
     private Method getSetLessThanOrEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn,"LessThanOrEqualTo", "<="); //$NON-NLS-1$ //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "LessThanOrEqualTo", "<="); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private Method getSetLikeMethod(IntrospectedColumn introspectedColumn) {
@@ -637,7 +654,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         sb.append(' ');
         sb.append(operator);
         sb.append("\", "); //$NON-NLS-1$
-        switch(nameFragment){
+        switch (nameFragment) {
             case "LikeAny":
                 sb.append("'%'+value+'%'");
                 break;
@@ -690,7 +707,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
      * Generates methods that set between and not between conditions.
      *
      * @param introspectedColumn the introspected column
-     * @param betweenMethod true if between, else not between
+     * @param betweenMethod      true if between, else not between
      * @return a generated method for the between or not between method
      */
     private Method getSetBetweenOrNotBetweenMethod(IntrospectedColumn introspectedColumn, boolean betweenMethod) {
@@ -732,9 +749,8 @@ public class ExampleGenerator extends AbstractJavaGenerator {
      * Generates an In or NotIn method.
      *
      * @param introspectedColumn the introspected column
-     * @param inMethod
-     *            if true generates an "in" method, else generates a "not in"
-     *            method
+     * @param inMethod           if true generates an "in" method, else generates a "not in"
+     *                           method
      * @return a generated method for the in or not in method
      */
     private Method getSetInOrNotInMethod(IntrospectedColumn introspectedColumn, boolean inMethod) {
@@ -851,8 +867,8 @@ public class ExampleGenerator extends AbstractJavaGenerator {
      * user defined type handler on some column.
      *
      * @param introspectedColumn the introspected column
-     * @param constructor the constructor
-     * @param innerClass the enclosing class
+     * @param constructor        the constructor
+     * @param innerClass         the enclosing class
      * @return the name of the List added to the class by this method
      */
     private String addTypeHandledObjectsAndMethods(IntrospectedColumn introspectedColumn, Method constructor,
@@ -921,7 +937,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             method.addBodyLine("if (value1 == null || value2 == null) {"); //$NON-NLS-1$
             method.addBodyLine(
                     "throw new RuntimeException(\"Between values for \" + property + \"" //$NON-NLS-1$
-                    + " cannot be null\");"); //$NON-NLS-1$
+                            + " cannot be null\");"); //$NON-NLS-1$
             method.addBodyLine("}"); //$NON-NLS-1$
         }
 

@@ -7,9 +7,9 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.factory.*;
-import org.mybatis.generator.custom.DictTypeEnum;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.core.DictTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
@@ -892,7 +892,7 @@ public class TableConfiguration extends PropertyHolder {
                                     case "有无":
                                         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
                                         elementDescriptor.setEnumClassName(ExistOrNotEnum.class.getCanonicalName());
-                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.codeName()) && elementDescriptor.getSwitchText() == null) {
                                             elementDescriptor.setSwitchText(ExistOrNotEnum.switchText());
                                         }
                                         elementDescriptor.setDataFormat(null);
@@ -903,7 +903,7 @@ public class TableConfiguration extends PropertyHolder {
                                     case "是否":
                                         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
                                         elementDescriptor.setEnumClassName(YesNoEnum.class.getCanonicalName());
-                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.codeName()) && elementDescriptor.getSwitchText() == null) {
                                             elementDescriptor.setSwitchText(YesNoEnum.switchText());
                                         }
                                         elementDescriptor.setDataFormat(null);
@@ -912,7 +912,7 @@ public class TableConfiguration extends PropertyHolder {
                                     case "性别":
                                         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
                                         elementDescriptor.setEnumClassName(GenderEnum.class.getCanonicalName());
-                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.codeName()) && elementDescriptor.getSwitchText() == null) {
                                             elementDescriptor.setSwitchText(GenderEnum.switchText());
                                         }
                                         elementDescriptor.setDataFormat(null);
@@ -922,7 +922,7 @@ public class TableConfiguration extends PropertyHolder {
                                     case "state":
                                         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
                                         elementDescriptor.setEnumClassName(CommonStatusEnum.class.getCanonicalName());
-                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.codeName()) && elementDescriptor.getSwitchText() == null) {
                                             elementDescriptor.setSwitchText(CommonStatusEnum.switchText());
                                         }
                                         elementDescriptor.setDataFormat(null);
@@ -931,7 +931,7 @@ public class TableConfiguration extends PropertyHolder {
                                     case "缓急":
                                         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
                                         elementDescriptor.setEnumClassName(UrgencyEnum.class.getCanonicalName());
-                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.getCode()) && elementDescriptor.getSwitchText() == null) {
+                                        if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SWITCH.codeName()) && elementDescriptor.getSwitchText() == null) {
                                             elementDescriptor.setSwitchText(UrgencyEnum.switchText());
                                         }
                                         elementDescriptor.setDataFormat(null);
@@ -1138,7 +1138,7 @@ public class TableConfiguration extends PropertyHolder {
                 introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(elementDescriptor::setColumn);
             }
             if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
-                if (HtmlElementTagTypeEnum.INPUT.getCode().equals(elementDescriptor.getTagType())) {
+                if (HtmlElementTagTypeEnum.INPUT.codeName().equals(elementDescriptor.getTagType())) {
                     introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(c.getJavaProperty()));
                 } else {
                     introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));

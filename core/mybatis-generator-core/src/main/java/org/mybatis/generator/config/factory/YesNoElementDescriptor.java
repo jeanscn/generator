@@ -1,14 +1,13 @@
 package org.mybatis.generator.config.factory;
 
-import com.vgosoft.core.constant.enums.core.CommonStatusEnum;
 import com.vgosoft.core.constant.enums.core.YesNoEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.custom.HtmlElementDataSourceEnum;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -24,7 +23,7 @@ public class YesNoElementDescriptor implements DefaultHtmlElementDescriptorFacto
         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
         elementDescriptor.setEnumClassName(YesNoEnum.class.getCanonicalName());
         elementDescriptor.setSwitchText(YesNoEnum.switchText());
-        elementDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.getCode());
+        elementDescriptor.setTagType(HtmlElementTagTypeEnum.SWITCH.codeName());
         elementDescriptor.setColumn(column);
         DefaultColumnNameEnum columnNameEnum = DefaultColumnNameEnum.ofColumnName(column.getActualColumnName()).orElse(null);
         if (columnNameEnum != null) {

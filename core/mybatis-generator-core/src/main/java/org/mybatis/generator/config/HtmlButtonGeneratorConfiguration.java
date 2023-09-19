@@ -11,6 +11,7 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private String id;
     private String type;
     private String text;
+    private String title;
     private String icon;
     private String classes;
     private String handler;
@@ -18,6 +19,8 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private List<String> handlerParamsType;
     private List<String> handlerParamsValue;
     private String css;
+
+    private String showCondition = "true";
 
     public HtmlButtonGeneratorConfiguration() {
         super();
@@ -50,6 +53,12 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     public void setText(String text) {
         this.text = text;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getIcon() {
@@ -106,5 +115,13 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     public void setCss(String css) {
         this.css = css;
+    }
+
+    public String getShowCondition() {
+        return showCondition;
+    }
+
+    public void setShowCondition(String showCondition) {
+        this.showCondition = showCondition;
     }
 }

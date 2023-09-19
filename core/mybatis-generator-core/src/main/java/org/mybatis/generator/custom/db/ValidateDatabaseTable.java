@@ -204,19 +204,15 @@ public class ValidateDatabaseTable {
         introspectedColumn.setPrimaryKey(columnMeta.pkid());
         introspectedColumn.setJavaProperty(declaredField.getName());
         introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType(declaredField.getType().getCanonicalName()));
-
         introspectedColumn.setTableAlias(table.getTableConfiguration().getAlias());
         introspectedColumn.setContext(table.getContext());
-
         introspectedColumn.setTypeHandler(null);
         introspectedColumn.setSequenceColumn(false);
         introspectedColumn.setColumnNameDelimited(false);
         introspectedColumn.setAutoIncrement(false);
         introspectedColumn.setGeneratedColumn(false);
         introspectedColumn.setGeneratedAlways(false);
-
         introspectedColumn.setPosition(columnMeta.position());
-
         return introspectedColumn;
     }
 

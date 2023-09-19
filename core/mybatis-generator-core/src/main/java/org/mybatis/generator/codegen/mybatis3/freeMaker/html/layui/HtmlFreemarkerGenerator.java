@@ -1,16 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui;
 
-import com.vgosoft.tool.core.VStringUtil;
 import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.CallBackMethod;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.InnerListViewConfiguration;
-import org.mybatis.generator.custom.HtmlElementTagTypeEnum;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
