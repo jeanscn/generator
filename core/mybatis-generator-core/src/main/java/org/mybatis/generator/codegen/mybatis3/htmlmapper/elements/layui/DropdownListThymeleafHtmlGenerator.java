@@ -28,7 +28,7 @@ public class DropdownListThymeleafHtmlGenerator extends AbstractThymeleafLayuiEl
         HtmlElement editDiv = addDivWithClassToParent(parent, "oas-form-item-edit", displayOnly ? "layui-hide" : "");
         HtmlElement element;
         if (isReadonly(this.introspectedColumn)) {
-            //生成一个显示的input
+            //生成一个显示的select
             element = this.generateHtmlSelect(this.htmlElementDescriptor.getOtherFieldName(), false, true, true);
             editDiv.addElement(element);
             element.addAttribute(new Attribute("th:value", this.getFieldValueFormatPattern(ThymeleafValueScopeEnum.READONLY)));

@@ -30,10 +30,8 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
      * This method should return an XmlElement for the select key used to
      * automatically generate keys.
      *
-     * @param introspectedColumn
-     *            the column related to the select key statement
-     * @param generatedKey
-     *            the generated key for the current table
+     * @param introspectedColumn the column related to the select key statement
+     * @param generatedKey       the generated key for the current table
      * @return the selectKey element
      */
     protected XmlElement getSelectKey(IntrospectedColumn introspectedColumn,
@@ -48,7 +46,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
                 generatedKey.getMyBatis3Order()));
 
         answer.addElement(new TextElement(generatedKey
-                        .getRuntimeSqlStatement()));
+                .getRuntimeSqlStatement()));
 
         return answer;
     }
@@ -367,17 +365,17 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         return answer;
     }
 
-    protected void addUpdateAliasedFullyQualifiedTableName(IntrospectedTable introspectedTable,StringBuilder sb){
+    protected void addUpdateAliasedFullyQualifiedTableName(IntrospectedTable introspectedTable, StringBuilder sb) {
         if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
             sb.append(introspectedTable.getFullyQualifiedTable().getAlias());
-        }else{
+        } else {
             sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         }
     }
 
-    protected void addUpdateAliasedFullyQualifiedTableNameFrom(IntrospectedTable introspectedTable,XmlElement parent){
+    protected void addUpdateAliasedFullyQualifiedTableNameFrom(IntrospectedTable introspectedTable, XmlElement parent) {
         if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
-            String from = "from "+introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+            String from = "from " + introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
             parent.addElement(new TextElement(from));
         }
     }
@@ -388,31 +386,73 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         return answer;
     }
 
-    protected TextElement buildOrderByDefault(){
+    protected TextElement buildOrderByDefault() {
         IntrospectedColumn column = introspectedTable.getColumn("SORT_").orElse(null);
-        if (column!=null) {
-            return new TextElement("order by "+column.getActualColumnName());
+        if (column != null) {
+            return new TextElement("order by " + column.getActualColumnName());
         }
         return null;
     }
 
     protected void addResultMap(XmlElement answer) {
         if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-            answer.addAttribute(new Attribute("resultMap",introspectedTable.getResultMapWithBLOBsId()));
+            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
         } else {
             if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-                answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
-            }else{
-                answer.addAttribute(new Attribute("resultMap",introspectedTable.getBaseResultMapId()));
+                answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
+            } else {
+                answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
             }
         }
     }
 
-    protected XmlElement createBracketTrim(){
+    protected XmlElement createBracketTrim() {
         XmlElement trim = new XmlElement("trim");
         trim.addAttribute(new Attribute("prefix", "("));
-        trim.addAttribute(new Attribute("suffix",")"));
+        trim.addAttribute(new Attribute("suffix", ")"));
         trim.addAttribute(new Attribute("prefixOverrides", "and | or"));
         return trim;
+    }
+
+    /**
+     * 获取多值foreach的when条件内容
+     *
+     * @param introspectedColumn 字段
+     * @param listProperty       参数key
+     */
+    protected XmlElement getWhenMultiKeyInElement(IntrospectedColumn introspectedColumn, String listProperty) {
+        XmlElement when = new XmlElement("when");
+        when.addAttribute(new Attribute("test", listProperty + " != null and " + listProperty + ".size() > 0"));
+        when.addElement(new TextElement("and " + MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn) + " in"));
+        XmlElement foreach = new XmlElement("foreach");
+        foreach.addAttribute(new Attribute("collection", listProperty));
+        foreach.addAttribute(new Attribute("item", "item"));
+        foreach.addAttribute(new Attribute("open", "("));
+        foreach.addAttribute(new Attribute("separator", ","));
+        foreach.addAttribute(new Attribute("close", ")"));
+        foreach.addElement(new TextElement("#{item}"));
+        when.addElement(foreach);
+        return when;
+    }
+
+    /**
+     * 获取参数值
+     *
+     * @param introspectedColumn 字段
+     * @param vKey               参数key
+     * @return String 参数值 假设vKey为key，类型为String，则返回类似：#{key,jdbcType=VARCHAR,typeHandler=com.vgosoft.mybatis.typeHandler.StringTypeHandler}
+     */
+    protected String getParameterClause(IntrospectedColumn introspectedColumn, String vKey) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("#{");
+        sb.append(vKey);
+        sb.append(",jdbcType=");
+        sb.append(introspectedColumn.getJdbcTypeName());
+        if (stringHasValue(introspectedColumn.getTypeHandler())) {
+            sb.append(",typeHandler=");
+            sb.append(introspectedColumn.getTypeHandler());
+        }
+        sb.append('}');
+        return sb.toString();
     }
 }

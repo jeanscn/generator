@@ -6,6 +6,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.TableMetaDesc;
 

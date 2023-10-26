@@ -222,62 +222,65 @@ public class VoGenService {
                 field.setInitializationString(overrideConfiguration.getInitializationString().get());
                 overrideConfiguration.getImportTypes().forEach(topLevelClass::addImportedType);
             }
-            switch (overrideConfiguration.getAnnotationType()) {
-                case "DictUser":
-                    DictUserDesc dictUserDesc = new DictUserDesc();
-                    dictUserDesc.setSource(sourceColumn.getJavaProperty());
-                    dictUserDesc.addAnnotationToField(field, topLevelClass);
-                    break;
-                case "DictDepartment":
-                    DictDepartmentDesc dictDepartmentDesc = new DictDepartmentDesc();
-                    dictDepartmentDesc.setSource(sourceColumn.getJavaProperty());
-                    dictDepartmentDesc.addAnnotationToField(field, topLevelClass);
-                    break;
-                case "DictModule":
-                    DictModuleDesc dictModuleDesc = new DictModuleDesc();
-                    dictModuleDesc.setSource(sourceColumn.getJavaProperty());
-                    dictModuleDesc.addAnnotationToField(field, topLevelClass);
-                    break;
-                case "DictSys":
-                    DictSysDesc dictSysDesc = new DictSysDesc();
-                    dictSysDesc.setValue(overrideConfiguration.getTypeValue());
-                    dictSysDesc.setSource(sourceColumn.getJavaProperty());
-                    dictSysDesc.addAnnotationToField(field, topLevelClass);
-                    break;
-                case "DictData":
-                    DictDataDesc dictDataDesc = new DictDataDesc();
-                    dictDataDesc.setSource(sourceColumn.getJavaProperty());
-                    dictDataDesc.setValue(overrideConfiguration.getTypeValue());
-                    dictDataDesc.addAnnotationToField(field, topLevelClass);
-                    break;
-                case "Dict":
-                    if (overrideConfiguration.getBeanName() != null) {
-                        DictDesc dictDesc = new DictDesc(overrideConfiguration.getBeanName());
-                        if (overrideConfiguration.getTypeValue() != null) {
-                            dictDesc.setValue(overrideConfiguration.getTypeValue());
+            if (overrideConfiguration.getAnnotationType() == null) {
+                //do nothing
+            } else {
+                switch (overrideConfiguration.getAnnotationType()) {
+                    case "DictUser":
+                        DictUserDesc dictUserDesc = new DictUserDesc();
+                        dictUserDesc.setSource(sourceColumn.getJavaProperty());
+                        dictUserDesc.addAnnotationToField(field, topLevelClass);
+                        break;
+                    case "DictDepartment":
+                        DictDepartmentDesc dictDepartmentDesc = new DictDepartmentDesc();
+                        dictDepartmentDesc.setSource(sourceColumn.getJavaProperty());
+                        dictDepartmentDesc.addAnnotationToField(field, topLevelClass);
+                        break;
+                    case "DictModule":
+                        DictModuleDesc dictModuleDesc = new DictModuleDesc();
+                        dictModuleDesc.setSource(sourceColumn.getJavaProperty());
+                        dictModuleDesc.addAnnotationToField(field, topLevelClass);
+                        break;
+                    case "DictSys":
+                        DictSysDesc dictSysDesc = new DictSysDesc();
+                        dictSysDesc.setValue(overrideConfiguration.getTypeValue());
+                        dictSysDesc.setSource(sourceColumn.getJavaProperty());
+                        dictSysDesc.addAnnotationToField(field, topLevelClass);
+                        break;
+                    case "DictData":
+                        DictDataDesc dictDataDesc = new DictDataDesc();
+                        dictDataDesc.setSource(sourceColumn.getJavaProperty());
+                        dictDataDesc.setValue(overrideConfiguration.getTypeValue());
+                        dictDataDesc.addAnnotationToField(field, topLevelClass);
+                        break;
+                    case "Dict":
+                        if (overrideConfiguration.getBeanName() != null) {
+                            DictDesc dictDesc = new DictDesc(overrideConfiguration.getBeanName());
+                            if (overrideConfiguration.getTypeValue() != null) {
+                                dictDesc.setValue(overrideConfiguration.getTypeValue());
+                            }
+                            if (overrideConfiguration.getApplyProperty() != null) {
+                                dictDesc.setApplyProperty(overrideConfiguration.getApplyProperty());
+                            }
+                            dictDesc.setSource(sourceColumn.getJavaProperty());
+                            dictDesc.addAnnotationToField(field, topLevelClass);
                         }
-                        if (overrideConfiguration.getApplyProperty() != null) {
-                            dictDesc.setApplyProperty(overrideConfiguration.getApplyProperty());
+                        break;
+                    case "DictEnum":
+                        if (overrideConfiguration.getEnumClassName() != null) {
+                            DictEnumDesc dictEnumDesc = new DictEnumDesc(overrideConfiguration.getEnumClassName());
+                            dictEnumDesc.setSource(sourceColumn.getJavaProperty());
+                            dictEnumDesc.addAnnotationToField(field, topLevelClass);
                         }
-                        dictDesc.setSource(sourceColumn.getJavaProperty());
-                        dictDesc.addAnnotationToField(field, topLevelClass);
+                        break;
+                    default:
+                        break;
+                }
+                if (ModelClassTypeEnum.modelClass.equals(type) && overrideConfiguration.getAnnotationType().contains("Dict")) {
+                    if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
+                        topLevelClass.addAnnotation("@EnableDictionary");
+                        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
                     }
-                    break;
-                case "DictEnum":
-                    if (overrideConfiguration.getEnumClassName() != null) {
-                        DictEnumDesc dictEnumDesc = new DictEnumDesc(overrideConfiguration.getEnumClassName());
-                        dictEnumDesc.setSource(sourceColumn.getJavaProperty());
-                        dictEnumDesc.addAnnotationToField(field, topLevelClass);
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            if (ModelClassTypeEnum.modelClass.equals(type) && overrideConfiguration.getAnnotationType().contains("Dict")) {
-                if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {
-                    topLevelClass.addAnnotation("@EnableDictionary");
-                    topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.EnableDictionary"));
                 }
             }
             answer.add(field);

@@ -220,7 +220,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             innerListEditTemplate.setDataType(htmlElementDescriptor.getDataSource());
             String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
             innerListEditTemplate.setDataUrl(dataUrl);
-            HtmlElementTagTypeEnum tagTypeEnum = HtmlElementTagTypeEnum.getEnum(htmlElementDescriptor.getTagType());
+            HtmlElementTagTypeEnum tagTypeEnum = HtmlElementTagTypeEnum.ofCodeName(htmlElementDescriptor.getTagType());
             if (tagTypeEnum != null) {
                 switch (tagTypeEnum) {
                     case SELECT:

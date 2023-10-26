@@ -1,6 +1,8 @@
 package org.mybatis.generator.internal.util;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.enums.IBaseEnum;
+import com.vgosoft.tool.core.ObjectFactory;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -134,5 +136,52 @@ public class Mb3GenUtil {
                 return "yyyy-MM-dd";
             }
         }
+    }
+
+    public static String getEnumClassNameByDataFmt(String dataFormat) {
+        switch (dataFormat) {
+            case "exist":
+            case "有":
+            case "有无":
+                return "com.vgosoft.core.constant.enums.core.ExistOrNotEnum";
+            case "yes":
+            case "true":
+            case "是":
+            case "是否":
+                return "com.vgosoft.core.constant.enums.core.YesNoEnum";
+            case "sex":
+            case "性别":
+                return "com.vgosoft.core.constant.enums.core.GenderEnum";
+            case "启停":
+            case "启用停用":
+            case "state":
+                return "com.vgosoft.core.constant.enums.core.CommonStatusEnum";
+            case "急":
+            case "缓急":
+                return "com.vgosoft.core.constant.enums.core.UrgencyEnum";
+            case "level":
+            case "级别":
+                return "com.vgosoft.core.constant.enums.core.LevelListEnum";
+            default:
+                return null;
+        }
+    }
+
+    //获得switch的lay-text属性值
+    public static String getSwitchTextByDataFmt(String dataFormat) {
+        return getSwitchTextByEnumClassName(getEnumClassNameByDataFmt(dataFormat));
+    }
+
+    public static String getSwitchTextByEnumClassName(String enumClassName) {
+        if (enumClassName != null) {
+            Class<?> aClass = ObjectFactory.internalClassForName(enumClassName);
+            if (aClass.isEnum() && IBaseEnum.class.isAssignableFrom(aClass)) {
+                Object[] enumConstants = aClass.getEnumConstants();
+                if (enumConstants.length > 1) {
+                    return ((IBaseEnum<?>) enumConstants[0]).codeName() + "|" + ((IBaseEnum<?>) enumConstants[1]).codeName();
+                }
+            }
+        }
+        return null;
     }
 }

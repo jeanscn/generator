@@ -42,7 +42,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addParameter(parameter);
 
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
-
+        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
+        parentElement.addImportedType("java.lang.Exception");
         method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("view", RequestMethod.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "查看");
@@ -81,13 +82,13 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
             parentElement.addImportedType("com.vgosoft.bizcore.service.IVbizFileAttachment");
         }
         HtmlElementInnerListConfiguration innerListConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
-        if (innerListConfiguration!=null && innerListConfiguration.getSourceViewVoClass()!=null) {
+        if (innerListConfiguration != null && innerListConfiguration.getSourceViewVoClass() != null) {
             method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
             method.addBodyLine("if (VStringUtil.stringHasValue(viewParam.getListKey())) {");
             method.addBodyLine("// 内嵌列表");
             FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceViewVoClass());
             parentElement.addImportedType(javaType);
-            method.addBodyLine("Layuitable innerList = getInnerList(\"{0}\", {1}.class, 0);",innerListConfiguration.getListKey(),javaType.getShortName());
+            method.addBodyLine("Layuitable innerList = getInnerList(viewParam.getListKey(), {1}.class, 0);", innerListConfiguration.getListKey(), javaType.getShortName());
             method.addBodyLine("if (innerList != null)  listHeaders = innerList.getCols().get(0);");
             method.addBodyLine("}");
             method.addBodyLine("mv.addObject(\"innerListHeaders\", listHeaders);");
@@ -108,6 +109,9 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("}");
         method.addBodyLine("if (object != null) {");
         method.addBodyLine("{0} {1} = JsonUtil.serializeObject(object);", entityName, entityType.getShortNameFirstLowCase());
+        method.addBodyLine("if (viewParam.getRValue()!=null && viewParam.getRField()!=null) {");
+        method.addBodyLine("VReflectionUtil.writeField({0}, viewParam.getRField(), viewParam.getRValue());", entityType.getShortNameFirstLowCase());
+        method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"{0}\", {1});", this.entityNameKey, entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewParam.getViewStatus()).orElse(\"1\"));");
@@ -122,6 +126,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("mv.setViewName(viewName);");
         method.addBodyLine("return mv;");
 
+        parentElement.addImportedType("com.vgosoft.tool.core.VReflectionUtil");
         parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
         parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
         parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");

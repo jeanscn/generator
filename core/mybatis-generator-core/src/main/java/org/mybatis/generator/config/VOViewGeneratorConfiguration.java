@@ -25,7 +25,7 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private List<String> defaultDisplayFields = new ArrayList<>();
 
-    private List<String> defaultHiddenFields = new ArrayList<>();
+    private Set<String> defaultHiddenFields = new HashSet<>();
 
     private String parentMenuId;
 
@@ -36,6 +36,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
     private String categoryTreeMultiple = "true";
 
     private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
+
+    private List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
@@ -73,6 +75,14 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
         this.queryColumns = queryColumns;
     }
 
+    public void setDefaultHiddenFields(Set<String> defaultHiddenFields) {
+        this.defaultHiddenFields = defaultHiddenFields;
+    }
+
+    public Set<String> getDefaultHiddenFields() {
+        return defaultHiddenFields;
+    }
+
     public Set<String> getIncludeColumns() {
         return includeColumns;
     }
@@ -96,15 +106,6 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
     public void setDefaultDisplayFields(List<String> defaultDisplayFields) {
         this.defaultDisplayFields = defaultDisplayFields;
     }
-
-    public List<String> getDefaultHiddenFields() {
-        return defaultHiddenFields;
-    }
-
-    public void setDefaultHiddenFields(List<String> defaultHiddenFields) {
-        this.defaultHiddenFields = defaultHiddenFields;
-    }
-
     public String getViewMenuIcon() {
         return viewMenuIcon;
     }
@@ -159,5 +160,14 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setHtmlButtons(Set<HtmlButtonGeneratorConfiguration> htmlButtons) {
         this.htmlButtons = htmlButtons;
+    }
+
+    public List<QueryColumnConfiguration> getQueryColumnConfigurations() {
+        return queryColumnConfigurations;
+    }
+
+    public List<QueryColumnConfiguration> addQueryColumnConfigurations(QueryColumnConfiguration queryColumnConfiguration) {
+        this.queryColumnConfigurations.add(queryColumnConfiguration);
+        return this.queryColumnConfigurations;
     }
 }

@@ -64,7 +64,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     protected HtmlElement generateHtmlHead() {
         HtmlElement head = new HtmlElement("head");
         HtmlElement title = new HtmlElement("title");
-        title.addElement(new TextElement(getDocTitle()));
+        title.addElement(new TextElement(getHtmlTitle()));
         head.addElement(title);
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::baseRequired('" + introspectedTable.getRemarks(true) + "')");
         addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::jQueryRequired");
@@ -95,7 +95,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         if (htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.EDITABLE)) {
             HtmlElement inner = addDivWithClassToParent(out, "icontainer");
             content = addDivWithClassToParent(inner, "content");
-            if (docTitle != null) {
+            if (VStringUtil.stringHasValue(docTitle)) {
                 HtmlElement contentHeader = addDivWithClassToParent(content, "content-header");
                 HtmlElement headerText = new HtmlElement("span");
                 headerText.addElement(new TextElement(docTitle));
@@ -104,7 +104,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         }else if(htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.PRINT)) {
             content = addDivWithIdToParent(out, "printArea");
             HtmlElement div = addDivWithClassToParent(content, "print-title");
-            if (docTitle != null) {
+            if (VStringUtil.stringHasValue(docTitle)) {
                 addDivWithClassToParent(div, "title").addElement(new TextElement(docTitle));
             }
             HtmlElement div1 = new HtmlElement("div");
@@ -112,7 +112,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
             div.addElement(div1);
         }else if(htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.VIEWONLY)) {
             content = addDivWithIdToParent(out, "viewArea");
-            if (docTitle != null) {
+            if (VStringUtil.stringHasValue(docTitle)) {
                 HtmlElement h2 = new HtmlElement("H2");
                 h2.addElement(new TextElement(docTitle));
                 content.addElement(h2);
@@ -214,7 +214,10 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         if (introspectedTable.getNonBLOBColumns().stream()
                 .noneMatch(c -> input_subject_id.equals(c.getJavaProperty()))) {
             HtmlElement subject = generateHtmlInput(input_subject_id, true, false, true, true);
-            subject.addAttribute(new Attribute("th:value", getDocTitle()));
+            String title = getDocTitle();
+            if (VStringUtil.stringHasValue(title)) {
+                subject.addAttribute(new Attribute("th:value", title));
+            }
             parent.addElement(subject);
         }
     }
@@ -268,6 +271,9 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         HtmlElement htmlElement = addDivWithClassToParent(inputInline, "rtf-content");
         htmlElement.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         htmlElement.addAttribute(new Attribute("th:utext", thymeleafValue(introspectedColumn, entityKey)));
+        if (this.isReadonly(introspectedColumn)) {
+            addCssClassToElement(htmlElement, "readonly");
+        }
         //追加样式css
         HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
@@ -290,13 +296,19 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         }
     }
 
-    protected String getDocTitle() {
-        if (htmlGeneratorConfiguration==null) {
+    protected String getHtmlTitle() {
+        if (htmlGeneratorConfiguration==null || htmlGeneratorConfiguration.getTitle() == null || "none".equalsIgnoreCase(htmlGeneratorConfiguration.getTitle())) {
             return introspectedTable.getRemarks(true);
-        }else if (htmlGeneratorConfiguration.getTitle() == null) {
+        }else{
+            return htmlGeneratorConfiguration.getTitle();
+        }
+    }
+
+    protected String getDocTitle() {
+        if (htmlGeneratorConfiguration==null || htmlGeneratorConfiguration.getTitle() == null) {
             return introspectedTable.getRemarks(true);
         }else if("none".equalsIgnoreCase(htmlGeneratorConfiguration.getTitle())){
-            return null;
+            return "";
         }else{
             return htmlGeneratorConfiguration.getTitle();
         }

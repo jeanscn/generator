@@ -136,6 +136,10 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
         return "insertByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
     }
 
+    public String getSelectByTableMethodName() {
+        return "selectByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
+    }
+
     public IntrospectedColumn getThisColumn() {
         return thisColumn;
     }

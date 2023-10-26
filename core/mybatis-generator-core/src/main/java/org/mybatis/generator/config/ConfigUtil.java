@@ -43,31 +43,31 @@ public class ConfigUtil {
 
     // 通过HtmlElementDescriptor配置，创建转换属性配置
     public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(HtmlElementDescriptor elementDescriptor, final IntrospectedTable introspectedTable) {
+        OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration(), elementDescriptor.getName());
+
         HtmlElementDataSourceEnum anEnum = HtmlElementDataSourceEnum.getEnum(elementDescriptor.getDataSource());
-        if (anEnum != null) {
-            OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration(), elementDescriptor.getName());
-            if (stringHasValue(anEnum.getBeanName())) {
-                overrideConfiguration.setBeanName(anEnum.getBeanName());
-            }else if(stringHasValue(elementDescriptor.getBeanName())){
-                overrideConfiguration.setBeanName(elementDescriptor.getBeanName());
-            }
-            if (stringHasValue(elementDescriptor.getEnumClassName())) {
-                overrideConfiguration.setEnumClassName(elementDescriptor.getEnumClassName());
-            }
-            if (stringHasValue(elementDescriptor.getDictCode())) {
-                overrideConfiguration.setTypeValue(elementDescriptor.getDictCode());
-            }
-            overrideConfiguration.setAnnotationType(anEnum.getAnnotationName());
-            overrideConfiguration.setTargetPropertyName(elementDescriptor.getOtherFieldName());
-            overrideConfiguration.setTargetPropertyType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());
-            if (elementDescriptor.getApplyProperty() != null) {
-                overrideConfiguration.setApplyProperty(elementDescriptor.getApplyProperty());
-            }
-            introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> overrideConfiguration.setRemark(c.getRemarks(true)));
-            return overrideConfiguration;
-        } else {
-            return null;
+        if (anEnum != null && stringHasValue(anEnum.getBeanName())) {
+            overrideConfiguration.setBeanName(anEnum.getBeanName());
+        } else if (stringHasValue(elementDescriptor.getBeanName())) {
+            overrideConfiguration.setBeanName(elementDescriptor.getBeanName());
         }
+        if (stringHasValue(elementDescriptor.getEnumClassName())) {
+            overrideConfiguration.setEnumClassName(elementDescriptor.getEnumClassName());
+        }
+        if (stringHasValue(elementDescriptor.getDictCode())) {
+            overrideConfiguration.setTypeValue(elementDescriptor.getDictCode());
+        }
+        if (anEnum != null) {
+            overrideConfiguration.setAnnotationType(anEnum.getAnnotationName());
+        }
+        overrideConfiguration.setTargetPropertyName(elementDescriptor.getOtherFieldName());
+        overrideConfiguration.setTargetPropertyType(FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName());
+        if (elementDescriptor.getApplyProperty() != null) {
+            overrideConfiguration.setApplyProperty(elementDescriptor.getApplyProperty());
+        }
+        introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> overrideConfiguration.setRemark(c.getRemarks(true)));
+        return overrideConfiguration;
+
     }
 
     public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(

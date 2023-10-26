@@ -2,6 +2,7 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,32 +165,7 @@ public class HtmlElementDescriptor  extends PropertyHolder{
         if (enumClassName != null) {
             return enumClassName;
         } else  if(VStringUtil.stringHasValue(this.dataFormat)){
-            switch (this.dataFormat) {
-                case "exist":
-                case "有":
-                case "有无":
-                    return "com.vgosoft.core.constant.enums.core.ExistOrNotEnum";
-                case "yes":
-                case "true":
-                case "是":
-                case "是否":
-                    return "com.vgosoft.core.constant.enums.core.YesNoEnum";
-                case "sex":
-                case "性别":
-                    return "com.vgosoft.core.constant.enums.core.GenderEnum";
-                case "启停":
-                case "启用停用":
-                case "state":
-                    return "com.vgosoft.core.constant.enums.core.CommonStatusEnum";
-                case "急":
-                case "缓急":
-                    return "com.vgosoft.core.constant.enums.core.UrgencyEnum";
-                case "level":
-                case "级别":
-                    return "com.vgosoft.core.constant.enums.core.LevelListEnum";
-                default:
-                    return null;
-            }
+            return Mb3GenUtil.getEnumClassNameByDataFmt(this.dataFormat);
         }
         return null;
     }
@@ -202,29 +178,7 @@ public class HtmlElementDescriptor  extends PropertyHolder{
         if (VStringUtil.stringHasValue(switchText)) {
             return switchText;
         }else if(VStringUtil.stringHasValue(this.dataFormat)){
-            switch (this.dataFormat) {
-                case "exist":
-                case "有":
-                case "有无":
-                    return "有|无";
-                case "yes":
-                case "true":
-                case "是":
-                case "是否":
-                    return "是|否";
-                case "sex":
-                case "性别":
-                    return "男|女";
-                case "启停":
-                case "启用停用":
-                case "state":
-                    return "启用|停用";
-                case "急":
-                case "缓急":
-                    return "急|";
-                default:
-                    return null;
-            }
+            return Mb3GenUtil.getSwitchTextByDataFmt(this.dataFormat);
         }
         return null;
     }

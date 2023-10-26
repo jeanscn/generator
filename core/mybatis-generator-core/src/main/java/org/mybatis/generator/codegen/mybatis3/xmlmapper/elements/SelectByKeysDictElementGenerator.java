@@ -41,7 +41,6 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         answer.addElement(new TextElement(sb));
 
         VOCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
-        //List<IntrospectedColumn> keysColumns = (new ServiceMethods(context, introspectedTable)).getSelectDictParameterColumns(config, introspectedTable);
         XmlElement where = new XmlElement("where");
         answer.addElement(where);
         XmlElement trim = createBracketTrim();
@@ -51,22 +50,18 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         trim.addElement(choose);
         if (stringHasValue(config.getKeyColumn()) && introspectedTable.getColumn(config.getKeyColumn()).isPresent()) {
             introspectedTable.getColumn(config.getKeyColumn()).ifPresent(introspectedColumn -> {
-                choose.addElement(getKeysWhenSingleElement(introspectedColumn, "keys"));
-                choose.addElement(getKeysWhenMultiElement(introspectedColumn, "keys"));
+                choose.addElement(getWhenMultiKeyInElement(introspectedColumn, "keys"));
             });
         }else{
             introspectedTable.getPrimaryKeyColumns().forEach(introspectedColumn -> {
-                choose.addElement(getKeysWhenSingleElement(introspectedColumn, "keys"));
-                choose.addElement(getKeysWhenMultiElement(introspectedColumn, "keys"));
+                choose.addElement(getWhenMultiKeyInElement(introspectedColumn, "keys"));
             });
         }
-        XmlElement choose1 = new XmlElement("choose");
-        trim.addElement(choose1);
         introspectedTable.getColumn(config.getTypeColumn()).ifPresent(introspectedColumn -> {
-            choose1.addElement(getKeysWhenSingleElement(introspectedColumn,"types"));
-            choose1.addElement(getKeysWhenMultiElement(introspectedColumn,"types"));
+            XmlElement choose1 = new XmlElement("choose");
+            trim.addElement(choose1);
+            choose1.addElement(getWhenMultiKeyInElement(introspectedColumn,"types"));
         });
-
         //增加默认排序
         TextElement defaultOrderBy = buildOrderByDefault();
         if (defaultOrderBy != null) {
@@ -75,49 +70,5 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         if (context.getPlugins().sqlMapSelectByKeysDictElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
-    }
-
-    private XmlElement getKeysWhenSingleElement(IntrospectedColumn column,String listProperty) {
-        //单一key的情况
-        XmlElement when = new XmlElement("when");
-        when.addAttribute(new Attribute("test", listProperty+".size() == 1"));
-        String line = " and ";
-        line += MyBatis3FormattingUtilities.getEscapedColumnName(column);
-        line += " = ";
-        line += getParameterClause(column,listProperty+"[0]");
-        when.addElement(new TextElement(line));
-        return when;
-    }
-
-    private XmlElement getKeysWhenMultiElement(IntrospectedColumn column,String listProperty) {
-        XmlElement when = new XmlElement("when");
-        when.addAttribute(new Attribute("test", listProperty+".size() > 1"));
-        String line = " and ";
-        line += MyBatis3FormattingUtilities.getEscapedColumnName(column);
-        line += " in ";
-        when.addElement(new TextElement(line));
-        XmlElement foreach = new XmlElement("foreach");
-        when.addElement(foreach);
-        foreach.addAttribute(new Attribute("collection", listProperty));
-        foreach.addAttribute(new Attribute("item", "item"));
-        foreach.addAttribute(new Attribute("open", "("));
-        foreach.addAttribute(new Attribute("separator", ","));
-        foreach.addAttribute(new Attribute("close", ")"));
-        foreach.addElement(new TextElement(getParameterClause(column,"item")));
-        return when;
-    }
-
-    private String getParameterClause(IntrospectedColumn introspectedColumn,String vKey) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("#{");
-        sb.append(vKey);
-        sb.append(",jdbcType=");
-        sb.append(introspectedColumn.getJdbcTypeName());
-        if (stringHasValue(introspectedColumn.getTypeHandler())) {
-            sb.append(",typeHandler=");
-            sb.append(introspectedColumn.getTypeHandler());
-        }
-        sb.append('}');
-        return sb.toString();
     }
 }

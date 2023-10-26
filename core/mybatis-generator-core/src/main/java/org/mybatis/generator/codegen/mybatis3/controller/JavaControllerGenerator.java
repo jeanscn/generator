@@ -132,6 +132,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             addOptionElement(conTopClazz);
         }
         addGetDictElement(conTopClazz);
+        addSelectByTableElement(conTopClazz);
         addDeleteByTableElement(conTopClazz);
         addInsertByTableElement(conTopClazz);
         addGetTreeElement(conTopClazz);
@@ -189,8 +190,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
             buildTemplateSampleData.addBodyLine("        {0}.builder()", entityExcelImportVoType.getShortName());
             VOExcelGeneratorConfiguration voExcelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration();
-            List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voExcelConfiguration.getImportIncludeColumns(), voExcelConfiguration.getImportExcludeColumns());
-            CollectionUtil.addAllIfNotContains(introspectedColumns, voGenService.getAbstractVOColumns());
+
+            List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelConfiguration.getImportIncludeColumns(), voExcelConfiguration.getImportExcludeColumns());
             for (IntrospectedColumn excelVOColumn : introspectedColumns) {
                 buildTemplateSampleData.addBodyLine("                .{0}({1})",
                         excelVOColumn.getJavaProperty(),
@@ -395,6 +396,13 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 && columnNames.contains(DefaultColumnNameEnum.ID.columnName())
                 && columnNames.contains(DefaultColumnNameEnum.NAME.columnName())) {
             AbstractControllerElementGenerator elementGenerator = new FetchTreeDataElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addSelectByTableElement(TopLevelClass parentElement) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(c->c.isEnableSplit() || c.isEnableUnion())) {
+            AbstractControllerElementGenerator elementGenerator = new SelectByTableGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

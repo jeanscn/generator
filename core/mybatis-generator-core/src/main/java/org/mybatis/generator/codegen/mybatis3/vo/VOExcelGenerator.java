@@ -1,19 +1,18 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.vgosoft.core.annotation.*;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,9 +40,8 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         excelVoClass.addAnnotation("@NoArgsConstructor");
         excelVoClass.addSerialVersionUID();
         //添加属性
-        List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voExcelGeneratorConfiguration.getIncludeColumns(), voExcelGeneratorConfiguration.getExcludeColumns());
-        CollectionUtil.addAllIfNotContains(introspectedColumns, voGenService.getAbstractVOColumns());
-        if (introspectedColumns.size() > 0) {
+        List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getExportIncludeColumns(), voExcelGeneratorConfiguration.getExcludeColumns());
+        if (!introspectedColumns.isEmpty()) {
             excelVoClass.addAnnotation("@AllArgsConstructor");
         }
         for (IntrospectedColumn voColumn : introspectedColumns) {
@@ -66,28 +64,6 @@ public class VOExcelGenerator extends AbstractVOGenerator {
                 }
             }
         });
-        //重写get方法，为转换字段赋值
-        /*overridePropertyConfigurations.stream()
-                .filter(Configuration -> Configuration.getAnnotationType().contains("Dict"))
-                .forEach(overridePropertyConfiguration -> {
-                    introspectedTable.getColumn(overridePropertyConfiguration.getSourceColumnName()).ifPresent(column -> {
-                        String fieldName = overridePropertyConfiguration.getTargetPropertyName();
-                        FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(overridePropertyConfiguration.getTargetPropertyType());
-                        String getterMethodName = JavaBeansUtil.getGetterMethodName(fieldName, javaType);
-                        Method method = new Method(getterMethodName);
-                        method.setVisibility(JavaVisibility.PUBLIC);
-                        method.setReturnType(javaType);
-                        StringBuilder sb = new StringBuilder("return ");
-                        if (javaType.getShortName().equals("String") && !column.isStringColumn()) {
-                            sb.append("String.valueOf(").append(column.getJavaProperty()).append(")");
-                        } else {
-                            sb.append(column.getJavaProperty());
-                        }
-                        method.addBodyLine(sb + ";");
-                        excelVoClass.addMethod(method);
-                    });
-                });*/
-
         //附加属性
         Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
@@ -107,7 +83,6 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         mappingsInterface.addMethod(addMappingMethod(entityType, excelVoClass.getType(), true));
         mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, false));
         mappingsInterface.addMethod(addMappingMethod(excelVoClass.getType(), entityType, true));
-
         return excelVoClass;
     }
 }

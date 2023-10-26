@@ -1,7 +1,12 @@
 package org.mybatis.generator.config.xml;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataFormat;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
@@ -2047,24 +2052,25 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, vOExcelGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            vOExcelGeneratorConfiguration.setIncludeColumns(spiltToSet(includeColumns));
+            vOExcelGeneratorConfiguration.setExportIncludeColumns(spiltToSet(includeColumns));
+        }
+        String excludeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
+        if (stringHasValue(excludeColumns)) {
+            vOExcelGeneratorConfiguration.setExportExcludeColumns(spiltToSet(excludeColumns));
+        }
+        String ignoreFields = attributes.getProperty(PropertyRegistry.ELEMENT_IGNORE_FIELDS);
+        if (stringHasValue(ignoreFields)) {
+            vOExcelGeneratorConfiguration.setExportIgnoreFields(spiltToSet(ignoreFields));
         }
 
         String importInclude = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_INCLUDE_COLUMNS);
         if (stringHasValue(importInclude)) {
             vOExcelGeneratorConfiguration.setImportIncludeColumns(spiltToSet(importInclude));
         }
-
         String importExclude = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_EXCLUDE_COLUMNS);
         if (stringHasValue(importExclude)) {
             vOExcelGeneratorConfiguration.setImportExcludeColumns(spiltToSet(importExclude));
         }
-
-        String ignoreFields = attributes.getProperty(PropertyRegistry.ELEMENT_IGNORE_FIELDS);
-        if (stringHasValue(ignoreFields)) {
-            vOExcelGeneratorConfiguration.setIgnoreFields(spiltToSet(ignoreFields));
-        }
-
         String importIgnoreFields = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_IGNORE_FIELDS);
         if (stringHasValue(importIgnoreFields)) {
             vOExcelGeneratorConfiguration.setImportIgnoreFields(spiltToSet(importIgnoreFields));
@@ -2130,7 +2136,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         String defaultHiddenFields = attributes.getProperty("defaultHiddenFields");
         if (stringHasValue(defaultHiddenFields)) {
-            voViewGeneratorConfiguration.setDefaultHiddenFields(spiltToList(defaultHiddenFields));
+            voViewGeneratorConfiguration.setDefaultHiddenFields(spiltToSet(defaultHiddenFields));
         }
 
         String viewIcon = attributes.getProperty("viewMenuIcon");
@@ -2191,11 +2197,69 @@ public class MyBatisGeneratorConfigurationParser {
                     HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
                     voViewGeneratorConfiguration.getHtmlButtons().add(htmlButton);
                     break;
+                case ("queryColumn"):
+                    QueryColumnConfiguration queryColumnConfiguration = parseQueryColumn(tc,childNode);
+                    voViewGeneratorConfiguration.addQueryColumnConfigurations(queryColumnConfiguration);
+                    break;
             }
         }
         //继承vo的附件属性
         voViewGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
+    }
+
+    private QueryColumnConfiguration parseQueryColumn(TableConfiguration tc,Node childNode) {
+        QueryColumnConfiguration queryColumnConfiguration = new QueryColumnConfiguration(tc);
+        Properties attributes = parseAttributes(childNode);
+        String column = attributes.getProperty("column");
+        if (stringHasValue(column)) {
+            queryColumnConfiguration.setColumn(column);
+        }
+        String tagName = attributes.getProperty("tagType");
+        if (stringHasValue(tagName)) {
+            queryColumnConfiguration.setTagName(HtmlElementTagTypeEnum.ofCodeName(tagName));
+        }
+        String remark = attributes.getProperty("remark");
+        if (stringHasValue(remark)) {
+            queryColumnConfiguration.setRemark(remark);
+        }
+        String queryMode = attributes.getProperty("queryMode");
+        if (stringHasValue(queryMode)) {
+            queryColumnConfiguration.setQueryMode(QueryModesEnum.ofCodeName(queryMode));
+        }
+        String fieldType = attributes.getProperty("fieldType");
+        if (stringHasValue(fieldType)) {
+            queryColumnConfiguration.setFieldType(FieldTypeEnum.of(fieldType));
+        }
+        String order = attributes.getProperty("order");
+        if (stringHasValue(order)) {
+            queryColumnConfiguration.setOrder(Integer.parseInt(order));
+        }
+        String dataFormat = attributes.getProperty("dataFormat");
+        if (stringHasValue(dataFormat)) {
+            queryColumnConfiguration.setDataFormat(HtmlElementDataFormat.ofCodeName(dataFormat));
+        }
+        String dataSource = attributes.getProperty("dataSource");
+        if (stringHasValue(dataSource)) {
+            queryColumnConfiguration.setDataSource(HtmlElementDataSourceEnum.getEnum(dataSource));
+        }
+        String enumClassFullName = attributes.getProperty("enumClassFullName");
+        if (stringHasValue(enumClassFullName)) {
+            queryColumnConfiguration.setEnumClassFullName(enumClassFullName);
+        }
+        String dictCode = attributes.getProperty("dictCode");
+        if (stringHasValue(dictCode)) {
+            queryColumnConfiguration.setDictCode(dictCode);
+        }
+        String switchText = attributes.getProperty("switchText");
+        if (stringHasValue(switchText)) {
+            queryColumnConfiguration.setSwitchText(switchText);
+        }
+        String dataUrl = attributes.getProperty("dataUrl");
+        if (stringHasValue(dataUrl)) {
+            queryColumnConfiguration.setDataUrl(dataUrl);
+        }
+        return queryColumnConfiguration;
     }
 
     private HtmlButtonGeneratorConfiguration parseHtmlButton(Node childNode) {

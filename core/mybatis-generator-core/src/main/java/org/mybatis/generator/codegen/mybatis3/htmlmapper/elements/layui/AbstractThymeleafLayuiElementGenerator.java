@@ -113,7 +113,7 @@ public abstract class AbstractThymeleafLayuiElementGenerator extends AbstractThy
         if (htmlElementDescriptor == null) {
             return;
         }
-        HtmlElementTagTypeEnum tagType = HtmlElementTagTypeEnum.getEnum(htmlElementDescriptor.getTagType());
+        HtmlElementTagTypeEnum tagType = HtmlElementTagTypeEnum.ofCodeName(htmlElementDescriptor.getTagType());
         switch (tagType) {
             case SELECT:
                 HtmlElementDataSourceEnum anEnum = HtmlElementDataSourceEnum.getEnum(htmlElementDescriptor.getDataSource());

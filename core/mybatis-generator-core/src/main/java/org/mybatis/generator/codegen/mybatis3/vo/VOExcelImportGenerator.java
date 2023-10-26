@@ -5,12 +5,10 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
-import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.ModelClassTypeEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,9 +37,8 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         excelImportVoClass.addSerialVersionUID();
 
         //添加属性
-        List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voExcelGeneratorConfiguration.getIncludeColumns(), voExcelGeneratorConfiguration.getExcludeColumns());
-        CollectionUtil.addAllIfNotContains(introspectedColumns, voGenService.getAbstractVOColumns());
-        if (introspectedColumns.size() > 0) {
+        List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getImportIncludeColumns(), voExcelGeneratorConfiguration.getImportExcludeColumns());
+        if (!introspectedColumns.isEmpty()) {
             excelImportVoClass.addAnnotation("@AllArgsConstructor");
         }
         for (IntrospectedColumn voColumn : introspectedColumns) {

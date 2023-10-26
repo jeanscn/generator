@@ -132,7 +132,7 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
         HtmlElement cRead = new HtmlElement("div");
         addCssClassToElement(cRead, this.isDisplayOnly(introspectedColumn) ? "oas-form-item-readonly" : "oas-form-item-read");
         if (htmlElementDescriptor != null) {
-            HtmlElementTagTypeEnum anEnum = HtmlElementTagTypeEnum.getEnum(htmlElementDescriptor.getTagType());
+            HtmlElementTagTypeEnum anEnum = HtmlElementTagTypeEnum.ofCodeName(htmlElementDescriptor.getTagType());
             switch (anEnum) {
                 case CHECKBOX:
                 case RADIO:

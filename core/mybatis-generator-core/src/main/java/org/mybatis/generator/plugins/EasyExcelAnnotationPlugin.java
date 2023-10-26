@@ -27,7 +27,7 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     @Override
     public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         addExcelAnnotation(topLevelClass,field,introspectedColumn);
-        Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getIgnoreFields();
+        Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getExportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
             topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");

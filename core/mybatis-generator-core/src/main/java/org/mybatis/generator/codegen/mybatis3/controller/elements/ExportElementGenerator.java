@@ -33,13 +33,14 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         parameter.setRemark("http响应");
         method.addParameter(parameter);
         MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
-        Parameter parameter1 = buildMethodParameter(descript);
-        parameter1.setRemark("请求数据");
-        method.addParameter(parameter1);
-        Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
-        actionType.setRemark("场景类型，用来标识不同查询类型");
-        actionType.addAnnotation("@RequestParam(required = false)");
-        method.addParameter(actionType);
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        Parameter idsParam = new Parameter(listInstance, "ids");
+        idsParam.setRemark("需要导出的数据id列表");
+        idsParam.addAnnotation("@RequestParam");
+        idsParam.addAnnotation("@RequestParamSplit");
+        parentElement.addImportedType("com.vgosoft.web.resolver.annotation.RequestParamSplit");
+        method.addParameter(idsParam);
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
@@ -51,10 +52,8 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导出");
 
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
-        method.addBodyLine("{0} example = buildExample(actionType,{1});",
-                exampleType.getShortName(),
-                introspectedTable.getRules().isGenerateRequestVO()?requestVOVar:
-                        introspectedTable.getRules().isGenerateVoModel()?entityVoType.getShortNameFirstLowCase():entityType.getShortNameFirstLowCase());
+        method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
+        method.addBodyLine("example.createCriteria().andIdIn(ids);");
         method.addBodyLine("ServiceResult<List<{0}>> result  = {1}.selectByExample(example);",
                 entityType.getShortName(), serviceBeanName);
         method.addBodyLine("List<{0}> list = mappings.to{0}s(result.getResult());",

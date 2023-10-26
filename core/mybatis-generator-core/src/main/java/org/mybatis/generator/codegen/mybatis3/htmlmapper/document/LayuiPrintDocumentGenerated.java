@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
@@ -86,7 +87,10 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             workflowEnabled.addAttribute(new Attribute("value", "0"));
         }
         HtmlElement subject = generateHtmlInput(input_subject_id, true, false, true, true);
-        subject.addAttribute(new Attribute("value", getDocTitle()));
+        String title = getDocTitle();
+        if (VStringUtil.stringHasValue(title)) {
+            subject.addAttribute(new Attribute("th:value", title));
+        }
         content.addElement(subject);
         generatePrintToolbar(content);
         if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
@@ -109,7 +113,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         meta.addAttribute(new Attribute("charset", "UTF-8"));
         head.addElement(meta);
         HtmlElement t = new HtmlElement("title");
-        t.addElement(new TextElement(getDocTitle()));
+        t.addElement(new TextElement(getHtmlTitle()));
         head.addElement(t);
        addStaticThymeleafJavaScript(head, "/webjars/plugins/jquery/1.12.4/jquery.min.js");
         addStaticThymeleafStyleSheet(head, "/webjars/plugins/printjs/css/print.min.css");
@@ -276,14 +280,14 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             HtmlElement tbody = new HtmlElement("tbody");
             tableList.addElement(tbody);
             HtmlElement block = new HtmlElement("th:block");
-            block.addAttribute(new Attribute("th:if", "${business != null and business.detail != null}"));
+            block.addAttribute(new Attribute("th:if", "${"+ GenerateUtils.getEntityKeyStr(introspectedTable) +" != null and "+ GenerateUtils.getEntityKeyStr(introspectedTable) +".detail != null}"));
             tbody.addElement(block);
             HtmlElement tr2 = new HtmlElement("tr");
             block.addElement(tr2);
-            tr2.addAttribute(new Attribute("th:each", "row : ${business.detail}"));
+            tr2.addAttribute(new Attribute("th:each", "row : ${"+ GenerateUtils.getEntityKeyStr(introspectedTable) +".detail}"));
             HtmlElement td2 = new HtmlElement("td");
             td2.addAttribute(new Attribute("th:each", "header : ${innerListHeaders}"));
-            td2.addAttribute(new Attribute("th:text", "${#strings.isEmpty(row[header.field]) ? '' : row[header.field]}"));
+            td2.addAttribute(new Attribute("th:text", "${#strings.isEmpty(header.field) ? '' : row[header.field]}"));
             tr2.addElement(td2);
         }
     }
@@ -324,7 +328,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
     private String getThymeleafValueFieldName(IntrospectedColumn introspectedColumn) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (introspectedColumn.isJDBCDateColumn()) {
+        if (introspectedColumn.isJDBCDateColumn() || (htmlElementDescriptor!=null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
             return getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READONLY);
         } else {
             return thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READONLY, htmlElementDescriptor);

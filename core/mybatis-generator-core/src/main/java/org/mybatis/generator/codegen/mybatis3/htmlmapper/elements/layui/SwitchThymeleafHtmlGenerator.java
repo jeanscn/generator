@@ -10,6 +10,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
 
+import static org.mybatis.generator.internal.util.Mb3GenUtil.getSwitchTextByEnumClassName;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
@@ -37,34 +38,16 @@ public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementG
         if (htmlElementDescriptor.getSwitchText() != null) {
             element.addAttribute(new Attribute("lay-text", htmlElementDescriptor.getSwitchText()));
         } else if (htmlElementDescriptor.getEnumClassName() != null) {
-            try {
-                Class<?> aClass = Class.forName(htmlElementDescriptor.getEnumClassName());
-                if (aClass.isEnum() && IBaseEnum.class.isAssignableFrom(aClass)) {
-                    Object[] enumConstants = aClass.getEnumConstants();
-                    if (enumConstants.length>1) {
-                        element.addAttribute(
-                                new Attribute("lay-text", ((IBaseEnum<?>) enumConstants[0]).codeName() + "|" + ((IBaseEnum<?>) enumConstants[1]).codeName())
-                        );
-                        checkedValue = ((IBaseEnum<?>) enumConstants[0]).code().toString();
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            String switchText = getSwitchTextByEnumClassName(htmlElementDescriptor.getEnumClassName());
+            if (switchText != null) {
+                element.addAttribute(new Attribute("lay-text", switchText));
             }
         }
         element.addAttribute(new Attribute("lay-filter", introspectedColumn.getJavaProperty()));
         addDataUrl(element, htmlElementDescriptor, null);
         String sb = "${" + entityKey + "?." +  introspectedColumn.getJavaProperty() + "} eq " + checkedValue;
         element.addAttribute(new Attribute("th:checked", sb));
-        parent.addElement(editDiv);
-
-        //增加提交数据的隐藏域
-        HtmlElement hidden = new HtmlElement("input");
-        hidden.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
-        hidden.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
-        hidden.addAttribute(new Attribute("type", "hidden"));
-        hidden.addAttribute(new Attribute("th:value", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
-        parent.addElement(hidden);
+        editDiv.addElement(element);
 
         //读写状态区
         parent.addAttribute(new Attribute("for-type", "lay-switch"));
@@ -75,8 +58,7 @@ public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementG
         if (stringHasValue(this.htmlElementDescriptor.getCallback())) {
             element.addAttribute(new Attribute("data-callback", VStringUtil.getFirstCharacterLowercase(this.htmlElementDescriptor.getCallback())));
         }
-        //非空验证
-        addElementVerify(introspectedColumn.getActualColumnName(), hidden, this.htmlElementDescriptor);
+
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getElementCss() != null) {
             addCssStyleToElement(parent, htmlElementDescriptor.getElementCss());
@@ -84,6 +66,17 @@ public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementG
         //只读状态区
         HtmlElement sRead = generateReadElement(htmlElementDescriptor, introspectedColumn);
         parent.addElement(sRead);
+
+        //增加提交数据的隐藏域
+        HtmlElement hidden = new HtmlElement("input");
+        hidden.addAttribute(new Attribute("id", introspectedColumn.getJavaProperty()));
+        hidden.addAttribute(new Attribute("name", introspectedColumn.getJavaProperty()));
+        hidden.addAttribute(new Attribute("type", "hidden"));
+        hidden.addAttribute(new Attribute("th:value", thymeleafValue(ThymeleafValueScopeEnum.EDIT)));
+        parent.addElement(hidden);
+        //非空验证
+        addElementVerify(introspectedColumn.getActualColumnName(), hidden, this.htmlElementDescriptor);
+
     }
 
     @Override

@@ -573,6 +573,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(getSetInOrNotInMethod(introspectedColumn, false));
             answer.addMethod(getSetBetweenOrNotBetweenMethod(introspectedColumn, true));
             answer.addMethod(getSetBetweenOrNotBetweenMethod(introspectedColumn, false));
+            answer.addMethod(getAnyConditionMethod(introspectedColumn));
         }
 
         return answer;
@@ -807,6 +808,25 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addBodyLine(sb.toString());
         method.addBodyLine("return (Criteria) this;"); //$NON-NLS-1$
 
+        return method;
+    }
+
+    private Method getAnyConditionMethod(IntrospectedColumn introspectedColumn) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(initializeAndMethodName(introspectedColumn));
+        sb.append("AnyCondition");
+        Method method = new Method(sb.toString());
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "expression")); //$NON-NLS-1$
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+
+        sb.setLength(0);
+        sb.append(initializeAddLine(introspectedColumn)); // addCriterion("tetd.id_
+        sb.append(' ');
+        sb.append("\"+expression);");
+        method.addBodyLine(sb.toString());
+        method.addBodyLine("return (Criteria) this;"); //$NON-NLS-1$
         return method;
     }
 

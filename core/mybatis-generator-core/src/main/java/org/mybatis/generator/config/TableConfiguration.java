@@ -738,6 +738,8 @@ public class TableConfiguration extends PropertyHolder {
 
         //更新TC与表结构相关的自定义属性
         updateTableConfiguration(introspectedTable);
+        //检查并更新queryColumnConfiguration的表名及别名配置
+        updateQueryColumnConfiguration(introspectedTable);
         //更新context、table中隐藏列名htmlHiddenColumns 列表，计算隐藏列，只读列htmlReadonlyFields和只显示htmlDisplayOnlyFields列
         calculateHiddenReadDisplayOnlyColumns(introspectedTable);
         //对指定了dataFormat的快捷配置进行转换
@@ -772,6 +774,23 @@ public class TableConfiguration extends PropertyHolder {
         calculateChildrenRelationConfig(introspectedTable);
         //计算selectBySql配置
         calculateSelectBySqlMethodProperty(introspectedTable);
+    }
+
+    private void updateQueryColumnConfiguration(IntrospectedTable introspectedTable) {
+        if (this.getVoGeneratorConfiguration() == null || !this.getVoGeneratorConfiguration().isGenerate()
+                || this.getVoGeneratorConfiguration().getVoViewConfiguration() == null
+                || !this.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate()
+                || this.getVoGeneratorConfiguration().getVoViewConfiguration().getQueryColumnConfigurations() == null) {
+            return;
+        }
+        //为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
+        List<QueryColumnConfiguration> queryColumnConfigurations = this.getVoGeneratorConfiguration()
+                .getVoViewConfiguration()
+                .getQueryColumnConfigurations();
+        queryColumnConfigurations.forEach(queryColumnConfiguration -> {
+            queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null));
+        });
+        queryColumnConfigurations.removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
     }
 
     private void generateDefaultColumnRenderConfiguration(Context context) {
@@ -1301,7 +1320,7 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     private void addHtmlElementAddtionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {
-        //如果已经存在，不再追加
+        //不需要转换的数据源，直接返回
         if (!stringHasValue(elementDescriptor.getDataSource())) {
             return;
         }

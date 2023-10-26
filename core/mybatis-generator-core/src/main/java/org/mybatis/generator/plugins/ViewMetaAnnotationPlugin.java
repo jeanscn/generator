@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
+import org.mybatis.generator.config.QueryColumnConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
@@ -20,8 +21,10 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getRootClass;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -163,13 +166,29 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         //querys
         if (!voViewGeneratorConfiguration.getQueryColumns().isEmpty()) {
-            String[] strings = voViewGeneratorConfiguration.getQueryColumns().stream()
-                    .distinct()
-                    .map(f -> introspectedTable.getColumn(f).orElse(null))
-                    .filter(Objects::nonNull)
-                    .map(c -> CompositeQueryDesc.create(c).toAnnotation())
-                    .toArray(String[]::new);
-            viewTableMetaDesc.setQuerys(strings);
+            //按列名分组
+            Map<String, List<QueryColumnConfiguration>> listMap = voViewGeneratorConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
+            //去重,转换为CompositeQueryDesc
+            List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getQueryColumns().stream().distinct().map(columnName -> {
+                if (listMap.containsKey(columnName)) {
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0),introspectedTable);
+                } else {
+                    if (introspectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
+                    }else{
+                        return null;
+                    }
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            //更新顺序号，order
+            for (int i = 0; i < queryDesc.size(); i++) {
+                queryDesc.get(i).setOrder(i + 1);
+            }
+            //转换为注解
+            String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
+            viewTableMetaDesc.setQuerys(array);
+            //导入类型
+            viewVOClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
         }
         //columns
         if (!voViewGeneratorConfiguration.getIncludeColumns().isEmpty()) {

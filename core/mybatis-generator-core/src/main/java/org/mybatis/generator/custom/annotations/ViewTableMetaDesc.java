@@ -26,6 +26,9 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private final String value;
     private final String listName;
     private final String beanName;
+    private final String appKeyword;
+    private final String tableName;
+    private final String tableAlias;
     private String dataUrl;
     private String createUrl;
     private String className;
@@ -44,7 +47,6 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private String areaWidth;
     private String areaHeight;
     private String restBasePath;
-
     public static ViewTableMetaDesc create(IntrospectedTable introspectedTable){
         return new ViewTableMetaDesc(introspectedTable);
     }
@@ -57,6 +59,12 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         items.add(VStringUtil.format("listName = \"{0}\"", this.getListName()));
         this.beanName = introspectedTable.getControllerBeanName();
         items.add(VStringUtil.format("beanName = \"{0}\"", this.getBeanName()));
+        this.appKeyword = introspectedTable.getContext().getAppKeyword();
+        items.add(VStringUtil.format("appKeyword = \"{0}\"", this.getAppKeyword()));
+        this.tableName = introspectedTable.getTableConfiguration().getTableName();
+        items.add(VStringUtil.format("tableName = \"{0}\"", this.tableName));
+        this.tableAlias = introspectedTable.getTableConfiguration().getAlias();
+        items.add(VStringUtil.format("tableAlias = \"{0}\"", this.tableAlias));
         this.dataUrl = "/viewmgr/getdtdata";
         this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
@@ -138,6 +146,10 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
 
     public String getBeanName() {
         return beanName;
+    }
+
+    public String getAppKeyword() {
+        return appKeyword;
     }
 
     public String getDataUrl() {
@@ -284,5 +296,11 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         this.toolbarActions = toolbarActions;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
 
+    public String getTableAlias() {
+        return tableAlias;
+    }
 }

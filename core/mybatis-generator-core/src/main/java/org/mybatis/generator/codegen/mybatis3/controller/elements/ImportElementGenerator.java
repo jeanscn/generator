@@ -60,7 +60,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVOS);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());
 
         method.addBodyLine("for ({0} {1} : {1}s) '{'\n" +
-                "            ServiceResult<{0}> insert = {1}Impl.insert({1});\n" +
+                "            ServiceResult<{0}> insert = {1}Impl.insertOrUpdate({1});\n" +
                 "            if (insert.isSuccess()) '{'\n" +
                 "                ret = ret+1;\n" +
                 "            '}'\n" +

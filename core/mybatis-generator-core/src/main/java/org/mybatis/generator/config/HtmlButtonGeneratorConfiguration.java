@@ -9,7 +9,7 @@ import java.util.List;
 public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     private String id;
-    private String type;
+    private String type = "button";
     private String text;
     private String title;
     private String icon;

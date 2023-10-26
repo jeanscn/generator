@@ -42,7 +42,7 @@ $(function () {
         let $relationKey = $('#${innerList.relationKey}');
         params['mainRecordId'] = !$.isBlank($relationKey.val()) ? $relationKey.val() : $('#id').val()+'1';
     <#else>
-        params['mainRecordId'] = $('#id').val();
+        params['mainRecordId'] = $('#id').val()!==''?$('#id').val():'-1';
     </#if>
     params['viewStatus'] = $('#viewStatus').val();
     params['listKey'] = '${innerList.listKey!''}';

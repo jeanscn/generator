@@ -8,14 +8,12 @@ import java.util.Set;
 
 public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    private Set<String> includeColumns = new HashSet<>();
+    private Set<String> exportIncludeColumns = new HashSet<>();
+    private Set<String> exportExcludeColumns = new HashSet<>();
+    private Set<String> exportIgnoreFields = new HashSet<>();
 
     private Set<String> importIncludeColumns = new HashSet<>();
-
     private Set<String> importExcludeColumns = new HashSet<>();
-
-    private Set<String> ignoreFields = new HashSet<>();
-
     private Set<String> importIgnoreFields = new HashSet<>();
 
     private final FullyQualifiedJavaType excelImportType;
@@ -32,12 +30,12 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         return excelImportType;
     }
 
-    public Set<String> getIncludeColumns() {
-        return includeColumns;
+    public Set<String> getExportIncludeColumns() {
+        return exportIncludeColumns;
     }
 
-    public void setIncludeColumns(Set<String> includeColumns) {
-        this.includeColumns = includeColumns;
+    public void setExportIncludeColumns(Set<String> exportIncludeColumns) {
+        this.exportIncludeColumns = exportIncludeColumns;
     }
 
 
@@ -57,12 +55,12 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         this.importExcludeColumns = importExcludeColumns;
     }
 
-    public Set<String> getIgnoreFields() {
-        return ignoreFields;
+    public Set<String> getExportIgnoreFields() {
+        return exportIgnoreFields;
     }
 
-    public void setIgnoreFields(Set<String> ignoreFields) {
-        this.ignoreFields = ignoreFields;
+    public void setExportIgnoreFields(Set<String> exportIgnoreFields) {
+        this.exportIgnoreFields = exportIgnoreFields;
     }
 
     public Set<String> getImportIgnoreFields() {
@@ -71,6 +69,14 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
 
     public void setImportIgnoreFields(Set<String> importIgnoreFields) {
         this.importIgnoreFields = importIgnoreFields;
+    }
+
+    public Set<String> getExportExcludeColumns() {
+        return exportExcludeColumns;
+    }
+
+    public void setExportExcludeColumns(Set<String> exportExcludeColumns) {
+        this.exportExcludeColumns = exportExcludeColumns;
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -138,8 +139,8 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        if (configuration.getDefaultHiddenFields().size() == 0 && configuration.getDefaultDisplayFields().size() == 0) {
-            configuration.getDefaultHiddenFields().addAll(Arrays.asList(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS.split(",")));
+        if (configuration.getDefaultHiddenFields().isEmpty() && configuration.getDefaultDisplayFields().isEmpty()) {
+            configuration.getDefaultHiddenFields().addAll(StringUtility.spiltToSet(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS));
         }
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));
@@ -172,14 +173,14 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (this.ignore) {
             items.add("ignore = true");
         }
-        if (configuration.getDefaultDisplayFields().size() > 0) {
+        if (!configuration.getDefaultDisplayFields().isEmpty()) {
             if (configuration.getDefaultDisplayFields().contains(this.value)) {
                 items.add("defaultDisplay = true");
             }
         }else{
             Set<String> hiddenProperties = getHiddenProperties();
             hiddenProperties.addAll(configuration.getDefaultHiddenFields());
-            if (hiddenProperties.size()>0){
+            if (!hiddenProperties.isEmpty()){
                 if (!hiddenProperties.contains(this.value)) {
                     items.add("defaultDisplay = true");
                 }

@@ -31,7 +31,7 @@ public abstract class AbstractDictTarget<T> extends AbstractAnnotation{
         if (stringHasValue(this.source)) {
             this.items.add(format("source = \"{0}\"", this.source));
         }
-        if (this.items.size()>0) return "@"+clazz.getSimpleName()+"("+ String.join(", ",items.toArray(new String[0])) +")";
+        if (!this.items.isEmpty()) return "@"+clazz.getSimpleName()+"("+ String.join(", ",items.toArray(new String[0])) +")";
         else return "@"+clazz.getSimpleName()+"()";
     }
 
