@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;

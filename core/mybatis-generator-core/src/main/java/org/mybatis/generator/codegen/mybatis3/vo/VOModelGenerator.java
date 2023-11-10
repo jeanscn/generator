@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -11,11 +12,9 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
 
@@ -110,10 +109,14 @@ public class VOModelGenerator extends AbstractVOGenerator {
         });
 
         //添加静态代码块
+        //获取vo中的含父类和子类的所有字段
+        List<IntrospectedColumn> columns = VCollectionUtil.addAllIfNotContains(voGenService.getAbstractVOColumns(), introspectedColumns);
         InitializationBlock initializationBlock = new InitializationBlock(false);
         //在静态代码块中添加默认值
-        addInitialization(introspectedColumns,initializationBlock, voClass);
-        voClass.addInitializationBlock(initializationBlock);
+        addInitialization(columns,initializationBlock, voClass);
+        if (!initializationBlock.getBodyLines().isEmpty()) {
+            voClass.addInitializationBlock(initializationBlock);
+        }
 
         //增加转换方法
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(voClass.getType().getFullyQualifiedName()));

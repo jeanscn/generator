@@ -53,7 +53,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         super();
     }
 
-    protected void initGenerator(){
+    protected void initGenerator() {
         tc = introspectedTable.getTableConfiguration();
         serviceImplConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
@@ -61,15 +61,15 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         commentGenerator = context.getCommentGenerator();
         serviceBeanName = introspectedTable.getControllerBeanName();
         serviceResult = new FullyQualifiedJavaType(SERVICE_RESULT);
-        String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
-        entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
-        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
-        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
-        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"po",entityType.getShortName()+"CachePO"));
-        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelVO"));
-        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"RequestVO"));
-        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"CreateVO"));
-        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"UpdateVO"));
+        String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo";
+        entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
+        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
+        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ViewVO"));
+        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePO"));
+        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVO"));
+        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
+        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "CreateVO"));
+        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "UpdateVO"));
         serviceMethods = new ServiceMethods(context, introspectedTable);
     }
 
@@ -101,5 +101,41 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
             method.addBodyLine("}");
         }
         parent.addImportedType("org.springframework.transaction.interceptor.TransactionAspectSupport");
+    }
+
+    protected void addCacheEnableAnnotations(List<String> cacheAnnotationList, Method method,TopLevelClass parentElement) {
+        if (cacheAnnotationList.size() == 1) {
+            method.addAnnotation(cacheAnnotationList.get(0));
+            parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
+        } else if (cacheAnnotationList.size() > 1)  {
+            method.addAnnotation("@Caching(cacheable = {\n" +
+                    String.join(",\n", cacheAnnotationList) + "\n" +
+                    "})");
+            parentElement.addImportedType("org.springframework.cache.annotation.Caching");
+            parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
+        }
+    }
+
+    protected void addCacheCacheEvictAnnotations(List<String> cacheAnnotationList, Method method,TopLevelClass parentElement) {
+        if (cacheAnnotationList.size() == 1) {
+            method.addAnnotation(cacheAnnotationList.get(0));
+            parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
+        } else if (cacheAnnotationList.size() > 1) {
+            method.addAnnotation("@Caching(evict = {\n              " +
+                    String.join(",\n            ", cacheAnnotationList) + "\n" +
+                    "   })");
+            parentElement.addImportedType("org.springframework.cache.annotation.Caching");
+            parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
+        }
+    }
+
+    protected String generateSelectByTableCacheNames(SelectByTableGeneratorConfiguration configuration, String cacheType){
+        if (cacheType.equals("cache")) {
+            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty()+"sCache";
+        } else if (cacheType.equals("evict")) {
+            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty()+"sCache";
+        } else {
+            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty()+"sCache";
+        }
     }
 }

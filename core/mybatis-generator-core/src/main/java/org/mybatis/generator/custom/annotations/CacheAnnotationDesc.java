@@ -17,7 +17,8 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * @version 3.0
  */
 public class CacheAnnotationDesc {
-    private final List<String> cacheNames = new ArrayList<>();
+
+    private List<String> cacheNames = new ArrayList<>();
     private String unless;
     private List<Parameter> parameters = new ArrayList<>();
 
@@ -77,6 +78,10 @@ public class CacheAnnotationDesc {
         this.key = key;
     }
 
+    public void setCacheNames(List<String> cacheNames) {
+        this.cacheNames = cacheNames;
+    }
+
     public String toCacheableAnnotation() {
         StringBuilder sb = new StringBuilder("@Cacheable(");
         sb.append(formatCacheNames());
@@ -90,10 +95,10 @@ public class CacheAnnotationDesc {
 
     private String formatCacheNames() {
         StringBuilder sb = new StringBuilder("cacheNames = {");
-        if (cacheNames.size() == 0) {
+        if (cacheNames.isEmpty()) {
             sb.append("\"").append(serviceKey).append("#8h\"");
         } else {
-            String names = cacheNames.stream().map(c -> "\"" + c + "\"").collect(Collectors.joining(","));
+            String names = cacheNames.stream().map(c -> "\"" + c + "#72h\"").collect(Collectors.joining(","));
             sb.append(names);
         }
         sb.append("}");
@@ -105,7 +110,7 @@ public class CacheAnnotationDesc {
         sb.append(formatCacheNames());
         if (allEntries) {
             sb.append(",allEntries = true");
-        } else if (stringHasValue(key)) {
+        } else {
             sb.append(",").append(formatKey());
         }
         sb.append(")");
@@ -113,11 +118,11 @@ public class CacheAnnotationDesc {
     }
 
     private String formatKey() {
-        if (parameters.size() == 0 && !stringHasValue(key)) {
+        if (parameters.isEmpty() && !stringHasValue(key)) {
             return "";
         }
         StringBuilder sb = new StringBuilder("key = \"'");
-        sb.append(serviceKey);
+        sb.append(serviceKey==null? String.join("", cacheNames):serviceKey);
         sb.append(":'");
         if (stringHasValue(key)) {
             sb.append(format(".concat({0})", key));

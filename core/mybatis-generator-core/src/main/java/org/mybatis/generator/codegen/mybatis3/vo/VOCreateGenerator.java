@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -88,6 +89,14 @@ public class VOCreateGenerator extends AbstractVOGenerator{
 
         //是否有启用insert的JavaCollectionRelation
         addJavaCollectionRelation(createVoClass, "insert");
+
+        //添加静态代码块
+        //获取vo中的含父类和子类的所有字段
+        List<IntrospectedColumn> columns = VCollectionUtil.addAllIfNotContains(voGenService.getAbstractVOColumns(), introspectedColumns);
+        InitializationBlock initializationBlock = new InitializationBlock(false);
+        //在静态代码块中添加默认值
+        addInitialization(columns,initializationBlock, createVoClass);
+        createVoClass.addInitializationBlock(initializationBlock);
 
         /*
           生成映射方法

@@ -68,11 +68,12 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
                 "keys"));
         method.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
         method.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
-        method.addBodyLine("List<String> split = VStringUtil.splitter(true).splitToList(eids);");
-        method.addBodyLine("ztreeDataSimples = ztreeDataSimples.stream().filter(t -> !split.contains(t.getId())).collect(Collectors.toList());");
+        method.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");
+        method.addBodyLine(".forEach(pid -> TreeUtil.setNoCheckedRecursively(ztreeDataSimples, pid));");
         method.addBodyLine("}");
         method.addBodyLine("return ResponseResult.success(ztreeDataSimples);");
         parentElement.addMethod(method);
+        parentElement.addImportedType("com.vgosoft.web.plugins.ztree.TreeUtil");
 
         //fetchTreeCateGenerate方法定义
         tc.getJavaControllerGeneratorConfiguration().getTreeViewCateGeneratorConfigurations().forEach(cateTreeConfig -> {

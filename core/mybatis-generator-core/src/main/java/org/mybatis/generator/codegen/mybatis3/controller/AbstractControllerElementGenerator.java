@@ -19,7 +19,7 @@ import java.util.Map;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
-public abstract class AbstractControllerElementGenerator  extends AbstractGenerator {
+public abstract class AbstractControllerElementGenerator extends AbstractGenerator {
 
     protected FullyQualifiedJavaType entityType;
 
@@ -63,28 +63,28 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         super();
     }
 
-    protected void initGenerator(){
+    protected void initGenerator() {
         tc = introspectedTable.getTableConfiguration();
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         commentGenerator = context.getCommentGenerator();
         serviceBeanName = introspectedTable.getControllerBeanName();
-        entityNameKey = GenerateUtils.isWorkflowInstance(introspectedTable)?"business":"entity";
-        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size()>0) {
+        entityNameKey = GenerateUtils.isWorkflowInstance(introspectedTable) ? "business" : "entity";
+        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
             htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
         }
         responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         responsePagehelperResult = new FullyQualifiedJavaType(RESPONSE_PAGEHELPER_RESULT);
-        String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
-        entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
-        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"VO"));
-        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ViewVO"));
-        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"RequestVO"));
-        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"CreateVO"));
-        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"UpdateVO"));
-        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelVO"));
-        entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"vo",entityType.getShortName()+"ExcelImportVO"));
-        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"po",entityType.getShortName()+"CachePO"));
+        String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo";
+        entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
+        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
+        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ViewVO"));
+        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
+        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "CreateVO"));
+        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "UpdateVO"));
+        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVO"));
+        entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelImportVO"));
+        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePO"));
     }
 
     protected Method createMethod(String methodPrefix) {
@@ -92,20 +92,21 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         method.setVisibility(JavaVisibility.PROTECTED);
         return method;
     }
-    protected void addAnnotation(IAnnotation annotation,Method method,TopLevelClass parent){
+
+    protected void addAnnotation(IAnnotation annotation, Method method, TopLevelClass parent) {
         annotation.toAnnotations().forEach(method::addAnnotation);
         parent.addImportedTypes(annotation.getImportedTypes());
     }
 
     /**
      * 构造WEB返回的结果对象
-     * @param returnType 返回的类型枚举，此处仅对RESPONSE_RESULT_LIST进行判断，ResponseResult<List<returnTypeArgument>>
-     *              其他情况返回ResponseResult<returnTypeArgument>
-     * @param returnTypeArgument ResponseResult泛型的实际对象
-     * @param parentElement 父元素
      *
-     * */
-    protected FullyQualifiedJavaType getResponseResult(ReturnTypeEnum returnType, FullyQualifiedJavaType returnTypeArgument,CompilationUnit parentElement) {
+     * @param returnType         返回的类型枚举，此处仅对RESPONSE_RESULT_LIST进行判断，ResponseResult<List<returnTypeArgument>>
+     *                           其他情况返回ResponseResult<returnTypeArgument>
+     * @param returnTypeArgument ResponseResult泛型的实际对象
+     * @param parentElement      父元素
+     */
+    protected FullyQualifiedJavaType getResponseResult(ReturnTypeEnum returnType, FullyQualifiedJavaType returnTypeArgument, CompilationUnit parentElement) {
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         FullyQualifiedJavaType responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         if (ReturnTypeEnum.ofCode(returnType.code()) == ReturnTypeEnum.RESPONSE_RESULT_LIST) {
@@ -122,8 +123,8 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         return responseResult;
     }
 
-    protected Parameter buildMethodParameter(MethodParameterDescript descript){
-        if (descript.returnFqt==null) {
+    protected Parameter buildMethodParameter(MethodParameterDescript descript) {
+        if (descript.returnFqt == null) {
             descript.returnFqt = getMethodParameterVOType(descript.methodType);
         }
         Parameter parameter;
@@ -131,20 +132,20 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
             FullyQualifiedJavaType listInstance;
             if ("put".equalsIgnoreCase(descript.methodType) || "post".equalsIgnoreCase(descript.methodType)) {
                 listInstance = new FullyQualifiedJavaType("com.vgosoft.tool.ValidList");
-            }else{
+            } else {
                 listInstance = FullyQualifiedJavaType.getNewListInstance();
             }
             listInstance.addTypeArgument(descript.returnFqt);
-            parameter = new Parameter(listInstance, descript.returnFqt.getShortNameFirstLowCase()+"s");
+            parameter = new Parameter(listInstance, descript.returnFqt.getShortNameFirstLowCase() + "s");
             descript.parentElement.addImportedType(descript.returnFqt);
             descript.parentElement.addImportedType(listInstance);
-        }else{
+        } else {
             parameter = new Parameter(descript.returnFqt, descript.returnFqt.getShortNameFirstLowCase());
             descript.parentElement.addImportedType(descript.returnFqt);
         }
         if (descript.isValid) {
             descript.parentElement.addImportedType("org.springframework.validation.annotation.Validated");
-            switch (descript.methodType.toLowerCase()){
+            switch (descript.methodType.toLowerCase()) {
                 case "put":
                     parameter.addAnnotation("@Validated(value= ValidateUpdate.class)");
                     descript.parentElement.addImportedType("com.vgosoft.core.valid.ValidateUpdate");
@@ -164,14 +165,15 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
 
     /**
      * 根据method方法获得vo对象
+     *
      * @param methodType 方法的类型，get、put（update）、post（create）、delete等
-     * */
+     */
     protected FullyQualifiedJavaType getMethodParameterVOType(String methodType) {
         FullyQualifiedJavaType type = null;
-        switch (methodType.toLowerCase()){
+        switch (methodType.toLowerCase()) {
             case "post":
             case "create":
-                if(introspectedTable.getRules().isGenerateCreateVO()){
+                if (introspectedTable.getRules().isGenerateCreateVO()) {
                     type = entityCreateVoType;
                 }
                 break;
@@ -190,7 +192,7 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         if (type == null) {
             if (introspectedTable.getRules().isGenerateVoModel()) {
                 type = entityVoType;
-            } else{
+            } else {
                 type = entityType;
             }
         }
@@ -198,16 +200,17 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
     }
 
     protected void selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
-        String listEntityVar = entityType.getShortNameFirstLowCase()+"s";
+        String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = buildExample(actionType,{1});",
                 exampleType.getShortName(),
-                introspectedTable.getRules().isGenerateRequestVO()?requestVOVar:
-                        introspectedTable.getRules().isGenerateVoModel()?entityVoType.getShortNameFirstLowCase():entityType.getShortNameFirstLowCase());
-        if (introspectedTable.getRules().isGenerateRequestVO()) {
+                introspectedTable.getRules().isGenerateRequestVO() ? requestVOVar :
+                        introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        if (introspectedTable.getRules().isGenerateRequestVO()
+                && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
             method.addBodyLine("if ({0}.getPageNo()>0 && {0}.getPageSize()>0) '{'\n" +
                     "            PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());\n" +
-                    "        '}'",requestVOVar);
+                    "        '}'", requestVOVar);
             parentElement.addImportedType("com.github.pagehelper.PageHelper");
         }
         if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
@@ -217,18 +220,18 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
                             "        '}'else'{'\n" +
                             "            result = {2}.selectByExample(example);\n" +
                             "        '}'",
-                    entityType.getShortName(), listEntityVar,serviceBeanName,requestVOVar);
-        }else{
+                    entityType.getShortName(), listEntityVar, serviceBeanName, requestVOVar);
+        } else {
             method.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectByExample(example);",
                     entityType.getShortName(), serviceBeanName);
         }
         if (introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addBodyLine("Page<{0}> page = (Page<{0}>)result.getResult();",entityType.getShortName());
+            method.addBodyLine("Page<{0}> page = (Page<{0}>)result.getResult();", entityType.getShortName());
             parentElement.addImportedType("com.github.pagehelper.Page");
         }
     }
 
-    protected void addSecurityPreAuthorize(Method method,String methodPrefix,String nameKey) {
+    protected void addSecurityPreAuthorize(Method method, String methodPrefix, String nameKey) {
         if (introspectedTable.getRules().isIntegrateSpringSecurity()) {
             String l1 = introspectedTable.getContext().getModuleKeyword().toLowerCase();
             String l2 = serviceBeanName.toLowerCase();
@@ -244,15 +247,15 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
             method.addAnnotation(sb);
 
             //构造一条permission插入语句
-            Map<String,String> map = new LinkedHashMap<>();
-            map.put(l1,introspectedTable.getContext().getModuleName());
-            map.put(l2,introspectedTable.getRemarks(true));
-            map.put(l3,nameKey);
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put(l1, introspectedTable.getContext().getModuleName());
+            map.put(l2, introspectedTable.getRemarks(true));
+            map.put(l3, nameKey);
             JavaBeansUtil.setPermissionSqlData(introspectedTable, map);
         }
     }
 
-    protected void addCacheEvictAnnotation(Method method,TopLevelClass parentElement){
+    protected void addCacheEvictAnnotation(Method method, TopLevelClass parentElement) {
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
@@ -261,15 +264,16 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
         }
     }
 
-    protected String getServiceMethodEntityParameter(boolean isMulti,String methodType){
+    protected String getServiceMethodEntityParameter(boolean isMulti, String methodType) {
         if ("create".equals(methodType) && introspectedTable.getRules().isGenerateCreateVO()) {
-            return VStringUtil.format("mappings.from{0}CreateVO{2}({1}CreateVO{2})", entityType.getShortName(),entityType.getShortNameFirstLowCase(),isMulti?"s":"");
-        }if ("update".equals(methodType) && introspectedTable.getRules().isGenerateUpdateVO()) {
-            return VStringUtil.format("mappings.from{0}UpdateVO{2}({1}UpdateVO{2})", entityType.getShortName(),entityType.getShortNameFirstLowCase(),isMulti?"s":"");
-        }else if (introspectedTable.getRules().isGenerateVoModel()){
-            return VStringUtil.format("mappings.from{0}VO{2}({1}VO{2})", entityType.getShortName(),entityType.getShortNameFirstLowCase(),isMulti?"s":"");
-        }else{
-            return entityType.getShortNameFirstLowCase()+(isMulti?"s":"");
+            return VStringUtil.format("mappings.from{0}CreateVO{2}({1}CreateVO{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
+        }
+        if ("update".equals(methodType) && introspectedTable.getRules().isGenerateUpdateVO()) {
+            return VStringUtil.format("mappings.from{0}UpdateVO{2}({1}UpdateVO{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
+        } else if (introspectedTable.getRules().isGenerateVoModel()) {
+            return VStringUtil.format("mappings.from{0}VO{2}({1}VO{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
+        } else {
+            return entityType.getShortNameFirstLowCase() + (isMulti ? "s" : "");
         }
     }
 
@@ -281,16 +285,16 @@ public abstract class AbstractControllerElementGenerator  extends AbstractGenera
      * methodType 方法的类型，get、put、post、delete等
      * returnFqt 返回的类型或泛型类型。如果null是按照方法类型进行计算vo对象
      * parentElement 父级方法的父类
-     * */
-    public static class MethodParameterDescript{
-        private  boolean isValid = false;
+     */
+    public static class MethodParameterDescript {
+        private boolean isValid = false;
         private boolean isRequestBody = false;
         private boolean isList = false;
         private String methodType;
         private FullyQualifiedJavaType returnFqt;
         private TopLevelClass parentElement;
 
-        public MethodParameterDescript(TopLevelClass parentElement,String methodType){
+        public MethodParameterDescript(TopLevelClass parentElement, String methodType) {
             this.parentElement = parentElement;
             this.methodType = methodType;
         }

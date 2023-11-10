@@ -374,7 +374,7 @@
           9、enableSplit 允许取消关联（中间表删除数据）
           10、enableUnion 允许新建关联（中间表插入数据）
         -->
-        <!ELEMENT selectByTable EMPTY>
+        <!ELEMENT selectByTable (enableCache?)>
         <!ATTLIST selectByTable
                 table CDATA #REQUIRED
                 thisColumn CDATA #REQUIRED
@@ -386,6 +386,19 @@
                 parameterType (single|list) #IMPLIED
                 enableSplit (true|false) #IMPLIED
                 enableUnion (true|false) #IMPLIED>
+        <!--
+            是否启用缓存的配置
+            如果启用缓存则会生成缓存的注解，同时会生成缓存的清除方法
+            说明：如果启用缓存，需要在启动类上增加@EnableCaching注解
+            属性信息：
+            1、enable 是否启用缓存，true-启用，false-不启用
+            2、cacheNames 缓存名称，多个”,“分隔。如果不指定，则会自动根据方法进行计算。
+        -->
+        <!ELEMENT enableCache EMPTY>
+        <!ATTLIST enableCache
+                enable (true|false) #IMPLIED
+                cacheNames CDATA #IMPLIED>
+
         <!--
           基于字段的查询方法 （如果指定为单列可以作为javaModelCollection的子查询实现多表查询方法）
           增加该属性会为每个字段生成SelectByColumnXXXX的查询方法。

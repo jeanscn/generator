@@ -790,7 +790,35 @@ public class MyBatisGeneratorConfigurationParser {
             selectByTableGeneratorConfiguration.setParameterType(parameterType);
         }
 
+        //计算子元素
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (childNode.getNodeName()) {
+                case PropertyRegistry.ELEMENT_ENABLE_CACHE:
+                    EnableCacheConfiguration enableCacheConfiguration = parseEnableCache(childNode);
+                    selectByTableGeneratorConfiguration.getCacheConfigurationList().add(enableCacheConfiguration);
+                    break;
+            }
+        }
         tc.addSelectByTableGeneratorConfiguration(selectByTableGeneratorConfiguration);
+    }
+
+    private EnableCacheConfiguration parseEnableCache(Node node) {
+        EnableCacheConfiguration enableCacheConfiguration = new EnableCacheConfiguration();
+        Properties attributes = parseAttributes(node);
+        String enableCache = attributes.getProperty("enableCache");
+        if (stringHasValue(enableCache)) {
+            enableCacheConfiguration.setEnableCache(Boolean.parseBoolean(enableCache));
+        }
+        String cacheNames = attributes.getProperty("cacheNames");
+        if (stringHasValue(cacheNames)) {
+            enableCacheConfiguration.setCacheNames(spiltToList(cacheNames));
+        }
+        return enableCacheConfiguration;
     }
 
     private void parseSelectByColumn(TableConfiguration tc, Node node) {

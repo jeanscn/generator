@@ -20,6 +20,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     public abstract List<CompilationUnit> getCompilationUnits();
 
     protected final String project;
+
     protected AbstractJavaGenerator(String project) {
         super();
         this.project = project;
@@ -123,7 +124,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         topLevelClass.addAnnotation("@CacheConfig(cacheManager = CACHE_MANAGER_NAME)");
     }
 
-    protected void addInitialization(List<IntrospectedColumn> columns,InitializationBlock initializationBlock, TopLevelClass topLevelClass){
+    protected void addInitialization(List<IntrospectedColumn> columns, InitializationBlock initializationBlock, TopLevelClass topLevelClass) {
         //在静态代码块中添加默认值
         final List<String> defaultFields = new ArrayList<>();
         topLevelClass.getSuperClass().ifPresent(s -> {
@@ -141,7 +142,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                     topLevelClass.addImportedType(V_DATE_UTILS);
                 } else if (c.isJdbcCharacterColumn()) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), c.getDefaultValue()));
-                } else if(c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")){
+                } else if (c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.math.BigDecimal"));
                 } else {
@@ -149,5 +150,42 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 }
             }
         });
+    }
+
+    /**
+     * 内部方法：获得生成属性的列
+     */
+    protected List<IntrospectedColumn> getColumnsInThisClass() {
+        List<IntrospectedColumn> introspectedColumns;
+        if (includePrimaryKeyColumns()) {
+            if (includeBLOBColumns()) {
+                introspectedColumns = introspectedTable.getAllColumns();
+            } else {
+                introspectedColumns = introspectedTable.getNonBLOBColumns();
+            }
+        } else {
+            if (includeBLOBColumns()) {
+                introspectedColumns = introspectedTable.getNonPrimaryKeyColumns();
+            } else {
+                introspectedColumns = introspectedTable.getBaseColumns();
+            }
+        }
+
+        return introspectedColumns;
+    }
+
+    /**
+     * 内部方法：是否包含主键列
+     */
+    protected boolean includePrimaryKeyColumns() {
+        return !introspectedTable.getRules().generatePrimaryKeyClass() && introspectedTable.hasPrimaryKeyColumns();
+    }
+
+    /**
+     * 内部方法：是否包含大字段列
+     */
+    protected boolean includeBLOBColumns() {
+        return !introspectedTable.getRules().generateRecordWithBLOBsClass()
+                && introspectedTable.hasBLOBColumns();
     }
 }

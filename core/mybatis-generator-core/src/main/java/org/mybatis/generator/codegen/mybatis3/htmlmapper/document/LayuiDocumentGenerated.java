@@ -62,6 +62,10 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         HtmlElement isWorkflow = generateHtmlInput("workflowEnabled", true, false);
         isWorkflow.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.workflowEnabled}?:0"));
         content.addElement(isWorkflow);
+        /* 添加公共属性 */
+        HtmlElement coreSub = new HtmlElement("div");
+        coreSub.addAttribute(new Attribute("th:replace", "vgoweb/fragments/vgocoresub.html::vgocoresub"));
+        content.addElement(coreSub);
         generateLayuiToolbar(content);
 
         String fileName = Arrays.stream(htmlGeneratorConfiguration.getViewPath().split("[/\\\\]"))

@@ -107,6 +107,7 @@ public class PropertyRegistry {
     public static final String TABLE_ENABLE_INSERT_OR_UPDATE = "enableInsertOrUpdate";
     public static final String TABLE_ENABLE_FILE_UPLOAD = "enableFileUpLoad";
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
+    public static final String ELEMENT_ENABLE_CACHE = "enableCache";
 
     public static final String ELEMENT_HTML_ELEMENT_INNER_LIST = "htmlElementInnerList";
 

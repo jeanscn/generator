@@ -104,6 +104,10 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             String moduleKeyword = VStringUtil.stringHasValue(listConfiguration.getModuleKeyword()) ? listConfiguration.getModuleKeyword() : introspectedTable.getContext().getModuleKeyword();
 
         }
+        /* 添加公共属性 */
+        HtmlElement coreSub = new HtmlElement("div");
+        coreSub.addAttribute(new Attribute("th:replace", "vgoweb/fragments/vgocoresub.html::vgocoresub"));
+        body.get("body").addElement(coreSub);
         return true;
     }
 

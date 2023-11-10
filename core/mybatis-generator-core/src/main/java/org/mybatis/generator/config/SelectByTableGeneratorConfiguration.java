@@ -4,6 +4,9 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     private String tableName;
@@ -31,6 +34,8 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
     private IntrospectedColumn otherColumn;
 
     private String parameterType = "single";
+
+    private final List<EnableCacheConfiguration> cacheConfigurationList = new ArrayList<>();
 
     public SelectByTableGeneratorConfiguration() {
         super();
@@ -162,5 +167,9 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     public void setParameterType(String parameterType) {
         this.parameterType = parameterType;
+    }
+
+    public List<EnableCacheConfiguration> getCacheConfigurationList() {
+        return cacheConfigurationList;
     }
 }

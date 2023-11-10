@@ -173,12 +173,11 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
         bizClazzImpl.setSuperClass(bizGenClazzImpl.getType());
         bizClazzImpl.addSuperInterface(superINF.getType());
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        boolean match = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(c -> !c.getCacheConfigurationList().isEmpty());
+        if (introspectedTable.getRules().isGenerateCachePO() || match) {
             addCacheConfig(bizClazzImpl);
         }
-
         StringBuilder sb = new StringBuilder();
-
         /*是否添加@Service注解*/
         boolean noServiceAnnotation = introspectedTable.getRules().isNoServiceAnnotation();
         if (!noServiceAnnotation) {
@@ -315,7 +314,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         if (introspectedTable.getRules().generateInsert()
                 && (relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
-                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))){
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new InsertSelectiveElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

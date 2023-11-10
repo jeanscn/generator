@@ -233,21 +233,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
     }
 
     /**
-     * 内部方法：是否包含主键列
-     */
-    private boolean includePrimaryKeyColumns() {
-        return !introspectedTable.getRules().generatePrimaryKeyClass() && introspectedTable.hasPrimaryKeyColumns();
-    }
-
-    /**
-     * 内部方法：是否包含大字段列
-     */
-    private boolean includeBLOBColumns() {
-        return !introspectedTable.getRules().generateRecordWithBLOBsClass()
-                && introspectedTable.hasBLOBColumns();
-    }
-
-    /**
      * 内部方法：增加带参构造器
      */
     private void addParameterizedConstructor(TopLevelClass topLevelClass, List<IntrospectedColumn> constructorColumns) {
@@ -293,28 +278,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         }
 
         topLevelClass.addMethod(method);
-    }
-
-    /**
-     * 内部方法：获得生成属性的列
-     */
-    private List<IntrospectedColumn> getColumnsInThisClass() {
-        List<IntrospectedColumn> introspectedColumns;
-        if (includePrimaryKeyColumns()) {
-            if (includeBLOBColumns()) {
-                introspectedColumns = introspectedTable.getAllColumns();
-            } else {
-                introspectedColumns = introspectedTable.getNonBLOBColumns();
-            }
-        } else {
-            if (includeBLOBColumns()) {
-                introspectedColumns = introspectedTable.getNonPrimaryKeyColumns();
-            } else {
-                introspectedColumns = introspectedTable.getBaseColumns();
-            }
-        }
-
-        return introspectedColumns;
     }
 
     /**
