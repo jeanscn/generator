@@ -54,12 +54,16 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
-        method.addBodyLine("ServiceResult<List<{0}>> result  = {1}.selectByExample(example);",
+        method.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectByExample(example);",
                 entityType.getShortName(), serviceBeanName);
-        method.addBodyLine("List<{0}> list = mappings.to{0}s(result.getResult());",
+        method.addBodyLine("List<{0}> list = mappings.to{0}s(result.getResult()).stream()",
                 entityExcelVoType.getShortName());
+        method.addBodyLine("        .map(JsonUtil::serializeObject)\n" +
+                "                .collect(Collectors.toList());");
         method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list);",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
+        parentElement.addImportedType("java.util.stream.Collectors");
+        parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
     }
 
 

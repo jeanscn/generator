@@ -1043,7 +1043,18 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(generate)) {
             htmlFileAttachmentConfiguration.setGenerate(Boolean.parseBoolean(generate));
         }
-
+        String multiple = attributes.getProperty("multiple");
+        if (stringHasValue(multiple)) {
+            htmlFileAttachmentConfiguration.setMultiple(Boolean.parseBoolean(multiple));
+        }
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            htmlFileAttachmentConfiguration.setType(type);
+        }
+        String basePath = attributes.getProperty("restBasePath");
+        if (stringHasValue(basePath)) {
+            htmlFileAttachmentConfiguration.setBasePath(basePath);
+        }
         String exclusive = attributes.getProperty("exclusive");
         if (stringHasValue(exclusive)) {
             htmlFileAttachmentConfiguration.setExclusive(Boolean.parseBoolean(exclusive));

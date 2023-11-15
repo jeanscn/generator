@@ -10,6 +10,12 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     private boolean exclusive = true;
 
+    private boolean multiple = true;
+
+    private String type = "file";
+
+    private String basePath = "/bizcore/vbiz-file-attachment-impl";
+
     private String label = "附件";
 
     private String afterColumn;
@@ -45,5 +51,29 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public boolean isMultiple() {
+        return multiple;
+    }
+
+    public void setMultiple(boolean multiple) {
+        this.multiple = multiple;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 }

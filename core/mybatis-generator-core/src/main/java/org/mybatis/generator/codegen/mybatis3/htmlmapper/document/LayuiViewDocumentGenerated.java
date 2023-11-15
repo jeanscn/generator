@@ -226,11 +226,13 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
                 //添加附件
                 if (beforeElement.get() != null && rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> beforeElement.get().equals(col))) {
                     String label = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getLabel();
+                    String type = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getType();
+                    String basePath = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getBasePath();
                     HtmlElement atr = new HtmlElement("tr");
                     HtmlElement td = new HtmlElement("td");
                     td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
                     HtmlElement div = new HtmlElement("div");
-                    div.addAttribute(new Attribute("th:replace", "subpages/webjarsPluginsRequired2.html::fileAttachmentFragment('" + label + "')"));
+                    div.addAttribute(new Attribute("th:replace", "subpages/webjarsPluginsRequired2.html::commonAttachmentFragment('" + label + "','"+type+"','"+basePath+"')"));
                     table.addElement(atr);
                     atr.addElement(td);
                     td.addElement(div);
@@ -343,11 +345,13 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         persistenceBeanName.addAttribute(new Attribute("th:value", sb.toString()));
         form.addElement(persistenceBeanName);
         /*添加工作流内容*/
+        HtmlElement div = new HtmlElement("div");
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            HtmlElement div = new HtmlElement("div");
             div.addAttribute(new Attribute("th:replace", "vgowf/jsp/workflowsubjsp.html::workflowsubjsp"));
-            form.addElement(div);
+        }else{
+            div.addAttribute(new Attribute("th:replace", "vgoweb/fragments/vgocoresub.html::vgocoresubjsp"));
         }
+        form.addElement(div);
         return form;
     }
 

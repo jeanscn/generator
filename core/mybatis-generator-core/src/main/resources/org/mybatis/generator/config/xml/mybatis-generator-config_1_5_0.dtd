@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2301009001-->
+        <!--version:1.5.0.2301115001-->
         <!--
         几个通用的xml实体
         -->
-        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
+        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ENTITY % tagType "(input|dropdownlist|radio|checkbox|switch|date|select)" >
         <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|InnerList)" >
         <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|日期|日期时间|时间)" >
@@ -679,13 +679,21 @@
             为页面添加一个附件上传组件
             属性信息：
             1、generate 是否生成附件上传组件，true-生成，false-不生成。默认为true
-            2、label 附件上传组件的标题，默认为“附件”
-            3、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            2、multiple 是否允许多附件上传，默认为true
+            3、type 附件上传组件的类型，file-使用业务附件表保存文件，table-指定附件表保存，local-本地存储，oss-云oss存储。默认为file
+            4、restBasePath 附件上传组件的基础路径，用于指定附件上传的基础路径。
+            5、label 附件上传组件的标题，默认为“附件”
+            6、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            说明：
+            1、当type为table或local时需要指定一个restBasePath，用于指定附件上传的基础路径，既一个存储表的基础访问路径。
 
         -->
         <!ELEMENT htmlFileAttachment EMPTY>
         <!ATTLIST htmlFileAttachment
                 generate (true|false) #IMPLIED
+                multiple (true|false) #IMPLIED
+                type (file|table|local|oss) #IMPLIED
+                restBasePath CDATA #IMPLIED
                 label  CDATA #IMPLIED
                 afterColumn CDATA #IMPLIED>
 

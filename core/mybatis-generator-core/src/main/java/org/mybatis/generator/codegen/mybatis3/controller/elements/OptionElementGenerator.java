@@ -97,7 +97,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
             pMethod.addBodyLine("FormSelectTreeOption formSelectTreeOption = new FormSelectTreeOption({0}.{2}(), {0}.{1}(), selected);",
                     entityType.getShortNameFirstLowCase(),getterMethodName,idGetterName);
             commentGenerator.addMethodJavaDocLine(pMethod, true, "内部方法：递归处理用");
-            pMethod.addBodyLine("if ({0}.getChildren().size()>0) '{'",entityType.getShortNameFirstLowCase());
+            pMethod.addBodyLine("if ({0}.getChildren().isEmpty()) '{'",entityType.getShortNameFirstLowCase());
             pMethod.addBodyLine("formSelectTreeOption.setParent(true);");
             pMethod.addBodyLine("List<FormSelectTreeOption> collect = {0}.getChildren().stream()",entityType.getShortNameFirstLowCase());
             pMethod.addBodyLine("        .sorted(Comparator.comparing({0}::getSort))",entityType.getShortName());
