@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AutoImportedSourceRoots">
+    <option name="directories">
+      <list>
+        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/main/java" />
+        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/main/kotlin" />
+        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/test/java" />
+        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/test/kotlin" />
+      </list>
+    </option>
+  </component>
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration />
+    </facet>
+  </component>
+</module>
