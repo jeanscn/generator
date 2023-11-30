@@ -3,7 +3,7 @@
         <!--
         几个通用的xml实体
         -->
-        <!ENTITY % renderFunValues "(colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
+        <!ENTITY % renderFunValues "(colDefsOdata|colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsAsLink_readonly|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ENTITY % tagType "(input|dropdownlist|radio|checkbox|switch|date|select)" >
         <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|InnerList)" >
         <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|日期|日期时间|时间)" >

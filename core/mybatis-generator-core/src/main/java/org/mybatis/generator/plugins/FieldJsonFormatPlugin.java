@@ -25,32 +25,47 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-       return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+       addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addDateTimeFormat(field, topLevelClass, introspectedColumn);
+       return true;
     }
 
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addDateTimeFormat(field, topLevelClass, introspectedColumn);
+        return true;
     }
 
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addDateTimeFormat(field, topLevelClass, introspectedColumn);
+        return true;
     }
 
     @Override
     public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        return true;
     }
 
     @Override
     public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addDateTimeFormat(field, topLevelClass, introspectedColumn);
+        return true;
     }
 
-    private boolean addJsonFieldFormat(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
+    @Override
+    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        addDateTimeFormat(field, topLevelClass, introspectedColumn);
+        return true;
+    }
+
+    private void addJsonFieldFormat(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
         if (introspectedColumn == null) {
-            return true;
+            return;
         }
         //添加日期序列化格式注解
         String datePattern = introspectedColumn.getDatePattern();
@@ -60,6 +75,17 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
             topLevelClass.addImportedType("com.alibaba.fastjson2.annotation.JSONField");
             field.addAnnotation("@JSONField(format = \"" + datePattern + "\")");
         }
-        return true;
+    }
+
+    private void addDateTimeFormat(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
+        if (introspectedColumn == null) {
+            return;
+        }
+        //添加日期序列化格式注解
+        String datePattern = introspectedColumn.getDatePattern();
+        if (StringUtility.stringHasValue(datePattern)) {
+            topLevelClass.addImportedType("org.springframework.format.annotation.DateTimeFormat");
+            field.addAnnotation("@DateTimeFormat(pattern = \"" + datePattern + "\")");
+        }
     }
 }
