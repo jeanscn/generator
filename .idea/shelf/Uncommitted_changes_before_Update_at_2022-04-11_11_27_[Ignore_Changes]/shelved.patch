@@ -1,0 +1,40 @@
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/core/mybatis-generator-systests-common/target/\r\n/core/mybatis-generator-maven-plugin/target/\r\n/core/mybatis-generator-systests-domtests/target/\r\n/core/mybatis-generator-systests-mybatis3/target/\r\n/core/mybatis-generator-core/target/\r\ndemo-mybatisplus/src/main/java/com/vgosoft/demomybatisplus/config/SwaggerGenerate.java\r\ndemo-mybatisplus/src/main/java/com/vgosoft/demomybatisplus/DemoMybatisplusApplication.java\r\ndemo-mybatisplus/src/main/resources/application.yml\r\ndemo-mybatisplus/src/main/resources/generatorConfig.xml\r\ndemo-mybatisplus/src/test/java/com/vgosoft/demomybatisplus/DemoMybatisplusApplicationTests.java\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.gitignore b/.gitignore
+--- a/.gitignore	(revision 6baf26ad050f18df6e195b13f9dfd82eb4e39a2b)
++++ b/.gitignore	(date 1649624231835)
+@@ -8,3 +8,14 @@
+ demo-mybatisplus/src/main/resources/application.yml
+ demo-mybatisplus/src/main/resources/generatorConfig.xml
+ demo-mybatisplus/src/test/java/com/vgosoft/demomybatisplus/DemoMybatisplusApplicationTests.java
++.idea/compiler.xml
++.idea/jarRepositories.xml
++.idea/misc.xml
++.idea/modules.xml
++.idea/workspace.xml
++*.iml
++.idea/compiler.xml
++.idea/jarRepositories.xml
++.idea/misc.xml
++.idea/modules.xml
++.idea/workspace.xml
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_25__Ignore_Changes_.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_25__Ignore_Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_25__Ignore_Changes_.xml
+new file mode 100644
+--- /dev/null	(date 1649647575371)
++++ b/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_25__Ignore_Changes_.xml	(date 1649647575371)
+@@ -0,0 +1,4 @@
++<changelist name="Uncommitted_changes_before_Update_at_2022-04-11_11_25_[Ignore_Changes]" date="1649647512639" recycled="false" toDelete="true">
++  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_25_[Ignore_Changes]/shelved.patch" />
++  <option name="DESCRIPTION" value="Uncommitted changes before Update at 2022-04-11 11:25 [Ignore Changes]" />
++</changelist>
+\ No newline at end of file
