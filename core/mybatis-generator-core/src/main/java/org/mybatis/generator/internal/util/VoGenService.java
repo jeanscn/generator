@@ -209,15 +209,19 @@ public class VoGenService {
                     field.setRemark(configuration.getRemark()!=null?configuration.getRemark():sourceColumn.getRemarks(true));
                 }
                 field.setVisibility(JavaVisibility.PRIVATE);
+
+
                 String annotation = null;
                 if ("DictUser".equals(configuration.getAnnotationType())) {
                     DictUser anno = configuration.getTypeValue() != null ? new DictUser(configuration.getTypeValue()) : new DictUser();
                     anno.setSource(sourceColumn.getJavaProperty());
                     anno.addAnnotationToField(field, topLevelClass);
+                    field.setInitializationString("\"-\"");
                 } else if ("DictSys".equals(configuration.getAnnotationType())) {
                     DictSys anno = configuration.getTypeValue() != null ? new DictSys(configuration.getTypeValue()) : new DictSys();
                     anno.setSource(sourceColumn.getJavaProperty());
                     anno.addAnnotationToField(field, topLevelClass);
+                    field.setInitializationString("\"-\"");
                 } else if ("Dict".equals(configuration.getAnnotationType()) && configuration.getBeanName() != null) {
                     Dict anno = new Dict(configuration.getBeanName());
                     if (configuration.getTypeValue() != null) {
@@ -228,6 +232,7 @@ public class VoGenService {
                     }
                     anno.setSource(sourceColumn.getJavaProperty());
                     anno.addAnnotationToField(field, topLevelClass);
+                    field.setInitializationString("\"-\"");
                 }
                 if (ModelClassTypeEnum.modelClass.equals(type) && configuration.getAnnotationType().contains("Dict")) {
                     if (!topLevelClass.getAnnotations().contains("@EnableDictionary")) {

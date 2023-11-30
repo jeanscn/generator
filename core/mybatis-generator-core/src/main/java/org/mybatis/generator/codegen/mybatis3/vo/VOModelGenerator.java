@@ -29,10 +29,10 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
 public class VOModelGenerator extends AbstractVOGenerator {
 
     public VOModelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
-    public TopLevelClass generate(){
+    public TopLevelClass generate() {
         VOModelGeneratorConfiguration voModelGeneratorConfiguration = voGeneratorConfiguration.getVoModelConfiguration();
         String voType = voModelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass voClass = createTopLevelClass(voType, getAbstractVOType().getFullyQualifiedName());

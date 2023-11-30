@@ -102,19 +102,19 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
             if (c.isFinal()) {
                 field.setFinal(true);
             }
-            if (c.getTypeArguments().size() > 0) {
+            if (!c.getTypeArguments().isEmpty()) {
                 for (String typeArgument : c.getTypeArguments()) {
                     type.addTypeArgument(new FullyQualifiedJavaType(typeArgument));
                     this.addImportedType(typeArgument);
                 }
             }
-            if (c.getAnnotations().size()>0) {
+            if (!c.getAnnotations().isEmpty()) {
                 c.getAnnotations().forEach(field::addAnnotation);
             }
             if (StringUtility.stringHasValue(c.getInitializationString())) {
                 field.setInitializationString(c.getInitializationString());
             }
-            if (c.getImportedTypes().size() > 0) {
+            if (!c.getImportedTypes().isEmpty()) {
                 c.getImportedTypes().forEach(this::addImportedType);
             }
             field.setRemark(c.getRemark());
