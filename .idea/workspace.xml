@@ -19,16 +19,62 @@
       <option value="module" />
     </option>
   </component>
+  <component name="ExportToHTMLSettings">
+    <option name="printScope" value="1" />
+    <option name="OUTPUT_DIRECTORY" value="E:/111" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="Interface" />
+        <option value="JavaScript File" />
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="91b4b645-8810-488b-bd2d-781f641c44a5" />
+        <option name="url" value="https://github.com/jeanscn/generator.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
         <option name="localRepository" value="D:\MavenRepo\local" />
-        <option name="mavenHome" value="E:/java/apache-maven-3.6.3" />
-        <option name="userSettingsFile" value="E:/java/apache-maven-3.6.3\conf\settings.xml" />
+        <option name="mavenHome" value="E:/java/apache-maven-3.9.0" />
+        <option name="userSettingsFile" value="E:\java\apache-maven-3.9.0\conf\settings.xml" />
       </MavenGeneralSettings>
+    </option>
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="downloadAnnotationsAutomatically" value="true" />
+        <option name="downloadDocsAutomatically" value="true" />
+        <option name="downloadSourcesAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+    <option name="enabledProfiles">
+      <list>
+        <option value="release" />
+      </list>
     </option>
     <option name="disabledProfiles">
       <list>
@@ -36,7 +82,21 @@
       </list>
     </option>
   </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="8" />
+    <option name="skipTests" value="true" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="27bCEpsdgtpBq5xe9rIDkbuBVc9" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="abbreviatePackageNames" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -711,33 +771,33 @@
       <option name="project" value="LOCAL" />
       <updated>1666652868344</updated>
     </task>
-    <task id="LOCAL-00001" summary="合并官方源码142">
-      <created>1649623804083</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
+    <task id="LOCAL-00040" summary="deleteByTable返回,otherColumn列名未计算">
+      <created>1666947667875</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
       <option name="project" value="LOCAL" />
-      <updated>1649623804083</updated>
+      <updated>1666947667876</updated>
     </task>
-    <task id="LOCAL-00002" summary="合并官方源码142">
-      <created>1649623934192</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
+    <task id="LOCAL-00041" summary="Changes">
+      <created>1676985959336</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
       <option name="project" value="LOCAL" />
-      <updated>1649623934192</updated>
+      <updated>1676985959336</updated>
     </task>
-    <task id="LOCAL-00003" summary="合并官方源码142">
-      <created>1649647591598</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
+    <task id="LOCAL-00042" summary="完善生成附加属性的各实体中的注解添加">
+      <created>1677490111933</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
       <option name="project" value="LOCAL" />
-      <updated>1649647591598</updated>
+      <updated>1677490111933</updated>
     </task>
-    <task id="LOCAL-00004" summary="合并官方源码142">
-      <created>1649647889904</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
+    <task id="LOCAL-00043" summary="Changes">
+      <created>1678202832207</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
       <option name="project" value="LOCAL" />
-      <updated>1649647889904</updated>
+      <updated>1678202832207</updated>
     </task>
     <task id="LOCAL-00044" summary="Changes">
       <created>1680049023546</created>
@@ -897,8 +957,38 @@
     </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="11692b05-a7af-423c-90d9-5db271e0422b" value="TOOL_WINDOW" />
+      </map>
+    </option>
     <option name="TAB_STATES">
       <map>
+        <entry key="11692b05-a7af-423c-90d9-5db271e0422b">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:D:/java/idea_projs4/generator/core" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+            </State>
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State>
