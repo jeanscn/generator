@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="增加页面当前用户信息隐藏字段" />
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="增加页面当前用户信息隐藏字段">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_27_[Ignore_Changes]/shelved.patch" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_27_[Ignore_Changes]/shelved.patch" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/在进行签出之前于_2023-12-01_9_53_取消提交了更改_[Ignore_Changes]/shelved.patch" beforeDir="false" />
+    </list>
     <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,6 +182,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.XmlCodeGenerationTest.testXmlParse" />
+        <item itemvalue="JUnit.XmlCodeGenerationTest.testXmlParse" />
         <item itemvalue="JUnit.XmlCodeGenerationTest.testXmlParse" />
       </list>
     </recent_temporary>
