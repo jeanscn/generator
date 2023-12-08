@@ -3,11 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/generator.iml" filepath="$PROJECT_DIR$/.idea/generator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/mybatis-generator.iml" filepath="$PROJECT_DIR$/core/mybatis-generator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/mybatis-generator-core/mybatis-generator-core.iml" filepath="$PROJECT_DIR$/core/mybatis-generator-core/mybatis-generator-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/mybatis-generator-maven-plugin/mybatis-generator-maven-plugin.iml" filepath="$PROJECT_DIR$/core/mybatis-generator-maven-plugin/mybatis-generator-maven-plugin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/mybatis-generator-systests-common/mybatis-generator-systests-common.iml" filepath="$PROJECT_DIR$/core/mybatis-generator-systests-common/mybatis-generator-systests-common.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/mybatis-generator-systests-domtests/mybatis-generator-systests-domtests.iml" filepath="$PROJECT_DIR$/core/mybatis-generator-systests-domtests/mybatis-generator-systests-domtests.iml" />
     </modules>
   </component>
 </project>

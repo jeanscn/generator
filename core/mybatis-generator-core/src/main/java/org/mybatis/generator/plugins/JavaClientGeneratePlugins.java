@@ -50,10 +50,8 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
             topLevelClass.addAnnotation("@NoArgsConstructor");
         }
         if (topLevelClass.getSuperClass().isPresent()) {
-            topLevelClass.addAnnotation("@EqualsAndHashCode(callSuper = true)");
             topLevelClass.addAnnotation("@ToString(callSuper = true)");
         }else{
-            topLevelClass.addAnnotation("@EqualsAndHashCode");
             topLevelClass.addAnnotation("@ToString");
         }
 

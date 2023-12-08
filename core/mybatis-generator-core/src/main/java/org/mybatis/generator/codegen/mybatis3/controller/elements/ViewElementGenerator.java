@@ -54,7 +54,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         //函数体
         sb.append("ModelAndView mv = new ModelAndView();");
         method.addBodyLine(sb.toString());
-        method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
+        //method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
         method.addBodyLine("{0} object = null;", entityName);
         method.addBodyLine("if (viewParam.getId() != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(viewParam.getId());", entityType.getShortName(), serviceBeanName));
@@ -127,7 +127,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("return mv;");
 
         parentElement.addImportedType("com.vgosoft.tool.core.VReflectionUtil");
-        parentElement.addImportedType("com.vgosoft.web.utils.JsonUtil");
+        parentElement.addImportedType("com.vgosoft.core.util.JsonUtil");
         parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
         parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
         parentElement.addImportedType("java.util.Optional");

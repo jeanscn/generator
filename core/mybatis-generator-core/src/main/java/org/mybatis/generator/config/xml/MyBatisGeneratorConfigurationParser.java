@@ -652,7 +652,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(columnComment)) {
             co.setColumnComment(columnComment);
         }
-
+        String columnSubComment = attributes.getProperty("columnSubComment");
+        if (stringHasValue(columnSubComment)) {
+            co.setColumnSubComment(columnSubComment);
+        }
         parseChildNodeOnlyProperty(co, node);
         tc.addColumnOverride(co);
     }

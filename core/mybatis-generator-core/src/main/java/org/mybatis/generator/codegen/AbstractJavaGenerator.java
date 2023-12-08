@@ -134,9 +134,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             }
         });
         columns.forEach(c -> {
-            if (c.getDefaultValue() != null && VStringUtil.stringHasValue(c.getDefaultValue())
-                    && !c.getDefaultValue().equalsIgnoreCase("null")
-                    && !defaultFields.contains(c.getJavaProperty())) {
+            if (c.getDefaultValue() != null  && !c.getDefaultValue().equalsIgnoreCase("null") && !defaultFields.contains(c.getJavaProperty())) {
                 if (c.getDefaultValue().equals("CURRENT_TIMESTAMP")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);

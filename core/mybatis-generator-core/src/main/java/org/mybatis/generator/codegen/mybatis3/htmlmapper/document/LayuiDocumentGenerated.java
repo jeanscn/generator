@@ -462,11 +462,27 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         } else if(!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.codeName())){
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         }
+        String labelText;
         OverridePropertyValueGeneratorConfiguration overrideConfig = voGenService.getOverridePropertyValueConfiguration(introspectedColumn);
         if (overrideConfig != null && overrideConfig.getRemark() != null) {
-            label.addElement(new TextElement(overrideConfig.getRemark()));
+            labelText = overrideConfig.getRemark();
         } else {
-            label.addElement(new TextElement(introspectedColumn.getRemarks(true)));
+            labelText = introspectedColumn.getRemarks(true);
+        }
+        HtmlElement label_p = new HtmlElement("p");
+        if (!introspectedColumn.isNullable()) {
+            label_p.addAttribute(new Attribute("class", "label-text label-required"));
+        }else{
+            label_p.addAttribute(new Attribute("class", "label-text"));
+        }
+        label_p.addElement(new TextElement(labelText));
+        label.addElement(label_p);
+        if (VStringUtil.stringHasValue(introspectedColumn.getSubRemarks())) {
+            HtmlElement label_p2 = new HtmlElement("p");
+            label_p2.addAttribute(new Attribute("class", "label-sub-text"));
+            label_p2.addElement(new TextElement(introspectedColumn.getSubRemarks()));
+            label.addElement(label_p2);
+            label.addAttribute(new Attribute("title", introspectedColumn.getSubRemarks()));
         }
         addCssClassToElement(label, "class-"+introspectedColumn.getActualColumnName());
         //追加样式css

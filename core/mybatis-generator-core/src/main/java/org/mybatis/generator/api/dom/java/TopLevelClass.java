@@ -125,7 +125,6 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                 case "lombok":
                     this.addImportedType("lombok.*");
                     this.addAnnotation("@Data");
-                    this.addAnnotation("@EqualsAndHashCode(callSuper = true)");
                     this.addAnnotation("@ToString(callSuper = true)");
                     break;
                 case "ApiModel":

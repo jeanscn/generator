@@ -63,6 +63,8 @@ public class IntrospectedColumn {
     // any database comment associated with this column. May be null
     protected String remarks;
 
+    protected String subRemarks;
+
     protected String defaultValue;
 
     /**
@@ -484,7 +486,6 @@ public class IntrospectedColumn {
 
     public boolean isRequired() {
         return !this.isNullable() && !this.isAutoIncrement() && !this.isGeneratedColumn() && !this.isSequenceColumn();
-
     }
 
     public boolean isPrimaryKey() {
@@ -493,5 +494,13 @@ public class IntrospectedColumn {
 
     public void setPrimaryKey(boolean primaryKey) {
         isPrimaryKey = primaryKey;
+    }
+
+    public String getSubRemarks() {
+        return subRemarks;
+    }
+
+    public void setSubRemarks(String subRemarks) {
+        this.subRemarks = subRemarks;
     }
 }

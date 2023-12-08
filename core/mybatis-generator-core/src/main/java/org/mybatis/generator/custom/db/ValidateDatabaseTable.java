@@ -125,6 +125,7 @@ public class ValidateDatabaseTable {
         target.setIdentity(source.isIdentity());
         target.setLength(source.getLength());
         target.setRemarks(source.getRemarks(false));
+        target.setSubRemarks(source.getSubRemarks());
         target.setDefaultValue(source.getDefaultValue());
         target.setJdbcTypeName(source.getJdbcTypeName());
         target.setNullable(source.isNullable());

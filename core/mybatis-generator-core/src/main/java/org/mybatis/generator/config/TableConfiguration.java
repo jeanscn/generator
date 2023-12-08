@@ -879,6 +879,9 @@ public class TableConfiguration extends PropertyHolder {
                 if (stringHasValue(columnOverride.getColumnComment())) {
                     column.setRemarks(columnOverride.getColumnComment());
                 }
+                if (stringHasValue(columnOverride.getColumnSubComment())) {
+                    column.setSubRemarks(columnOverride.getColumnSubComment());
+                }
             }
 
             //3、设置是否需要验证的属性

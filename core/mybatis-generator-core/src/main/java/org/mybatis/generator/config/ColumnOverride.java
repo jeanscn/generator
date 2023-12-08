@@ -33,6 +33,8 @@ public class ColumnOverride extends PropertyHolder {
 
     private String columnComment;
 
+    private String columnSubComment;
+
     public ColumnOverride(String columnName) {
         super();
 
@@ -129,5 +131,13 @@ public class ColumnOverride extends PropertyHolder {
 
     public void setColumnComment(String columnComment) {
         this.columnComment = columnComment;
+    }
+
+    public String getColumnSubComment() {
+        return columnSubComment;
+    }
+
+    public void setColumnSubComment(String columnSubComment) {
+        this.columnSubComment = columnSubComment;
     }
 }

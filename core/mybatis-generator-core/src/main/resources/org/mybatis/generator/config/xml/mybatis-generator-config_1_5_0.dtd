@@ -278,6 +278,7 @@
             8、maxLength 列的最大长度，列长度应不大于数据中列的实际长度，同时在生成该字段的验证。
             9、minLength 列的最小长度，列长度应大于1同时小于数据中列的实际长度，同时在生成该字段的验证。
             10、columnComment 列的注释，用于生成字段的label、注释等。
+            11、columnSubComment 列的子注释，用于生成字段的子标签、html中的元素title等。
         -->
         <!ELEMENT columnOverride (property*)>
         <!ATTLIST columnOverride
@@ -290,7 +291,8 @@
                 delimitedColumnName CDATA #IMPLIED
                 maxLength CDATA #IMPLIED
                 minLength CDATA #IMPLIED
-                columnComment  CDATA #IMPLIED>
+                columnComment  CDATA #IMPLIED
+                columnSubComment  CDATA #IMPLIED>
 
         <!--
           The ignoreColumn element is used to identify a column that should be ignored.
