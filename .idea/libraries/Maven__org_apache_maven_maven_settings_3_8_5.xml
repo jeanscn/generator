@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.apache.maven:maven-settings:3.8.5">
+  <library name="Maven: org.apache.maven:maven-settings:3.8.5" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.apache.maven" artifactId="maven-settings" version="3.8.5" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/apache/maven/maven-settings/3.8.5/maven-settings-3.8.5.jar!/" />
     </CLASSES>

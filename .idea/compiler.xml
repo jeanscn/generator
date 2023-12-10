@@ -6,13 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="mybatis-generator-systests-domtests" />
-        <module name="mybatis-generator-systests-mybatis3" />
-        <module name="mybatis-generator-systests-common" />
-        <module name="mybatis-generator-systests-kotlin" />
         <module name="mybatis-generator-core" />
         <module name="mybatis-generator-maven-plugin" />
-        <module name="mybatis-generator-systests-mybatis3-java8" />
+        <module name="mybatis-generator-systests-domtests" />
+        <module name="mybatis-generator-systests-common" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

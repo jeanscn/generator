@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5">
+  <library name="Maven: org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.eclipse.sisu" artifactId="org.eclipse.sisu.inject" version="0.3.5" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.5/org.eclipse.sisu.inject-0.3.5.jar!/" />
     </CLASSES>

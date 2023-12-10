@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: org.springframework.boot:spring-boot-configuration-processor:2.7.5" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.springframework.boot" artifactId="spring-boot-configuration-processor" version="2.7.5" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/springframework/boot/spring-boot-configuration-processor/2.7.5/spring-boot-configuration-processor-2.7.5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/springframework/boot/spring-boot-configuration-processor/2.7.5/spring-boot-configuration-processor-2.7.5-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/springframework/boot/spring-boot-configuration-processor/2.7.5/spring-boot-configuration-processor-2.7.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

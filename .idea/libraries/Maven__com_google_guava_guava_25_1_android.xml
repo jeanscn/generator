@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: com.google.guava:guava:25.1-android">
+  <library name="Maven: com.google.guava:guava:25.1-android" type="java-imported" external-system-id="Maven">
+    <properties groupId="com.google.guava" artifactId="guava" version="25.1-android" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/google/guava/guava/25.1-android/guava-25.1-android.jar!/" />
     </CLASSES>

@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: commons-io:commons-io:2.8.0">
+  <library name="Maven: commons-io:commons-io:2.8.0" type="java-imported" external-system-id="Maven">
+    <properties groupId="commons-io" artifactId="commons-io" version="2.8.0" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/commons-io/commons-io/2.8.0/commons-io-2.8.0.jar!/" />
     </CLASSES>

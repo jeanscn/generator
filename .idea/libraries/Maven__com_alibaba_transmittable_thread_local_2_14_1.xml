@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: com.alibaba:transmittable-thread-local:2.14.1" type="java-imported" external-system-id="Maven">
+    <properties groupId="com.alibaba" artifactId="transmittable-thread-local" version="2.14.1" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/alibaba/transmittable-thread-local/2.14.1/transmittable-thread-local-2.14.1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/alibaba/transmittable-thread-local/2.14.1/transmittable-thread-local-2.14.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/alibaba/transmittable-thread-local/2.14.1/transmittable-thread-local-2.14.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

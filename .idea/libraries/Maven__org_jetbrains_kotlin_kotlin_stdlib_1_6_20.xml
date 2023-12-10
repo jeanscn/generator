@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.6.20">
+  <library name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.6.20" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.jetbrains.kotlin" artifactId="kotlin-stdlib" version="1.6.20" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/jetbrains/kotlin/kotlin-stdlib/1.6.20/kotlin-stdlib-1.6.20.jar!/" />
     </CLASSES>

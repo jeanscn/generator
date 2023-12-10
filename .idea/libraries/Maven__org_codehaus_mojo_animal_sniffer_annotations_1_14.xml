@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.codehaus.mojo:animal-sniffer-annotations:1.14">
+  <library name="Maven: org.codehaus.mojo:animal-sniffer-annotations:1.14" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.codehaus.mojo" artifactId="animal-sniffer-annotations" version="1.14" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar!/" />
     </CLASSES>

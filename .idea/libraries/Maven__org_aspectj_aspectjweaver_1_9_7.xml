@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.aspectj:aspectjweaver:1.9.7">
+  <library name="Maven: org.aspectj:aspectjweaver:1.9.7" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.aspectj" artifactId="aspectjweaver" version="1.9.7" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/aspectj/aspectjweaver/1.9.7/aspectjweaver-1.9.7.jar!/" />
     </CLASSES>

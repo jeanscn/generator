@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: jakarta.annotation:jakarta.annotation-api:2.1.0">
+  <library name="Maven: jakarta.annotation:jakarta.annotation-api:2.1.0" type="java-imported" external-system-id="Maven">
+    <properties groupId="jakarta.annotation" artifactId="jakarta.annotation-api" version="2.1.0" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/jakarta/annotation/jakarta.annotation-api/2.1.0/jakarta.annotation-api-2.1.0.jar!/" />
     </CLASSES>

@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.codehaus.plexus:plexus-utils:3.3.0">
+  <library name="Maven: org.codehaus.plexus:plexus-utils:3.3.0" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.codehaus.plexus" artifactId="plexus-utils" version="3.3.0" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/codehaus/plexus/plexus-utils/3.3.0/plexus-utils-3.3.0.jar!/" />
     </CLASSES>

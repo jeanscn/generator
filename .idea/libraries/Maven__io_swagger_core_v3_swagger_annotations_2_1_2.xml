@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: io.swagger.core.v3:swagger-annotations:2.1.2">
+  <library name="Maven: io.swagger.core.v3:swagger-annotations:2.1.2" type="java-imported" external-system-id="Maven">
+    <properties groupId="io.swagger.core.v3" artifactId="swagger-annotations" version="2.1.2" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/io/swagger/core/v3/swagger-annotations/2.1.2/swagger-annotations-2.1.2.jar!/" />
     </CLASSES>

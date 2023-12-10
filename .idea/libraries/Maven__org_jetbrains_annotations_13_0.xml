@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.jetbrains:annotations:13.0">
+  <library name="Maven: org.jetbrains:annotations:13.0" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.jetbrains" artifactId="annotations" version="13.0" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/jetbrains/annotations/13.0/annotations-13.0.jar!/" />
     </CLASSES>
