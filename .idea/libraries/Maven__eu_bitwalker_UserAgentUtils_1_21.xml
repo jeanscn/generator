@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: eu.bitwalker:UserAgentUtils:1.21">
+  <library name="Maven: eu.bitwalker:UserAgentUtils:1.21" type="java-imported" external-system-id="Maven">
+    <properties groupId="eu.bitwalker" artifactId="UserAgentUtils" version="1.21" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/eu/bitwalker/UserAgentUtils/1.21/UserAgentUtils-1.21.jar!/" />
     </CLASSES>

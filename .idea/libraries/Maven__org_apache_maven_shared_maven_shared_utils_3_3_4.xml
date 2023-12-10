@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.apache.maven.shared:maven-shared-utils:3.3.4">
+  <library name="Maven: org.apache.maven.shared:maven-shared-utils:3.3.4" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.apache.maven.shared" artifactId="maven-shared-utils" version="3.3.4" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/apache/maven/shared/maven-shared-utils/3.3.4/maven-shared-utils-3.3.4.jar!/" />
     </CLASSES>

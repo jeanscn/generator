@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: com.google.inject:guice:no_aop:4.2.2">
+  <library name="Maven: com.google.inject:guice:no_aop:4.2.2" type="java-imported" external-system-id="Maven">
+    <properties groupId="com.google.inject" artifactId="guice" version="4.2.2" classifier="no_aop" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/google/inject/guice/4.2.2/guice-4.2.2-no_aop.jar!/" />
     </CLASSES>

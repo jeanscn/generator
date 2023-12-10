@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.mybatis:mybatis:3.5.9">
+  <library name="Maven: org.mybatis:mybatis:3.5.9" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.mybatis" artifactId="mybatis" version="3.5.9" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/mybatis/mybatis/3.5.9/mybatis-3.5.9.jar!/" />
     </CLASSES>

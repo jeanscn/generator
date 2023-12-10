@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2">
+  <library name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.mybatis.spring.boot" artifactId="mybatis-spring-boot-starter" version="2.2.2" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/mybatis/spring/boot/mybatis-spring-boot-starter/2.2.2/mybatis-spring-boot-starter-2.2.2.jar!/" />
     </CLASSES>

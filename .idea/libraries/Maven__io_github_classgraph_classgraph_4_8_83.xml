@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: io.github.classgraph:classgraph:4.8.83">
+  <library name="Maven: io.github.classgraph:classgraph:4.8.83" type="java-imported" external-system-id="Maven">
+    <properties groupId="io.github.classgraph" artifactId="classgraph" version="4.8.83" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/io/github/classgraph/classgraph/4.8.83/classgraph-4.8.83.jar!/" />
     </CLASSES>

@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.4">
+  <library name="Maven: org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.4" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.apache.maven.plugin-tools" artifactId="maven-plugin-annotations" version="3.6.4" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/apache/maven/plugin-tools/maven-plugin-annotations/3.6.4/maven-plugin-annotations-3.6.4.jar!/" />
     </CLASSES>

@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: org.springframework:spring-context:5.3.23" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.springframework" artifactId="spring-context" version="5.3.23" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/springframework/spring-context/5.3.23/spring-context-5.3.23.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/springframework/spring-context/5.3.23/spring-context-5.3.23-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/org/springframework/spring-context/5.3.23/spring-context-5.3.23-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

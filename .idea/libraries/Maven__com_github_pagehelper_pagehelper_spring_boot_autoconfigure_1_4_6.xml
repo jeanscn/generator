@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: com.github.pagehelper:pagehelper-spring-boot-autoconfigure:1.4.6" type="java-imported" external-system-id="Maven">
+    <properties groupId="com.github.pagehelper" artifactId="pagehelper-spring-boot-autoconfigure" version="1.4.6" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/github/pagehelper/pagehelper-spring-boot-autoconfigure/1.4.6/pagehelper-spring-boot-autoconfigure-1.4.6.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/github/pagehelper/pagehelper-spring-boot-autoconfigure/1.4.6/pagehelper-spring-boot-autoconfigure-1.4.6-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/github/pagehelper/pagehelper-spring-boot-autoconfigure/1.4.6/pagehelper-spring-boot-autoconfigure-1.4.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

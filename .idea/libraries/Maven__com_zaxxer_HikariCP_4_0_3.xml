@@ -1,5 +1,6 @@
 <component name="libraryTable">
-  <library name="Maven: com.zaxxer:HikariCP:4.0.3">
+  <library name="Maven: com.zaxxer:HikariCP:4.0.3" type="java-imported" external-system-id="Maven">
+    <properties groupId="com.zaxxer" artifactId="HikariCP" version="4.0.3" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../../MavenRepo/local/com/zaxxer/HikariCP/4.0.3/HikariCP-4.0.3.jar!/" />
     </CLASSES>
