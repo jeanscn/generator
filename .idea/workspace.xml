@@ -5,27 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="branch about">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_11_31___Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_11_31___Changes_.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/在进行更新之前于_2023-12-01_11_31_取消提交了更改_[Changes]/shelved.patch" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/在进行更新之前于_2023-12-01_11_31_取消提交了更改_[Changes]/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/IntrospectedColumn.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/IntrospectedColumn.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/dom/java/TopLevelClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/api/dom/java/TopLevelClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/AbstractJavaGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/AbstractJavaGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/ExportElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/ExportElementGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/ViewElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/controller/elements/ViewElementGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/document/LayuiDocumentGenerated.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/document/LayuiDocumentGenerated.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/ColumnOverride.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/ColumnOverride.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/ConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/ConfigurationParser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/VgoCommentGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/VgoCommentGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/EqualsHashCodePlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/EqualsHashCodePlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/JavaClientGeneratePlugins.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/JavaClientGeneratePlugins.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_5_0.dtd" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_5_0.dtd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/internal/ObjectFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/internal/ObjectFactory.java" afterDir="false" />
     </list>
     <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -128,32 +111,32 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.XmlCodeGenerationTest.testXmlParse.executor": "Debug",
-    "Maven.mybatis-generator [clean].executor": "Run",
-    "Maven.mybatis-generator [deploy].executor": "Run",
-    "Maven.mybatis-generator [install].executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "extract.method.default.visibility": "public",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/java/idea_projs4/generator/core",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "MavenSettings",
-    "spring.configuration.checksum": "3c0d6ba51a0e8e5e7ee3724f3660977e",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.XmlCodeGenerationTest.testXmlParse.executor&quot;: &quot;Debug&quot;,
+    &quot;Maven.mybatis-generator [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator [deploy].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator [install].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;extract.method.default.visibility&quot;: &quot;public&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/java/idea_projs4/generator/core&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;3c0d6ba51a0e8e5e7ee3724f3660977e&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="org.mybatis.generator.codegen.mybatis3.service.elements" />
@@ -638,7 +621,8 @@
       <workItem from="1701740404175" duration="13068000" />
       <workItem from="1701923905399" duration="98000" />
       <workItem from="1701924957699" duration="1169000" />
-      <workItem from="1702004982719" duration="6802000" />
+      <workItem from="1702004982719" duration="14237000" />
+      <workItem from="1702197035680" duration="2306000" />
     </task>
     <task id="LOCAL-00015" summary="调整context的几个property为attribute">
       <created>1662480978993</created>
@@ -983,7 +967,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="80" />
+    <option name="localTasksCounter" value="81" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
