@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="branch about">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="branch about" />
     <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -620,7 +618,7 @@
       <workItem from="1701924957699" duration="1169000" />
       <workItem from="1702004982719" duration="14237000" />
       <workItem from="1702197035680" duration="2306000" />
-      <workItem from="1702259534857" duration="2443000" />
+      <workItem from="1702259534857" duration="2544000" />
     </task>
     <task id="LOCAL-00015" summary="调整context的几个property为attribute">
       <created>1662480978993</created>
@@ -965,7 +963,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="83" />
+    <option name="localTasksCounter" value="84" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
