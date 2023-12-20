@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="branch about" />
-    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="" />
+    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes">
+      <change afterPath="$PROJECT_DIR$/core/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/.idea/kotlinc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -613,6 +621,10 @@
       <workItem from="1702004982719" duration="14237000" />
       <workItem from="1702197035680" duration="2306000" />
       <workItem from="1702259534857" duration="2544000" />
+      <workItem from="1702267451816" duration="1666000" />
+      <workItem from="1702616688508" duration="627000" />
+      <workItem from="1702617369026" duration="1458000" />
+      <workItem from="1703044903813" duration="4119000" />
     </task>
     <task id="LOCAL-00015" summary="调整context的几个property为attribute">
       <created>1662480978993</created>
@@ -957,7 +969,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="84" />
+    <option name="localTasksCounter" value="88" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -998,7 +1010,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="完善生成附加属性的各实体中的注解添加" />
     <MESSAGE value="优化Vo生成相关类，拆各位多个vo对象生成器" />
     <MESSAGE value="升级至1.5.0" />
     <MESSAGE value="增加ztree接口生成内容。" />
@@ -1022,6 +1033,7 @@
     <MESSAGE value="修改HtmlElementTagTypeEnum枚举" />
     <MESSAGE value="调整视图操作列的操作权限配置" />
     <MESSAGE value="增加页面当前用户信息隐藏字段" />
+    <MESSAGE value="Ignore Changes" />
     <MESSAGE value="branch about" />
     <option name="LAST_COMMIT_MESSAGE" value="branch about" />
   </component>
