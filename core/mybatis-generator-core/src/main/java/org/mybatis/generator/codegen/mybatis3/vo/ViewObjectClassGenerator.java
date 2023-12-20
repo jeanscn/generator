@@ -1,9 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
-import com.vgosoft.tool.core.VMD5Util;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.TableConfiguration;
@@ -201,11 +200,11 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     .forEach(c -> introspectedTable.getColumn(c.getColumn()).ifPresent(column -> {
                         Field field = JavaBeansUtil.getJavaBeansField(column, context, introspectedTable);
                         field.setVisibility(JavaVisibility.PRIVATE);
-                        addFieldToTopLevelClass(field, requestVoClass, abstractVo);
+                        addFieldToRequestVOClass(field, requestVoClass, abstractVo,column);
                         Field other = JavaBeansUtil.getJavaBeansField(column, context, introspectedTable);
                         other.setName(other.getName() + "Other");
                         other.setVisibility(JavaVisibility.PRIVATE);
-                        addFieldToTopLevelClass(other, requestVoClass, abstractVo);
+                        addFieldToRequestVOClass(other, requestVoClass, abstractVo,column);
                     }));
 
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.requestVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, requestVoClass.getType().getShortName())) {
@@ -242,12 +241,14 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         return !file.exists();
     }
 
-    private void addFieldToTopLevelClass(final Field field, TopLevelClass topLevelClass, TopLevelClass abstractVo) {
+    private void addFieldToRequestVOClass(final Field field, TopLevelClass topLevelClass, TopLevelClass abstractVo, IntrospectedColumn introspectedColumn) {
         if (Stream.of(topLevelClass.getFields().stream(), abstractVo.getFields().stream())
                 .flatMap(Function.identity())
                 .noneMatch(f -> field.getName().equals(f.getName()))) {
-            topLevelClass.addField(field);
-            topLevelClass.addImportedType(field.getType());
+            if (context.getPlugins().voRequestFieldGenerated(field, requestVoClass, introspectedColumn, introspectedTable)) {
+                topLevelClass.addField(field);
+                topLevelClass.addImportedType(field.getType());
+            }
         }
     }
 }
