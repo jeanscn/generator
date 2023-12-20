@@ -290,8 +290,8 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "fieldName"));
         method.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value"));
         if (stringHasValue(introspectedTable.getTableConfiguration().getAlias())) {
-            method.addBodyLine("StringBuilder sb = new StringBuilder(\"{0}\").append(\".\").append(fieldName);",introspectedTable.getTableConfiguration().getAlias());
-        }else{
+            method.addBodyLine("StringBuilder sb = new StringBuilder(\"{0}\").append(\".\").append(fieldName);", introspectedTable.getTableConfiguration().getAlias());
+        } else {
             method.addBodyLine("StringBuilder sb = new StringBuilder(fieldName);");
         }
         method.addBodyLine("addCriterion(sb.append(\" = \").append(value).toString());");
@@ -562,6 +562,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             if (introspectedColumn.isJdbcCharacterColumn()) {
                 answer.addMethod(getSetLikeMethod(introspectedColumn));
                 answer.addMethod(getSetNotLikeMethod(introspectedColumn));
+                answer.addMethod(getSetNotLikeAnyMethod(introspectedColumn));
                 answer.addMethod(getSetLikeAnyMethod(introspectedColumn));
                 answer.addMethod(getSetLikeLeftMethod(introspectedColumn));
                 answer.addMethod(getSetLikeRightMethod(introspectedColumn));
@@ -631,6 +632,10 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         return getSingleValueMethod(introspectedColumn, "NotLike", "not like"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    private Method getSetNotLikeAnyMethod(IntrospectedColumn introspectedColumn) {
+        return getSingleValueMethod(introspectedColumn, "NotLikeAny", "not like"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
     private Method getSetNotEmptyMethod(IntrospectedColumn introspectedColumn) {
         return getNotEmptyMethod(introspectedColumn, "NotEmpty", "!= ''");
     }
@@ -657,6 +662,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         sb.append("\", "); //$NON-NLS-1$
         switch (nameFragment) {
             case "LikeAny":
+            case "NotLikeAny":
                 sb.append("'%'+value+'%'");
                 break;
             case "LikeRight":
