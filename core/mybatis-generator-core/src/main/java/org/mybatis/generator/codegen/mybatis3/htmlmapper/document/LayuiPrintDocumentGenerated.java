@@ -332,7 +332,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
     private String getThymeleafValueFieldName(IntrospectedColumn introspectedColumn) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (introspectedColumn.isJDBCDateColumn() || (htmlElementDescriptor!=null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
+        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor!=null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
             return getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READONLY);
         } else {
             return thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READONLY, htmlElementDescriptor);

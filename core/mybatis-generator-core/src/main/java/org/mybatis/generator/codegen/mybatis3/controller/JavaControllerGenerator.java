@@ -270,10 +270,25 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                             , type.getShortNameFirstLowCase()
                             , getterMethodName);
                 } else {
-                    buildExample.addBodyLine("criteria.{0}({1}.{2}());"
-                            , methodName
-                            , type.getShortNameFirstLowCase()
-                            , getterMethodName);
+                    if (column.isJdbcCharacterColumn()) {
+                        buildExample.addBodyLine("if (VStringUtil.indexOf({0}.{1}(), '','') > -1) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                        buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replaceAll(\",\", \"|\") + \")(,|$)''\" );"
+                                , initializeAndMethodName(column)
+                                , type.getShortNameFirstLowCase()
+                                , getterMethodName);
+                        buildExample.addBodyLine("}else{");
+                        buildExample.addBodyLine("criteria.{0}({1}.{2}());"
+                                , methodName
+                                , type.getShortNameFirstLowCase()
+                                , getterMethodName);
+                        buildExample.addBodyLine("}");
+                        conTopClazz.addImportedType(V_STRING_UTIL);
+                    }else{
+                        buildExample.addBodyLine("criteria.{0}({1}.{2}());"
+                                , methodName
+                                , type.getShortNameFirstLowCase()
+                                , getterMethodName);
+                    }
                 }
                 if (isBetween) {
                     if (column.isJdbcCharacterColumn()) {

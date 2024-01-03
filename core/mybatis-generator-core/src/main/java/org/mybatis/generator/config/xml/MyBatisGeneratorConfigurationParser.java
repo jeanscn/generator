@@ -584,7 +584,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
         //如果未指定，则设置generateController默认值
         if (tc.getJavaControllerGeneratorConfiguration() == null) {
-            JavaControllerGeneratorConfiguration configuration = new JavaControllerGeneratorConfiguration(context);
+            JavaControllerGeneratorConfiguration configuration = new JavaControllerGeneratorConfiguration(context,tc);
             configuration.setGenerate(tc.getHtmlMapGeneratorConfigurations().stream().anyMatch(c -> stringHasValue(c.getViewPath())));
             configuration.setGenerateUnitTest(false);
             tc.setJavaControllerGeneratorConfiguration(configuration);
@@ -800,11 +800,9 @@ public class MyBatisGeneratorConfigurationParser {
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            switch (childNode.getNodeName()) {
-                case PropertyRegistry.ELEMENT_ENABLE_CACHE:
-                    EnableCacheConfiguration enableCacheConfiguration = parseEnableCache(childNode);
-                    selectByTableGeneratorConfiguration.getCacheConfigurationList().add(enableCacheConfiguration);
-                    break;
+            if (childNode.getNodeName().equals(PropertyRegistry.ELEMENT_ENABLE_CACHE)) {
+                EnableCacheConfiguration enableCacheConfiguration = parseEnableCache(childNode);
+                selectByTableGeneratorConfiguration.getCacheConfigurationList().add(enableCacheConfiguration);
             }
         }
         tc.addSelectByTableGeneratorConfiguration(selectByTableGeneratorConfiguration);
@@ -1415,7 +1413,7 @@ public class MyBatisGeneratorConfigurationParser {
     protected void parseGenerateController(Context context, TableConfiguration tc, Node node) {
         Properties attributes = parseAttributes(node);
 
-        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = new JavaControllerGeneratorConfiguration(context);
+        JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = new JavaControllerGeneratorConfiguration(context,tc);
 
         String property = context.getProperty(PropertyRegistry.CONTEXT_SPRING_BOOT_APPLICATION_CLASS);
         if (stringHasValue(property)) {
@@ -1855,6 +1853,10 @@ public class MyBatisGeneratorConfigurationParser {
                 innerListViewGeneratorConfiguration.setEditExtendsForm(fileName);
             }
         }
+        String queryColumns = attributes.getProperty("queryColumns");
+        if (stringHasValue(queryColumns)) {
+            innerListViewGeneratorConfiguration.setQueryColumns(spiltToList(queryColumns));
+        }
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -1879,6 +1881,10 @@ public class MyBatisGeneratorConfigurationParser {
                 case (PropertyRegistry.ELEMENT_HTML_BUTTON):
                     HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
                     innerListViewGeneratorConfiguration.getHtmlButtons().add(htmlButton);
+                    break;
+                case ("queryColumn"):
+                    QueryColumnConfiguration queryColumnConfiguration = parseQueryColumn(tc,childNode);
+                    innerListViewGeneratorConfiguration.getQueryColumnConfigurations().add(queryColumnConfiguration);
                     break;
             }
         }

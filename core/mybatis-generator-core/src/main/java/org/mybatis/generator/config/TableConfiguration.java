@@ -776,21 +776,32 @@ public class TableConfiguration extends PropertyHolder {
         calculateSelectBySqlMethodProperty(introspectedTable);
     }
 
+    private List<QueryColumnConfiguration> getViewQueryColumnConfigurations() {
+        return Optional.ofNullable(this.getVoGeneratorConfiguration())
+                .flatMap(voGeneratorConfiguration -> Optional.ofNullable(voGeneratorConfiguration.getVoViewConfiguration()))
+                .flatMap(voViewConfiguration -> Optional.ofNullable(voViewConfiguration.getQueryColumnConfigurations()))
+                .orElse(new ArrayList<>());
+    }
+
     private void updateQueryColumnConfiguration(IntrospectedTable introspectedTable) {
-        if (this.getVoGeneratorConfiguration() == null || !this.getVoGeneratorConfiguration().isGenerate()
-                || this.getVoGeneratorConfiguration().getVoViewConfiguration() == null
-                || !this.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate()
-                || this.getVoGeneratorConfiguration().getVoViewConfiguration().getQueryColumnConfigurations() == null) {
-            return;
-        }
-        //为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
-        List<QueryColumnConfiguration> queryColumnConfigurations = this.getVoGeneratorConfiguration()
-                .getVoViewConfiguration()
-                .getQueryColumnConfigurations();
+        //viewVo中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
+        List<QueryColumnConfiguration> queryColumnConfigurations = getViewQueryColumnConfigurations();
         queryColumnConfigurations.forEach(queryColumnConfiguration -> {
             queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null));
         });
         queryColumnConfigurations.removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
+
+        //innerList中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
+        List<InnerListViewConfiguration> innerListViewConfigurations = Optional.ofNullable(this.getVoGeneratorConfiguration())
+                .flatMap(voGeneratorConfiguration -> Optional.ofNullable(voGeneratorConfiguration.getVoViewConfiguration()))
+                .flatMap(voViewConfiguration -> Optional.ofNullable(voViewConfiguration.getInnerListViewConfigurations()))
+                .orElse(new ArrayList<>());
+        innerListViewConfigurations.forEach(innerListViewConfiguration -> {
+            innerListViewConfiguration.getQueryColumnConfigurations().forEach(queryColumnConfiguration -> {
+                queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null));
+            });
+            innerListViewConfiguration.getQueryColumnConfigurations().removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
+        });
     }
 
     private void generateDefaultColumnRenderConfiguration(Context context) {

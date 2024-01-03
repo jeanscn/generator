@@ -21,6 +21,11 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
         generate = false;
     }
 
+    public AbstractGeneratorConfiguration(Context context) {
+       this();
+        this.context = context;
+    }
+
     public String getTargetPackage() {
         return targetPackage;
     }

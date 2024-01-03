@@ -37,7 +37,7 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
 
-    private List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
+    private final List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);

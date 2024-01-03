@@ -253,6 +253,19 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                         HtmlElement listKey = generateHtmlInput("innerListKey", true, false, true, false);
                         listKey.addAttribute(new Attribute("value", listConfiguration.getListKey()));
                         form.addElement(listKey);
+                        //额外增加一个打印innerListKeyForPrint的隐藏input
+                        String listKeyForPrintName;
+                        HtmlGeneratorConfiguration generatorPrintHtmlConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
+                                .filter(t -> HtmlDocumentTypeEnum.PRINT.equals(t.getType()))
+                                .findFirst().orElse(null);
+                        if (generatorPrintHtmlConfiguration != null) {
+                            listKeyForPrintName = generatorPrintHtmlConfiguration.getHtmlElementInnerListConfiguration().getListKey();
+                        } else {
+                            listKeyForPrintName = listConfiguration.getListKey();
+                        }
+                        HtmlElement listKeyForPrint = generateHtmlInput("innerListKeyForPrint", true, false, true, false);
+                        listKeyForPrint.addAttribute(new Attribute("value", listKeyForPrintName));
+                        form.addElement(listKeyForPrint);
                     }
                 }
             }
@@ -297,6 +310,19 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                             HtmlElement listKey = generateHtmlInput("innerListKey", true, false, true, false);
                             listKey.addAttribute(new Attribute("value", listConfiguration.getListKey()));
                             form.addElement(listKey);
+                            //额外增加一个打印innerListKeyForPrint的隐藏input
+                            String listKeyForPrintName;
+                            HtmlGeneratorConfiguration generatorPrintHtmlConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
+                                    .filter(t -> HtmlDocumentTypeEnum.PRINT.equals(t.getType()))
+                                    .findFirst().orElse(null);
+                            if (generatorPrintHtmlConfiguration != null) {
+                                listKeyForPrintName = generatorPrintHtmlConfiguration.getHtmlElementInnerListConfiguration().getListKey();
+                            } else {
+                                listKeyForPrintName = listConfiguration.getListKey();
+                            }
+                            HtmlElement listKeyForPrint = generateHtmlInput("innerListKeyForPrint", true, false, true, false);
+                            listKeyForPrint.addAttribute(new Attribute("value", listKeyForPrintName));
+                            form.addElement(listKeyForPrint);
                         }
                     }
                 }

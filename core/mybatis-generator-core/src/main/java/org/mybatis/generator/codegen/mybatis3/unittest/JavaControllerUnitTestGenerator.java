@@ -45,7 +45,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         String mockServiceImpl = "mock" + serviceImplType.getShortName();
         String entityInstanceVar = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
         String viewpath = null;
-        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
+        if (!introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().isEmpty()) {
             HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
             viewpath = htmlGeneratorConfiguration.getViewPath();
         }

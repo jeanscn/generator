@@ -1013,33 +1013,34 @@
         <!--
            基于默认视图（viewVO）配置信息配置一个页面内部的列表描述
            属性信息
-           1、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
-           2、height：列表的高度。设置表格容器高度，默认自适应。其他可选值的规则如下：
+           1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
+           2、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
+           3、height：列表的高度。设置表格容器高度，默认自适应。其他可选值的规则如下：
                     height=“315” 设置固定高度
                     height=“full-30” 设置自适应高度。这是一个特定的语法格式：full 表示铺满；后面的数字表示当前 table 之外的元素占用的高度，如：表格头部到页面最顶部加表格底部距离页面最底部的“距离和”
                     height=“#id-30” 设置相对父元素的高度自适应，其中 #id 即父元素的 ID 选择器，其计算原理和上述 full 相同。
-           3、width：设置容器宽度，默认自适应。
-           4、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式
-           5、enablePage 是否启用分页，true分页，false不分页，simple简单分页。缺省值false
-           6、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true
-           7、totalRow 是否显示总计行，true显示，false不显示。缺省值false
-           8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
-           9、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：''，即无操作列
-           10、toolbar：表格顶部工具栏的设置。“false”-不显示工具条；“true"-仅显示右侧操作按钮；'default'-开启工具栏并显示默认模板(add\delete)\自定义工具栏id值。缺省值：default
-           10、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: NONE或者filter,exports,print （分别代表：无、筛选图标、导出图标、打印图标），默认值为：filter,exports,print
-           11、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           12、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-           13、enableEditFields：可编辑的属性名列表,多值使用","。
-           14、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
+           4、width：设置容器宽度，默认自适应。
+           5、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式
+           6、enablePage 是否启用分页，true分页，false不分页，simple简单分页。缺省值false
+           7、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true
+           8、totalRow 是否显示总计行，true显示，false不显示。缺省值false
+           9、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
+           10、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：''，即无操作列
+           11、toolbar：表格顶部工具栏的设置。“false”-不显示工具条；“true"-仅显示右侧操作按钮；'default'-开启工具栏并显示默认模板(add\delete)\自定义工具栏id值。缺省值：default
+           12、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: NONE或者filter,exports,print （分别代表：无、筛选图标、导出图标、打印图标），默认值为：filter,exports,print
+           13、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
+           14、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           15、queryColumns:应用复合查询的字段名,多值使用","。
+
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
             3、requiredColumns 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
        -->
-        <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*,htmlButton*)>
+        <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*,htmlButton*,queryColumn*)>
         <!ATTLIST innerListView
                 listKey CDATA #IMPLIED
                 size (sm|md|lg) #IMPLIED
@@ -1054,7 +1055,8 @@
                 toolbar CDATA #IMPLIED
                 defaultToolbar CDATA #IMPLIED
                 editExtendsForm CDATA #IMPLIED
-                defaultDisplayFields CDATA #IMPLIED>
+                defaultDisplayFields CDATA #IMPLIED
+                queryColumns CDATA #IMPLIED>
 
         <!--
               内置列表列描述符，用于定制列表的列信息
@@ -1205,7 +1207,7 @@
         <!ELEMENT nameFragment EMPTY>
         <!ATTLIST nameFragment
                 column  CDATA #REQUIRED
-                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeAny|LikeRight|LikeLeft|Between) #REQUIRED>
+                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between) #REQUIRED>
 
         <!--
              用于指定视图列渲染方法名

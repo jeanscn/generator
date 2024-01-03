@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.CompositeQuery;
 import com.vgosoft.core.annotation.LayuiTableMeta;
+import com.vgosoft.tool.core.VStringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,8 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private List<String> actionColumn = new ArrayList<>();
 
     private String indexColumn;
+
+    private String[] querys = new String[0];
 
 
     public LayuiTableMetaDesc() {
@@ -86,6 +90,10 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (stringHasValue(indexColumn) && !"CHECKBOX".equals(indexColumn)) {
             items.add("indexColumn = \"" + indexColumn + "\"");
+        }
+        if (this.querys.length>0) {
+            items.add(VStringUtil.format("querys = '{'{0}'}'",String.join("\n        , ", this.querys)));
+            this.addImports(CompositeQuery.class.getCanonicalName());
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -192,5 +200,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String[] getQuerys() {
+        return querys;
+    }
+
+    public void setQuerys(String[] querys) {
+        this.querys = querys;
     }
 }

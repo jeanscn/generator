@@ -40,6 +40,7 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private String editExtendsForm;
 
+    private List<String> queryColumns = new ArrayList<>();
     private List<HtmlElementDescriptor> htmlElements = new ArrayList<>();
 
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
@@ -61,6 +62,8 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private final List<HtmlButtonGeneratorConfiguration> htmlButtons = new ArrayList<>();
 
+
+    private final List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
 
     /**
      * 构造器
@@ -233,5 +236,17 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public List<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
         return htmlButtons;
+    }
+
+    public List<QueryColumnConfiguration> getQueryColumnConfigurations() {
+        return queryColumnConfigurations;
+    }
+
+    public List<String> getQueryColumns() {
+        return queryColumns;
+    }
+
+    public void setQueryColumns(List<String> queryColumns) {
+        this.queryColumns = queryColumns;
     }
 }

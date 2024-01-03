@@ -7,19 +7,14 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
-import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.config.InnerListViewConfiguration;
-import org.mybatis.generator.config.ListColumnConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableMetaDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -44,7 +39,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         VOViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         //增加InnerTableMetaAnnotation
         voViewGeneratorConfiguration.getInnerListViewConfigurations().forEach(listViewConfiguration -> {
-            LayuiTableMetaDesc layuiTableMetaDesc = getLayuiTableMetaDesc(introspectedTable, listViewConfiguration);
+            LayuiTableMetaDesc layuiTableMetaDesc = getLayuiTableMetaDesc(introspectedTable, listViewConfiguration,topLevelClass);
             String annotation = layuiTableMetaDesc.toAnnotation();
             if (!topLevelClass.getAnnotations().contains(annotation)) {
                 topLevelClass.addAnnotation(annotation);
@@ -366,7 +361,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
      * @param listViewConfiguration 列表配置
      * @return LayuiTableMetaDesc layuiTableMetaDesc
      */
-    private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration) {
+    private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration,TopLevelClass topLevelClass) {
         LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
         layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
         layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
@@ -381,6 +376,32 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
         layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
         layuiTableMetaDesc.setActionColumn(listViewConfiguration.getActionColumn());
+        //querys
+        if (!listViewConfiguration.getQueryColumns().isEmpty()) {
+            //按列名分组
+            Map<String, List<QueryColumnConfiguration>> listMap = listViewConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
+            //去重,转换为CompositeQueryDesc
+            List<CompositeQueryDesc> queryDesc = listViewConfiguration.getQueryColumns().stream().distinct().map(columnName -> {
+                if (listMap.containsKey(columnName)) {
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0),introspectedTable);
+                } else {
+                    if (introspectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
+                    }else{
+                        return null;
+                    }
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            //更新顺序号，order
+            for (int i = 0; i < queryDesc.size(); i++) {
+                queryDesc.get(i).setOrder(i + 1);
+            }
+            //转换为注解
+            String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
+            layuiTableMetaDesc.setQuerys(array);
+            //导入类型
+            topLevelClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
+        }
         return layuiTableMetaDesc;
     }
 
