@@ -13,11 +13,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="mybatis-generator" target="1.8" />
-      <module name="mybatis-generator-core" target="1.8" />
-      <module name="mybatis-generator-maven-plugin" target="1.8" />
-      <module name="mybatis-generator-systests-common" target="1.8" />
-      <module name="mybatis-generator-systests-domtests" target="1.8" />
       <module name="mybatis-generator-systests-kotlin" target="1.8" />
       <module name="mybatis-generator-systests-mybatis3" target="1.8" />
       <module name="mybatis-generator-systests-mybatis3 (1)" target="1.8" />
