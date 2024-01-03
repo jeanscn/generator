@@ -847,7 +847,7 @@
         <!ELEMENT nameFragment EMPTY>
         <!ATTLIST nameFragment
                 column  CDATA #REQUIRED
-                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|LikeRight|LikeLeft|Between) #REQUIRED>
+                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|NotLikeAny|LikeRight|LikeLeft|Between) #REQUIRED>
 
         <!--
              增加一个mapstruct转换方法
