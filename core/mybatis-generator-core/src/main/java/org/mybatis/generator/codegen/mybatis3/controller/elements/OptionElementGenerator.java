@@ -108,7 +108,12 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         }
         method.addBodyLine("        .distinct().collect(Collectors.toList());");
         if (introspectedTable.getRules().isGenerateRequestVO()) {
+            method.addBodyLine("if (page!=null) {");
             method.addBodyLine("return ResponsePagehelperResult.success(options,page);");
+            method.addBodyLine("} else {");
+            method.addBodyLine("return ResponseResult.success(options);");
+            method.addBodyLine("}");
+            parentElement.addImportedType(responsePagehelperResult);
         } else {
             method.addBodyLine("return ResponseResult.success(options);");
         }

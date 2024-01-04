@@ -56,15 +56,23 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         selectByExampleWithPagehelper(parentElement, method);
         method.addBodyLine("if (result.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel() && introspectedTable.getRules().isGenerateRequestVO()) {
+            method.addBodyLine("if (page!=null) {");
             method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()),page);", entityVoType.getShortName());
+            method.addBodyLine("} else {");
+            method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
+            method.addBodyLine("}");
             parentElement.addImportedType(responsePagehelperResult);
-        } else if(introspectedTable.getRules().isGenerateVoModel()){
+        } else if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
             parentElement.addImportedType(responseResult);
-        }else if(introspectedTable.getRules().isGenerateRequestVO()){
+        } else if (introspectedTable.getRules().isGenerateRequestVO()) {
+            method.addBodyLine("if (page!=null) {");
             method.addBodyLine("return ResponsePagehelperResult.success(result.getResult(),page);");
+            method.addBodyLine("} else {");
+            method.addBodyLine("return ResponseResult.success(result.getResult());");
+            method.addBodyLine("}");
             parentElement.addImportedType(responsePagehelperResult);
-        } else{
+        } else {
             method.addBodyLine("return ResponseResult.success(result.getResult());");
             parentElement.addImportedType(responseResult);
         }

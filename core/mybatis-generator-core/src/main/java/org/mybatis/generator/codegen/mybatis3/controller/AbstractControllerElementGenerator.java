@@ -200,34 +200,40 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
     }
 
     protected void selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
-        String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
+        //String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = buildExample(actionType,{1});",
                 exampleType.getShortName(),
                 introspectedTable.getRules().isGenerateRequestVO() ? requestVOVar :
                         introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        method.addBodyLine("ServiceResult<List<{0}>> result;", entityType.getShortName());
         if (introspectedTable.getRules().isGenerateRequestVO()
                 && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
-            method.addBodyLine("if ({0}.getPageNo()>0 && {0}.getPageSize()>0) '{'\n" +
-                    "            PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());\n" +
-                    "        '}'", requestVOVar);
-            parentElement.addImportedType("com.github.pagehelper.PageHelper");
-        }
-        if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
-            method.addBodyLine("ServiceResult<List<{0}>> result;\n" +
-                            "        if ({3}.isCascadeResult()) '{'\n" +
-                            "            result = ServiceResult.success({2}.selectByExampleWithRelation(example));\n" +
-                            "        '}'else'{'\n" +
-                            "            result = {2}.selectByExample(example);\n" +
-                            "        '}'",
-                    entityType.getShortName(), listEntityVar, serviceBeanName, requestVOVar);
-        } else {
-            method.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectByExample(example);",
-                    entityType.getShortName(), serviceBeanName);
-        }
-        if (introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addBodyLine("Page<{0}> page = (Page<{0}>)result.getResult();", entityType.getShortName());
+            method.addBodyLine("Page<{0}> page = null;",entityType.getShortName());
+            method.addBodyLine("if ({0}.getPageNo() == 0 || {0}.getPageSize() == 0) '{'", requestVOVar);
+            method.addBodyLine("PageHelper.clearPage();");
+            addSelectByExample(method, requestVOVar);
+            method.addBodyLine("} else {");
+            method.addBodyLine("PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());", requestVOVar);
+            addSelectByExample(method, requestVOVar);
+            method.addBodyLine("page = (Page<{0}>) result.getResult();", entityType.getShortName());
+            method.addBodyLine("}");
             parentElement.addImportedType("com.github.pagehelper.Page");
+            parentElement.addImportedType("com.github.pagehelper.PageHelper");
+        } else {
+            addSelectByExample(method, requestVOVar);
+        }
+    }
+
+    private void addSelectByExample(Method method, String requestVOVar) {
+        if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
+            method.addBodyLine("if ({0}.isCascadeResult()) '{'", requestVOVar);
+            method.addBodyLine("result = ServiceResult.success({0}.selectByExampleWithRelation(example));", serviceBeanName);
+            method.addBodyLine("} else {");
+            method.addBodyLine("result = {0}.selectByExample(example);", serviceBeanName);
+            method.addBodyLine("}");
+        } else {
+            method.addBodyLine("result = {0}.selectByExample(example);", serviceBeanName);
         }
     }
 
