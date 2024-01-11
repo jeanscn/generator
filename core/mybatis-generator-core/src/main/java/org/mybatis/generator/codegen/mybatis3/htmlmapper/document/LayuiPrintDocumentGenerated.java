@@ -48,8 +48,10 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         rootElement.addElement(body.get("body"));
         document.setRootElement(rootElement);
         HtmlElement content = body.get("content");
+        HtmlElement scriptElement = new HtmlElement("script");
+
         //打印的表格
-        generateTable(content);
+        generateTable(content, scriptElement);
         //打印时间及打印人
         HtmlElement printer = addDivWithClassToParent(content, "print-foot");
         HtmlElement p = new HtmlElement("p");
@@ -83,7 +85,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             userName.addAttribute(new Attribute("th:value", "${" + GenerateUtils.getEntityKeyStr(introspectedTable) + ".wfState == 2 ? '文件审批通过': '文件没有正常完成审批'}"));
             content.addElement(userName);
             workflowEnabled.addAttribute(new Attribute("value", "1"));
-        }else{
+        } else {
             workflowEnabled.addAttribute(new Attribute("value", "0"));
         }
         HtmlElement subject = generateHtmlInput(input_subject_id, true, false, true, true);
@@ -108,6 +110,10 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         HtmlElement coreSub = new HtmlElement("div");
         coreSub.addAttribute(new Attribute("th:replace", "vgoweb/fragments/vgocoresub.html::vgocoresub"));
         body.get("body").addElement(coreSub);
+        /*是否需要添加script元素*/
+        if (!scriptElement.getElements().isEmpty()) {
+            body.get("body").addElement(scriptElement);
+        }
         return true;
     }
 
@@ -119,7 +125,8 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         HtmlElement t = new HtmlElement("title");
         t.addElement(new TextElement(getHtmlTitle()));
         head.addElement(t);
-       addStaticThymeleafJavaScript(head, "/webjars/plugins/jquery/1.12.4/jquery.min.js");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::jQueryRequired");
+        addStaticReplace(head, "subpages/webjarsPluginsRequired2.html::layuiRequired");
         addStaticThymeleafStyleSheet(head, "/webjars/plugins/printjs/css/print.min.css");
         addStaticThymeleafJavaScript(head, "/webjars/plugins/printjs/js/print.min.js");
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
@@ -131,7 +138,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         return head;
     }
 
-    private void generateTable(HtmlElement parent) {
+    private void generateTable(HtmlElement parent, HtmlElement scriptElement) {
         HtmlElement table = new HtmlElement("table");
         parent.addElement(table);
         table.addAttribute(new Attribute("id", "main-table"));
@@ -222,7 +229,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             }
         }
         //添加附件
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration()!=null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
+        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
             String label = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getLabel();
             HtmlElement atr = new HtmlElement("tr");
             table.addElement(atr);
@@ -268,7 +275,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         }
         //是否需要插入页面列表
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            //HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
             HtmlElement tableList = new HtmlElement("table");
             parent.addElement(tableList);
             tableList.addAttribute(new Attribute("th:if", "${not #lists.isEmpty(innerListHeaders)}"));
@@ -282,17 +289,22 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             th.addAttribute(new Attribute("class", "item_label"));
             tr.addElement(th);
             HtmlElement tbody = new HtmlElement("tbody");
+            tbody.addAttribute(new Attribute("id", "innerListBody"));
             tableList.addElement(tbody);
-            HtmlElement block = new HtmlElement("th:block");
-            block.addAttribute(new Attribute("th:if", "${"+ GenerateUtils.getEntityKeyStr(introspectedTable) +" != null and "+ GenerateUtils.getEntityKeyStr(introspectedTable) +".detail != null}"));
-            tbody.addElement(block);
-            HtmlElement tr2 = new HtmlElement("tr");
-            block.addElement(tr2);
-            tr2.addAttribute(new Attribute("th:each", "row : ${"+ GenerateUtils.getEntityKeyStr(introspectedTable) +".detail}"));
-            HtmlElement td2 = new HtmlElement("td");
-            td2.addAttribute(new Attribute("th:each", "header : ${innerListHeaders}"));
-            td2.addAttribute(new Attribute("th:text", "${#strings.isEmpty(header.field) ? '' : row[header.field]}"));
-            tr2.addElement(td2);
+
+            scriptElement.addAttribute(new Attribute("th:inline", "javascript"));
+            scriptElement.addElement(new TextElement("    $(function () {"));
+            scriptElement.addElement(new TextElement("        let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
+            if (listConfiguration.getRelationKey() != null) {
+                scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?."+ listConfiguration.getRelationKey() +"}]]*/'';"));
+            }else{
+                scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
+            }
+            scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\"+relationField;"));
+            scriptElement.addElement(new TextElement("        let innerBody = $(\"#innerListBody\");"));
+            scriptElement.addElement(new TextElement("        loadDetail(innerListHeaders, dataUrl, innerBody, layui);"));
+            scriptElement.addElement(new TextElement("    });"));
+
         }
     }
 
@@ -332,13 +344,12 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
     private String getThymeleafValueFieldName(IntrospectedColumn introspectedColumn) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor!=null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
+        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor != null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
             return getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READONLY);
         } else {
             return thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READONLY, htmlElementDescriptor);
         }
     }
-
 
     private void drawLabel(IntrospectedColumn introspectedColumn, HtmlElement td) {
         HtmlElementDescriptor htmlElementDescriptor = getHtmlElementDescriptor(introspectedColumn);

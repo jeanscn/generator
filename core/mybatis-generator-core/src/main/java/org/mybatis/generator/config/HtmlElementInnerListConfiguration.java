@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.tool.core.VStringUtil;
+
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-06-12 13:43
@@ -41,6 +43,10 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     }
 
     public String getDataUrl() {
+        //如果不是以“/”开头，则加上
+        if (VStringUtil.stringHasValue(dataUrl) && !dataUrl.startsWith("/")) {
+            dataUrl = "/" + dataUrl;
+        }
         return dataUrl;
     }
 
