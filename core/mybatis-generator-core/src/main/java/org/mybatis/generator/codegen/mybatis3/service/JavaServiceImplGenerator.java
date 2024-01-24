@@ -333,7 +333,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addDeleteByExampleElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByExample()
                 && (introspectedTable.getRules().isGenerateCachePO()
-                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete))) {
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete)
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name()))) {
             AbstractServiceElementGenerator elementGenerator = new DeleteByExampleElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
