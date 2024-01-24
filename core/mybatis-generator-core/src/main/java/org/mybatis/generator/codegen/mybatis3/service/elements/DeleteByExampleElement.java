@@ -38,24 +38,26 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         List<RelationGeneratorConfiguration> collect = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());
+        deleteByExampleMethod.addBodyLine("ServiceResult<List<{0}>> result = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+        deleteByExampleMethod.addBodyLine("if (result.getResult().isEmpty()) return ServiceResult.success(0, 0);");
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
+            deleteByExampleMethod.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
+        }
         if (!collect.isEmpty()) {
             deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-            deleteByExampleMethod.addBodyLine("ServiceResult<List<{0}>> result = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
 
             deleteByExampleMethod.addBodyLine("for ({0} {1} : result.getResult()) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, false);
             deleteByExampleMethod.addBodyLine("}");
-            deleteByExampleMethod.addBodyLine("int affectedRows = mapper.deleteByExample(example);");
-            deleteByExampleMethod.addBodyLine("if (affectedRows > 0) {");
-            deleteByExampleMethod.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
-            deleteByExampleMethod.addBodyLine("}");
-            deleteByExampleMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
-        } else {
-            if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
-                deleteByExampleMethod.addBodyLine("publisher.publishEvent(super.selectByExample(example).getResult(),EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
-            }
-            deleteByExampleMethod.addBodyLine("return super.{0}(example);", introspectedTable.getDeleteByExampleStatementId());
         }
+        deleteByExampleMethod.addBodyLine("int affectedRows = mapper.deleteByExample(example);");
+        deleteByExampleMethod.addBodyLine("if (affectedRows > 0) {");
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())) {
+            deleteByExampleMethod.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});", EntityEventEnum.DELETED.name());
+        }
+        deleteByExampleMethod.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
+        deleteByExampleMethod.addBodyLine("}");
+        deleteByExampleMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
 
         parentElement.addMethod(deleteByExampleMethod);
     }
