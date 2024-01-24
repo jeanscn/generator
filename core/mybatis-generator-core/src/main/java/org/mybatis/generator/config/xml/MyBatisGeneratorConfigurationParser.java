@@ -436,6 +436,12 @@ public class MyBatisGeneratorConfigurationParser {
             tc.setSqlProviderName(sqlProviderName);
         }
 
+        String enableDropTables = attributes.getProperty("enableDropTables"); //$NON-NLS-1$
+        if (stringHasValue(enableDropTables)) {
+            tc.setEnableDropTables(spiltToSet(enableDropTables));
+        }
+
+
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);

@@ -187,6 +187,7 @@
             16、enableFileDownLoad 是否生成文件下载方法，默认false
             17、enableFileDelete 是否生成文件删除方法，默认false
             18、enableFileDownload 是否生成文件下载方法，默认false
+            19、enableDropTables 清除业务数据的业务表，支持多个表，逗号分隔。该属性需要配置到主模块表中，如果允许清除数据，则会在模块的数据中添加表名称。
           property配置：
             1、rootClass 指定生成对象的父类全类名
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
@@ -262,7 +263,8 @@
                 modelType CDATA #IMPLIED
                 escapeWildcards CDATA #IMPLIED
                 delimitIdentifiers CDATA #IMPLIED
-                delimitAllColumns CDATA #IMPLIED>
+                delimitAllColumns CDATA #IMPLIED
+                enableDropTables CDATA #IMPLIED>
 
         <!--
           The columnOverride element is used to change certain attributes of the column

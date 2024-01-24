@@ -283,7 +283,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                                 , getterMethodName);
                         buildExample.addBodyLine("}");
                         conTopClazz.addImportedType(V_STRING_UTIL);
-                    }else{
+                    } else {
                         buildExample.addBodyLine("criteria.{0}({1}.{2}());"
                                 , methodName
                                 , type.getShortNameFirstLowCase()
@@ -304,8 +304,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 buildExample.addBodyLine("}");
             }
             //排序语句
-            List<IntrospectedColumn> sort = columns.stream().filter(c -> c.getActualColumnName().equalsIgnoreCase("SORT_")).collect(Collectors.toList());
-            if (!sort.isEmpty()) {
+            /* List<IntrospectedColumn> sort = columns.stream().filter(c -> c.getActualColumnName().equalsIgnoreCase("SORT_")).collect(Collectors.toList());*/
+            /*if (!sort.isEmpty()) {
                 if (isContainOrderByClause) {
                     buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                     buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
@@ -316,14 +316,14 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 } else {
                     buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
                 }
-            } else {
-                if (isContainOrderByClause) {
-                    buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
-                    buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
-                    buildExample.addBodyLine("}");
-                    conTopClazz.addImportedType(V_STRING_UTIL);
-                }
+            } else {*/
+            if (isContainOrderByClause) {
+                buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("}");
+                conTopClazz.addImportedType(V_STRING_UTIL);
             }
+            /* }*/
             buildExample.addBodyLine("return example;");
         }
         if (buildExample.getBodyLines().isEmpty()) {
@@ -416,7 +416,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     }
 
     private void addSelectByTableElement(TopLevelClass parentElement) {
-        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(c->c.isEnableSplit() || c.isEnableUnion())) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(c -> c.isEnableSplit() || c.isEnableUnion())) {
             AbstractControllerElementGenerator elementGenerator = new SelectByTableGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

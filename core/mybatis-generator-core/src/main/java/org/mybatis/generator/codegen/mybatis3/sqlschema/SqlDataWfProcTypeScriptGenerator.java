@@ -27,7 +27,7 @@ public class SqlDataWfProcTypeScriptGenerator extends AbstractSqlScriptGenerator
 
     @Override
     public String getSqlScript() {
-        if (this.context.getModuleDataScriptLines().size()>0) {
+        if (!this.context.getModuleDataScriptLines().isEmpty()) {
             lines.add("-- ----------------------------");
             lines.add("-- 流程类型配置数据");
             lines.add("-- ----------------------------");

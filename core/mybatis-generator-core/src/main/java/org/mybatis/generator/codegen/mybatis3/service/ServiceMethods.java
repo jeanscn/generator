@@ -65,6 +65,18 @@ public class ServiceMethods {
         return method;
     }
 
+    public Method getCleanupInvalidRecordsMethod(CompilationUnit parentElement,boolean isAbstract){
+        Method method =  getMethodByType("cleanupInvalidRecords",
+                ReturnTypeEnum.SERVICE_RESULT_MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(),
+                "清理删除影响行数Service返回封装对象",
+                new ArrayList<>(0),
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method, "清理无效数据（流程状态为4）的方法","注意：如果包含关联表，如主子表数据，请重写该方法，以便于增加清理关联表的代码");
+        return method;
+    }
+
     public Method getDeleteByPrimaryKeyMethod(CompilationUnit parentElement,boolean isAbstract){
         List<Parameter> parameters = introspectedTable.getPrimaryKeyColumns().stream()
                 .map(Parameter::new)

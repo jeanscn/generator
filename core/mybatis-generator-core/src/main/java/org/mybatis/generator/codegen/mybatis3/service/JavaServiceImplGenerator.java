@@ -6,6 +6,7 @@ import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
@@ -155,6 +156,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
          * */
         addInnerMethodInsertUpdateElement(bizGenClazzImpl);
 
+        addCleanupInvalidRecordsMethod(bizGenClazzImpl);
+
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable)) {
             answer.add(bizGenClazzImpl);
@@ -206,6 +209,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
 
         return answer;
+    }
+
+    private void addCleanupInvalidRecordsMethod(TopLevelClass bizGenClazzImpl) {
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            AbstractServiceElementGenerator cleanupInvalidRecordsElement = new CleanupInvalidRecordsElement();
+            initializeAndExecuteGenerator(cleanupInvalidRecordsElement, bizGenClazzImpl);
+        }
     }
 
     private void addSelectByPrimaryKeysElement(TopLevelClass bizGenClazzImpl) {

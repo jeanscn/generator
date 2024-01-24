@@ -139,6 +139,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private final Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
 
+    private Set<String> enableDropTables = new HashSet<>();
+
     public TableConfiguration(Context context) {
         super();
         this.modelType = context.getDefaultModelType();
@@ -1377,5 +1379,13 @@ public class TableConfiguration extends PropertyHolder {
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
         this.getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
+    }
+
+    public Set<String> getEnableDropTables() {
+        return enableDropTables;
+    }
+
+    public void setEnableDropTables(Set<String> enableDropTables) {
+        this.enableDropTables = enableDropTables;
     }
 }

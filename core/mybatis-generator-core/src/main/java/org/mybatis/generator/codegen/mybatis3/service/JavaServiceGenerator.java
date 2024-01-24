@@ -21,6 +21,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -89,7 +90,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         });
 
         //增加selectByColumnXXX
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+        if (!introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method = serviceMethods.getSelectByColumnMethod(entityType, bizINF, config, true);
                 bizINF.addMethod(method);
@@ -126,6 +127,12 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         Method method = serviceMethods.getSelectByMultiStringIdsMethod(bizINF, true);
         bizINF.addMethod(method);
+
+        //如果是工作流实例，增加流程相关方法
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            Method cleanupInvalidRecordsMethod = serviceMethods.getCleanupInvalidRecordsMethod(bizINF, true);
+            bizINF.addMethod(cleanupInvalidRecordsMethod);
+        }
 
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceGenerated(bizINF, introspectedTable)) {
@@ -170,6 +177,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             if (!introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().isEmpty()) {
                 sqlForModule.updateStringValues("view_path", introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath());
             }
+            sqlForModule.updateStringValues("drop_tables", String.join(",", introspectedTable.getTableConfiguration().getEnableDropTables()));
             context.addModuleDataScriptLine(mid, sqlForModule.toSql() + ";");
         }
         //生成该数据库的流程定义数据

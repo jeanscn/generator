@@ -28,14 +28,14 @@ public class SqlDataSysModuleScriptGenerator extends AbstractSqlScriptGenerator 
 
     @Override
     public String getSqlScript() {
-        if(this.context.getModuleCateDataScriptLines().size()>0){
+        if(!this.context.getModuleCateDataScriptLines().isEmpty()){
             lines.add("-- ----------------------------");
             lines.add("-- 模块分类数据");
             lines.add("-- ----------------------------");
             lines.add("");
             lines.addAll(this.context.getModuleCateDataScriptLines().values());
         }
-        if (this.context.getModuleDataScriptLines().size()>0) {
+        if (!this.context.getModuleDataScriptLines().isEmpty()) {
             lines.add("-- ----------------------------");
             lines.add("-- 模块数据");
             lines.add("-- ----------------------------");
