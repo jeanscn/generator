@@ -42,8 +42,7 @@ public class InsertByTableElement extends AbstractServiceElementGenerator {
                                 if (cacheConfiguration.getCacheNames().isEmpty()) {
                                     cacheAnnotationDesc.setCacheNames(Collections.singletonList(method.getParameters().get(0).getName()+ VStringUtil.getFirstCharacterUppercase(method.getParameters().get(1).getName())+"Cache"));
                                 }
-                                cacheAnnotationDesc.getParameters().add(method.getParameters().get(0));
-                                annotations.add(cacheAnnotationDesc.toCacheEvictAnnotation(false));
+                                annotations.add(cacheAnnotationDesc.toCacheEvictAnnotation(true));
                             }
                         });
                     }

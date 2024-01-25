@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,12 @@ public class InsertElement extends AbstractServiceElementGenerator {
         parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
 
         Method insertMethod = serviceMethods.getInsertMethod(parentElement, false, false,true);
+
+        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+        if (introspectedTable.getRules().isGenerateCachePO()) {
+            insertMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
+        }
+
         insertMethod.addAnnotation("@Override");
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)

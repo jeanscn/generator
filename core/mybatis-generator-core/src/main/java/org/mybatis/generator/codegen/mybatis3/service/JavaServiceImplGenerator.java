@@ -312,7 +312,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      */
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && (relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
+                && (introspectedTable.getRules().isGenerateCachePO()
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new InsertElement();
@@ -322,7 +323,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addInsertSelectiveElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && (relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
+                && (introspectedTable.getRules().isGenerateCachePO()
+                || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new InsertSelectiveElement();
