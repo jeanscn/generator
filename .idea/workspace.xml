@@ -4,15 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="调整主表单打印子表数据来源部分代码的生成。在页面添加js片段">
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="修改生成插入、更新方法清空缓存部分代码">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/JavaServiceImplGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/JavaServiceImplGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByPrimaryKeyElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByPrimaryKeyElement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByTableElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/DeleteByTableElement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertByTableElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertByTableElement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertElement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertSelectiveElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/InsertSelectiveElement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateByPrimaryKeyElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/elements/UpdateByPrimaryKeyElement.java" afterDir="false" />
     </list>
     <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes" />
     <option name="SHOW_DIALOG" value="false" />
@@ -649,7 +642,7 @@
       <workItem from="1704179484899" duration="1605000" />
       <workItem from="1704185005316" duration="36000" />
       <workItem from="1704263472300" duration="670000" />
-      <workItem from="1706168893943" duration="5134000" />
+      <workItem from="1706168893943" duration="6382000" />
     </task>
     <task id="LOCAL-00015" summary="调整context的几个property为attribute">
       <created>1662480978993</created>
@@ -994,7 +987,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <option name="localTasksCounter" value="95" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1035,7 +1028,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="升级至1.5.0" />
     <MESSAGE value="增加ztree接口生成内容。" />
     <MESSAGE value="支持多个tree-cate接口" />
     <MESSAGE value="更新selectByDict方法的参数，type改为Optional类型，以便于接收null。及其它更新。" />
@@ -1060,7 +1052,8 @@
     <MESSAGE value="Ignore Changes" />
     <MESSAGE value="branch about" />
     <MESSAGE value="调整主表单打印子表数据来源部分代码的生成。在页面添加js片段" />
-    <option name="LAST_COMMIT_MESSAGE" value="调整主表单打印子表数据来源部分代码的生成。在页面添加js片段" />
+    <MESSAGE value="修改生成插入、更新方法清空缓存部分代码" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改生成插入、更新方法清空缓存部分代码" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
