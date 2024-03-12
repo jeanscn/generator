@@ -143,6 +143,22 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 } else if (c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.math.BigDecimal"));
+                } else if (c.getFullyQualifiedJavaType().getShortName().equals("Boolean")) {
+                    switch (c.getDefaultValue().toLowerCase()) {
+                        case "true":
+                        case "1":
+                        case "b'1'":
+                            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = true;", c.getJavaProperty()));
+                            break;
+                        case "false":
+                        case "0":
+                        case "b'0'":
+                            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = false;", c.getJavaProperty()));
+                            break;
+                        default:
+                            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = Boolean.valueOf(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
+                            break;
+                    }
                 } else {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), c.getDefaultValue()));
                 }
