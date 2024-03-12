@@ -19,41 +19,37 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * This interface defines methods that will be called at different times during
- * the code generation process. These methods can be used to extend or modify
- * the generated code. Clients may implement this interface in its entirety, or
- * extend the PluginAdapter (highly recommended).
+ * 此接口定义了将在代码生成过程。这些方法可用于扩展或修改生成的代码。客户端可以完整地实现此接口，或者扩展 PluginAdapter（强烈推荐）。
  *
- * <p>Plugins have a lifecycle. In general, the lifecycle is this:
+ * <p>插件有一个生命周期。一般来说，生命周期是这样的：
  *
  * <ol>
- * <li>The setXXX methods are called one time</li>
- * <li>The validate method is called one time</li>
- * <li>The initialized method is called for each introspected table</li>
- * <li>The clientXXX methods are called for each introspected table</li>
- * <li>The providerXXX methods are called for each introspected table</li>
- * <li>The modelXXX methods are called for each introspected table</li>
- * <li>The sqlMapXXX methods are called for each introspected table</li>
- * <li>The contextGenerateAdditionalJavaFiles(IntrospectedTable) method is
- * called for each introspected table</li>
- * <li>The contextGenerateAdditionalXmlFiles(IntrospectedTable) method is called
- * for each introspected table</li>
- * <li>The contextGenerateAdditionalJavaFiles() method is called one time</li>
- * <li>The contextGenerateAdditionalXmlFiles() method is called one time</li>
+ * <li>setXXX 方法调用一次</li>
+ * <li>validate 方法调用一次</li>
+ * <li>为每个自省表调用初始化的方法</li>
+ * <li>为每个自省表调用 clientXXX 方法</li>
+ * <li>为每个自省表调用 providerXXX 方法</li>
+ * <li>为每个自省表调用 modelXXX 方法</li>
+ * <li>为每个自省表调用 sqlMapXXX 方法</li>
+ * <li>contextGenerateAdditionalJavaFiles（IntrospectedTable） 方法是
+ * 为每个内省表调用</li>
+ * <li>contextGenerateAdditionalXmlFiles（IntrospectedTable） 方法调用
+ * 对于每个自省表</li>
+ * <li>contextGenerateAdditionalJavaFiles（） 方法调用一次</li>
+ * <li>contextGenerateAdditionalXmlFiles（） 方法调用一次</li>
  * </ol>
  *
- * <p>Plugins are related to contexts - so each context will have its own set of
- * plugins. If the same plugin is specified in multiple contexts, then each
- * context will hold a unique instance of the plugin.
+ * <p>插件与上下文相关 - 因此每个上下文都有自己的一组
+ * 插件。如果在多个上下文中指定了相同的插件，则每个
+ * context 将保存插件的唯一实例。
  *
- * <p>Plugins are called, and initialized, in the same order they are specified in
- * the configuration.
+ * 插件的<p>调用和初始化顺序与指定插件的顺序相同
+ * 配置。
  *
- * <p>The clientXXX, modelXXX, and sqlMapXXX methods are called by the code
- * generators. If you replace the default code generators with other
- * implementations, these methods may not be called.
+ * <p>clientXXX、modelXXX 和 sqlMapXXX 方法由代码调用
+ *发电机。如果将默认代码生成器替换为其他
+ * 实现时，这些方法可能不会被调用。
  *
- * @author Jeff Butler
  * @see PluginAdapter
  *
  */
@@ -66,87 +62,88 @@ public interface Plugin {
     }
 
     /**
-     * Set the context under which this plugin is running.
+     *设置运行此插件的上下文。
      *
-     * @param context
-     *            the new context
+     * @param context the new context
      */
     void setContext(Context context);
 
     /**
-     * Set properties from the plugin configuration.
+     * 从插件配置中设置属性。
      *
-     * @param properties
-     *            the new properties
+     * @param properties 插件配置
+     *
      */
     void setProperties(Properties properties);
 
     /**
-     * This method is called just before the getGeneratedXXXFiles methods are called on the introspected table. Plugins
-     * can implement this method to override any of the default attributes, or change the results of database
-     * introspection, before any code generation activities occur. Attributes are listed as static Strings with the
-     * prefix ATTR_ in IntrospectedTable.
+     * 此方法在内省表上调用 getGeneratedXXXFiles 方法之前调用。插件
+     * 可以实现此方法来覆盖任何默认属性，或更改数据库的结果
+     * 在发生任何代码生成活动之前进行内省。属性作为静态字符串列出，其中
+     * 前缀 ATTR_ 在 IntrospectedTable 中。
      *
-     * <p>A good example of overriding an attribute would be the case where a user wanted to change the name of one
-     * of the generated classes, change the target package, or change the name of the generated SQL map file.
+     * <p>覆盖属性的一个很好的例子是用户想要更改属性的名称
+     * ，更改目标包，或更改生成的 SQL 映射文件的名称。
      *
-     * <p><b>Warning:</b> Anything that is listed as an attribute should not be changed by one of the other plugin
-     * methods. For example, if you want to change the name of a generated example class, you should not simply change
-     * the Type in the <code>modelExampleClassGenerated()</code> method. If you do, the change will not be reflected
-     * in other generated artifacts.
+     * <p><b>警告：</b>任何被列为属性的内容都不应被其他插件之一更改
+     *方法。例如，如果要更改生成的示例类的名称，则不应简单地更改
+     * <code>modelExampleClassGenerated（）</code> 方法中的 Type。如果这样做，更改将不会反映出来
+     * 在其他生成的工件中。
      *
      * @param introspectedTable
-     *            the introspected table
+     * 内省表
      */
     default void initialized(IntrospectedTable introspectedTable) {}
 
     /**
-     * This method is called after all the setXXX methods are called, but before
-     * any other method is called. This allows the plugin to determine whether
-     * it can run or not. For example, if the plugin requires certain properties
-     * to be set, and the properties are not set, then the plugin is invalid and
-     * will not run.
+     * 此方法在所有 setXXX 方法调用后调用，但在调用任何其他方法。这允许插件确定是否
+     * 它可以运行或不运行。例如，如果插件需要某些属性要设置，并且属性没有设置，则插件无效且
+     * 不会运行。
      *
-     * @param warnings
-     *            add strings to this list to specify warnings. For example, if
-     *            the plugin is invalid, you should specify why. Warnings are
-     *            reported to users after the completion of the run.
-     * @return true if the plugin is in a valid state. Invalid plugins will not
-     *         be called
+     * @param warnings 如果插件配置不正确，则包含警告
+     * 例如，如果
+     * 插件无效，您应该说明原因。警告是
+     * 运行完成后向用户报告。
+     * 如果插件处于有效状态，则@return true。无效的插件不会
+     *名叫
      */
     boolean validate(List<String> warnings);
 
     /**
-     * This method can be used to generate any additional Java file needed by
-     * your implementation. This method is called once, after all other Java
-     * files have been generated.
+     * 此方法可用于生成您的实现。此方法在所有其他 Java 之后调用一次文件已生成。
      *
-     * @return a List of GeneratedJavaFiles - these files will be saved
-     *         with the other files from this run.
+     * @return GeneratedJavaFiles 列表 - 这些文件将被保存与此运行中的其他文件一起使用。
      */
     default List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles() {
         return Collections.emptyList();
     }
 
-    /**
-     * This method can be used to generate additional Java files needed by your
-     * implementation that might be related to a specific table. This method is
-     * called once for every table in the configuration.
+   /**
+     * 此方法可用于生成可能与特定表相关的实现。此方法是为配置中的每个表调用一次。
      *
      * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return a List of GeneratedJavaFiles - these files will be saved
-     *         with the other files from this run.
+     * 包含有关表的信息的类
+     * 从数据库中内省
+     * @return GeneratedJavaFiles 列表 - 这些文件将被保存
+     * 与此运行中的其他文件一起使用。
      */
     default List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
         return Collections.emptyList();
     }
 
+    /**
+     * 此方法可用于生成您的实现。此方法在所有其他 XML 之后调用一次文件已生成。
+     * @return GeneratedXmlFiles 列表 - 这些文件将被保存与此运行中的其他文件一起使用。
+     */
     default List<GeneratedKotlinFile> contextGenerateAdditionalKotlinFiles() {
         return Collections.emptyList();
     }
 
+    /**
+     * 此方法可用于生成可能与特定表相关的实现。此方法是为配置中的每个表调用一次。
+     * @param introspectedTable 包含有关表的信息的类从数据库中内省
+     * @return GeneratedXmlFiles 列表 - 这些文件将被保存与此运行中的其他文件一起使用。
+     */
     default List<GeneratedKotlinFile> contextGenerateAdditionalKotlinFiles(IntrospectedTable introspectedTable) {
         return Collections.emptyList();
     }
@@ -1351,46 +1348,100 @@ public interface Plugin {
         return true;
     }
 
+    /**
+     * 生成vo抽象类后的回调方法
+     * @param topLevelClass vo抽象类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass,
                                                   IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成vo类后的回调方法
+     * @param topLevelClass vo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelRecordClassGenerated(TopLevelClass topLevelClass,
                                                   IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成CreateVo类后的回调方法
+     * @param topLevelClass CreateVo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelCreateClassGenerated(TopLevelClass topLevelClass,
                                                 IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成UpdateVo类后的回调方法
+     * @param topLevelClass UpdateVo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelUpdateClassGenerated(TopLevelClass topLevelClass,
                                                 IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成ViewVo类后的回调方法
+     * @param topLevelClass ViewVo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelViewClassGenerated(TopLevelClass topLevelClass,
                                                 IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成ExcelVo类后的回调方法
+     * @param topLevelClass ExcelVo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelExcelClassGenerated(TopLevelClass topLevelClass,
                                               IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成ExcelImportVo类后的回调方法
+     * @param topLevelClass ExcelImportVo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass,
                                                IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成RequestVo类后的回调方法
+     * @param topLevelClass RequestVo类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelRequestClassGenerated(TopLevelClass topLevelClass,
                                                IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成缓存实体对象类后的回调方法
+     * @param topLevelClass 缓存实体对象类
+     * @param introspectedTable 表信息
+     * @return true生成，false不生成
+     */
     default boolean voModelCacheClassGenerated(TopLevelClass topLevelClass,
                                                  IntrospectedTable introspectedTable) {
         return true;
@@ -1491,6 +1542,13 @@ public interface Plugin {
         return true;
     }
 
+    /**
+     * 生成html文件后的回调方法
+     * @param document html文件
+     * @param introspectedTable 表信息
+     * @param htmlGeneratorConfiguration html文件生成配置
+     * @return true生成html文件，false不生成html文件
+     */
     default boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration){
         return true;
     }
@@ -1700,23 +1758,22 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByPrimaryKey element is generated.
-     *
-     * @param element
-     *            the generated &lt;select&gt; element
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the element should be generated, false if the generated
-     *         element should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
+     * 生成xml文件的自定义工具栏…方法后的回调方法
+     * @param element 自定义工具栏…方法的xml元素
+     * @param introspectedTable 表的元数据
+     * @return 生成xml文件有效，false生成xml文件无效
      */
     default boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element,
             IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成xml文件的selectByKeysDict方法后的回调方法
+     * @param element selectByKeysDict方法的xml元素
+     * @param introspectedTable 表的元数据
+     * @return true生成xml文件的selectByKeysDict方法，false不生成xml文件的selectByKeysDict方法
+     */
     default boolean sqlMapSelectByKeysDictElementGenerated(XmlElement element,
                                                              IntrospectedTable introspectedTable) {
         return true;
@@ -2185,6 +2242,13 @@ public interface Plugin {
         return true;
     }
 
+    /**
+     * Kotlin生成mapper类后的回调方法
+     * @param mapperFile 生成的mapper类
+     * @param mapper mapper类的类型
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean mapperGenerated(KotlinFile mapperFile, KotlinType mapper, IntrospectedTable introspectedTable) {
         return true;
     }
@@ -2194,45 +2258,107 @@ public interface Plugin {
         return true;
     }
 
+    /**
+     * kotlin生成dao类ColumnListProperty后的回调方法
+     * @param kotlinProperty 生成的dao类ColumnListProperty
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean clientColumnListPropertyGenerated(KotlinProperty kotlinProperty, KotlinFile kotlinFile,
             IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * kotlin生成dao类中insertMultipleVararg方法后的回调方法
+     * @param kotlinFunction 生成的dao-insert方法
+     * @param kotlinFile 生成的dao文件
+     * @param introspectedTable  表信息
+     * @return true 生成 false 不生成
+     */
     default boolean clientInsertMultipleVarargMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
             IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * kotlin生成dao类中updateByPrimaryKey方法后的回调方法
+     * @param kotlinFunction 生成的dao-updateByPrimaryKey方法
+     * @param kotlinFile 生成的dao文件
+     * @param introspectedTable  表信息
+     * @return true 生成 false 不生成
+     */
     default boolean clientUpdateByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
             IntrospectedTable introspectedTable) {
         return true;
     }
 
+    /**
+     * 生成service类后的回调方法
+     * @param interfaze 生成的service类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean serviceGenerated(Interface interfaze,IntrospectedTable introspectedTable){
         return true;
     }
 
+    /**
+     * 生成子service类(用于个性化service的类)后的回调方法
+     * @param interfaze 生成的子service类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean subServiceGenerated(Interface interfaze,IntrospectedTable introspectedTable){
         return true;
     }
 
+    /**
+     * 生成serviceImpl类后的回调方法
+     * @param topLevelClass 生成的serviceImpl类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean serviceImplGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
         return true;
     }
 
+    /**
+     * 生成子serviceImpl类(用于个性化serviceImpl的类)后的回调方法
+     * @param topLevelClass 生成的子serviceImpl类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean subServiceImplGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
         return true;
     }
 
+    /**
+     * 生成controller类后的回调方法
+     * @param topLevelClass 生成的controller类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable){
         return true;
     }
 
+    /**
+     * 生成子controller类(用于个性化controller的类)后的回调方法
+     * @param topLevelClass 生成的子controller类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean subControllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable){
         return true;
     }
 
+    /**
+     * 生成service单元测试类后的回调方法
+     * @param topLevelClass 生成的service单元测试类
+     * @param introspectedTable 表信息
+     * @return true 生成 false 不生成
+     */
     default boolean serviceUnitTestGenerated(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
         return true;
     }

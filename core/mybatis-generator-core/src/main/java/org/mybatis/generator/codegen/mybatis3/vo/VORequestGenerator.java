@@ -29,7 +29,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         String requestVoType = voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass requestVoClass = createTopLevelClass(requestVoType, getAbstractVOType().getFullyQualifiedName());
         requestVoClass.addMultipleImports("lombok");
-
+        voGenService.addConfigurationSuperInterface(requestVoClass, voRequestGeneratorConfiguration);
         addApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);
         requestVoClass.addSerialVersionUID();
 

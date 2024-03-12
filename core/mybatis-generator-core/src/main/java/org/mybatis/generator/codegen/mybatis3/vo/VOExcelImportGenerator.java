@@ -30,6 +30,7 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         TopLevelClass excelImportVoClass = createTopLevelClass(excelImportVoType.getFullyQualifiedName(), null);
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);
         excelImportVoClass.addSuperInterface(superInterface);
+        voGenService.addConfigurationSuperInterface(excelImportVoClass, voExcelGeneratorConfiguration);
         excelImportVoClass.addImportedType(superInterface);
         excelImportVoClass.addImportedType("lombok.*");
         excelImportVoClass.addAnnotation("@Data");

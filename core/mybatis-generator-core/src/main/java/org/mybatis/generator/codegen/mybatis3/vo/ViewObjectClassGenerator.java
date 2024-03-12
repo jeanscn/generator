@@ -154,6 +154,10 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         sqlBuilder.updateStringValues("parent_id", parentMenuId);
                         sqlBuilder.updateStringValues("sort_", String.valueOf(sort));
                         sqlBuilder.updateStringValues("title_", title);
+                        //构造path
+                        String moduleName = this.getContext().getModuleKeyword();
+                        String tableName = this.introspectedTable.getTableConfiguration().getTableName();
+                        sqlBuilder.updateStringValues("path_", "/"+String.join("/", moduleName, tableName));
                         sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/open-view");
                         sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
                         introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql() + ";");

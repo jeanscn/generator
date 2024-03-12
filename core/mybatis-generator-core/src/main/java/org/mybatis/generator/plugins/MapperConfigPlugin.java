@@ -18,24 +18,17 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.XmlConstants;
 
 /**
- * This plugin generates a MapperConfig file containing mapper entries for SQL
- * maps generated for MyBatis3. This demonstrates hooking into the code
- * generation lifecycle and generating additional XML files.
+ * 这个插件生成一个包含SQL映射的MapperConfig文件，这些SQL映射是为MyBatis3生成的。这演示了如何挂钩到代码生成生命周期并生成额外的XML文件。
  *
- * <p>This plugin accepts three properties:
+ * <p>此插件接受三个属性：
  *
  * <ul>
- * <li><code>fileName</code> (optional) the name of the generated file. this
- * defaults to "SqlMapConfig.xml" if not specified.</li>
- * <li><code>targetPackage</code> (required) the name of the package where the file
- * should be placed. Specified like "com.mycompany.sql".</li>
- * <li><code>targetProject</code> (required) the name of the project where the file
- * should be placed.</li>
+ * <li><code>fileName</code>（可选）生成的文件的名称。如果未指定，默认为"SqlMapConfig.xml"。</li>
+ * <li><code>targetPackage</code>（必需）文件应放置的包的名称。像"com.mycompany.sql"这样指定。</li>
+ * <li><code>targetProject</code>（必需）文件应放置的项目的名称。</li>
  * </ul>
  *
- * <p>Note: targetPackage and targetProject follow the same rules as the
- * targetPackage and targetProject values on the sqlMapGenerator configuration
- * element.
+ * <p>注意：targetPackage和targetProject遵循与sqlMapGenerator配置元素上的targetPackage和targetProject值相同的规则。
  *
  * @author Jeff Butler
  *

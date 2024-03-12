@@ -302,4 +302,16 @@ public class VoGenService {
                     .findFirst().orElse(null);
         }
     }
+
+    public void addConfigurationSuperInterface(TopLevelClass topLevelClass, PropertyHolder configuration) {
+        String superInterface =configuration.getProperty("superInterface");
+        if (StringUtility.stringHasValue(superInterface)) {
+            Arrays.stream(superInterface.split(","))
+                    .map(FullyQualifiedJavaType::new)
+                    .forEach(s -> {
+                        topLevelClass.addSuperInterface(s);
+                        topLevelClass.addImportedType(s);
+                    });
+        }
+    }
 }

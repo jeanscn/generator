@@ -36,6 +36,7 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         TopLevelClass createVoClass = createTopLevelClass(createVoType, getAbstractVOType().getFullyQualifiedName());
         createVoClass.addMultipleImports("lombok");
         addApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
+        voGenService.addConfigurationSuperInterface(createVoClass, voCreateGeneratorConfiguration);
         createVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         createVoClass.addSerialVersionUID();
         //添加id属性

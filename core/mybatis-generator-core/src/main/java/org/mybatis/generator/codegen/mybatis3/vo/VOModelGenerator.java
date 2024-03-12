@@ -12,6 +12,7 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -39,6 +40,8 @@ public class VOModelGenerator extends AbstractVOGenerator {
         voClass.addAnnotation("@NoArgsConstructor");
         addApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
         voClass.addSerialVersionUID();
+        //添加父类
+        voGenService.addConfigurationSuperInterface(voClass, voModelGeneratorConfiguration);
         //添加id、version属性
         List<String> fields = new ArrayList<>(Arrays.asList("id", "version"));
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(fields, voModelGeneratorConfiguration.getIncludeColumns(), voModelGeneratorConfiguration.getExcludeColumns());
