@@ -31,6 +31,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         VOUpdateGeneratorConfiguration voUpdateGeneratorConfiguration = voGeneratorConfiguration.getVoUpdateConfiguration();
         String updateVoType = voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass updateVoClass = createTopLevelClass(updateVoType, getAbstractVOType().getFullyQualifiedName());
+        voGenService.addConfigurationSuperInterface(updateVoClass, voUpdateGeneratorConfiguration);
         updateVoClass.addMultipleImports("lombok");
         addApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
         updateVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());

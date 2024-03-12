@@ -169,15 +169,14 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
     private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,boolean required) {
         ApiModelPropertyDesc apiModelPropertyDesc = buildApiModelPropertyAnnotation(field, introspectedTable);
-        if (apiModelPropertyDesc == null) {
-            return false;
+        if (apiModelPropertyDesc != null) {
+            if (required) {
+                apiModelPropertyDesc.setRequired("true");
+            }else{
+                apiModelPropertyDesc.setRequired(null);
+            }
+            apiModelPropertyDesc.addAnnotationToField(field, topLevelClass);
         }
-        if (required) {
-            apiModelPropertyDesc.setRequired("true");
-        }else{
-            apiModelPropertyDesc.setRequired(null);
-        }
-        apiModelPropertyDesc.addAnnotationToField(field, topLevelClass);
         return true;
     }
 
