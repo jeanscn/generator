@@ -441,9 +441,7 @@ public class JavaBeansUtil {
         } catch (ClassNotFoundException e) {
             defaultValue = JDBCUtil.getJDBCTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
         }
-        if (introspectedColumn.getJavaProperty().equals("active")) {
-            return "1";
-        } else if (javaTypeName.equals("String")) {
+       if (javaTypeName.equals("String")) {
             return "\"" + introspectedColumn.getJavaProperty() + "\"";
         } else {
             return defaultValue;
