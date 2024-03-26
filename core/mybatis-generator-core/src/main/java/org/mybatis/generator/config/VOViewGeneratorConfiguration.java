@@ -1,6 +1,7 @@
 package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,6 +35,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
     private String categoryTreeUrl;
 
     private String categoryTreeMultiple = "true";
+
+    private ViewVoUiFrameEnum uiFrameType = ViewVoUiFrameEnum.EL_PLUS_TABLE;
 
     private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
 
@@ -166,8 +169,15 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
         return queryColumnConfigurations;
     }
 
-    public List<QueryColumnConfiguration> addQueryColumnConfigurations(QueryColumnConfiguration queryColumnConfiguration) {
+    public void addQueryColumnConfigurations(QueryColumnConfiguration queryColumnConfiguration) {
         this.queryColumnConfigurations.add(queryColumnConfiguration);
-        return this.queryColumnConfigurations;
+    }
+
+    public ViewVoUiFrameEnum getUiFrameType() {
+        return uiFrameType;
+    }
+
+    public void setUiFrameType(ViewVoUiFrameEnum uiFrameType) {
+        this.uiFrameType = uiFrameType;
     }
 }

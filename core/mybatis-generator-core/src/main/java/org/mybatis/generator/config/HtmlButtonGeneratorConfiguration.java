@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import org.mybatis.generator.custom.UiFrameTypeEnum;
+
 import java.util.List;
 
 /**

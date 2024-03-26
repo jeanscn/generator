@@ -15,6 +15,8 @@ import org.mybatis.generator.custom.ConstantsUtil;
 
 import javax.annotation.Nullable;
 
+import java.util.Optional;
+
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 
@@ -54,6 +56,11 @@ public class Mb3GenUtil {
             return VMD5Util.MD5_15(aCase);
         }
         return null;
+    }
+
+    public static String getDefaultHtmlKey(IntrospectedTable introspectedTable) {
+        String controllerBaseMappingPath = Mb3GenUtil.getControllerBaseMappingPath(introspectedTable);
+        return controllerBaseMappingPath.replace("/", "-");
     }
 
     public static boolean isRequiredColumn(IntrospectedColumn introspectedColumn) {

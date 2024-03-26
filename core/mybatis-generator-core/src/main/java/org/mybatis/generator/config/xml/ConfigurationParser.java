@@ -233,6 +233,11 @@ public class ConfigurationParser {
             htmlEditorPlugin.setConfigurationType("org.mybatis.generator.plugins.html.HtmlFragmentsPlugin");
             context.addPluginConfiguration(htmlEditorPlugin);
 
+            //生成vue相关注解
+            PluginConfiguration vueEditorPlugin = new PluginConfiguration();
+            vueEditorPlugin.setConfigurationType("org.mybatis.generator.plugins.VueHtmMetaAnnotationPlugin");
+            context.addPluginConfiguration(vueEditorPlugin);
+
             //添加commentGenerator
             CommentGeneratorConfiguration commentGeneratorConfiguration = Optional.ofNullable(context.getCommentGeneratorConfiguration())
                     .orElseGet(CommentGeneratorConfiguration::new);

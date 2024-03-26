@@ -13,6 +13,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 import org.mybatis.generator.config.QueryColumnConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 import org.mybatis.generator.custom.annotations.ViewColumnMetaDesc;
@@ -127,6 +128,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(s);
                 if (viewDefaultToolBarsEnum != null) {
                     HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
+                    if (voViewGeneratorConfiguration.getUiFrameType().equals(ViewVoUiFrameEnum.EL_PLUS_TABLE)) {
+                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
+                    }
                     return htmlButtonDesc.toAnnotation();
                 } else {
                     HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
@@ -152,6 +156,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode("ROW_"+s);
                 if (viewDefaultToolBarsEnum != null) {
                     HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
+                    if (voViewGeneratorConfiguration.getUiFrameType().equals(ViewVoUiFrameEnum.EL_PLUS_TABLE)) {
+                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
+                    }
                     return htmlButtonDesc.toAnnotation();
                 } else {
                     HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);

@@ -26,6 +26,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean overWriteJsFile;
 
+    private boolean defaultConfig = true;
+
     private final Set<String> hiddenColumnNames = new HashSet<>();
 
     private final Set<String> readonlyFields = new HashSet<>();
@@ -148,6 +150,14 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public void setLayoutDescriptor(HtmlLayoutDescriptor layoutDescriptor) {
         this.layoutDescriptor = layoutDescriptor;
+    }
+
+    public boolean isDefaultConfig() {
+        return defaultConfig;
+    }
+
+    public void setDefaultConfig(boolean defaultConfig) {
+        this.defaultConfig = defaultConfig;
     }
 
     public List<HtmlElementDescriptor> addElementDescriptors(HtmlElementDescriptor htmlElementDescriptor) {

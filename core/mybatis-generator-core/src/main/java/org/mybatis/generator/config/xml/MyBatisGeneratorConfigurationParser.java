@@ -12,6 +12,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -975,6 +976,11 @@ public class MyBatisGeneratorConfigurationParser {
         String overWriteCssFile = attributes.getProperty(PropertyRegistry.TABLE_OVERRIDE_CSS_FILE);
         if (stringHasValue(overWriteCssFile)) {
             htmlGeneratorConfiguration.setOverWriteCssFile(Boolean.parseBoolean(overWriteCssFile));
+        }
+
+        String aDefault = attributes.getProperty("default");
+        if (stringHasValue(aDefault)) {
+            htmlGeneratorConfiguration.setDefaultConfig(Boolean.parseBoolean(aDefault));
         }
 
         //计算属性及子元素
@@ -2208,6 +2214,11 @@ public class MyBatisGeneratorConfigurationParser {
         String multiple = attributes.getProperty("categoryTreeMultiple");
         if (stringHasValue(multiple)) {
             voViewGeneratorConfiguration.setCategoryTreeMultiple(multiple);
+        }
+
+        String uiFrameType = attributes.getProperty("uiFrameType");
+        if (stringHasValue(uiFrameType)) {
+            voViewGeneratorConfiguration.setUiFrameType(ViewVoUiFrameEnum.getEnum(uiFrameType));
         }
 
         //EqualsAndHashCodeColumns
