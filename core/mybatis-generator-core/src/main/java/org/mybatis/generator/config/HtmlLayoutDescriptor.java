@@ -23,6 +23,12 @@ public class HtmlLayoutDescriptor {
 
     private String borderColor;
 
+    private String labelWidth = "120px";
+
+    private String labelPosition = "right";
+
+    private String size = "default";
+
     public HtmlLayoutDescriptor() {
         this.borderColor = ConstantsUtil.HTML_BORDER_COLOR_DEFAULT;
         this.borderWidth = ConstantsUtil.HTML_BORDER_WIDTH;
@@ -82,5 +88,29 @@ public class HtmlLayoutDescriptor {
 
     public void setBorderColor(String borderColor) {
         this.borderColor = borderColor;
+    }
+
+    public String getLabelWidth() {
+        return labelWidth;
+    }
+
+    public void setLabelWidth(String labelWidth) {
+        this.labelWidth = labelWidth;
+    }
+
+    public String getLabelPosition() {
+        return labelPosition;
+    }
+
+    public void setLabelPosition(String labelPosition) {
+        this.labelPosition = labelPosition;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 }

@@ -3,6 +3,7 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.codegen.mybatis3.vue.FormItemRule;
 
 /**
  * ElementPlus表单元数据描述注解
@@ -23,13 +24,43 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
     private Integer len;
     private String pattern;
 
-    private final IntrospectedColumn introspectedColumn;
-
-
     public VueFormItemRuleDesc(IntrospectedColumn introspectedColumn) {
         super();
-        this.introspectedColumn = introspectedColumn;
         this.addImports(VueFormItemRule.class.getCanonicalName());
+    }
+
+    public VueFormItemRuleDesc(FormItemRule formItemRule) {
+        super();
+        this.addImports(VueFormItemRule.class.getCanonicalName());
+
+        if (VStringUtil.stringHasValue(formItemRule.getType())) {
+            this.setType(formItemRule.getType());
+        }
+        if (formItemRule.isRequired()) {
+            this.setRequired(true);
+        }
+        if (formItemRule.isWitespace()) {
+            this.setWitespace(true);
+        }
+        if (VStringUtil.stringHasValue(formItemRule.getMessage())) {
+            this.setMessage(formItemRule.getMessage());
+        }
+        if (VStringUtil.stringHasValue(formItemRule.getTrigger())) {
+            this.setTrigger(formItemRule.getTrigger());
+        }
+        if (formItemRule.getMin() > 0) {
+            this.setMin(formItemRule.getMin());
+        }
+        if (formItemRule.getMax() > 0) {
+            this.setMax(formItemRule.getMax());
+        }
+        if (formItemRule.getLen() > 0) {
+            this.setLen(formItemRule.getLen());
+        }
+        if (VStringUtil.stringHasValue(formItemRule.getPattern())) {
+            this.setPattern(formItemRule.getPattern());
+        }
+
     }
 
     @Override
@@ -50,18 +81,18 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("trigger = \"{0}\"", this.getTrigger()));
         }
         if (this.getMin() != null) {
-            items.add(VStringUtil.format("min = {0}", this.getMin()));
+            items.add(VStringUtil.format("min = {0}", String.valueOf(this.getMin())));
         }
         if (this.getMax() != null) {
-            items.add(VStringUtil.format("max = {0}", this.getMax()));
+            items.add(VStringUtil.format("max = {0}", String.valueOf(this.getMax())));
         }
         if (this.getLen() != null) {
-            items.add(VStringUtil.format("len = {0}", this.getLen()));
+            items.add(VStringUtil.format("len = {0}", String.valueOf(this.getLen())));
         }
         if (VStringUtil.isNotBlank(this.getPattern())) {
             items.add(VStringUtil.format("pattern = \"{0}\"", this.getPattern()));
         }
-        return ANNOTATION_NAME + "(" + String.join("\n       ,", items.toArray(new String[0])) + ")";
+        return ANNOTATION_NAME + "(" + String.join(",", items.toArray(new String[0])) + ")";
     }
 
     public String getType() {
@@ -136,7 +167,4 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
         this.pattern = pattern;
     }
 
-    public IntrospectedColumn getIntrospectedColumn() {
-        return introspectedColumn;
-    }
 }

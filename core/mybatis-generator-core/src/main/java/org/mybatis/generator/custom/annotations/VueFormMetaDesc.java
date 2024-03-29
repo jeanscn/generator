@@ -44,16 +44,16 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        if (VStringUtil.isNotBlank(this.getAppKeyword())) {
+        if (VStringUtil.isNotBlank(this.getLabelPosition()) && !"right".equals(this.getLabelPosition())) {
             items.add(VStringUtil.format("labelPosition = \"{0}\"", this.getLabelPosition()));
         }
-        if (VStringUtil.isNotBlank(this.getLabelWidth())) {
+        if (VStringUtil.isNotBlank(this.getLabelWidth()) && !"120px".equals(this.getLabelWidth())) {
             items.add(VStringUtil.format("labelWidth = \"{0}\"", this.getLabelWidth()));
         }
-        if (VStringUtil.isNotBlank(this.getSize())) {
+        if (VStringUtil.isNotBlank(this.getSize()) && !"medium".equals(this.getSize())) {
             items.add(VStringUtil.format("size = \"{0}\"", this.getSize()));
         }
-        return ANNOTATION_NAME + "(" + String.join("\n       ,", items.toArray(new String[0])) + ")";
+        return ANNOTATION_NAME + "(" + String.join(",", items.toArray(new String[0])) + ")";
     }
 
     public String getValue() {

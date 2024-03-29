@@ -1,22 +1,31 @@
 package org.mybatis.generator.plugins;
 
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.tool.core.VArrayUtil;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.HtmlElementDescriptor;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.HtmlLayoutDescriptor;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormMetaDesc;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * 添加VueHtmMetaAnnotationPlugin
  */
 public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
+
+    private List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
+    private List<IntrospectedColumn> displayColumns = new ArrayList<>();
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -28,7 +37,12 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
     public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(introspectedTable);
         if (htmlGeneratorConfiguration != null) {
-            new VueFormMetaDesc(introspectedTable).addAnnotationToTopLevelClass(topLevelClass);
+            VueFormMetaDesc vueFormMetaDesc = new VueFormMetaDesc(introspectedTable);
+            HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
+            vueFormMetaDesc.setLabelWidth(layoutDescriptor.getLabelWidth());
+            vueFormMetaDesc.setLabelPosition(layoutDescriptor.getLabelPosition());
+            vueFormMetaDesc.setSize(layoutDescriptor.getSize());
+            vueFormMetaDesc.addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
@@ -54,6 +68,27 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
         }
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(introspectedTable);
         if (htmlGeneratorConfiguration != null) {
+            //获取显示的字段
+            for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
+                if (introspectedTable.getRules().isGenerateVoModel()) {
+                    if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
+                            && !baseColumn.isPrimaryKey()
+                            && !baseColumn.getActualColumnName().equalsIgnoreCase("version_")) {
+                        continue;
+                    }
+                }
+                if (GenerateUtils.isHiddenColumn(introspectedTable, baseColumn, htmlGeneratorConfiguration)) {
+                    hiddenColumns.add(baseColumn);
+                } else {
+                    displayColumns.add(baseColumn);
+                }
+            }
+
+            boolean match = displayColumns.stream().anyMatch(e -> e.getActualColumnName().equals(introspectedColumn.getActualColumnName()));
+            if (!match) {
+                return;
+            }
+            //获取html字段配置
             HtmlElementDescriptor elementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                     .filter(e -> e.getColumn().getActualColumnName().equals(introspectedColumn.getActualColumnName()))
                     .findFirst().orElse(null);
@@ -65,14 +100,48 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             }else{
                 vueFormItemMetaDesc.setSpan(24/layoutDescriptor.getPageColumnsNum());
             }
-            //设置
-            if (elementDescriptor != null) {
-                vueFormItemMetaDesc.setComponent(elementDescriptor.getTagType());
-                vueFormItemMetaDesc.setMultiple(Boolean.valueOf(elementDescriptor.getMultiple()));
-                //todo 更多设置
+            //设置placeholder
+            vueFormItemMetaDesc.setPlaceholder(VueFormGenerateUtil.getDefaultPlaceholder(elementDescriptor, introspectedColumn));
+            //设置component
+            VueFormGenerateUtil.setComponentName(vueFormItemMetaDesc,elementDescriptor, introspectedColumn);
+            //设置日期时间属性
+            VueFormGenerateUtil.setDateTimeTypFormat(vueFormItemMetaDesc, elementDescriptor, introspectedColumn);
 
-            }else{
-                vueFormItemMetaDesc.setComponent("input");
+            if (elementDescriptor != null) { //存在字段配置的内容
+                vueFormItemMetaDesc.setMultiple(Boolean.valueOf(elementDescriptor.getMultiple()));
+                if (VStringUtil.stringHasValue(elementDescriptor.getDataSource())) {
+                    vueFormItemMetaDesc.setDataSource(elementDescriptor.getDataSource());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getBeanName())) {
+                    vueFormItemMetaDesc.setBeanName(elementDescriptor.getBeanName());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getApplyProperty())) {
+                    vueFormItemMetaDesc.setApplyProperty(elementDescriptor.getApplyProperty());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getEnumClassName())) {
+                    vueFormItemMetaDesc.setEnumClassFullName(elementDescriptor.getEnumClassName());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getDictCode())) {
+                    vueFormItemMetaDesc.setDictCode(elementDescriptor.getDictCode());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getCallback())) {
+                    vueFormItemMetaDesc.setCallback(elementDescriptor.getCallback());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getLabelCss())) {
+                    vueFormItemMetaDesc.setLabelCss(elementDescriptor.getLabelCss());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getElementCss())) {
+                    vueFormItemMetaDesc.setElementCss(elementDescriptor.getElementCss());
+                }
+                if (elementDescriptor.isDateRange()) {
+                    vueFormItemMetaDesc.setDateRange(true);
+                }
+            }
+            //设置rules
+            String rules = VueFormGenerateUtil.getRules(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);
+            if (stringHasValue(rules)) {
+                vueFormItemMetaDesc.addImports("com.vgosoft.core.annotation.VueFormItemRule");
+                vueFormItemMetaDesc.setRules(rules);
             }
             vueFormItemMetaDesc.getImportedTypes().forEach(topLevelClass::addImportedType);
             field.addAnnotation(vueFormItemMetaDesc.toAnnotation());
@@ -86,6 +155,17 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
         }else{
             return htmlMapGeneratorConfigurations.stream().filter(HtmlGeneratorConfiguration::isDefaultConfig).findFirst().orElse(htmlMapGeneratorConfigurations.get(0));
         }
+    }
+
+    private boolean isIgnore(IntrospectedColumn introspectedColumn, VOModelGeneratorConfiguration configuration) {
+        List<String> allFields = new ArrayList<>(EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields());
+        allFields.add("tenantId");
+        String property = configuration.getProperty(PropertyRegistry.ELEMENT_IGNORE_COLUMNS);
+        boolean ret = false;
+        if (stringHasValue(property)) {
+            ret = VArrayUtil.contains(property.split(","), introspectedColumn.getActualColumnName());
+        }
+        return ret || allFields.contains(introspectedColumn.getJavaProperty());
     }
 
 }

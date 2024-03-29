@@ -1161,6 +1161,18 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(borderColor)) {
             htmlLayoutDescriptor.setBorderColor(borderColor);
         }
+        String labelWidth = attributes.getProperty("labelWidth");
+        if (stringHasValue(labelWidth)) {
+            htmlLayoutDescriptor.setLabelWidth(labelWidth);
+        }
+        String labelPosition = attributes.getProperty("labelPosition");
+        if (stringHasValue(labelPosition)) {
+            htmlLayoutDescriptor.setLabelPosition(labelPosition);
+        }
+        String size = attributes.getProperty("size");
+        if (stringHasValue(size)) {
+            htmlLayoutDescriptor.setSize(size);
+        }
         htmlGeneratorConfiguration.setLayoutDescriptor(htmlLayoutDescriptor);
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        <!--version:1.5.0.2301115001-->
+        <!--version:1.6.0.240327001-->
         <!--
         几个通用的xml实体
         -->
@@ -556,6 +556,9 @@
             5、exclusiveColumns 独占一行的列名，多个列名用逗号分隔
             6、borderWidth 内容边框宽度，默认1px
             7、borderColor 内容边框颜色，默认#eee
+            8、labelWidth 标签宽度，默认120px.例如 '50px'。 作为 Form 直接子元素的 form-item 会继承该值。 可以使用 auto。
+            9、labelPosition 标签对齐方式，默认right。当设置为 left 或 right 时，则也需要设置 label-width 属性
+            10、size 控件大小，可选值为 large / default / small，默认default
             -->
         <!ELEMENT layout  EMPTY>
         <!ATTLIST layout
@@ -565,7 +568,10 @@
                 uiFrameType (layui|zui|elPlus|antd) #IMPLIED
                 exclusiveColumns CDATA #IMPLIED
                 borderWidth CDATA #IMPLIED
-                borderColor CDATA #IMPLIED>
+                borderColor CDATA #IMPLIED
+                labelWidth CDATA #IMPLIED
+                labelPosition (left|right|top) #IMPLIED
+                size (large|default|small) #IMPLIED>
 
         <!--
             页面元素生成描述
