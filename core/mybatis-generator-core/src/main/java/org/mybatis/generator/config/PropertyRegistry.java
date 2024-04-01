@@ -120,6 +120,9 @@ public class PropertyRegistry {
     public static final String ELEMENT_EXCLUDE_COLUMNS = "excludeColumns";
     public static final String ELEMENT_INCLUDE_COLUMNS = "includeColumns";
 
+    public static final String ELEMENT_EXCLUDE_FIELDS = "excludeFields";
+    public static final String ELEMENT_INCLUDE_FIELDS = "includeFields";
+
     public static final String ELEMENT_IMPORT_INCLUDE_COLUMNS = "importIncludeColumns";
 
     public static final String ELEMENT_IMPORT_EXCLUDE_COLUMNS = "importExcludeColumns";
