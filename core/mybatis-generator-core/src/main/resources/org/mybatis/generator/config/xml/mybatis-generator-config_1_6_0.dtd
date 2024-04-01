@@ -662,7 +662,10 @@
                 listViewClass CDATA #IMPLIED
                 dateFmt CDATA #IMPLIED
                 dateRange (true|false) #IMPLIED
-                multiple (false|true) #IMPLIED>
+                multiple (false|true) #IMPLIED
+                remoteApiParse (false|true) #IMPLIED
+                keyMapLabel CDATA #IMPLIED
+                keyMapValue CDATA #IMPLIED>
         <!--
             为元素添加一个超级链接或操作
             属性信息：

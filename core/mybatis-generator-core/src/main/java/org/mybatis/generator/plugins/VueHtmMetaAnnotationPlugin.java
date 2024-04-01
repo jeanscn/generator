@@ -106,12 +106,14 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             VueFormGenerateUtil.setComponentName(vueFormItemMetaDesc,elementDescriptor, introspectedColumn);
             //设置日期时间属性
             VueFormGenerateUtil.setDateTimeTypFormat(vueFormItemMetaDesc, elementDescriptor, introspectedColumn);
-
             if (elementDescriptor != null) { //存在字段配置的内容
+                //设置multiple
                 vueFormItemMetaDesc.setMultiple(Boolean.valueOf(elementDescriptor.getMultiple()));
+                //设置dataSource
                 if (VStringUtil.stringHasValue(elementDescriptor.getDataSource())) {
                     vueFormItemMetaDesc.setDataSource(elementDescriptor.getDataSource());
                 }
+                //设置beanName
                 if (VStringUtil.stringHasValue(elementDescriptor.getBeanName())) {
                     vueFormItemMetaDesc.setBeanName(elementDescriptor.getBeanName());
                 }
@@ -135,6 +137,21 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 }
                 if (elementDescriptor.isDateRange()) {
                     vueFormItemMetaDesc.setDateRange(true);
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getSwitchText())) {
+                    vueFormItemMetaDesc.setSwitchText(elementDescriptor.getSwitchText());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getDataUrl())) {
+                    vueFormItemMetaDesc.setDataUrl(elementDescriptor.getDataUrl());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getKeyMapValue())) {
+                    vueFormItemMetaDesc.setKeyMapValue(elementDescriptor.getKeyMapValue());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getKeyMapLabel())) {
+                    vueFormItemMetaDesc.setKeyMapLabel(elementDescriptor.getKeyMapLabel());
+                }
+                if (elementDescriptor.isRemoteApiParse()) {
+                    vueFormItemMetaDesc.setRemoteApiParse(true);
                 }
             }
             //设置rules

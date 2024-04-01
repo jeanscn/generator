@@ -1280,6 +1280,18 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(multiple)) {
             htmlElementDescriptor.setMultiple(multiple);
         }
+        String remoteApiParse = attributes.getProperty("remoteApiParse");
+        if (stringHasValue(remoteApiParse) && "true".equals(remoteApiParse)) {
+            htmlElementDescriptor.setRemoteApiParse(true);
+        }
+        String keyMapLabel = attributes.getProperty("keyMapLabel");
+        if (stringHasValue(keyMapLabel)) {
+            htmlElementDescriptor.setKeyMapLabel(keyMapLabel);
+        }
+        String keyMapValue = attributes.getProperty("keyMapValue");
+        if (stringHasValue(keyMapValue)) {
+            htmlElementDescriptor.setKeyMapValue(keyMapValue);
+        }
 
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();

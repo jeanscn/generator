@@ -55,6 +55,12 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String multiple;
 
+    private boolean remoteApiParse = false;
+
+    private String keyMapLabel;
+
+    private String keyMapValue;
+
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
     public HtmlElementDescriptor() {
@@ -265,5 +271,29 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public List<HtmlHrefElementConfiguration> getHtmlHrefElementConfigurations() {
         return htmlHrefElementConfigurations;
+    }
+
+    public boolean isRemoteApiParse() {
+        return remoteApiParse;
+    }
+
+    public void setRemoteApiParse(boolean remoteApiParse) {
+        this.remoteApiParse = remoteApiParse;
+    }
+
+    public String getKeyMapLabel() {
+        return keyMapLabel;
+    }
+
+    public void setKeyMapLabel(String keyMapLabel) {
+        this.keyMapLabel = keyMapLabel;
+    }
+
+    public String getKeyMapValue() {
+        return keyMapValue;
+    }
+
+    public void setKeyMapValue(String keyMapValue) {
+        this.keyMapValue = keyMapValue;
     }
 }

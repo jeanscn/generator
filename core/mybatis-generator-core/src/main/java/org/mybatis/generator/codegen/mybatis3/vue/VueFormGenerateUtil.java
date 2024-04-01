@@ -211,6 +211,6 @@ public class VueFormGenerateUtil {
             }
         }
         //生成rules注解
-        return formItemRules.stream().map(r->new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining(","));
+        return formItemRules.stream().map(r->new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
     }
 }

@@ -92,7 +92,7 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getPattern())) {
             items.add(VStringUtil.format("pattern = \"{0}\"", this.getPattern()));
         }
-        return ANNOTATION_NAME + "(" + String.join(",", items.toArray(new String[0])) + ")";
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
     public String getType() {

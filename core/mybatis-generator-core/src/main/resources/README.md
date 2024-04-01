@@ -1,4 +1,10 @@
 更新日志：
+# 2024-03-29
+## 一、新增内容：
+* 1、htmlElementDescriptor标签增加：remoteApiParser、keyMapLabel、keyMapValue属性，用于指定（vue表单项的选项接口的结果处理）远程数据源的解析器、键值对的映射关系。
+* remoteApiParser：是否需要解析，默认为false，如果为true，则需要指定解析器。如果为true且为指定解析的keyMap则使用默认配置，既keyMapValue为id，keyMapLabel为name。
+* keyMapLabel：指定远程数据源的label字段。不指定为默认值name。keyMapValue：指定远程数据源的value字段。不指定为默认值id。
+
 # 2023-9-27
 ## 一、更新说明：
 * 1、修正表单switch元素生成格式的错误。

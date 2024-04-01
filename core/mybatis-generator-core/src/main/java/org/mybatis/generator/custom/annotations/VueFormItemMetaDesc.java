@@ -35,7 +35,6 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String type;
     private String valueFormat; // 日期格式化
     private boolean dateRange = false; // 是否为日期范围
-    private String remoteApi; // 选项的远程数据源
     private boolean remoteApiParse = false; // 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
     private String keyMapLabel = "name"; // 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
     private String keyMapValue = "id"; // 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
@@ -49,6 +48,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     private String labelCss = "";
     private String elementCss = "";
+    private String switchText = "";
 
 
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
@@ -80,7 +80,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.getRules())) {
             this.addImports(VueFormItemRule.class.getCanonicalName());
-            items.add(VStringUtil.format("\n rules = '{'{0}'}'\n", this.getRules()));
+            items.add(VStringUtil.format("\n            rules = '{'{0}'}'\n            ", this.getRules()));
         }
         if (VStringUtil.isNotBlank(this.getHideHandle())) {
             items.add(VStringUtil.format("hideHandle = \"{0}\"", this.getHideHandle()));
@@ -97,7 +97,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getMinlength()) && !"0".equals(this.getMinlength())) {
             items.add(VStringUtil.format("minlength = \"{0}\"", this.getMinlength()));
         }
-        if (this.getMultiple() != null) {
+        if (this.getMultiple() != null && this.getMultiple()){
             items.add(VStringUtil.format("multiple = {0}", this.getMultiple().toString().toLowerCase()));
         }
         if (VStringUtil.isNotBlank(this.getType())) {
@@ -108,9 +108,6 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (this.isDateRange()) {
             items.add(VStringUtil.format("dateRange = true"));
-        }
-        if (VStringUtil.isNotBlank(this.getRemoteApi())) {
-            items.add(VStringUtil.format("remoteApi = \"{0}\"", this.getRemoteApi()));
         }
         if (this.isRemoteApiParse()) {
             items.add(VStringUtil.format("remoteApiParse = true"));
@@ -148,7 +145,10 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getElementCss())) {
             items.add(VStringUtil.format("elementCss = \"{0}\"", this.getElementCss()));
         }
-        return ANNOTATION_NAME + "(" + String.join(",", items.toArray(new String[0])) + ")";
+        if (VStringUtil.isNotBlank(this.getSwitchText())) {
+            items.add(VStringUtil.format("switchText = \"{0}\"", this.getSwitchText()));
+        }
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
     public String getFieldValue() {
@@ -262,15 +262,6 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     public void setMinlength(String minlength) {
         this.minlength = minlength;
     }
-
-    public String getRemoteApi() {
-        return remoteApi;
-    }
-
-    public void setRemoteApi(String remoteApi) {
-        this.remoteApi = remoteApi;
-    }
-
     public boolean isRemoteApiParse() {
         return remoteApiParse;
     }
@@ -373,5 +364,13 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setDateRange(boolean dateRange) {
         this.dateRange = dateRange;
+    }
+
+    public String getSwitchText() {
+        return switchText;
+    }
+
+    public void setSwitchText(String switchText) {
+        this.switchText = switchText;
     }
 }
