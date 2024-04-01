@@ -11,10 +11,8 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -40,41 +38,41 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         excelVoClass.addAnnotation("@Data");
         excelVoClass.addAnnotation("@NoArgsConstructor");
         excelVoClass.addSerialVersionUID();
-        //添加属性
-        List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getExportIncludeColumns(), voExcelGeneratorConfiguration.getExcludeColumns());
-        if (!introspectedColumns.isEmpty()) {
-            excelVoClass.addAnnotation("@AllArgsConstructor");
-        }
-        for (IntrospectedColumn voColumn : introspectedColumns) {
-            Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
-            field.setVisibility(JavaVisibility.PRIVATE);
-            field.setRemark(voColumn.getRemarks(true));
-            if (plugins.voExcelFieldGenerated(field, excelVoClass, voColumn, introspectedTable)) {
-                excelVoClass.addField(field);
-                excelVoClass.addImportedType(voColumn.getFullyQualifiedJavaType());
-            }
-        }
 
+        //获得所有可能的属性
+        List<Field> allFields = new ArrayList<>();
+        for (IntrospectedColumn nonBLOBColumn : introspectedTable.getNonBLOBColumns()) {
+            Field field = new Field(nonBLOBColumn.getJavaProperty(), nonBLOBColumn.getFullyQualifiedJavaType());
+            field.setVisibility(JavaVisibility.PRIVATE);
+            field.setRemark(nonBLOBColumn.getRemarks(true));
+            allFields.add(field);
+        }
         //增加映射
         Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
-         List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
-        fields.forEach(field -> {
-            if (plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)) {
-                if (!excelVoClass.isContainField(field.getName())) {
-                    excelVoClass.addField(field);
-                }
-            }
-        });
+        List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
+        allFields.addAll(fields);
         //附加属性
         Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        excelVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
-                    if (plugins.voExcelFieldGenerated(field, excelVoClass, null, introspectedTable)) {
-                        excelVoClass.addField(field);
-                        excelVoClass.addImportedType(field.getType());
-                    }
-                }
-        );
+        allFields.addAll(excelVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations));
+        //添加属性
+        List<Field> exportFields;
+        if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {
+            exportFields = allFields.stream().filter(f->voExcelGeneratorConfiguration.getExportIncludeFields().contains(f.getName())).collect(Collectors.toList());
+        }else{
+           Set<String> excludeFields = voExcelGeneratorConfiguration.getExportExcludeFields();
+            voGeneratorConfiguration.getExcludeColumns().stream().map(c->introspectedTable.getColumn(c).orElse(null)).filter(Objects::nonNull).forEach(c->excludeFields.add(c.getJavaProperty()));
+            exportFields = allFields.stream().filter(f->!excludeFields.contains(f.getName())).collect(Collectors.toList());
+        }
+        if (!exportFields.isEmpty()) {
+            excelVoClass.addAnnotation("@AllArgsConstructor");
+        }
+        for (Field exportField : exportFields) {
+            if (plugins.voExcelFieldGenerated(exportField, excelVoClass, null, introspectedTable)) {
+                excelVoClass.addField(exportField);
+                excelVoClass.addImportedType(exportField.getType());
+            }
+        }
 
         /*
          * 添加映射方法

@@ -2,14 +2,15 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    private Set<String> exportIncludeColumns = new HashSet<>();
-    private Set<String> exportExcludeColumns = new HashSet<>();
+    private List<String> exportIncludeFields = new ArrayList<>();
+    private Set<String> exportExcludeFields = new HashSet<>();
     private Set<String> exportIgnoreFields = new HashSet<>();
 
     private Set<String> importIncludeColumns = new HashSet<>();
@@ -30,13 +31,7 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         return excelImportType;
     }
 
-    public Set<String> getExportIncludeColumns() {
-        return exportIncludeColumns;
-    }
 
-    public void setExportIncludeColumns(Set<String> exportIncludeColumns) {
-        this.exportIncludeColumns = exportIncludeColumns;
-    }
 
 
     public Set<String> getImportIncludeColumns() {
@@ -71,18 +66,25 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         this.importIgnoreFields = importIgnoreFields;
     }
 
-    public Set<String> getExportExcludeColumns() {
-        return exportExcludeColumns;
-    }
-
-    public void setExportExcludeColumns(Set<String> exportExcludeColumns) {
-        this.exportExcludeColumns = exportExcludeColumns;
-    }
 
     @Override
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "VOExcelGeneratorConfiguration");
     }
 
+    public List<String> getExportIncludeFields() {
+        return exportIncludeFields;
+    }
 
+    public void setExportIncludeFields(List<String> exportIncludeFields) {
+        this.exportIncludeFields = exportIncludeFields;
+    }
+
+    public Set<String> getExportExcludeFields() {
+        return exportExcludeFields;
+    }
+
+    public void setExportExcludeFields(Set<String> exportExcludeFields) {
+        this.exportExcludeFields = exportExcludeFields;
+    }
 }

@@ -2104,13 +2104,13 @@ public class MyBatisGeneratorConfigurationParser {
         Properties attributes = parseAttributes(node);
         VOExcelGeneratorConfiguration vOExcelGeneratorConfiguration = new VOExcelGeneratorConfiguration(context, tc);
         parseColumnsList(attributes, vOExcelGeneratorConfiguration, voGeneratorConfiguration);
-        String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
-        if (stringHasValue(includeColumns)) {
-            vOExcelGeneratorConfiguration.setExportIncludeColumns(spiltToSet(includeColumns));
+        String includeFields = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_FIELDS);
+        if (stringHasValue(includeFields)) {
+            vOExcelGeneratorConfiguration.setExportIncludeFields(spiltToList(includeFields));
         }
-        String excludeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
-        if (stringHasValue(excludeColumns)) {
-            vOExcelGeneratorConfiguration.setExportExcludeColumns(spiltToSet(excludeColumns));
+        String excludeFields = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_FIELDS);
+        if (stringHasValue(excludeFields)) {
+            vOExcelGeneratorConfiguration.setExportExcludeFields(spiltToSet(excludeFields));
         }
         String ignoreFields = attributes.getProperty(PropertyRegistry.ELEMENT_IGNORE_FIELDS);
         if (stringHasValue(ignoreFields)) {
