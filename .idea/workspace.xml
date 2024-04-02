@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="修改生成插入、更新方法清空缓存部分代码">
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="修正日期时间格式的字段的生成静态代码初始值的问题">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlElementDescriptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlElementDescriptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormItemMetaDesc.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormItemMetaDesc.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_5_0.dtd" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_5_0.dtd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd" afterDir="false" />
     </list>
     <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes" />
     <option name="SHOW_DIALOG" value="false" />
@@ -982,7 +976,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="99" />
+    <option name="localTasksCounter" value="100" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1023,7 +1017,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="增加ztree接口生成内容。" />
     <MESSAGE value="支持多个tree-cate接口" />
     <MESSAGE value="更新selectByDict方法的参数，type改为Optional类型，以便于接收null。及其它更新。" />
     <MESSAGE value="更新selectByKeysDict\fetchTreeData方法的引入内容" />
@@ -1048,7 +1041,8 @@
     <MESSAGE value="branch about" />
     <MESSAGE value="调整主表单打印子表数据来源部分代码的生成。在页面添加js片段" />
     <MESSAGE value="修改生成插入、更新方法清空缓存部分代码" />
-    <option name="LAST_COMMIT_MESSAGE" value="修改生成插入、更新方法清空缓存部分代码" />
+    <MESSAGE value="修正日期时间格式的字段的生成静态代码初始值的问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="修正日期时间格式的字段的生成静态代码初始值的问题" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
