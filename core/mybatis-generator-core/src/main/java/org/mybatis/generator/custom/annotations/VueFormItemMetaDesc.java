@@ -36,6 +36,8 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String valueFormat; // 日期格式化
     private boolean dateRange = false; // 是否为日期范围
     private boolean remoteApiParse = false; // 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
+
+    private boolean remoteToTree = false; // 远程数据源转树形结构
     private String keyMapLabel = "name"; // 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
     private String keyMapValue = "id"; // 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
     private String dataUrl = ""; // 远程数据源的URL
@@ -111,6 +113,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (this.isRemoteApiParse()) {
             items.add(VStringUtil.format("remoteApiParse = true"));
+        }
+        if (this.isRemoteToTree()) {
+            items.add(VStringUtil.format("remoteToTree = true"));
         }
         if (VStringUtil.isNotBlank(this.getKeyMapLabel()) && !"name".equals(this.getKeyMapLabel())){
             items.add(VStringUtil.format("keyMapLabel = \"{0}\"", this.getKeyMapLabel()));
@@ -268,6 +273,14 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setRemoteApiParse(boolean remoteApiParse) {
         this.remoteApiParse = remoteApiParse;
+    }
+
+    public boolean isRemoteToTree() {
+        return remoteToTree;
+    }
+
+    public void setRemoteToTree(boolean remoteToTree) {
+        this.remoteToTree = remoteToTree;
     }
 
     public String getKeyMapLabel() {

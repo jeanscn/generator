@@ -1284,6 +1284,11 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(remoteApiParse) && "true".equals(remoteApiParse)) {
             htmlElementDescriptor.setRemoteApiParse(true);
         }
+        String remoteToTree = attributes.getProperty("remoteToTree");
+        if (stringHasValue(remoteToTree) && "true".equalsIgnoreCase(remoteToTree)) {
+            htmlElementDescriptor.setRemoteToTree(true);
+        }
+
         String keyMapLabel = attributes.getProperty("keyMapLabel");
         if (stringHasValue(keyMapLabel)) {
             htmlElementDescriptor.setKeyMapLabel(keyMapLabel);

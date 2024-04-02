@@ -57,6 +57,8 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private boolean remoteApiParse = false;
 
+    private boolean remoteToTree = false;
+
     private String keyMapLabel;
 
     private String keyMapValue;
@@ -295,5 +297,13 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setKeyMapValue(String keyMapValue) {
         this.keyMapValue = keyMapValue;
+    }
+
+    public boolean isRemoteToTree() {
+        return remoteToTree;
+    }
+
+    public void setRemoteToTree(boolean remoteToTree) {
+        this.remoteToTree = remoteToTree;
     }
 }

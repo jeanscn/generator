@@ -153,6 +153,9 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (elementDescriptor.isRemoteApiParse()) {
                     vueFormItemMetaDesc.setRemoteApiParse(true);
                 }
+                if (elementDescriptor.isRemoteToTree()) {
+                    vueFormItemMetaDesc.setRemoteToTree(true);
+                }
             }
             //设置rules
             String rules = VueFormGenerateUtil.getRules(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);

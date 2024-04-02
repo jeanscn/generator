@@ -664,6 +664,7 @@
                 dateRange (true|false) #IMPLIED
                 multiple (false|true) #IMPLIED
                 remoteApiParse (false|true) #IMPLIED
+                remoteToTree (false|true) #IMPLIED
                 keyMapLabel CDATA #IMPLIED
                 keyMapValue CDATA #IMPLIED>
         <!--
@@ -1099,10 +1100,10 @@
            属性信息：
            1、generate 可选 是否生成,true生成（ExcelVO类不存时生成，如果存在则不再覆盖）,false忽略。缺省为true
                当父类的generateVO的generate属性为false时，该属性始终false。
-           2、includeColumns 可选 Excel导出模型(ExcelVo)包含的字段名,多值使用","。
-           3、excludeColumns 可选 Excel导出模型(ExcelVo)排除的字段名，多值使用","，
-                当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。如果配置includeColumns属性，本配置项不生效;
+           2、includeFields 可选 Excel导出模型(ExcelVo)包含的属性名,多值使用","。
+           3、excludeFields 可选 Excel导出模型(ExcelVo)排除的属性名，多值使用","，如果配置includeColumns属性，本配置项不生效;
            4、ignoreFields 可选 Excel导出模型(ExcelVo)忽略的字段名，多值使用","，生成时会为忽略字段添加@ExcelIgnore注解
+               注意：因为存在字段转换字段时：如：executeType->executeTypeText时，如果希望导出executeTypeText而不是executeType，需要两个属性同时导出，并把executeType忽略列表（因为executeType需要为executeTypeText提供原始值）
            5、importIncludeColumns 可选 Excel导入模型包含的字段名,多值使用","。
            6、importExcludeColumns 可选 当没有配置importIncludeColumns时，Excel导入模型排除的字段名，多值使用","。如果配置importIncludeColumns属性，本配置项不生效;
            7、importIgnoreFields 可选 Excel导入模型忽略的字段名，多值使用","，，生成时会为忽略字段添加@ExcelIgnore注解
@@ -1112,8 +1113,8 @@
         <!ELEMENT excelVO (property*,overridePropertyValue*,additionalProperty*)>
         <!ATTLIST excelVO
                 generate (true|false) #IMPLIED
-                includeColumns CDATA #IMPLIED
-                excludeColumns CDATA #IMPLIED
+                includeFields CDATA #IMPLIED
+                excludeFields CDATA #IMPLIED
                 ignoreFields CDATA #IMPLIED
                 importIncludeColumns CDATA #IMPLIED
                 importExcludeColumns CDATA #IMPLIED
