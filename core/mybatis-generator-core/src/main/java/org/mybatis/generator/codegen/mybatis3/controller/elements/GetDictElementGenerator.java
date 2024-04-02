@@ -53,7 +53,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
                 , entityCachePoType.getShortName()
                 , serviceBeanName
                 , introspectedTable.getSelectByKeysDictStatementId()
-                , introspectedTable.getColumn(configuration.getTypeColumn()).isPresent() ? "Optional.of(types),keys" : "Optional.empty(),keys"));
+                , configuration.getTypeColumn() == null ? "Optional.empty(),keys" : "Optional.of(types),keys"));
         method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine("return success(serviceResult.getResult());");
         method.addBodyLine("}else{");
