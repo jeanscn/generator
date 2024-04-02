@@ -8,10 +8,7 @@ import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ReturnTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -379,12 +376,19 @@ public class ServiceMethods {
             parameters.add(keys);
         });
         if (VStringUtil.stringHasValue(voCacheGeneratorConfiguration.getTypeColumn())) {
-            introspectedTable.getColumn(voCacheGeneratorConfiguration.getTypeColumn()).ifPresent(introspectedColumn -> {
+            Optional<IntrospectedColumn> typeColumn = introspectedTable.getColumn(voCacheGeneratorConfiguration.getTypeColumn());
+            typeColumn.ifPresent(introspectedColumn -> {
                 Parameter types = new Parameter(introspectedColumn.getFullyQualifiedJavaType(), "types");
                 types.setRemark(introspectedColumn.getRemarks(false));
                 types.addAnnotation("@RequestParam (required = false)");
                 parameters.add(types);
             });
+            if (!typeColumn.isPresent()) {
+                Parameter types = new Parameter(FullyQualifiedJavaType.getStringInstance(), "types");
+                types.setRemark("类型参数占位符");
+                types.addAnnotation("@RequestParam (required = false)");
+                parameters.add(types);
+            }
         }
         Parameter excludeIds = new Parameter(FullyQualifiedJavaType.getStringInstance(), "eids");
         excludeIds.setRemark("排除的id列表");
