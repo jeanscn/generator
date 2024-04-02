@@ -134,7 +134,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             }
         });
         columns.forEach(c -> {
-            if (c.getDefaultValue() != null  && !c.getDefaultValue().equalsIgnoreCase("null") && !defaultFields.contains(c.getJavaProperty())) {
+            if (c.getDefaultValue() != null && !c.getDefaultValue().equalsIgnoreCase("null") && !defaultFields.contains(c.getJavaProperty())) {
                 if (c.getDefaultValue().equals("CURRENT_TIMESTAMP")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
@@ -159,6 +159,18 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                             initializationBlock.addBodyLine(VStringUtil.format("this.{0} = Boolean.valueOf(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
                             break;
                     }
+                } else if (c.isJavaLocalDateColumn()) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalDate.parse(\"{1}\", DateTimeFormatter.ofPattern(\"yyyy-MM-dd\"));", c.getJavaProperty(), c.getDefaultValue()));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalDate"));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
+                } else if (c.isJavaLocalDateTimeColumn()) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalDateTime.parse(\"{1}\", DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\"));", c.getJavaProperty(), c.getDefaultValue()));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalDateTime"));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
+                } else if (c.isJavaLocalTimeColumn()) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalTime.parse(\"{1}\", DateTimeFormatter.ofPattern(\"HH:mm:ss\"));", c.getJavaProperty(), c.getDefaultValue()));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalTime"));
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
                 } else {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), c.getDefaultValue()));
                 }
