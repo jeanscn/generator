@@ -4,6 +4,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.internal.rules.BaseRules;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
@@ -129,6 +130,8 @@ public abstract class IntrospectedTable {
     protected FullyQualifiedJavaType voModelType;
     protected FullyQualifiedJavaType voCreateType;
 
+    protected List<FieldItem> voModelFields = new ArrayList<>();
+
     protected IntrospectedTable(TargetRuntime targetRuntime) {
         this.targetRuntime = targetRuntime;
     }
@@ -205,6 +208,14 @@ public abstract class IntrospectedTable {
 
     public List<IntrospectedColumn> getBaseColumns() {
         return baseColumns;
+    }
+
+    public List<FieldItem> getVoModelFields() {
+        return voModelFields;
+    }
+
+    public void setVoModelFields(List<FieldItem> voModelFields) {
+        this.voModelFields = voModelFields;
     }
 
     /**
@@ -1231,4 +1242,5 @@ public abstract class IntrospectedTable {
     public void setVoCreateType(FullyQualifiedJavaType voCreateType) {
         this.voCreateType = voCreateType;
     }
+
 }

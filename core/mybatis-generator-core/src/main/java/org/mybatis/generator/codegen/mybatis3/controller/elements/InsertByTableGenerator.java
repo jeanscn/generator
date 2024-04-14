@@ -1,12 +1,12 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,7 +47,7 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
 
                     method.addAnnotation(new SystemLogDesc("添加数据关联",introspectedTable),parentElement);
                     method.addAnnotation(new RequestMappingDesc("union/"+ toHyphenCase(c.getMethodSuffix())
-                            , RequestMethod.POST),parentElement);
+                            , RequestMethodEnum.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getUnionMethodName(),"添加关系");
                     method.addAnnotation(new ApiOperationDesc("添加数据关联关系", "添加中间表数据"),parentElement);
 

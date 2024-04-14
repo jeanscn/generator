@@ -29,6 +29,8 @@ public class HtmlLayoutDescriptor {
 
     private String size = "default";
 
+    private String popSize = "default";
+
     public HtmlLayoutDescriptor() {
         this.borderColor = ConstantsUtil.HTML_BORDER_COLOR_DEFAULT;
         this.borderWidth = ConstantsUtil.HTML_BORDER_WIDTH;
@@ -112,5 +114,13 @@ public class HtmlLayoutDescriptor {
 
     public void setSize(String size) {
         this.size = size;
+    }
+
+    public String getPopSize() {
+        return popSize;
+    }
+
+    public void setPopSize(String popSize) {
+        this.popSize = popSize;
     }
 }

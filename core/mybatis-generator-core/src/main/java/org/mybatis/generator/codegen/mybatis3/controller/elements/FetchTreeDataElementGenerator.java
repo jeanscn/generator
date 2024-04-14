@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
-import com.vgosoft.core.constant.enums.core.RequestMethod;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
@@ -56,7 +56,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
                 parentElement));
         method.setReturnRemark("tree对象集合结果封装对象");
         method.addAnnotation(new SystemLogDesc("查询树结果数据", introspectedTable), parentElement);
-        method.addAnnotation(new RequestMappingDesc("tree", RequestMethod.POST), parentElement);
+        method.addAnnotation(new RequestMappingDesc("tree", RequestMethodEnum.GET), parentElement);
         method.addAnnotation(new ApiOperationDesc("树形数据查询", "获取指定根或所有的树形结构数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取指定根或所有的树形结构数据");
 
@@ -88,7 +88,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             methodCate.setReturnRemark("treeCate对象集合结果封装对象");
             //methodCate.addAnnotation(new SystemLog("查询分类树结果数据", introspectedTable), parentElement);
             String hyphenCase = VStringUtil.toHyphenCase(cateTreeConfig.getPathKeyWord());
-            methodCate.addAnnotation(new RequestMappingDesc(hyphenCase, RequestMethod.POST), parentElement);
+            methodCate.addAnnotation(new RequestMappingDesc(hyphenCase, RequestMethodEnum.GET), parentElement);
             methodCate.addAnnotation(new ApiOperationDesc("树形分类数据查询", "获取指定根或所有的树形分类结构数据"), parentElement);
             commentGenerator.addMethodJavaDocLine(methodCate, "获取指定根或所有的树形结构数据");
             //函数体

@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -46,7 +46,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         method.setReturnType(returnType);
 
         method.addAnnotation(new SystemLogDesc("实例化空对象", introspectedTable), parentElement);
-        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("new-instance", RequestMethod.GET);
+        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("new-instance", RequestMethodEnum.GET);
         method.addAnnotation(requestMappingDesc, parentElement);
         method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "实例化一个空对象，供前端使用.允许提供一些初始化值");

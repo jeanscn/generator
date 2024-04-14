@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -10,7 +10,7 @@ import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 public class DeleteBatchElementGenerator extends AbstractControllerElementGenerator {
 
@@ -36,7 +36,7 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnRemark("成功删除的记录数");
 
         method.addAnnotation(new SystemLogDesc("删除了一条或多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("", RequestMethod.DELETE),parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"批量删除");
         method.addAnnotation(new ApiOperationDesc("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
 

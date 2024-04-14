@@ -29,6 +29,10 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     private String title;
 
     private String width;
+    private String headerAlign;
+
+    private String align;
+
 
     private String defaultContent;
 
@@ -151,6 +155,12 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         }
         if (this.width != null) {
             items.add(VStringUtil.format("width = \"{0}\"", this.width));
+        }
+        if (this.headerAlign != null && !this.headerAlign.equals("center")) {
+            items.add(VStringUtil.format("headerAlign = \"{0}\"", this.headerAlign));
+        }
+        if (this.align != null && !this.align.equals("left")) {
+            items.add(VStringUtil.format("align = \"{0}\"", this.align));
         }
         if (this.defaultContent != null) {
             items.add(VStringUtil.format("defaultContent = \"{0}\"", this.defaultContent));
@@ -285,6 +295,22 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     public void setDefaultDisplay(boolean defaultDisplay) {
         this.defaultDisplay = defaultDisplay;
+    }
+
+    public String getHeaderAlign() {
+        return headerAlign;
+    }
+
+    public void setHeaderAlign(String headerAlign) {
+        this.headerAlign = headerAlign;
+    }
+
+    public String getAlign() {
+        return align;
+    }
+
+    public void setAlign(String align) {
+        this.align = align;
     }
 
     public Set<String> getHiddenProperties() {

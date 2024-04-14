@@ -1,9 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import static com.vgosoft.tool.core.VStringUtil.format;
-import static org.mybatis.generator.custom.ConstantsUtil.*;
-
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -12,6 +9,9 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
 public class DownloadElementGenerator extends AbstractControllerElementGenerator {
 
@@ -46,7 +46,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.setExceptionRemark("下载处理异常，含IO异常");
 
         method.addAnnotation(new SystemLogDesc("下载数据",introspectedTable),parentElement);
-        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethod.GET);
+        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethodEnum.GET);
         requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");

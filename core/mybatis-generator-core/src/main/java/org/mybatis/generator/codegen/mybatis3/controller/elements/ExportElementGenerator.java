@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -45,7 +45,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         method.setExceptionRemark("IO读写异常");
 
         method.addAnnotation(new SystemLogDesc("数据导出",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("export", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMappingDesc("export", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"导出");
         method.addAnnotation(new ApiOperationDesc("Excel数据导出", "Excel数据导出接口"),parentElement);
 

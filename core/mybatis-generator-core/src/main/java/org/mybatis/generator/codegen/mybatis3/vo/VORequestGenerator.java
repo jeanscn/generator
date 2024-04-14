@@ -54,7 +54,8 @@ public class VORequestGenerator extends AbstractVOGenerator {
         addCascadeResult(requestVoClass);
         //附加属性
         addtionalProperties(voRequestGeneratorConfiguration, requestVoClass);
-
+        //增加任意过滤条件接收
+        addWhereConditionResult(requestVoClass);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
         mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
 
@@ -80,6 +81,14 @@ public class VORequestGenerator extends AbstractVOGenerator {
             requestVoClass.addField(cascade);
         }
     }
+    private void addWhereConditionResult(TopLevelClass requestVoClass) {
+        Field cascade = new Field("anyWhereCondition", FullyQualifiedJavaType.getStringInstance());
+        cascade.setVisibility(JavaVisibility.PRIVATE);
+        cascade.setRemark("任意过滤条件");
+        new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, requestVoClass);
+        requestVoClass.addField(cascade);
+    }
+
 
     private void addOrderByClause(TopLevelClass requestVoClass) {
         Field orderByClause = new Field("orderByClause", FullyQualifiedJavaType.getStringInstance());

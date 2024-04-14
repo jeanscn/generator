@@ -97,19 +97,19 @@ public class VueFormGenerateUtil {
                 switch (elementDescriptor.getDataFormat()) {
                     case "年":
                         vueFormItemMetaDesc.setType("date");
-                        vueFormItemMetaDesc.setValueFormat("yyyy");
+                        vueFormItemMetaDesc.setValueFormat("YYYY");
                         break;
                     case "年月":
                         vueFormItemMetaDesc.setType("date");
-                        vueFormItemMetaDesc.setValueFormat("yyyy-MM");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-MM");
                         break;
                     case "日期":
                         vueFormItemMetaDesc.setType("date");
-                        vueFormItemMetaDesc.setValueFormat("yyyy-MM-dd");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD");
                         break;
                     case "日期时间":
                         vueFormItemMetaDesc.setType("datetime");
-                        vueFormItemMetaDesc.setValueFormat("yyyy-MM-dd HH:mm:ss");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD HH:mm:ss");
                         break;
                     case "时间":
                         vueFormItemMetaDesc.setType("time");
@@ -124,16 +124,16 @@ public class VueFormGenerateUtil {
                 if (introspectedColumn != null) {
                     if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn()) {
                         vueFormItemMetaDesc.setType("date");
-                        vueFormItemMetaDesc.setValueFormat("yyyy-MM-dd");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD");
                     } else if (introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
                         vueFormItemMetaDesc.setType("datetime");
-                        vueFormItemMetaDesc.setValueFormat("yyyy-MM-dd HH:mm:ss");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD HH:mm:ss");
                     } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
                         vueFormItemMetaDesc.setType("time");
                         vueFormItemMetaDesc.setValueFormat("HH:mm:ss");
                     } else {
                         vueFormItemMetaDesc.setType("date");
-                        vueFormItemMetaDesc.setValueFormat("yyyy-MM-dd");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD");
                     }
                 } else {
                     vueFormItemMetaDesc.setType("date");
@@ -141,11 +141,35 @@ public class VueFormGenerateUtil {
                 }
 
             }
+        } else if (vueFormItemMetaDesc.getComponent().equals(HtmlElementTagTypeEnum.SWITCH.codeName())) {
+            if (introspectedColumn != null) {
+                switch (introspectedColumn.getFullyQualifiedJavaType().getShortName().toLowerCase()) {
+                    case "boolean":
+                    case "bool":
+                    case "bit":
+                        vueFormItemMetaDesc.setValueFormat("boolean");
+                        break;
+                    case "integer":
+                    case "int":
+                    case "long":
+                    case "short":
+                    case "byte":
+                    case "double":
+                    case "float":
+                        vueFormItemMetaDesc.setValueFormat("number");
+                        break;
+                    default:
+                        vueFormItemMetaDesc.setValueFormat("string");
+                        break;
+                }
+            } else {
+                vueFormItemMetaDesc.setValueFormat("string");
+            }
         }
 
     }
 
-    public static  void addDataUrl(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor, String defaultDataUrl) {
+    public static void addDataUrl(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor, String defaultDataUrl) {
         if (htmlElementDescriptor == null) {
             return;
         }
@@ -158,12 +182,12 @@ public class VueFormGenerateUtil {
         }
     }
 
-    public static String getRules(VueFormItemMetaDesc vueFormItemMetaDesc,IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor) {
+    public static String getRules(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor) {
         if (introspectedColumn == null) {
             return null;
         }
         List<FormItemRule> formItemRules = new ArrayList<>();
-        if (elementDescriptor != null ) {
+        if (elementDescriptor != null) {
             if (!elementDescriptor.getVerify().isEmpty()) {
                 for (String verify : elementDescriptor.getVerify()) {
                     if ("required".equals(verify)) {
@@ -185,32 +209,32 @@ public class VueFormGenerateUtil {
                     }
                 }
             }
-        }else{
+        } else {
             //根据introspectedColumn的类型生成rules
             if (!introspectedColumn.isNullable()
                     || introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()
-                    || introspectedColumn.isJdbcCharacterColumn()){
+                    || introspectedColumn.isJdbcCharacterColumn()) {
                 if (!introspectedColumn.isNullable()) {
                     FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
                     formItemRule.setRequired(true);
-                    formItemRule.setMessage(introspectedColumn.getRemarks(true)+"不能为空");
+                    formItemRule.setMessage(introspectedColumn.getRemarks(true) + "不能为空");
                     formItemRules.add(formItemRule);
                 }
-                if(introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()){
+                if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()) {
                     FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
                     formItemRule.setType("date");
-                    formItemRule.setMessage(introspectedColumn.getRemarks(true)+"必须为日期");
+                    formItemRule.setMessage(introspectedColumn.getRemarks(true) + "必须为日期");
                     formItemRules.add(formItemRule);
                 }
-                if(introspectedColumn.isStringColumn() && introspectedColumn.getLength()>0){
+                if (introspectedColumn.isStringColumn() && introspectedColumn.getLength() > 0) {
                     FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
                     formItemRule.setMax(introspectedColumn.getLength());
-                    formItemRule.setMessage(introspectedColumn.getRemarks(true)+"最大长度为"+introspectedColumn.getLength());
+                    formItemRule.setMessage(introspectedColumn.getRemarks(true) + "最大长度为" + introspectedColumn.getLength());
                     formItemRules.add(formItemRule);
                 }
             }
         }
         //生成rules注解
-        return formItemRules.stream().map(r->new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
+        return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
     }
 }

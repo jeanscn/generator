@@ -8,7 +8,9 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -22,10 +24,16 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     private final String value;
     private String labelPosition = "right";
-    private String labelWidth = "120px";
-    private String size = "medium";
+    private String labelWidth = "100px";
+    private String size = "default";
+
+    private String popSize = "default";
     private final String tableName;
     private final String appKeyword;
+
+    private String restBasePath;
+
+    private List<VueFormUploadMetaDesc> uploadMeta = new ArrayList<>();
 
     public static VueFormMetaDesc create(IntrospectedTable introspectedTable) {
         return new VueFormMetaDesc(introspectedTable);
@@ -47,13 +55,23 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getLabelPosition()) && !"right".equals(this.getLabelPosition())) {
             items.add(VStringUtil.format("labelPosition = \"{0}\"", this.getLabelPosition()));
         }
-        if (VStringUtil.isNotBlank(this.getLabelWidth()) && !"120px".equals(this.getLabelWidth())) {
+        if (VStringUtil.isNotBlank(this.getLabelWidth()) && !"100px".equals(this.getLabelWidth())) {
             items.add(VStringUtil.format("labelWidth = \"{0}\"", this.getLabelWidth()));
         }
-        if (VStringUtil.isNotBlank(this.getSize()) && !"medium".equals(this.getSize())) {
+        if (VStringUtil.isNotBlank(this.getSize()) && !"default".equals(this.getSize())) {
             items.add(VStringUtil.format("size = \"{0}\"", this.getSize()));
         }
-        return ANNOTATION_NAME + "(" + String.join(",", items.toArray(new String[0])) + ")";
+        if (VStringUtil.isNotBlank(this.getRestBasePath())) {
+            items.add(VStringUtil.format("restBasePath = \"{0}\"", this.getRestBasePath()));
+        }
+        if (VStringUtil.isNotBlank(this.getPopSize()) && !"default".equals(this.getPopSize())) {
+            items.add(VStringUtil.format("popSize = \"{0}\"", this.getPopSize()));
+        }
+        if (!uploadMeta.isEmpty()) {
+            items.add("uploadMeta = {\n        " + uploadMeta.stream().map(VueFormUploadMetaDesc::toAnnotation).collect(Collectors.joining(",")) + "\n}");
+            this.addImports(VueFormUploadMeta.class.getCanonicalName());
+        }
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
     public String getValue() {
@@ -90,5 +108,29 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     public String getAppKeyword() {
         return appKeyword;
+    }
+
+    public String getRestBasePath() {
+        return restBasePath;
+    }
+
+    public void setRestBasePath(String restBasePath) {
+        this.restBasePath = restBasePath;
+    }
+
+    public String getPopSize() {
+        return popSize;
+    }
+
+    public void setPopSize(String popSize) {
+        this.popSize = popSize;
+    }
+
+    public List<VueFormUploadMetaDesc> getUploadMeta() {
+        return uploadMeta;
+    }
+
+    public void setUploadMeta(List<VueFormUploadMetaDesc> uploadMeta) {
+        this.uploadMeta = uploadMeta;
     }
 }

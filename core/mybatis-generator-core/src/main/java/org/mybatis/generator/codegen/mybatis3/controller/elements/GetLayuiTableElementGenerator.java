@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -41,7 +41,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
                 new FullyQualifiedJavaType("Layuitable"),
                 parentElement));
         method.setReturnRemark("layui table配置对象");
-        method.addAnnotation(new RequestMappingDesc("lay-table-config", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMappingDesc("lay-table-config", RequestMethodEnum.GET),parentElement);
         method.addAnnotation(new ApiOperationDesc("获得layui table配置对象", "根据ViewVO获得layui table配置对象"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "根据ViewVO获得layui table配置对象");
         //函数体

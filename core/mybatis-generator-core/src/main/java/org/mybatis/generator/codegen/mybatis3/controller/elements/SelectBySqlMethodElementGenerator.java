@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
@@ -40,7 +40,7 @@ public class SelectBySqlMethodElementGenerator extends AbstractControllerElement
                 parentElement));
 
         method.addAnnotation(new SystemLogDesc("获取上级或下级标识",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "调用获取上级或下级标识接口");
         method.addAnnotation(new ApiOperationDesc("集成sql方法的查询", "获取所有父级或子级记录"),parentElement);
 

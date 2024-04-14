@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -47,7 +47,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("结果对象列表");
 
         method.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
-        method.addAnnotation(new RequestMappingDesc("", RequestMethod.GET), parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "数据列表");
         method.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
 

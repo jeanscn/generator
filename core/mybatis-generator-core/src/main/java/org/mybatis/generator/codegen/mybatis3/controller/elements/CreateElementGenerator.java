@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -45,7 +45,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("更新后的数据（对象）");
 
         method.addAnnotation(new SystemLogDesc("添加了一条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("", RequestMethod.POST),parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"创建");
         method.addAnnotation(new ApiOperationDesc("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);
 

@@ -228,6 +228,11 @@ public class ConfigurationParser {
             jqueryPlugin.setConfigurationType("org.mybatis.generator.plugins.jquery.JQueryPlugin");
             context.addPluginConfiguration(jqueryPlugin);
 
+            //工具 - 生成vue文件
+            PluginConfiguration vue3FilesPlugin = new PluginConfiguration();
+            vue3FilesPlugin.setConfigurationType("org.mybatis.generator.plugins.vue3.Vue3FilesPlugin");
+            context.addPluginConfiguration(vue3FilesPlugin);
+
             //生成html编辑器模板的片段文件
             PluginConfiguration htmlEditorPlugin = new PluginConfiguration();
             htmlEditorPlugin.setConfigurationType("org.mybatis.generator.plugins.html.HtmlFragmentsPlugin");

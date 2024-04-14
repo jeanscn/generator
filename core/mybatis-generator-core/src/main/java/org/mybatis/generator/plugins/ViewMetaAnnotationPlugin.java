@@ -10,9 +10,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
-import org.mybatis.generator.config.QueryColumnConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
@@ -73,11 +71,24 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (!introspectedTable.getRules().isGenerateViewVO()) {
             return true;
         }
+        VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         ViewColumnMetaDesc viewColumnMetaDesc;
         if (introspectedColumn != null) {
             viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, introspectedTable);
         } else {
             viewColumnMetaDesc = new ViewColumnMetaDesc(field, field.getRemark(), introspectedTable);
+        }
+        // 列覆盖信息
+        for (ViewFieldOverrideConfiguration config : viewConfiguration.getViewFieldOverrideConfigurations().stream().filter(config -> config.getFields().contains(field.getName())).collect(Collectors.toList())) {
+            if (stringHasValue(config.getWidth())) {
+                viewColumnMetaDesc.setWidth(config.getWidth());
+            }
+            if (stringHasValue(config.getHeaderAlign())) {
+                viewColumnMetaDesc.setHeaderAlign(config.getHeaderAlign());
+            }
+            if (stringHasValue(config.getAlign())) {
+                viewColumnMetaDesc.setAlign(config.getAlign());
+            }
         }
         updateOrder(field, introspectedTable, viewColumnMetaDesc);
         field.addAnnotation(viewColumnMetaDesc.toAnnotation());
@@ -128,8 +139,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(s);
                 if (viewDefaultToolBarsEnum != null) {
                     HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
-                    if (voViewGeneratorConfiguration.getUiFrameType().equals(ViewVoUiFrameEnum.EL_PLUS_TABLE)) {
+                    if (stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
                         htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
+                    }else{
+                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
                     }
                     return htmlButtonDesc.toAnnotation();
                 } else {
@@ -156,7 +169,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode("ROW_"+s);
                 if (viewDefaultToolBarsEnum != null) {
                     HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
-                    if (voViewGeneratorConfiguration.getUiFrameType().equals(ViewVoUiFrameEnum.EL_PLUS_TABLE)) {
+                    if (stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
+                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
+                    }else{
                         htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
                     }
                     return htmlButtonDesc.toAnnotation();

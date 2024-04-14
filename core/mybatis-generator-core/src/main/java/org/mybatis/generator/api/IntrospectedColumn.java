@@ -430,6 +430,9 @@ public class IntrospectedColumn {
     }
 
     public String getSqlFragmentLength() {
+        if(this.getActualTypeName().toUpperCase().contains("UNSIGNED")){
+            return "";
+        }
         StringBuilder sb_length = new StringBuilder();
         if (!(this.isJDBCDateColumn() || this.isJDBCTimeColumn() || this.isJDBCTimeStampColumn() || this.isBLOBColumn() || this.isJava8TimeColumn() || this.isLongVarchar())) {
             sb_length.append("(");
@@ -446,15 +449,17 @@ public class IntrospectedColumn {
 
     public String getSqlFragmentNotNull() {
         StringBuilder not_null = new StringBuilder();
-        if (!this.isNullable() || stringHasValue(this.getDefaultValue())) {
+        if (!this.isNullable()) {
             not_null.append("NOT NULL ");
-            if (stringHasValue(this.defaultValue)) {
-                JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
-                if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                    not_null.append(" DEFAULT '").append(this.defaultValue).append("' ");
-                } else {
-                    not_null.append(" DEFAULT ").append(this.defaultValue).append(" ");
-                }
+        }else{
+            not_null.append("NULL ");
+        }
+        if (stringHasValue(this.defaultValue)) {
+            JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
+            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
+                not_null.append(" DEFAULT '").append(this.defaultValue).append("' ");
+            } else {
+                not_null.append(" DEFAULT ").append(this.defaultValue).append(" ");
             }
         }
         return not_null.toString();

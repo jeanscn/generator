@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -44,7 +44,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnRemark("更新后的数据（对象）列表");
 
         method.addAnnotation(new SystemLogDesc("添加了多条记录",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("batch", RequestMethod.POST),parentElement);
+        method.addAnnotation(new RequestMappingDesc("batch", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量创建");
         method.addAnnotation(new ApiOperationDesc("新增多条记录", "新增多条记录,返回影响条数及消息"),parentElement);
 

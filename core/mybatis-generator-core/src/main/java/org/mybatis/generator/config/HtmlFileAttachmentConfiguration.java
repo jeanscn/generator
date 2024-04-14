@@ -6,15 +6,23 @@ package org.mybatis.generator.config;
  */
 public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
+    private String value = "";
+
     private boolean generate = true;
 
     private boolean exclusive = true;
 
     private boolean multiple = true;
 
-    private String type = "file";
+    private String type = "text";
 
-    private String basePath = "/bizcore/vbiz-file-attachment-impl";
+    private String location = "table";
+
+    private Integer limit = 0;
+
+    private String tip = "";
+
+    private String restBasePath = "/bizcore/vbiz-file-attachment-impl";
 
     private String label = "附件";
 
@@ -69,11 +77,43 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
         this.type = type;
     }
 
-    public String getBasePath() {
-        return basePath;
+    public String getRestBasePath() {
+        return restBasePath;
     }
 
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
+    public void setRestBasePath(String restBasePath) {
+        this.restBasePath = restBasePath;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public String getTip() {
+        return tip;
+    }
+
+    public void setTip(String tip) {
+        this.tip = tip;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

@@ -20,6 +20,10 @@ public class ColumnOverride extends PropertyHolder {
 
     private boolean isColumnNameDelimited;
 
+    private String  headerAlign;
+
+    private String  align;
+
     /**
      * If true, the column is a GENERATED ALWAYS column which means
      * that it should not be used in insert or update statements.
@@ -139,5 +143,21 @@ public class ColumnOverride extends PropertyHolder {
 
     public void setColumnSubComment(String columnSubComment) {
         this.columnSubComment = columnSubComment;
+    }
+
+    public String getHeaderAlign() {
+        return headerAlign;
+    }
+
+    public void setHeaderAlign(String headerAlign) {
+        this.headerAlign = headerAlign;
+    }
+
+    public String getAlign() {
+        return align;
+    }
+
+    public void setAlign(String align) {
+        this.align = align;
     }
 }

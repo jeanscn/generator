@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
+import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -138,22 +139,25 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             //添加生成viewVO到生成列表及菜单项
             boolean genViewVo = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.viewVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, viewVOClass.getType().getShortName());
             if (genViewVo) {
+                VOViewGeneratorConfiguration viewConfiguration = voGeneratorConfiguration.getVoViewConfiguration();
                 if (context.getPlugins().voModelViewClassGenerated(viewVOClass, introspectedTable)) {
                     answer.add(viewVOClass);
                     //添加菜单项
-                    String parentMenuId = Optional.ofNullable(voGeneratorConfiguration.getVoViewConfiguration().getParentMenuId())
+                    String parentMenuId = Optional.ofNullable(viewConfiguration.getParentMenuId())
                             .orElse(context.getParentMenuId());
                     if (stringHasValue(parentMenuId) && context.isUpdateMenuData() && introspectedTable.getTableConfiguration().isModules()) {
-                        int sort = context.getSysMenuDataScriptLines().size() + 1;
+                        int sort = context.getSysMenuDataScriptLines().size() * 10;
                         String id = Mb3GenUtil.getDefaultViewId(introspectedTable);
-                        String title = voGeneratorConfiguration.getVoViewConfiguration().getTitle()!=null?voGeneratorConfiguration.getVoViewConfiguration().getTitle():introspectedTable.getRemarks(true);
+                        String title = viewConfiguration.getTitle()!=null?viewConfiguration.getTitle():introspectedTable.getRemarks(true);
                         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
                         sqlBuilder.updateStringValues("id_", id);
-                        sqlBuilder.updateStringValues("name_", title);
-                        sqlBuilder.updateStringValues("icon_", voGeneratorConfiguration.getVoViewConfiguration().getViewMenuIcon());
+                        sqlBuilder.updateStringValues("name_", introspectedTable.getTableConfiguration().getDomainObjectName());
+                        sqlBuilder.updateStringValues("icon_", viewConfiguration.getViewMenuIcon());
                         sqlBuilder.updateStringValues("parent_id", parentMenuId);
                         sqlBuilder.updateStringValues("sort_", String.valueOf(sort));
                         sqlBuilder.updateStringValues("title_", title);
+                        sqlBuilder.updateStringValues("component_", introspectedTable.getTableConfiguration().getDomainObjectName());
+                        sqlBuilder.updateStringValues("el_icon", viewConfiguration.getViewMenuElIcon());
                         //构造path
                         String moduleName = this.getContext().getModuleKeyword();
                         String tableName = this.introspectedTable.getTableConfiguration().getTableName();

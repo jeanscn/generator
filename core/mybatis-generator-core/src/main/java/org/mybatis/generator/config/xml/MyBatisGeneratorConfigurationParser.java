@@ -161,6 +161,11 @@ public class MyBatisGeneratorConfigurationParser {
         String jdkVersion = attributes.getProperty("jdkVersion", "8");
         context.setJdkVersion(Integer.parseInt(jdkVersion));
 
+        String vueEndProjectPath = attributes.getProperty("vueEndProjectPath");
+        if (stringHasValue(vueEndProjectPath)) {
+            context.setVueEndProjectPath(vueEndProjectPath);
+        }
+
         String onlyTables = attributes.getProperty("onlyTables");
         if (stringHasValue(onlyTables)) {
             context.setOnlyTablesGenerate(spiltToList(onlyTables));
@@ -663,6 +668,14 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(columnSubComment)) {
             co.setColumnSubComment(columnSubComment);
         }
+        String headerAlign = attributes.getProperty("headerAlign");
+        if (stringHasValue(headerAlign)) {
+            co.setHeaderAlign(headerAlign);
+        }
+        String align = attributes.getProperty("align");
+        if (stringHasValue(align)) {
+            co.setAlign(align);
+        }
         parseChildNodeOnlyProperty(co, node);
         tc.addColumnOverride(co);
     }
@@ -983,6 +996,11 @@ public class MyBatisGeneratorConfigurationParser {
             htmlGeneratorConfiguration.setDefaultConfig(Boolean.parseBoolean(aDefault));
         }
 
+        String overWriteVueFile = attributes.getProperty("overWriteVueFile");
+        if (stringHasValue(overWriteVueFile)) {
+            htmlGeneratorConfiguration.setOverWriteVueFile(Boolean.parseBoolean(overWriteVueFile));
+        }
+
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -1049,13 +1067,16 @@ public class MyBatisGeneratorConfigurationParser {
     }
 
     private void parseHtmlFileAttachment(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
-        HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration = new HtmlFileAttachmentConfiguration();
-        Properties attributes = parseAttributes(childNode);
+        List<HtmlFileAttachmentConfiguration> attachmentConfigurations = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration();
 
+        HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration = new HtmlFileAttachmentConfiguration();
+
+        Properties attributes = parseAttributes(childNode);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
         if (stringHasValue(generate)) {
             htmlFileAttachmentConfiguration.setGenerate(Boolean.parseBoolean(generate));
         }
+        htmlFileAttachmentConfiguration.setValue("upload_tmp_field"+attachmentConfigurations.size() + 1);
         String multiple = attributes.getProperty("multiple");
         if (stringHasValue(multiple)) {
             htmlFileAttachmentConfiguration.setMultiple(Boolean.parseBoolean(multiple));
@@ -1064,9 +1085,23 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(type)) {
             htmlFileAttachmentConfiguration.setType(type);
         }
+        String location = attributes.getProperty("location");
+        if (stringHasValue(location)) {
+            htmlFileAttachmentConfiguration.setLocation(location);
+        }
+        String limit = attributes.getProperty("limit");
+        if (stringHasValue(limit)) {
+            htmlFileAttachmentConfiguration.setLimit(Integer.parseInt(limit));
+        }
+
+        String tip = attributes.getProperty("tip");
+        if (stringHasValue(tip)) {
+            htmlFileAttachmentConfiguration.setTip(tip);
+        }
+
         String basePath = attributes.getProperty("restBasePath");
         if (stringHasValue(basePath)) {
-            htmlFileAttachmentConfiguration.setBasePath(basePath);
+            htmlFileAttachmentConfiguration.setRestBasePath(basePath);
         }
         String exclusive = attributes.getProperty("exclusive");
         if (stringHasValue(exclusive)) {
@@ -1080,7 +1115,8 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(label)) {
             htmlFileAttachmentConfiguration.setLabel(label);
         }
-        htmlGeneratorConfiguration.setHtmlFileAttachmentConfiguration(htmlFileAttachmentConfiguration);
+
+        htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().add(htmlFileAttachmentConfiguration);
     }
 
     private void parseHtmlElementInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Node childNode) {
@@ -1172,6 +1208,10 @@ public class MyBatisGeneratorConfigurationParser {
         String size = attributes.getProperty("size");
         if (stringHasValue(size)) {
             htmlLayoutDescriptor.setSize(size);
+        }
+        String popSize = attributes.getProperty("popSize");
+        if (stringHasValue(popSize)) {
+            htmlLayoutDescriptor.setPopSize(popSize);
         }
         htmlGeneratorConfiguration.setLayoutDescriptor(htmlLayoutDescriptor);
     }
@@ -2235,6 +2275,11 @@ public class MyBatisGeneratorConfigurationParser {
             voViewGeneratorConfiguration.setViewMenuIcon(GlobalConstant.VIEW_VO_DEFAULT_ICON);
         }
 
+        String viewMenuElIcon = attributes.getProperty("viewMenuElIcon");
+        if (stringHasValue(viewMenuElIcon)) {
+            voViewGeneratorConfiguration.setViewMenuElIcon(viewMenuElIcon);
+        }
+
         String categoryTreeUrl = attributes.getProperty("categoryTreeUrl");
         if (stringHasValue(categoryTreeUrl)) {
             voViewGeneratorConfiguration.setCategoryTreeUrl(categoryTreeUrl);
@@ -2295,11 +2340,57 @@ public class MyBatisGeneratorConfigurationParser {
                     QueryColumnConfiguration queryColumnConfiguration = parseQueryColumn(tc,childNode);
                     voViewGeneratorConfiguration.addQueryColumnConfigurations(queryColumnConfiguration);
                     break;
+                case ("fieldOverrides"):
+                    ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = parseFieldOverrides(context, tc, childNode, voViewGeneratorConfiguration);
+                    voViewGeneratorConfiguration.addViewFieldOverrideConfiguration(viewFieldOverrideConfiguration);
+                    break;
             }
         }
         //继承vo的附件属性
         voViewGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
+    }
+
+    private ViewFieldOverrideConfiguration parseFieldOverrides(Context context, TableConfiguration tc, Node childNode, VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
+        ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = new ViewFieldOverrideConfiguration();
+        Properties attributes = parseAttributes(childNode);
+        String fields = attributes.getProperty("fields");
+        if (stringHasValue(fields)) {
+            viewFieldOverrideConfiguration.setFields(spiltToList(fields));
+        }
+        String label = attributes.getProperty("label");
+        if (stringHasValue(label)) {
+            viewFieldOverrideConfiguration.setLabel(label);
+        }
+        String width = attributes.getProperty("width");
+        if (stringHasValue(width)) {
+            viewFieldOverrideConfiguration.setWidth(width);
+        }
+        String align = attributes.getProperty("align");
+        if (stringHasValue(align)) {
+            viewFieldOverrideConfiguration.setAlign(align);
+        }
+        String fixed = attributes.getProperty("fixed");
+        if (stringHasValue(fixed)) {
+            viewFieldOverrideConfiguration.setFixed(fixed);
+        }
+        String headerAlign = attributes.getProperty("headerAlign");
+        if (stringHasValue(headerAlign)) {
+            viewFieldOverrideConfiguration.setHeaderAlign(headerAlign);
+        }
+        String sort = attributes.getProperty("sort");
+        if (stringHasValue(sort)) {
+            viewFieldOverrideConfiguration.setSort(Boolean.parseBoolean(sort));
+        }
+        String hide = attributes.getProperty("hide");
+        if (stringHasValue(hide)) {
+            viewFieldOverrideConfiguration.setHide(Boolean.parseBoolean(hide));
+        }
+        String edit = attributes.getProperty("edit");
+        if (stringHasValue(edit)) {
+            viewFieldOverrideConfiguration.setEdit(Boolean.parseBoolean(edit));
+        }
+        return viewFieldOverrideConfiguration;
     }
 
     private QueryColumnConfiguration parseQueryColumn(TableConfiguration tc,Node childNode) {

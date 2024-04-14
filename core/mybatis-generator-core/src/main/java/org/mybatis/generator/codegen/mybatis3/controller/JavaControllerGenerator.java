@@ -303,27 +303,20 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 }
                 buildExample.addBodyLine("}");
             }
+            //增加任意条件
+            if (introspectedTable.getRules().isGenerateRequestVO()) {
+                buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getAnyWhereCondition())) '{'", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("criteria.andAnyCondition({0}.getAnyWhereCondition());", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("}");
+            }
+
             //排序语句
-            /* List<IntrospectedColumn> sort = columns.stream().filter(c -> c.getActualColumnName().equalsIgnoreCase("SORT_")).collect(Collectors.toList());*/
-            /*if (!sort.isEmpty()) {
-                if (isContainOrderByClause) {
-                    buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
-                    buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
-                    buildExample.addBodyLine("}else{");
-                    buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
-                    buildExample.addBodyLine("}");
-                    conTopClazz.addImportedType(V_STRING_UTIL);
-                } else {
-                    buildExample.addBodyLine("example.setOrderByClause(\"{0}\"); ", sort.get(0).getActualColumnName());
-                }
-            } else {*/
             if (isContainOrderByClause) {
                 buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
                 buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
                 buildExample.addBodyLine("}");
                 conTopClazz.addImportedType(V_STRING_UTIL);
             }
-            /* }*/
             buildExample.addBodyLine("return example;");
         }
         if (buildExample.getBodyLines().isEmpty()) {

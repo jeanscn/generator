@@ -54,7 +54,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
             String rowSql = VStringUtil.format(COLUMN_STATEMENT,
                     col.getActualColumnName(),
-                    col.getActualTypeName(),
+                    VStringUtil.toCamelCase(col.getActualTypeName()),
                     col.getSqlFragmentLength(),
                     character,
                     col.getSqlFragmentNotNull(),

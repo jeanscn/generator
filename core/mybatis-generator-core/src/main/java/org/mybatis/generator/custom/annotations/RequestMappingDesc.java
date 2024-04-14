@@ -1,6 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.tool.core.VStringUtil;
 
 import java.util.ArrayList;
@@ -18,13 +18,13 @@ public class RequestMappingDesc extends AbstractAnnotation {
 
     private String name;
     private final List<String> value = new ArrayList<>();
-    private final List<RequestMethod> method = new ArrayList<>();
+    private final List<RequestMethodEnum> method = new ArrayList<>();
     private final List<String> params = new ArrayList<>();
     private List<String> headers = new ArrayList<>();
     private final List<String> consumes = new ArrayList<>();
     private final List<String> produces = new ArrayList<>();
 
-    public static RequestMappingDesc create(String value, RequestMethod method) {
+    public static RequestMappingDesc create(String value, RequestMethodEnum method) {
         return new RequestMappingDesc(value, method);
     }
 
@@ -33,7 +33,7 @@ public class RequestMappingDesc extends AbstractAnnotation {
         this.addValue(value);
     }
 
-    public RequestMappingDesc(String value, RequestMethod method) {
+    public RequestMappingDesc(String value, RequestMethodEnum method) {
         super();
         this.addValue(value);
         this.addMethod(method);
@@ -41,22 +41,22 @@ public class RequestMappingDesc extends AbstractAnnotation {
 
     @Override
     public List<String> toAnnotations() {
-        if (this.method.size() > 0) {
+        if (!this.method.isEmpty()) {
             return this.method.stream().map(requestMethod -> {
                 StringBuilder sb = new StringBuilder();
-                if (requestMethod.equals(RequestMethod.GET)) {
+                if (requestMethod.equals(RequestMethodEnum.GET)) {
                     sb.append("GetMapping(");
                     this.addImports("org.springframework.web.bind.annotation.GetMapping");
-                } else if (requestMethod.equals(RequestMethod.DELETE)) {
+                } else if (requestMethod.equals(RequestMethodEnum.DELETE)) {
                     sb.append("DeleteMapping(");
                     this.addImports("org.springframework.web.bind.annotation.DeleteMapping");
-                } else if (requestMethod.equals(RequestMethod.PATCH)) {
+                } else if (requestMethod.equals(RequestMethodEnum.PATCH)) {
                     sb.append("PatchMapping(");
                     this.addImports("org.springframework.web.bind.annotation.PatchMapping");
-                } else if (requestMethod.equals(RequestMethod.POST)) {
+                } else if (requestMethod.equals(RequestMethodEnum.POST)) {
                     sb.append("PostMapping(");
                     this.addImports("org.springframework.web.bind.annotation.PostMapping");
-                } else if (requestMethod.equals(RequestMethod.PUT)) {
+                } else if (requestMethod.equals(RequestMethodEnum.PUT)) {
                     sb.append("PutMapping(");
                     this.addImports("org.springframework.web.bind.annotation.PutMapping");
                 } else {
@@ -120,11 +120,11 @@ public class RequestMappingDesc extends AbstractAnnotation {
         this.value.add(value);
     }
 
-    public List<RequestMethod> getMethod() {
+    public List<RequestMethodEnum> getMethod() {
         return method;
     }
 
-    public void addMethod(RequestMethod method) {
+    public void addMethod(RequestMethodEnum method) {
         this.method.add(method);
     }
 

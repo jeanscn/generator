@@ -13,6 +13,8 @@ import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormMetaDesc;
+import org.mybatis.generator.custom.annotations.VueFormUploadMetaDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,16 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             vueFormMetaDesc.setLabelWidth(layoutDescriptor.getLabelWidth());
             vueFormMetaDesc.setLabelPosition(layoutDescriptor.getLabelPosition());
             vueFormMetaDesc.setSize(layoutDescriptor.getSize());
+            vueFormMetaDesc.setPopSize(layoutDescriptor.getPopSize());
+            vueFormMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+
+            //附件注解
+            if (!htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isEmpty()) {
+                htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().forEach(e -> {
+                    vueFormMetaDesc.getUploadMeta().add(new VueFormUploadMetaDesc(e));
+                });
+            }
+
             vueFormMetaDesc.addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;

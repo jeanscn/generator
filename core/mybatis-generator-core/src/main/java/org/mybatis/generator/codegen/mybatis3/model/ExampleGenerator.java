@@ -576,7 +576,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(getSetBetweenOrNotBetweenMethod(introspectedColumn, false));
             answer.addMethod(getAnyConditionMethod(introspectedColumn));
         }
-
+        answer.addMethod(getAnyAnyConditionMethod());
         return answer;
     }
 
@@ -833,6 +833,17 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         sb.append("\"+expression);");
         method.addBodyLine(sb.toString());
         method.addBodyLine("return (Criteria) this;"); //$NON-NLS-1$
+        return method;
+    }
+
+    private Method getAnyAnyConditionMethod() {
+        Method method = new Method("andAnyCondition");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "expression"));
+        method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
+        method.addBodyLine("addCriterion(expression);");
+        method.addBodyLine("return (Criteria) this;");
         return method;
     }
 

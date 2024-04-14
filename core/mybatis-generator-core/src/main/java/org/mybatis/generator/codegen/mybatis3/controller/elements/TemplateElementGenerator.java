@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -35,7 +35,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         method.setExceptionRemark("IO读写异常");
 
         method.addAnnotation(new SystemLogDesc("下载数据导入模板",introspectedTable),parentElement);
-        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import/template", RequestMethod.GET);
+        RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import/template", RequestMethodEnum.GET);
         requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");

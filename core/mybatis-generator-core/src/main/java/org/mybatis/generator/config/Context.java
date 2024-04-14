@@ -40,6 +40,8 @@ public class Context extends PropertyHolder {
 
     private boolean updateMenuData;
 
+    private String vueEndProjectPath;
+
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
     private ConnectionFactoryConfiguration connectionFactoryConfiguration;
@@ -729,7 +731,15 @@ public class Context extends PropertyHolder {
         this.appKeyword = appKeyword;
     }
 
-    public void validateTableConfig(ProgressCallback callback, List<String> warnings,Context context) {
+    public String getVueEndProjectPath() {
+        return vueEndProjectPath;
+    }
+
+    public void setVueEndProjectPath(String vueEndProjectPath) {
+        this.vueEndProjectPath = vueEndProjectPath;
+    }
+
+    public void validateTableConfig(ProgressCallback callback, List<String> warnings, Context context) {
         if (tableConfigurations == null || this.getIntrospectedTables().size()==0) {
             return;
         }

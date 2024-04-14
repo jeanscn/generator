@@ -1,5 +1,6 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 
@@ -32,6 +33,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private String viewMenuIcon;
 
+    private String viewMenuElIcon = GlobalConstant.VIEW_VO_DEFAULT_EL_ICON;
+
     private String categoryTreeUrl;
 
     private String categoryTreeMultiple = "true";
@@ -41,6 +44,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
     private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
 
     private final List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
+
+    private List<ViewFieldOverrideConfiguration> viewFieldOverrideConfigurations = new ArrayList<>();
 
     public VOViewGeneratorConfiguration(Context context,TableConfiguration tc) {
         super(context);
@@ -179,5 +184,25 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setUiFrameType(ViewVoUiFrameEnum uiFrameType) {
         this.uiFrameType = uiFrameType;
+    }
+
+    public String getViewMenuElIcon() {
+        return viewMenuElIcon;
+    }
+
+    public void setViewMenuElIcon(String viewMenuElIcon) {
+        this.viewMenuElIcon = viewMenuElIcon;
+    }
+
+    public List<ViewFieldOverrideConfiguration> getViewFieldOverrideConfigurations() {
+        return viewFieldOverrideConfigurations;
+    }
+
+    public void setViewFieldOverrideConfigurations(List<ViewFieldOverrideConfiguration> viewFieldOverrideConfigurations) {
+        this.viewFieldOverrideConfigurations = viewFieldOverrideConfigurations;
+    }
+
+    public void addViewFieldOverrideConfiguration(ViewFieldOverrideConfiguration viewFieldOverrideConfiguration) {
+        this.viewFieldOverrideConfigurations.add(viewFieldOverrideConfiguration);
     }
 }

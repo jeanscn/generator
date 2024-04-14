@@ -77,7 +77,8 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         } else {
             this.addStaticThymeleafJavaScript(body.get("body"), "/webjars/plugins/js/app-wf-form.min.js");
         }
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
+        List<HtmlFileAttachmentConfiguration> attachmentConfigurations = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration();
+        if (!attachmentConfigurations.isEmpty() && attachmentConfigurations.get(0).isGenerate()) {
             this.addStaticThymeleafJavaScript(body.get("body"), "/webjars/plugins/js/file-attachment.min.js");
         }
         this.addStaticThymeleafJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".min.js");
@@ -151,8 +152,9 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         }
         //可变对象包装变量，计算附件的前置列
         AtomicReference<String> beforeElement = new AtomicReference<>();
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
-            HtmlFileAttachmentConfiguration fileAttachmentConfiguration = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration();
+        List<HtmlFileAttachmentConfiguration> attachmentConfigurations = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration();
+        if (!attachmentConfigurations.isEmpty() && attachmentConfigurations.get(0).isGenerate()) {
+            HtmlFileAttachmentConfiguration fileAttachmentConfiguration = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().get(0);
             if (fileAttachmentConfiguration.getAfterColumn() != null) {
                 beforeElement.set(fileAttachmentConfiguration.getAfterColumn());
                 if (displayColumns.stream().map(IntrospectedColumn::getActualColumnName).noneMatch(col -> beforeElement.get().equals(col))) {
@@ -225,17 +227,18 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                 }
                 //添加附件
                 if (beforeElement.get() != null && rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> beforeElement.get().equals(col))) {
-                    String label = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getLabel();
-                    String type = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getType();
-                    String basePath = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getBasePath();
-                    HtmlElement atr = new HtmlElement("tr");
-                    HtmlElement td = new HtmlElement("td");
-                    td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
-                    HtmlElement div = new HtmlElement("div");
-                    div.addAttribute(new Attribute("th:replace", "subpages/webjarsPluginsRequired2.html::commonAttachmentFragment('" + label + "','"+type+"','"+basePath+"')"));
-                    table.addElement(atr);
-                    atr.addElement(td);
-                    td.addElement(div);
+                    if (!htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isEmpty()) {
+                        String label = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().get(0).getLabel();
+                        String basePath = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().get(0).getRestBasePath();
+                        HtmlElement atr = new HtmlElement("tr");
+                        HtmlElement td = new HtmlElement("td");
+                        td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
+                        HtmlElement div = new HtmlElement("div");
+                        div.addAttribute(new Attribute("th:replace", "subpages/webjarsPluginsRequired2.html::commonAttachmentFragment('" + label + "','file','"+basePath+"')"));
+                        table.addElement(atr);
+                        atr.addElement(td);
+                        td.addElement(div);
+                    }
                 }
                 //添加意见
                 htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().stream()

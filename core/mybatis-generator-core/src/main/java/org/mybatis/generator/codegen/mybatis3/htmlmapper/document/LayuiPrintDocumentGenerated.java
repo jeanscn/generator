@@ -95,9 +95,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         }
         content.addElement(subject);
         generatePrintToolbar(content);
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
 
-        }
         //增加页面列表的编辑器模板页面片段
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
@@ -160,8 +158,9 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         }
         //可变对象包装变量，计算附件的前置列
         AtomicReference<String> beforeElement = new AtomicReference<>();
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
-            HtmlFileAttachmentConfiguration fileAttachmentConfiguration = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration();
+        List<HtmlFileAttachmentConfiguration> attachmentConfiguration = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration();
+        if (!attachmentConfiguration.isEmpty() && attachmentConfiguration.get(0).isGenerate()) {
+            HtmlFileAttachmentConfiguration fileAttachmentConfiguration = attachmentConfiguration.get(0);
             if (fileAttachmentConfiguration.getAfterColumn() != null) {
                 beforeElement.set(fileAttachmentConfiguration.getAfterColumn());
                 if (displayColumns.stream().map(IntrospectedColumn::getActualColumnName).noneMatch(col -> beforeElement.get().equals(col))) {
@@ -229,8 +228,8 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             }
         }
         //添加附件
-        if (htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration() != null && htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isGenerate()) {
-            String label = htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().getLabel();
+        if (!attachmentConfiguration.isEmpty() && attachmentConfiguration.get(0).isGenerate()) {
+            String label = attachmentConfiguration.get(0).getLabel();
             HtmlElement atr = new HtmlElement("tr");
             table.addElement(atr);
             HtmlElement tdl = addDtWithClassToTr(atr, "label", 0);

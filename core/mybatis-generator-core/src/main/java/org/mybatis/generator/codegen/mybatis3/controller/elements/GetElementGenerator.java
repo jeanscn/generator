@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -47,7 +47,7 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("查询结果数据对象");
 
         method.addAnnotation(new SystemLogDesc("根据主键查询单条",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc(pathVariable, RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMappingDesc(pathVariable, RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"查看详情");
         method.addAnnotation(new ApiOperationDesc("获得单条记录", "根据给定id获取单个实体"),parentElement);
 

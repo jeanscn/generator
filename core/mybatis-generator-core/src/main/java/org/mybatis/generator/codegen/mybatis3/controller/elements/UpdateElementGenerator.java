@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -45,7 +45,7 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnRemark("更新后的数据对象");
 
         method.addAnnotation(new SystemLogDesc("更新了一条记录", introspectedTable), parentElement);
-        method.addAnnotation(new RequestMappingDesc("", RequestMethod.PUT), parentElement);
+        method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.PUT), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "更新");
         method.addAnnotation(new ApiOperationDesc("更新一条记录", "根据主键更新数据"), parentElement);
 

@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethod;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
@@ -39,7 +39,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
                 parentElement));
         method.setReturnRemark("缓存数据对象");
         method.addAnnotation(new SystemLogDesc("查询字典数据",introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("dict", RequestMethod.GET),parentElement);
+        method.addAnnotation(new RequestMappingDesc("dict", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"查询字典");
         method.addAnnotation(new ApiOperationDesc("字典数据查询", "获取字典数据并缓存"),parentElement);
 

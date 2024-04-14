@@ -28,6 +28,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean defaultConfig = true;
 
+    private boolean overWriteVueFile = true;
+
     private final Set<String> hiddenColumnNames = new HashSet<>();
 
     private final Set<String> readonlyFields = new HashSet<>();
@@ -47,7 +49,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private String htmlBaseTargetPackage;
 
-    private HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration;
+    private List<HtmlFileAttachmentConfiguration> htmlFileAttachmentConfiguration = new ArrayList<>();
 
     private final List<HtmlApprovalCommentConfiguration> htmlApprovalCommentConfigurations = new ArrayList<>();
 
@@ -189,11 +191,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.htmlElementInnerListConfiguration = htmlElementInnerListConfiguration;
     }
 
-    public HtmlFileAttachmentConfiguration getHtmlFileAttachmentConfiguration() {
+    public List<HtmlFileAttachmentConfiguration> getHtmlFileAttachmentConfiguration() {
         return htmlFileAttachmentConfiguration;
     }
 
-    public void setHtmlFileAttachmentConfiguration(HtmlFileAttachmentConfiguration htmlFileAttachmentConfiguration) {
+    public void setHtmlFileAttachmentConfiguration(List<HtmlFileAttachmentConfiguration> htmlFileAttachmentConfiguration) {
         this.htmlFileAttachmentConfiguration = htmlFileAttachmentConfiguration;
     }
 
@@ -211,5 +213,13 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
         return htmlButtons;
+    }
+
+    public boolean isOverWriteVueFile() {
+        return overWriteVueFile;
+    }
+
+    public void setOverWriteVueFile(boolean overWriteVueFile) {
+        this.overWriteVueFile = overWriteVueFile;
     }
 }

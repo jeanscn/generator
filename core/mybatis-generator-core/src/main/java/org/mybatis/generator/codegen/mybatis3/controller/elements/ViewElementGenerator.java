@@ -1,12 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import static com.vgosoft.tool.core.VStringUtil.format;
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
-import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
-
-import com.vgosoft.core.constant.enums.core.RequestMethod;
-import com.vgosoft.tool.core.VBeanUtil;
-import com.vgosoft.tool.core.VStringUtil;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -18,6 +12,10 @@ import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.internal.util.StringUtility;
+
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
 
 public class ViewElementGenerator extends AbstractControllerElementGenerator {
 
@@ -45,7 +43,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         parentElement.addImportedType("java.lang.Exception");
         method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
-        method.addAnnotation(new RequestMappingDesc("view", RequestMethod.GET), parentElement);
+        method.addAnnotation(new RequestMappingDesc("view", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "查看");
         method.addAnnotation(new ApiOperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                 "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图"), parentElement);

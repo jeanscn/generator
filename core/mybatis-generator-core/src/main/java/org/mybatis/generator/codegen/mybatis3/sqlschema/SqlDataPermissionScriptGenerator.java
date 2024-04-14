@@ -27,7 +27,7 @@ public class SqlDataPermissionScriptGenerator extends AbstractSqlScriptGenerator
 
     @Override
     public String getSqlScript() {
-        if (introspectedTable.getPermissionDataScriptLines().size()>0) {
+        if (!introspectedTable.getPermissionDataScriptLines().isEmpty()) {
             lines.addAll(introspectedTable.getPermissionDataScriptLines().values());
         }
         return String.join("\n", getLines());
