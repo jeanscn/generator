@@ -1,6 +1,7 @@
 package org.mybatis.generator.internal.rules;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -585,6 +586,11 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean isGenerateVueEnd() {
+        return VStringUtil.stringHasValue(introspectedTable.getContext().getVueEndProjectPath());
+    }
+
+    @Override
     public boolean isGenerateAnyVO() {
         return isGenerateCreateVO() || isGenerateUpdateVO()
                 || isGenerateVoModel() || isGenerateExcelVO()
@@ -664,7 +670,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        return htmlGeneratorConfiguration != null && htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration() != null;
+        return htmlGeneratorConfiguration != null &&  !htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().isEmpty();
     }
 
     @Override

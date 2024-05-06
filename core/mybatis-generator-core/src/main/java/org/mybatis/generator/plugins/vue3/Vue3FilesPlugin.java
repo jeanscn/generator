@@ -12,7 +12,9 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.vue3.GeneratedVueFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.FieldItem;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.io.File;
 import java.util.*;
@@ -33,13 +35,30 @@ public class Vue3FilesPlugin extends PluginAdapter {
         }
         if (htmlGeneratorConfiguration != null) {
             String modulesPath = getVueEndProjectBasePath(introspectedTable);
+            String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
+            String modelPath = objectName.toLowerCase();
+            String tableRemark = introspectedTable.getRemarks(true);
             // 生成vue的路由组件
             String viewPath = String.join(File.separator, (modulesPath + "/views").split("/"));
             String project = this.properties.getProperty("targetProject", viewPath);
             String fileName = introspectedTable.getTableConfiguration().getDomainObjectName();
             Map<String, Object> freeMakerContext = new HashMap<>();
-            freeMakerContext.put("componentName", introspectedTable.getTableConfiguration().getDomainObjectName());
+            freeMakerContext.put("componentName", objectName);
             freeMakerContext.put("tableName", introspectedTable.getTableConfiguration().getTableName());
+            freeMakerContext.put("modelPath", modelPath);
+            freeMakerContext.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            freeMakerContext.put("tableRemark", tableRemark);
+            // 列渲染
+            Map<String, String> columnRenderFunMap = new HashMap<>();
+            if (introspectedTable.getRules().isGenerateViewVO()) {
+                VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+                viewConfiguration.getVoColumnRenderFunGeneratorConfigurations().forEach(config -> {
+                    config.getFieldNames().forEach(fieldName -> {
+                        columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun());
+                    });
+                });
+            }
+            freeMakerContext.put("columnRenderFunMap", columnRenderFunMap);
             if (VStringUtil.stringHasValue(fileName)) {
                 String vueViewFileNameDev = fileName + ".vue";
                 GeneratedVueFile generatedVueFile = new GeneratedVueFile(
@@ -47,16 +66,17 @@ public class Vue3FilesPlugin extends PluginAdapter {
                         project,
                         "",
                         introspectedTable,
-                        "vue_module_view.vue.ftl", freeMakerContext);
+                        "vue_module_list.vue.ftl", freeMakerContext);
                 generatedVueFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueFile());
                 answer.add(generatedVueFile);
             }
 
+            //生成vue的type文件
             List<FieldItem> fieldsList = introspectedTable.getVoModelFields();
             if (!fieldsList.isEmpty()) {
-                String typePath = String.join(File.separator, (modulesPath + "/types").split("/"));
+                String typePath = String.join(File.separator, (modulesPath + "/" + modelPath + "/types").split("/"));
                 String projectType = this.properties.getProperty("targetProject", typePath);
-                String fileNameType = "I" + introspectedTable.getTableConfiguration().getDomainObjectName();
+                String fileNameType = "T" + introspectedTable.getTableConfiguration().getDomainObjectName();
                 Map<String, Object> map = new HashMap<>();
                 fieldsList.forEach(fieldItem -> {
                     String type = fieldItem.getType();
@@ -65,6 +85,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 });
                 map.put("fields", fieldsList);
                 map.put("typeName", fileNameType);
+                map.put("tableRemark", tableRemark);
                 if (VStringUtil.stringHasValue(fileNameType)) {
                     String vueTypeFileName = fileNameType + ".ts";
                     GeneratedVueFile generatedVueTypeFile = new GeneratedVueFile(
@@ -78,6 +99,43 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 }
             }
 
+            //生成edit组件
+            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
+            String projectEdit = this.properties.getProperty("targetProject", editPath);
+            String fileNameEdit = introspectedTable.getTableConfiguration().getDomainObjectName() + "Edit";
+            Map<String, Object> editMap = new HashMap<>();
+            editMap.put("modelName", objectName);
+            editMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
+            editMap.put("modelPath", modelPath);
+            editMap.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            editMap.put("tableRemark", tableRemark);
+            String vueEditFileName = fileNameEdit + ".vue";
+            GeneratedVueFile generatedVueEditFile = new GeneratedVueFile(
+                    vueEditFileName,
+                    projectEdit,
+                    "",
+                    introspectedTable,
+                    "vue_module_edit.vue.ftl", editMap);
+            generatedVueEditFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueFile());
+            answer.add(generatedVueEditFile);
+
+            //生成detail组件
+            String fileNameDetail = introspectedTable.getTableConfiguration().getDomainObjectName() + "Detail";
+            Map<String, Object> detailMap = new HashMap<>();
+            detailMap.put("modelName", objectName);
+            detailMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
+            detailMap.put("modelPath", modelPath);
+            detailMap.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            detailMap.put("tableRemark", tableRemark);
+            String vueDetailFileName = fileNameDetail + ".vue";
+            GeneratedVueFile generatedVueDetailFile = new GeneratedVueFile(
+                    vueDetailFileName,
+                    projectEdit,
+                    "",
+                    introspectedTable,
+                    "vue_module_detail.vue.ftl", detailMap);
+            generatedVueDetailFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueFile());
+            answer.add(generatedVueDetailFile);
         }
         return answer;
     }
@@ -85,7 +143,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (this.isGenerateVueFile(introspectedTable)) {
-            introspectedTable.getVoModelFields().add(new FieldItem(field.getName(), field.getType().getShortName(),isOptionalTypeField(introspectedColumn)));
+            introspectedTable.getVoModelFields().add(new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn)));
         }
         return true;
     }
@@ -93,16 +151,16 @@ public class Vue3FilesPlugin extends PluginAdapter {
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (this.isGenerateVueFile(introspectedTable)) {
-            introspectedTable.getVoModelFields().add(new FieldItem(field.getName(), field.getType().getShortName(),isOptionalTypeField(introspectedColumn)));
+            introspectedTable.getVoModelFields().add(new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn)));
         }
         return true;
     }
 
     private boolean isOptionalTypeField(IntrospectedColumn introspectedColumn) {
-        if (introspectedColumn==null || introspectedColumn.isNullable()) {
+        if (introspectedColumn == null || introspectedColumn.isNullable()) {
             return true;
-        }else{
-           return EntityAbstractParentEnum.ABSTRACT_WORKFLOW_BUSINESS_NUMBERABLE.fields().stream().anyMatch(f->f.equals(introspectedColumn.getJavaProperty()));
+        } else {
+            return EntityAbstractParentEnum.ABSTRACT_WORKFLOW_BUSINESS_NUMBERABLE.fields().stream().anyMatch(f -> f.equals(introspectedColumn.getJavaProperty()));
         }
     }
 

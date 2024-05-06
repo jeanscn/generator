@@ -21,6 +21,7 @@ public abstract class AbstractAnnotation implements IAnnotation{
     protected List<String> items = new ArrayList<>();
 
     public AbstractAnnotation() {
+
     }
 
     public Set<String> getImports() {

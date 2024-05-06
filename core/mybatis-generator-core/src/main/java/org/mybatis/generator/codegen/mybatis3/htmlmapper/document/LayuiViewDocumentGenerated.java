@@ -83,7 +83,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         this.addStaticThymeleafJavaScript(body.get("body"), "/js/" + introspectedTable.getContext().getModuleKeyword() + "/" + fileName + ".min.js");
         //增加页面列表的编辑器模板页面片段
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             HtmlElement div = new HtmlElement("div");
             String moduleKeyword = VStringUtil.stringHasValue(listConfiguration.getModuleKeyword()) ? listConfiguration.getModuleKeyword() : introspectedTable.getContext().getModuleKeyword();
             String format = VStringUtil.format("{0}/fragments/{1}::{2}", moduleKeyword,Mb3GenUtil.getInnerListFragmentFileName(listConfiguration,introspectedTable),ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
@@ -173,7 +173,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         });
         //计算内置列表的位置
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             if (listConfiguration.getAfterColumn() == null) {
                 listConfiguration.setAfterColumn(displayColumns.get(displayColumns.size() - 1).getActualColumnName());
             } else if (displayColumns.stream().noneMatch(col -> col.getActualColumnName().equals(listConfiguration.getAfterColumn()))) {
@@ -246,7 +246,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
                         });
                 //是否需要插入页面列表
                 if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-                    HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+                    HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
                     if (rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> listConfiguration.getAfterColumn().equals(col))) {
                         addInnerList(table, htmlGeneratorConfiguration,pageColumnsConfig);
                     }
@@ -287,7 +287,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
                             });
                     //是否需要插入页面列表
                     if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-                        HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+                        HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
                         if (introspectedColumn.getActualColumnName().equals(listConfiguration.getAfterColumn())) {
                             addInnerList(form, htmlGeneratorConfiguration,pageColumnsConfig);
                         }
@@ -371,7 +371,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
     }
 
     private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration,int pageColumnsConfig) {
-        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
         HtmlElement atr = new HtmlElement("tr");
         content.addElement(atr);
         HtmlElement td = new HtmlElement("td");

@@ -35,8 +35,12 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
                     listInstance.addTypeArgument(c.getOtherColumn().getFullyQualifiedJavaType());
                     Parameter p2 = new Parameter(listInstance, c.getOtherColumn().getJavaProperty()+"s");
-                    p2.addAnnotation("@RequestParam");
-                    p2.addAnnotation("@RequestParamSplit");
+                    if (introspectedTable.getRules().isGenerateVueEnd()) {
+                        p2.addAnnotation("@RequestBody");
+                    }else{
+                        p2.addAnnotation("@RequestParam");
+                        p2.addAnnotation("@RequestParamSplit");
+                    }
                     p2.setRemark(c.getOtherColumn().getRemarks(false));
                     method.addParameter(p2);
                     FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);

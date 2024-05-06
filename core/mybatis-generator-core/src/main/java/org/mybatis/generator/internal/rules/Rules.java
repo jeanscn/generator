@@ -246,6 +246,8 @@ public interface Rules {
 
     boolean isForceGenerateScalableElement(String element);
 
+    boolean isGenerateVueEnd();
+
     /**
      * 是生成VO对象
      * */

@@ -1,5 +1,6 @@
 package org.mybatis.generator.plugins;
 
+import com.vgosoft.core.annotation.ViewFuzzyColumnMeta;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
@@ -12,10 +13,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
-import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
-import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
-import org.mybatis.generator.custom.annotations.ViewColumnMetaDesc;
-import org.mybatis.generator.custom.annotations.ViewTableMetaDesc;
+import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.Arrays;
@@ -54,11 +52,20 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (introspectedTable.getRules().isGenerateViewVO()) {
+            VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
             //增加ViewMetaAnnotation
             ViewColumnMetaDesc viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, introspectedTable);
+            // 列覆盖信息
+            generateVoFieldCustom(field, viewConfiguration, viewColumnMetaDesc);
             updateOrder(field, introspectedTable, viewColumnMetaDesc);
             field.addAnnotation(viewColumnMetaDesc.toAnnotation());
             topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
+            //模糊查询列注解
+            if (viewConfiguration.getFuzzyColumns().contains(introspectedColumn.getActualColumnName())) {
+                ViewFuzzyColumnMetaDesc viewFuzzyColumnMetaDesc = new ViewFuzzyColumnMetaDesc(introspectedColumn.getActualColumnName(),introspectedColumn.getRemarks(true));
+                field.addAnnotation(viewFuzzyColumnMetaDesc.toAnnotation());
+                topLevelClass.addImportedTypes(viewFuzzyColumnMetaDesc.getImportedTypes());
+            }
         }
         return true;
     }
@@ -79,21 +86,43 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             viewColumnMetaDesc = new ViewColumnMetaDesc(field, field.getRemark(), introspectedTable);
         }
         // 列覆盖信息
+        generateVoFieldCustom(field, viewConfiguration, viewColumnMetaDesc);
+        updateOrder(field, introspectedTable, viewColumnMetaDesc);
+        field.addAnnotation(viewColumnMetaDesc.toAnnotation());
+        topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
+
+        //模糊查询列注解
+        if (introspectedColumn!=null && viewConfiguration.getFuzzyColumns().contains(introspectedColumn.getActualColumnName())) {
+            ViewFuzzyColumnMetaDesc viewFuzzyColumnMetaDesc = new ViewFuzzyColumnMetaDesc(introspectedColumn.getActualColumnName(),introspectedColumn.getRemarks(true));
+            field.addAnnotation(viewFuzzyColumnMetaDesc.toAnnotation());
+            topLevelClass.addImportedTypes(viewFuzzyColumnMetaDesc.getImportedTypes());
+        }
+        return true;
+    }
+
+    private static void generateVoFieldCustom(Field field, VOViewGeneratorConfiguration viewConfiguration, ViewColumnMetaDesc viewColumnMetaDesc) {
         for (ViewFieldOverrideConfiguration config : viewConfiguration.getViewFieldOverrideConfigurations().stream().filter(config -> config.getFields().contains(field.getName())).collect(Collectors.toList())) {
+            if (stringHasValue(config.getLabel())) {
+                viewColumnMetaDesc.setTitle(config.getLabel());
+            }
             if (stringHasValue(config.getWidth())) {
                 viewColumnMetaDesc.setWidth(config.getWidth());
-            }
-            if (stringHasValue(config.getHeaderAlign())) {
-                viewColumnMetaDesc.setHeaderAlign(config.getHeaderAlign());
             }
             if (stringHasValue(config.getAlign())) {
                 viewColumnMetaDesc.setAlign(config.getAlign());
             }
+            if (stringHasValue(config.getFixed())) {
+                viewColumnMetaDesc.setFixed(config.getFixed());
+            }
+            viewColumnMetaDesc.setOrderable(config.isSort() ?"true":"false");
+            viewColumnMetaDesc.setHide(config.isHide());
+            viewColumnMetaDesc.setEdit(config.isEdit());
+
+            if (stringHasValue(config.getHeaderAlign())) {
+                viewColumnMetaDesc.setHeaderAlign(config.getHeaderAlign());
+            }
+
         }
-        updateOrder(field, introspectedTable, viewColumnMetaDesc);
-        field.addAnnotation(viewColumnMetaDesc.toAnnotation());
-        topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
-        return true;
     }
 
     private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass, IntrospectedTable introspectedTable) {

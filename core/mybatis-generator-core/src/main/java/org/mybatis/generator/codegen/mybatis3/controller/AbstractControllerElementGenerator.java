@@ -184,6 +184,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
                 }
                 break;
             case "get":
+            case "list":
                 if (introspectedTable.getRules().isGenerateRequestVO()) {
                     type = entityRequestVoType;
                 }
@@ -209,7 +210,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         method.addBodyLine("ServiceResult<List<{0}>> result;", entityType.getShortName());
         if (introspectedTable.getRules().isGenerateRequestVO()
                 && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
-            method.addBodyLine("Page<{0}> page = null;",entityType.getShortName());
+            method.addBodyLine("Page<{0}> page = null;", entityType.getShortName());
             method.addBodyLine("if ({0}.getPageNo() == 0 || {0}.getPageSize() == 0) '{'", requestVOVar);
             method.addBodyLine("PageHelper.clearPage();");
             addSelectByExample(method, requestVOVar);
@@ -225,7 +226,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         }
     }
 
-    private void addSelectByExample(Method method, String requestVOVar) {
+    public void addSelectByExample(Method method, String requestVOVar) {
         if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
             method.addBodyLine("if ({0}.isCascadeResult()) '{'", requestVOVar);
             method.addBodyLine("result = ServiceResult.success({0}.selectByExampleWithRelation(example));", serviceBeanName);

@@ -59,9 +59,15 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private boolean remoteToTree = false;
 
+    private String remoteValueType;
+
+    private boolean remoteAsync = false;
+
     private String keyMapLabel;
 
     private String keyMapValue;
+    //是否排除自己
+    private boolean excludeSelf = false;
 
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
@@ -305,5 +311,29 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setRemoteToTree(boolean remoteToTree) {
         this.remoteToTree = remoteToTree;
+    }
+
+    public String getRemoteValueType() {
+        return remoteValueType;
+    }
+
+    public void setRemoteValueType(String remoteValueType) {
+        this.remoteValueType = remoteValueType;
+    }
+
+    public boolean isRemoteAsync() {
+        return remoteAsync;
+    }
+
+    public void setRemoteAsync(boolean remoteAsync) {
+        this.remoteAsync = remoteAsync;
+    }
+
+    public boolean isExcludeSelf() {
+        return excludeSelf;
+    }
+
+    public void setExcludeSelf(boolean excludeSelf) {
+        this.excludeSelf = excludeSelf;
     }
 }

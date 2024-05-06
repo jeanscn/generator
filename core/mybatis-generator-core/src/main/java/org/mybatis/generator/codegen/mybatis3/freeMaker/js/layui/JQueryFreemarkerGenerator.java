@@ -91,8 +91,8 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
         freeMakerContext.put("callBackMethods", callBackMethods);
         freeMakerContext.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
         // 页面内列表js生成相关
-        if (this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration() != null) {
-            freeMakerContext.put("innerList", this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration());
+        if (introspectedTable.getRules().isAdditionInnerList(this.htmlGeneratorConfiguration) ) {
+            freeMakerContext.put("innerList", this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0));
         }
         Template template = getLayuiTemplate(templateName);
         return generatorFileContent(template);

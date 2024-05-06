@@ -22,7 +22,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     private String value;
 
-    private int width;
+    private String width;
     private String height;
     private boolean totalRow;
     private String enablePage;
@@ -36,6 +36,16 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private List<String> actionColumn = new ArrayList<>();
 
     private String indexColumn;
+
+    /**
+     * 设置表格尾部工具栏区域固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
+     */
+    private String actionColumnFixed = "";
+
+    /**
+     * 设置表格的索引列固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
+     */
+    private String indexColumnFixed = "";
 
     private String[] querys = new String[0];
 
@@ -51,7 +61,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if(stringHasValue(value)){
             items.add("value = \"" + value + "\"");
         }
-        if (width > 0) {
+        if (stringHasValue(width) && !"0".equals(width) && !"0px".equals(width) && !"0%".equals(width)) {
             items.add("width = " + width);
         }
         if (stringHasValue(height)) {
@@ -95,6 +105,12 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("querys = '{'{0}'}'",String.join("\n        , ", this.querys)));
             this.addImports(CompositeQuery.class.getCanonicalName());
         }
+        if (stringHasValue(actionColumnFixed) && !"false".equalsIgnoreCase(actionColumnFixed)) {
+            items.add("actionColumnFixed = \"" + actionColumnFixed + "\"");
+        }
+        if (stringHasValue(indexColumnFixed) && !"false".equalsIgnoreCase(indexColumnFixed)) {
+            items.add("indexColumnFixed = \"" + indexColumnFixed + "\"");
+        }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
@@ -106,11 +122,11 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         this.defaultToolbar = defaultToolbar;
     }
 
-    public int getWidth() {
+    public String getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(String width) {
         this.width = width;
     }
 
@@ -208,5 +224,21 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setQuerys(String[] querys) {
         this.querys = querys;
+    }
+
+    public String getActionColumnFixed() {
+        return actionColumnFixed;
+    }
+
+    public void setActionColumnFixed(String actionColumnFixed) {
+        this.actionColumnFixed = actionColumnFixed;
+    }
+
+    public String getIndexColumnFixed() {
+        return indexColumnFixed;
+    }
+
+    public void setIndexColumnFixed(String indexColumnFixed) {
+        this.indexColumnFixed = indexColumnFixed;
     }
 }

@@ -1,4 +1,7 @@
 更新日志：
+# 2024-04-14
+## 一、新增内容：
+* 1、viewVo下增加fieldOverrides标签，用来个性化列表中的列样式。
 # 2024-03-29
 ## 一、新增内容：
 * 1、htmlElementDescriptor标签增加：remoteApiParser、keyMapLabel、keyMapValue属性，用于指定（vue表单项的选项接口的结果处理）远程数据源的解析器、键值对的映射关系。

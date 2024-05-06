@@ -45,7 +45,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private HtmlLayoutDescriptor layoutDescriptor;
 
-    private HtmlElementInnerListConfiguration htmlElementInnerListConfiguration;
+    private List<HtmlElementInnerListConfiguration> htmlElementInnerListConfiguration = new ArrayList<>();
 
     private String htmlBaseTargetPackage;
 
@@ -183,11 +183,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.htmlBaseTargetPackage = htmlBaseTargetPackage;
     }
 
-    public HtmlElementInnerListConfiguration getHtmlElementInnerListConfiguration() {
+    public List<HtmlElementInnerListConfiguration> getHtmlElementInnerListConfiguration() {
         return htmlElementInnerListConfiguration;
     }
 
-    public void setHtmlElementInnerListConfiguration(HtmlElementInnerListConfiguration htmlElementInnerListConfiguration) {
+    public void setHtmlElementInnerListConfiguration(List<HtmlElementInnerListConfiguration> htmlElementInnerListConfiguration) {
         this.htmlElementInnerListConfiguration = htmlElementInnerListConfiguration;
     }
 

@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
 import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.annotations.VueFormInnerListMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormUploadMetaDesc;
@@ -45,6 +46,8 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             vueFormMetaDesc.setLabelPosition(layoutDescriptor.getLabelPosition());
             vueFormMetaDesc.setSize(layoutDescriptor.getSize());
             vueFormMetaDesc.setPopSize(layoutDescriptor.getPopSize());
+            vueFormMetaDesc.setAttachmentsContainer(layoutDescriptor.getAttachmentsContainer());
+            vueFormMetaDesc.setInnerListContainer(layoutDescriptor.getInnerListContainer());
             vueFormMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
 
             //附件注解
@@ -52,6 +55,14 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().forEach(e -> {
                     vueFormMetaDesc.getUploadMeta().add(new VueFormUploadMetaDesc(e));
                 });
+            }
+
+            //内置列表注解
+            if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+                List<HtmlElementInnerListConfiguration> listConfigurations = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+                for (int i = 0; i <listConfigurations.size(); i++) {
+                    vueFormMetaDesc.getInnerListMeta().add(new VueFormInnerListMetaDesc(listConfigurations.get(i),introspectedTable,i+1));
+                }
             }
 
             vueFormMetaDesc.addAnnotationToTopLevelClass(topLevelClass);
@@ -121,6 +132,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             if (elementDescriptor != null) { //存在字段配置的内容
                 //设置multiple
                 vueFormItemMetaDesc.setMultiple(Boolean.valueOf(elementDescriptor.getMultiple()));
+                vueFormItemMetaDesc.setOtherFieldName(elementDescriptor.getOtherFieldName());
                 //设置dataSource
                 if (VStringUtil.stringHasValue(elementDescriptor.getDataSource())) {
                     vueFormItemMetaDesc.setDataSource(elementDescriptor.getDataSource());
@@ -168,6 +180,16 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (elementDescriptor.isRemoteToTree()) {
                     vueFormItemMetaDesc.setRemoteToTree(true);
                 }
+                if (elementDescriptor.isRemoteAsync()) {
+                    vueFormItemMetaDesc.setRemoteAsync(true);
+                }
+                if (elementDescriptor.isExcludeSelf()) {
+                    vueFormItemMetaDesc.setExcludeSelf(true);
+                }
+                //根据字段类型设置valueType
+                VueFormGenerateUtil.setRemoteValueType(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);
+            }else{
+                vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }
             //设置rules
             String rules = VueFormGenerateUtil.getRules(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);

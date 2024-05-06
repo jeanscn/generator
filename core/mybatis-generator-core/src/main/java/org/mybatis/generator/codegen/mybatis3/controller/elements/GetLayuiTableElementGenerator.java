@@ -29,6 +29,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableUtil");
         parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");
 
+        //layui table配置对象
         final String methodPrefix = "getLayuiTable";
         Method method = createMethod(methodPrefix);
         Parameter viewStatus = new Parameter(FullyQualifiedJavaType.getIntegerInstance(), "viewStatus", "@RequestParam(required = false)");
@@ -50,5 +51,29 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
                 entityViewVoType.getShortName());
         method.addBodyLine("return success(layuitable);");
         parentElement.addMethod(method);
+
+        //vxe-grid配置接口
+        parentElement.addImportedType("com.vgosoft.web.plugins.vxegrid.VexTableUtil");
+        final String vexMethodPrefix = "getVexTable";
+        Method vexMethod = createMethod(vexMethodPrefix);
+        Parameter vxeViewStatus = new Parameter(FullyQualifiedJavaType.getIntegerInstance(), "viewStatus", "@RequestParam(required = false)");
+        vxeViewStatus.setRemark("读写状态，0：查看，1：编辑");
+        vexMethod.addParameter(viewStatus);
+        Parameter vxeListKey = new Parameter(FullyQualifiedJavaType.getStringInstance(), "listKey", "@RequestParam(required = false)");
+        vxeListKey.setRemark("可选参数，列表配置标识");
+        vexMethod.addParameter(vxeListKey);
+        vexMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
+                new FullyQualifiedJavaType("Layuitable"),
+                parentElement));
+        vexMethod.setReturnRemark("Vxe table配置对象");
+        vexMethod.addAnnotation(new RequestMappingDesc("vxe-table-config", RequestMethodEnum.GET),parentElement);
+        vexMethod.addAnnotation(new ApiOperationDesc("获得vxe table配置对象", "根据ViewVO获得vxe table配置对象"),parentElement);
+        commentGenerator.addMethodJavaDocLine(vexMethod, "根据ViewVO获得vxe table配置对象");
+        //函数体
+        vexMethod.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
+        vexMethod.addBodyLine("Layuitable layuitable = VexTableUtil.getLayuiTable({0}.class,edit,listKey,null);",
+                entityViewVoType.getShortName());
+        vexMethod.addBodyLine("return success(layuitable);");
+        parentElement.addMethod(vexMethod);
     }
 }

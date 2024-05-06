@@ -21,7 +21,7 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     private String height;
 
-    private int width = 0;
+    private String width = "";
 
     private boolean totalRow = false;
 
@@ -36,6 +36,16 @@ public class InnerListViewConfiguration extends PropertyHolder{
     private String indexColumn;
 
     private List<String> actionColumn = new ArrayList<>();
+
+    /**
+     * 设置表格尾部工具栏区域固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
+     */
+    private String actionColumnFixed = "";
+
+    /**
+     * 设置表格的索引列固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
+     */
+    private String indexColumnFixed = "";
 
 
     private String editExtendsForm;
@@ -128,11 +138,11 @@ public class InnerListViewConfiguration extends PropertyHolder{
         this.height = height;
     }
 
-    public int getWidth() {
+    public String getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(String width) {
         this.width = width;
     }
 
@@ -248,5 +258,21 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public void setQueryColumns(List<String> queryColumns) {
         this.queryColumns = queryColumns;
+    }
+
+    public String getActionColumnFixed() {
+        return actionColumnFixed;
+    }
+
+    public void setActionColumnFixed(String actionColumnFixed) {
+        this.actionColumnFixed = actionColumnFixed;
+    }
+
+    public String getIndexColumnFixed() {
+        return indexColumnFixed;
+    }
+
+    public void setIndexColumnFixed(String indexColumnFixed) {
+        this.indexColumnFixed = indexColumnFixed;
     }
 }

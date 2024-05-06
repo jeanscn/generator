@@ -804,6 +804,11 @@ public class TableConfiguration extends PropertyHolder {
             });
             innerListViewConfiguration.getQueryColumnConfigurations().removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
         });
+        //校验searchColumn
+        if (this.getVoGeneratorConfiguration()!=null && this.getVoGeneratorConfiguration().getVoViewConfiguration()!=null && !this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().isEmpty()) {
+            List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+            this.getVoGeneratorConfiguration().getVoViewConfiguration().setFuzzyColumns(collect);
+        }
     }
 
     private void generateDefaultColumnRenderConfiguration(Context context) {

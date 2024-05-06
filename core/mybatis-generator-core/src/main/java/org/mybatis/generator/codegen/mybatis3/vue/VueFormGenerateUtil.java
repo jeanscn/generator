@@ -30,7 +30,7 @@ public class VueFormGenerateUtil {
         if (elementDescriptor != null) {
             switch (HtmlElementTagTypeEnum.ofCodeName(elementDescriptor.getTagType())) {
                 case INPUT:
-                    return "请输入" + (introspectedColumn != null ? introspectedColumn.getRemarks(true) : "");
+                    return "请输入";
                 case SELECT:
                 case DROPDOWN_LIST:
                 case DATE:
@@ -46,7 +46,7 @@ public class VueFormGenerateUtil {
             }
         } else {
             if (introspectedColumn != null) {
-                return "请输入" + introspectedColumn.getRemarks(true);
+                return "请输入";
             } else {
                 return "请输入";
             }
@@ -236,5 +236,28 @@ public class VueFormGenerateUtil {
         }
         //生成rules注解
         return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
+    }
+
+    public static void setRemoteValueType(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor) {
+        if (elementDescriptor != null && stringHasValue(elementDescriptor.getRemoteValueType())) {
+            vueFormItemMetaDesc.setRemoteValueType(elementDescriptor.getRemoteValueType());
+        } else {
+            if (introspectedColumn != null) {
+                if(introspectedColumn.isBooleanColumn()){
+                    vueFormItemMetaDesc.setRemoteValueType("boolean");
+                } else if (introspectedColumn.isNumericColumn()) {
+                    vueFormItemMetaDesc.setRemoteValueType("number");
+                } else if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
+                    vueFormItemMetaDesc.setRemoteValueType("date");
+                } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
+                    vueFormItemMetaDesc.setRemoteValueType("time");
+                } else {
+                    vueFormItemMetaDesc.setRemoteValueType("string");
+                }
+            } else {
+                vueFormItemMetaDesc.setRemoteValueType("string");
+            }
+        }
+
     }
 }

@@ -45,8 +45,8 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "option" + methodKey;
         Method method = createMethod(methodPrefix);
-        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
-        Parameter parameter = buildMethodParameter(descript);
+        MethodParameterDescript mpd = new MethodParameterDescript(parentElement,"get");
+        Parameter parameter = buildMethodParameter(mpd);
         parameter.setRemark("用于接收属性同名参数");
         method.addParameter(parameter);
         Parameter selected = new Parameter(FullyQualifiedJavaType.getStringInstance(), "selected");
@@ -72,7 +72,6 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
 
         commentGenerator.addMethodJavaDocLine(method, "获取Options-XX选项列表");
 
-        String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         selectByExampleWithPagehelper(parentElement, method);
         Method pMethod = null;
 

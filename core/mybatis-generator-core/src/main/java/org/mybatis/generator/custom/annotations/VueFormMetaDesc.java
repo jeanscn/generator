@@ -33,7 +33,13 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     private String restBasePath;
 
+    private String attachmentsContainer = "none";
+
+    private String innerListContainer = "none";
+
     private List<VueFormUploadMetaDesc> uploadMeta = new ArrayList<>();
+
+    private List<VueFormInnerListMetaDesc> innerListMeta = new ArrayList<>();
 
     public static VueFormMetaDesc create(IntrospectedTable introspectedTable) {
         return new VueFormMetaDesc(introspectedTable);
@@ -67,9 +73,19 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getPopSize()) && !"default".equals(this.getPopSize())) {
             items.add(VStringUtil.format("popSize = \"{0}\"", this.getPopSize()));
         }
+        if(VStringUtil.isNotBlank(this.getAttachmentsContainer()) && !"none".equals(this.getAttachmentsContainer())){
+            items.add(VStringUtil.format("attachmentsContainer = \"{0}\"", this.getAttachmentsContainer()));
+        }
+        if(VStringUtil.isNotBlank(this.getInnerListContainer()) && !"none".equals(this.getInnerListContainer())){
+            items.add(VStringUtil.format("innerListContainer = \"{0}\"", this.getInnerListContainer()));
+        }
         if (!uploadMeta.isEmpty()) {
-            items.add("uploadMeta = {\n        " + uploadMeta.stream().map(VueFormUploadMetaDesc::toAnnotation).collect(Collectors.joining(",")) + "\n}");
+            items.add("\nuploadMeta = {\n        " + uploadMeta.stream().map(VueFormUploadMetaDesc::toAnnotation).collect(Collectors.joining(",")) + "\n}");
             this.addImports(VueFormUploadMeta.class.getCanonicalName());
+        }
+        if (!innerListMeta.isEmpty()) {
+            items.add("\ninnerListMeta = {\n        " + innerListMeta.stream().map(VueFormInnerListMetaDesc::toAnnotation).collect(Collectors.joining(",\n")) + "\n}");
+            this.addImports(VueFormInnerListMeta.class.getCanonicalName());
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -132,5 +148,29 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     public void setUploadMeta(List<VueFormUploadMetaDesc> uploadMeta) {
         this.uploadMeta = uploadMeta;
+    }
+
+    public List<VueFormInnerListMetaDesc> getInnerListMeta() {
+        return innerListMeta;
+    }
+
+    public void setInnerListMeta(List<VueFormInnerListMetaDesc> innerListMeta) {
+        this.innerListMeta = innerListMeta;
+    }
+
+    public String getAttachmentsContainer() {
+        return attachmentsContainer;
+    }
+
+    public void setAttachmentsContainer(String attachmentsContainer) {
+        this.attachmentsContainer = attachmentsContainer;
+    }
+
+    public String getInnerListContainer() {
+        return innerListContainer;
+    }
+
+    public void setInnerListContainer(String innerListContainer) {
+        this.innerListContainer = innerListContainer;
     }
 }

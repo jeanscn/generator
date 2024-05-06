@@ -8,6 +8,7 @@ import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelDesc;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
@@ -142,5 +143,23 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
                 topLevelClass.addImportedType(c.getVoModelTye());
             }
         });
+    }
+
+    protected void addWhereConditionResult(TopLevelClass requestVoClass) {
+        Field cascade = new Field("anyWhereCondition", FullyQualifiedJavaType.getStringInstance());
+        cascade.setVisibility(JavaVisibility.PRIVATE);
+        cascade.setRemark("任意过滤条件");
+        new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, requestVoClass);
+        requestVoClass.addField(cascade);
+    }
+
+    //增加查询过滤器的filterMap属性
+    protected void addFilterMap(TopLevelClass requestVoClass) {
+        Field filterMap = new Field("filterParam", new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
+        filterMap.setVisibility(JavaVisibility.PRIVATE);
+        filterMap.setRemark("前端过滤器及类似查询过滤条件");
+        new ApiModelPropertyDesc(filterMap.getRemark(), "filterParam = ‘{}’").addAnnotationToField(filterMap, requestVoClass);
+        requestVoClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
+        requestVoClass.addField(filterMap);
     }
 }

@@ -13,6 +13,8 @@ import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.util.List;
+
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
@@ -79,21 +81,25 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine("}");
             parentElement.addImportedType("com.vgosoft.bizcore.service.IVbizFileAttachment");
         }
-        HtmlElementInnerListConfiguration innerListConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
-        if (innerListConfiguration != null && innerListConfiguration.getSourceViewVoClass() != null) {
-            method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
-            method.addBodyLine("if (VStringUtil.stringHasValue(viewParam.getListKey())) {");
-            method.addBodyLine("// 内嵌列表");
-            FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceViewVoClass());
-            parentElement.addImportedType(javaType);
-            method.addBodyLine("Layuitable innerList = getInnerList(viewParam.getListKey(), {1}.class, 0);", innerListConfiguration.getListKey(), javaType.getShortName());
-            method.addBodyLine("if (innerList != null)  listHeaders = innerList.getCols().get(0);");
-            method.addBodyLine("}");
-            method.addBodyLine("mv.addObject(\"innerListHeaders\", listHeaders);");
-            parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
-            parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
+        List<HtmlElementInnerListConfiguration> listConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+        if (!listConfiguration.isEmpty()) {
+            HtmlElementInnerListConfiguration innerListConfiguration = listConfiguration.get(0);
+            if (innerListConfiguration != null && innerListConfiguration.getSourceViewVoClass() != null) {
+                method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
+                method.addBodyLine("if (VStringUtil.stringHasValue(viewParam.getListKey())) {");
+                method.addBodyLine("// 内嵌列表");
+                FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceViewVoClass());
+                parentElement.addImportedType(javaType);
+                method.addBodyLine("Layuitable innerList = getInnerList(viewParam.getListKey(), {1}.class, 0);", innerListConfiguration.getListKey(), javaType.getShortName());
+                method.addBodyLine("if (innerList != null)  listHeaders = innerList.getCols().get(0);");
+                method.addBodyLine("}");
+                method.addBodyLine("mv.addObject(\"innerListHeaders\", listHeaders);");
+                parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
+                parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
 
+            }
         }
+
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("object = mappings.to{0}VO(serviceResult.getResult());", entityType.getShortName());
         } else {

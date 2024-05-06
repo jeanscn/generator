@@ -11,6 +11,8 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private String listKey;
 
+    private String label = "详细信息";
+
     private String moduleKeyword;
 
     private String tagId;
@@ -27,9 +29,15 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private String relationField;
 
-    private String relationKey;
+    private String relationKey = "id";
 
     private String afterColumn;
+
+    private int span = 24;
+
+    private int order =10;
+
+    private String restBasePath;
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -127,5 +135,37 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setSourceViewVoClass(String sourceViewVoClass) {
         this.sourceViewVoClass = sourceViewVoClass;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public int getSpan() {
+        return span;
+    }
+
+    public void setSpan(int span) {
+        this.span = span;
+    }
+
+    public String getRestBasePath() {
+        return restBasePath;
+    }
+
+    public void setRestBasePath(String restBasePath) {
+        this.restBasePath = restBasePath;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }

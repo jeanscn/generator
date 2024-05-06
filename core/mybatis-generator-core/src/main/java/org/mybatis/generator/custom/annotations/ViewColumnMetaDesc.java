@@ -29,16 +29,22 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     private String title;
 
     private String width;
-    private String headerAlign;
+    private String headerAlign = "left";
 
-    private String align;
+    private String align = "left";
+
+    private String fixed = "";
+
+    private boolean edit = false;
+
+    private boolean hide = false;
 
 
     private String defaultContent;
 
     private String searchable;
 
-    private String orderable;
+    private String orderable = "true";
 
     private String render;
 
@@ -156,25 +162,35 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (this.width != null) {
             items.add(VStringUtil.format("width = \"{0}\"", this.width));
         }
-        if (this.headerAlign != null && !this.headerAlign.equals("center")) {
+        if (this.headerAlign != null && !this.headerAlign.equals("left")) {
             items.add(VStringUtil.format("headerAlign = \"{0}\"", this.headerAlign));
         }
         if (this.align != null && !this.align.equals("left")) {
             items.add(VStringUtil.format("align = \"{0}\"", this.align));
         }
+        if (this.fixed != null && !this.fixed.isEmpty()) {
+            items.add(VStringUtil.format("fixed = \"{0}\"", this.fixed));
+        }
+        if (this.edit) {
+            items.add("edit = true");
+        }
+        if (this.hide) {
+            items.add("hide = true");
+        }
+
         if (this.defaultContent != null) {
             items.add(VStringUtil.format("defaultContent = \"{0}\"", this.defaultContent));
         }
         if (this.searchable != null) {
             items.add(VStringUtil.format("searchable = {0}", this.searchable));
         }
-        if (this.orderable != null) {
-            items.add(VStringUtil.format("orderable = {0}", this.orderable));
+        if (this.orderable != null && !this.orderable.equals("false")) {
+            items.add("orderable = false");
         }
         if (this.render != null) {
             items.add(VStringUtil.format("render = \"{0}\"", this.render));
         }
-        if (this.dataType != null) {
+        if (this.dataType != null && !this.dataType.equals("string")) {
             items.add(VStringUtil.format("dataType = \"{0}\"", this.dataType));
         }
         if (this.dataFormat != null) {
@@ -311,6 +327,30 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     public void setAlign(String align) {
         this.align = align;
+    }
+
+    public String getFixed() {
+        return fixed;
+    }
+
+    public void setFixed(String fixed) {
+        this.fixed = fixed;
+    }
+
+    public boolean isEdit() {
+        return edit;
+    }
+
+    public void setEdit(boolean edit) {
+        this.edit = edit;
+    }
+
+    public boolean isHide() {
+        return hide;
+    }
+
+    public void setHide(boolean hide) {
+        this.hide = hide;
     }
 
     public Set<String> getHiddenProperties() {

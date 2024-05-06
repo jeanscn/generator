@@ -194,12 +194,37 @@ public class IntrospectedColumn {
                 || jdbcType == Types.NCLOB || jdbcType == Types.NVARCHAR;
     }
 
+    public boolean isDateColumn() {
+        return jdbcType == Types.DATE;
+    }
+
+    public boolean isTimeColumn() {
+        return jdbcType == Types.TIME;
+    }
+
+    public boolean isTimestampColumn() {
+        return jdbcType == Types.TIMESTAMP;
+    }
+
+    public boolean isBigDecimalColumn() {
+        return jdbcType == Types.DECIMAL || jdbcType == Types.NUMERIC;
+    }
+
+    public boolean isBytesColumn() {
+        return jdbcType == Types.BINARY || jdbcType == Types.VARBINARY
+                || jdbcType == Types.LONGVARBINARY;
+    }
+
     public boolean isNumericColumn(){
         return jdbcType == Types.BIGINT || jdbcType == Types.DECIMAL
                 || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
                 || jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC
                 || jdbcType == Types.REAL || jdbcType == Types.SMALLINT
                 || jdbcType == Types.TINYINT;
+    }
+
+    public boolean isBooleanColumn(){
+        return jdbcType == Types.BIT || jdbcType == Types.BOOLEAN;
     }
 
     public String getJavaProperty() {

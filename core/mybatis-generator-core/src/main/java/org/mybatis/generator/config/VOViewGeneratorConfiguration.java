@@ -25,6 +25,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private List<String> queryColumns = new ArrayList<>();
 
+    private List<String> fuzzyColumns = new ArrayList<>();
+
     private List<String> defaultDisplayFields = new ArrayList<>();
 
     private Set<String> defaultHiddenFields = new HashSet<>();
@@ -204,5 +206,13 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void addViewFieldOverrideConfiguration(ViewFieldOverrideConfiguration viewFieldOverrideConfiguration) {
         this.viewFieldOverrideConfigurations.add(viewFieldOverrideConfiguration);
+    }
+
+    public List<String> getFuzzyColumns() {
+        return fuzzyColumns;
+    }
+
+    public void setFuzzyColumns(List<String> fuzzyColumns) {
+        this.fuzzyColumns = fuzzyColumns;
     }
 }

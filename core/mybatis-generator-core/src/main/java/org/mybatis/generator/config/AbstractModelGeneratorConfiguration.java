@@ -7,8 +7,6 @@ import java.util.*;
 
 public abstract class AbstractModelGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
-    protected VOGeneratorConfiguration voGeneratorConfiguration;
-
     protected Set<String> excludeColumns = new HashSet<>();
 
     private Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
@@ -55,14 +53,6 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     public void setOverridePropertyConfigurations(Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
         this.overridePropertyConfigurations = overridePropertyConfigurations;
-    }
-
-    public VOGeneratorConfiguration getVoGeneratorConfiguration() {
-        return voGeneratorConfiguration;
-    }
-
-    public void setVoGeneratorConfiguration(VOGeneratorConfiguration voGeneratorConfiguration) {
-        this.voGeneratorConfiguration = voGeneratorConfiguration;
     }
 
     public Set<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {

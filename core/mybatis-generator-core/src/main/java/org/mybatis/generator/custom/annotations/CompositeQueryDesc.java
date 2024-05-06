@@ -55,6 +55,7 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                     } else {
                         compositeQueryDesc.setDataUrl("/system/sys-dict-data-impl/option/" + queryColumnConfiguration.getField());
                     }
+                    compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT_SYS:
                     if (queryColumnConfiguration.getDictCode() != null) {
@@ -62,6 +63,7 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                     } else {
                         compositeQueryDesc.setDataUrl("/system/sys-cfg-dict-impl/option/" + queryColumnConfiguration.getField());
                     }
+                    compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT_USER:
                     if (queryColumnConfiguration.getDictCode() != null) {
@@ -69,13 +71,17 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                     } else {
                         compositeQueryDesc.setDataUrl("/system/dict-content-impl/option/" + queryColumnConfiguration.getField());
                     }
+                    compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
+                    break;
                 case DICT_MODULE:
                     compositeQueryDesc.setDataUrl("/system/sys-cfg-module-impl/option/name");
+                    compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT_ENUM:
                     if (queryColumnConfiguration.getEnumClassFullName() != null) {
                         compositeQueryDesc.setDataUrl("/system/enum/options/" + queryColumnConfiguration.getEnumClassFullName());
                     }
+                    compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT:
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
@@ -120,13 +126,16 @@ public class CompositeQueryDesc extends AbstractAnnotation {
             this.queryMode = QueryModesEnum.EQUAL;
         } else if (introspectedColumn.isStringColumn()) {
             this.fieldType = FieldTypeEnum.TEXT;
+            this.queryMode = QueryModesEnum.LIKE;
         } else if (introspectedColumn.isJdbcCharacterColumn()) {
             this.fieldType = FieldTypeEnum.TEXT;
+            this.queryMode = QueryModesEnum.LIKE;
         } else if (introspectedColumn.isNumericColumn()) {
             this.fieldType = FieldTypeEnum.NUMBER;
             this.queryMode = QueryModesEnum.EQUAL;
         } else {
             this.fieldType = FieldTypeEnum.TEXT;
+            this.queryMode = QueryModesEnum.EQUAL;
         }
     }
 

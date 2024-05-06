@@ -31,6 +31,8 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
 
     private Integer span = 24;
 
+    private int order = 10;
+
     public VueFormUploadMetaDesc() {
         super();
     }
@@ -74,6 +76,9 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
         }
         if (this.getSpan() != 24) {
             this.items.add(VStringUtil.format("span = {0}", this.getSpan()));
+        }
+        if (this.getOrder() != 10) {
+            this.items.add(VStringUtil.format("order = {0}", this.getOrder()));
         }
         this.addImports(VueFormUploadMeta.class.getCanonicalName());
     }
@@ -161,5 +166,13 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }

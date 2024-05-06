@@ -19,7 +19,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     private String fieldValue;
     private final String fieldName;
+
     private final String fieldLabel;
+    private String otherFieldName;
     private Integer span = 24;
     private String tips;
     private String component;
@@ -38,6 +40,12 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private boolean remoteApiParse = false; // 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
 
     private boolean remoteToTree = false; // 远程数据源转树形结构
+
+    private boolean remoteAsync = false; // 远程数据源是否异步加载
+
+    private boolean excludeSelf = false; // 远程数据源是否排除自身
+
+    private String remoteValueType = "string"; // 远程数据源返回的数据中，value对应的字段类型,remoteApiParse为true时有效
     private String keyMapLabel = "name"; // 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
     private String keyMapValue = "id"; // 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
     private String dataUrl = ""; // 远程数据源的URL
@@ -71,41 +79,44 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         if (this.span != 24) {
             items.add(VStringUtil.format("span = {0}", this.getSpan()));
         }
-        if (VStringUtil.isNotBlank(this.getFieldValue())) {
+        if (VStringUtil.stringHasValue(this.getFieldValue())) {
             items.add(VStringUtil.format("fieldValue = \"{0}\"", this.getFieldValue()));
         }
-        if (VStringUtil.isNotBlank(this.getTips())) {
+        if(VStringUtil.stringHasValue(this.getOtherFieldName())){
+            items.add(VStringUtil.format("otherFieldName = \"{0}\"", this.getOtherFieldName()));
+        }
+        if (VStringUtil.stringHasValue(this.getTips())) {
             items.add(VStringUtil.format("tips = \"{0}\"", this.getTips()));
         }
-        if (VStringUtil.isNotBlank(this.getComponent()) && !"input".equals(this.getComponent())) {
+        if (VStringUtil.stringHasValue(this.getComponent()) && !"input".equals(this.getComponent())) {
             items.add(VStringUtil.format("component = \"{0}\"", this.getComponent()));
         }
-        if (VStringUtil.isNotBlank(this.getRules())) {
+        if (VStringUtil.stringHasValue(this.getRules())) {
             this.addImports(VueFormItemRule.class.getCanonicalName());
             items.add(VStringUtil.format("\n            rules = '{'{0}'}'\n            ", this.getRules()));
         }
-        if (VStringUtil.isNotBlank(this.getHideHandle())) {
+        if (VStringUtil.stringHasValue(this.getHideHandle())) {
             items.add(VStringUtil.format("hideHandle = \"{0}\"", this.getHideHandle()));
         }
-        if (VStringUtil.isNotBlank(this.getRequiredHandle())) {
+        if (VStringUtil.stringHasValue(this.getRequiredHandle())) {
             items.add(VStringUtil.format("requiredHandle = \"{0}\"", this.getRequiredHandle()));
         }
-        if (VStringUtil.isNotBlank(this.getPlaceholder())) {
+        if (VStringUtil.stringHasValue(this.getPlaceholder())) {
             items.add(VStringUtil.format("placeholder = \"{0}\"", this.getPlaceholder()));
         }
-        if (VStringUtil.isNotBlank(this.getMaxlength())) {
+        if (VStringUtil.stringHasValue(this.getMaxlength())) {
             items.add(VStringUtil.format("maxlength = \"{0}\"", this.getMaxlength()));
         }
-        if (VStringUtil.isNotBlank(this.getMinlength()) && !"0".equals(this.getMinlength())) {
+        if (VStringUtil.stringHasValue(this.getMinlength()) && !"0".equals(this.getMinlength())) {
             items.add(VStringUtil.format("minlength = \"{0}\"", this.getMinlength()));
         }
         if (this.getMultiple() != null && this.getMultiple()){
             items.add(VStringUtil.format("multiple = {0}", this.getMultiple().toString().toLowerCase()));
         }
-        if (VStringUtil.isNotBlank(this.getType())) {
+        if (VStringUtil.stringHasValue(this.getType())) {
             items.add(VStringUtil.format("type = \"{0}\"", this.getType()));
         }
-        if (VStringUtil.isNotBlank(this.getValueFormat())) {
+        if (VStringUtil.stringHasValue(this.getValueFormat())) {
             items.add(VStringUtil.format("valueFormat = \"{0}\"", this.getValueFormat()));
         }
         if (this.isDateRange()) {
@@ -116,6 +127,15 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (this.isRemoteToTree()) {
             items.add(VStringUtil.format("remoteToTree = true"));
+        }
+        if (VStringUtil.isNotBlank(this.getRemoteValueType()) && !"".equals(this.getRemoteValueType())){
+            items.add(VStringUtil.format("remoteValueType = \"{0}\"", this.getRemoteValueType()));
+        }
+        if (this.isRemoteAsync()) {
+            items.add(VStringUtil.format("remoteAsync = true"));
+        }
+        if (this.isExcludeSelf()) {
+            items.add(VStringUtil.format("excludeSelf = true"));
         }
         if (VStringUtil.isNotBlank(this.getKeyMapLabel()) && !"name".equals(this.getKeyMapLabel())){
             items.add(VStringUtil.format("keyMapLabel = \"{0}\"", this.getKeyMapLabel()));
@@ -385,5 +405,37 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setSwitchText(String switchText) {
         this.switchText = switchText;
+    }
+
+    public String getRemoteValueType() {
+        return remoteValueType;
+    }
+
+    public void setRemoteValueType(String remoteValueType) {
+        this.remoteValueType = remoteValueType;
+    }
+
+    public boolean isRemoteAsync() {
+        return remoteAsync;
+    }
+
+    public void setRemoteAsync(boolean remoteAsync) {
+        this.remoteAsync = remoteAsync;
+    }
+
+    public boolean isExcludeSelf() {
+        return excludeSelf;
+    }
+
+    public void setExcludeSelf(boolean excludeSelf) {
+        this.excludeSelf = excludeSelf;
+    }
+
+    public String getOtherFieldName() {
+        return otherFieldName;
+    }
+
+    public void setOtherFieldName(String otherFieldName) {
+        this.otherFieldName = otherFieldName;
     }
 }

@@ -301,6 +301,11 @@ public class RulesDelegate implements Rules {
         return false;
     }
 
+    @Override
+    public boolean isGenerateVueEnd() {
+        return false;
+    }
+
     /**
      * 是生成VO对象
      */

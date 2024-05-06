@@ -148,8 +148,9 @@ public class ValidatorPlugin extends PluginAdapter {
                                       IntrospectedTable introspectedTable,
                                       Set<String> ignoreColumns) {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
-        Set<String> validateIgnoreColumns = tc.getVoGeneratorConfiguration().getVoCreateConfiguration().getValidateIgnoreColumns();
-        ignoreColumns.addAll(validateIgnoreColumns);
+        if (introspectedTable.getRules().isGenerateCreateVO()) {
+            ignoreColumns.addAll(tc.getVoGeneratorConfiguration().getVoCreateConfiguration().getValidateIgnoreColumns());
+        }
         if (introspectedColumn == null || ignoreColumns.contains(introspectedColumn.getActualColumnName()) || introspectedColumn.isPrimaryKey()) {
             return true;
         }

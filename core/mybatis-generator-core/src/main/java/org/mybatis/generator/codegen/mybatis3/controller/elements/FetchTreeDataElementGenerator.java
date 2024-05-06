@@ -33,8 +33,11 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parentElement.addImportedType("java.util.List");
         parentElement.addImportedType("java.util.Optional");
         parentElement.addImportedType("java.util.stream.Collectors");
+        parentElement.addStaticImport("com.vgosoft.tool.core.VStringUtil.*");
 
-        //fetchTreeDataGenerate方法定义
+        /*
+         * fetchTreeData方法定义
+         */
         FullyQualifiedJavaType ztreeDataSimpleType = new FullyQualifiedJavaType(Z_TREE_DATA_SIMPLE);
         parentElement.addImportedType(ztreeDataSimpleType);
         final String methodPrefix = "fetchTreeData";
@@ -48,9 +51,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parameter3.addAnnotation("@RequestParam(required = false)");
         parameter3.setRemark("要排除的标识列表");
         parameters.add(parameter3);
-
         parameters.forEach(method::addParameter);
-
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
                 ztreeDataSimpleType,
                 parentElement));
@@ -59,7 +60,6 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         method.addAnnotation(new RequestMappingDesc("tree", RequestMethodEnum.GET), parentElement);
         method.addAnnotation(new ApiOperationDesc("树形数据查询", "获取指定根或所有的树形结构数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取指定根或所有的树形结构数据");
-
         //函数体
         method.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
         method.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.{1}({2}));",
@@ -75,7 +75,39 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parentElement.addMethod(method);
         parentElement.addImportedType("com.vgosoft.web.plugins.ztree.TreeUtil");
 
-        //fetchTreeCateGenerate方法定义
+        /*
+         * 异步 asyncFetchTreeData方法定义
+         */
+        final String asyncMethodPrefix = "asyncFetchTreeData";
+        Method aMethod = createMethod(asyncMethodPrefix);
+        parameters.forEach(aMethod::addParameter);
+        aMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
+                ztreeDataSimpleType,
+                parentElement));
+        aMethod.setReturnRemark("tree对象集合结果封装对象");
+        aMethod.addAnnotation(new SystemLogDesc("异步查询树结果数据", introspectedTable), parentElement);
+        aMethod.addAnnotation(new RequestMappingDesc("async-tree", RequestMethodEnum.GET), parentElement);
+        aMethod.addAnnotation(new ApiOperationDesc("异步树形数据查询", "异步获取指定根或所有的树形结构数据"), parentElement);
+        commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的树形结构数据");
+        //函数体
+        aMethod.addBodyLine("{0}Example example = new {0}Example();", entityType.getShortName());
+        aMethod.addBodyLine("keys = keys == null ? \"0\" : keys;");
+        aMethod.addBodyLine("List<String> parentIds = splitToList(keys);");
+        aMethod.addBodyLine("example.createCriteria().andParentIdIn(parentIds);");
+        aMethod.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
+        aMethod.addBodyLine("nodeConverter.setRecords({0}.selectByExample(example).getResult());", serviceBeanName);
+        aMethod.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
+        aMethod.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
+        aMethod.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");
+        aMethod.addBodyLine(".forEach(pid -> TreeUtil.setNoCheckedRecursively(ztreeDataSimples, pid));");
+        aMethod.addBodyLine("}");
+        aMethod.addBodyLine("return ResponseResult.success(ztreeDataSimples);");
+        parentElement.addMethod(aMethod);
+
+        /*
+         * fetchTreeCateGenerate方法定义
+         * 生成树形分类数据查询方法
+         */
         tc.getJavaControllerGeneratorConfiguration().getTreeViewCateGeneratorConfigurations().forEach(cateTreeConfig -> {
             FullyQualifiedJavaType ztreeDataSimpleCateType = new FullyQualifiedJavaType(Z_TREE_DATA_SIMPLE_CATE);
             parentElement.addImportedType(ztreeDataSimpleCateType);

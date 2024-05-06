@@ -4,9 +4,12 @@
         几个通用的xml实体
         -->
         <!ENTITY % renderFunValues "(colDefsOdata|colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsAsLink_readonly|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
-        <!ENTITY % tagType "(input|radio|checkbox|switch|date|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist)" >
-        <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|InnerList)" >
+        <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist)" >
+        <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|Role|InnerList)" >
         <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|日期|日期时间|时间)" >
+        <!ENTITY % valueType "(text|number|date|time|datetime|year|month|shortmonth|quarter)" >
+        <!ENTITY % queryExpression "(EqualTo|NotEqualTo|GreaterThan|LessThan|GreaterThanOrEqualTo|LessThanOrEqualTo|Like|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between|In|NotIn)" >
+        <!ENTITY % indexColumnType "(NONE|CHECKBOX|RADIO|ROW_INDEX|EXPAND)" >
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -538,7 +541,7 @@
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
         -->
 
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment?,approvalComment*,htmlElementInnerList?,htmlButton*)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
                 type (editable|viewOnly|print) #IMPLIED
@@ -565,7 +568,9 @@
             8、labelWidth 标签宽度，默认120px.例如 '50px'。 作为 Form 直接子元素的 form-item 会继承该值。 可以使用 auto。
             9、labelPosition 标签对齐方式，默认right。当设置为 left 或 right 时，则也需要设置 label-width 属性
             10、size 控件大小，可选值为 large / default / small，默认default
-            11、popSize 弹窗大小，可选值为 large / default / small，默认default
+            11、popSize 弹窗大小，可选值为 largeX / large / default / small，默认default
+            12、attachmentsContainer 附件容器，none-不生成附件容器，tab-生成附件容器tab，默认none
+            13、innerListContainer 内嵌列表容器，none-不生成内嵌列表容器，tab-生成内嵌列表容器tab，默认none
             -->
         <!ELEMENT layout  EMPTY>
         <!ATTLIST layout
@@ -579,7 +584,9 @@
                 labelWidth CDATA #IMPLIED
                 labelPosition (left|right|top) #IMPLIED
                 size (large|default|small) #IMPLIED
-                popSize (large|default|small) #IMPLIED>
+                popSize (largeX|large|default|small) #IMPLIED
+                attachmentsContainer (none|tab) #IMPLIED
+                innerListContainer (none|tab) #IMPLIED>
 
         <!--
             页面元素生成描述
@@ -635,6 +642,11 @@
             14、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
             15、dateFmt 日期格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等。
             16、multiple 是否允许多选，默认false，当tagType为select时有效。
+            17、remoteApiParse 是否远程解析，默认false。
+            18、remoteToTree 是否远程转树，默认false。
+            19、remoteAsync 是否远程异步，默认false。
+            20、keyMapLabel 数据源中的label字段名，默认为label。
+            21、keyMapValue 数据源中的value字段名，默认为value。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -673,6 +685,7 @@
                 multiple (false|true) #IMPLIED
                 remoteApiParse (false|true) #IMPLIED
                 remoteToTree (false|true) #IMPLIED
+                remoteAsync (false|true) #IMPLIED
                 keyMapLabel CDATA #IMPLIED
                 keyMapValue CDATA #IMPLIED>
         <!--
@@ -711,6 +724,7 @@
             8、label 附件上传组件的标题，默认为“附件”
             9、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
             10、exclusive 是否独占一行，默认为true
+            11、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
             说明：
             1、当location为table或local时需要指定一个restBasePath，用于指定附件上传的基础路径，既一个存储表的基础访问路径或者本地存储的完整请求路径。
 
@@ -726,7 +740,8 @@
                 restBasePath CDATA #IMPLIED
                 label  CDATA #IMPLIED
                 afterColumn CDATA #IMPLIED
-                exclusive (true|false) #IMPLIED>
+                exclusive (true|false) #IMPLIED
+                order CDATA #IMPLIED>
 
         <!--
             为页面添加一个审批意见组件
@@ -746,24 +761,27 @@
         <!--
             用来描述页面列表元素的配置
             1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
-            2、moduleKeyword 模块关键字，当引用的列表不在当前模块中时，需要指定列表所在模块的moduleKeyword，如果不指定则默认为当前context中的moduleKeyword
-            3、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
-            4、sourceBeanName 引用的源表的beanName，必须
-            5、relationField 关联字段，必须，表示当前列表与源表的关联字段
-            6、sourceListViewClass 引用的源表的vo类名，可选，如果不指定则默认为当前页面的vo类名
-            7、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
-            8、tagId 要绑定的列表的目表页面的标签id名，必须。
+            2、label 列表的标题，如果不指定则默认为“详细信息”
+            3、moduleKeyword 模块关键字，当引用的列表不在当前模块中时，需要指定列表所在模块的moduleKeyword，如果不指定则默认为当前context中的moduleKeyword
+            4、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
+            5、sourceBeanName 引用的源表的beanName，必须
+            6、relationField 关联字段，必须，表示当前列表与源表的关联字段
+            7、sourceListViewClass 引用的源表的vo类名，可选，如果不指定则默认为当前页面的vo类名
+            8、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
+            9、tagId 要绑定的列表的目表页面的标签id名，必须。
                 如指定tagId=“detail” 则会在页面中生成一个id=“detail”的table标签，用来绑定列表。
                     <div class="inner-list-container">
                         <table id="detail" lay-filter="detail"></table>
                     </div>
-            9、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
-            10、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
-            11、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            10、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
+            11、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
+            12、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            13、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
                 listKey CDATA #IMPLIED
+                label CDATA #IMPLIED
                 moduleKeyword CDATA #IMPLIED
                 sourceViewPath CDATA #REQUIRED
                 sourceBeanName CDATA #REQUIRED
@@ -773,7 +791,9 @@
                 tagId CDATA #REQUIRED
                 dataField CDATA #IMPLIED
                 dataUrl CDATA #IMPLIED
-                afterColumn CDATA #IMPLIED>
+                span CDATA #IMPLIED
+                afterColumn CDATA #IMPLIED
+                order CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
@@ -1013,13 +1033,14 @@
            6、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
            7、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
            8、queryColumns:应用复合查询的字段名,多值使用","。
-           9、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           10、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-           11、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-           12、viewMenuIcon view菜单项目的图标
-           13、viewMenuElIcon view菜单项目的element图标
-           14、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
-           15、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
+           9、fuzzyColumns:应用模糊查询的字段名,多值使用","。
+           10、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           11、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           12、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           13、viewMenuIcon view菜单项目的图标
+           14、viewMenuElIcon view菜单项目的element图标
+           15、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           16、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
             property配置：无
         -->
 
@@ -1030,9 +1051,10 @@
                 includeColumns CDATA #IMPLIED
                 excludeColumns CDATA #IMPLIED
                 toolbar CDATA #IMPLIED
-                indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
+                indexColumn %indexColumnType; #IMPLIED
                 actionColumn CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
+                fuzzyColumns CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
                 defaultHiddenFields CDATA #IMPLIED
                 parentMenuId CDATA #IMPLIED
@@ -1076,8 +1098,8 @@
                     height=“315” 设置固定高度
                     height=“full-30” 设置自适应高度。这是一个特定的语法格式：full 表示铺满；后面的数字表示当前 table 之外的元素占用的高度，如：表格头部到页面最顶部加表格底部距离页面最底部的“距离和”
                     height=“#id-30” 设置相对父元素的高度自适应，其中 #id 即父元素的 ID 选择器，其计算原理和上述 full 相同。
-           4、width：设置容器宽度，默认自适应。
-           5、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式
+           4、width：设置容器宽度，默认自适应（已过期）。
+           5、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式（已过期）
            6、enablePage 是否启用分页，true分页，false不分页，simple简单分页。缺省值false
            7、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true
            8、totalRow 是否显示总计行，true显示，false不显示。缺省值false
@@ -1091,6 +1113,8 @@
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
            14、defaultDisplayFields：默认显示的属性名列表,多值使用","。
            15、queryColumns:应用复合查询的字段名,多值使用","。
+           16、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
+           17、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
 
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
@@ -1107,13 +1131,15 @@
                 enablePage (true|false|simple) #IMPLIED
                 evenRow (true|false) #IMPLIED
                 totalRow (true|false) #IMPLIED
-                indexColumn (NONE|CHECKBOX|RADIO|ROW_INDEX)  #IMPLIED
+                indexColumn %indexColumnType;  #IMPLIED
                 actionColumn CDATA #IMPLIED
                 toolbar CDATA #IMPLIED
                 defaultToolbar CDATA #IMPLIED
                 editExtendsForm CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
-                queryColumns CDATA #IMPLIED>
+                queryColumns CDATA #IMPLIED
+                actionColumnFixed (right|left|false) #IMPLIED
+                indexColumnFixed (left|right|false) #IMPLIED>
 
         <!--
               内置列表列描述符，用于定制列表的列信息
@@ -1211,12 +1237,11 @@
              4、选择dict时，对应beanName对应的bean需要生成cachePO，并且注意sourceColumn<->codeColumn,typeValue来自typeColumn
              5、applyProperty 应用的缓存实体的属性值，该属性允许使用valueColumn之外的字段值（cachePo中includeColumn中的字段）
              6、如果指定了targetProperty、则按实际情况指定targetPropertyType的全类名，最终生成 private String field形式.缺省为java.lang.String
-
         -->
         <!ELEMENT overridePropertyValue  (property*)>
         <!ATTLIST overridePropertyValue
                 sourceColumn CDATA #REQUIRED
-                annotationType (DictUser|DictSys|DictModule|Dict|DictData|DictEnum) #REQUIRED
+                annotationType %dataSource; #REQUIRED
                 beanName CDATA #IMPLIED
                 targetColumn CDATA #IMPLIED
                 targetProperty CDATA #IMPLIED
@@ -1264,7 +1289,7 @@
         <!ELEMENT nameFragment EMPTY>
         <!ATTLIST nameFragment
                 column  CDATA #REQUIRED
-                fragment (EqualTo|NotEqualTo|GreaterThan|LessThan|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between) #REQUIRED>
+                fragment %queryExpression; #REQUIRED>
 
         <!--
              用于指定视图列渲染方法名
@@ -1351,10 +1376,10 @@
         <!ELEMENT queryColumn (property*)>
         <!ATTLIST queryColumn
                 column CDATA #REQUIRED
-                tagType (input|dropdownlist|radio|checkbox|date|select) #IMPLIED
+                tagType %tagType; #IMPLIED
                 remark CDATA #IMPLIED
-                queryMode (EQUAL|LIKE|GT|LT|GEQUAL|LEQUAL|BETWEEN|IN) #IMPLIED
-                fieldType (text|number|date|time|datetime|year|month|shortmonth|quarter) #IMPLIED
+                queryMode %queryExpression; #IMPLIED
+                fieldType %valueType; #IMPLIED
                 order CDATA #IMPLIED
                 dataFormat %dataFormat; #IMPLIED
                 dataSource %dataSource; #IMPLIED

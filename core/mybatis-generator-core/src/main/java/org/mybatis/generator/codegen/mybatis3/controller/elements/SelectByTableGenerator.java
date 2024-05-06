@@ -30,8 +30,12 @@ public class SelectByTableGenerator extends AbstractControllerElementGenerator {
                         FullyQualifiedJavaType newListInstance = FullyQualifiedJavaType.getNewListInstance();
                         newListInstance.addTypeArgument(c.getOtherColumn().getFullyQualifiedJavaType());
                         p1 = new Parameter(newListInstance, c.getOtherColumn().getJavaProperty() + "s");
-                        p1.addAnnotation("@RequestParam");
-                        p1.addAnnotation("@RequestParamSplit");
+                        if (introspectedTable.getRules().isGenerateVueEnd()) {
+                            p1.addAnnotation("@RequestBody");
+                        }else{
+                            p1.addAnnotation("@RequestParam");
+                            p1.addAnnotation("@RequestParamSplit");
+                        }
                     } else {
                         p1 = new Parameter(c.getOtherColumn().getFullyQualifiedJavaType(), c.getOtherColumn().getJavaProperty());
                         p1.addAnnotation("@RequestParam");

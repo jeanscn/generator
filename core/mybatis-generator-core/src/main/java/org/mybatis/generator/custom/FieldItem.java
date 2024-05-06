@@ -5,7 +5,7 @@ public class FieldItem {
     public String type;
 
     public FieldItem(String name, String type, boolean optional) {
-        this.name = name+(optional?"?":"");
+        this.name = name+("?");
         this.type = type;
     }
 

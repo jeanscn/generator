@@ -11,6 +11,8 @@ import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
+import java.util.Map;
+
 public class ListElementGenerator extends AbstractControllerElementGenerator {
 
     public ListElementGenerator() {
@@ -45,15 +47,58 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
                 parentElement));
         method.setReturnRemark("结果对象列表");
-
         method.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "数据列表");
         method.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
-
         commentGenerator.addMethodJavaDocLine(method, "获取条件实体对象列表");
+        method.addBodyLine("{0} example = buildExample(actionType,{1});",
+                exampleType.getShortName(),
+                introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase() :
+                        introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        _selectByExampleWithPagehelper(parentElement, method);
+        resultPartBodyLines(parentElement, method);
+        parentElement.addMethod(method);
 
-        selectByExampleWithPagehelper(parentElement, method);
+
+        //生成post方法
+        Method postMethod = createMethod(methodPrefix + "Post");
+        MethodParameterDescript postDescription = new MethodParameterDescript(parentElement, "list");
+        postDescription.setValid(true);
+        postDescription.setRequestBody(true);
+        Parameter postParameter = buildMethodParameter(postDescription);
+        postParameter.setRemark("用于接收属性同名参数,包含filterMap");
+        postMethod.addParameter(postParameter);
+        postMethod.addParameter(actionType);
+        postMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
+                introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
+                parentElement));
+        postMethod.setReturnRemark("结果对象列表");
+        postMethod.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
+        postMethod.addAnnotation(new RequestMappingDesc("list", RequestMethodEnum.POST), parentElement);
+        addSecurityPreAuthorize(postMethod, methodPrefix, "数据列表");
+        postMethod.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
+        commentGenerator.addMethodJavaDocLine(postMethod, "获取条件实体对象列表");
+        postMethod.addBodyLine("{0} example = buildExample(actionType,{1});",
+                exampleType.getShortName(),
+                introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase() :
+                        introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        postMethod.addBodyLine(" FilterParam filterParam = {0}.getFilterParam();", introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase() :
+                introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        postMethod.addBodyLine(" if (filterParam != null) {");
+        postMethod.addBodyLine("String filterSql = ParameterUtil.parseFilterMap(filterParam, \"{0}\");", introspectedTable.getTableConfiguration().getAlias());
+        postMethod.addBodyLine("if (VStringUtil.stringHasValue(filterSql)) {");
+        postMethod.addBodyLine(" example.getOredCriteria().forEach(criteria -> criteria.andAnyCondition(filterSql));");
+        postMethod.addBodyLine("}");
+        postMethod.addBodyLine("}");
+        _selectByExampleWithPagehelper(parentElement, postMethod);
+        resultPartBodyLines(parentElement, postMethod);
+        parentElement.addMethod(postMethod);
+        parentElement.addImportedType("com.vgosoft.web.utils.ParameterUtil");
+        parentElement.addImportedType("com.vgosoft.core.adapter.web.FilterParam");
+    }
+
+    private void resultPartBodyLines(TopLevelClass parentElement, Method method) {
         method.addBodyLine("if (result.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel() && introspectedTable.getRules().isGenerateRequestVO()) {
             method.addBodyLine("if (page!=null) {");
@@ -79,8 +124,27 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("}else{");
         method.addBodyLine("return ResponseResult.success(new ArrayList<>());");
         method.addBodyLine("}");
-        parentElement.addMethod(method);
     }
 
+    private void _selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
+        String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
+        method.addBodyLine("ServiceResult<List<{0}>> result;", entityType.getShortName());
+        if (introspectedTable.getRules().isGenerateRequestVO()
+                && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
+            method.addBodyLine("Page<{0}> page = null;", entityType.getShortName());
+            method.addBodyLine("if ({0}.getPageNo() == 0 || {0}.getPageSize() == 0) '{'", requestVOVar);
+            method.addBodyLine("PageHelper.clearPage();");
+            addSelectByExample(method, requestVOVar);
+            method.addBodyLine("} else {");
+            method.addBodyLine("PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());", requestVOVar);
+            addSelectByExample(method, requestVOVar);
+            method.addBodyLine("page = (Page<{0}>) result.getResult();", entityType.getShortName());
+            method.addBodyLine("}");
+            parentElement.addImportedType("com.github.pagehelper.Page");
+            parentElement.addImportedType("com.github.pagehelper.PageHelper");
+        } else {
+            addSelectByExample(method, requestVOVar);
+        }
+    }
 
 }

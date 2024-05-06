@@ -84,6 +84,13 @@ public class VOModelGenerator extends AbstractVOGenerator {
             }
         });
 
+        if (!introspectedTable.getRules().isGenerateRequestVO()) {
+            //增加任意过滤条件接收
+            addWhereConditionResult(voClass);
+            //增加前端过滤器属性
+            addFilterMap(voClass);
+        }
+
         voClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         //persistenceBeanName属性
         addPersistenceBeanNameProperty(voClass, introspectedTable.getControllerBeanName());

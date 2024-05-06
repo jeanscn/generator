@@ -98,7 +98,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
 
         //增加页面列表的编辑器模板页面片段
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             HtmlElement div = new HtmlElement("div");
             body.get("body").addElement(div);
             String moduleKeyword = VStringUtil.stringHasValue(listConfiguration.getModuleKeyword()) ? listConfiguration.getModuleKeyword() : introspectedTable.getContext().getModuleKeyword();
@@ -181,7 +181,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         });
         //计算内置列表的位置
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             if (listConfiguration.getAfterColumn() == null) {
                 listConfiguration.setAfterColumn(displayColumns.get(displayColumns.size() - 1).getActualColumnName());
             } else if (displayColumns.stream().noneMatch(col -> col.getActualColumnName().equals(listConfiguration.getAfterColumn()))) {
@@ -274,7 +274,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         }
         //是否需要插入页面列表
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
-            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+            HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             HtmlElement tableList = new HtmlElement("table");
             parent.addElement(tableList);
             tableList.addAttribute(new Attribute("th:if", "${not #lists.isEmpty(innerListHeaders)}"));
@@ -324,7 +324,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
     }
 
     private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration, int pageColumnsConfig) {
-        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+        HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
         HtmlElement atr = new HtmlElement("tr");
         content.addElement(atr);
         HtmlElement td = new HtmlElement("td");

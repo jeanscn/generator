@@ -25,6 +25,7 @@ public class PreAuthorizeDesc extends AbstractAnnotation{
 
     @Override
     public String toAnnotation() {
+        items.clear();
         if (VStringUtil.isNotBlank(value)) {
             this.items.add(VStringUtil.format("value = \"{0}\"", this.value));
         }

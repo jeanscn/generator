@@ -31,6 +31,10 @@ public class HtmlLayoutDescriptor {
 
     private String popSize = "default";
 
+    private String attachmentsContainer = "none";
+
+    private String innerListContainer = "none";
+
     public HtmlLayoutDescriptor() {
         this.borderColor = ConstantsUtil.HTML_BORDER_COLOR_DEFAULT;
         this.borderWidth = ConstantsUtil.HTML_BORDER_WIDTH;
@@ -122,5 +126,21 @@ public class HtmlLayoutDescriptor {
 
     public void setPopSize(String popSize) {
         this.popSize = popSize;
+    }
+
+    public String getAttachmentsContainer() {
+        return attachmentsContainer;
+    }
+
+    public void setAttachmentsContainer(String attachmentsContainer) {
+        this.attachmentsContainer = attachmentsContainer;
+    }
+
+    public String getInnerListContainer() {
+        return innerListContainer;
+    }
+
+    public void setInnerListContainer(String innerListContainer) {
+        this.innerListContainer = innerListContainer;
     }
 }

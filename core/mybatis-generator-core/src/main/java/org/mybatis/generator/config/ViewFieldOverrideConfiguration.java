@@ -24,7 +24,7 @@ public class ViewFieldOverrideConfiguration extends TypedPropertyHolder {
     private String align = "left";
 
     private String fixed;
-    private String headerAlign = "center";
+    private String headerAlign = "left";
     private boolean sort = true; // 是否允许排序
 
     private boolean hide = false; // 是否隐藏

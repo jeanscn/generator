@@ -28,6 +28,8 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     private String afterColumn;
 
+    private int order =10;
+
 
     public boolean isExclusive() {
         return exclusive;
@@ -115,5 +117,13 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }
