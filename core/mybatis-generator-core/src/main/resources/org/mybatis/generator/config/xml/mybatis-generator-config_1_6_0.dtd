@@ -282,10 +282,11 @@
             5、typeHandler 生成的属性对应的typeHandler，如果不指定则使用默认的typeHandler。
             6、isGeneratedAlways 是否为自动生成列，用于生成字段的label、注释等。
             7、delimitedColumnName 是否为自动生成列，用于生成字段的label、注释等。
-            8、maxLength 列的最大长度，列长度应不大于数据中列的实际长度，同时在生成该字段的验证。
-            9、minLength 列的最小长度，列长度应大于1同时小于数据中列的实际长度，同时在生成该字段的验证。
-            10、columnComment 列的注释，用于生成字段的label、注释等。
-            11、columnSubComment 列的子注释，用于生成字段的子标签、html中的元素title等。
+            8、required 是否为必填列，列不能为空，同时在生成该字段的验证。
+            9、maxLength 列的最大长度，列长度应不大于数据中列的实际长度，同时在生成该字段的验证。
+            10、minLength 列的最小长度，列长度应大于1同时小于数据中列的实际长度，同时在生成该字段的验证。
+            11、columnComment 列的注释，用于生成字段的label、注释等。
+            12、columnSubComment 列的子注释，用于生成字段的子标签、html中的元素title等。
         -->
         <!ELEMENT columnOverride (property*)>
         <!ATTLIST columnOverride
@@ -296,6 +297,7 @@
                 typeHandler CDATA #IMPLIED
                 isGeneratedAlways CDATA #IMPLIED
                 delimitedColumnName CDATA #IMPLIED
+                required (true|false) #IMPLIED
                 maxLength CDATA #IMPLIED
                 minLength CDATA #IMPLIED
                 columnComment  CDATA #IMPLIED
@@ -532,7 +534,9 @@
             8、targetProject 视图路径，默认"src/main/resources/templates"
             9、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
             10、default 是否为默认页面，如果为true，则当前页面为默认页面。如果所有配置的页面都不是默认页面，则第一个页面为默认页面。
-            11、overWriteVueFile 当vue页面存在时，是否覆盖。默认为true
+            11、overWriteVueView 当vue的路由组件view文件存在时，是否覆盖。默认为true
+            12、overWriteVueEdit 当vue的Edit组件文件存在时，是否覆盖。默认为true
+            13、overWriteVueDetail 当vue的Detail组件文件存在时，是否覆盖。默认为true
 
             可能的property配置：
             1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
@@ -553,7 +557,9 @@
                 targetPackage  CDATA #IMPLIED
                 targetProject CDATA #IMPLIED
                 default (true|false) #IMPLIED
-                overWriteVueFile (true|false) #IMPLIED>
+                overWriteVueView (true|false) #IMPLIED
+                overWriteVueEdit (true|false) #IMPLIED
+                overWriteVueDetail (true|false) #IMPLIED>
 
         <!--
             页面布局生成描述
@@ -569,10 +575,9 @@
             9、labelPosition 标签对齐方式，默认right。当设置为 left 或 right 时，则也需要设置 label-width 属性
             10、size 控件大小，可选值为 large / default / small，默认default
             11、popSize 弹窗大小，可选值为 largeX / large / default / small，默认default
-            12、attachmentsContainer 附件容器，none-不生成附件容器，tab-生成附件容器tab，默认none
-            13、innerListContainer 内嵌列表容器，none-不生成内嵌列表容器，tab-生成内嵌列表容器tab，默认none
+            12、popDraggable 弹窗是否可拖动，默认true
             -->
-        <!ELEMENT layout  EMPTY>
+        <!ELEMENT layout  (groupContainer*)>
         <!ATTLIST layout
                 loadingFrameType (full|inner|pop) #IMPLIED
                 pageColumnsNum (1|2|3|4|6|12) #IMPLIED
@@ -585,20 +590,43 @@
                 labelPosition (left|right|top) #IMPLIED
                 size (large|default|small) #IMPLIED
                 popSize (largeX|large|default|small) #IMPLIED
-                attachmentsContainer (none|tab) #IMPLIED
-                innerListContainer (none|tab) #IMPLIED>
+                popDraggable (true|false) #IMPLIED>
+        <!--
+           页面元素布局容器描述
+           属性信息：
+           1、elementKey 元素唯一标识，用于引用元素。不能与与数据库的列名或属性名重复。
+           2、parentElementKey 父容器的elementKey
+           3、type 容器类型，border-边框容器（允许设置title），tab-选项卡容器,card-卡片容器
+           4、title（可选）容器标题（当容器内为innerList是优先使用title，否则使用innerList的label）
+           5、span 容器占用列数，默认24列
+           6、columnNum 容器内元素列数，默认2列,可用值为1|2|3|4|6|12
+           7、afterColumn 容器前置元素
+           8、includeElements 包含的元素，多个元素用逗号分隔（使用列名或elementKey）
+           9、noBorder 是否无边框，默认false
+           -->
+        <!ELEMENT groupContainer (property*,groupContainer*)>
+        <!ATTLIST groupContainer
+                elementKey CDATA #REQUIRED
+                type (border|tab|card|collapse) #IMPLIED
+                title CDATA #IMPLIED
+                span CDATA #IMPLIED
+                columnNum (1|2|3|4|6|12) #IMPLIED
+                afterColumn CDATA #IMPLIED
+                includeElements CDATA #IMPLIED
+                noBorder (false|true) #IMPLIED>
 
         <!--
             页面元素生成描述
             属性信息：
             1、column 数据库字段名
             2、tagType 生成的类型，生成类型支持：
-                            dropdownlist 下拉列表，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
+                            dropdownlist、select 下拉列表，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
                             radio 单选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify
                             checkbox 复选框，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify
                             switch 开关，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、switchText
                             select 弹窗选择，可以进一步指定dataSource、dataFormat、dataUrl、applyProperty、verify、callback
                             input 输入框，为了指定特定属性，如增加验证verify、限制长度limit等
+                            tableselect 下拉表格选择，可以进一步指定listKey、listViewClass、dataSource（Dict、beanName）、dataUrl（引用表基本路径）、applyProperty、verify、callback、otherFieldName、
             3、dataUrl 数据接口请求地址
             4、dataFormat 数据格式：  启停|有无|是否|性别，可应用在radio、switch、dropdownlist；
                                     缓急|级别，仅在radio、dropdownlist时有效；
@@ -616,11 +644,12 @@
                                     InnerList - 引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
                                                 当指定为InnerList时，需要指定listKey（内嵌列表的标识）、listViewClass（内嵌列表的基类）。
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
-            7、applyProperty 适用属性，数据来源为dict时，需要指定引用数据的属性名
-            8、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
+            7、applyProperty 适用属性（label），数据来源为dict时，需要指定引用数据的属性名
+            8、applyPropertyKey 适用属性（value），数据来源为dict时，需要指定引用数据的属性名
+            9、verify 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
                     verify为多值时，使用管道分隔”|“，如：verify="required|number"
                     * none|required|number|date|time|datetime|limit|phone|email|url|identity|amount|其他自定义验证规则名称
-            9、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
+            10、enumClassFullName dataSource为DictEnum时，指定枚举类的完整类名(如：com.vgosoft.core.constant.enums.core.ActionCateEnum)（在dataSource为Enum时必须指定此属性）。
                     可用的枚举类有：
                     * com.vgosoft.core.constant.enums.core.YesNoEnum
                     * com.vgosoft.core.constant.enums.core.ExistOrNotEnum
@@ -629,24 +658,24 @@
                     * com.vgosoft.core.constant.enums.core.LevelListEnum
                     * com.vgosoft.core.constant.enums.core.UrgencyEnum
                     * com.vgosoft.workflow.enums.WorkFlowStatusEnum（仅当引用工作流包时才可用）
-            10、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
+            11、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
                     * com.vgosoft.core.constant.enums.core.YesNoEnum  是否
                     * com.vgosoft.core.constant.enums.core.ExistOrNotEnum 有无
                     * com.vgosoft.core.constant.enums.core.GenderEnum 性别
                     * com.vgosoft.core.constant.enums.core.CommonStatusEnum 启停
                     * com.vgosoft.core.constant.enums.core.LevelListEnum 级别
                     * com.vgosoft.core.constant.enums.core.UrgencyEnum 缓急
-            11、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
-            12、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
-            13、labelCss 样式，用于指定生成的label的附加样式，如：display: none;width:100px;height:100px;等。
-            14、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
-            15、dateFmt 日期格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等。
-            16、multiple 是否允许多选，默认false，当tagType为select时有效。
-            17、remoteApiParse 是否远程解析，默认false。
-            18、remoteToTree 是否远程转树，默认false。
-            19、remoteAsync 是否远程异步，默认false。
-            20、keyMapLabel 数据源中的label字段名，默认为label。
-            21、keyMapValue 数据源中的value字段名，默认为value。
+            12、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
+            13、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
+            14、labelCss 样式，用于指定生成的label的附加样式，如：display: none;width:100px;height:100px;等。
+            15、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
+            16、dateFmt 日期格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等。
+            17、multiple 是否允许多选，默认false，当tagType为select时有效。
+            18、remoteApiParse 是否远程解析，默认false。
+            19、remoteToTree 是否远程转树，默认false。
+            20、remoteAsync 是否远程异步，默认false。
+            21、keyMapLabel 数据源中的label字段名，默认为label。
+            22、keyMapValue 数据源中的value字段名，默认为value。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -671,6 +700,7 @@
                 dataSource %dataSource; #IMPLIED
                 beanName CDATA #IMPLIED
                 applyProperty CDATA #IMPLIED
+                applyPropertyKey CDATA #IMPLIED
                 verify CDATA #IMPLIED
                 enumClassFullName CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
@@ -715,16 +745,17 @@
             为页面添加一个附件上传组件
             属性信息：
             1、generate 是否生成附件上传组件，true-生成，false-不生成。默认为true
-            2、multiple 是否允许多附件上传，默认为true
-            3、type 文件列表的类型。'text' | 'picture' | 'picture-card'，默认是text（vue更新）
-            4、location 附件上传后的存放类型，table-指定附件表保存，local-本地存储，oss-云oss存储。默认为table
-            5、tip 附件上传组件显示的提示信息（vue新增）
-            6、limit 附件上传组件的限制数量，默认为0-不限制（vue新增）
-            7、restBasePath 附件上传组件的基础路径，用于指定附件上传的基础路径。
-            8、label 附件上传组件的标题，默认为“附件”
-            9、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
-            10、exclusive 是否独占一行，默认为true
-            11、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
+            2、elementKey 元素唯一标识，用于引用元素。不能与与数据库的列名或属性名重复。
+            3、multiple 是否允许多附件上传，默认为true
+            4、type 文件列表的类型。'text' | 'picture' | 'picture-card'，默认是text（vue更新）
+            5、location 附件上传后的存放类型，table-指定附件表保存，local-本地存储，oss-云oss存储。默认为table
+            6、tip 附件上传组件显示的提示信息（vue新增）
+            7、limit 附件上传组件的限制数量，默认为0-不限制（vue新增）
+            8、restBasePath 附件上传组件的基础路径，用于指定附件上传的基础路径。
+            9、label 附件上传组件的标题，默认为“附件”
+            10、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            11、exclusive 是否独占一行，默认为true
+            12、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
             说明：
             1、当location为table或local时需要指定一个restBasePath，用于指定附件上传的基础路径，既一个存储表的基础访问路径或者本地存储的完整请求路径。
 
@@ -732,6 +763,7 @@
         <!ELEMENT htmlFileAttachment EMPTY>
         <!ATTLIST htmlFileAttachment
                 generate (true|false) #IMPLIED
+                elementKey CDATA #REQUIRED
                 multiple (true|false) #IMPLIED
                 location (file|table|local|oss) #IMPLIED
                 type (text|picture|picture-card) #IMPLIED
@@ -747,39 +779,44 @@
             为页面添加一个审批意见组件
             属性信息：
             1、generate 是否生成审批意见组件，true-生成，false-不生成。默认为true
-            2、afterColumn 在指定列的后面添加审批意见组件,如果未指定或指定的字段不存在。则放置在最后一行。
-            3、label 审批意见组件的标题，默认为“审批意见”
-            4、locationTag 审批意见组件的位置标签，默认为“审批意见”
+            2、elementKey 元素唯一标识，用于引用元素。不能与与数据库的列名或属性名重复。
+            3、afterColumn 在指定列的后面添加审批意见组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            4、label 审批意见组件的标题，默认为“审批意见”
+            5、locationTag 审批意见组件的位置标签，默认为“审批意见”
                 -->
         <!ELEMENT approvalComment EMPTY>
         <!ATTLIST approvalComment
                 generate (true|false) #IMPLIED
+                elementKey CDATA #REQUIRED
                 afterColumn CDATA #IMPLIED
                 label  CDATA #IMPLIED
                 locationTag CDATA #IMPLIED>
 
         <!--
             用来描述页面列表元素的配置
-            1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
-            2、label 列表的标题，如果不指定则默认为“详细信息”
-            3、moduleKeyword 模块关键字，当引用的列表不在当前模块中时，需要指定列表所在模块的moduleKeyword，如果不指定则默认为当前context中的moduleKeyword
-            4、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
-            5、sourceBeanName 引用的源表的beanName，必须
-            6、relationField 关联字段，必须，表示当前列表与源表的关联字段
-            7、sourceListViewClass 引用的源表的vo类名，可选，如果不指定则默认为当前页面的vo类名
-            8、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
-            9、tagId 要绑定的列表的目表页面的标签id名，必须。
+            1、elementKey 元素唯一标识，用于引用元素。不能与与数据库的列名或属性名重复。
+            2、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
+            3、label 列表的标题，如果不指定则默认为“”
+            4、moduleKeyword 模块关键字，当引用的列表不在当前模块中时，需要指定列表所在模块的moduleKeyword，如果不指定则默认为当前context中的moduleKeyword
+            5、sourceViewPath 引用的源表的页面viewpath简单名称,如果不存在页面配置则填写数据库表名，必须
+            6、sourceBeanName 引用的源表的beanName，必须
+            7、relationField 关联字段，必须，表示当前列表与源表的关联字段
+            8、sourceListViewClass 引用的源表的vo类名，可选，如果不指定则默认为当前页面的vo类名
+            9、relationKey 取关联字段的值属性名，可选，表示当前列表与源表的关联字段的值，如果不指定则默认为当前页面的主键值
+            10、tagId 要绑定的列表的目表页面的标签id名，必须。
                 如指定tagId=“detail” 则会在页面中生成一个id=“detail”的table标签，用来绑定列表。
                     <div class="inner-list-container">
                         <table id="detail" lay-filter="detail"></table>
                     </div>
-            10、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
-            11、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
-            12、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
-            13、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
+            11、dataField 数据来源的属性名称，表示数据来源于当前bean的哪个属性（一般为javaModelCollection生成的子查询返回列表的属性），与dataUrl属性互斥
+            12、dataUrl 数据来源的url，表示列表数据来源于其他url，与dataField属性互斥
+            13、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
+            14、containerType 容器类型，none-不生成容器，tab-生成容器tab，border-使用border包围，默认none
+            15、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
+                elementKey CDATA #REQUIRED
                 listKey CDATA #IMPLIED
                 label CDATA #IMPLIED
                 moduleKeyword CDATA #IMPLIED
@@ -793,6 +830,7 @@
                 dataUrl CDATA #IMPLIED
                 span CDATA #IMPLIED
                 afterColumn CDATA #IMPLIED
+                containerType (none|tab|border) #IMPLIED
                 order CDATA #IMPLIED>
         <!--
             Dao接口生成描述
@@ -888,7 +926,7 @@
             1、generate 是否生成,true生成,false忽略
             2、noMetaAnnotation 是否不添加@TableMeta、@ColumnMeta注解
             3、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.entity中的entity
-            4、enableChildren 生成children属性及子查询。当该属性为true时，将在实体中添加children属性，并添加相应的selectByColumnParentId方法。
+            4、enableChildren 生成children属性及子查询，默认为true。当该属性为true时，将在实体中添加children属性，并添加相应的selectByColumnParentId方法。
             5、equalsAndHashCodeColumns 可选 指定equals和hashCode方法的列名，多个列名用逗号分隔。缺省值为id
             说明：
             启用enableChildren的前提条件是数据表有parent_id字段
@@ -1032,15 +1070,18 @@
            5、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,EXPORT,IMPORT,PRINT以及自定义操作按钮的id值
            6、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
            7、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
-           8、queryColumns:应用复合查询的字段名,多值使用","。
+           8、queryColumns:应用复合查询表单的字段名,多值使用","。
            9、fuzzyColumns:应用模糊查询的字段名,多值使用","。
-           10、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           11、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-           12、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-           13、viewMenuIcon view菜单项目的图标
-           14、viewMenuElIcon view菜单项目的element图标
-           15、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
-           16、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
+           10、filterColumns:应用过滤器查询的字段名,多值使用","。
+           11、totalFields：合计字段名列表,多值使用","。
+           12、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+           13、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+           14、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+           15、viewMenuIcon view菜单项目的图标
+           16、viewMenuElIcon view菜单项目的element图标
+           17、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+           18、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
+           19、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
             property配置：无
         -->
 
@@ -1055,6 +1096,8 @@
                 actionColumn CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
                 fuzzyColumns CDATA #IMPLIED
+                filterColumns CDATA #IMPLIED
+                totalFields CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
                 defaultHiddenFields CDATA #IMPLIED
                 parentMenuId CDATA #IMPLIED
@@ -1063,7 +1106,8 @@
                 categoryTreeUrl CDATA #IMPLIED
                 categoryTreeMultiple (true|false) #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED
-                uiFrameType (dataTables|layTable|elPlusTable|vxeTable) #IMPLIED>
+                uiFrameType (dataTables|layTable|elPlusTable|vxeTable) #IMPLIED
+                tableType (default|treeTable) #IMPLIED>
         <!--
             用于配置列表列的覆盖信息
             属性信息：
@@ -1112,9 +1156,12 @@
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
            14、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           15、queryColumns:应用复合查询的字段名,多值使用","。
-           16、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
-           17、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
+           15、queryColumns:应用复合查询表单的字段名,多值使用","。
+           16、filterColumns:应用过滤器查询的字段名,多值使用","。
+           17、filterColumns:应用过滤器查询的字段名,多值使用","。
+           18、totalFields:总计行的属性名列表,多值使用","。
+           19、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
+           20、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
 
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
@@ -1138,6 +1185,9 @@
                 editExtendsForm CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
+                fuzzyColumns CDATA #IMPLIED
+                filterColumns CDATA #IMPLIED
+                totalFields CDATA #IMPLIED
                 actionColumnFixed (right|left|false) #IMPLIED
                 indexColumnFixed (left|right|false) #IMPLIED>
 
