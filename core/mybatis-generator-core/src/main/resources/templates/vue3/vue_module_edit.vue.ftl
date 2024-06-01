@@ -3,18 +3,23 @@
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="formConfig"
-              :viewStatus="viewStatus" @form-submit="onSubmit"></vgo-form>
+              :viewStatus="viewStatus" @form-submit="onSubmit"  @item-call-back="callHookByName"></vgo-form>
 </template>
 
 <script lang="ts" setup name="${ modelName }Edit">
     import { onMounted, PropType, Ref, ref, unref, watch } from 'vue';
     import { EMPTY_OBJECT } from '@/framework/utils/constant';
-    import API from '@/api';
     import tool from '@/framework/utils/tool';
     import { ServiceApi } from '@/api/service';
-    import { loadNewInstance } from '@/modules/hooks/useCustomHandle';
-    import { T${ modelName } } from '../${ modelPath }/types/T${ modelName }';
+    import { loadNewInstance } from '@/hooks/useCustomHandle';
+    import { T${ modelName } } from '../types/T${ modelName }';
     import { TFormConfig } from '@/framework/components/vgoForm/types';
+    import { useFormConfigStore } from '@/store/formConfig';
+    import * as useExtentHooks from '../PrivateUseFormHooks';
+    import { useI18n } from 'vue-i18n';
+    const i18n = useI18n();
+
+    const formConfigStore = useFormConfigStore();
 
     const props = defineProps({
         modelValue: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
@@ -36,14 +41,13 @@
         _formData.value = unref(val) || EMPTY_OBJECT;
         if (Object.keys(_formConfig.value).length === 0) {
             let formKey = _restBasePath.replace(/\//g, '-');
-            const formResp = await API.common.formConfig.get(formKey);
-            _formConfig.value = formResp.data;
+            _formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
             formConfigReady.value = true;
         } else {
             formConfigReady.value = true;
         }
         if (Object.keys(_formData.value).length === 0) {
-            _formData.value = await loadNewInstance<T${ modelName }>(_formConfig, service as Ref<ServiceApi<T${ modelName }>>) as T${ modelName };
+            _formData.value = await loadNewInstance<T${ modelName }>(_formConfig, service as Ref<ServiceApi<T${ modelName }>>,i18n) as T${ modelName };
         } else {
             _formData.value = tool.perOnload(
                 unref(_formData.value),
@@ -63,14 +67,27 @@
     };
 
     const submit = () => {
-        vgoFormRef.value?.submit();
-    }
+        return vgoFormRef.value?.submit();
+    };
 
-    // 以下可以根据需要添表单中的各种回调与计算方法
+    const validate = () => {
+        return vgoFormRef.value?.validate();
+    };
 
+    // 以下处理组件的回调
+    const callHookByName = (...params: any) => {
+        let args = params[0];
+        let { hookName } = args;
+        if (typeof useExtentHooks.default[hookName] === 'function') {
+            useExtentHooks.default[hookName](args);
+        } else {
+            console.log('Hook'+ hookName + 'does not exist');
+        }
+    };
 
     defineExpose({
         submit,
+        validate,
     })
 
 </script>

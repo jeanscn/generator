@@ -1,25 +1,16 @@
 /**
-* @description ${ tableRemark }列表列插槽渲染
+* @description ${ tableRemark }-表单钩子函数定义
 */
-<template #[slotName]="scope">
-    <el-tag v-if="slotName === 'state'"
-            :type="stateText === '启用' ? 'primary' : stateText === '停用' ? 'warning' : 'info'">
-        {{ stateText }}
-    </el-tag>
-    <span v-else>
-    {{ rowData[slotName] }}
-  </span>
-</template>
-<script lang="ts" setup name="PrivateTableColumnSlots">
-    import { computed, ref } from 'vue';
+import { Ref } from "vue";
+import { T${ modelName } } from "./types/T${ modelName }";
 
-    const props = defineProps({
-        slotName: { type: String, default: '' },
-        scope: { type: Object, default: () => { } }
-    });
-
-    const rowData = ref(props.scope.row);
-    const stateText = computed(() => {
-        return rowData.value.state === 1 || rowData.value.state === true ? '启用' : rowData.value.state === 0 || rowData.value.state === false ? '停用' : '--';
-    });
-</script>
+export default {
+    /*
+     * 钩子函数Demo
+     * @param formData 表单数据, 通过Ref包装，可以实现数据的双向绑定。注意使用时，需要使用formData.value获取或设置数据
+     * @param params 方法的参数（多值数组）
+     */
+    fooHook: (formData: Ref<T${ modelName }>, ...params: any) => {
+        console.log(formData.value, params);
+    },
+ };
