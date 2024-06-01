@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
@@ -37,6 +38,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addBlobColumnListElement(answer);
         addSelectByExampleWithBLOBsElement(answer);
         addSelectByExampleWithoutBLOBsElement(answer);
+        addSelectByExampleWithChildrenCountElement(answer);
         addSelectByPrimaryKeyElement(answer);
         addDeleteByPrimaryKeyElement(answer);
         addDeleteByExampleElement(answer);
@@ -75,6 +77,14 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addInsertByTableElement(answer);
 
         return answer;
+    }
+
+    //如果存在parent_id字段，则生成selectByExampleWithChildrenCount方法
+    private void addSelectByExampleWithChildrenCountElement(XmlElement answer) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            AbstractXmlElementGenerator elementGenerator = new SelectByExampleWithChildrenCountElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, answer);
+        }
     }
 
     private void addInsertByTableElement(XmlElement parentElement) {
@@ -309,7 +319,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByForeignKeyElement(XmlElement parentElement){
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+        if (!introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             AbstractXmlElementGenerator elementGenerator = new SelectByColumnElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -325,7 +335,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByTableElement(XmlElement parentElement){
-        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size()>0) {
+        if (!introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().isEmpty()) {
             SelectByTableElementGenerator elementGenerator = new SelectByTableElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
 

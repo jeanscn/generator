@@ -27,6 +27,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     private List<String> fuzzyColumns = new ArrayList<>();
 
+    private List<String> filterColumns = new ArrayList<>();
+
     private List<String> defaultDisplayFields = new ArrayList<>();
 
     private Set<String> defaultHiddenFields = new HashSet<>();
@@ -42,6 +44,8 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
     private String categoryTreeMultiple = "true";
 
     private ViewVoUiFrameEnum uiFrameType = ViewVoUiFrameEnum.EL_PLUS_TABLE;
+
+    private String  tableType = "default";
 
     private List<InnerListViewConfiguration> innerListViewConfigurations = new ArrayList<>();
 
@@ -214,5 +218,21 @@ public class VOViewGeneratorConfiguration extends AbstractModelGeneratorConfigur
 
     public void setFuzzyColumns(List<String> fuzzyColumns) {
         this.fuzzyColumns = fuzzyColumns;
+    }
+
+    public List<String> getFilterColumns() {
+        return filterColumns;
+    }
+
+    public void setFilterColumns(List<String> filterColumns) {
+        this.filterColumns = filterColumns;
+    }
+
+    public String getTableType() {
+        return tableType;
+    }
+
+    public void setTableType(String tableType) {
+        this.tableType = tableType;
     }
 }

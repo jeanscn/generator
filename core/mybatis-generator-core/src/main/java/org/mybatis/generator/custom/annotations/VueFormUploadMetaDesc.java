@@ -1,11 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.annotation.VueFormMeta;
 import com.vgosoft.core.annotation.VueFormUploadMeta;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlFileAttachmentConfiguration;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 /**
  * ElementPlus表单元数据描述注解
@@ -39,7 +36,7 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
 
     public VueFormUploadMetaDesc(HtmlFileAttachmentConfiguration configuration) {
         super();
-        this.value = configuration.getValue();
+        this.value = configuration.getElementKey();
         this.items.add(VStringUtil.format("value = \"{0}\"", this.getValue()));
 
         this.multiple = configuration.isMultiple();

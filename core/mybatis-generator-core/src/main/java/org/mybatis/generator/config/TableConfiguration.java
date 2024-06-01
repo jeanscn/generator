@@ -47,7 +47,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean updateByExampleStatementEnabled;
 
-    private final List<ColumnOverride> columnOverrides;
+    private final List<ColumnOverride> columnOverrides = new ArrayList<>();
 
     private final Map<IgnoredColumn, Boolean> ignoredColumns;
 
@@ -144,7 +144,6 @@ public class TableConfiguration extends PropertyHolder {
     public TableConfiguration(Context context) {
         super();
         this.modelType = context.getDefaultModelType();
-        columnOverrides = new ArrayList<>();
         ignoredColumns = new HashMap<>();
 
         isModules = false;
@@ -776,6 +775,17 @@ public class TableConfiguration extends PropertyHolder {
         calculateChildrenRelationConfig(introspectedTable);
         //计算selectBySql配置
         calculateSelectBySqlMethodProperty(introspectedTable);
+        //计算附件属性，把全局配置分配到model和vo的配置上。
+        calculateAdditionalProperty(introspectedTable);
+    }
+
+    private void calculateAdditionalProperty(IntrospectedTable introspectedTable) {
+        this.getAdditionalPropertyConfigurations().forEach(additionalPropertyConfiguration -> {
+            this.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
+            if (this.getVoGeneratorConfiguration().getVoModelConfiguration() != null) {
+                this.getVoGeneratorConfiguration().getVoModelConfiguration().getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
+            }
+        });
     }
 
     private List<QueryColumnConfiguration> getViewQueryColumnConfigurations() {
@@ -805,9 +815,35 @@ public class TableConfiguration extends PropertyHolder {
             innerListViewConfiguration.getQueryColumnConfigurations().removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
         });
         //校验searchColumn
-        if (this.getVoGeneratorConfiguration()!=null && this.getVoGeneratorConfiguration().getVoViewConfiguration()!=null && !this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().isEmpty()) {
-            List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
-            this.getVoGeneratorConfiguration().getVoViewConfiguration().setFuzzyColumns(collect);
+        if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
+            if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().isEmpty()) {
+                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                this.getVoGeneratorConfiguration().getVoViewConfiguration().setFuzzyColumns(collect);
+            }
+            if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
+                this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().forEach(innerListViewConfiguration -> {
+                    if (!innerListViewConfiguration.getFuzzyColumns().isEmpty()) {
+                        List<String> collect = innerListViewConfiguration.getFuzzyColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                        innerListViewConfiguration.setFuzzyColumns(collect);
+                    }
+                });
+            }
+        }
+
+        //校验filterColumn
+        if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
+            if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().isEmpty()) {
+                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                this.getVoGeneratorConfiguration().getVoViewConfiguration().setFilterColumns(collect);
+            }
+            if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
+                this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().forEach(innerListViewConfiguration -> {
+                    if (!innerListViewConfiguration.getFilterColumns().isEmpty()) {
+                        List<String> collect = innerListViewConfiguration.getFilterColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                        innerListViewConfiguration.setFilterColumns(collect);
+                    }
+                });
+            }
         }
     }
 
@@ -1018,20 +1054,26 @@ public class TableConfiguration extends PropertyHolder {
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(displayOnlyFields));
         //html的必填列
+        this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+            if (htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired") != null) {
+                htmlGeneratorConfiguration.getElementRequired().addAll(spiltToSet(htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired")));
+            }
+            htmlGeneratorConfiguration.getElementDescriptors()
+                    .forEach(elementDescriptor -> {
+                        if (elementDescriptor.getVerify() != null && elementDescriptor.getVerify().contains("required")) {
+                            htmlGeneratorConfiguration.getElementRequired().add(elementDescriptor.getName());
+                        }
+                    });
+        });
         introspectedTable.getAllColumns().forEach(column -> this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> {
                     if (column.isRequired()) {
                         htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
                     } else {
-                        htmlGeneratorConfiguration.getElementDescriptors().stream()
-                                .filter(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
-                                .forEach(elementDescriptor -> {
-                                    if (elementDescriptor.getVerify() != null && elementDescriptor.getVerify().contains("required")) {
-                                        htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
-                                    }
-                                });
+
                     }
                 }));
+
     }
 
     private Set<String> getHtmlAnyProperties(IntrospectedTable introspectedTable, String propertyName) {
@@ -1251,6 +1293,10 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
+    /*
+     * 1、如果存在parent_id字段，则自动添加children属性及子查询
+     * 2、如果存在parent_id字段，则添加childrenCount属性及selectWithChildrenCount方法
+     */
     private void calculateChildrenRelationConfig(IntrospectedTable introspectedTable) {
         String parentIdColumnName = DefaultColumnNameEnum.PARENT_ID.columnName();
         if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
@@ -1281,6 +1327,16 @@ public class TableConfiguration extends PropertyHolder {
                     relationGeneratorConfiguration.setInitializationString("new ArrayList<>()");
                     relationGeneratorConfiguration.addImportTypes("java.util.ArrayList");
                     this.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
+                }
+
+                IntrospectedColumn childrenCountColumn = introspectedTable.getColumn(DefaultColumnNameEnum.CHILDREN_COUNT.columnName()).orElse(null);
+                if (childrenCountColumn == null) {
+                    VoAdditionalPropertyGeneratorConfiguration childrenCount = new VoAdditionalPropertyGeneratorConfiguration(introspectedTable.getContext(), this);
+                    childrenCount.setName(DefaultColumnNameEnum.CHILDREN_COUNT.fieldName());
+                    childrenCount.setRemark(DefaultColumnNameEnum.CHILDREN_COUNT.comment());
+                    childrenCount.setInitializationString("0");
+                    childrenCount.setType(FullyQualifiedJavaType.getIntegerInstance().getFullyQualifiedName());
+                    this.addAdditionalPropertyConfigurations(childrenCount);
                 }
             });
 

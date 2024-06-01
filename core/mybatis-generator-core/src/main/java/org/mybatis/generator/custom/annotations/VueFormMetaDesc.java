@@ -1,15 +1,14 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.annotation.*;
-import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
-import com.vgosoft.tool.core.VMD5Util;
+import com.vgosoft.core.annotation.VueFormContainerMeta;
+import com.vgosoft.core.annotation.VueFormInnerListMeta;
+import com.vgosoft.core.annotation.VueFormMeta;
+import com.vgosoft.core.annotation.VueFormUploadMeta;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,23 +22,24 @@ public class VueFormMetaDesc extends AbstractAnnotation {
     public static final String ANNOTATION_NAME = "@" + VueFormMeta.class.getSimpleName();
 
     private final String value;
+
     private String labelPosition = "right";
     private String labelWidth = "100px";
     private String size = "default";
 
     private String popSize = "default";
+
+    private boolean popDraggable = true;
     private final String tableName;
     private final String appKeyword;
 
     private String restBasePath;
 
-    private String attachmentsContainer = "none";
-
-    private String innerListContainer = "none";
-
     private List<VueFormUploadMetaDesc> uploadMeta = new ArrayList<>();
 
     private List<VueFormInnerListMetaDesc> innerListMeta = new ArrayList<>();
+
+    private List<VueFormContainerMetaDesc> containerMeta = new ArrayList<>();
 
     public static VueFormMetaDesc create(IntrospectedTable introspectedTable) {
         return new VueFormMetaDesc(introspectedTable);
@@ -73,11 +73,8 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getPopSize()) && !"default".equals(this.getPopSize())) {
             items.add(VStringUtil.format("popSize = \"{0}\"", this.getPopSize()));
         }
-        if(VStringUtil.isNotBlank(this.getAttachmentsContainer()) && !"none".equals(this.getAttachmentsContainer())){
-            items.add(VStringUtil.format("attachmentsContainer = \"{0}\"", this.getAttachmentsContainer()));
-        }
-        if(VStringUtil.isNotBlank(this.getInnerListContainer()) && !"none".equals(this.getInnerListContainer())){
-            items.add(VStringUtil.format("innerListContainer = \"{0}\"", this.getInnerListContainer()));
+        if (!popDraggable) {
+            items.add("popDraggable = false");
         }
         if (!uploadMeta.isEmpty()) {
             items.add("\nuploadMeta = {\n        " + uploadMeta.stream().map(VueFormUploadMetaDesc::toAnnotation).collect(Collectors.joining(",")) + "\n}");
@@ -87,7 +84,11 @@ public class VueFormMetaDesc extends AbstractAnnotation {
             items.add("\ninnerListMeta = {\n        " + innerListMeta.stream().map(VueFormInnerListMetaDesc::toAnnotation).collect(Collectors.joining(",\n")) + "\n}");
             this.addImports(VueFormInnerListMeta.class.getCanonicalName());
         }
-        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
+        if (!containerMeta.isEmpty()) {
+            items.add("\n        containerMeta = {\n                " + containerMeta.stream().map(VueFormContainerMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
+            this.addImports(VueFormContainerMeta.class.getCanonicalName());
+        }
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + "\n)";
     }
 
     public String getValue() {
@@ -158,19 +159,19 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         this.innerListMeta = innerListMeta;
     }
 
-    public String getAttachmentsContainer() {
-        return attachmentsContainer;
+    public List<VueFormContainerMetaDesc> getContainerMeta() {
+        return containerMeta;
     }
 
-    public void setAttachmentsContainer(String attachmentsContainer) {
-        this.attachmentsContainer = attachmentsContainer;
+    public void setContainerMeta(List<VueFormContainerMetaDesc> containerMeta) {
+        this.containerMeta = containerMeta;
     }
 
-    public String getInnerListContainer() {
-        return innerListContainer;
+    public boolean isPopDraggable() {
+        return popDraggable;
     }
 
-    public void setInnerListContainer(String innerListContainer) {
-        this.innerListContainer = innerListContainer;
+    public void setPopDraggable(boolean popDraggable) {
+        this.popDraggable = popDraggable;
     }
 }

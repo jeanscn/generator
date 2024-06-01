@@ -28,6 +28,8 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String rules;
     private String hideHandle;
     private String requiredHandle;
+
+    private Boolean defaultHidden = false; // 默认隐藏
     // 以下为options属性
     private String placeholder; // 提示文字
     private String maxlength; // 最大长度
@@ -52,6 +54,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String dataSource = "";
     private String beanName = "";
     private String applyProperty = "";
+    private String applyPropertyKey = "";
     private String enumClassFullName = "";
     private String dictCode = "";
     private String callback = "";
@@ -59,6 +62,10 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String labelCss = "";
     private String elementCss = "";
     private String switchText = "";
+
+    private String listKey = "";
+
+    private String sourceListViewClass = "";
 
 
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
@@ -100,6 +107,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.stringHasValue(this.getRequiredHandle())) {
             items.add(VStringUtil.format("requiredHandle = \"{0}\"", this.getRequiredHandle()));
+        }
+        if (this.defaultHidden) {
+            items.add(VStringUtil.format("defaultHidden = true"));
         }
         if (VStringUtil.stringHasValue(this.getPlaceholder())) {
             items.add(VStringUtil.format("placeholder = \"{0}\"", this.getPlaceholder()));
@@ -152,8 +162,11 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getBeanName())) {
             items.add(VStringUtil.format("beanName = \"{0}\"", this.getBeanName()));
         }
-        if (VStringUtil.isNotBlank(this.getApplyProperty())) {
+        if (VStringUtil.isNotBlank(this.getApplyProperty()) && ! "name".equals(this.getApplyProperty())) {
             items.add(VStringUtil.format("applyProperty = \"{0}\"", this.getApplyProperty()));
+        }
+        if (VStringUtil.isNotBlank(this.getApplyPropertyKey()) && ! "id".equals(this.getApplyPropertyKey())) {
+            items.add(VStringUtil.format("applyPropertyKey = \"{0}\"", this.getApplyPropertyKey()));
         }
         if (VStringUtil.isNotBlank(this.getEnumClassFullName())) {
             items.add(VStringUtil.format("enumClassFullName = \"{0}\"", this.getEnumClassFullName()));
@@ -172,6 +185,12 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.getSwitchText())) {
             items.add(VStringUtil.format("switchText = \"{0}\"", this.getSwitchText()));
+        }
+        if (VStringUtil.isNotBlank(this.getListKey())) {
+            items.add(VStringUtil.format("listKey = \"{0}\"", this.getListKey()));
+        }
+        if (VStringUtil.isNotBlank(this.getSourceListViewClass())) {
+            items.add(VStringUtil.format("sourceListViewClass = \"{0}\"", this.getSourceListViewClass()));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -437,5 +456,37 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setOtherFieldName(String otherFieldName) {
         this.otherFieldName = otherFieldName;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
+    }
+
+    public String getSourceListViewClass() {
+        return sourceListViewClass;
+    }
+
+    public void setSourceListViewClass(String sourceListViewClass) {
+        this.sourceListViewClass = sourceListViewClass;
+    }
+
+    public String getApplyPropertyKey() {
+        return applyPropertyKey;
+    }
+
+    public void setApplyPropertyKey(String applyPropertyKey) {
+        this.applyPropertyKey = applyPropertyKey;
+    }
+
+    public Boolean getDefaultHidden() {
+        return defaultHidden;
+    }
+
+    public void setDefaultHidden(Boolean defaultHidden) {
+        this.defaultHidden = defaultHidden;
     }
 }

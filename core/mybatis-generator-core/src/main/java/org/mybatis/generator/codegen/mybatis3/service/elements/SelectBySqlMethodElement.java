@@ -23,7 +23,7 @@ public class SelectBySqlMethodElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        Method method = serviceMethods.getSelectBySqlMethodMethod(entityType, parentElement, configuration, false,true);
+        Method method = serviceMethods.getSelectBySqlMethodMethod(parentElement, configuration, false,true);
         method.setReturnRemark(introspectedTable.getRemarks(true)+"数据对象列表");
         method.addAnnotation("@Override");
         method.addBodyLine("List<{0}> result = mapper.{1}({2});"

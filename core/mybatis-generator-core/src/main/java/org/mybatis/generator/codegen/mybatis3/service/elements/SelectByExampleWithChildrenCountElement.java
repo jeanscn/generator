@@ -11,22 +11,22 @@ import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGene
  * 2022-09-23 23:57
  * @version 3.0
  */
-public class SelectByExampleWithRelationElement extends AbstractServiceElementGenerator {
+public class SelectByExampleWithChildrenCountElement extends AbstractServiceElementGenerator {
 
-    public SelectByExampleWithRelationElement() {
+    public SelectByExampleWithChildrenCountElement() {
         super();
     }
 
     @Override
     public void addElements(TopLevelClass parentElement) {
         /*
-         * 增加selectByExampleWithRelation接口实现方法
-         * 当生成的方法包括至少有一个selectByTableXXX、selectByColumnXXX方法时
+         * 增加SelectByExampleWithChildrenCount接口实现方法
          * 此方法可以使byExample方法支持级联查询
          * */
-        Method method = serviceMethods.getSelectWithRelationMethod(entityType, exampleType, parentElement, false);
+        Method method = serviceMethods.getSelectWithChildrenCountMethod(parentElement, false,true);
         method.addAnnotation("@Override");
-        method.addBodyLine("return mapper.{0}(example);", introspectedTable.getSelectByExampleWithRelationStatementId());
+        method.addBodyLine("List<{0}> result = mapper.{1}(example);", entityType.getShortName(),introspectedTable.getSelectByExampleWithChildrenCountStatementId());
+        method.addBodyLine("return ServiceResult.success(result);");
         parentElement.addMethod(method);
     }
 }

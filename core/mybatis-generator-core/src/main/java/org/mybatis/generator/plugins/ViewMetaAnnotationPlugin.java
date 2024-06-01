@@ -127,6 +127,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
 
     private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass, IntrospectedTable introspectedTable) {
         ViewTableMetaDesc viewTableMetaDesc = new ViewTableMetaDesc(introspectedTable);
+        viewTableMetaDesc.setTableType(voViewGeneratorConfiguration.getTableType());
+
         //createUrl
         String createUrl = "";
         FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));
@@ -238,6 +240,32 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //转换为注解
             String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
             viewTableMetaDesc.setQuerys(array);
+            //导入类型
+            viewVOClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
+        }
+        //filters
+        if (!voViewGeneratorConfiguration.getFilterColumns().isEmpty()) {
+            //按列名分组
+            Map<String, List<QueryColumnConfiguration>> listMap = voViewGeneratorConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
+            //去重,转换为CompositeQueryDesc
+            List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
+                if (listMap.containsKey(columnName)) {
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0),introspectedTable);
+                } else {
+                    if (introspectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
+                    }else{
+                        return null;
+                    }
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            //更新顺序号，order
+            for (int i = 0; i < queryDesc.size(); i++) {
+                queryDesc.get(i).setOrder(i + 1);
+            }
+            //转换为注解
+            String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
+            viewTableMetaDesc.setFilters(array);
             //导入类型
             viewVOClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
         }

@@ -201,7 +201,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
             }
         });
         method.getExceptionRemark().ifPresent(r->{
-            if (method.getExceptions().size()>0) {
+            if (!method.getExceptions().isEmpty()) {
                 String collect = method.getExceptions().stream()
                         .map(FullyQualifiedJavaType::getShortName)
                         .collect(Collectors.joining(","));

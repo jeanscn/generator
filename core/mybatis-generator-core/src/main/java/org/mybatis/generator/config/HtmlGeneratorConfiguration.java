@@ -28,7 +28,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean defaultConfig = true;
 
-    private boolean overWriteVueFile = true;
+    private boolean overWriteVueView = true;
+
+    private boolean overWriteVueEdit = true;
+
+    private boolean overWriteVueDetail = true;
 
     private final Set<String> hiddenColumnNames = new HashSet<>();
 
@@ -138,6 +142,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         return elementRequired;
     }
 
+
     public Set<String> getDisplayOnlyFields() {
         return displayOnlyFields;
     }
@@ -215,11 +220,27 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         return htmlButtons;
     }
 
-    public boolean isOverWriteVueFile() {
-        return overWriteVueFile;
+    public boolean isOverWriteVueView() {
+        return overWriteVueView;
     }
 
-    public void setOverWriteVueFile(boolean overWriteVueFile) {
-        this.overWriteVueFile = overWriteVueFile;
+    public void setOverWriteVueView(boolean overWriteVueView) {
+        this.overWriteVueView = overWriteVueView;
+    }
+
+    public boolean isOverWriteVueEdit() {
+        return overWriteVueEdit;
+    }
+
+    public void setOverWriteVueEdit(boolean overWriteVueEdit) {
+        this.overWriteVueEdit = overWriteVueEdit;
+    }
+
+    public boolean isOverWriteVueDetail() {
+        return overWriteVueDetail;
+    }
+
+    public void setOverWriteVueDetail(boolean overWriteVueDetail) {
+        this.overWriteVueDetail = overWriteVueDetail;
     }
 }

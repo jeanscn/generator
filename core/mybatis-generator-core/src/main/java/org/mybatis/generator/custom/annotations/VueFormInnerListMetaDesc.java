@@ -28,7 +28,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     /**
      * 列表标题（库表注释）
      */
-    private String label = "详细信息";
+    private String label = "";
     /**
      * 列表分组的key
      */
@@ -81,9 +81,13 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public VueFormInnerListMetaDesc(HtmlElementInnerListConfiguration innerListConfiguration, IntrospectedTable introspectedTable, int index) {
         super();
-        this.value =  innerListConfiguration.getModuleKeyword() +
-                "_" +  Mb3GenUtil.getDefaultHtmlKey(introspectedTable) +
-                "_" +  index;
+        if(VStringUtil.stringHasValue(innerListConfiguration.getElementKey())){
+            this.value = innerListConfiguration.getElementKey();
+        }else{
+            this.value =  innerListConfiguration.getModuleKeyword() +
+                    "_" +  Mb3GenUtil.getDefaultHtmlKey(introspectedTable) +
+                    "_" +  index;
+        }
         this.label = innerListConfiguration.getLabel();
         this.listKey = innerListConfiguration.getListKey();
         this.sourceListViewClass = innerListConfiguration.getSourceViewVoClass();
@@ -105,7 +109,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     public String toAnnotation() {
         List<String> items = new ArrayList<>();
         items.add("value = \"" + value + "\"");
-        if (VStringUtil.isNotBlank(label) && !"详细信息".equals(label)) {
+        if (VStringUtil.isNotBlank(label) ) {
             items.add("label = \"" + label + "\"");
         }
         if (VStringUtil.isNotBlank(listKey)) {

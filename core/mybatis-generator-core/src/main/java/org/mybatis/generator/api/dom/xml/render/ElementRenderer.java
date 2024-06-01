@@ -3,6 +3,7 @@ package org.mybatis.generator.api.dom.xml.render;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.ElementVisitor;
 import org.mybatis.generator.api.dom.xml.TextElement;

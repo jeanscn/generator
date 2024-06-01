@@ -57,6 +57,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                         columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun());
                     });
                 });
+                freeMakerContext.put("modelType", viewConfiguration.getTableType());
             }
             freeMakerContext.put("columnRenderFunMap", columnRenderFunMap);
             if (VStringUtil.stringHasValue(fileName)) {
@@ -67,7 +68,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                         "",
                         introspectedTable,
                         "vue_module_list.vue.ftl", freeMakerContext);
-                generatedVueFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueFile());
+                generatedVueFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueView());
                 answer.add(generatedVueFile);
             }
 
@@ -100,7 +101,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             }
 
             //生成edit组件
-            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
+            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath+ "/components").split("/"));
             String projectEdit = this.properties.getProperty("targetProject", editPath);
             String fileNameEdit = introspectedTable.getTableConfiguration().getDomainObjectName() + "Edit";
             Map<String, Object> editMap = new HashMap<>();
@@ -116,7 +117,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     "",
                     introspectedTable,
                     "vue_module_edit.vue.ftl", editMap);
-            generatedVueEditFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueFile());
+            generatedVueEditFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueEdit());
             answer.add(generatedVueEditFile);
 
             //生成detail组件
@@ -134,8 +135,41 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     "",
                     introspectedTable,
                     "vue_module_detail.vue.ftl", detailMap);
-            generatedVueDetailFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueFile());
+            generatedVueDetailFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueDetail());
             answer.add(generatedVueDetailFile);
+
+            //生成PrivateTableColumnSlots组件
+            String slotsPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
+            String projectSlots = this.properties.getProperty("targetProject", slotsPath);
+            String fileNamePrivateTableColumnSlots = "PrivateTableColumnSlots";
+            Map<String, Object> privateTableColumnSlotsMap = new HashMap<>();
+            privateTableColumnSlotsMap.put("modelName", objectName);
+            privateTableColumnSlotsMap.put("tableRemark", tableRemark);
+            String vuePrivateTableColumnSlotsFileName = fileNamePrivateTableColumnSlots + ".vue";
+            GeneratedVueFile generatedVuePrivateTableColumnSlotsFile = new GeneratedVueFile(
+                    vuePrivateTableColumnSlotsFileName,
+                    projectSlots,
+                    "",
+                    introspectedTable,
+                    "vue_module_private_column_slots.vue.ftl", privateTableColumnSlotsMap);
+            generatedVuePrivateTableColumnSlotsFile.setOverWriteFile(false);
+            answer.add(generatedVuePrivateTableColumnSlotsFile);
+
+            //生成PrivateUseFormHooks钩子函数定义文件
+            String hooksPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
+            String projectHooks = this.properties.getProperty("targetProject", hooksPath);
+            String fileNamePrivateUseFormHooks = "PrivateUseFormHooks";
+            Map<String, Object> privateUseFormHooksMap = new HashMap<>();
+            privateUseFormHooksMap.put("modelName", objectName);
+            privateUseFormHooksMap.put("tableRemark", tableRemark);
+            GeneratedVueFile generatedVuePrivateUseFormHooksFile = new GeneratedVueFile(
+                    fileNamePrivateUseFormHooks + ".ts",
+                    projectHooks,
+                    "",
+                    introspectedTable,
+                    "vue_module_private_form_hooks.vue.ftl", privateUseFormHooksMap);
+            generatedVuePrivateUseFormHooksFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
+            answer.add(generatedVuePrivateUseFormHooksFile);
         }
         return answer;
     }

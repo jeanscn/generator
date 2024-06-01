@@ -5,7 +5,7 @@ import org.mybatis.generator.custom.ConstantsUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HtmlLayoutDescriptor {
+public class HtmlLayoutDescriptor   extends TypedPropertyHolder{
 
     //指定页面打开方式：pop-小弹窗，inner-页面嵌入，full-全屏弹窗，默认full
     private String loadingFrameType = "pop";
@@ -31,9 +31,9 @@ public class HtmlLayoutDescriptor {
 
     private String popSize = "default";
 
-    private String attachmentsContainer = "none";
+    private boolean popDraggable = true;
 
-    private String innerListContainer = "none";
+    private List<HtmlGroupContainerConfiguration> groupContainerConfigurations = new ArrayList<>();
 
     public HtmlLayoutDescriptor() {
         this.borderColor = ConstantsUtil.HTML_BORDER_COLOR_DEFAULT;
@@ -128,19 +128,19 @@ public class HtmlLayoutDescriptor {
         this.popSize = popSize;
     }
 
-    public String getAttachmentsContainer() {
-        return attachmentsContainer;
+    public List<HtmlGroupContainerConfiguration> getGroupContainerConfigurations() {
+        return groupContainerConfigurations;
     }
 
-    public void setAttachmentsContainer(String attachmentsContainer) {
-        this.attachmentsContainer = attachmentsContainer;
+    public void setGroupContainerConfigurations(List<HtmlGroupContainerConfiguration> groupContainerConfigurations) {
+        this.groupContainerConfigurations = groupContainerConfigurations;
     }
 
-    public String getInnerListContainer() {
-        return innerListContainer;
+    public boolean isPopDraggable() {
+        return popDraggable;
     }
 
-    public void setInnerListContainer(String innerListContainer) {
-        this.innerListContainer = innerListContainer;
+    public void setPopDraggable(boolean popDraggable) {
+        this.popDraggable = popDraggable;
     }
 }

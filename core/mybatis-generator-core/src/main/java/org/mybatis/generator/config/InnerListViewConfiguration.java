@@ -51,6 +51,9 @@ public class InnerListViewConfiguration extends PropertyHolder{
     private String editExtendsForm;
 
     private List<String> queryColumns = new ArrayList<>();
+    private List<String> fuzzyColumns = new ArrayList<>();
+
+    private List<String> filterColumns = new ArrayList<>();
     private List<HtmlElementDescriptor> htmlElements = new ArrayList<>();
 
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
@@ -274,5 +277,21 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public void setIndexColumnFixed(String indexColumnFixed) {
         this.indexColumnFixed = indexColumnFixed;
+    }
+
+    public List<String> getFuzzyColumns() {
+        return fuzzyColumns;
+    }
+
+    public void setFuzzyColumns(List<String> fuzzyColumns) {
+        this.fuzzyColumns = fuzzyColumns;
+    }
+
+    public List<String> getFilterColumns() {
+        return filterColumns;
+    }
+
+    public void setFilterColumns(List<String> filterColumns) {
+        this.filterColumns = filterColumns;
     }
 }

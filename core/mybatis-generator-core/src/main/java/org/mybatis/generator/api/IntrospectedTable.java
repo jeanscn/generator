@@ -601,6 +601,10 @@ public abstract class IntrospectedTable {
         return internalAttributes.get(InternalAttribute.ATTR_RELATION_RESULT_MAP_ID);
     }
 
+    public String getSelectByExampleWithChildrenCountStatementId() {
+        return "selectByExampleWithChildrenCount";
+    }
+
     public String getUpdateByPrimaryKeyWithBLOBsStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);

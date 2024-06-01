@@ -2,6 +2,8 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import java.util.List;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -51,8 +53,10 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
         }
 
         //根据属性生成联查的ResultMap
-        List<RelationGeneratorConfiguration> collect = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().filter(RelationGeneratorConfiguration::isSubSelected).collect(Collectors.toList());
-        if (collect.size()>0) {
+        List<RelationGeneratorConfiguration> collect = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
+                .filter(RelationGeneratorConfiguration::isSubSelected)
+                .collect(Collectors.toList());
+        if (!collect.isEmpty()) {
             XmlElement resultMapWithRelation = new XmlElement("resultMap"); //$NON-NLS-1$
             resultMapWithRelation.addAttribute(new Attribute("id",introspectedTable.getRelationResultMapId()));
             resultMapWithRelation.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
@@ -84,6 +88,21 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
             }
             parentElement.addElement(resultMapWithRelation);
         }
+
+        //根据childrenCount属性生成ResultMap
+        String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())?introspectedTable.getTableConfiguration().getAlias()+"_":"";
+        introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).ifPresent(introspectedColumn -> {
+            XmlElement resultMapWithChildrenCount = new XmlElement("resultMap"); //$NON-NLS-1$
+            resultMapWithChildrenCount.addAttribute(new Attribute("id","ResultMapChildrenCount"));
+            resultMapWithChildrenCount.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+            resultMapWithChildrenCount.addAttribute(new Attribute("type",returnType));
+            context.getCommentGenerator().addComment(resultMapWithChildrenCount);
+            XmlElement relationElement = new XmlElement("result");
+            relationElement.addAttribute(new Attribute("column",aliasPrefix+"children_count"));
+            relationElement.addAttribute(new Attribute("property","childrenCount"));
+            resultMapWithChildrenCount.addElement(relationElement);
+            parentElement.addElement(resultMapWithChildrenCount);
+        });
     }
 
     private void addResultMapElements(XmlElement answer) {

@@ -11,10 +11,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.annotations.VueFormInnerListMetaDesc;
-import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
-import org.mybatis.generator.custom.annotations.VueFormMetaDesc;
-import org.mybatis.generator.custom.annotations.VueFormUploadMetaDesc;
+import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
@@ -46,8 +43,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             vueFormMetaDesc.setLabelPosition(layoutDescriptor.getLabelPosition());
             vueFormMetaDesc.setSize(layoutDescriptor.getSize());
             vueFormMetaDesc.setPopSize(layoutDescriptor.getPopSize());
-            vueFormMetaDesc.setAttachmentsContainer(layoutDescriptor.getAttachmentsContainer());
-            vueFormMetaDesc.setInnerListContainer(layoutDescriptor.getInnerListContainer());
+            vueFormMetaDesc.setPopDraggable(layoutDescriptor.isPopDraggable());
             vueFormMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
 
             //附件注解
@@ -64,11 +60,30 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                     vueFormMetaDesc.getInnerListMeta().add(new VueFormInnerListMetaDesc(listConfigurations.get(i),introspectedTable,i+1));
                 }
             }
-
+            //布局容器注解
+            htmlGeneratorConfiguration.getLayoutDescriptor().getGroupContainerConfigurations().forEach(e -> {
+                VueFormContainerMetaDesc vueFormContainerMetaDesc = new VueFormContainerMetaDesc(e);
+                vueFormContainerMetaDesc.setParentElementKey("");
+                vueFormMetaDesc.getContainerMeta().add(vueFormContainerMetaDesc);
+                e.getGroupContainerConfigurations().forEach(groupContainer -> {
+                    getGroupContainerMetaDesc(groupContainer, vueFormContainerMetaDesc,vueFormMetaDesc);
+                });
+            });
+            topLevelClass.addImportedType("com.vgosoft.core.annotation.*");
             vueFormMetaDesc.addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
+
+    private static void getGroupContainerMetaDesc(HtmlGroupContainerConfiguration e, VueFormContainerMetaDesc parent,VueFormMetaDesc vueFormMetaDesc) {
+        VueFormContainerMetaDesc vueFormContainerMetaDesc = new VueFormContainerMetaDesc(e);
+        vueFormContainerMetaDesc.setParentElementKey(parent.getValue());
+        vueFormMetaDesc.getContainerMeta().add(vueFormContainerMetaDesc);
+        e.getGroupContainerConfigurations().forEach(groupContainer -> {
+            getGroupContainerMetaDesc(groupContainer, vueFormContainerMetaDesc,vueFormMetaDesc);
+        });
+    }
+
 
     /**
      * VO抽象父类的ColumnMetaAnnotation
@@ -129,6 +144,10 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             VueFormGenerateUtil.setComponentName(vueFormItemMetaDesc,elementDescriptor, introspectedColumn);
             //设置日期时间属性
             VueFormGenerateUtil.setDateTimeTypFormat(vueFormItemMetaDesc, elementDescriptor, introspectedColumn);
+            //设置隐藏状态
+            if (hiddenColumns.stream().anyMatch(e -> e.getActualColumnName().equals(introspectedColumn.getActualColumnName()))) {
+                vueFormItemMetaDesc.setDefaultHidden(true);
+            }
             if (elementDescriptor != null) { //存在字段配置的内容
                 //设置multiple
                 vueFormItemMetaDesc.setMultiple(Boolean.valueOf(elementDescriptor.getMultiple()));
@@ -143,6 +162,9 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 }
                 if (VStringUtil.stringHasValue(elementDescriptor.getApplyProperty())) {
                     vueFormItemMetaDesc.setApplyProperty(elementDescriptor.getApplyProperty());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getApplyPropertyKey())) {
+                    vueFormItemMetaDesc.setApplyPropertyKey(elementDescriptor.getApplyPropertyKey());
                 }
                 if (VStringUtil.stringHasValue(elementDescriptor.getEnumClassName())) {
                     vueFormItemMetaDesc.setEnumClassFullName(elementDescriptor.getEnumClassName());
@@ -186,13 +208,19 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (elementDescriptor.isExcludeSelf()) {
                     vueFormItemMetaDesc.setExcludeSelf(true);
                 }
+                if (VStringUtil.stringHasValue(elementDescriptor.getListKey())){
+                    vueFormItemMetaDesc.setListKey(elementDescriptor.getListKey());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getListViewClass())){
+                    vueFormItemMetaDesc.setSourceListViewClass(elementDescriptor.getListViewClass());
+                }
                 //根据字段类型设置valueType
                 VueFormGenerateUtil.setRemoteValueType(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);
             }else{
                 vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }
             //设置rules
-            String rules = VueFormGenerateUtil.getRules(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);
+            String rules = VueFormGenerateUtil.getRules(vueFormItemMetaDesc, introspectedColumn, elementDescriptor,htmlGeneratorConfiguration);
             if (stringHasValue(rules)) {
                 vueFormItemMetaDesc.addImports("com.vgosoft.core.annotation.VueFormItemRule");
                 vueFormItemMetaDesc.setRules(rules);

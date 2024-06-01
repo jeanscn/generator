@@ -5,6 +5,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.config.ColumnOverride;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
@@ -247,7 +248,9 @@ public class ValidatorPlugin extends PluginAdapter {
                                     IntrospectedColumn introspectedColumn,
                                     String[] validateGroups,
                                     IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
-        if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey())) {
+        ColumnOverride override = introspectedTable.getTableConfiguration().getColumnOverrides().stream().filter(columnOverride -> columnOverride.getColumnName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
+        boolean isOverrideRequired =  override != null && override.isRequired();
+        if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey() && !isOverrideRequired)) {
             return;
         }
         String message = introspectedColumn.getRemarks(true) + "不能为空";

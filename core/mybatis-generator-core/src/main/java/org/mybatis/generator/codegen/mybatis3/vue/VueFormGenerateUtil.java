@@ -3,9 +3,12 @@ package org.mybatis.generator.codegen.mybatis3.vue;
 import com.vgosoft.core.constant.enums.core.DictTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementDescriptor;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormItemRuleDesc;
 
@@ -182,7 +185,7 @@ public class VueFormGenerateUtil {
         }
     }
 
-    public static String getRules(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor) {
+    public static String getRules(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         if (introspectedColumn == null) {
             return null;
         }
@@ -234,6 +237,18 @@ public class VueFormGenerateUtil {
                 }
             }
         }
+
+        //是否为htmlElementRequired的字段
+        if (formItemRules.stream().noneMatch(r->r.getVueFormItemMetaDesc().getFieldName().equals(introspectedColumn.getJavaProperty()) && r.isRequired())) {
+            if (htmlGeneratorConfiguration.getElementRequired().contains(introspectedColumn.getActualColumnName())) {
+                FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
+                formItemRule.setRequired(true);
+                formItemRule.setMin(1);
+                formItemRule.setMessage(introspectedColumn.getRemarks(true) + "不能为空");
+                formItemRules.add(formItemRule);
+            }
+        }
+
         //生成rules注解
         return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
     }

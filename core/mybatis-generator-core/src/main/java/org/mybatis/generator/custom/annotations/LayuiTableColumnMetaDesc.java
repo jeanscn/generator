@@ -212,4 +212,5 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
     public void setValue(String value) {
         this.value = value;
     }
+
 }

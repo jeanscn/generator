@@ -9,6 +9,8 @@ public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     private boolean generate;
 
+    private String elementKey;
+
     private String afterColumn;
 
     private String label = "审批意见";
@@ -45,5 +47,13 @@ public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     public void setLocationTag(String locationTag) {
         this.locationTag = locationTag;
+    }
+
+    public String getElementKey() {
+        return elementKey;
+    }
+
+    public void setElementKey(String elementKey) {
+        this.elementKey = elementKey;
     }
 }

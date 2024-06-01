@@ -6,8 +6,7 @@ package org.mybatis.generator.config;
  */
 public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
-    private String value = "";
-
+    private String elementKey;
     private boolean generate = true;
 
     private boolean exclusive = true;
@@ -30,6 +29,13 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     private int order =10;
 
+    public String getElementKey() {
+        return elementKey;
+    }
+
+    public void setElementKey(String elementKey) {
+        this.elementKey = elementKey;
+    }
 
     public boolean isExclusive() {
         return exclusive;
@@ -110,15 +116,6 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
     public void setTip(String tip) {
         this.tip = tip;
     }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public int getOrder() {
         return order;
     }

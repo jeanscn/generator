@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VCollectionUtil;
@@ -80,12 +81,17 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //增加selectByExampleWithRelation接口方法
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(entityType, exampleType, bizINF, true));
+            bizINF.addMethod(serviceMethods.getSelectWithRelationMethod(bizINF, true));
+        }
+
+        //增加selectByExampleWithChildrenCount接口方法
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            bizINF.addMethod(serviceMethods.getSelectWithChildrenCountMethod(bizINF, true,true));
         }
 
         //增加SelectBySqlMethod
         introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations().forEach(c -> {
-            Method method = serviceMethods.getSelectBySqlMethodMethod(entityType, bizINF, c, true, true);
+            Method method = serviceMethods.getSelectBySqlMethodMethod(bizINF, c, true, true);
             bizINF.addMethod(method);
         });
 
@@ -159,7 +165,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
         EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
         String moduleKey = Mb3GenUtil.getModelKey(introspectedTable);
-        String mid = VMD5Util.MD5_15(moduleKey);
+        String mid = Mb3GenUtil.getModelId(introspectedTable);
         //生成该数据库的模块数据
         if (introspectedTable.getTableConfiguration().isModules() && context.isUpdateModuleData()) {
             String pId = Mb3GenUtil.getModelCateId(context);

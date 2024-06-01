@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.enums.core.EntityEventEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -117,6 +118,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         //selectByExampleWithRelation
         addSelectByExampleWithRelationElement(bizGenClazzImpl);
 
+        addSelectByExampleWithChildrenCountElement(bizGenClazzImpl);
+
         //SelectByColumnXXX
         addSelectByColumnElement(bizGenClazzImpl);
 
@@ -211,6 +214,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         return answer;
     }
 
+    private void addSelectByExampleWithChildrenCountElement(TopLevelClass bizGenClazzImpl) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            AbstractServiceElementGenerator elementGenerator = new SelectByExampleWithChildrenCountElement();
+            initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
+        }
+    }
+
     private void addCleanupInvalidRecordsMethod(TopLevelClass bizGenClazzImpl) {
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             AbstractServiceElementGenerator cleanupInvalidRecordsElement = new CleanupInvalidRecordsElement();
@@ -264,6 +274,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }
+
 
     private void addSelectBySqlMethodElement(TopLevelClass parentElement) {
         for (SelectBySqlMethodGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()) {

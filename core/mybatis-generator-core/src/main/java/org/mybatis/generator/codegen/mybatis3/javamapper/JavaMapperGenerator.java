@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -100,6 +101,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addInsertBatchMethod(interfaze);
         addInsertOrUpdateMethod(interfaze);
         addSelectByExampleWithRelationMethod(interfaze);
+        addSelectByExampleWithChildrenCountMethod(interfaze);
         addUpdateBatchMethod(interfaze);
         addSelectByColumnMethods(interfaze);
         addDeleteByColumnMethods(interfaze);
@@ -138,6 +140,13 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
 
         return answer;
+    }
+
+    private void addSelectByExampleWithChildrenCountMethod(Interface interfaze) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithChildrenCountMethodGenerator();
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
     }
 
     private void addDeleteByTableMethod(Interface interfaze) {
@@ -182,13 +191,9 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     //增加relation方法
     protected void addSelectByExampleWithRelationMethod(Interface interfaze) {
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
-            Method example = serviceMethods.getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId()
-                    , ReturnTypeEnum.LIST,
-                    entityType,
-                    introspectedTable.getRemarks(true)+"对象列表",
-                    exampleType, "example", "查询条件对象", true, interfaze);
-            context.getCommentGenerator().addMethodJavaDocLine(example, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
-            interfaze.addMethod(example);
+            Method method = serviceMethods.getSelectWithRelationMethod(interfaze, true);
+            context.getCommentGenerator().addMethodJavaDocLine(method, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
+            interfaze.addMethod(method);
             interfaze.addImportedType(exampleType);
         }
     }
@@ -210,7 +215,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     protected void addSelectByColumnMethods(Interface interfaze) {
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() > 0) {
+        if (!introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true);
                  interfaze.addMethod(method);
@@ -222,15 +227,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         //增加附加选择方法
         introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()
                 .forEach(config -> {
-                    Method method = serviceMethods.getMethodByType(config.getMethodName(),
-                            ReturnTypeEnum.LIST,
-                            entityType,
-                            introspectedTable.getRemarks(true)+"对象列表",
-                            FullyQualifiedJavaType.getStringInstance(),
-                            config.getParentIdColumn().getJavaProperty(),
-                            config.getParentIdColumn().getRemarks(false),
-                            true,
-                            interfaze);
+                    Method method = serviceMethods.getSelectBySqlMethodMethod(interfaze,config, true,false);
                     context.getCommentGenerator().addMethodJavaDocLine(method,"基于sql函数["+config.getSqlMethod()+"]的查询");
                     interfaze.addMethod(method);
                 });
@@ -238,7 +235,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     protected void addSelectByTableMethods(Interface interfaze) {
         if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration() != null
-                && introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() > 0) {
+                && !introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().isEmpty()) {
             for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
                 Method selectByTable = serviceMethods.getSelectByTableMethod(entityType, interfaze, configuration, true);
                 /*Method selectByTable = serviceMethods.getMethodByType(configuration.getMethodName(),

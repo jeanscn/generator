@@ -9,10 +9,13 @@ import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -39,6 +42,8 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private String[] ignoreFields = new String[0];
     private String[] columns = new String[0];
     private String[] querys = new String[0];
+
+    private String[] filters = new String[0];
     private String indexColWidth;
     private String actionColWidth;
     private int dataFilterType = 0;
@@ -47,6 +52,9 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private String areaWidth;
     private String areaHeight;
     private String restBasePath;
+    private String tableType = "default";
+    private int applyWorkflow = 0;
+    private String moduleId;
     public static ViewTableMetaDesc create(IntrospectedTable introspectedTable){
         return new ViewTableMetaDesc(introspectedTable);
     }
@@ -68,6 +76,8 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         this.dataUrl = "/viewmgr/getdtdata";
         this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
+        this.moduleId = Mb3GenUtil.getModelId(introspectedTable);
+        this.applyWorkflow = GenerateUtils.isWorkflowInstance(introspectedTable)?1:0;
         this.addImports(ViewTableMeta.class.getCanonicalName());
     }
 
@@ -109,6 +119,10 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
             items.add(VStringUtil.format("querys = '{'{0}'}'",String.join("\n        , ", this.querys)));
             this.addImports(CompositeQuery.class.getCanonicalName());
         }
+        if (this.filters.length>0) {
+            items.add(VStringUtil.format("filters = '{'{0}'}'",String.join("\n        , ", this.filters)));
+            this.addImports(CompositeQuery.class.getCanonicalName());
+        }
         if (VStringUtil.isNotBlank(this.indexColWidth)) {
             items.add(VStringUtil.format("indexColWidth = \"{0}\"",this.getIndexColWidth()));
         }
@@ -132,6 +146,15 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         }
         if (VStringUtil.isNotBlank(this.restBasePath)) {
             items.add(VStringUtil.format("restBasePath = \"{0}\"",this.getRestBasePath()));
+        }
+        if (stringHasValue(tableType) && !"default".equalsIgnoreCase(tableType)) {
+            items.add(VStringUtil.format("tableType = \"{0}\"",this.getTableType()));
+        }
+        if (applyWorkflow!=0) {
+            items.add(VStringUtil.format("applyWorkflow = {0}",this.getApplyWorkflow()));
+        }
+        if (VStringUtil.isNotBlank(this.moduleId)) {
+            items.add(VStringUtil.format("moduleId = \"{0}\"",this.getModuleId()));
         }
         return ANNOTATION_NAME+"("+ String.join("\n       ,",items.toArray(new String[0])) +")";
     }
@@ -302,5 +325,37 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
 
     public String getTableAlias() {
         return tableAlias;
+    }
+
+    public String[] getFilters() {
+        return filters;
+    }
+
+    public void setFilters(String[] filters) {
+        this.filters = filters;
+    }
+
+    public String getTableType() {
+        return tableType;
+    }
+
+    public void setTableType(String tableType) {
+        this.tableType = tableType;
+    }
+
+    public int getApplyWorkflow() {
+        return applyWorkflow;
+    }
+
+    public void setApplyWorkflow(int applyWorkflow) {
+        this.applyWorkflow = applyWorkflow;
+    }
+
+    public String getModuleId() {
+        return moduleId;
+    }
+
+    public void setModuleId(String moduleId) {
+        this.moduleId = moduleId;
     }
 }

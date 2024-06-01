@@ -20,7 +20,7 @@ public class ConfigUtil {
         }
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         //检查VoModel，Vo配置中是否存在对应的转换属性
-        if (tc.getVoGeneratorConfiguration().getVoModelConfiguration() != null && tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations().size() > 0) {
+        if (tc.getVoGeneratorConfiguration().getVoModelConfiguration() != null && !tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations().isEmpty()) {
             return tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations().stream()
                     .anyMatch(c -> c.getTargetPropertyName().equals(propertyName))
                     || tc.getVoGeneratorConfiguration().getVoModelConfiguration().getAdditionalPropertyConfigurations().stream()

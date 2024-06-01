@@ -52,6 +52,8 @@ public class VORequestGenerator extends AbstractVOGenerator {
         addOrderByClause(requestVoClass);
         //增加cascade开关
         addCascadeResult(requestVoClass);
+        //增加countChildren开关
+        addCountChildren(requestVoClass);
         //附加属性
         addtionalProperties(voRequestGeneratorConfiguration, requestVoClass);
         //增加任意过滤条件接收
@@ -61,6 +63,16 @@ public class VORequestGenerator extends AbstractVOGenerator {
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
         mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
         return requestVoClass;
+    }
+
+    private void addCountChildren(TopLevelClass requestVoClass) {
+        if (introspectedTable.getRules().isModelEnableChildren()) {
+            Field countChildren = new Field("countChildren", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+            countChildren.setVisibility(JavaVisibility.PRIVATE);
+            countChildren.setRemark("是否统计子级数量");
+            new ApiModelPropertyDesc(countChildren.getRemark(), "false").addAnnotationToField(countChildren, requestVoClass);
+            requestVoClass.addField(countChildren);
+        }
     }
 
     private void addRequestField(TopLevelClass requestVoClass, IntrospectedColumn introspectedColumn) {

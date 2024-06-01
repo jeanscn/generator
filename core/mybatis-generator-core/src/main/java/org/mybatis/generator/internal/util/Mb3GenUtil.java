@@ -49,6 +49,11 @@ public class Mb3GenUtil {
         return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
     }
 
+public static String getModelId(IntrospectedTable introspectedTable) {
+    String modelKey = getModelKey(introspectedTable);
+    return VMD5Util.MD5_15(modelKey);
+}
+
 
     public static String getDefaultViewId(IntrospectedTable introspectedTable) {
         String aCase = StringUtils.lowerCase(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);

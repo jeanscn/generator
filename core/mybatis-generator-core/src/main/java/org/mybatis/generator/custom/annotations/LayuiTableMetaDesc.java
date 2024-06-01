@@ -49,6 +49,8 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     private String[] querys = new String[0];
 
+    private String tableType = "default";
+
 
     public LayuiTableMetaDesc() {
         super();
@@ -110,6 +112,9 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (stringHasValue(indexColumnFixed) && !"false".equalsIgnoreCase(indexColumnFixed)) {
             items.add("indexColumnFixed = \"" + indexColumnFixed + "\"");
+        }
+        if (stringHasValue(tableType) && !"default".equalsIgnoreCase(tableType)) {
+            items.add("tableType = \"" + tableType + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -240,5 +245,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setIndexColumnFixed(String indexColumnFixed) {
         this.indexColumnFixed = indexColumnFixed;
+    }
+
+    public String getTableType() {
+        return tableType;
+    }
+
+    public void setTableType(String tableType) {
+        this.tableType = tableType;
     }
 }

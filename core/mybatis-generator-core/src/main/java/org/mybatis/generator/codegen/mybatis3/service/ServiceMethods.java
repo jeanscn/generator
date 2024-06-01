@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -61,6 +60,7 @@ public class ServiceMethods {
         context.getCommentGenerator().addMethodJavaDocLine(method, "基于example的批量删除方法");
         return method;
     }
+
 
     public Method getCleanupInvalidRecordsMethod(CompilationUnit parentElement,boolean isAbstract){
         Method method =  getMethodByType("cleanupInvalidRecords",
@@ -153,13 +153,15 @@ public class ServiceMethods {
     public Method getInsertBatchMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService) {
         FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
         listInstance.addTypeArgument(entityType);
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter param = new Parameter(listInstance, entityType.getShortNameFirstLowCase() + "s");
+        param.setRemark("待新增的数据对象列表");
+        parameters.add(param);
         Method method = getMethodByType(introspectedTable.getInsertBatchStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
                 isService?introspectedTable.getRemarks(true)+"对象列表ServiceResult封装":"成功插入的记录数",
-                listInstance,
-                entityType.getShortNameFirstLowCase() + "s",
-                "待新增的数据对象列表",
+                parameters,
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method, "批量插入的方法");
@@ -168,15 +170,17 @@ public class ServiceMethods {
 
     public Method getUpdateBatchMethod(CompilationUnit parentElement,
                                           boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
         FullyQualifiedJavaType parameterType = FullyQualifiedJavaType.getNewListInstance();
         parameterType.addTypeArgument(entityType);
+        Parameter param = new Parameter(parameterType, entityType.getShortNameFirstLowCase() + "s");
+        param.setRemark("待更新的数据对象列表,该方法为选择性更新，如果对象属性为null则不更新且不返回。如果需要返回更新后的对象，请使用selectByExample方法再次查询");
+        parameters.add(param);
         Method method = getMethodByType(introspectedTable.getUpdateBatchStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
                 introspectedTable.getRemarks(true)+(isService?"对象列表ServiceResult封装":"成功更新的记录数"),
-                parameterType,
-                entityType.getShortNameFirstLowCase() + "s",
-                "待更新的数据对象列表,该方法为选择性更新，如果对象属性为null则不更新且不返回。如果需要返回更新后的对象，请使用selectByExample方法再次查询",
+                parameters,
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method, "批量更新方法");
@@ -201,31 +205,50 @@ public class ServiceMethods {
         return method;
     }
 
+    public Method getSelectWithChildrenCountMethod(CompilationUnit parentElement,
+                                                   boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter example = new Parameter(exampleType, "example");
+        example.setRemark("查询条件example对象");
+        parameters.add(example);
+        Method method = getMethodByType(introspectedTable.getSelectByExampleWithChildrenCountStatementId(),
+                isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST,
+                entityType,
+                introspectedTable.getRemarks(true)+"对象列表",
+                parameters,
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method, "带子集合数量的查询方法，该查询方法将执行所有children的count方法。");
+        return method;
+    }
+
     public Method getInsertOrUpdateMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter record = new Parameter(entityType, entityType.getShortNameFirstLowCase());
+        record.setRemark("待新增或更新的数据对象");
+        parameters.add(record);
         Method method = getMethodByType(introspectedTable.getInsertOrUpdateStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
                 introspectedTable.getRemarks(true)+(isService?"对象ServiceResult封装":"成功插入或更新的记录数"),
-                entityType,
-                entityType.getShortNameFirstLowCase(),
-                "待新增或更新的数据对象",
+                parameters,
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method,  "插入数据时如果主键重复则更新数据。");
         return method;
     }
 
-    public Method getSelectWithRelationMethod(FullyQualifiedJavaType entityType,
-                                                 FullyQualifiedJavaType exampleType,
-                                                 CompilationUnit parentElement,
+    public Method getSelectWithRelationMethod(CompilationUnit parentElement,
                                                  boolean isAbstract) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter example = new Parameter(exampleType, "example");
+        example.setRemark("查询条件example对象");
+        parameters.add(example);
         Method method = getMethodByType(introspectedTable.getSelectByExampleWithRelationStatementId(),
                 ReturnTypeEnum.LIST,
                 entityType,
                 introspectedTable.getRemarks(true)+"对象列表",
-                exampleType,
-                "example",
-                "查询条件example对象",
+                parameters,
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
@@ -300,30 +323,34 @@ public class ServiceMethods {
                                             boolean isAbstract) {
         FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
         listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter p1 = new Parameter(config.getParameterType().equals("list")?listInstance:FullyQualifiedJavaType.getStringInstance(),
+                config.getParameterName()+(config.getParameterType().equals("list")?"s":""));
+        p1.setRemark("中间表中来自其他表的查询键值,字段名：" + config.getOtherPrimaryKeyColumn());
+        parameters.add(p1);
         Method method = getMethodByType(config.getMethodName(),
                 ReturnTypeEnum.LIST,
                 config.isReturnPrimaryKey() ? FullyQualifiedJavaType.getStringInstance() : entityType,
                 "相关数据库数据"+ (config.isReturnPrimaryKey() ? "主键列表" : "对象列表"),
-                config.getParameterType().equals("list")?listInstance:FullyQualifiedJavaType.getStringInstance(),
-                config.getParameterName()+(config.getParameterType().equals("list")?"s":""),
-                "中间表中来自其他表的查询键值,字段名：" + config.getOtherPrimaryKeyColumn(),
+                parameters,
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method,"基于中间表（表名："+config.getTableName()+"）的查询");
         return method;
     }
 
-    public Method getSelectBySqlMethodMethod(FullyQualifiedJavaType entityType,
-                                                CompilationUnit parentElement,
+    public Method getSelectBySqlMethodMethod(CompilationUnit parentElement,
                                                 SelectBySqlMethodGeneratorConfiguration config,
                                                 boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter p1 = new Parameter(config.getParentIdColumn().getFullyQualifiedJavaType(), config.getParentIdColumn().getJavaProperty());
+        p1.setRemark("基于sql函数["+config.getSqlMethod()+"]的查询");
+        parameters.add(p1);
         Method method = getMethodByType(config.getMethodName(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST,
                 entityType,
                 introspectedTable.getRemarks(true)+(isService?"对象列表ServiceResult封装":"对象列表"),
-                config.getParentIdColumn().getFullyQualifiedJavaType(),
-                config.getParentIdColumn().getJavaProperty(),
-                "基于sql函数["+config.getSqlMethod()+"]的查询",
+                parameters,
                 isAbstract,
                 parentElement);
         context.getCommentGenerator().addMethodJavaDocLine(method,"基于sql函数["+config.getSqlMethod()+"]的查询");
@@ -444,37 +471,37 @@ public class ServiceMethods {
         return method;
     }
 
-    /**
-     * 根据给定信息构造类方法
-     *
-     * @param methodName         要构建的方法名称
-     * @param returnType         方法返回类型。l-list、m-model、r-ServiceResult、sl-ServiceResult<List>、sm-ServiceResult<model>
-     * @param returnTypeArgument 返回的参数类型T。
-     *                           returnType为l：List<T>、m：T、r：ServiceResult<T>、sl:ServiceResult<List<T>>、sl:ServiceResult<T>
-     * @param parameterType      方法的参数类型
-     * @param parameterName      方法的参数名称
-     * @param isAbstract         是否为抽象方法
-     * @param parameterRemark             参数的文字说明
-     * @param parentElement      父元素
-     */
-    public Method getMethodByType(String methodName,
-                                     ReturnTypeEnum returnType,
-                                     FullyQualifiedJavaType returnTypeArgument,
-                                     String returnRemark,
-                                     FullyQualifiedJavaType parameterType,
-                                     String parameterName,
-                                     String parameterRemark,
-                                     boolean isAbstract,
-                                     CompilationUnit parentElement) {
-        Parameter parameter = new Parameter(parameterType, parameterName).setRemark(parameterRemark);
-        return getMethodByType(methodName
-                ,returnType
-                ,returnTypeArgument
-                ,returnRemark
-                ,Collections.singletonList(parameter)
-                ,isAbstract
-                ,parentElement);
-    }
+//    /**
+//     * 根据给定信息构造类方法
+//     *
+//     * @param methodName         要构建的方法名称
+//     * @param returnType         方法返回类型。l-list、m-model、r-ServiceResult、sl-ServiceResult<List>、sm-ServiceResult<model>
+//     * @param returnTypeArgument 返回的参数类型T。
+//     *                           returnType为l：List<T>、m：T、r：ServiceResult<T>、sl:ServiceResult<List<T>>、sl:ServiceResult<T>
+//     * @param parameterType      方法的参数类型
+//     * @param parameterName      方法的参数名称
+//     * @param isAbstract         是否为抽象方法
+//     * @param parameterRemark             参数的文字说明
+//     * @param parentElement      父元素
+//     */
+//    public Method getMethodByType(String methodName,
+//                                     ReturnTypeEnum returnType,
+//                                     FullyQualifiedJavaType returnTypeArgument,
+//                                     String returnRemark,
+//                                     FullyQualifiedJavaType parameterType,
+//                                     String parameterName,
+//                                     String parameterRemark,
+//                                     boolean isAbstract,
+//                                     CompilationUnit parentElement) {
+//        Parameter parameter = new Parameter(parameterType, parameterName).setRemark(parameterRemark);
+//        return getMethodByType(methodName
+//                ,returnType
+//                ,returnTypeArgument
+//                ,returnRemark
+//                ,Collections.singletonList(parameter)
+//                ,isAbstract
+//                ,parentElement);
+//    }
 
     public Method getMethodByType(String methodName,
                                      ReturnTypeEnum returnType,

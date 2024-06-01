@@ -82,26 +82,27 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         Method aMethod = createMethod(asyncMethodPrefix);
         parameters.forEach(aMethod::addParameter);
         aMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
-                ztreeDataSimpleType,
+                entityType,
                 parentElement));
-        aMethod.setReturnRemark("tree对象集合结果封装对象");
-        aMethod.addAnnotation(new SystemLogDesc("异步查询树结果数据", introspectedTable), parentElement);
+        aMethod.setReturnRemark("对象集合结果封装对象,带有子集合数量");
+        aMethod.addAnnotation(new SystemLogDesc("查询带有子集合数量数据", introspectedTable), parentElement);
         aMethod.addAnnotation(new RequestMappingDesc("async-tree", RequestMethodEnum.GET), parentElement);
-        aMethod.addAnnotation(new ApiOperationDesc("异步树形数据查询", "异步获取指定根或所有的树形结构数据"), parentElement);
-        commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的树形结构数据");
+        aMethod.addAnnotation(new ApiOperationDesc("带有子集合数量数据查询", "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据"), parentElement);
+        commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据");
         //函数体
         aMethod.addBodyLine("{0}Example example = new {0}Example();", entityType.getShortName());
         aMethod.addBodyLine("keys = keys == null ? \"0\" : keys;");
         aMethod.addBodyLine("List<String> parentIds = splitToList(keys);");
         aMethod.addBodyLine("example.createCriteria().andParentIdIn(parentIds);");
-        aMethod.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
-        aMethod.addBodyLine("nodeConverter.setRecords({0}.selectByExample(example).getResult());", serviceBeanName);
-        aMethod.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
-        aMethod.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
-        aMethod.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");
-        aMethod.addBodyLine(".forEach(pid -> TreeUtil.setNoCheckedRecursively(ztreeDataSimples, pid));");
-        aMethod.addBodyLine("}");
-        aMethod.addBodyLine("return ResponseResult.success(ztreeDataSimples);");
+//        aMethod.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
+//        aMethod.addBodyLine("nodeConverter.setRecords({0}.selectByExample(example).getResult());", serviceBeanName);
+//        aMethod.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
+//        aMethod.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
+//        aMethod.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");
+//        aMethod.addBodyLine(".forEach(pid -> TreeUtil.setNoCheckedRecursively(ztreeDataSimples, pid));");
+//        aMethod.addBodyLine("}");
+        aMethod.addBodyLine("List<{0}> records = {1}.selectByExampleWithChildrenCount(example).getResult();",entityType.getShortName(), serviceBeanName);
+        aMethod.addBodyLine("return ResponseResult.success(records);");
         parentElement.addMethod(aMethod);
 
         /*

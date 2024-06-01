@@ -24,7 +24,7 @@ public class SelectByExampleWithRelationElement extends AbstractServiceElementGe
          * 当生成的方法包括至少有一个selectByTableXXX、selectByColumnXXX方法时
          * 此方法可以使byExample方法支持级联查询
          * */
-        Method method = serviceMethods.getSelectWithRelationMethod(entityType, exampleType, parentElement, false);
+        Method method = serviceMethods.getSelectWithRelationMethod(parentElement, false);
         method.addAnnotation("@Override");
         method.addBodyLine("return mapper.{0}(example);", introspectedTable.getSelectByExampleWithRelationStatementId());
         parentElement.addMethod(method);

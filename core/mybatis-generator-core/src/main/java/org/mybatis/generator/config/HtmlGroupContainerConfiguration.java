@@ -1,70 +1,30 @@
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.custom.ConstantsUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class HtmlHrefElementConfiguration {
-    private String href;
-
-    private String target = "_blank";
-
-    private String type = "slideLeft";
-
-    private String text;
-
-    private String icon;
-
+public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
+    private String elementKey;
+    private String type;
     private String title;
 
-    private String method;
+    private Integer span = 24;
 
-    private String keySelector = "#id";
+    private Integer columnNum = 1;
 
+    private String afterColumn;
 
-    public HtmlHrefElementConfiguration() {
+    private List<String> includeElements = new ArrayList<>();
 
+    private boolean noBorder = false;
+
+    private List<HtmlGroupContainerConfiguration> groupContainerConfigurations = new ArrayList<>();
+    public String getElementKey() {
+        return elementKey;
     }
 
-    public String getHref() {
-        return href;
-    }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setElementKey(String elementKey) {
+        this.elementKey = elementKey;
     }
 
     public String getType() {
@@ -75,19 +35,59 @@ public class HtmlHrefElementConfiguration {
         this.type = type;
     }
 
-    public String getMethod() {
-        return method;
+    public String getTitle() {
+        return title;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getKeySelector() {
-        return keySelector;
+    public Integer getSpan() {
+        return span;
     }
 
-    public void setKeySelector(String keySelector) {
-        this.keySelector = keySelector;
+    public void setSpan(Integer span) {
+        this.span = span;
+    }
+
+    public Integer getColumnNum() {
+        return columnNum;
+    }
+
+    public void setColumnNum(Integer columnNum) {
+        this.columnNum = columnNum;
+    }
+
+    public String getAfterColumn() {
+        return afterColumn;
+    }
+
+    public void setAfterColumn(String afterColumn) {
+        this.afterColumn = afterColumn;
+    }
+
+    public List<String> getIncludeElements() {
+        return includeElements;
+    }
+
+    public void setIncludeElements(List<String> includeElements) {
+        this.includeElements = includeElements;
+    }
+
+    public List<HtmlGroupContainerConfiguration> getGroupContainerConfigurations() {
+        return groupContainerConfigurations;
+    }
+
+    public void setGroupContainerConfigurations(List<HtmlGroupContainerConfiguration> groupContainerConfigurations) {
+        this.groupContainerConfigurations = groupContainerConfigurations;
+    }
+
+    public boolean isNoBorder() {
+        return noBorder;
+    }
+
+    public void setNoBorder(boolean noBorder) {
+        this.noBorder = noBorder;
     }
 }

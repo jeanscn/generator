@@ -1,7 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
 import com.vgosoft.tool.core.VStringUtil;
-import jdk.nashorn.internal.ir.IfNode;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 

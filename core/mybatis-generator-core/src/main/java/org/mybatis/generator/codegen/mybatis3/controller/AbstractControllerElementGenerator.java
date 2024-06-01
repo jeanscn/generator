@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.dom.java.*;
@@ -230,6 +231,10 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
             method.addBodyLine("if ({0}.isCascadeResult()) '{'", requestVOVar);
             method.addBodyLine("result = ServiceResult.success({0}.selectByExampleWithRelation(example));", serviceBeanName);
+            if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+                method.addBodyLine("'}' else if ({0}.isCountChildren())'{'",requestVOVar);
+                method.addBodyLine("result = {0}.selectByExampleWithChildrenCount(example);",serviceBeanName);
+            }
             method.addBodyLine("} else {");
             method.addBodyLine("result = {0}.selectByExample(example);", serviceBeanName);
             method.addBodyLine("}");

@@ -9,9 +9,11 @@ import com.vgosoft.tool.core.VStringUtil;
  */
 public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
+    private String elementKey;
+
     private String listKey;
 
-    private String label = "详细信息";
+    private String label = "";
 
     private String moduleKeyword;
 
@@ -40,6 +42,14 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private String restBasePath;
 
     public HtmlElementInnerListConfiguration() {
+    }
+
+    public String getElementKey() {
+        return elementKey;
+    }
+
+    public void setElementKey(String elementKey) {
+        this.elementKey = elementKey;
     }
 
     public String getDataField() {

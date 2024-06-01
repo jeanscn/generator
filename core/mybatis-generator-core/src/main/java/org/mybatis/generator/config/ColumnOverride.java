@@ -30,6 +30,8 @@ public class ColumnOverride extends PropertyHolder {
      */
     private boolean isGeneratedAlways;
 
+    private boolean required;
+
     private Integer maxLength;
     private Integer minLength;
 
@@ -159,5 +161,13 @@ public class ColumnOverride extends PropertyHolder {
 
     public void setAlign(String align) {
         this.align = align;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }

@@ -8,48 +8,45 @@ import java.util.TreeSet;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-public class SelectByExampleWithRelationMethodGenerator extends
-        AbstractJavaMapperMethodGenerator {
+public class SelectByExampleWithChildrenCountMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
-    public SelectByExampleWithRelationMethodGenerator() {
+    public SelectByExampleWithChildrenCountMethodGenerator() {
         super();
     }
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getSelectWithChildrenCountMethod(interfaze,true,false);
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         importedTypes.add(type);
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method(introspectedTable.getSelectByExampleWithRelationStatementId());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
+        //Method method = new Method(introspectedTable.getSelectByExampleWithChildrenCountStatementId());
+        //method.setVisibility(JavaVisibility.PUBLIC);
+        //method.setAbstract(true);
 
-        FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
-        FullyQualifiedJavaType listType;
-        if (introspectedTable.getRules().generateBaseRecordClass()) {
-            listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        } else if (introspectedTable.getRules().generatePrimaryKeyClass()) {
-            listType = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
-        } else {
-            throw new RuntimeException(getString("RuntimeError.12")); //$NON-NLS-1$
-        }
+//        FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
+//        FullyQualifiedJavaType listType;
+//        if (introspectedTable.getRules().generateBaseRecordClass()) {
+//            listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+//        } else if (introspectedTable.getRules().generatePrimaryKeyClass()) {
+//            listType = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
+//        } else {
+//            throw new RuntimeException(getString("RuntimeError.12")); //$NON-NLS-1$
+//        }
+//
+//        importedTypes.add(listType);
+//        returnType.addTypeArgument(listType);
+//        method.setReturnType(returnType);
+//
+//        Parameter parameter = new Parameter(type, "example");
+//        parameter.setRemark("查询条件example对象");
+//        method.addParameter(parameter); //$NON-NLS-1$
 
-        importedTypes.add(listType);
-        returnType.addTypeArgument(listType);
-        method.setReturnType(returnType);
-
-        Parameter parameter = new Parameter(type, "example");
-        parameter.setRemark("查询条件example对象");
-        method.addParameter(parameter); //$NON-NLS-1$
-
-        context.getCommentGenerator().addGeneralMethodComment(method,
-                introspectedTable);
-
+        context.getCommentGenerator().addGeneralMethodComment(method,introspectedTable);
         addMapperAnnotations(interfaze, method);
-
         addExtraImports(interfaze);
         interfaze.addImportedTypes(importedTypes);
         interfaze.addImportedType(FullyQualifiedJavaType.getNewListInstance());

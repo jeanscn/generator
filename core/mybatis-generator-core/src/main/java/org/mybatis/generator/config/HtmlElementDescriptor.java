@@ -31,6 +31,8 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String applyProperty;
 
+    private String applyPropertyKey;
+
     private List<String> verify = new ArrayList<>();
 
     private String enumClassName;
@@ -335,5 +337,13 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setExcludeSelf(boolean excludeSelf) {
         this.excludeSelf = excludeSelf;
+    }
+
+    public String getApplyPropertyKey() {
+        return applyPropertyKey;
+    }
+
+    public void setApplyPropertyKey(String applyPropertyKey) {
+        this.applyPropertyKey = applyPropertyKey;
     }
 }
