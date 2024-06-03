@@ -3,10 +3,10 @@
   <component name="AutoImportedSourceRoots">
     <option name="directories">
       <list>
-        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/main/java" />
-        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/main/kotlin" />
-        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/test/java" />
-        <option value="D:\java\idea_projs4\generator\core\mybatis-generator-core/src/test/kotlin" />
+        <option value="D:\java\idea_projs14\generator\core\mybatis-generator-core/src/main/java" />
+        <option value="D:\java\idea_projs14\generator\core\mybatis-generator-core/src/main/kotlin" />
+        <option value="D:\java\idea_projs14\generator\core\mybatis-generator-core/src/test/java" />
+        <option value="D:\java\idea_projs14\generator\core\mybatis-generator-core/src/test/kotlin" />
       </list>
     </option>
   </component>

@@ -82,6 +82,13 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             interfaze.addSuperInterface(infSuperType);
             interfaze.addImportedType(infSuperType);
         }
+        //如果集成了mybatis-plus的Mapper，则需要导入Mapper
+        if (introspectedTable.getContext().isIntegrateMybatisPlus()) {
+            FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType("com.baomidou.mybatisplus.core.mapper.Mapper");
+            fqjt.addTypeArgument(entityType);
+            interfaze.addSuperInterface(fqjt);
+            interfaze.addImportedType(fqjt);
+        }
 
 //        addCountByExampleMethod(interfaze);
 //        addDeleteByExampleMethod(interfaze);

@@ -19,7 +19,7 @@
                         <PrivateTableColumnSlots :scope="scope" :slotName="column.prop"></PrivateTableColumnSlots>
                     </template>
                 </vgo-table>
-                <VgoDialog v-if="showDialog" v-model="showDialog" :title="pageTitle" :popSize="popSize" @close="destroyForm"
+                <VgoDialog v-model="showDialog" :title="pageTitle" :popSize="popSize" @close="destroyForm"
                            :closeOnClickModal=false :closeOnPressEscape=false>
                     <template #header>
                         <span class="el-dialog__title">{{ pageTitle }}</span>
