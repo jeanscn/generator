@@ -4,10 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class HtmlElementDescriptor  extends PropertyHolder{
 
@@ -70,6 +67,16 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private String keyMapValue;
     //是否排除自己
     private boolean excludeSelf = false;
+
+    private String parentFormKey;
+
+    private String designIdField;
+    private String configJsonfield = "jsonContent";
+
+    private boolean enablePager;
+    private Set<String> vxeListButtons = new HashSet<>();
+
+    private String defaultFilterExpr;
 
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
@@ -345,5 +352,53 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setApplyPropertyKey(String applyPropertyKey) {
         this.applyPropertyKey = applyPropertyKey;
+    }
+
+    public String getParentFormKey() {
+        return parentFormKey;
+    }
+
+    public void setParentFormKey(String parentFormKey) {
+        this.parentFormKey = parentFormKey;
+    }
+
+    public String getDesignIdField() {
+        return designIdField;
+    }
+
+    public void setDesignIdField(String designIdField) {
+        this.designIdField = designIdField;
+    }
+
+    public String getConfigJsonfield() {
+        return configJsonfield;
+    }
+
+    public void setConfigJsonfield(String configJsonfield) {
+        this.configJsonfield = configJsonfield;
+    }
+
+    public boolean isEnablePager() {
+        return enablePager;
+    }
+
+    public void setEnablePager(boolean enablePager) {
+        this.enablePager = enablePager;
+    }
+
+    public Set<String> getVxeListButtons() {
+        return vxeListButtons;
+    }
+
+    public void setVxeListButtons(Set<String> vxeListButtons) {
+        this.vxeListButtons = vxeListButtons;
+    }
+
+    public String getDefaultFilterExpr() {
+        return defaultFilterExpr;
+    }
+
+    public void setDefaultFilterExpr(String defaultFilterExpr) {
+        this.defaultFilterExpr = defaultFilterExpr;
     }
 }

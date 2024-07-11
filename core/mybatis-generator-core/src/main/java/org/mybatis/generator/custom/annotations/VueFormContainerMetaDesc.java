@@ -12,6 +12,8 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     private String value;
 
+    private String name;
+
     private String parentElementKey;
 
     private String type;
@@ -35,6 +37,7 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
     public VueFormContainerMetaDesc(HtmlGroupContainerConfiguration htmlGroupContainerConfiguration) {
         super();
         this.addImports(VueFormContainerMeta.class.getCanonicalName());
+        this.name = htmlGroupContainerConfiguration.getName();
         this.value = htmlGroupContainerConfiguration.getElementKey();
         this.type = htmlGroupContainerConfiguration.getType();
         this.title = htmlGroupContainerConfiguration.getTitle();
@@ -49,6 +52,9 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
     public String toAnnotation() {
         if (stringHasValue(value)) {
             items.add(format("value = \"{0}\"", value));
+        }
+        if (stringHasValue(name)) {
+            items.add(format("name = \"{0}\"", name));
         }
         if (stringHasValue(type)) {
             items.add(format("type = \"{0}\"", type));
@@ -148,5 +154,13 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     public void setNoBorder(boolean noBorder) {
         this.noBorder = noBorder;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

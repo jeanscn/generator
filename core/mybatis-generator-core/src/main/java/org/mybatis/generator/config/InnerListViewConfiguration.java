@@ -1,136 +1,55 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
+import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class InnerListViewConfiguration extends PropertyHolder{
-
-    private String listKey = "";
-
-    /**
-     * 设置表格尺寸，可选值有：lg、sm、xs
-     */
-    private String size = "mg";
-
-    /**
-     * 设置头部工具栏右侧图标,可选值有：filter,exports,print
-     */
-    private List<String> defaultToolbar = new ArrayList<>();
+public class InnerListViewConfiguration extends AbstractTableListCommonConfiguration{
 
     private String height;
-
     private String width = "";
-
-    private boolean totalRow = false;
-
-    private String enablePage = "false";
-
-    private String skin = "grid";
-
     private boolean even = true;
-
     private List<String> enableEditFields = new ArrayList<>();
-
-    private String indexColumn;
-
-    private List<String> actionColumn = new ArrayList<>();
-
-    /**
-     * 设置表格尾部工具栏区域固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
-     */
-    private String actionColumnFixed = "";
-
-    /**
-     * 设置表格的索引列固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
-     */
-    private String indexColumnFixed = "";
-
-
     private String editExtendsForm;
-
-    private List<String> queryColumns = new ArrayList<>();
-    private List<String> fuzzyColumns = new ArrayList<>();
-
-    private List<String> filterColumns = new ArrayList<>();
-    private List<HtmlElementDescriptor> htmlElements = new ArrayList<>();
-
+     private List<HtmlElementDescriptor> htmlElements = new ArrayList<>();
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
-
     private final Map<String, HtmlElementDescriptor> elementDescriptorMap = new HashMap<>();
-
     private final List<InnerListEditTemplate> innerListEditTemplate = new ArrayList<>();
-
-
-    private List<String> toolbar = new ArrayList<>();
-
     private final List<ListColumnConfiguration> listColumnConfigurations = new ArrayList<>();
-    private List<String> defaultDisplayFields = new ArrayList<>();
-
-    private final Set<String> defaultHiddenFields = new HashSet<>();
     private final  Set<String> readonlyFields = new HashSet<>();
-
     private final Set<String> requiredColumns = new HashSet<>();
-
     private final List<HtmlButtonGeneratorConfiguration> htmlButtons = new ArrayList<>();
-
-
     private final List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
+
+    {
+        this.listKey = "";
+        this.size = "mg";
+        this.actionColumn = new ArrayList<>();
+        this.toolbar = new ArrayList<>();
+        this.queryColumns = new ArrayList<>();
+        this.fuzzyColumns = new ArrayList<>();
+        this.filterColumns = new ArrayList<>();
+        this.totalRow = false;
+        this.totalFields = new HashSet<>();
+        this.defaultDisplayFields = new ArrayList<>();
+        this.defaultHiddenFields = new HashSet<>();
+        this.defaultToolbar = new ArrayList<>();
+        this.viewMenuElIcon = GlobalConstant.VIEW_VO_DEFAULT_EL_ICON;
+        this.categoryTreeMultiple = false;
+        this.uiFrameType = ViewVoUiFrameEnum.EL_PLUS_TABLE;
+        this.tableType = "default";
+        this.actionColumnFixed = "right";
+        this.indexColumnFixed = "left";
+    }
 
     /**
      * 构造器
      */
     public InnerListViewConfiguration() {
        super();
-    }
-
-    public String getListKey() {
-        return listKey;
-    }
-
-    public void setListKey(String listKey) {
-        this.listKey = listKey;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String getIndexColumn() {
-        return indexColumn;
-    }
-
-    public void setIndexColumn(String indexColumn) {
-        this.indexColumn = indexColumn;
-    }
-
-    public List<String> getActionColumn() {
-        return actionColumn;
-    }
-
-    public void setActionColumn(List<String> actionColumn) {
-        this.actionColumn = actionColumn;
-    }
-
-    public List<String> getDefaultDisplayFields() {
-        return defaultDisplayFields;
-    }
-
-    public void setDefaultDisplayFields(List<String> defaultDisplayFields) {
-        this.defaultDisplayFields = defaultDisplayFields;
-    }
-
-    public List<String> getDefaultToolbar() {
-        return defaultToolbar;
-    }
-
-    public void setDefaultToolbar(List<String> defaultToolbar) {
-        this.defaultToolbar = defaultToolbar;
     }
 
     public String getHeight() {
@@ -147,30 +66,6 @@ public class InnerListViewConfiguration extends PropertyHolder{
 
     public void setWidth(String width) {
         this.width = width;
-    }
-
-    public boolean isTotalRow() {
-        return totalRow;
-    }
-
-    public void setTotalRow(boolean totalRow) {
-        this.totalRow = totalRow;
-    }
-
-    public String getEnablePage() {
-        return enablePage;
-    }
-
-    public void setEnablePage(String enablePage) {
-        this.enablePage = enablePage;
-    }
-
-    public String getSkin() {
-        return skin;
-    }
-
-    public void setSkin(String skin) {
-        this.skin = skin;
     }
 
     public boolean isEven() {
@@ -212,11 +107,6 @@ public class InnerListViewConfiguration extends PropertyHolder{
     public void setHtmlGeneratorConfiguration(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
-
-    public Set<String> getDefaultHiddenFields() {
-        return defaultHiddenFields;
-    }
-
     public Set<String> getRequiredColumns() {
         return requiredColumns;
     }
@@ -235,13 +125,6 @@ public class InnerListViewConfiguration extends PropertyHolder{
     public Set<String> getReadonlyFields() {
         return readonlyFields;
     }
-    public List<String> getToolbar() {
-        return toolbar;
-    }
-
-    public void setToolbar(List<String> toolbar) {
-        this.toolbar = toolbar;
-    }
 
     public List<ListColumnConfiguration> getListColumnConfigurations() {
         return listColumnConfigurations;
@@ -255,43 +138,4 @@ public class InnerListViewConfiguration extends PropertyHolder{
         return queryColumnConfigurations;
     }
 
-    public List<String> getQueryColumns() {
-        return queryColumns;
-    }
-
-    public void setQueryColumns(List<String> queryColumns) {
-        this.queryColumns = queryColumns;
-    }
-
-    public String getActionColumnFixed() {
-        return actionColumnFixed;
-    }
-
-    public void setActionColumnFixed(String actionColumnFixed) {
-        this.actionColumnFixed = actionColumnFixed;
-    }
-
-    public String getIndexColumnFixed() {
-        return indexColumnFixed;
-    }
-
-    public void setIndexColumnFixed(String indexColumnFixed) {
-        this.indexColumnFixed = indexColumnFixed;
-    }
-
-    public List<String> getFuzzyColumns() {
-        return fuzzyColumns;
-    }
-
-    public void setFuzzyColumns(List<String> fuzzyColumns) {
-        this.fuzzyColumns = fuzzyColumns;
-    }
-
-    public List<String> getFilterColumns() {
-        return filterColumns;
-    }
-
-    public void setFilterColumns(List<String> filterColumns) {
-        this.filterColumns = filterColumns;
-    }
 }

@@ -13,7 +13,7 @@
     import { ServiceApi } from '@/api/service';
     import { loadNewInstance } from '@/hooks/useCustomHandle';
     import { T${ modelName } } from '../types/T${ modelName }';
-    import { TFormConfig } from '@/framework/components/vgoForm/types';
+    import { TFormConfig,TPrivateHooksParams } from '@/framework/components/vgoForm/types';
     import { useFormConfigStore } from '@/store/formConfig';
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
@@ -39,13 +39,6 @@
 
     watch(() => props.modelValue, async (val) => {
         _formData.value = unref(val) || EMPTY_OBJECT;
-        if (Object.keys(_formConfig.value).length === 0) {
-            let formKey = _restBasePath.replace(/\//g, '-');
-            _formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
-            formConfigReady.value = true;
-        } else {
-            formConfigReady.value = true;
-        }
         if (Object.keys(_formData.value).length === 0) {
             _formData.value = await loadNewInstance<T${ modelName }>(_formConfig, service as Ref<ServiceApi<T${ modelName }>>,i18n) as T${ modelName };
         } else {
@@ -60,10 +53,22 @@
         emit('update:modelValue', val);
     });
 
-    onMounted(() => { });
+    const fetchFormConfigAsync = async (_formConfig:Ref<TFormConfig>) => {
+        if (Object.keys(_formConfig.value).length === 0) {
+            let formKey = _restBasePath.replace(/\//g, '-');
+            _formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
+            formConfigReady.value = true;
+        } else {
+            formConfigReady.value = true;
+        }
+    };
 
-    const onSubmit = () => {
-        emit('form-submit');
+    onMounted(() => {
+        fetchFormConfigAsync(_formConfig);
+    });
+
+    const onSubmit = (val) => {
+        emit('form-submit',val);
     };
 
     const submit = () => {
@@ -75,13 +80,12 @@
     };
 
     // 以下处理组件的回调
-    const callHookByName = (...params: any) => {
-        let args = params[0];
-        let { hookName } = args;
+    const callHookByName = (params: TPrivateHooksParams) => {
+        let { hookName } = params;
         if (typeof useExtentHooks.default[hookName] === 'function') {
-            useExtentHooks.default[hookName](args);
+            useExtentHooks.default[hookName](params);
         } else {
-            console.log('Hook'+ hookName + 'does not exist');
+            console.log('Hook ['+ hookName + '] does not exist');
         }
     };
 

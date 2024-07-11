@@ -796,6 +796,7 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     private void updateQueryColumnConfiguration(IntrospectedTable introspectedTable) {
+
         //viewVo中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
         List<QueryColumnConfiguration> queryColumnConfigurations = getViewQueryColumnConfigurations();
         queryColumnConfigurations.forEach(queryColumnConfiguration -> {
@@ -814,6 +815,7 @@ public class TableConfiguration extends PropertyHolder {
             });
             innerListViewConfiguration.getQueryColumnConfigurations().removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
         });
+
         //校验searchColumn
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().isEmpty()) {
@@ -1056,7 +1058,7 @@ public class TableConfiguration extends PropertyHolder {
         //html的必填列
         this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
             if (htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired") != null) {
-                htmlGeneratorConfiguration.getElementRequired().addAll(spiltToSet(htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired")));
+                htmlGeneratorConfiguration.getElementRequired().addAll(splitToSet(htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired")));
             }
             htmlGeneratorConfiguration.getElementDescriptors()
                     .forEach(elementDescriptor -> {
@@ -1080,11 +1082,11 @@ public class TableConfiguration extends PropertyHolder {
         Set<String> properties = new HashSet<>();
         String contextProperty = introspectedTable.getContext().getProperty(propertyName);
         if (stringHasValue(contextProperty)) {
-            properties.addAll(spiltToSet(contextProperty));
+            properties.addAll(splitToSet(contextProperty));
         }
         String tableProperty = introspectedTable.getTableConfiguration().getProperty(propertyName);
         if (stringHasValue(tableProperty)) {
-            properties.addAll(spiltToSet(tableProperty));
+            properties.addAll(splitToSet(tableProperty));
         }
         return properties;
     }

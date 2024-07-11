@@ -5,6 +5,8 @@ import java.util.List;
 
 public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
     private String elementKey;
+
+    private String name;
     private String type;
     private String title;
 
@@ -89,5 +91,13 @@ public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
 
     public void setNoBorder(boolean noBorder) {
         this.noBorder = noBorder;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

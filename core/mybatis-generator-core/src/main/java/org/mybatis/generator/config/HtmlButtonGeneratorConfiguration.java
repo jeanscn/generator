@@ -11,15 +11,17 @@ import java.util.List;
 public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     private String id;
-    private String type = "button";
+    private String type = "primary";
     private String text;
     private String title;
     private String icon;
     private String classes;
     private String handler;
-    private List<String> handlerParams;
-    private List<String> handlerParamsType;
-    private List<String> handlerParamsValue;
+
+    private boolean isLink = false;
+    private boolean  isRound = false;
+    private boolean  isCircle = false;
+    private boolean isPlain = false;
     private String css;
 
     private String showCondition = "true";
@@ -87,28 +89,36 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
         this.handler = handler;
     }
 
-    public List<String> getHandlerParams() {
-        return handlerParams;
+    public boolean isLink() {
+        return isLink;
     }
 
-    public void setHandlerParams(List<String> handlerParams) {
-        this.handlerParams = handlerParams;
+    public void setLink(boolean link) {
+        isLink = link;
     }
 
-    public List<String> getHandlerParamsType() {
-        return handlerParamsType;
+    public boolean isRound() {
+        return isRound;
     }
 
-    public void setHandlerParamsType(List<String> handlerParamsType) {
-        this.handlerParamsType = handlerParamsType;
+    public void setRound(boolean round) {
+        isRound = round;
     }
 
-    public List<String> getHandlerParamsValue() {
-        return handlerParamsValue;
+    public boolean isCircle() {
+        return isCircle;
     }
 
-    public void setHandlerParamsValue(List<String> handlerParamsValue) {
-        this.handlerParamsValue = handlerParamsValue;
+    public void setCircle(boolean circle) {
+        isCircle = circle;
+    }
+
+    public boolean isPlain() {
+        return isPlain;
+    }
+
+    public void setPlain(boolean plain) {
+        isPlain = plain;
     }
 
     public String getCss() {

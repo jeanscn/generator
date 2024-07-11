@@ -10,8 +10,6 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -150,7 +148,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     @Override
     public String toAnnotation() {
         if (configuration.getDefaultHiddenFields().isEmpty() && configuration.getDefaultDisplayFields().isEmpty()) {
-            configuration.getDefaultHiddenFields().addAll(StringUtility.spiltToSet(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS));
+            configuration.getDefaultHiddenFields().addAll(StringUtility.splitToSet(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS));
         }
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));

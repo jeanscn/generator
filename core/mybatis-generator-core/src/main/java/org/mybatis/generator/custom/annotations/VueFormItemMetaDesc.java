@@ -1,12 +1,9 @@
 package org.mybatis.generator.custom.annotations;
 
-import cn.hutool.core.annotation.Alias;
 import com.vgosoft.core.annotation.VueFormItemMeta;
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 /**
  * ElementPlus表单元数据描述注解
@@ -67,7 +64,17 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     private String sourceListViewClass = "";
 
+    private String parentFormKey = "";
 
+    private String designIdField = "";
+
+    private String designRestBasePath = "";
+
+    private String configJsonfield = "";
+    private boolean enablePager;
+    private String vxeListButtons = "";
+
+    private String defaultFilterExpr = "";
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
         return new VueFormItemMetaDesc(introspectedColumn);
     }
@@ -191,6 +198,27 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.getSourceListViewClass())) {
             items.add(VStringUtil.format("sourceListViewClass = \"{0}\"", this.getSourceListViewClass()));
+        }
+        if (VStringUtil.isNotBlank(this.getParentFormKey())) {
+            items.add(VStringUtil.format("parentFormKey = \"{0}\"", this.getParentFormKey()));
+        }
+        if (VStringUtil.isNotBlank(this.getDesignIdField())) {
+            items.add(VStringUtil.format("designIdField = \"{0}\"", this.getDesignIdField()));
+        }
+        if (VStringUtil.isNotBlank(this.getConfigJsonfield())) {
+            items.add(VStringUtil.format("configJsonfield = \"{0}\"", this.getConfigJsonfield()));
+        }
+        if (VStringUtil.isNotBlank(this.getDesignRestBasePath())) {
+            items.add(VStringUtil.format("dataUrl = \"{0}\"", this.getDesignRestBasePath()));
+        }
+        if (!this.enablePager) {
+            items.add(VStringUtil.format("enablePager = false"));
+        }
+        if (VStringUtil.isNotBlank(this.vxeListButtons)) {
+            items.add(VStringUtil.format("vxeListButtons = \"{0}\"", this.vxeListButtons));
+        }
+        if (VStringUtil.isNotBlank(this.defaultFilterExpr)) {
+            items.add(VStringUtil.format("defaultFilterExpr = \"{0}\"", this.defaultFilterExpr));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -488,5 +516,61 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setDefaultHidden(Boolean defaultHidden) {
         this.defaultHidden = defaultHidden;
+    }
+
+    public String getParentFormKey() {
+        return parentFormKey;
+    }
+
+    public void setParentFormKey(String parentFormKey) {
+        this.parentFormKey = parentFormKey;
+    }
+
+    public String getDesignIdField() {
+        return designIdField;
+    }
+
+    public void setDesignIdField(String designIdField) {
+        this.designIdField = designIdField;
+    }
+
+    public String getDesignRestBasePath() {
+        return designRestBasePath;
+    }
+
+    public void setDesignRestBasePath(String designRestBasePath) {
+        this.designRestBasePath = designRestBasePath;
+    }
+
+    public String getConfigJsonfield() {
+        return configJsonfield;
+    }
+
+    public void setConfigJsonfield(String configJsonfield) {
+        this.configJsonfield = configJsonfield;
+    }
+
+    public boolean isEnablePager() {
+        return enablePager;
+    }
+
+    public void setEnablePager(boolean enablePager) {
+        this.enablePager = enablePager;
+    }
+
+    public String getVxeListButtons() {
+        return vxeListButtons;
+    }
+
+    public void setVxeListButtons(String vxeListButtons) {
+        this.vxeListButtons = vxeListButtons;
+    }
+
+    public String getDefaultFilterExpr() {
+        return defaultFilterExpr;
+    }
+
+    public void setDefaultFilterExpr(String defaultFilterExpr) {
+        this.defaultFilterExpr = defaultFilterExpr;
     }
 }

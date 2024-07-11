@@ -13,6 +13,8 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -22,29 +24,32 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2022-10-07 04:48
  * @version 3.0
  */
-public class ViewTableMetaDesc extends AbstractAnnotation{
+public class ViewTableMetaDesc extends AbstractAnnotation {
 
-    public static final String ANNOTATION_NAME = "@"+ ViewTableMeta.class.getSimpleName();
-
+    public static final String ANNOTATION_NAME = "@" + ViewTableMeta.class.getSimpleName();
     private final String value;
+    private String listKey;
+    private String title;
+    private String size;
     private final String listName;
     private final String beanName;
     private final String appKeyword;
-    private final String tableName;
-    private final String tableAlias;
     private String dataUrl;
     private String createUrl;
     private String className;
     private String listType;
+    private final String tableName;
+    private final String tableAlias;
+    private String[] toolbar = new String[0];
     private ViewIndexColumnEnum indexColumn;
-    private String  actionColumn;
+    private String indexColWidth;
+    private String actionColumn;
     private String toolbarActions;
     private String[] ignoreFields = new String[0];
     private String[] columns = new String[0];
     private String[] querys = new String[0];
-
     private String[] filters = new String[0];
-    private String indexColWidth;
+    private String[] fuzzyColumns = new String[0];
     private String actionColWidth;
     private int dataFilterType = 0;
     private String categoryTreeUrl;
@@ -55,7 +60,13 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
     private String tableType = "default";
     private int applyWorkflow = 0;
     private String moduleId;
-    public static ViewTableMetaDesc create(IntrospectedTable introspectedTable){
+    private boolean totalRow = false;
+    private Set<String> totalFields = new HashSet<>();
+    private String totalText = "合计";
+    private String defaultFilterExpr;
+    private boolean showRowNumber = true;
+
+    public static ViewTableMetaDesc create(IntrospectedTable introspectedTable) {
         return new ViewTableMetaDesc(introspectedTable);
     }
 
@@ -77,12 +88,24 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
         this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
         this.moduleId = Mb3GenUtil.getModelId(introspectedTable);
-        this.applyWorkflow = GenerateUtils.isWorkflowInstance(introspectedTable)?1:0;
+        this.applyWorkflow = GenerateUtils.isWorkflowInstance(introspectedTable) ? 1 : 0;
         this.addImports(ViewTableMeta.class.getCanonicalName());
     }
 
     @Override
     public String toAnnotation() {
+        if (VStringUtil.isNotBlank(this.getListKey())) {
+            items.add(VStringUtil.format("listKey = \"{0}\"", this.getListKey()));
+        }
+        if (this.toolbar.length>0) {
+            items.add(VStringUtil.format("toolbar = '{'{0}'}'", String.join(", ", this.toolbar)));
+        }
+        if (VStringUtil.isNotBlank(this.getTitle())) {
+            items.add(VStringUtil.format("title = \"{0}\"", this.getTitle()));
+        }
+        if (VStringUtil.isNotBlank(this.getSize()) && !"md".equals(this.getSize())) {
+            items.add(VStringUtil.format("size = \"{0}\"", this.getSize()));
+        }
         if (!this.getDataUrl().equals("/viewmgr/getdtdata")) {
             items.add(VStringUtil.format("dataUrl = \"{0}\"", this.getDataUrl()));
         }
@@ -99,64 +122,79 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
             items.add(VStringUtil.format("indexColumn = ViewIndexColumnEnum.{0}", this.getIndexColumn().name()));
             this.addImports(ViewIndexColumnEnum.class.getCanonicalName());
         }
-        if (this.actionColumn!=null) {
+        if (this.actionColumn != null) {
             items.add(VStringUtil.format("actionColumn = '{'{0}'}'", this.actionColumn));
             this.addImports(HtmlButton.class.getCanonicalName());
         }
-        if (this.toolbarActions!=null) {
+        if (this.toolbarActions != null) {
             items.add(VStringUtil.format("toolbarActions = '{'{0}'}'", this.toolbarActions));
             this.addImports(HtmlButton.class.getCanonicalName());
         }
-        if (this.ignoreFields.length>0) {
+        if (this.ignoreFields.length > 0) {
             String collect = Arrays.stream(this.ignoreFields).map(f -> "\"" + f + "\"").collect(Collectors.joining(","));
-            items.add(VStringUtil.format("ignoreFields = '{'{0}'}'",collect));
+            items.add(VStringUtil.format("ignoreFields = '{'{0}'}'", collect));
         }
-        if (this.columns.length>0) {
-            items.add(VStringUtil.format("columns = '{'{0}'}'",String.join("\n        , ", this.columns)));
+        if (this.columns.length > 0) {
+            items.add(VStringUtil.format("columns = '{'{0}'}'", String.join("\n        , ", this.columns)));
             this.addImports(ViewColumnMeta.class.getCanonicalName());
         }
-        if (this.querys.length>0) {
-            items.add(VStringUtil.format("querys = '{'{0}'}'",String.join("\n        , ", this.querys)));
+        if (this.querys.length > 0) {
+            items.add(VStringUtil.format("querys = '{'{0}'}'", String.join("\n        , ", this.querys)));
             this.addImports(CompositeQuery.class.getCanonicalName());
         }
-        if (this.filters.length>0) {
-            items.add(VStringUtil.format("filters = '{'{0}'}'",String.join("\n        , ", this.filters)));
+        if (this.filters.length > 0) {
+            items.add(VStringUtil.format("filters = '{'{0}'}'", String.join("\n        , ", this.filters)));
             this.addImports(CompositeQuery.class.getCanonicalName());
         }
         if (VStringUtil.isNotBlank(this.indexColWidth)) {
-            items.add(VStringUtil.format("indexColWidth = \"{0}\"",this.getIndexColWidth()));
+            items.add(VStringUtil.format("indexColWidth = \"{0}\"", this.getIndexColWidth()));
         }
         if (VStringUtil.isNotBlank(this.actionColWidth)) {
-            items.add(VStringUtil.format("actionColWidth = \"{0}\"",this.getActionColWidth()));
+            items.add(VStringUtil.format("actionColWidth = \"{0}\"", this.getActionColWidth()));
         }
-        if (this.dataFilterType!=0) {
-            items.add(VStringUtil.format("dataFilterType = {0}",this.getDataFilterType()));
+        if (this.dataFilterType != 0) {
+            items.add(VStringUtil.format("dataFilterType = {0}", this.getDataFilterType()));
         }
         if (VStringUtil.isNotBlank(this.categoryTreeUrl)) {
-            items.add(VStringUtil.format("categoryTreeUrl = \"{0}\"",this.getCategoryTreeUrl()));
+            items.add(VStringUtil.format("categoryTreeUrl = \"{0}\"", this.getCategoryTreeUrl()));
         }
-        if (this.wfStatus!=6) {
-            items.add(VStringUtil.format("wfStatus = {0}",this.getWfStatus()));
+        if (this.wfStatus != 6) {
+            items.add(VStringUtil.format("wfStatus = {0}", this.getWfStatus()));
         }
         if (VStringUtil.isNotBlank(this.areaWidth)) {
-            items.add(VStringUtil.format("areaWidth = \"{0}\"",this.getAreaWidth()));
+            items.add(VStringUtil.format("areaWidth = \"{0}\"", this.getAreaWidth()));
         }
         if (VStringUtil.isNotBlank(this.areaHeight)) {
-            items.add(VStringUtil.format("areaHeight = \"{0}\"",this.getAreaHeight()));
+            items.add(VStringUtil.format("areaHeight = \"{0}\"", this.getAreaHeight()));
         }
         if (VStringUtil.isNotBlank(this.restBasePath)) {
-            items.add(VStringUtil.format("restBasePath = \"{0}\"",this.getRestBasePath()));
+            items.add(VStringUtil.format("restBasePath = \"{0}\"", this.getRestBasePath()));
         }
         if (stringHasValue(tableType) && !"default".equalsIgnoreCase(tableType)) {
-            items.add(VStringUtil.format("tableType = \"{0}\"",this.getTableType()));
+            items.add(VStringUtil.format("tableType = \"{0}\"", this.getTableType()));
         }
-        if (applyWorkflow!=0) {
-            items.add(VStringUtil.format("applyWorkflow = {0}",this.getApplyWorkflow()));
+        if (applyWorkflow != 0) {
+            items.add(VStringUtil.format("applyWorkflow = {0}", this.getApplyWorkflow()));
         }
         if (VStringUtil.isNotBlank(this.moduleId)) {
-            items.add(VStringUtil.format("moduleId = \"{0}\"",this.getModuleId()));
+            items.add(VStringUtil.format("moduleId = \"{0}\"", this.getModuleId()));
         }
-        return ANNOTATION_NAME+"("+ String.join("\n       ,",items.toArray(new String[0])) +")";
+        if (this.totalRow) {
+            items.add("totalRow = true");
+        }
+        if (!this.totalFields.isEmpty()) {
+            items.add(VStringUtil.format("totalFields = \"{0}\"", String.join(", ", this.totalFields)));
+        }
+        if (VStringUtil.isNotBlank(this.totalText) && !"合计".equals(this.totalText)) {
+            items.add(VStringUtil.format("totalText = \"{0}\"", this.getTotalText()));
+        }
+        if (VStringUtil.isNotBlank(this.defaultFilterExpr)) {
+            items.add(VStringUtil.format("defaultFilterExpr = \"{0}\"", this.getDefaultFilterExpr()));
+        }
+        if (!this.showRowNumber) {
+            items.add("showRowNumber = false");
+        }
+        return ANNOTATION_NAME + "(" + String.join("\n       ,", items.toArray(new String[0])) + ")";
     }
 
     public String getValue() {
@@ -357,5 +395,85 @@ public class ViewTableMetaDesc extends AbstractAnnotation{
 
     public void setModuleId(String moduleId) {
         this.moduleId = moduleId;
+    }
+
+    public boolean isTotalRow() {
+        return totalRow;
+    }
+
+    public void setTotalRow(boolean totalRow) {
+        this.totalRow = totalRow;
+    }
+
+    public Set<String> getTotalFields() {
+        return totalFields;
+    }
+
+    public void setTotalFields(Set<String> totalFields) {
+        this.totalFields = totalFields;
+    }
+
+    public String getTotalText() {
+        return totalText;
+    }
+
+    public void setTotalText(String totalText) {
+        this.totalText = totalText;
+    }
+
+    public String getDefaultFilterExpr() {
+        return defaultFilterExpr;
+    }
+
+    public void setDefaultFilterExpr(String defaultFilterExpr) {
+        this.defaultFilterExpr = defaultFilterExpr;
+    }
+
+    public boolean isShowRowNumber() {
+        return showRowNumber;
+    }
+
+    public void setShowRowNumber(boolean showRowNumber) {
+        this.showRowNumber = showRowNumber;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String[] getToolbar() {
+        return toolbar;
+    }
+
+    public void setToolbar(String[] toolbar) {
+        this.toolbar = toolbar;
+    }
+
+    public String[] getFuzzyColumns() {
+        return fuzzyColumns;
+    }
+
+    public void setFuzzyColumns(String[] fuzzyColumns) {
+        this.fuzzyColumns = fuzzyColumns;
     }
 }

@@ -14,6 +14,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
  */
 public class QueryColumnConfiguration extends TypedPropertyHolder {
 
+    private String listKey;
     private String column;
     private String field;
     private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.INPUT;
@@ -171,5 +172,13 @@ public class QueryColumnConfiguration extends TypedPropertyHolder {
 
     public void setIntrospectedColumn(IntrospectedColumn introspectedColumn) {
         this.introspectedColumn = introspectedColumn;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
     }
 }

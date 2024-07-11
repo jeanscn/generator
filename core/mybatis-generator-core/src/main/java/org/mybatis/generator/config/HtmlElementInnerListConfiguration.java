@@ -2,6 +2,9 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.tool.core.VStringUtil;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-06-12 13:43
@@ -16,30 +19,33 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private String label = "";
 
     private String moduleKeyword;
+    private String sourceViewPath = "";
+
+    private String sourceBeanName;
+    private String relationField;
+    private String sourceListViewClass;
+    private String relationKey = "id";
 
     private String tagId;
 
     private String dataField;
 
     private String dataUrl;
-
-    private String sourceViewPath;
-
-    private String sourceBeanName;
-
-    private String sourceViewVoClass;
-
-    private String relationField;
-
-    private String relationKey = "id";
-
-    private String afterColumn;
-
     private int span = 24;
-
+    private String afterColumn;
+    private String containerType;
     private int order =10;
-
-    private String restBasePath;
+    private String editMode;
+    private Set<String> editableFields = new HashSet<>();
+    private boolean enablePager = false;
+    private Set<String> vxeListButtons = new HashSet<>();
+    private String defaultFilterExpr;
+    private Set<String> batchUpdateFields = new HashSet<>();
+    private boolean showRowNumber = true;
+    private boolean totalRow;
+    private Set<String> totalFields = new HashSet<>();
+    private String totalText = "合计";
+    private String  restBasePath;
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -139,14 +145,6 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.afterColumn = afterColumn;
     }
 
-    public String getSourceViewVoClass() {
-        return sourceViewVoClass;
-    }
-
-    public void setSourceViewVoClass(String sourceViewVoClass) {
-        this.sourceViewVoClass = sourceViewVoClass;
-    }
-
     public String getLabel() {
         return label;
     }
@@ -163,19 +161,115 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.span = span;
     }
 
-    public String getRestBasePath() {
-        return restBasePath;
-    }
-
-    public void setRestBasePath(String restBasePath) {
-        this.restBasePath = restBasePath;
-    }
-
     public int getOrder() {
         return order;
     }
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public Set<String> getEditableFields() {
+        return editableFields;
+    }
+
+    public void setEditableFields(Set<String> editableFields) {
+        this.editableFields = editableFields;
+    }
+
+    public String getEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(String editMode) {
+        this.editMode = editMode;
+    }
+
+    public boolean isEnablePager() {
+        return enablePager;
+    }
+
+    public void setEnablePager(boolean enablePager) {
+        this.enablePager = enablePager;
+    }
+
+    public Set<String> getVxeListButtons() {
+        return vxeListButtons;
+    }
+
+    public void setVxeListButtons(Set<String> vxeListButtons) {
+        this.vxeListButtons = vxeListButtons;
+    }
+
+    public String getDefaultFilterExpr() {
+        return defaultFilterExpr;
+    }
+
+    public void setDefaultFilterExpr(String defaultFilterExpr) {
+        this.defaultFilterExpr = defaultFilterExpr;
+    }
+
+    public boolean isShowRowNumber() {
+        return showRowNumber;
+    }
+
+    public void setShowRowNumber(boolean showRowNumber) {
+        this.showRowNumber = showRowNumber;
+    }
+
+    public Set<String> getBatchUpdateFields() {
+        return batchUpdateFields;
+    }
+
+    public void setBatchUpdateFields(Set<String> batchUpdateFields) {
+        this.batchUpdateFields = batchUpdateFields;
+    }
+
+    public String getContainerType() {
+        return containerType;
+    }
+
+    public void setContainerType(String containerType) {
+        this.containerType = containerType;
+    }
+
+    public String getSourceListViewClass() {
+        return sourceListViewClass;
+    }
+
+    public void setSourceListViewClass(String sourceListViewClass) {
+        this.sourceListViewClass = sourceListViewClass;
+    }
+
+    public boolean isTotalRow() {
+        return totalRow;
+    }
+
+    public void setTotalRow(boolean totalRow) {
+        this.totalRow = totalRow;
+    }
+
+    public Set<String> getTotalFields() {
+        return totalFields;
+    }
+
+    public void setTotalFields(Set<String> totalFields) {
+        this.totalFields = totalFields;
+    }
+
+    public String getTotalText() {
+        return totalText;
+    }
+
+    public void setTotalText(String totalText) {
+        this.totalText = totalText;
+    }
+
+    public String getRestBasePath() {
+        return restBasePath;
+    }
+
+    public void setRestBasePath(String restBasePath) {
+        this.restBasePath = restBasePath;
     }
 }

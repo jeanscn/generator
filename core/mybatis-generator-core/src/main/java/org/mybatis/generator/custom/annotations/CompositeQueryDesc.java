@@ -21,6 +21,8 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@CompositeQuery";
 
+    private String listKey;
+
     private String column;
     private String remark;
     private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.INPUT;
@@ -141,6 +143,7 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     public CompositeQueryDesc(QueryColumnConfiguration queryColumnConfiguration, IntrospectedTable introspectedTable) {
         super();
+        this.listKey = queryColumnConfiguration.getListKey();
         this.column = queryColumnConfiguration.getColumn();
         this.remark = queryColumnConfiguration.getRemark();
         this.tagName = queryColumnConfiguration.getTagName();
@@ -156,6 +159,9 @@ public class CompositeQueryDesc extends AbstractAnnotation {
     @Override
     public String toAnnotation() {
         this.items.add(VStringUtil.format("value=\"{0}\"", this.column));
+        if (stringHasValue(this.listKey)) {
+            this.items.add(VStringUtil.format("listKey=\"{0}\"", this.listKey));
+        }
         if (stringHasValue(this.remark)) {
             this.items.add(VStringUtil.format("remark=\"{0}\"", this.remark));
         } else {
@@ -275,5 +281,13 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
+    }
+
+    public String getListKey() {
+        return listKey;
+    }
+
+    public void setListKey(String listKey) {
+        this.listKey = listKey;
     }
 }

@@ -48,7 +48,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         for (IntrospectedColumn col : this.introspectedTable.getAllColumns()) {
 
             String character = Empty.EMPTY_STRING;
-            if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL)) {
+            if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL) && !VStringUtil.toCamelCase(col.getActualTypeName()).equals("JSON")) {
                 character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
             }
 

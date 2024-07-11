@@ -25,9 +25,11 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     private String classes;
     private String handler;
     private String type;
-    private List<String> handlerParams;
-    private List<String>  handlerParamsType;
-    private List<String>  handlerParamsValue;
+    private boolean isLink;
+    private boolean  isRound;
+    private boolean  isCircle;
+
+    private boolean isPlain;
     private String css;
     private String showCondition;
 
@@ -42,9 +44,10 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.setIcon(htmlButtonGeneratorConfiguration.getIcon());
         htmlButtonDesc.setClasses(htmlButtonGeneratorConfiguration.getClasses());
         htmlButtonDesc.setHandler(htmlButtonGeneratorConfiguration.getHandler());
-        htmlButtonDesc.setHandlerParams(htmlButtonGeneratorConfiguration.getHandlerParams());
-        htmlButtonDesc.setHandlerParamsType(htmlButtonGeneratorConfiguration.getHandlerParamsType());
-        htmlButtonDesc.setHandlerParamsValue(htmlButtonGeneratorConfiguration.getHandlerParamsValue());
+        htmlButtonDesc.isCircle = htmlButtonGeneratorConfiguration.isCircle();
+        htmlButtonDesc.isLink = htmlButtonGeneratorConfiguration.isLink();
+        htmlButtonDesc.isPlain = htmlButtonGeneratorConfiguration.isPlain();
+        htmlButtonDesc.isRound = htmlButtonGeneratorConfiguration.isRound();
         htmlButtonDesc.setCss(htmlButtonGeneratorConfiguration.getCss());
         htmlButtonDesc.setShowCondition(htmlButtonGeneratorConfiguration.getShowCondition());
         htmlButtonDesc.setTitle(htmlButtonGeneratorConfiguration.getTitle());
@@ -76,14 +79,17 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         if (this.handler!=null) {
             items.add("handler = \""+this.handler+"\"");
         }
-        if (this.handlerParams!=null) {
-            items.add("handlerParams = \""+ String.join(",", this.handlerParams) +"\"");
+        if (this.isLink) {
+            items.add("isLink = true");
         }
-        if (this.handlerParamsType!=null) {
-            items.add("handlerParamsType = \""+String.join(",", this.handlerParamsType)+"\"");
+        if (this.isRound) {
+            items.add("isRound = true");
         }
-        if (this.handlerParamsValue!=null) {
-            items.add("handlerParamsValue = \""+String.join(",", this.handlerParamsValue)+"\"");
+        if (this.isCircle) {
+            items.add("isCircle = true");
+        }
+        if (this.isPlain) {
+            items.add("isPlain = true");
         }
         if (this.type!=null) {
             items.add("type = \""+this.type+"\"");
@@ -121,16 +127,36 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         this.handler = handler;
     }
 
-    public void setHandlerParams(List<String> handlerParams) {
-        this.handlerParams = handlerParams;
+    public boolean isLink() {
+        return isLink;
     }
 
-    public void setHandlerParamsType(List<String> handlerParamsType) {
-        this.handlerParamsType = handlerParamsType;
+    public void setLink(boolean link) {
+        isLink = link;
     }
 
-    public void setHandlerParamsValue(List<String> handlerParamsValue) {
-        this.handlerParamsValue = handlerParamsValue;
+    public boolean isRound() {
+        return isRound;
+    }
+
+    public void setRound(boolean round) {
+        isRound = round;
+    }
+
+    public boolean isCircle() {
+        return isCircle;
+    }
+
+    public void setCircle(boolean circle) {
+        isCircle = circle;
+    }
+
+    public boolean isPlain() {
+        return isPlain;
+    }
+
+    public void setPlain(boolean plain) {
+        isPlain = plain;
     }
 
     public void setType(String type) {

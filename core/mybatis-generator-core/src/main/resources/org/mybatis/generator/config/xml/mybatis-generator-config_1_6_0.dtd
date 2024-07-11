@@ -4,12 +4,13 @@
         几个通用的xml实体
         -->
         <!ENTITY % renderFunValues "(colDefsOdata|colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsAsLink_readonly|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
-        <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist)" >
+        <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist|signArea)" >
         <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|Role|InnerList)" >
         <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|日期|日期时间|时间)" >
         <!ENTITY % valueType "(text|number|date|time|datetime|year|month|shortmonth|quarter)" >
         <!ENTITY % queryExpression "(EqualTo|NotEqualTo|GreaterThan|LessThan|GreaterThanOrEqualTo|LessThanOrEqualTo|Like|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between|In|NotIn)" >
         <!ENTITY % indexColumnType "(NONE|CHECKBOX|RADIO|ROW_INDEX|EXPAND)" >
+        <!ENTITY % tableUiType "(dataTables|layTable|elPlusTable|vxeTable)" >
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -544,8 +545,7 @@
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
         -->
-
-        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*)>
+        <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*)>
         <!ATTLIST generateHtml
                 generate (true|false) #REQUIRED
                 type (editable|viewOnly|print) #IMPLIED
@@ -560,7 +560,6 @@
                 overWriteVueView (true|false) #IMPLIED
                 overWriteVueEdit (true|false) #IMPLIED
                 overWriteVueDetail (true|false) #IMPLIED>
-
         <!--
             页面布局生成描述
             属性信息：
@@ -601,13 +600,14 @@
            5、span 容器占用列数，默认24列
            6、columnNum 容器内元素列数，默认2列,可用值为1|2|3|4|6|12
            7、afterColumn 容器前置元素
-           8、includeElements 包含的元素，多个元素用逗号分隔（使用列名或elementKey）
+           8、includeElements 包含的元素，多个元素用逗号分隔（使用列名或elementKey）字段的columnName或者子容器的elementKey
            9、noBorder 是否无边框，默认false
            -->
         <!ELEMENT groupContainer (property*,groupContainer*)>
         <!ATTLIST groupContainer
                 elementKey CDATA #REQUIRED
-                type (border|tab|card|collapse) #IMPLIED
+                name CDATA #IMPLIED
+                type (border|tab|card|collapse) #REQUIRED
                 title CDATA #IMPLIED
                 span CDATA #IMPLIED
                 columnNum (1|2|3|4|6|12) #IMPLIED
@@ -676,6 +676,9 @@
             20、remoteAsync 是否远程异步，默认false。
             21、keyMapLabel 数据源中的label字段名，默认为label。
             22、keyMapValue 数据源中的value字段名，默认为value。
+            23、enablePager 是否启用分页，默认为false
+            24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
+            25、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -717,7 +720,74 @@
                 remoteToTree (false|true) #IMPLIED
                 remoteAsync (false|true) #IMPLIED
                 keyMapLabel CDATA #IMPLIED
-                keyMapValue CDATA #IMPLIED>
+                keyMapValue CDATA #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                enablePager (true|false) #IMPLIED
+                vxeListButtons CDATA #IMPLIED>
+
+        <!ELEMENT htmlSwitchDescriptor (property*)>
+        <!ATTLIST htmlSwitchDescriptor
+                column CDATA #REQUIRED
+                dataUrl CDATA #IMPLIED
+                dataFormat (启停|有无|是否) #IMPLIED
+                otherFieldName CDATA #IMPLIED
+                dataSource (Dict|DictData|DictUser|DictSys|DictEnum) #IMPLIED
+                beanName CDATA #IMPLIED
+                applyProperty CDATA #IMPLIED
+                applyPropertyKey CDATA #IMPLIED
+                dictCode CDATA #IMPLIED
+                callback CDATA #IMPLIED
+                switchText CDATA #IMPLIED>
+
+        <!--
+            页面元素表单扩展设计与渲染的描述
+            属性信息：
+            1、column  tagType为formDesign时设计json保存的字段名，tagType为formRender时数据json保存的字段名。
+            2、tagType 设计或渲染类型，formDesign-设计，formRender-渲染
+            3、parentFormKey 父表单的formKey，主要用来获取父表单的容器信息，便于指定页面元素渲染的位置。设计时（formDesign）有效
+            4、designIdField 父表单中保存设计id的属性名，主要用来获取渲染的自定义表单数据的id，渲染时（formRender）有效。
+            5、designRestBasePath 设计资源基础路径，用于指定设计资源的访问路径，渲染时（formRender）有效。与designIdField组合，用来获取当前选定渲染的设计资源数据。
+            6、configJsonfield 配置json数据保存的字段名，主要用来保存页面元素的配置信息。设计时对应的字段属性名，渲染时（formRender）有效有效，默认为jsonContent
+                补充:该属性将保存在注解的dataUrl属性中.
+            -->
+        <!ELEMENT htmlFormExtendDescriptor (properties*)>
+        <!ATTLIST htmlFormExtendDescriptor
+                column CDATA #REQUIRED
+                tagType (formDesign|formRender) #REQUIRED
+                parentFormKey CDATA #IMPLIED
+                designIdField CDATA #IMPLIED
+                designRestBasePath CDATA #IMPLIED
+                configJsonfield CDATA #IMPLIED>
+
+        <!--
+          属性信息：表格选择组件配置描述.tagType默认为tableselect,dataSource默认为Dict,为了方便使用，仅包含主要属性
+            1、column 数据库字段名
+            2、otherFieldName：用于存储已选的中文信息的属性名。
+            3、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
+            4、applyProperty 适用属性（label），数据来源为dict时，需要指定引用数据的属性名
+            5、applyPropertyKey 适用属性（value），数据来源为dict时，需要指定引用数据的属性名
+            6、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
+            7、listKey 内嵌列表的标识，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
+            8、listViewClass 内嵌列表的基类，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
+            9、multiple 是否允许多选，默认false，当tagType为select时有效。
+            10、enablePager 是否启用分页，默认为true
+            11、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前主记录的id值。
+         -->
+        <!ELEMENT htmlTableSelectDescriptor (property*)>
+        <!ATTLIST htmlTableSelectDescriptor
+                column CDATA #REQUIRED
+                otherFieldName CDATA #IMPLIED
+                dataUrl CDATA #REQUIRED
+                beanName CDATA #REQUIRED
+                applyProperty CDATA #IMPLIED
+                applyPropertyKey CDATA #IMPLIED
+                callback CDATA #IMPLIED
+                listKey CDATA #REQUIRED
+                listViewClass CDATA #REQUIRED
+                multiple (false|true) #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                enablePager (true|false) #IMPLIED>
+
         <!--
             为元素添加一个超级链接或操作
             属性信息：
@@ -813,6 +883,16 @@
             13、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
             14、containerType 容器类型，none-不生成容器，tab-生成容器tab，border-使用border包围，默认none
             15、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
+            16、editMode 编辑模式，row-行编辑，cell-单元格编辑，默认cell
+            17、editableFields 编辑字段，多个字段用逗号分隔，用于指定默认允许编辑的字段，如果不指定则默认为所有字段。
+            18、enablePager 是否启用分页，默认为false
+            19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
+            20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            21、batchUpdateFields 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
+            22、showRowNumber 是否显示行号，默认为true
+            23、totalRow 是否显示合计行，默认为false
+            24、totalFields 合计字段，多个字段用逗号分隔，用于指定默认显示合计的字段。
+            25、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
@@ -820,7 +900,6 @@
                 listKey CDATA #IMPLIED
                 label CDATA #IMPLIED
                 moduleKeyword CDATA #IMPLIED
-                sourceViewPath CDATA #REQUIRED
                 sourceBeanName CDATA #REQUIRED
                 relationField CDATA #REQUIRED
                 sourceListViewClass CDATA #IMPLIED
@@ -831,7 +910,18 @@
                 span CDATA #IMPLIED
                 afterColumn CDATA #IMPLIED
                 containerType (none|tab|border) #IMPLIED
-                order CDATA #IMPLIED>
+                order CDATA #IMPLIED
+                editMode (row|cell|none) #IMPLIED
+                editableFields CDATA #IMPLIED
+                enablePager (true|false) #IMPLIED
+                vxeListButtons CDATA #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                batchUpdateFields CDATA #IMPLIED
+                showRowNumber (true|false) #IMPLIED
+                totalRow (true|false) #IMPLIED
+                totalFields CDATA #IMPLIED
+                totalText CDATA #IMPLIED
+                restBasePath  CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
@@ -1061,53 +1151,74 @@
         <!--
            默认视图配置的生成描述
            属性信息：
-           1、generate 是否生成,true生成（ViewVO类不存时生成，如果存在则不再覆盖）,false忽略;缺省值false
+            1、generate 是否生成,true生成（ViewVO类不存时生成，如果存在则不再覆盖）,false忽略;缺省值false
                当父类的generateVO的generate属性为false时，该属性始终false。
-           2、title 标题，缺省值为“表简要注释”，用来指定生成的菜单名称等
-           3、includeColumns:视图包含的字段名,多值使用","。
-           4、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
+            2、includeColumns:视图包含的字段名,多值使用","。
+            3、excludeColumns：当没有配置includeColumns时，视图排除的字段名，多值使用","。如果配置includeColumns属性，本配置项不生效;
                 当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
-           5、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,EXPORT,IMPORT,PRINT以及自定义操作按钮的id值
-           6、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
-           7、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
-           8、queryColumns:应用复合查询表单的字段名,多值使用","。
-           9、fuzzyColumns:应用模糊查询的字段名,多值使用","。
-           10、filterColumns:应用过滤器查询的字段名,多值使用","。
-           11、totalFields：合计字段名列表,多值使用","。
-           12、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           13、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-           14、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-           15、viewMenuIcon view菜单项目的图标
-           16、viewMenuElIcon view菜单项目的element图标
-           17、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
-           18、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
-           19、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
+            4、listKey 列表的唯一标识，用于唯一标识列表，如果不指定则默认为全小写的beanName+后缀（+default+view），md5，如：sysdictimpl+default+view在md5
+            5、title 标题，缺省值为“表简要注释”，用来指定生成的菜单名称等
+            6、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,EXPORT,IMPORT,PRINT以及自定义操作按钮的id值
+            7、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
+            8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
+            9、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
+            10、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为right
+            11、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
+            12、queryColumns:应用复合查询表单的字段名,多值使用","。
+            13、fuzzyColumns:应用模糊查询的字段名,多值使用","。
+            14、filterColumns:应用过滤器查询的字段名,多值使用","。
+            15、totalRow 是否显示总计行，true显示，false不显示。缺省值false
+            16、totalFields：合计字段名列表,多值使用","。
+            17、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+            18、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+            19、enablePage 是否启用分页，true分页，false不分页，simple简单分页，auto自动隐藏。缺省值false
+            20、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+            21、viewMenuElIcon view菜单项目的element图标
+            22、categoryTreeUrl 左侧分类树的数据来源url
+            23、categoryTreeMultiple 左侧分类树是否允许多选，true允许带checkbox，false不允许
+            24、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
+            25、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
+            26、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+            27、viewMenuIcon view菜单项目的图标
+            28、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            28、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
             property配置：无
         -->
 
         <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*,htmlButton*,queryColumn*,fieldOverrides*)>
         <!ATTLIST viewVO
                 generate (true|false) #IMPLIED
-                title CDATA #IMPLIED
                 includeColumns CDATA #IMPLIED
                 excludeColumns CDATA #IMPLIED
-                toolbar CDATA #IMPLIED
+
+                listKey CDATA #IMPLIED
+                title CDATA #IMPLIED
+                size (sm|md|lg) #IMPLIED
                 indexColumn %indexColumnType; #IMPLIED
                 actionColumn CDATA #IMPLIED
+                actionColumnFixed (right|left|false) #IMPLIED
+                indexColumnFixed (left|right|false) #IMPLIED
+                toolbar CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
                 fuzzyColumns CDATA #IMPLIED
                 filterColumns CDATA #IMPLIED
+                totalRow (true|false) #IMPLIED
                 totalFields CDATA #IMPLIED
+                totalText CDATA #IMPLIED
                 defaultDisplayFields CDATA #IMPLIED
                 defaultHiddenFields CDATA #IMPLIED
+                enablePager (true|false|simple|auto) #IMPLIED
+                defaultToolbar CDATA #IMPLIED
                 parentMenuId CDATA #IMPLIED
-                viewMenuIcon CDATA #IMPLIED
                 viewMenuElIcon CDATA #IMPLIED
                 categoryTreeUrl CDATA #IMPLIED
                 categoryTreeMultiple (true|false) #IMPLIED
+                uiFrameType %tableUiType; #IMPLIED
+                tableType (default|treeTable) #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED
-                uiFrameType (dataTables|layTable|elPlusTable|vxeTable) #IMPLIED
-                tableType (default|treeTable) #IMPLIED>
+                viewMenuIcon CDATA #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                showRowNumber (true|false) #IMPLIED>
         <!--
             用于配置列表列的覆盖信息
             属性信息：
@@ -1134,62 +1245,80 @@
                 edit (true|false) #IMPLIED>
 
         <!--
-           基于默认视图（viewVO）配置信息配置一个页面内部的列表描述
+           基于默认视图（viewVO）配置信息配置一个页面内部的列表描述,1.6.0开始允许作为主列表使用。便于支持多列表定义
            属性信息
-           1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
-           2、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
-           3、height：列表的高度。设置表格容器高度，默认自适应。其他可选值的规则如下：
-                    height=“315” 设置固定高度
-                    height=“full-30” 设置自适应高度。这是一个特定的语法格式：full 表示铺满；后面的数字表示当前 table 之外的元素占用的高度，如：表格头部到页面最顶部加表格底部距离页面最底部的“距离和”
-                    height=“#id-30” 设置相对父元素的高度自适应，其中 #id 即父元素的 ID 选择器，其计算原理和上述 full 相同。
-           4、width：设置容器宽度，默认自适应（已过期）。
-           5、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式（已过期）
-           6、enablePage 是否启用分页，true分页，false不分页，simple简单分页。缺省值false
-           7、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true
-           8、totalRow 是否显示总计行，true显示，false不显示。缺省值false
-           9、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
-           10、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：''，即无操作列
-           11、toolbar：表格顶部工具栏的设置。“false”-不显示工具条；“true"-仅显示右侧操作按钮；'default'-开启工具栏并显示默认模板(add\delete)\自定义工具栏id值。缺省值：default
-           12、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: NONE或者filter,exports,print （分别代表：无、筛选图标、导出图标、打印图标），默认值为：filter,exports,print
-           13、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
+            1、listKey 列表的唯一标识，用于区分不同的列表，如果不指定则默认为当前表名
+            2、title 标题，缺省值为“”，用来指定生成的菜单名称等
+            3、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
+            4、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
+            5、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：''，即无操作列
+            6、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为right
+            7、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
+            8、toolbar：表格顶部工具栏的设置。“false”-不显示工具条；“true"-仅显示右侧操作按钮；'default'-开启工具栏并显示默认模板(add\delete)\自定义工具栏id值。缺省值：default
+            9、queryColumns:应用复合查询表单的字段名,多值使用","。
+            10、fuzzyColumns:应用模糊查询的字段名,多值使用","。
+            11、filterColumns:应用过滤器查询的字段名,多值使用","。
+            12、totalRow 是否显示总计行，true显示，false不显示。缺省值false
+            12、totalFields:总计行的属性名列表,多值使用","。
+            13、totalText 合计行标题，默认"合计”
+            14、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+            15、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+            16、defaultToolbar：设置头部工具栏右侧图标。多值逗号分割，可选成员有: NONE或者filter,exports,print （分别代表：无、筛选图标、导出图标、打印图标），默认值为：filter,exports,print
+            17、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+            18、viewMenuElIcon view菜单项目的element图标
+            19、categoryTreeUrl 左侧分类树的数据来源url
+            20、categoryTreeMultiple 左侧分类树是否允许多选，true允许带checkbox，false不允许
+            21、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
+            22、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
+            23、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
-           14、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-           15、queryColumns:应用复合查询表单的字段名,多值使用","。
-           16、filterColumns:应用过滤器查询的字段名,多值使用","。
-           17、filterColumns:应用过滤器查询的字段名,多值使用","。
-           18、totalFields:总计行的属性名列表,多值使用","。
-           19、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
-           20、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
-
+            24、height：列表的高度。设置表格容器高度，默认自适应。其他可选值的规则如下：
+                    height=“315” 设置固定高度
+                    height=“full-30” 设置自适应高度。这是一个特定的语法格式：full 表示铺满；后面的数字表示当前 table 之外的元素占用的高度，如：表格头部到页面最顶部加表格底部距离页面最底部的“距离和”
+                    height=“#id-30” 设置相对父元素的高度自适应，其中 #id 即父元素的 ID 选择器，其计算原理和上述 full 相同。
+            25、width：设置容器宽度，默认自适应（已过期）。
+            26、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式（已过期）
+            27、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true（已过期）
+            28、rowNumberColumn 是否显示序号列，true显示，false不显示。缺省值true
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
-            3、requiredColumns 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
+            3、showRowNumber 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
        -->
         <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*,htmlButton*,queryColumn*)>
         <!ATTLIST innerListView
                 listKey CDATA #IMPLIED
+                title CDATA #IMPLIED
                 size (sm|md|lg) #IMPLIED
-                height CDATA #IMPLIED
-                width CDATA #IMPLIED
-                skin (grid|line|row|nob) #IMPLIED
-                enablePage (true|false|simple) #IMPLIED
-                evenRow (true|false) #IMPLIED
-                totalRow (true|false) #IMPLIED
                 indexColumn %indexColumnType;  #IMPLIED
                 actionColumn CDATA #IMPLIED
+                actionColumnFixed (right|left|false) #IMPLIED
+                indexColumnFixed (left|right|false) #IMPLIED
                 toolbar CDATA #IMPLIED
-                defaultToolbar CDATA #IMPLIED
-                editExtendsForm CDATA #IMPLIED
-                defaultDisplayFields CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
                 fuzzyColumns CDATA #IMPLIED
                 filterColumns CDATA #IMPLIED
+                totalRow (true|false) #IMPLIED
                 totalFields CDATA #IMPLIED
-                actionColumnFixed (right|left|false) #IMPLIED
-                indexColumnFixed (left|right|false) #IMPLIED>
+                totalText CDATA #IMPLIED
+                defaultDisplayFields CDATA #IMPLIED
+                defaultHiddenFields CDATA #IMPLIED
+                enablePager (true|false) #IMPLIED
+                defaultToolbar CDATA #IMPLIED
+                parentMenuId CDATA #IMPLIED
+                viewMenuElIcon CDATA #IMPLIED
+                categoryTreeUrl CDATA #IMPLIED
+                categoryTreeMultiple (true|false) #IMPLIED
+                uiFrameType %tableUiType; #IMPLIED
+                tableType (default|treeTable) #IMPLIED
+                editExtendsForm CDATA #IMPLIED
+                height CDATA #IMPLIED
+                width CDATA #IMPLIED
+                evenRow (true|false) #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                showRowNumber (true|false) #IMPLIED>
 
         <!--
               内置列表列描述符，用于定制列表的列信息
@@ -1376,11 +1505,12 @@
             5、classes 可选，按钮的样式
             6、handler 可选，按钮的点击事件处理方法
             7、type 可选，按钮的类型，button-按钮|link-a标签
-            8、handlerParams 可选，按钮的点击事件处理方法的参数，多值用”,“分割
-            9、handlerParamsType 可选，按钮的点击事件处理方法的参数的类型，多值用”,“分割
-            10、handlerParamsValue 可选，按钮的点击事件处理方法的参数的值，多值用”,“分割
-            11、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
-            12、showCondition 可选。按钮的显示条件。默认为“true”
+            8、isLink 可选，按钮是否是链接，true-是，false-否。缺省值为false
+            9、isRound 可选，按钮是否是圆角，true-是，false-否。缺省值为false
+            10、isCircle 可选，按钮是否是圆形，true-是，false-否。缺省值为false
+            11、isPlain 可选，按钮是否是朴素按钮，true-是，false-否。缺省值为false
+            12、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
+            13、showCondition 可选。按钮的显示条件。默认为“true”
             使用说明：
             1、仅在个性化按钮或者链接时，需要定制。视图的默认操作包括：CREATE,EDIT,REMOVE,SEARCH,REFRESH,EXPORT,IMPORT,PRINT,COLUMN等不需要定制
                     视图操作列中的VIEW,EDIT,DELETE不需要定制；
@@ -1400,10 +1530,11 @@
                 icon CDATA #IMPLIED
                 classes CDATA #IMPLIED
                 handler CDATA #IMPLIED
-                type (button|link) #IMPLIED
-                handlerParams CDATA #IMPLIED
-                handlerParamsType CDATA #IMPLIED
-                handlerParamsValue CDATA #IMPLIED
+                type (primary| success| warning| danger| info) #IMPLIED
+                isLink (true|false) #IMPLIED
+                isRound (true|false) #IMPLIED
+                isCircle (true|false) #IMPLIED
+                isPlain (true|false) #IMPLIED
                 css CDATA #IMPLIED
                 showCondition CDATA #IMPLIED
                 uiFrameType (layui|zui|elPlus|antd) #IMPLIED>

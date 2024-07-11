@@ -3,6 +3,6 @@
 */
 export type ${ typeName } = {
 <#list fields as field>
-    ${ field.name }: ${ field.type };
+    ${ field.name }: ${ field.type };   // ${ field.remarks }
 </#list>
 }

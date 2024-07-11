@@ -84,11 +84,11 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         List<HtmlElementInnerListConfiguration> listConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
         if (!listConfiguration.isEmpty()) {
             HtmlElementInnerListConfiguration innerListConfiguration = listConfiguration.get(0);
-            if (innerListConfiguration != null && innerListConfiguration.getSourceViewVoClass() != null) {
+            if (innerListConfiguration != null && innerListConfiguration.getSourceListViewClass() != null) {
                 method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
                 method.addBodyLine("if (VStringUtil.stringHasValue(viewParam.getListKey())) {");
                 method.addBodyLine("// 内嵌列表");
-                FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceViewVoClass());
+                FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceListViewClass());
                 parentElement.addImportedType(javaType);
                 method.addBodyLine("Layuitable innerList = getInnerList(viewParam.getListKey(), {1}.class, 0);", innerListConfiguration.getListKey(), javaType.getShortName());
                 method.addBodyLine("if (innerList != null)  listHeaders = innerList.getCols().get(0);");

@@ -78,4 +78,5 @@ public class ViewFuzzyColumnMetaDesc extends AbstractAnnotation {
     public void setComparator(String comparator) {
         this.comparator = comparator;
     }
+
 }

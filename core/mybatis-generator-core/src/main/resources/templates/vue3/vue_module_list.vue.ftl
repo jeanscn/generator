@@ -4,7 +4,7 @@
 <template>
     <el-container>
         <el-aside width="220px" v-if="showTreePanel">
-            <TreePanel :treeDataUrl="categoryTreeUrl" :vgoTreeProps="{ showCheckbox: false, }"
+            <TreePanel :treeDataUrl="categoryTreeUrl" :treePanelProps="treePanelProps"
                        @node-click="navTreeItemClick"></TreePanel>
         </el-aside>
         <el-container>
@@ -38,7 +38,7 @@
                                :vgoTreeProps="{ checkStrictly: checkStrictly }" :apiObj="drawerTreeApiObj"
                                :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
                 </VgoTreeDrawer>
-                <VgoFormDrawer v-if="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"
+                <VgoFormDrawer v-if="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"  :close-on-click-modal=false
                                :size="drawerSize as string | undefined" :formConfig="formConfig" :viewStatus="viewStatus"
                                @form-submit="onSubmit">
                     <${ componentName }Edit v-if="viewStatus === 1" ref="bizFormRef" v-model="formData"
@@ -60,13 +60,13 @@
 
     import { Ref, watch, onMounted, ref, computed, inject } from 'vue';
     import { useRoute } from 'vue-router';
-    import { TTableConfigProps, TTableApiObj } from "@/framework/components/vgoTable/types";
+    import { TTableConfigProps, TTableApiObj, TVgoTableInstance } from "@/framework/components/vgoTable/types";
     import API from '@/api';
     import { ServiceApi } from '@/api/service';
     import { isEmpty, isNullOrUnDef } from '@/framework/utils/is';
     import * as extMethod from '@/hooks/useCustomHandle';
     import TreePanel from '@/framework/application/components/TreePanel.vue';
-    import { TTreeApiObj } from '@/framework/application/types';
+    import { TTreeApiObj, TTreePanelButtons, TTreePanelProps} from '@/framework/application/types';
     import { TFormConfig } from '@/framework/components/vgoForm/types';
     import { T${ componentName } } from '../${ modelPath }/types/T${ componentName }';
     import VgoTreeDrawer from '@/framework/components/vgoDrawer/VgoTreeDrawer.vue';
@@ -77,12 +77,13 @@
     import { useTableConfigStore } from '@/store/tableConfig';
     import { useFormConfigStore } from '@/store/formConfig';
     import { TDtCustomButtonActionParam, TFormButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
-    import { TTreeCheckDataProps } from '@/framework/components/vgoTree/types';
+    import { TTreeCheckDataProps, TVgoTreeProps } from '@/framework/components/vgoTree/types';
     import FormButtonsBar from '@/framework/workflow/components/FormButtonsBar.vue';
     import { TApi } from '@/api/types';
     import { useI18n } from 'vue-i18n';
     import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
     import { TGlobalDrawer } from '@/framework/layout/components/GlobalDrawer.vue';
+    import { IButtonProps } from '@/framework/types/core';
     const i18n = useI18n();
 
     const moduleKey = "${ modelPath }";
@@ -92,7 +93,7 @@
 
     const route = useRoute();
     const meta = route.meta as { viewId: string };
-    const tableRef = ref() as any;
+    const tableRef = ref<TVgoTableInstance>();
     const tableConfigReady = ref(false);
     const showTreePanel = ref(false);
     const tableColumns = ref([]) as any;
@@ -119,6 +120,19 @@
         fetchTableData: async (params: any) => service.value!.listPost(params),
         fetchFormConfig: async (...params: any) =>  (API as TApi).common.formConfig.get(params),
     });
+    const treePanelProps = ref<TTreePanelProps>({
+        treePanelButtons: {
+            showAll: true,
+            collapseAll: true,
+            expandAll: true,
+            add: false,
+            edit: false,
+            del: false,
+        } as TTreePanelButtons,
+        vgoTreeProps: {
+            showCheckbox: false,
+        } as TVgoTreeProps,
+    });
     const viewStatus = ref<number>(1);
     const drawerSize = computed(() => {
         return popSize.value === 'small' ? '40%' : 'large' ? '70%' : '50%';
@@ -142,6 +156,9 @@
         closeGlobalDialog: () => {
             console.log('closeGlobalDialog()不存在');
         },
+        getComponentRef: () => {
+            console.log('getComponentRef()不存在');
+        },
     }));
 
     const globalDrawer:Ref<TGlobalDrawer> = inject('globalDrawer', ref({
@@ -150,6 +167,9 @@
         },
         closeGlobalDrawer: () => {
             console.log('openGlobalDrawer()不存在');
+        },
+        getComponentRef: () => {
+            console.log('getComponentRef()不存在');
         },
     }));
 
@@ -173,17 +193,17 @@
         let formKey = restBasePath.value.replace(/\//g, '-');
         formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
         popSize.value = formConfig.value!.popSize||'default';
-        popDraggable.value = formConfig.value!.popDraggable;
+        popDraggable.value = formConfig.value!.popDraggable||false;
     };
 
-    const defaultViewRowActionHandler = (rowData: any, buttonId: string) => {
-        drawerOnButtonId.value = buttonId;
+    const defaultViewRowActionHandler = (rowData: any, button: IButtonProps) => {
+        drawerOnButtonId.value = button.id;
         let params: TViewRowActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
             moduleId: moduleId.value,
             applyWorkflow: applyWorkflow.value,
             rowData: rowData,
-            buttonId: buttonId,
+            button: button,
             formData: formData,
             formConfig: formConfig,
             dialogVisible: showDialog,
@@ -202,14 +222,14 @@
         extMethod.defaultViewRowActionHandler<T${ componentName }>(params);
     };
 
-    const defaultDtCustomButtonActionHandler = (selectedRows: T${ componentName }[], buttonId: string) => {
-        drawerOnButtonId.value = buttonId;
+    const defaultDtCustomButtonActionHandler = (selectedRows: T${ componentName }[], button: IButtonProps) => {
+        drawerOnButtonId.value = button.id;
         let params: TDtCustomButtonActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
             moduleId: moduleId.value,
             applyWorkflow: applyWorkflow.value,
             selectedRows: selectedRows,
-            buttonId: buttonId,
+            button: button,
             formData: formData,
             formConfig: formConfig,
             dialogVisible: showDialog,
@@ -226,16 +246,17 @@
         extMethod.defaultDtCustomButtonActionHandler<T${ componentName }>(params);
     };
 
-    const defaultFormButtonActionHandler = (buttonId: string,popType:string) => {
+    const defaultFormButtonActionHandler = (button: IButtonProps,popType:string) => {
         let params: TFormButtonActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
             moduleId: moduleId.value,
             applyWorkflow: applyWorkflow.value,
             service: service,
-            buttonId: buttonId,
+            button: button,
             formData: formData,
             formConfig: formConfig,
             dialogVisible: showDialog,
+            tableRef: tableRef,
             showTreeDrawer: showTreeDrawer,
             showFormDrawer: showFormDrawer,
             popType: popType,
@@ -243,6 +264,7 @@
             globalDailog: globalDailog,
             globalDrawer: globalDrawer,
             i18n: i18n,
+            viewStatus: viewStatus,
         };
         extMethod.defaultFormButtonActionHandler<T${ componentName }>(params);
     };
@@ -258,11 +280,11 @@
 
     const navTreeItemClick = (args: any) => {
         let param = (args[0] && Object.keys(args[0]).length > 0 && args[0].searchExpr) || {};
-        tableRef.value.reload({anyWhereCondition: param});
+        tableRef.value!.reload({anyWhereCondition: param});
     };
 
-    const onSubmit = () => {
-        tableRef.value.refresh();
+    const onSubmit = (val) => {
+        tableRef.value!.updateRows([val]);
     };
 
     const destroyForm = () => {

@@ -16,6 +16,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -23,9 +24,6 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 添加VueHtmMetaAnnotationPlugin
  */
 public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
-
-    private List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
-    private List<IntrospectedColumn> displayColumns = new ArrayList<>();
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -104,9 +102,12 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
         if (introspectedColumn == null) {
             return;
         }
+
         HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(introspectedTable);
         if (htmlGeneratorConfiguration != null) {
             //获取显示的字段
+            List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
+            List<IntrospectedColumn> displayColumns = new ArrayList<>();
             for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
                 if (introspectedTable.getRules().isGenerateVoModel()) {
                     if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
@@ -216,6 +217,21 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 }
                 //根据字段类型设置valueType
                 VueFormGenerateUtil.setRemoteValueType(vueFormItemMetaDesc, introspectedColumn, elementDescriptor);
+                // 表单扩展组件属性
+                if (VStringUtil.stringHasValue(elementDescriptor.getParentFormKey())) {
+                    vueFormItemMetaDesc.setParentFormKey(elementDescriptor.getParentFormKey());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getDesignIdField())) {
+                    vueFormItemMetaDesc.setDesignIdField(elementDescriptor.getDesignIdField());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getConfigJsonfield())) {
+                    vueFormItemMetaDesc.setConfigJsonfield(elementDescriptor.getConfigJsonfield());
+                }
+                vueFormItemMetaDesc.setEnablePager(elementDescriptor.isEnablePager());
+                vueFormItemMetaDesc.setVxeListButtons(String.join(",", elementDescriptor.getVxeListButtons()));
+                if (VStringUtil.stringHasValue(elementDescriptor.getDefaultFilterExpr())) {
+                    vueFormItemMetaDesc.setDefaultFilterExpr(elementDescriptor.getDefaultFilterExpr());
+                }
             }else{
                 vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }

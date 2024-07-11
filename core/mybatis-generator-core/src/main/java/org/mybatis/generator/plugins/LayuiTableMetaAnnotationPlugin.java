@@ -12,6 +12,7 @@ import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableMetaDesc;
+import org.mybatis.generator.custom.annotations.ViewFuzzyColumnMetaDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
@@ -365,18 +366,30 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration, TopLevelClass topLevelClass) {
         LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
         layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
-        layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
-        layuiTableMetaDesc.setWidth(listViewConfiguration.getWidth());
-        layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
-        layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
-        layuiTableMetaDesc.setEnablePage(listViewConfiguration.getEnablePage());
         layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
-        layuiTableMetaDesc.setSkin(listViewConfiguration.getSkin());
         layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
-        layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
-        layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
         layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
         layuiTableMetaDesc.setActionColumn(listViewConfiguration.getActionColumn());
+        layuiTableMetaDesc.setIndexColumnFixed(listViewConfiguration.getIndexColumnFixed());
+        layuiTableMetaDesc.setActionColumnFixed(listViewConfiguration.getActionColumnFixed());
+        layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
+        layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
+        layuiTableMetaDesc.setTotalFields(listViewConfiguration.getTotalFields());
+        layuiTableMetaDesc.setTotalText(listViewConfiguration.getTotalText());
+        layuiTableMetaDesc.setEnablePager(listViewConfiguration.isEnablePager());
+        layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
+        layuiTableMetaDesc.setParentMenuId(listViewConfiguration.getParentMenuId());
+        layuiTableMetaDesc.setViewMenuElIcon(listViewConfiguration.getViewMenuElIcon());
+        layuiTableMetaDesc.setCategoryTreeUrl(listViewConfiguration.getCategoryTreeUrl());
+        layuiTableMetaDesc.setCategoryTreeMultiple(listViewConfiguration.isCategoryTreeMultiple());
+        layuiTableMetaDesc.setUiFrameType(listViewConfiguration.getUiFrameType());
+        layuiTableMetaDesc.setTableType(listViewConfiguration.getTableType());
+        layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
+        layuiTableMetaDesc.setWidth(listViewConfiguration.getWidth());
+        layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
+        layuiTableMetaDesc.setDefaultFilterExpr(listViewConfiguration.getDefaultFilterExpr());
+        layuiTableMetaDesc.setShowRowNumber(listViewConfiguration.isShowRowNumber());
+
         //querys
         if (!listViewConfiguration.getQueryColumns().isEmpty()) {
             //按列名分组
@@ -403,6 +416,38 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             //导入类型
             topLevelClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
         }
+
+        //filters
+        if (!listViewConfiguration.getFilterColumns().isEmpty()) {
+            //按列名分组
+            Map<String, List<QueryColumnConfiguration>> listMap = listViewConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
+            //去重,转换为CompositeQueryDesc
+            List<String> filterColumns = listViewConfiguration.getFilterColumns();
+            if (filterColumns.isEmpty()) {
+                filterColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns());
+            }
+            List<CompositeQueryDesc> queryDesc = listViewConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
+                if (listMap.containsKey(columnName)) {
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0),introspectedTable);
+                } else {
+                    if (introspectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
+                    }else{
+                        return null;
+                    }
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            //更新顺序号，order
+            for (int i = 0; i < queryDesc.size(); i++) {
+                queryDesc.get(i).setOrder(i + 1);
+            }
+            //转换为注解
+            String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
+            layuiTableMetaDesc.setFilters(array);
+            //导入类型
+            topLevelClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
+        }
         return layuiTableMetaDesc;
     }
 
@@ -425,5 +470,4 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         }
         return orderNo.get();
     }
-
 }

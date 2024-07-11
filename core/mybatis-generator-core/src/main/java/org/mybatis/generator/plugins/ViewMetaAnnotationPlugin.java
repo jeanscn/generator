@@ -4,6 +4,7 @@ import com.vgosoft.core.annotation.ViewFuzzyColumnMeta;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -128,7 +129,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     private void addViewTableMeta(VOViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVOClass, IntrospectedTable introspectedTable) {
         ViewTableMetaDesc viewTableMetaDesc = new ViewTableMetaDesc(introspectedTable);
         viewTableMetaDesc.setTableType(voViewGeneratorConfiguration.getTableType());
-
+        viewTableMetaDesc.setTotalRow(voViewGeneratorConfiguration.isTotalRow());
+        viewTableMetaDesc.setTotalFields(voViewGeneratorConfiguration.getTotalFields());
+        viewTableMetaDesc.setTotalText(voViewGeneratorConfiguration.getTotalText());
         //createUrl
         String createUrl = "";
         FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));

@@ -28,7 +28,7 @@ public class SqlDataSysMenuScriptGenerator extends AbstractSqlScriptGenerator {
 
     @Override
     public String getSqlScript() {
-        if (this.context.getSysMenuDataScriptLines().size()>0) {
+        if (!this.context.getSysMenuDataScriptLines().isEmpty()) {
             lines.addAll(this.context.getSysMenuDataScriptLines().values());
         }
         return String.join("\n", getLines());

@@ -204,7 +204,7 @@ public class StringUtility {
         return targetProject;
     }
 
-    public static  List<String> spiltToList(String str) {
+    public static  List<String> splitToList(String str) {
         List<String> ret = new ArrayList<>();
         if (stringHasValue(str)) {
             String[] split = removeSpaces(str).split("[|,;，；、]");
@@ -213,7 +213,7 @@ public class StringUtility {
         return ret;
     }
 
-    public static  Set<String> spiltToSet(String str){
+    public static  Set<String> splitToSet(String str){
         Set<String> ret = new HashSet<>();
         if (stringHasValue(str)) {
             String[] split = removeSpaces(str).split("[|,;，；、]");

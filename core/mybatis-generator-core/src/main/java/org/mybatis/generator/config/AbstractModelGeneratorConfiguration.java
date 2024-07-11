@@ -9,15 +9,15 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     protected Set<String> excludeColumns = new HashSet<>();
 
-    private Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
+    protected Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
 
-    private Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
+    protected Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
 
-    private final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
+    protected final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
 
-    private final List<VoColumnRenderFunGeneratorConfiguration> voColumnRenderFunGeneratorConfigurations = new ArrayList<>();
+    protected final List<VoColumnRenderFunGeneratorConfiguration> voColumnRenderFunGeneratorConfigurations = new ArrayList<>();
 
-    private List<String> equalsAndHashCodeColumns = new ArrayList<>();
+    protected List<String> equalsAndHashCodeColumns = new ArrayList<>();
 
     protected FullyQualifiedJavaType fullyQualifiedJavaType;
 

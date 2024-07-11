@@ -177,7 +177,13 @@ public class Vue3FilesPlugin extends PluginAdapter {
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (this.isGenerateVueFile(introspectedTable)) {
-            introspectedTable.getVoModelFields().add(new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn)));
+            FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn));
+            if (introspectedColumn != null) {
+                fieldItem.setRemarks(introspectedColumn.getRemarks(false));
+            }else{
+                fieldItem.setRemarks(field.getRemark());
+            }
+            introspectedTable.getVoModelFields().add(fieldItem);
         }
         return true;
     }
@@ -185,7 +191,13 @@ public class Vue3FilesPlugin extends PluginAdapter {
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (this.isGenerateVueFile(introspectedTable)) {
-            introspectedTable.getVoModelFields().add(new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn)));
+            FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn));
+            if (introspectedColumn != null) {
+                fieldItem.setRemarks(introspectedColumn.getRemarks(false));
+            }else{
+                fieldItem.setRemarks(field.getRemark());
+            }
+            introspectedTable.getVoModelFields().add(fieldItem);
         }
         return true;
     }

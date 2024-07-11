@@ -9,7 +9,9 @@ import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,17 +28,14 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
      */
     private String value;
     /**
-     * 列表标题（库表注释）
-     */
-    private String label = "";
-    /**
      * 列表分组的key
      */
     private String listKey;
     /**
-     * 列表所在的view类名
+     * 列表标题（库表注释）
      */
-    private String sourceListViewClass;
+    private String label = "";
+    private String moduleKeyword;
     /**
      * 列表所在的bean名
      */
@@ -46,13 +45,13 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
      */
     private String relationField;
     /**
+     * 列表所在的view类名
+     */
+    private String sourceListViewClass;
+    /**
      * 关联key
      */
     private String relationKey = "id";
-    /**
-     * 列表所在列后
-     */
-    private String afterColumn;
     /**
      * 在vue中响应数据的属性名
      */
@@ -65,14 +64,33 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
      * 数据url
      */
     private String dataUrl;
-    private String moduleKeyword;
+    private int span = 24;
+    /**
+     * 列表所在列后
+     */
+    private String afterColumn;
+    private String containerType;
+    private int order = 10;
+    private String editMode;
+    private String editableFields;
+    private boolean enablePager;
+    private String vxeListButtons = "";
+    private String defaultFilterExpr;
+    private List<String> batchUpdateFields = new ArrayList<>();
+    private boolean showRowNumber = true;
+    private boolean totalRow = false;
+    private Set<String> totalFields = new HashSet<>();
+    private String totalText = "合计";
     /**
      * restful请求中的根路径
      */
     private String restBasePath;
-    private int span = 24;
 
-    private int order = 10;
+
+
+
+
+
 
     public VueFormInnerListMetaDesc() {
         super();
@@ -88,20 +106,34 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
                     "_" +  Mb3GenUtil.getDefaultHtmlKey(introspectedTable) +
                     "_" +  index;
         }
-        this.label = innerListConfiguration.getLabel();
         this.listKey = innerListConfiguration.getListKey();
-        this.sourceListViewClass = innerListConfiguration.getSourceViewVoClass();
+        this.label = innerListConfiguration.getLabel();
+        this.moduleKeyword = innerListConfiguration.getModuleKeyword();
         this.sourceBeanName = innerListConfiguration.getSourceBeanName();
         this.relationField = innerListConfiguration.getRelationField();
+        this.sourceListViewClass = innerListConfiguration.getSourceListViewClass();
         this.relationKey = innerListConfiguration.getRelationKey();
-        this.afterColumn = innerListConfiguration.getAfterColumn();
         this.tagId = innerListConfiguration.getTagId();
         this.dataField = innerListConfiguration.getDataField();
         this.dataUrl = innerListConfiguration.getDataUrl();
         this.span = innerListConfiguration.getSpan();
-        this.moduleKeyword = innerListConfiguration.getModuleKeyword();
-        this.restBasePath = innerListConfiguration.getRestBasePath();
+        this.afterColumn = innerListConfiguration.getAfterColumn();
         this.order = innerListConfiguration.getOrder();
+        this.editMode = innerListConfiguration.getEditMode();
+        this.editableFields = String.join(",", innerListConfiguration.getEditableFields());
+        this.enablePager = innerListConfiguration.isEnablePager();
+        if (!innerListConfiguration.getVxeListButtons().isEmpty()) {
+            this.vxeListButtons = String.join(",", innerListConfiguration.getVxeListButtons());
+        }else{
+            this.vxeListButtons = "";
+        }
+        this.defaultFilterExpr = innerListConfiguration.getDefaultFilterExpr();
+        this.batchUpdateFields = new ArrayList<>(innerListConfiguration.getBatchUpdateFields());
+        this.showRowNumber = innerListConfiguration.isShowRowNumber();
+        this.totalRow = innerListConfiguration.isTotalRow();
+        this.totalFields = new HashSet<>(innerListConfiguration.getTotalFields());
+        this.totalText = innerListConfiguration.getTotalText();
+        this.restBasePath = innerListConfiguration.getRestBasePath();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
     }
 
@@ -109,14 +141,14 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     public String toAnnotation() {
         List<String> items = new ArrayList<>();
         items.add("value = \"" + value + "\"");
-        if (VStringUtil.isNotBlank(label) ) {
-            items.add("label = \"" + label + "\"");
-        }
         if (VStringUtil.isNotBlank(listKey)) {
             items.add("listKey = \"" + listKey + "\"");
         }
-        if (VStringUtil.isNotBlank(sourceListViewClass)) {
-            items.add("sourceListViewClass = \"" + sourceListViewClass + "\"");
+        if (VStringUtil.isNotBlank(label) ) {
+            items.add("label = \"" + label + "\"");
+        }
+        if(VStringUtil.stringHasValue(moduleKeyword)){
+            items.add("moduleKeyword = \"" + moduleKeyword + "\"");
         }
         if (VStringUtil.isNotBlank(sourceBeanName)) {
             items.add("sourceBeanName = \"" + sourceBeanName + "\"");
@@ -124,11 +156,11 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(relationField)) {
             items.add("relationField = \"" + relationField + "\"");
         }
+        if (VStringUtil.isNotBlank(sourceListViewClass)) {
+            items.add("sourceListViewClass = \"" + sourceListViewClass + "\"");
+        }
         if (VStringUtil.isNotBlank(relationKey) && !"id".equals(relationKey)) {
             items.add("relationKey = \"" + relationKey + "\"");
-        }
-        if (VStringUtil.isNotBlank(afterColumn)) {
-            items.add("afterColumn = \"" + afterColumn + "\"");
         }
         if (VStringUtil.isNotBlank(tagId)) {
             items.add("tagId = \"" + tagId + "\"");
@@ -139,17 +171,50 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(dataUrl)) {
             items.add("dataUrl = \"" + dataUrl + "\"");
         }
-        if (VStringUtil.isNotBlank(restBasePath)) {
-            items.add("restBasePath = \"" + restBasePath + "\"");
-        }
-        if(VStringUtil.stringHasValue(moduleKeyword)){
-            items.add("moduleKeyword = \"" + moduleKeyword + "\"");
-        }
         if (span != 24 && span != 0) {
             items.add("span = " + span);
         }
+        if (VStringUtil.isNotBlank(afterColumn)) {
+            items.add("afterColumn = \"" + afterColumn + "\"");
+        }
+        if (VStringUtil.isNotBlank(containerType)) {
+            items.add("containerType = \"" + containerType + "\"");
+        }
         if (order != 10) {
             items.add("order = " + order);
+        }
+        if (VStringUtil.stringHasValue(editMode) && !"cell".equals(editMode)) {
+            items.add("editMode = \"" + editMode + "\"");
+        }
+        if (VStringUtil.stringHasValue(editableFields)) {
+            items.add("editableFields = \"" + editableFields + "\"");
+        }
+        if (enablePager) {
+            items.add("enablePager = true");
+        }
+        if (!"innerAddBtn".equals(vxeListButtons)) {
+            items.add("vxeListButtons = \"" + vxeListButtons + "\"");
+        }
+        if (VStringUtil.stringHasValue(defaultFilterExpr)) {
+            items.add("defaultFilterExpr = \"" + defaultFilterExpr + "\"");
+        }
+        if (!batchUpdateFields.isEmpty()) {
+            items.add("batchUpdateFields = {" + batchUpdateFields.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "}");
+        }
+        if (!showRowNumber) {
+            items.add("showRowNumber = false");
+        }
+        if (totalRow) {
+            items.add("totalRow = true");
+        }
+        if (!totalFields.isEmpty()) {
+            items.add("totalFields = {" + totalFields.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "}");
+        }
+        if (VStringUtil.stringHasValue(totalText) && !"合计".equals(totalText)) {
+            items.add("totalText = \"" + totalText + "\"");
+        }
+        if (VStringUtil.isNotBlank(restBasePath)) {
+            items.add("restBasePath = \"" + restBasePath + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -272,5 +337,93 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public String getEditableFields() {
+        return editableFields;
+    }
+
+    public void setEditableFields(String editableFields) {
+        this.editableFields = editableFields;
+    }
+
+    public String getEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(String editMode) {
+        this.editMode = editMode;
+    }
+
+    public boolean isEnablePager() {
+        return enablePager;
+    }
+
+    public void setEnablePager(boolean enablePager) {
+        this.enablePager = enablePager;
+    }
+
+    public String getVxeListButtons() {
+        return vxeListButtons;
+    }
+
+    public void setVxeListButtons(String vxeListButtons) {
+        this.vxeListButtons = vxeListButtons;
+    }
+
+    public String getDefaultFilterExpr() {
+        return defaultFilterExpr;
+    }
+
+    public void setDefaultFilterExpr(String defaultFilterExpr) {
+        this.defaultFilterExpr = defaultFilterExpr;
+    }
+
+    public boolean isShowRowNumber() {
+        return showRowNumber;
+    }
+
+    public void setShowRowNumber(boolean showRowNumber) {
+        this.showRowNumber = showRowNumber;
+    }
+
+    public List<String> getBatchUpdateFields() {
+        return batchUpdateFields;
+    }
+
+    public void setBatchUpdateFields(List<String> batchUpdateFields) {
+        this.batchUpdateFields = batchUpdateFields;
+    }
+
+    public String getContainerType() {
+        return containerType;
+    }
+
+    public void setContainerType(String containerType) {
+        this.containerType = containerType;
+    }
+
+    public boolean isTotalRow() {
+        return totalRow;
+    }
+
+    public void setTotalRow(boolean totalRow) {
+        this.totalRow = totalRow;
+    }
+
+    public Set<String> getTotalFields() {
+        return totalFields;
+    }
+
+    public void setTotalFields(Set<String> totalFields) {
+        this.totalFields = totalFields;
+    }
+
+    public String getTotalText() {
+        return totalText;
+    }
+
+    public void setTotalText(String totalText) {
+        this.totalText = totalText;
     }
 }

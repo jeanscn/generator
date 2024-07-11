@@ -118,6 +118,11 @@ public class VOModelGenerator extends AbstractVOGenerator {
             voClass.addImportedType(fullyQualifiedJavaType);
         });
 
+        //临时id的属性，pTempId
+        Field pTempId = new Field("pTempId", FullyQualifiedJavaType.getStringInstance());
+        pTempId.setVisibility(JavaVisibility.PRIVATE);
+        voClass.addField(pTempId);
+
         //添加静态代码块
         //获取vo中的含父类和子类的所有字段
         List<IntrospectedColumn> columns = VCollectionUtil.addAllIfNotContains(voGenService.getAbstractVOColumns(), introspectedColumns);
