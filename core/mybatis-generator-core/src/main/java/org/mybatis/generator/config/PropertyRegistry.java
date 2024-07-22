@@ -88,7 +88,7 @@ public class PropertyRegistry {
     public static final String ANY_TARGET_PROJECT = "targetProject";
     public static final String ANY_TARGET_PACKAGE = "targetPackage";
     public static final String ANY_TARGET_SUB_PACKAGE = "targetSubPackage";
-    public static final String ANY_HTML_HIDDEN_COLUMNS = "htmlHiddenColumns";
+    public static final String ANY_HTML_HIDDEN_FIELDS = "htmlHiddenFields";
     public static final String ANY_HTML_READONLY_FIELDS = "htmlReadonlyFields";
     public static final String ANY_HTML_DISPLAY_ONLY_FIELDS = "htmlDisplayOnlyFields";
     public static final String ANY_EQUALS_AND_HASH_CODE = "equalsAndHashCodeColumns";

@@ -43,6 +43,9 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             vueFormMetaDesc.setPopSize(layoutDescriptor.getPopSize());
             vueFormMetaDesc.setPopDraggable(layoutDescriptor.isPopDraggable());
             vueFormMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            vueFormMetaDesc.setHiddenFields(htmlGeneratorConfiguration.getHiddenFields());
+            vueFormMetaDesc.setDisplayOnlyFields(htmlGeneratorConfiguration.getDisplayOnlyFields());
+            vueFormMetaDesc.setReadonlyFields(htmlGeneratorConfiguration.getReadonlyFields());
 
             //附件注解
             if (!htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isEmpty()) {

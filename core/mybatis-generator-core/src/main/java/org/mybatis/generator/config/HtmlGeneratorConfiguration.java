@@ -1,6 +1,5 @@
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private final Set<String> displayOnlyFields = new HashSet<>();
 
-    private final Set<IntrospectedColumn> hiddenColumns = new HashSet<>();
+    private final Set<String> hiddenFields = new HashSet<>();
 
     //指定页面表单不允许为空的字段
     private final Set<String> elementRequired = new HashSet<>();
@@ -134,8 +133,9 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         return hiddenColumnNames;
     }
 
-    public Set<IntrospectedColumn> getHiddenColumns() {
-        return hiddenColumns;
+
+    public Set<String> getHiddenFields() {
+        return hiddenFields;
     }
 
     public Set<String> getElementRequired() {

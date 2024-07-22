@@ -46,7 +46,7 @@
           3、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型范围，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
           4、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
-          5、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
+          5、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           6、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           7、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           特别说明：
@@ -199,7 +199,7 @@
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
             3、processDefinedKey 流程定义的key。当父类指定为流程类抽象类的时候，可以指定本参数，如果不为空，则会生成流程定义数据sql
             3、superInterface 对象实现的接口全类名，多值”,“分割
-            4、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
+            4、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             5、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             6、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             属性默认值：
@@ -540,7 +540,7 @@
             13、overWriteVueDetail 当vue的Detail组件文件存在时，是否覆盖。默认为true
 
             可能的property配置：
-            1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
+            1、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             2、requiredColumns 页面文件中必填的列，多个”,“分隔。
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
@@ -1325,7 +1325,7 @@
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
            property配置：
-            1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
+            1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
             3、showRowNumber 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
        -->

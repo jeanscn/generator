@@ -24,11 +24,6 @@ public class GenerateUtils {
             return false;
         }
         Set<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumnNames();
-        Set<String> collect = introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
-                .stream()
-                .map(IntrospectedColumn::getActualColumnName)
-                .collect(Collectors.toSet());
-        hiddenColumn.addAll(collect);
         return hiddenColumn.contains(introspectedColumn.getActualColumnName());
     }
     public static String getLocalCssFilePath(String path, String filename) {

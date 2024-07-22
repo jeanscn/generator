@@ -129,7 +129,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private Set<String> validateIgnoreColumns = new HashSet<>();
 
-    private final Set<IntrospectedColumn> htmlHiddenColumns = new HashSet<>();
+    private final Set<String> htmlHiddenFields = new HashSet<>();
 
     private final Set<String> htmlReadonlyFields = new HashSet<>();
 
@@ -721,8 +721,8 @@ public class TableConfiguration extends PropertyHolder {
         return fieldNames;
     }
 
-    public Set<IntrospectedColumn> getHtmlHiddenColumns() {
-        return htmlHiddenColumns;
+    public Set<String> getHtmlHiddenFields() {
+        return htmlHiddenFields;
     }
 
     public Set<String> getHtmlReadonlyFields() {
@@ -741,7 +741,7 @@ public class TableConfiguration extends PropertyHolder {
         updateTableConfiguration(introspectedTable);
         //检查并更新queryColumnConfiguration的表名及别名配置
         updateQueryColumnConfiguration(introspectedTable);
-        //更新context、table中隐藏列名htmlHiddenColumns 列表，计算隐藏列，只读列htmlReadonlyFields和只显示htmlDisplayOnlyFields列
+        //更新context、table中隐藏列名htmlHiddenFields 列表，计算隐藏列，只读列htmlReadonlyFields和只显示htmlDisplayOnlyFields列
         calculateHiddenReadDisplayOnlyColumns(introspectedTable);
         //对指定了dataFormat的快捷配置进行转换
         convertDataFormatConfigurations(introspectedTable);
@@ -1028,7 +1028,7 @@ public class TableConfiguration extends PropertyHolder {
     }
 
     /*
-     * 计算HtmlHiddenColumns
+     * 计算HtmlHiddenFields
      * 由context、table的隐藏属性配置，计算出所有的隐藏列
      * 影响的配置有：
      * 1、所有HtmlMapGeneratorConfiguration的hiddenColumns
@@ -1036,15 +1036,16 @@ public class TableConfiguration extends PropertyHolder {
      * 3、所有HtmlMapGeneratorConfiguration的elementRequired
      */
     private void calculateHiddenReadDisplayOnlyColumns(IntrospectedTable introspectedTable) {
-        Set<String> hiddenColumnNames = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS);
-        Set<IntrospectedColumn> columnSet = hiddenColumnNames.parallelStream().map(columnName -> {
-            Optional<IntrospectedColumn> column = introspectedTable.getColumn(columnName);
-            return column.orElse(null);
-        }).filter(Objects::nonNull).collect(Collectors.toSet());
-        this.getHtmlHiddenColumns().addAll(columnSet);
+        Set<String> hiddenColumnNames = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_HIDDEN_FIELDS);
+//        Set<IntrospectedColumn> columnSet = hiddenColumnNames.parallelStream().map(columnName -> {
+//            Optional<IntrospectedColumn> column = introspectedTable.getColumn(columnName);
+//            return column.orElse(null);
+//        }).filter(Objects::nonNull).collect(Collectors.toSet());
+//        this.getHtmlHiddenFields().addAll(columnSet.stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toSet()));
+        this.getHtmlHiddenFields().addAll(hiddenColumnNames);
         //html的隐藏列
         this.getHtmlMapGeneratorConfigurations()
-                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumnNames().addAll(hiddenColumnNames));
+                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumnNames().addAll(this.getHtmlHiddenFields()));
         //html只读列
         Set<String> readOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_READONLY_FIELDS);
         introspectedTable.getTableConfiguration().getHtmlReadonlyFields().addAll(readOnlyFields);
@@ -1098,7 +1099,7 @@ public class TableConfiguration extends PropertyHolder {
          * parent_id列名，自动添加页面select（父级）元素
          * 注释中包含“是否”，自动添加页面switch（是/否）元素
          */
-        introspectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenColumns().contains(column))
+        introspectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenFields().contains(column))
                 .forEach(column -> this.getHtmlMapGeneratorConfigurations()
                         .forEach(htmlConfiguration -> {
                             if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))

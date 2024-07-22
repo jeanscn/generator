@@ -355,10 +355,6 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (hiddenProperties != null) {
             return hiddenProperties;
         }
-        this.hiddenProperties = this.introspectedTable.getTableConfiguration().getHtmlHiddenColumns()
-                .stream()
-                .map(IntrospectedColumn::getJavaProperty)
-                .collect(Collectors.toSet());
-        return hiddenProperties;
+        return this.introspectedTable.getTableConfiguration().getHtmlHiddenFields();
     }
 }

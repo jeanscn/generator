@@ -10,6 +10,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +35,10 @@ public class VueFormMetaDesc extends AbstractAnnotation {
     private final String appKeyword;
 
     private String restBasePath;
+
+    private Set<String> readonlyFields;
+    private Set<String> displayOnlyFields;
+    private Set<String> hiddenFields;
 
     private List<VueFormUploadMetaDesc> uploadMeta = new ArrayList<>();
 
@@ -87,6 +92,15 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         if (!containerMeta.isEmpty()) {
             items.add("\n        containerMeta = {\n                " + containerMeta.stream().map(VueFormContainerMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
             this.addImports(VueFormContainerMeta.class.getCanonicalName());
+        }
+        if (!this.getReadonlyFields().isEmpty()) {
+            items.add(VStringUtil.format("readonlyFields = \"{0}\"", String.join(",", this.getReadonlyFields())));
+        }
+        if (!this.getDisplayOnlyFields().isEmpty()) {
+            items.add(VStringUtil.format("displayOnlyFields = \"{0}\"", String.join(",", this.getDisplayOnlyFields())));
+        }
+        if (!this.getHiddenFields().isEmpty()) {
+            items.add(VStringUtil.format("hiddenFields = \"{0}\"", String.join(",", this.getHiddenFields())));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + "\n)";
     }
@@ -173,5 +187,29 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     public void setPopDraggable(boolean popDraggable) {
         this.popDraggable = popDraggable;
+    }
+
+    public Set<String> getReadonlyFields() {
+        return readonlyFields;
+    }
+
+    public void setReadonlyFields(Set<String> readonlyFields) {
+        this.readonlyFields = readonlyFields;
+    }
+
+    public Set<String> getDisplayOnlyFields() {
+        return displayOnlyFields;
+    }
+
+    public void setDisplayOnlyFields(Set<String> displayOnlyFields) {
+        this.displayOnlyFields = displayOnlyFields;
+    }
+
+    public Set<String> getHiddenFields() {
+        return hiddenFields;
+    }
+
+    public void setHiddenFields(Set<String> hiddenFields) {
+        this.hiddenFields = hiddenFields;
     }
 }

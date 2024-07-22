@@ -1438,10 +1438,10 @@ public class MyBatisGeneratorConfigurationParser {
         Properties properties = parseAttributes(node);
         String propertyName = properties.get("name").toString();
         switch (propertyName) {
-            case PropertyRegistry.ANY_HTML_HIDDEN_COLUMNS:
-                String htmlHiddenColumns = properties.get("value").toString();
-                if (stringHasValue(htmlHiddenColumns)) {
-                    htmlGeneratorConfiguration.getHiddenColumnNames().addAll(splitToList(htmlHiddenColumns));
+            case PropertyRegistry.ANY_HTML_HIDDEN_FIELDS:
+                String htmlHiddenFields = properties.get("value").toString();
+                if (stringHasValue(htmlHiddenFields)) {
+                    htmlGeneratorConfiguration.getHiddenColumnNames().addAll(splitToList(htmlHiddenFields));
                 }
                 break;
             case PropertyRegistry.ELEMENT_REQUIRED_COLUMNS:
@@ -2999,7 +2999,6 @@ public class MyBatisGeneratorConfigurationParser {
             String value = parsePropertyTokens(attribute.getNodeValue());
             attributes.put(attribute.getNodeName(), value);
         }
-
         return attributes;
     }
 

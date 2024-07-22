@@ -1038,7 +1038,7 @@
            15、queryColumns:应用复合查询的字段名,多值使用","。
 
            property配置：
-            1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
+            1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
             3、requiredColumns 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
        -->
