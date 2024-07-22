@@ -218,6 +218,7 @@
             globalDailog: globalDailog,
             globalDrawer: globalDrawer,
             i18n: i18n,
+            tableConfigProps: _tableConfigProps,
         };
         extMethod.defaultViewRowActionHandler<T${ componentName }>(params);
     };
@@ -242,6 +243,7 @@
             globalDailog: globalDailog,
             globalDrawer: globalDrawer,
             i18n: i18n,
+            tableConfigProps: _tableConfigProps,
         };
         extMethod.defaultDtCustomButtonActionHandler<T${ componentName }>(params);
     };

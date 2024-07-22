@@ -19,8 +19,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     private String value;
     private String id;
-    private String text;
+    private boolean text;
     private String title;
+    private String label;
     private String icon;
     private String classes;
     private String handler;
@@ -40,7 +41,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     public static HtmlButtonDesc create(HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration) {
         HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(htmlButtonGeneratorConfiguration.getId());
         htmlButtonDesc.setType(htmlButtonGeneratorConfiguration.getType());
-        htmlButtonDesc.setText(htmlButtonGeneratorConfiguration.getText());
+        htmlButtonDesc.setText(htmlButtonGeneratorConfiguration.isText());
         htmlButtonDesc.setIcon(htmlButtonGeneratorConfiguration.getIcon());
         htmlButtonDesc.setClasses(htmlButtonGeneratorConfiguration.getClasses());
         htmlButtonDesc.setHandler(htmlButtonGeneratorConfiguration.getHandler());
@@ -51,6 +52,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.setCss(htmlButtonGeneratorConfiguration.getCss());
         htmlButtonDesc.setShowCondition(htmlButtonGeneratorConfiguration.getShowCondition());
         htmlButtonDesc.setTitle(htmlButtonGeneratorConfiguration.getTitle());
+        htmlButtonDesc.setLabel(htmlButtonGeneratorConfiguration.getLabel());
         return htmlButtonDesc;
     }
 
@@ -64,8 +66,8 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     public String toAnnotation() {
         this.value = this.value==null?this.id:this.value;
         items.add("value = \""+this.value+"\"");
-        if (this.text!=null) {
-            items.add("text = \""+this.text+"\"");
+        if (this.text) {
+            items.add("text = true");
         }
         if (this.title!=null) {
             items.add("title = \""+this.title+"\"");
@@ -94,6 +96,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         if (this.type!=null) {
             items.add("type = \""+this.type+"\"");
         }
+        if (this.label != null) {
+            items.add("label = \""+this.label+"\"");
+        }
         if (this.css!=null) {
             items.add("css = \""+this.css+"\"");
         }
@@ -109,10 +114,6 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 
     public void setIcon(String icon) {
@@ -173,5 +174,57 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public boolean isText() {
+        return text;
+    }
+
+    public void setText(boolean text) {
+        this.text = text;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public String getClasses() {
+        return classes;
+    }
+
+    public String getHandler() {
+        return handler;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getCss() {
+        return css;
+    }
+
+    public String getShowCondition() {
+        return showCondition;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

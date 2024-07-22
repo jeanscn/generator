@@ -389,6 +389,9 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
         layuiTableMetaDesc.setDefaultFilterExpr(listViewConfiguration.getDefaultFilterExpr());
         layuiTableMetaDesc.setShowRowNumber(listViewConfiguration.isShowRowNumber());
+        layuiTableMetaDesc.setEditFormIn(listViewConfiguration.getEditFormIn());
+        layuiTableMetaDesc.setDetailFormIn(listViewConfiguration.getDetailFormIn());
+
 
         //querys
         if (!listViewConfiguration.getQueryColumns().isEmpty()) {

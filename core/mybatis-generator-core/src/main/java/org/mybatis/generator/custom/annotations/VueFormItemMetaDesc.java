@@ -48,6 +48,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String keyMapLabel = "name"; // 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
     private String keyMapValue = "id"; // 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
     private String dataUrl = ""; // 远程数据源的URL
+    private String dataUrlParams = ""; // 数据源
     private String dataSource = "";
     private String beanName = "";
     private String applyProperty = "";
@@ -75,6 +76,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String vxeListButtons = "";
 
     private String defaultFilterExpr = "";
+    private String hideExpression = "";
+
+    private String disabledExpression = "";
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
         return new VueFormItemMetaDesc(introspectedColumn);
     }
@@ -163,6 +167,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getDataUrl())) {
             items.add(VStringUtil.format("dataUrl = \"{0}\"", this.getDataUrl()));
         }
+        if (VStringUtil.isNotBlank(this.getDataUrlParams())) {
+            items.add(VStringUtil.format("dataUrlParams = \"{0}\"", this.getDataUrlParams()));
+        }
         if (VStringUtil.isNotBlank(this.getDataSource())) {
             items.add(VStringUtil.format("dataSource = \"{0}\"", this.getDataSource()));
         }
@@ -219,6 +226,12 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.defaultFilterExpr)) {
             items.add(VStringUtil.format("defaultFilterExpr = \"{0}\"", this.defaultFilterExpr));
+        }
+        if (VStringUtil.isNotBlank(this.hideExpression)) {
+            items.add(VStringUtil.format("hideExpression = \"{0}\"", this.hideExpression));
+        }
+        if (VStringUtil.isNotBlank(this.disabledExpression)) {
+            items.add(VStringUtil.format("disabledExpression = \"{0}\"", this.disabledExpression));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -572,5 +585,29 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setDefaultFilterExpr(String defaultFilterExpr) {
         this.defaultFilterExpr = defaultFilterExpr;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
+    }
+
+    public String getDisabledExpression() {
+        return disabledExpression;
+    }
+
+    public void setDisabledExpression(String disabledExpression) {
+        this.disabledExpression = disabledExpression;
+    }
+
+    public String getDataUrlParams() {
+        return dataUrlParams;
+    }
+
+    public void setDataUrlParams(String dataUrlParams) {
+        this.dataUrlParams = dataUrlParams;
     }
 }

@@ -22,6 +22,8 @@ public class HtmlHrefElementConfiguration {
 
     private String keySelector = "#id";
 
+    private String hideExpression;
+
 
     public HtmlHrefElementConfiguration() {
 
@@ -89,5 +91,13 @@ public class HtmlHrefElementConfiguration {
 
     public void setKeySelector(String keySelector) {
         this.keySelector = keySelector;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
     }
 }

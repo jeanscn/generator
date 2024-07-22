@@ -40,12 +40,16 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private boolean enablePager = false;
     private Set<String> vxeListButtons = new HashSet<>();
     private String defaultFilterExpr;
-    private Set<String> batchUpdateFields = new HashSet<>();
+    private Set<String> batchUpdateColumns = new HashSet<>();
     private boolean showRowNumber = true;
     private boolean totalRow;
     private Set<String> totalFields = new HashSet<>();
     private String totalText = "合计";
     private String  restBasePath;
+    private String editFormIn;
+    private String detailFormIn;
+    private String hideExpression;
+    private String disableExpression;
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -217,12 +221,12 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.showRowNumber = showRowNumber;
     }
 
-    public Set<String> getBatchUpdateFields() {
-        return batchUpdateFields;
+    public Set<String> getBatchUpdateColumns() {
+        return batchUpdateColumns;
     }
 
-    public void setBatchUpdateFields(Set<String> batchUpdateFields) {
-        this.batchUpdateFields = batchUpdateFields;
+    public void setBatchUpdateColumns(Set<String> batchUpdateColumns) {
+        this.batchUpdateColumns = batchUpdateColumns;
     }
 
     public String getContainerType() {
@@ -271,5 +275,37 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setRestBasePath(String restBasePath) {
         this.restBasePath = restBasePath;
+    }
+
+    public String getEditFormIn() {
+        return editFormIn;
+    }
+
+    public void setEditFormIn(String editFormIn) {
+        this.editFormIn = editFormIn;
+    }
+
+    public String getDetailFormIn() {
+        return detailFormIn;
+    }
+
+    public void setDetailFormIn(String detailFormIn) {
+        this.detailFormIn = detailFormIn;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
+    }
+
+    public String getDisableExpression() {
+        return disableExpression;
+    }
+
+    public void setDisableExpression(String disableExpression) {
+        this.disableExpression = disableExpression;
     }
 }

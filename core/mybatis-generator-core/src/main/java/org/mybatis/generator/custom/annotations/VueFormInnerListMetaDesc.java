@@ -76,22 +76,20 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     private boolean enablePager;
     private String vxeListButtons = "";
     private String defaultFilterExpr;
-    private List<String> batchUpdateFields = new ArrayList<>();
+    private List<String> batchUpdateColumns = new ArrayList<>();
     private boolean showRowNumber = true;
     private boolean totalRow = false;
     private Set<String> totalFields = new HashSet<>();
     private String totalText = "合计";
+
+    private String editFormIn;
+    private String detailFormIn;
+    private String hideExpression;
+    private String disabledExpression;
     /**
      * restful请求中的根路径
      */
     private String restBasePath;
-
-
-
-
-
-
-
     public VueFormInnerListMetaDesc() {
         super();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
@@ -118,6 +116,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.dataUrl = innerListConfiguration.getDataUrl();
         this.span = innerListConfiguration.getSpan();
         this.afterColumn = innerListConfiguration.getAfterColumn();
+        this.containerType = innerListConfiguration.getContainerType();
         this.order = innerListConfiguration.getOrder();
         this.editMode = innerListConfiguration.getEditMode();
         this.editableFields = String.join(",", innerListConfiguration.getEditableFields());
@@ -128,12 +127,16 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
             this.vxeListButtons = "";
         }
         this.defaultFilterExpr = innerListConfiguration.getDefaultFilterExpr();
-        this.batchUpdateFields = new ArrayList<>(innerListConfiguration.getBatchUpdateFields());
+        this.batchUpdateColumns = new ArrayList<>(innerListConfiguration.getBatchUpdateColumns());
         this.showRowNumber = innerListConfiguration.isShowRowNumber();
         this.totalRow = innerListConfiguration.isTotalRow();
         this.totalFields = new HashSet<>(innerListConfiguration.getTotalFields());
         this.totalText = innerListConfiguration.getTotalText();
         this.restBasePath = innerListConfiguration.getRestBasePath();
+        this.editFormIn = innerListConfiguration.getEditFormIn();
+        this.detailFormIn = innerListConfiguration.getDetailFormIn();
+        this.hideExpression = innerListConfiguration.getHideExpression();
+        this.disabledExpression = innerListConfiguration.getDisableExpression();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
     }
 
@@ -198,8 +201,8 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (VStringUtil.stringHasValue(defaultFilterExpr)) {
             items.add("defaultFilterExpr = \"" + defaultFilterExpr + "\"");
         }
-        if (!batchUpdateFields.isEmpty()) {
-            items.add("batchUpdateFields = {" + batchUpdateFields.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "}");
+        if (!batchUpdateColumns.isEmpty()) {
+            items.add("batchUpdateColumns  = \"" + String.join(",", this.batchUpdateColumns) + "\"");
         }
         if (!showRowNumber) {
             items.add("showRowNumber = false");
@@ -208,13 +211,25 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
             items.add("totalRow = true");
         }
         if (!totalFields.isEmpty()) {
-            items.add("totalFields = {" + totalFields.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "}");
+            items.add("totalFields  = \"" + String.join(",", this.totalFields) + "\"");
         }
         if (VStringUtil.stringHasValue(totalText) && !"合计".equals(totalText)) {
             items.add("totalText = \"" + totalText + "\"");
         }
         if (VStringUtil.isNotBlank(restBasePath)) {
             items.add("restBasePath = \"" + restBasePath + "\"");
+        }
+        if (VStringUtil.isNotBlank(editFormIn) && !"dialog".equals(editFormIn)) {
+            items.add("editFormIn = \"" + editFormIn + "\"");
+        }
+        if (VStringUtil.isNotBlank(detailFormIn) && !"drawer".equals(detailFormIn)) {
+            items.add("detailFormIn = \"" + detailFormIn + "\"");
+        }
+        if (VStringUtil.isNotBlank(hideExpression)) {
+            items.add("hideExpression = \"" + hideExpression + "\"");
+        }
+        if (VStringUtil.isNotBlank(disabledExpression)) {
+            items.add("disabledExpression = \"" + disabledExpression + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -387,12 +402,12 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.showRowNumber = showRowNumber;
     }
 
-    public List<String> getBatchUpdateFields() {
-        return batchUpdateFields;
+    public List<String> getBatchUpdateColumns() {
+        return batchUpdateColumns;
     }
 
-    public void setBatchUpdateFields(List<String> batchUpdateFields) {
-        this.batchUpdateFields = batchUpdateFields;
+    public void setBatchUpdateColumns(List<String> batchUpdateColumns) {
+        this.batchUpdateColumns = batchUpdateColumns;
     }
 
     public String getContainerType() {
@@ -425,5 +440,37 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public void setTotalText(String totalText) {
         this.totalText = totalText;
+    }
+
+    public String getEditFormIn() {
+        return editFormIn;
+    }
+
+    public void setEditFormIn(String editFormIn) {
+        this.editFormIn = editFormIn;
+    }
+
+    public String getDetailFormIn() {
+        return detailFormIn;
+    }
+
+    public void setDetailFormIn(String detailFormIn) {
+        this.detailFormIn = detailFormIn;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
+    }
+
+    public String getDisabledExpression() {
+        return disabledExpression;
+    }
+
+    public void setDisabledExpression(String disabledExpression) {
+        this.disabledExpression = disabledExpression;
     }
 }

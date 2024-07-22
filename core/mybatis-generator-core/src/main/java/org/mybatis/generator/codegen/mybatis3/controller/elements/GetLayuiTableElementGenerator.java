@@ -65,6 +65,9 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         Parameter indexType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "indextype", "@RequestParam(required = false)");
         indexType.setRemark("可选参数，列表索引列类型");
         vexMethod.addParameter(indexType);
+        Parameter showRowNumber = new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "showRowNumber", "@RequestParam(required = false)");
+        showRowNumber.setRemark("可选参数，是否显示行号");
+        vexMethod.addParameter(showRowNumber);
         vexMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
                 new FullyQualifiedJavaType("Layuitable"),
                 parentElement));
@@ -74,7 +77,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
         commentGenerator.addMethodJavaDocLine(vexMethod, "根据ViewVO获得vxe table配置对象");
         //函数体
         vexMethod.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
-        vexMethod.addBodyLine("Layuitable layuitable = VexTableUtil.getLayuiTable({0}.class,edit,listKey,null,indextype);",
+        vexMethod.addBodyLine("Layuitable layuitable = VexTableUtil.getLayuiTable({0}.class,edit,listKey,null,indextype,showRowNumber);",
                 entityViewVoType.getShortName());
         vexMethod.addBodyLine("return success(layuitable);");
         parentElement.addMethod(vexMethod);

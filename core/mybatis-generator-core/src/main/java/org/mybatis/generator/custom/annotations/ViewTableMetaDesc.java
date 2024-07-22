@@ -65,6 +65,8 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
     private String totalText = "合计";
     private String defaultFilterExpr;
     private boolean showRowNumber = true;
+    private String editFormIn;
+    private String detailFormIn;
 
     public static ViewTableMetaDesc create(IntrospectedTable introspectedTable) {
         return new ViewTableMetaDesc(introspectedTable);
@@ -193,6 +195,15 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         }
         if (!this.showRowNumber) {
             items.add("showRowNumber = false");
+        }
+        if (this.fuzzyColumns.length > 0) {
+            items.add(VStringUtil.format("fuzzyColumns = '{'{0}'}'", String.join(", ", this.fuzzyColumns)));
+        }
+        if (VStringUtil.isNotBlank(this.editFormIn) && !"dialog".equals(this.editFormIn)) {
+            items.add(VStringUtil.format("editFormIn = \"{0}\"", this.getEditFormIn()));
+        }
+        if (VStringUtil.isNotBlank(this.detailFormIn) && !"drawer".equals(this.detailFormIn)) {
+            items.add(VStringUtil.format("detailFormIn = \"{0}\"", this.getDetailFormIn()));
         }
         return ANNOTATION_NAME + "(" + String.join("\n       ,", items.toArray(new String[0])) + ")";
     }
@@ -475,5 +486,21 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
 
     public void setFuzzyColumns(String[] fuzzyColumns) {
         this.fuzzyColumns = fuzzyColumns;
+    }
+
+    public String getEditFormIn() {
+        return editFormIn;
+    }
+
+    public void setEditFormIn(String editFormIn) {
+        this.editFormIn = editFormIn;
+    }
+
+    public String getDetailFormIn() {
+        return detailFormIn;
+    }
+
+    public void setDetailFormIn(String detailFormIn) {
+        this.detailFormIn = detailFormIn;
     }
 }

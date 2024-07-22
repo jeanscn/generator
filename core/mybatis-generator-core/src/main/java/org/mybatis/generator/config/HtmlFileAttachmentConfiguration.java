@@ -29,6 +29,9 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     private int order =10;
 
+    private String hideExpression;
+    private String disableExpression;
+
     public String getElementKey() {
         return elementKey;
     }
@@ -122,5 +125,21 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
+    }
+
+    public String getDisableExpression() {
+        return disableExpression;
+    }
+
+    public void setDisableExpression(String disableExpression) {
+        this.disableExpression = disableExpression;
     }
 }

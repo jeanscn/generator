@@ -232,6 +232,15 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (VStringUtil.stringHasValue(elementDescriptor.getDefaultFilterExpr())) {
                     vueFormItemMetaDesc.setDefaultFilterExpr(elementDescriptor.getDefaultFilterExpr());
                 }
+                if (VStringUtil.stringHasValue(elementDescriptor.getHideExpression())) {
+                    vueFormItemMetaDesc.setHideExpression(elementDescriptor.getHideExpression());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getDisabledExpression())) {
+                    vueFormItemMetaDesc.setDisabledExpression(elementDescriptor.getDisabledExpression());
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getDataUrlParams())) {
+                    vueFormItemMetaDesc.setDataUrlParams(elementDescriptor.getDataUrlParams());
+                }
             }else{
                 vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }

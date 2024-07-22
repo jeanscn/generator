@@ -37,6 +37,8 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
     protected String defaultFilterExpr;
 
     protected boolean showRowNumber = true;
+    protected String editFormIn;
+    protected String detailFormIn;
 
     public AbstractTableListCommonConfiguration() {
         super();
@@ -252,5 +254,21 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
 
     public void setEnablePager(boolean enablePager) {
         this.enablePager = enablePager;
+    }
+
+    public String getEditFormIn() {
+        return editFormIn;
+    }
+
+    public void setEditFormIn(String editFormIn) {
+        this.editFormIn = editFormIn;
+    }
+
+    public String getDetailFormIn() {
+        return detailFormIn;
+    }
+
+    public void setDetailFormIn(String detailFormIn) {
+        this.detailFormIn = detailFormIn;
     }
 }

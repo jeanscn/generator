@@ -37,7 +37,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
      */
     private String indexColumnFixed = "";
     private List<String> toolbar = new ArrayList<>();
-    private Set<String> batchUpdateFields = new HashSet<>();
+    private Set<String> batchUpdateColumns = new HashSet<>();
     private List<String> defaultToolbar = new ArrayList<>();
     private String parentMenuId;
     private String viewMenuElIcon;
@@ -60,6 +60,8 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private String defaultFilterExpr;
 
     private boolean showRowNumber = true;
+    private String editFormIn;
+    private String detailFormIn;
 
     public LayuiTableMetaDesc() {
         super();
@@ -81,8 +83,8 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (stringHasValue(height)) {
             items.add("height = \"" + height + "\"");
         }
-        if (!batchUpdateFields.isEmpty()) {
-            items.add("batchUpdateFields = \"" + String.join(",", batchUpdateFields) + "\"");
+        if (!batchUpdateColumns.isEmpty()) {
+            items.add("batchUpdateColumns = \"" + String.join(",", batchUpdateColumns) + "\"");
         }
         if (stringHasValue(size) && !"md".equals(size)) {
             items.add("size = \"" + size + "\"");
@@ -158,6 +160,12 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (!showRowNumber) {
             items.add("showRowNumber = false");
+        }
+        if (stringHasValue(editFormIn) && !"dialog".equalsIgnoreCase(editFormIn)) {
+            items.add("editFormIn = \"" + editFormIn + "\"");
+        }
+        if (stringHasValue(detailFormIn) && !"drawer".equalsIgnoreCase(detailFormIn)) {
+            items.add("detailFormIn = \"" + detailFormIn + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -289,12 +297,12 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         this.totalFields = totalFields;
     }
 
-    public Set<String> getBatchUpdateFields() {
-        return batchUpdateFields;
+    public Set<String> getBatchUpdateColumns() {
+        return batchUpdateColumns;
     }
 
-    public void setBatchUpdateFields(Set<String> batchUpdateFields) {
-        this.batchUpdateFields = batchUpdateFields;
+    public void setBatchUpdateColumns(Set<String> batchUpdateColumns) {
+        this.batchUpdateColumns = batchUpdateColumns;
     }
 
     public String getParentMenuId() {
@@ -383,5 +391,21 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setShowRowNumber(boolean showRowNumber) {
         this.showRowNumber = showRowNumber;
+    }
+
+    public String getEditFormIn() {
+        return editFormIn;
+    }
+
+    public void setEditFormIn(String editFormIn) {
+        this.editFormIn = editFormIn;
+    }
+
+    public String getDetailFormIn() {
+        return detailFormIn;
+    }
+
+    public void setDetailFormIn(String detailFormIn) {
+        this.detailFormIn = detailFormIn;
     }
 }

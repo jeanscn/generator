@@ -476,16 +476,14 @@ public class IntrospectedColumn {
         StringBuilder not_null = new StringBuilder();
         if (!this.isNullable()) {
             not_null.append("NOT NULL ");
-        }else{
-            not_null.append("NULL ");
-        }
-        if (stringHasValue(this.defaultValue)) {
             JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
             if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
                 not_null.append(" DEFAULT '").append(this.defaultValue).append("' ");
             } else {
                 not_null.append(" DEFAULT ").append(this.defaultValue).append(" ");
             }
+        }else{
+            not_null.append("NULL ");
         }
         return not_null.toString();
     }

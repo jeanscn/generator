@@ -679,6 +679,9 @@
             23、enablePager 是否启用分页，默认为false
             24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
             25、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            26、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            27、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
+            28、dataUrlParams 数据接口url的请求参数，用于指定请求参数，如：id=1或者id=#id#&a=1。,#XXX#表示当前记录的XXX属性值。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -723,7 +726,10 @@
                 keyMapValue CDATA #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
                 enablePager (true|false) #IMPLIED
-                vxeListButtons CDATA #IMPLIED>
+                vxeListButtons CDATA #IMPLIED
+                hideExpression CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED
+                dataUrlParams CDATA #IMPLIED>
 
         <!ELEMENT htmlSwitchDescriptor (property*)>
         <!ATTLIST htmlSwitchDescriptor
@@ -737,7 +743,9 @@
                 applyPropertyKey CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
                 callback CDATA #IMPLIED
-                switchText CDATA #IMPLIED>
+                switchText CDATA #IMPLIED
+                hideExpression CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED>
 
         <!--
             页面元素表单扩展设计与渲染的描述
@@ -749,6 +757,8 @@
             5、designRestBasePath 设计资源基础路径，用于指定设计资源的访问路径，渲染时（formRender）有效。与designIdField组合，用来获取当前选定渲染的设计资源数据。
             6、configJsonfield 配置json数据保存的字段名，主要用来保存页面元素的配置信息。设计时对应的字段属性名，渲染时（formRender）有效有效，默认为jsonContent
                 补充:该属性将保存在注解的dataUrl属性中.
+            7、hideExpression 隐藏表达式，用于指定隐藏表单的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            8、disabledExpression 禁用表达式，用于指定禁用表单的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             -->
         <!ELEMENT htmlFormExtendDescriptor (properties*)>
         <!ATTLIST htmlFormExtendDescriptor
@@ -757,27 +767,33 @@
                 parentFormKey CDATA #IMPLIED
                 designIdField CDATA #IMPLIED
                 designRestBasePath CDATA #IMPLIED
-                configJsonfield CDATA #IMPLIED>
+                configJsonfield CDATA #IMPLIED
+                hideExpression CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED>
 
         <!--
           属性信息：表格选择组件配置描述.tagType默认为tableselect,dataSource默认为Dict,为了方便使用，仅包含主要属性
             1、column 数据库字段名
             2、otherFieldName：用于存储已选的中文信息的属性名。
-            3、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
-            4、applyProperty 适用属性（label），数据来源为dict时，需要指定引用数据的属性名
-            5、applyPropertyKey 适用属性（value），数据来源为dict时，需要指定引用数据的属性名
-            6、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
-            7、listKey 内嵌列表的标识，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
-            8、listViewClass 内嵌列表的基类，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
-            9、multiple 是否允许多选，默认false，当tagType为select时有效。
-            10、enablePager 是否启用分页，默认为true
-            11、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前主记录的id值。
+            3、dataUrl 数据接口请求地址
+            4、dataUrlParams 数据接口url的请求参数，用于指定请求参数，如：id=1或者id=#id#&a=1。,#XXX#表示当前记录的XXX属性值。
+            5、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
+            6、applyProperty 适用属性（label），数据来源为dict时，需要指定引用数据的属性名
+            7、applyPropertyKey 适用属性（value），数据来源为dict时，需要指定引用数据的属性名
+            8、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
+            9、listKey 内嵌列表的标识，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
+            10、listViewClass 内嵌列表的基类，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
+            11、multiple 是否允许多选，默认false，当tagType为select时有效。
+            12、enablePager 是否启用分页，默认为true
+            13、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前主记录的id值。
+            14、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
          -->
         <!ELEMENT htmlTableSelectDescriptor (property*)>
         <!ATTLIST htmlTableSelectDescriptor
                 column CDATA #REQUIRED
                 otherFieldName CDATA #IMPLIED
                 dataUrl CDATA #REQUIRED
+                dataUrlParams CDATA #IMPLIED
                 beanName CDATA #REQUIRED
                 applyProperty CDATA #IMPLIED
                 applyPropertyKey CDATA #IMPLIED
@@ -786,7 +802,9 @@
                 listViewClass CDATA #REQUIRED
                 multiple (false|true) #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
-                enablePager (true|false) #IMPLIED>
+                enablePager (true|false) #IMPLIED
+                hideExpression CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED>
 
         <!--
             为元素添加一个超级链接或操作
@@ -799,6 +817,8 @@
             5、title 超级链接的title，默认为元素简单注释
             6、method 超级链接的回调方法，默认为href,例如：method="javascript:showDetail()"。需要在js中定义showDetail方法。
             7、keySelector 超级链接的回调方法的参数选择器，默认为id，例如：keySelector="#id"。
+            8、hideExpression 隐藏表达式，用于指定隐藏超级链接的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            9、disabledExpression 禁用表达式，用于指定禁用超级链接的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
         -->
         <!ELEMENT hrefElement EMPTY>
         <!ATTLIST hrefElement
@@ -809,7 +829,9 @@
                 icon CDATA #IMPLIED
                 title CDATA #IMPLIED
                 method CDATA #IMPLIED
-                keySelector CDATA #IMPLIED>
+                keySelector CDATA #IMPLIED
+                hideExpression CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED>
 
         <!--
             为页面添加一个附件上传组件
@@ -843,7 +865,8 @@
                 label  CDATA #IMPLIED
                 afterColumn CDATA #IMPLIED
                 exclusive (true|false) #IMPLIED
-                order CDATA #IMPLIED>
+                order CDATA #IMPLIED
+                hideExpression CDATA #IMPLIED>
 
         <!--
             为页面添加一个审批意见组件
@@ -860,7 +883,8 @@
                 elementKey CDATA #REQUIRED
                 afterColumn CDATA #IMPLIED
                 label  CDATA #IMPLIED
-                locationTag CDATA #IMPLIED>
+                locationTag CDATA #IMPLIED
+                hideExpression CDATA #IMPLIED>
 
         <!--
             用来描述页面列表元素的配置
@@ -888,11 +912,14 @@
             18、enablePager 是否启用分页，默认为false
             19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
             20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
-            21、batchUpdateFields 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
+            21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
             23、totalRow 是否显示合计行，默认为false
             24、totalFields 合计字段，多个字段用逗号分隔，用于指定默认显示合计的字段。
             25、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
+            26、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            27、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            28、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
@@ -916,11 +943,14 @@
                 enablePager (true|false) #IMPLIED
                 vxeListButtons CDATA #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
-                batchUpdateFields CDATA #IMPLIED
+                batchUpdateColumns CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
                 totalRow (true|false) #IMPLIED
                 totalFields CDATA #IMPLIED
                 totalText CDATA #IMPLIED
+                editFormIn (inner|dialog|drawer) #IMPLIED
+                detailFormIn (inner|dialog|drawer) #IMPLIED
+                hideExpression CDATA #IMPLIED
                 restBasePath  CDATA #IMPLIED>
         <!--
             Dao接口生成描述
@@ -1182,6 +1212,8 @@
             27、viewMenuIcon view菜单项目的图标
             28、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
             28、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
+            29、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            30、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             property配置：无
         -->
 
@@ -1218,7 +1250,9 @@
                 equalsAndHashCodeColumns CDATA #IMPLIED
                 viewMenuIcon CDATA #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
-                showRowNumber (true|false) #IMPLIED>
+                showRowNumber (true|false) #IMPLIED
+                editFormIn (inner|dialog|drawer) #IMPLIED
+                detailFormIn (inner|dialog|drawer) #IMPLIED>
         <!--
             用于配置列表列的覆盖信息
             属性信息：
@@ -1282,6 +1316,14 @@
             26、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式（已过期）
             27、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true（已过期）
             28、rowNumberColumn 是否显示序号列，true显示，false不显示。缺省值true
+            29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            30、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
+            31、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            32、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            33、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
+                    如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
+                    如果不指定，则使用默认的表单（配置的第一个）viewPath。
+                    可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenColumns配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
@@ -1318,7 +1360,9 @@
                 width CDATA #IMPLIED
                 evenRow (true|false) #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
-                showRowNumber (true|false) #IMPLIED>
+                showRowNumber (true|false) #IMPLIED
+                editFormIn (inner|dialog|drawer) #IMPLIED
+                detailFormIn (inner|dialog|drawer) #IMPLIED>
 
         <!--
               内置列表列描述符，用于定制列表的列信息
@@ -1499,18 +1543,19 @@
             用于描述个性化的button按钮
             属性信息：
             1、id 必须，按钮id
-            2、text 可选，按钮显示的文本
+            2、text 可选，是否为文本按钮
             3、title 可选，按钮显示的提示信息
-            4、icon 可选，按钮显示的图标
-            5、classes 可选，按钮的样式
-            6、handler 可选，按钮的点击事件处理方法
-            7、type 可选，按钮的类型，button-按钮|link-a标签
-            8、isLink 可选，按钮是否是链接，true-是，false-否。缺省值为false
-            9、isRound 可选，按钮是否是圆角，true-是，false-否。缺省值为false
-            10、isCircle 可选，按钮是否是圆形，true-是，false-否。缺省值为false
-            11、isPlain 可选，按钮是否是朴素按钮，true-是，false-否。缺省值为false
-            12、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
-            13、showCondition 可选。按钮的显示条件。默认为“true”
+            4、label 可选，按钮显示的标签
+            5、icon 可选，按钮显示的图标
+            6、classes 可选，按钮的样式
+            7、handler 可选，按钮的点击事件处理方法
+            8、type 可选，按钮的类型，button-按钮|link-a标签
+            9、isLink 可选，按钮是否是链接，true-是，false-否。缺省值为false
+            10、isRound 可选，按钮是否是圆角，true-是，false-否。缺省值为false
+            11、isCircle 可选，按钮是否是圆形，true-是，false-否。缺省值为false
+            12、isPlain 可选，按钮是否是朴素按钮，true-是，false-否。缺省值为false
+            13、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
+            14、showCondition 可选。按钮的显示条件。默认为“true”
             使用说明：
             1、仅在个性化按钮或者链接时，需要定制。视图的默认操作包括：CREATE,EDIT,REMOVE,SEARCH,REFRESH,EXPORT,IMPORT,PRINT,COLUMN等不需要定制
                     视图操作列中的VIEW,EDIT,DELETE不需要定制；
@@ -1525,8 +1570,9 @@
         <!ELEMENT htmlButton EMPTY>
         <!ATTLIST htmlButton
                 id CDATA #REQUIRED
-                text CDATA #IMPLIED
+                text (true|false) #IMPLIED
                 title CDATA #IMPLIED
+                label CDATA #IMPLIED
                 icon CDATA #IMPLIED
                 classes CDATA #IMPLIED
                 handler CDATA #IMPLIED

@@ -10,7 +10,7 @@
         <div class="layui-clear-space">
         <#list actionColumn as item>
             <${item.type} class="${item.classes}" lay-event="${item.id}" <#if item.title?? && item.title!="" > title="${item.title}"</#if>>
-                <#if item.text?? && item.text!="" > "${item.text}" </#if>
+                <#if item.label?? && item.label!="" > "${item.label}" </#if>
                 <#if item.icon?? && item.icon!="" > <i class="${item.icon}"></i> </#if>
             </${item.type}>
         </#list>
@@ -21,7 +21,7 @@
         <div class="layui-btn-container">
         <#list buttons as item>
             <${item.type} type="button" class="${item.classes}" lay-event="${item.id}" <#if item.title?? && item.title!="" > title="${item.title}"</#if>>
-            <#if item.text?? && item.text!="" > "${item.text}" </#if>
+            <#if item.label?? && item.label!="" > "${item.label}" </#if>
             <#if item.icon?? && item.icon!="" > <i class="${item.icon}"></i> </#if>
             </${item.type}>
         </#list>

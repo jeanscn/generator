@@ -11,6 +11,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.vue3.GeneratedVueFile;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.FieldItem;
@@ -145,6 +146,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             Map<String, Object> privateTableColumnSlotsMap = new HashMap<>();
             privateTableColumnSlotsMap.put("modelName", objectName);
             privateTableColumnSlotsMap.put("tableRemark", tableRemark);
+            privateTableColumnSlotsMap.put("workflowEnabled", GenerateUtils.isWorkflowInstance(introspectedTable));
             String vuePrivateTableColumnSlotsFileName = fileNamePrivateTableColumnSlots + ".vue";
             GeneratedVueFile generatedVuePrivateTableColumnSlotsFile = new GeneratedVueFile(
                     vuePrivateTableColumnSlotsFileName,

@@ -17,6 +17,7 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private String tagType;
 
     private String dataUrl;
+    private String dataUrlParams;
 
     private String dataFormat;
 
@@ -77,6 +78,8 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private Set<String> vxeListButtons = new HashSet<>();
 
     private String defaultFilterExpr;
+    private String hideExpression;
+    private String disabledExpression;
 
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
@@ -400,5 +403,29 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setDefaultFilterExpr(String defaultFilterExpr) {
         this.defaultFilterExpr = defaultFilterExpr;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
+    }
+
+    public String getDisabledExpression() {
+        return disabledExpression;
+    }
+
+    public void setDisabledExpression(String disabledExpression) {
+        this.disabledExpression = disabledExpression;
+    }
+
+    public String getDataUrlParams() {
+        return dataUrlParams;
+    }
+
+    public void setDataUrlParams(String dataUrlParams) {
+        this.dataUrlParams = dataUrlParams;
     }
 }
