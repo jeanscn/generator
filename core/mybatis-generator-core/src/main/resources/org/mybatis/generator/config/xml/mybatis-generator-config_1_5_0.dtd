@@ -41,7 +41,7 @@
           3、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型范围，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
           4、htmlTargetProject 页面文件所在的路径。默认值：src/main/resources/templates
-          5、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
+          5、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           6、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           7、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           特别说明：
@@ -193,7 +193,7 @@
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
             3、processDefinedKey 流程定义的key。当父类指定为流程类抽象类的时候，可以指定本参数，如果不为空，则会生成流程定义数据sql
             3、superInterface 对象实现的接口全类名，多值”,“分割
-            4、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
+            4、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             5、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             6、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             属性默认值：
@@ -527,7 +527,7 @@
             8、targetProject 视图路径，默认"src/main/resources/templates"
             9、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
             可能的property配置：
-            1、htmlHiddenColumns 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
+            1、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             2、requiredColumns 页面文件中必填的列，多个”,“分隔。
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
             4、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。
