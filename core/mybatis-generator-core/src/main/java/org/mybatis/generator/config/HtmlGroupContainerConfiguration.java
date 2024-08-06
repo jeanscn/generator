@@ -20,6 +20,8 @@ public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
 
     private boolean noBorder = false;
 
+    private String hideExpression;
+
     private List<HtmlGroupContainerConfiguration> groupContainerConfigurations = new ArrayList<>();
     public String getElementKey() {
         return elementKey;
@@ -99,5 +101,13 @@ public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
     }
 }

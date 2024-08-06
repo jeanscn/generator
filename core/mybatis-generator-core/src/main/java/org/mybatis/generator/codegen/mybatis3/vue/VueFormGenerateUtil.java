@@ -63,34 +63,32 @@ public class VueFormGenerateUtil {
             } else {
                 vueFormItemMetaDesc.setComponent(elementDescriptor.getTagType());
             }
-        } else {
-            if (introspectedColumn != null) {
-                if (introspectedColumn.isNumericColumn()) {
-                    vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.NUMBER.codeName());
-                } else if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
-                    vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.DATE.codeName());
-                } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
-                    vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.TIME.codeName());
-                } else if (introspectedColumn.isLongVarchar()) {
-                    vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.EDITOR.codeName());
-                } else if (introspectedColumn.getFullyQualifiedJavaType().getShortName().equalsIgnoreCase("boolean")) {
-                    vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.SWITCH.codeName());
-                } else {
-                    vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.INPUT.codeName());
-                }
-                if (HtmlElementTagTypeEnum.INPUT.codeName().equals(vueFormItemMetaDesc.getComponent())) {
-                    if (introspectedColumn.getLength() > 500) {
-                        vueFormItemMetaDesc.setSpan(24);
-                    }
-                    if (introspectedColumn.getLength() > 1500) {
-                        vueFormItemMetaDesc.setType("textarea");
-                    }
-                } else if (HtmlElementTagTypeEnum.EDITOR.codeName().equals(vueFormItemMetaDesc.getComponent())) {
-                    vueFormItemMetaDesc.setSpan(24);
-                }
+        } else if (introspectedColumn != null) {
+            if (introspectedColumn.isNumericColumn()) {
+                vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.NUMBER.codeName());
+            } else if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
+                vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.DATE.codeName());
+            } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
+                vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.TIME.codeName());
+            } else if (introspectedColumn.isLongVarchar()) {
+                vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.EDITOR.codeName());
+            } else if (introspectedColumn.getFullyQualifiedJavaType().getShortName().equalsIgnoreCase("boolean")) {
+                vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.SWITCH.codeName());
             } else {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.INPUT.codeName());
             }
+        } else {
+            vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.INPUT.codeName());
+        }
+        if (HtmlElementTagTypeEnum.INPUT.codeName().equals(vueFormItemMetaDesc.getComponent()) && introspectedColumn != null) {
+            if (introspectedColumn.getLength() > 499) {
+                vueFormItemMetaDesc.setSpan(24);
+            }
+            if (introspectedColumn.getLength() > 1499) {
+                vueFormItemMetaDesc.setType("textarea");
+            }
+        } else if (HtmlElementTagTypeEnum.EDITOR.codeName().equals(vueFormItemMetaDesc.getComponent())) {
+            vueFormItemMetaDesc.setSpan(24);
         }
     }
 
@@ -239,7 +237,7 @@ public class VueFormGenerateUtil {
         }
 
         //是否为htmlElementRequired的字段
-        if (formItemRules.stream().noneMatch(r->r.getVueFormItemMetaDesc().getFieldName().equals(introspectedColumn.getJavaProperty()) && r.isRequired())) {
+        if (formItemRules.stream().noneMatch(r -> r.getVueFormItemMetaDesc().getFieldName().equals(introspectedColumn.getJavaProperty()) && r.isRequired())) {
             if (htmlGeneratorConfiguration.getElementRequired().contains(introspectedColumn.getActualColumnName())) {
                 FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
                 formItemRule.setRequired(true);
@@ -258,7 +256,7 @@ public class VueFormGenerateUtil {
             vueFormItemMetaDesc.setRemoteValueType(elementDescriptor.getRemoteValueType());
         } else {
             if (introspectedColumn != null) {
-                if(introspectedColumn.isBooleanColumn()){
+                if (introspectedColumn.isBooleanColumn()) {
                     vueFormItemMetaDesc.setRemoteValueType("boolean");
                 } else if (introspectedColumn.isNumericColumn()) {
                     vueFormItemMetaDesc.setRemoteValueType("number");

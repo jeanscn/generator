@@ -1044,8 +1044,7 @@ public class TableConfiguration extends PropertyHolder {
 //        this.getHtmlHiddenFields().addAll(columnSet.stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toSet()));
         this.getHtmlHiddenFields().addAll(hiddenColumnNames);
         //html的隐藏列
-        this.getHtmlMapGeneratorConfigurations()
-                .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenColumnNames().addAll(this.getHtmlHiddenFields()));
+        this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenFieldNames().addAll(this.getHtmlHiddenFields()));
         //html只读列
         Set<String> readOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_READONLY_FIELDS);
         introspectedTable.getTableConfiguration().getHtmlReadonlyFields().addAll(readOnlyFields);
@@ -1103,7 +1102,7 @@ public class TableConfiguration extends PropertyHolder {
                 .forEach(column -> this.getHtmlMapGeneratorConfigurations()
                         .forEach(htmlConfiguration -> {
                             if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
-                                    && !htmlConfiguration.getHiddenColumnNames().contains(column.getActualColumnName())) {
+                                    && !htmlConfiguration.getHiddenFieldNames().contains(column.getJavaProperty())) {
                                 List<HtmlElementDescriptor> elementDescriptors = htmlConfiguration.getElementDescriptors();
                                 HtmlElementDescriptor htmlElementDescriptor = null;
                                 if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.STATE.columnName())) {
@@ -1265,12 +1264,7 @@ public class TableConfiguration extends PropertyHolder {
                                     innerListViewConfiguration.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                                     htmlElements.addAll(htmlGeneratorConfiguration.getElementDescriptors());
                                     innerListViewConfiguration.getReadonlyFields().addAll(htmlGeneratorConfiguration.getReadonlyFields());
-                                    Set<String> fields = htmlGeneratorConfiguration.getHiddenColumnNames().stream()
-                                            .map(introspectedTable::getColumn)
-                                            .filter(Optional::isPresent)
-                                            .map(Optional::get)
-                                            .map(IntrospectedColumn::getJavaProperty)
-                                            .collect(Collectors.toSet());
+                                    Set<String> fields = htmlGeneratorConfiguration.getHiddenFieldNames();
                                     innerListViewConfiguration.getDefaultHiddenFields().addAll(fields);
                                     innerListViewConfiguration.getRequiredColumns().addAll(htmlGeneratorConfiguration.getElementRequired());
                                 });

@@ -19,14 +19,11 @@
                         <PrivateTableColumnSlots :scope="scope" :slotName="column.prop"></PrivateTableColumnSlots>
                     </template>
                 </vgo-table>
-                <VgoDialog v-model="showDialog" :title="pageTitle" :popSize="popSize" @close="destroyForm"
+                <VgoDialog v-model="showDialog" :title="pageTitle" :popSize="popSize" :draggable="popDraggable" @close="destroyForm"
                            :closeOnClickModal=false :closeOnPressEscape=false>
-                    <template #header>
-                        <span class="el-dialog__title">{{ pageTitle }}</span>
-                    </template>
-                    <${ componentName }Edit v-if="showDialog && viewStatus === 1" ref="bizFormRef" v-model="formData" :draggable="popDraggable"
+                    <${ componentName }Edit v-if="showDialog && viewStatus === 1" ref="bizFormRef" v-model="formData"
                                         :formConfig="formConfig" :viewStatus="viewStatus" @form-submit="onSubmit"></${ componentName }Edit>
-                    <${ componentName }Detail v-if="showDialog && viewStatus === 0" ref="bizFormRef" v-model="formData" :draggable="popDraggable"
+                    <${ componentName }Detail v-if="showDialog && viewStatus === 0" ref="bizFormRef" v-model="formData"
                                           :formConfig="formConfig" :viewStatus="viewStatus"></${ componentName }Detail>
                     <template #footer>
                         <FormButtonsBar v-model="formData" :formConfig="formConfig" :viewStatus="viewStatus"
@@ -34,7 +31,7 @@
                         </FormButtonsBar>
                     </template>
                 </VgoDialog>
-                <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected"
+                <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="getDrawerTitle"
                                :vgoTreeProps="{ checkStrictly: checkStrictly }" :apiObj="drawerTreeApiObj"
                                :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
                 </VgoTreeDrawer>
@@ -103,7 +100,7 @@
     const formConfig = ref<TFormConfig>();
     const formData = ref<T${ componentName }>({});
     const popSize = ref<string>('default');
-    const popDraggable = ref<boolean>(true);
+    const popDraggable = ref<boolean>(false);
     const bizFormRef = ref();
     const restBasePath = ref<any>('');
     const showTreeDrawer = ref<boolean>(false);
@@ -112,6 +109,7 @@
     const treeSelected = ref<string[]>([]);
     const checkStrictly = ref(false);
     const drawerOnButtonId = ref('');
+    const buttonRef = ref<IButtonProps>();
     const mainRecordId = ref('');
     const categoryTreeUrl = ref('');
     const service = ref<ServiceApi<any>>();
@@ -149,7 +147,7 @@
         }
     });
 
-    const globalDailog:Ref<TGlobalDialog> = inject('globalDailog', ref({
+    const globalDialog:Ref<TGlobalDialog> = inject('globalDialog', ref({
         openGlobalDialog: () => {
             console.log('openGlobalDialog()不存在');
         },
@@ -180,8 +178,8 @@
         pageTitle.value = _tableConfigProps.value!.listName || '';
         tableColumns.value = _tableConfigProps.value!.tableColumns;
         restBasePath.value = _tableConfigProps.value!.restBasePath;
-        applyWorkflow.value = _tableConfigProps.value!.applyWorkflow;
-        moduleId.value = _tableConfigProps.value!.moduleId;
+        applyWorkflow.value = _tableConfigProps.value!.applyWorkflow || 0;
+        moduleId.value = _tableConfigProps.value!.moduleId || '';
         service.value = new ServiceApi(restBasePath.value);
         tableConfigReady.value = true;
         let cateUrl = _tableConfigProps.value!.categoryTreeUrl;
@@ -198,6 +196,8 @@
 
     const defaultViewRowActionHandler = (rowData: any, button: IButtonProps) => {
         drawerOnButtonId.value = button.id;
+        formData.value = rowData;
+        buttonRef.value = button;
         let params: TViewRowActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
             moduleId: moduleId.value,
@@ -215,7 +215,7 @@
             showFormDrawer: showFormDrawer,
             mainRecordId: mainRecordId,
             viewStatus: viewStatus,
-            globalDailog: globalDailog,
+            globalDialog: globalDialog,
             globalDrawer: globalDrawer,
             i18n: i18n,
             tableConfigProps: _tableConfigProps,
@@ -225,6 +225,7 @@
 
     const defaultDtCustomButtonActionHandler = (selectedRows: T${ componentName }[], button: IButtonProps) => {
         drawerOnButtonId.value = button.id;
+        buttonRef.value = button;
         let params: TDtCustomButtonActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
             moduleId: moduleId.value,
@@ -240,7 +241,7 @@
             tableRef: tableRef as Ref<any>,
             pageTitle: pageTitle,
             viewStatus: viewStatus,
-            globalDailog: globalDailog,
+            globalDialog: globalDialog,
             globalDrawer: globalDrawer,
             i18n: i18n,
             tableConfigProps: _tableConfigProps,
@@ -249,6 +250,7 @@
     };
 
     const defaultFormButtonActionHandler = (button: IButtonProps,popType:string) => {
+        buttonRef.value = button;
         let params: TFormButtonActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
             moduleId: moduleId.value,
@@ -263,13 +265,17 @@
             showFormDrawer: showFormDrawer,
             popType: popType,
             bizFormRef: bizFormRef,
-            globalDailog: globalDailog,
+            globalDialog: globalDialog,
             globalDrawer: globalDrawer,
             i18n: i18n,
             viewStatus: viewStatus,
         };
         extMethod.defaultFormButtonActionHandler<T${ componentName }>(params);
     };
+
+    const getDrawerTitle = computed(() => {
+        return buttonRef.value?.label || '选择';
+    });
 
     const treeDrawerCheckCheck = (params: TTreeCheckDataProps) => {
         params = {

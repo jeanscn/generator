@@ -33,13 +33,11 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean overWriteVueDetail = true;
 
-    private final Set<String> hiddenColumnNames = new HashSet<>();
+    private final Set<String> hiddenFieldsNames = new HashSet<>();
 
     private final Set<String> readonlyFields = new HashSet<>();
 
     private final Set<String> displayOnlyFields = new HashSet<>();
-
-    private final Set<String> hiddenFields = new HashSet<>();
 
     //指定页面表单不允许为空的字段
     private final Set<String> elementRequired = new HashSet<>();
@@ -129,13 +127,8 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         this.overWriteJsFile = overWriteJsFile;
     }
 
-    public Set<String> getHiddenColumnNames() {
-        return hiddenColumnNames;
-    }
-
-
-    public Set<String> getHiddenFields() {
-        return hiddenFields;
+    public Set<String> getHiddenFieldNames() {
+        return hiddenFieldsNames;
     }
 
     public Set<String> getElementRequired() {

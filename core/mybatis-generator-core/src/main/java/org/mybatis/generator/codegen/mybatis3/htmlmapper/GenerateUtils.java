@@ -23,8 +23,8 @@ public class GenerateUtils {
         if (htmlGeneratorConfiguration == null) {
             return false;
         }
-        Set<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenColumnNames();
-        return hiddenColumn.contains(introspectedColumn.getActualColumnName());
+        Set<String> hiddenColumn = htmlGeneratorConfiguration.getHiddenFieldNames();
+        return hiddenColumn.contains(introspectedColumn.getJavaProperty());
     }
     public static String getLocalCssFilePath(String path, String filename) {
         String css = GenerateUtils.genLocalFilePath(path, filename, "css");

@@ -29,6 +29,8 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     private boolean noBorder = false;
 
+    private String hideExpression;
+
     public VueFormContainerMetaDesc() {
         super();
         this.addImports(VueFormContainerMeta.class.getCanonicalName());
@@ -46,6 +48,7 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
         this.afterColumn = htmlGroupContainerConfiguration.getAfterColumn();
         this.includeElements = String.join(",", htmlGroupContainerConfiguration.getIncludeElements());
         this.noBorder = htmlGroupContainerConfiguration.isNoBorder();
+        this.hideExpression = htmlGroupContainerConfiguration.getHideExpression();
     }
 
     @Override
@@ -79,6 +82,9 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
         }
         if (noBorder) {
             items.add("noBorder = true");
+        }
+        if (stringHasValue(hideExpression)) {
+            items.add(format("hideExpression = \"{0}\"", hideExpression));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -162,5 +168,13 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getHideExpression() {
+        return hideExpression;
+    }
+
+    public void setHideExpression(String hideExpression) {
+        this.hideExpression = hideExpression;
     }
 }

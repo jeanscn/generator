@@ -547,6 +547,7 @@
         -->
         <!ELEMENT generateHtml (property*,layout?,htmlElementDescriptor*,htmlFormExtendDescriptor*,htmlSwitchDescriptor*,htmlTableSelectDescriptor*,htmlFileAttachment*,approvalComment*,htmlElementInnerList*,htmlButton*)>
         <!ATTLIST generateHtml
+                key CDATA #IMPLIED
                 generate (true|false) #REQUIRED
                 type (editable|viewOnly|print) #IMPLIED
                 viewPath CDATA #IMPLIED
@@ -602,6 +603,12 @@
            7、afterColumn 容器前置元素
            8、includeElements 包含的元素，多个元素用逗号分隔（使用列名或elementKey）字段的columnName或者子容器的elementKey
            9、noBorder 是否无边框，默认false
+           10、hideExpression 隐藏表达式，用于控制元素的显示与隐藏，例如：hideExpression="$.type=='1'"，表示当表单数据的type属性等于1时隐藏元素
+           说明：
+              1、hideExpression表达式中的，
+                 1）可以通过$.属性名的方式引用当前表单数据的属性；
+                 2）也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态；
+                 3）可以使用currentUser属性应用当前用户的数据对象。currentUser.roleType == 0 表示当前用户为超级管理员，currentUser.roleType == 1 表示当前用户为管理员，currentUser.roleType == 2 表示当前用户为普通用户。
            -->
         <!ELEMENT groupContainer (property*,groupContainer*)>
         <!ATTLIST groupContainer
@@ -613,7 +620,8 @@
                 columnNum (1|2|3|4|6|12) #IMPLIED
                 afterColumn CDATA #IMPLIED
                 includeElements CDATA #IMPLIED
-                noBorder (false|true) #IMPLIED>
+                noBorder (false|true) #IMPLIED
+                hideExpression CDATA #IMPLIED>
 
         <!--
             页面元素生成描述
@@ -678,7 +686,7 @@
             22、keyMapValue 数据源中的value字段名，默认为value。
             23、enablePager 是否启用分页，默认为false
             24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
-            25、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            25、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             26、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             27、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             28、dataUrlParams 数据接口url的请求参数，用于指定请求参数，如：id=1或者id=#id#&a=1。,#XXX#表示当前记录的XXX属性值。
@@ -695,6 +703,9 @@
                 6、author_、apply_handler_id、apply_user_id：将生成带有当前用户标识初始数据的只读字段，tagType为input，dataSource为User。
                 7、apply_dept_id ：将生成带有当前用户部门标识初始数据的只读字段，tagType为input，dataSource为Department。
                 8、apply_org_id：将生成带有当前用户机构标识初始数据的只读字段，tagType为input，dataSource为Organization。
+            说明：
+            1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
+            2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
         -->
         <!ELEMENT htmlElementDescriptor (property*,hrefElement?)>
         <!ATTLIST htmlElementDescriptor
@@ -757,8 +768,13 @@
             5、designRestBasePath 设计资源基础路径，用于指定设计资源的访问路径，渲染时（formRender）有效。与designIdField组合，用来获取当前选定渲染的设计资源数据。
             6、configJsonfield 配置json数据保存的字段名，主要用来保存页面元素的配置信息。设计时对应的字段属性名，渲染时（formRender）有效有效，默认为jsonContent
                 补充:该属性将保存在注解的dataUrl属性中.
-            7、hideExpression 隐藏表达式，用于指定隐藏表单的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            7、hideExpression 隐藏表达式，用于指定隐藏表单的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             8、disabledExpression 禁用表达式，用于指定禁用表单的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
+            说明：
+             1、hideExpression表达式中的，
+                 1）可以通过$.属性名的方式引用当前表单数据的属性；
+                 2）也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态；
+                 3）可以使用currentUser属性应用当前用户的数据对象。currentUser.roleType == 0 表示当前用户为超级管理员，currentUser.roleType == 1 表示当前用户为管理员，currentUser.roleType == 2 表示当前用户为普通用户。
             -->
         <!ELEMENT htmlFormExtendDescriptor (properties*)>
         <!ATTLIST htmlFormExtendDescriptor
@@ -785,8 +801,11 @@
             10、listViewClass 内嵌列表的基类，用于引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
             11、multiple 是否允许多选，默认false，当tagType为select时有效。
             12、enablePager 是否启用分页，默认为true
-            13、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前主记录的id值。
-            14、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            13、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
+            14、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            说明：
+            1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
+            2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
          -->
         <!ELEMENT htmlTableSelectDescriptor (property*)>
         <!ATTLIST htmlTableSelectDescriptor
@@ -817,8 +836,13 @@
             5、title 超级链接的title，默认为元素简单注释
             6、method 超级链接的回调方法，默认为href,例如：method="javascript:showDetail()"。需要在js中定义showDetail方法。
             7、keySelector 超级链接的回调方法的参数选择器，默认为id，例如：keySelector="#id"。
-            8、hideExpression 隐藏表达式，用于指定隐藏超级链接的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            8、hideExpression 隐藏表达式，用于指定隐藏超级链接的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             9、disabledExpression 禁用表达式，用于指定禁用超级链接的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
+            说明：
+              1、hideExpression表达式中的，
+                 1）可以通过$.属性名的方式引用当前表单数据的属性；
+                 2）也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态；
+                 3）可以使用currentUser属性应用当前用户的数据对象。currentUser.roleType == 0 表示当前用户为超级管理员，currentUser.roleType == 1 表示当前用户为管理员，currentUser.roleType == 2 表示当前用户为普通用户。
         -->
         <!ELEMENT hrefElement EMPTY>
         <!ATTLIST hrefElement
@@ -850,6 +874,7 @@
             12、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
             说明：
             1、当location为table或local时需要指定一个restBasePath，用于指定附件上传的基础路径，既一个存储表的基础访问路径或者本地存储的完整请求路径。
+            2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
 
         -->
         <!ELEMENT htmlFileAttachment EMPTY>
@@ -876,6 +901,11 @@
             3、afterColumn 在指定列的后面添加审批意见组件,如果未指定或指定的字段不存在。则放置在最后一行。
             4、label 审批意见组件的标题，默认为“审批意见”
             5、locationTag 审批意见组件的位置标签，默认为“审批意见”
+            说明：
+              1、hideExpression表达式中的，
+                 1）可以通过$.属性名的方式引用当前表单数据的属性；
+                 2）也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态；
+                 3）可以使用currentUser属性应用当前用户的数据对象。currentUser.roleType == 0 表示当前用户为超级管理员，currentUser.roleType == 1 表示当前用户为管理员，currentUser.roleType == 2 表示当前用户为普通用户。
                 -->
         <!ELEMENT approvalComment EMPTY>
         <!ATTLIST approvalComment
@@ -911,7 +941,7 @@
             17、editableFields 编辑字段，多个字段用逗号分隔，用于指定默认允许编辑的字段，如果不指定则默认为所有字段。
             18、enablePager 是否启用分页，默认为false
             19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
-            20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
             23、totalRow 是否显示合计行，默认为false
@@ -919,7 +949,10 @@
             25、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
             26、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             27、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            28、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            28、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            说明：
+            1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
+            2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
         -->
         <!ELEMENT htmlElementInnerList EMPTY>
         <!ATTLIST htmlElementInnerList
@@ -1210,11 +1243,13 @@
             25、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
             26、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
             27、viewMenuIcon view菜单项目的图标
-            28、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            28、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             28、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
             29、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             30、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             property配置：无
+            说明：
+            1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
         -->
 
         <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*,htmlButton*,queryColumn*,fieldOverrides*)>
@@ -1316,7 +1351,7 @@
             26、skin：列表的皮肤，包括：grid-表格、line-行、row-行、nob-无边框四种形式（已过期）
             27、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true（已过期）
             28、rowNumberColumn 是否显示序号列，true显示，false不显示。缺省值true
-            29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = '#xxx#'。可以使用占位符#id#，表示当前记录的id值。
+            29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。。
             30、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
             31、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             32、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
@@ -1328,6 +1363,8 @@
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
             3、showRowNumber 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
+            说明：
+            1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
        -->
         <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*,htmlButton*,queryColumn*)>
         <!ATTLIST innerListView
@@ -1564,7 +1601,7 @@
             4、如果定义了个性化按钮，需要在视图的defaultToolbar属性中指定该按钮的id，多个按钮用”,“分隔。
             5、handler属性指定的方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
                     视图的操作按钮中的参数为：function handlerFunc(e, dt, node, config,id)，其中id为定义的按钮id，可以通过这个id来区分不同的按钮
-            6、showCondition 表达式中可以使用data表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象），如：data.type==‘1’ and data.status==‘1’
+            6、showCondition 表达式中可以使用$表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象），如：$.type == ‘1’ and $.status == ‘1’,$.xxx后面要紧跟空格
             7、uiFrameType 页面框架名称，layui|zui|elPlus|antd，1.6.0版本新增默认为elPlus
             -->
         <!ELEMENT htmlButton EMPTY>
@@ -1630,3 +1667,11 @@
                 sourceArguments CDATA #IMPLIED
                 targetArguments CDATA #IMPLIED
                 type (single|list) #IMPLIED>
+        <!--
+        xml文件中特殊字符的转义字符
+        &lt;  < 小于
+        &gt;  > 大于
+        &amp; & 和
+        &apos; ' 单引号
+        &quot; " 双引号
+        -->

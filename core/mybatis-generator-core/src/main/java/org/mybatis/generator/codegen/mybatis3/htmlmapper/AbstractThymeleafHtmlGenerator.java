@@ -100,7 +100,7 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
     }
 
     protected boolean isHidden(IntrospectedColumn introspectedColumn) {
-        return this.htmlGeneratorConfiguration.getHiddenColumnNames().contains(introspectedColumn.getActualColumnName());
+        return this.htmlGeneratorConfiguration.getHiddenFieldNames().contains(introspectedColumn.getJavaProperty());
     }
 
     protected boolean isDisplayOnly(IntrospectedColumn introspectedColumn) {

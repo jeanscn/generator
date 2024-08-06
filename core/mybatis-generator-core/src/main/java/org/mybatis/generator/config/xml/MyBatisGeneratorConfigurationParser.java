@@ -1412,6 +1412,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(noBorder)) {
             htmlGroupContainerConfiguration.setNoBorder(Boolean.parseBoolean(noBorder));
         }
+        String hideExpression = attributes.getProperty("hideExpression");
+        if (stringHasValue(hideExpression)) {
+            htmlGroupContainerConfiguration.setHideExpression(hideExpression);
+        }
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -1441,25 +1445,25 @@ public class MyBatisGeneratorConfigurationParser {
             case PropertyRegistry.ANY_HTML_HIDDEN_FIELDS:
                 String htmlHiddenFields = properties.get("value").toString();
                 if (stringHasValue(htmlHiddenFields)) {
-                    htmlGeneratorConfiguration.getHiddenColumnNames().addAll(splitToList(htmlHiddenFields));
+                    htmlGeneratorConfiguration.getHiddenFieldNames().addAll(splitToSet(htmlHiddenFields));
                 }
                 break;
             case PropertyRegistry.ELEMENT_REQUIRED_COLUMNS:
                 String required = properties.get("value").toString();
                 if (stringHasValue(required)) {
-                    htmlGeneratorConfiguration.getElementRequired().addAll(splitToList(required));
+                    htmlGeneratorConfiguration.getElementRequired().addAll(splitToSet(required));
                 }
                 break;
             case PropertyRegistry.ANY_HTML_READONLY_FIELDS:
                 String readonly = properties.get("value").toString();
                 if (stringHasValue(readonly)) {
-                    htmlGeneratorConfiguration.getReadonlyFields().addAll(splitToList(readonly));
+                    htmlGeneratorConfiguration.getReadonlyFields().addAll(splitToSet(readonly));
                 }
                 break;
             case PropertyRegistry.ANY_HTML_DISPLAY_ONLY_FIELDS:
                 String displayOnly = properties.get("value").toString();
                 if (stringHasValue(displayOnly)) {
-                    htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(splitToList(displayOnly));
+                    htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(splitToSet(displayOnly));
                 }
                 break;
         }
