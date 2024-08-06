@@ -4,11 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="修正日期时间格式的字段的生成静态代码初始值的问题">
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="java17">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/ServiceMethods.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/ServiceMethods.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/AbstractThymeleafHtmlGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/AbstractThymeleafHtmlGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/GenerateUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/GenerateUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vue/VueFormGenerateUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vue/VueFormGenerateUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGeneratorConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGroupContainerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGroupContainerConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormContainerMetaDesc.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormContainerMetaDesc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_html_fragments.html.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_html_fragments.html.ftl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/vue3/vue_module_list.vue.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/vue3/vue_module_list.vue.ftl" afterDir="false" />
     </list>
-    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes" />
+    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_11_31___Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_11_31___Changes_.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,6 +75,28 @@
       </UrlAndAccount>
     </option>
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/.idea/workspace.xml">
+      <ranges>
+        <range start1="6" end1="7" start2="6" end2="25" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="8" end1="9" start2="26" end2="26" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="10" end1="11" start2="27" end2="27" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="60" end1="60" start2="76" end2="98" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="78" end1="79" start2="116" end2="117" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="84" end1="85" start2="122" end2="123" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="95" end1="96" start2="133" end2="134" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="108" end1="108" start2="146" end2="147" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="110" end1="110" start2="149" end2="154" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="125" end1="126" start2="169" end2="170" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="127" end1="127" start2="171" end2="172" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="189" end1="189" start2="234" end2="241" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="635" end1="635" start2="687" end2="727" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="979" end1="980" start2="1071" end2="1072" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
+        <range start1="1020" end1="1021" start2="1112" end2="1112" changelist="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" />
+        <range start1="1045" end1="1046" start2="1136" end2="1138" changelist="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" />
+      </ranges>
+    </file>
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -76,13 +114,13 @@
         <option name="downloadAnnotationsAutomatically" value="true" />
         <option name="downloadDocsAutomatically" value="true" />
         <option name="downloadSourcesAutomatically" value="true" />
-        <option name="jdkForImporter" value="1.8" />
+        <option name="jdkForImporter" value="17" />
         <option name="workspaceImportForciblyTurnedOn" value="true" />
       </MavenImportingSettings>
     </option>
   </component>
   <component name="MavenRunner">
-    <option name="jreName" value="1.8" />
+    <option name="jreName" value="17" />
     <option name="skipTests" value="true" />
   </component>
   <component name="ProblemsViewState">
@@ -93,7 +131,7 @@
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="27bCEpsdgtpBq5xe9rIDkbuBVc9" />
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
@@ -106,8 +144,14 @@
   &quot;keyToString&quot;: {
     &quot;JUnit.XmlCodeGenerationTest.testXmlParse.executor&quot;: &quot;Debug&quot;,
     &quot;Maven.mybatis-generator [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator [compile].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator [deploy].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator-core [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator-core [deploy].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator-maven-plugin [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator-maven-plugin [deploy].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator-maven-plugin [install].executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
@@ -123,8 +167,9 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
     &quot;spring.configuration.checksum&quot;: &quot;3c0d6ba51a0e8e5e7ee3724f3660977e&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -186,6 +231,13 @@
         <item itemvalue="JUnit.XmlCodeGenerationTest.testXmlParse" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-1.8.0_402-corretto-1.8.0_402-4caba194b151-ae57be32" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -633,6 +685,46 @@
       <workItem from="1711807481456" duration="436000" />
       <workItem from="1711808035032" duration="18889000" />
       <workItem from="1712021612505" duration="3289000" />
+      <workItem from="1717265241946" duration="2943000" />
+      <workItem from="1717408394254" duration="2475000" />
+      <workItem from="1717616793667" duration="1009000" />
+      <workItem from="1717636869216" duration="10110000" />
+      <workItem from="1717853103008" duration="7686000" />
+      <workItem from="1718176166504" duration="2849000" />
+      <workItem from="1718329742072" duration="58000" />
+      <workItem from="1718352361548" duration="7098000" />
+      <workItem from="1718429243805" duration="3064000" />
+      <workItem from="1718552003059" duration="13097000" />
+      <workItem from="1718842910749" duration="2358000" />
+      <workItem from="1719120312322" duration="2805000" />
+      <workItem from="1719189829594" duration="788000" />
+      <workItem from="1719244305237" duration="614000" />
+      <workItem from="1719245550551" duration="676000" />
+      <workItem from="1719280838399" duration="1599000" />
+      <workItem from="1719395942074" duration="4939000" />
+      <workItem from="1719454942262" duration="35577000" />
+      <workItem from="1719801932437" duration="15443000" />
+      <workItem from="1719966301819" duration="8041000" />
+      <workItem from="1720264652474" duration="4185000" />
+      <workItem from="1720281147969" duration="22123000" />
+      <workItem from="1720360425097" duration="1809000" />
+      <workItem from="1720374284810" duration="26293000" />
+      <workItem from="1720658716488" duration="7007000" />
+      <workItem from="1721005620082" duration="190000" />
+      <workItem from="1721135517776" duration="23513000" />
+      <workItem from="1721457499868" duration="1742000" />
+      <workItem from="1721487937250" duration="1483000" />
+      <workItem from="1721588479835" duration="2631000" />
+      <workItem from="1721595633325" duration="11022000" />
+      <workItem from="1721827534481" duration="735000" />
+      <workItem from="1721956764104" duration="1976000" />
+      <workItem from="1722051196009" duration="3165000" />
+      <workItem from="1722128592392" duration="4612000" />
+      <workItem from="1722173741282" duration="24211000" />
+      <workItem from="1722666758889" duration="3212000" />
+      <workItem from="1722756217010" duration="379000" />
+      <workItem from="1722766154214" duration="2327000" />
+      <workItem from="1722784864060" duration="2876000" />
     </task>
     <task id="LOCAL-00015" summary="调整context的几个property为attribute">
       <created>1662480978993</created>
@@ -977,7 +1069,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="100" />
+    <option name="localTasksCounter" value="105" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
