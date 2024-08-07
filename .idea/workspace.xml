@@ -4,9 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="branch about">
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="java17">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_27__Ignore_Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-04-11_11_27__Ignore_Changes_.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_9_53___Ignore_Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_9_53___Ignore_Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/mybatis-generator-core.iml" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/mybatis-generator-core.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/AbstractServiceElementGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/service/AbstractServiceElementGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" afterDir="false" />
     </list>
     <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes" />
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +41,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="generator150" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -65,8 +75,9 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
+        <option name="customMavenHome" value="D:\java\apache-maven-3.9.0" />
         <option name="localRepository" value="D:\MavenRepo\local" />
-        <option name="mavenHome" value="D:\java\apache-maven-3.9.0" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
         <option name="userSettingsFile" value="D:\java\apache-maven-3.9.0\conf\settings.xml" />
       </MavenGeneralSettings>
     </option>
@@ -77,16 +88,6 @@
         <option name="downloadSourcesAutomatically" value="true" />
         <option name="jdkForImporter" value="1.8" />
       </MavenImportingSettings>
-    </option>
-    <option name="enabledProfiles">
-      <list>
-        <option value="release" />
-      </list>
-    </option>
-    <option name="disabledProfiles">
-      <list>
-        <option value="jdk9on" />
-      </list>
     </option>
   </component>
   <component name="MavenRunner">
@@ -101,7 +102,7 @@
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="27bCEpsdgtpBq5xe9rIDkbuBVc9" />
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
@@ -115,6 +116,7 @@
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "Maven.mybatis-generator [clean].executor": "Run",
     "Maven.mybatis-generator [deploy].executor": "Run",
+    "Maven.mybatis-generator [install].executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",

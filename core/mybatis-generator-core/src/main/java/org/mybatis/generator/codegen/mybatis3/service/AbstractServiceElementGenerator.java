@@ -1,23 +1,20 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.AbstractGenerator;
-import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.ReturnTypeEnum;
-import org.mybatis.generator.custom.pojo.*;
+import org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
 public abstract class AbstractServiceElementGenerator extends AbstractGenerator {
 
@@ -76,7 +73,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         serviceMethods = new ServiceMethods(context, introspectedTable);
     }
 
-    protected void outSubBatchMethodBody(Method method, String actionType, String entityVar, TopLevelClass parent, List<RelationGeneratorConfiguration> configs, boolean resultInt) {
+    protected void outSubBatchMethodBody(Method method, String actionType, String entityVar, TopLevelClass parent, List<org.mybatis.generator.custom.pojo.RelationGeneratorConfiguration> configs, boolean resultInt) {
         for (RelationGeneratorConfiguration config : configs) {
             boolean isCollection = config.getType().equals(RelationTypeEnum.collection);
             if (isCollection) {
