@@ -150,7 +150,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     private void addSelectByExampleWithChildrenCountMethod(Interface interfaze) {
-        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent() && introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithChildrenCountMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }

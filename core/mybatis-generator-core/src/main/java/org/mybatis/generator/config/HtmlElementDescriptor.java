@@ -45,7 +45,7 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String elementCss;
 
-    private String dateFmt;
+    private String dataFmt;
 
     private boolean dateRange = false;
 
@@ -80,6 +80,7 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private String defaultFilterExpr;
     private String hideExpression;
     private String disabledExpression;
+    private Set<String> watchFields = new HashSet<>();
 
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
@@ -249,12 +250,12 @@ public class HtmlElementDescriptor  extends PropertyHolder{
         this.elementCss = elementCss;
     }
 
-    public String getDateFmt() {
-        return dateFmt;
+    public String getDataFmt() {
+        return dataFmt;
     }
 
-    public void setDateFmt(String dateFmt) {
-        this.dateFmt = dateFmt;
+    public void setDataFmt(String dataFmt) {
+        this.dataFmt = dataFmt;
     }
 
     public boolean isDateRange() {
@@ -427,5 +428,13 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setDataUrlParams(String dataUrlParams) {
         this.dataUrlParams = dataUrlParams;
+    }
+
+    public Set<String> getWatchFields() {
+        return watchFields;
+    }
+
+    public void setWatchFields(Set<String> watchFields) {
+        this.watchFields = watchFields;
     }
 }

@@ -92,16 +92,18 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
         //根据childrenCount属性生成ResultMap
         String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())?introspectedTable.getTableConfiguration().getAlias()+"_":"";
         introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).ifPresent(introspectedColumn -> {
-            XmlElement resultMapWithChildrenCount = new XmlElement("resultMap"); //$NON-NLS-1$
-            resultMapWithChildrenCount.addAttribute(new Attribute("id","ResultMapChildrenCount"));
-            resultMapWithChildrenCount.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
-            resultMapWithChildrenCount.addAttribute(new Attribute("type",returnType));
-            context.getCommentGenerator().addComment(resultMapWithChildrenCount);
-            XmlElement relationElement = new XmlElement("result");
-            relationElement.addAttribute(new Attribute("column",aliasPrefix+"children_count"));
-            relationElement.addAttribute(new Attribute("property","childrenCount"));
-            resultMapWithChildrenCount.addElement(relationElement);
-            parentElement.addElement(resultMapWithChildrenCount);
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+                XmlElement resultMapWithChildrenCount = new XmlElement("resultMap"); //$NON-NLS-1$
+                resultMapWithChildrenCount.addAttribute(new Attribute("id","ResultMapChildrenCount"));
+                resultMapWithChildrenCount.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+                resultMapWithChildrenCount.addAttribute(new Attribute("type",returnType));
+                context.getCommentGenerator().addComment(resultMapWithChildrenCount);
+                XmlElement relationElement = new XmlElement("result");
+                relationElement.addAttribute(new Attribute("column",aliasPrefix+"children_count"));
+                relationElement.addAttribute(new Attribute("property","childrenCount"));
+                resultMapWithChildrenCount.addElement(relationElement);
+                parentElement.addElement(resultMapWithChildrenCount);
+            }
         });
     }
 

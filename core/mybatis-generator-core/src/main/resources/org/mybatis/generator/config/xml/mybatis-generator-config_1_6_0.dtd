@@ -194,6 +194,7 @@
             17、enableFileDelete 是否生成文件删除方法，默认false
             18、enableFileDownload 是否生成文件下载方法，默认false
             19、enableDropTables 清除业务数据的业务表，支持多个表，逗号分隔。该属性需要配置到主模块表中，如果允许清除数据，则会在模块的数据中添加表名称。
+            20、cleanAllGeneratedElements 是否清除所有生成的元素，默认为false。当设置为true，需要执行generate-cleanMOJO任务
           property配置：
             1、rootClass 指定生成对象的父类全类名
             2、rootClassTypeArguments 对象的父类的泛型参数，多值”,“分割
@@ -270,7 +271,8 @@
                 escapeWildcards CDATA #IMPLIED
                 delimitIdentifiers CDATA #IMPLIED
                 delimitAllColumns CDATA #IMPLIED
-                enableDropTables CDATA #IMPLIED>
+                enableDropTables CDATA #IMPLIED
+                cleanAllGeneratedElements (true|false) #IMPLIED>
 
         <!--
           The columnOverride element is used to change certain attributes of the column
@@ -677,7 +679,7 @@
             13、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
             14、labelCss 样式，用于指定生成的label的附加样式，如：display: none;width:100px;height:100px;等。
             15、elementCss 样式，用于指定生成的组件的附加样式，如：display: none;width:100px;height:100px;等。
-            16、dateFmt 日期格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等。
+            16、dataFmt 数据格式，用于指定生成的日期组件的日期格式，如：yyyy-MM-dd HH:mm:ss等，可以指定数值字段为货币类型等。
             17、multiple 是否允许多选，默认false，当tagType为select时有效。
             18、remoteApiParse 是否远程解析，默认false。
             19、remoteToTree 是否远程转树，默认false。
@@ -690,6 +692,7 @@
             26、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             27、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             28、dataUrlParams 数据接口url的请求参数，用于指定请求参数，如：id=1或者id=#id#&a=1。,#XXX#表示当前记录的XXX属性值。
+            29、watchFields 监听字段，用于指定监听字段，当被监听属性值发生变化时，重新获得options选项。带有options的组件有效，多值使用逗号分割。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -727,7 +730,7 @@
                 elementCss CDATA #IMPLIED
                 listKey CDATA #IMPLIED
                 listViewClass CDATA #IMPLIED
-                dateFmt CDATA #IMPLIED
+                dataFmt CDATA #IMPLIED
                 dateRange (true|false) #IMPLIED
                 multiple (false|true) #IMPLIED
                 remoteApiParse (false|true) #IMPLIED
@@ -740,7 +743,8 @@
                 vxeListButtons CDATA #IMPLIED
                 hideExpression CDATA #IMPLIED
                 disabledExpression CDATA #IMPLIED
-                dataUrlParams CDATA #IMPLIED>
+                dataUrlParams CDATA #IMPLIED
+                watchFields CDATA #IMPLIED>
 
         <!ELEMENT htmlSwitchDescriptor (property*)>
         <!ATTLIST htmlSwitchDescriptor
@@ -756,7 +760,8 @@
                 callback CDATA #IMPLIED
                 switchText CDATA #IMPLIED
                 hideExpression CDATA #IMPLIED
-                disabledExpression CDATA #IMPLIED>
+                disabledExpression CDATA #IMPLIED
+                watchFields CDATA #IMPLIED>
 
         <!--
             页面元素表单扩展设计与渲染的描述
@@ -944,6 +949,7 @@
             20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
+            23、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
             23、totalRow 是否显示合计行，默认为false
             24、totalFields 合计字段，多个字段用逗号分隔，用于指定默认显示合计的字段。
             25、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
@@ -978,6 +984,7 @@
                 defaultFilterExpr CDATA #IMPLIED
                 batchUpdateColumns CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
+                showActionColumn (default|true|false) #IMPLIED
                 totalRow (true|false) #IMPLIED
                 totalFields CDATA #IMPLIED
                 totalText CDATA #IMPLIED
@@ -1353,9 +1360,10 @@
             28、rowNumberColumn 是否显示序号列，true显示，false不显示。缺省值true
             29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。。
             30、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
-            31、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            32、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            33、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
+            31、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
+            32、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            33、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            34、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
@@ -1398,8 +1406,10 @@
                 evenRow (true|false) #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
+                showActionColumn (default|true|false) #IMPLIED
                 editFormIn (inner|dialog|drawer) #IMPLIED
-                detailFormIn (inner|dialog|drawer) #IMPLIED>
+                detailFormIn (inner|dialog|drawer) #IMPLIED
+                editableFields CDATA #IMPLIED>
 
         <!--
               内置列表列描述符，用于定制列表的列信息

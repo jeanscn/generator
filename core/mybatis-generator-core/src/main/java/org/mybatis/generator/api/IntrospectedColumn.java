@@ -220,7 +220,7 @@ public class IntrospectedColumn {
                 || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
                 || jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC
                 || jdbcType == Types.REAL || jdbcType == Types.SMALLINT
-                || jdbcType == Types.TINYINT;
+                || jdbcType == Types.TINYINT ;
     }
 
     public boolean isBooleanColumn(){

@@ -10,10 +10,12 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.mybatis.generator.api.MyBatisGenerator;
+import org.mybatis.generator.api.MyBatisGeneratorClean;
 import org.mybatis.generator.api.ShellCallback;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
+import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.ClassloaderUtility;
@@ -25,13 +27,14 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Goal which generates MyBatis artifacts.
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+@Mojo(name = "generate-clean", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.TEST)
-public class MyBatisGeneratorMojo extends AbstractMojo {
+public class MyBatisClearMojo extends AbstractMojo {
 
     private ThreadLocal<ClassLoader> savedClassloader = new ThreadLocal<>();
 
@@ -108,6 +111,13 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
     @Parameter(property = "mybatis.generator.tableNames")
     private String tableNames;
 
+    @Parameter(property = "mybatis.generator.clean.dropTables")
+    private boolean dropTables;
+    @Parameter(property = "mybatis.generator.clean.tableNames")
+    private String cleanTableNames;
+    @Parameter(property = "mybatis.generator.clean.modelNames")
+    private String cleanModelNames;
+
     /**
      * Comma delimited list of contexts to generate.
      */
@@ -149,10 +159,6 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
 
         calculateClassPath();
 
-        // add resource directories to the classpath.  This is required to support
-        // use of a properties file in the build.  Typically, the properties file
-        // is in the project's source tree, but the plugin classpath does not
-        // include the project classpath.
         List<Resource> resources = project.getResources();
         List<String> resourceDirectories = new ArrayList<>();
         for (Resource resource: resources) {
@@ -200,41 +206,36 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         try {
             ConfigurationParser cp = new ConfigurationParser(project.getProperties(), warnings);
             Configuration config = cp.parseConfiguration(configurationFile);
-            //customConfig(config);
             cp.customConfig(config);
-            ShellCallback callback = new MavenShellCallback(this, overwrite);
+            ShellCallback callback = new MavenCleanCallback(this, overwrite);
 
-            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,callback, warnings);
+            MyBatisGeneratorClean myBatisGeneratorClean = new MyBatisGeneratorClean(config,callback, warnings);
+            myBatisGeneratorClean.clean(null, contextsToRun, fullyqualifiedTables, true);
 
-            myBatisGenerator.generate(new MavenProgressCallback(getLog(),
-                    verbose), contextsToRun, fullyqualifiedTables);
-
-        } catch (XMLParserException | InvalidConfigurationException e) {
+        } catch (XMLParserException e) {
             for (String error : e.getErrors()) {
                 getLog().error(error);
             }
-
             throw new MojoExecutionException(e.getMessage());
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage());
-        } catch (InterruptedException e) {
-            // ignore (will never happen with the DefaultShellCallback)
+        } catch (InvalidConfigurationException | SQLException | InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ShellException e) {
+            throw new RuntimeException(e);
         }
 
         for (String error : warnings) {
             getLog().warn(error);
         }
 
-        if (project != null && outputDirectory != null
-                && outputDirectory.exists()) {
+        if (project != null && outputDirectory != null && outputDirectory.exists()) {
             project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
-
             Resource resource = new Resource();
             resource.setDirectory(outputDirectory.getAbsolutePath());
             resource.addInclude("**/*.xml");
             project.addResource(resource);
         }
-
         restoreClassLoader();
     }
 
@@ -290,53 +291,4 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
     private void restoreClassLoader() {
         Thread.currentThread().setContextClassLoader(savedClassloader.get());
     }
-
-    /* private void customConfig(Configuration config){
-        List<Context> contexts = config.getContexts();
-        for (Context context : contexts) {
-            context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
-            //添加generator plugin
-            PluginConfiguration pluginConfiguration = new PluginConfiguration();
-            pluginConfiguration.setConfigurationType("org.mybatis.generator.plugins.JavaClientGeneratePlugins");
-            context.addPluginConfiguration(pluginConfiguration);
-            //添加commentGenerator
-            CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
-            commentGeneratorConfiguration.setConfigurationType("org.mybatis.generator.custom.VgoCommentGenerator");
-            commentGeneratorConfiguration.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
-            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS, "false");
-            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_SUPPRESS_DATE, "false");
-            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_DATE_FORMAT, "yyyy-MM-dd HH:mm");
-            commentGeneratorConfiguration.addProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS, "true");
-            context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
-            //生成mybatis的类型
-            context.setTargetRuntime("Mybatis3");
-            context.addProperty(PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS, "true");
-            context.addProperty(PropertyRegistry.CONTEXT_BEGINNING_DELIMITER, "'");
-            context.addProperty(PropertyRegistry.CONTEXT_ENDING_DELIMITER, "'");
-            for (TableConfiguration tableConfiguration : context.getTableConfigurations()) {
-                tableConfiguration.setConfiguredModelType("flat");
-            }
-            //类型转换
-            JavaTypeResolverConfiguration javaTypeResolverConfiguration = new JavaTypeResolverConfiguration();
-            javaTypeResolverConfiguration.addProperty(PropertyRegistry.TYPE_RESOLVER_FORCE_BIG_DECIMALS, "true");
-            //generator Model 配置
-            JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = context.getJavaModelGeneratorConfiguration();
-            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_TRIM_STRINGS, "true");
-            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.ANY_CONSTRUCTOR_BASED, "true");
-            String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
-            javaModelGeneratorConfiguration.addProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
-            context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
-            //生成html配置
-            HtmlMapGeneratorConfiguration htmlMapGeneratorConfiguration;
-            htmlMapGeneratorConfiguration = Optional.ofNullable(context.getHtmlMapGeneratorConfiguration())
-                    .orElseGet(HtmlMapGeneratorConfiguration::new);
-            htmlMapGeneratorConfiguration.setTargetProject(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT))
-                    .orElse("src/main/resources/templates"));
-            String modelPackage = javaModelGeneratorConfiguration.getTargetPackage();
-            String p = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(modelPackage, "."), ".");
-            htmlMapGeneratorConfiguration.setTargetPackage(Optional.ofNullable(context.getProperty(PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE))
-                    .orElse(p));
-            context.setHtmlMapGeneratorConfiguration(htmlMapGeneratorConfiguration);
-        }
-    }*/
 }

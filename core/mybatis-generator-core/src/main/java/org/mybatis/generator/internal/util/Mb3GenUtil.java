@@ -135,8 +135,8 @@ public static String getModelId(IntrospectedTable introspectedTable) {
     }
 
     public static String getDateFormat(@Nullable HtmlElementDescriptor htmlElementDescriptor, IntrospectedColumn introspectedColumn) {
-        if (htmlElementDescriptor != null && StringUtility.stringHasValue(htmlElementDescriptor.getDateFmt())) {
-            return htmlElementDescriptor.getDateFmt();
+        if (htmlElementDescriptor != null && StringUtility.stringHasValue(htmlElementDescriptor.getDataFmt())) {
+            return htmlElementDescriptor.getDataFmt();
         } else {
             if (introspectedColumn.getJdbcType() == 93) {
                 return "yyyy-MM-dd HH:mm:ss";

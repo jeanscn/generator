@@ -447,6 +447,11 @@ public class MyBatisGeneratorConfigurationParser {
             tc.setEnableDropTables(splitToSet(enableDropTables));
         }
 
+        String cleanAllGeneratedElements = attributes.getProperty("cleanAllGeneratedElements");
+        if (stringHasValue(cleanAllGeneratedElements)) {
+            tc.setCleanAllGeneratedElements(Boolean.parseBoolean(cleanAllGeneratedElements));
+        }
+
 
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -1522,9 +1527,9 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(elementCss)) {
             htmlElementDescriptor.setElementCss(elementCss);
         }
-        String dateFmt = attributes.getProperty("dateFmt");
-        if (stringHasValue(dateFmt)) {
-            htmlElementDescriptor.setDateFmt(dateFmt);
+        String dataFmt = attributes.getProperty("dataFmt");
+        if (stringHasValue(dataFmt)) {
+            htmlElementDescriptor.setDataFmt(dataFmt);
         }
         String dateRange = attributes.getProperty("dateRange");
         if (stringHasValue(dateRange) && "true".equals(dateRange)) {
@@ -1603,6 +1608,10 @@ public class MyBatisGeneratorConfigurationParser {
         String dataUrlParams = attributes.getProperty("dataUrlParams");
         if (stringHasValue(dataUrlParams)) {
             htmlElementDescriptor.setDataUrlParams(dataUrlParams);
+        }
+        String watchFields = attributes.getProperty("watchFields");
+        if (stringHasValue(watchFields)) {
+            htmlElementDescriptor.setWatchFields(splitToSet(watchFields));
         }
 
         //计算属性及子元素
@@ -2631,6 +2640,10 @@ public class MyBatisGeneratorConfigurationParser {
         String showRowNumber = attributes.getProperty("showRowNumber");
         if (stringHasValue(showRowNumber)) {
             voViewGeneratorConfiguration.setShowRowNumber(Boolean.parseBoolean(showRowNumber));
+        }
+        String showActionColumn = attributes.getProperty("showActionColumn");
+        if (stringHasValue(showActionColumn)) {
+            voViewGeneratorConfiguration.setShowActionColumn(showActionColumn);
         }
         String editFormIn = attributes.getProperty("editFormIn");
         if (stringHasValue(editFormIn)) {

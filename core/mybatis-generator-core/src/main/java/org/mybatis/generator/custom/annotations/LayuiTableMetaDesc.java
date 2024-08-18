@@ -60,8 +60,10 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private String defaultFilterExpr;
 
     private boolean showRowNumber = true;
+    private String showActionColumn = "default";
     private String editFormIn;
     private String detailFormIn;
+    private List<String> editableFields = new ArrayList<>();
 
     public LayuiTableMetaDesc() {
         super();
@@ -161,11 +163,17 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (!showRowNumber) {
             items.add("showRowNumber = false");
         }
+        if (stringHasValue(showActionColumn) && !"default".equalsIgnoreCase(showActionColumn)) {
+            items.add("showActionColumn = \"" + showActionColumn + "\"");
+        }
         if (stringHasValue(editFormIn) && !"dialog".equalsIgnoreCase(editFormIn)) {
             items.add("editFormIn = \"" + editFormIn + "\"");
         }
         if (stringHasValue(detailFormIn) && !"drawer".equalsIgnoreCase(detailFormIn)) {
             items.add("detailFormIn = \"" + detailFormIn + "\"");
+        }
+        if (!editableFields.isEmpty()) {
+            items.add("editableFields = \"" + String.join(",", editableFields) + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -407,5 +415,21 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setDetailFormIn(String detailFormIn) {
         this.detailFormIn = detailFormIn;
+    }
+
+    public String getShowActionColumn() {
+        return showActionColumn;
+    }
+
+    public void setShowActionColumn(String showActionColumn) {
+        this.showActionColumn = showActionColumn;
+    }
+
+    public List<String> getEditableFields() {
+        return editableFields;
+    }
+
+    public void setEditableFields(List<String> editableFields) {
+        this.editableFields = editableFields;
     }
 }

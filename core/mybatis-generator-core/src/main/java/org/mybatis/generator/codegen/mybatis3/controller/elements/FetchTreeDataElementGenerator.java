@@ -101,7 +101,8 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
 //        aMethod.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");
 //        aMethod.addBodyLine(".forEach(pid -> TreeUtil.setNoCheckedRecursively(ztreeDataSimples, pid));");
 //        aMethod.addBodyLine("}");
-        aMethod.addBodyLine("List<{0}> records = {1}.selectByExampleWithChildrenCount(example).getResult();",entityType.getShortName(), serviceBeanName);
+        //aMethod.addBodyLine("List<{0}> records = {1}.selectByExampleWithChildrenCount(example).getResult();",entityType.getShortName(), serviceBeanName);
+        aMethod.addBodyLine("List<{0}> records = {1}.selectByExample(example).getResult();",entityType.getShortName(), serviceBeanName);
         aMethod.addBodyLine("return ResponseResult.success(records);");
         parentElement.addMethod(aMethod);
 

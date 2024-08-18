@@ -2,6 +2,7 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,17 +13,17 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
     protected String title;
     protected String size;
     protected String indexColumn;
-    protected List<String> actionColumn;
+    protected List<String> actionColumn = new ArrayList<>();
     protected String actionColumnFixed;
     protected String indexColumnFixed;
-    protected List<String> toolbar;
-    protected List<String> queryColumns;
-    protected List<String> fuzzyColumns;
-    protected List<String> filterColumns;
-    protected List<String> defaultDisplayFields;
+    protected List<String> toolbar = new ArrayList<>();
+    protected List<String> queryColumns = new ArrayList<>();
+    protected List<String> fuzzyColumns = new ArrayList<>();
+    protected List<String> filterColumns = new ArrayList<>();
+    protected List<String> defaultDisplayFields = new ArrayList<>();
 
-    protected Set<String> defaultHiddenFields;
-    protected List<String> defaultToolbar;
+    protected Set<String> defaultHiddenFields = new HashSet<>();
+    protected List<String> defaultToolbar = new ArrayList<>();
     protected boolean enablePager = true;
     protected String parentMenuId;
     protected String viewMenuElIcon;
@@ -37,6 +38,7 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
     protected String defaultFilterExpr;
 
     protected boolean showRowNumber = true;
+    protected String showActionColumn = "default";
     protected String editFormIn;
     protected String detailFormIn;
 
@@ -270,5 +272,13 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
 
     public void setDetailFormIn(String detailFormIn) {
         this.detailFormIn = detailFormIn;
+    }
+
+    public String getShowActionColumn() {
+        return showActionColumn;
+    }
+
+    public void setShowActionColumn(String showActionColumn) {
+        this.showActionColumn = showActionColumn;
     }
 }

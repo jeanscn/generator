@@ -133,7 +133,7 @@
     });
     const viewStatus = ref<number>(1);
     const drawerSize = computed(() => {
-        return popSize.value === 'small' ? '40%' : 'large' ? '70%' : '50%';
+        return popSize.value === 'small' ? '40%' : 'large' ? '70%'  : 'largeX' ? '90%' : '50%';
     });
     const applyWorkflow = ref<number>(0);
     const moduleId = ref<string>('');

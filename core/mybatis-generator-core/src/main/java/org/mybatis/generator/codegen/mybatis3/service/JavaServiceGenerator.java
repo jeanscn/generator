@@ -86,7 +86,9 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //增加selectByExampleWithChildrenCount接口方法
         if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
-            bizINF.addMethod(serviceMethods.getSelectWithChildrenCountMethod(bizINF, true,true));
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+                bizINF.addMethod(serviceMethods.getSelectWithChildrenCountMethod(bizINF, true,true));
+            }
         }
 
         //增加SelectBySqlMethod

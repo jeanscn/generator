@@ -82,8 +82,10 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     //如果存在parent_id字段，则生成selectByExampleWithChildrenCount方法
     private void addSelectByExampleWithChildrenCountElement(XmlElement answer) {
         if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
-            AbstractXmlElementGenerator elementGenerator = new SelectByExampleWithChildrenCountElementGenerator();
-            initializeAndExecuteGenerator(elementGenerator, answer);
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+                AbstractXmlElementGenerator elementGenerator = new SelectByExampleWithChildrenCountElementGenerator();
+                initializeAndExecuteGenerator(elementGenerator, answer);
+            }
         }
     }
 

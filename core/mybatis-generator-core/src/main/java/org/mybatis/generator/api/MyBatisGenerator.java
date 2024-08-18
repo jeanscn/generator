@@ -5,6 +5,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.MergeConstants;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -200,6 +203,14 @@ public class MyBatisGenerator {
                 if (contextIds.contains(context.getId())) {
                     contextsToRun.add(context);
                 }
+            }
+        }
+
+        // 过滤掉table的cleanAllGeneratedElements属性配置为true的table
+        for (Context context : contextsToRun) {
+            List<TableConfiguration> configurationList = context.getTableConfigurations().stream().filter(TableConfiguration::isCleanAllGeneratedElements).collect(Collectors.toList());
+            if (!configurationList.isEmpty()) {
+                context.getTableConfigurations().removeAll(configurationList);
             }
         }
 

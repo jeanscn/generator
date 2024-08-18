@@ -141,6 +141,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private Set<String> enableDropTables = new HashSet<>();
 
+    private boolean cleanAllGeneratedElements = false;
+
     public TableConfiguration(Context context) {
         super();
         this.modelType = context.getDefaultModelType();
@@ -1263,7 +1265,7 @@ public class TableConfiguration extends PropertyHolder {
                                 .ifPresent(htmlGeneratorConfiguration -> {
                                     innerListViewConfiguration.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                                     htmlElements.addAll(htmlGeneratorConfiguration.getElementDescriptors());
-                                    innerListViewConfiguration.getReadonlyFields().addAll(htmlGeneratorConfiguration.getReadonlyFields());
+                                    //innerListViewConfiguration.getReadonlyFields().addAll(htmlGeneratorConfiguration.getReadonlyFields());
                                     Set<String> fields = htmlGeneratorConfiguration.getHiddenFieldNames();
                                     innerListViewConfiguration.getDefaultHiddenFields().addAll(fields);
                                     innerListViewConfiguration.getRequiredColumns().addAll(htmlGeneratorConfiguration.getElementRequired());
@@ -1445,5 +1447,13 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setEnableDropTables(Set<String> enableDropTables) {
         this.enableDropTables = enableDropTables;
+    }
+
+    public boolean isCleanAllGeneratedElements() {
+        return cleanAllGeneratedElements;
+    }
+
+    public void setCleanAllGeneratedElements(boolean cleanAllGeneratedElements) {
+        this.cleanAllGeneratedElements = cleanAllGeneratedElements;
     }
 }

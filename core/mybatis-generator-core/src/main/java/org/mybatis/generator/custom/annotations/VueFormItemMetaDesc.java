@@ -5,6 +5,9 @@ import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * ElementPlus表单元数据描述注解
  *
@@ -79,6 +82,8 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String hideExpression = "";
 
     private String disabledExpression = "";
+
+    private Set<String> watchFields = new HashSet<>();
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
         return new VueFormItemMetaDesc(introspectedColumn);
     }
@@ -232,6 +237,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.disabledExpression)) {
             items.add(VStringUtil.format("disabledExpression = \"{0}\"", this.disabledExpression));
+        }
+        if (!this.watchFields.isEmpty()) {
+            items.add(VStringUtil.format("watchFields = \"{0}\"", String.join(",", this.watchFields)));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -609,5 +617,13 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setDataUrlParams(String dataUrlParams) {
         this.dataUrlParams = dataUrlParams;
+    }
+
+    public Set<String> getWatchFields() {
+        return watchFields;
+    }
+
+    public void setWatchFields(Set<String> watchFields) {
+        this.watchFields = watchFields;
     }
 }

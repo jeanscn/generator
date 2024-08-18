@@ -70,26 +70,107 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         return true;
     }
 
-    //根据配置生成LayuiTableMetaDesc
-    private LayuiTableColumnMetaDesc buildLayuiTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-
-        Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap(); //所有的配置标签列表
-        Set<String> fieldNames = Stream.of(elementDescriptorMap.values().stream().filter(t -> !t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())).map(t -> t.getColumn().getJavaProperty()),
-                        elementDescriptorMap.values().stream().filter(t -> !t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())).map(HtmlElementDescriptor::getOtherFieldName))
-                .flatMap(stringStream -> stringStream)
-                .collect(Collectors.toSet());
+    //构造适用与Vxe的LayTableColumnMetaDesc
+    private LayuiTableColumnMetaDesc buildVxeTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         String fieldName = field.getName();
+        Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap(); //所有的配置标签列表
+        //fieldNames包含所有的fieldName和otherFieldName
+        Set<String> fieldNames = Stream.of(
+                        elementDescriptorMap.values().stream().map(t -> t.getColumn().getJavaProperty()),
+                        elementDescriptorMap.values().stream().map(HtmlElementDescriptor::getOtherFieldName)
+                ).flatMap(stringStream -> stringStream)
+                .collect(Collectors.toSet());
 
-        Set<String> displayFields = new HashSet<>(listViewConfiguration.getDefaultDisplayFields());
-        if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
-            listViewConfiguration.getDefaultDisplayFields()
-                    .forEach(displayField -> {
-                        if (elementDescriptorMap.containsKey(displayField)) {
-                            HtmlElementDescriptor htmlElementDescriptor = elementDescriptorMap.get(displayField);
-                            displayFields.add(htmlElementDescriptor.getColumn().getJavaProperty());
-                            displayFields.add(htmlElementDescriptor.getOtherFieldName());
+        Set<String> displayFields = new HashSet<>(listViewConfiguration.getDefaultDisplayFields()); //获取displayFields，包含所有的fieldName和otherFieldName
+        Set<String> onlyReadFields = listViewConfiguration.getReadonlyFields(); //只读字段
+        Set<String> onlyEditFields = new HashSet<>(); //只编辑字段
+        Set<String> hiddenFields = listViewConfiguration.getDefaultHiddenFields(); //隐藏字段
+        Set<String> allTableFields = new HashSet<>(displayFields);
+        //allTableFields.addAll(hiddenFields);
+        elementDescriptorMap.values().forEach(htmlElementDescriptor -> {
+            String name = htmlElementDescriptor.getColumn().getJavaProperty();
+            String otherFieldName = htmlElementDescriptor.getOtherFieldName();
+            if (!name.equals(otherFieldName) && allTableFields.contains(name)) {
+                onlyReadFields.add(htmlElementDescriptor.getOtherFieldName());
+                onlyEditFields.add(htmlElementDescriptor.getColumn().getJavaProperty());
+            }
+        });
+        if (!(allTableFields.contains(fieldName) || onlyReadFields.contains(fieldName))) {
+            return null;
+        }
+        boolean enableEdit = enableEdit(listViewConfiguration, fieldName);
+        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, hiddenFields.contains(fieldName), introspectedTable);
+        if (onlyReadFields.contains(fieldName)) {
+            layuiTableColumnMetaDesc.setEdit(false);
+            layuiTableColumnMetaDesc.setScope("readonly");
+        } else if (fieldNames.contains(fieldName)) {
+            elementDescriptorMap.values().stream()
+                    .filter(t -> (t.getColumn().getJavaProperty().equals(field.getName()) || t.getOtherFieldName().equals(field.getName())))
+                    .findFirst().ifPresent(descriptor -> {
+                        if (enableEdit) {
+                            layuiTableColumnMetaDesc.setEditor(descriptor.getTagType());
+                            layuiTableColumnMetaDesc.setEdit(true);
+                            layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + descriptor.getName());
+                            layuiTableColumnMetaDesc.setScope("both");
+                        } else {
+                            layuiTableColumnMetaDesc.setEdit(false);
+                            layuiTableColumnMetaDesc.setScope("both");
                         }
                     });
+        } else if (!hiddenFields.contains(fieldName)) {
+            if (enableEdit) {
+                if (introspectedColumn != null && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 1500 || introspectedColumn.isBLOBColumn())) {
+                    layuiTableColumnMetaDesc.setEditor("textarea");
+                    layuiTableColumnMetaDesc.setEdit(true);
+                } else if (introspectedColumn != null && introspectedColumn.isNumericColumn()) {
+                    layuiTableColumnMetaDesc.setEdit(true);
+                    layuiTableColumnMetaDesc.setEditor("number");
+                } else if (isDateType(field.getType())) {
+                    layuiTableColumnMetaDesc.setEdit(false);
+                    layuiTableColumnMetaDesc.setEditor("date");
+                    layuiTableColumnMetaDesc.setTemplet("#TPL-inner-" + field.getName());
+                } else {
+                    layuiTableColumnMetaDesc.setEdit(true);
+                    layuiTableColumnMetaDesc.setEditor("text");
+                }
+                layuiTableColumnMetaDesc.setScope("both");
+            } else {
+                layuiTableColumnMetaDesc.setEdit(false);
+                layuiTableColumnMetaDesc.setScope("both");
+            }
+        }
+
+        if (hiddenFields.contains(fieldName)) {
+            layuiTableColumnMetaDesc.setHide(true);
+        }
+
+        if(onlyEditFields.contains(fieldName)){
+            layuiTableColumnMetaDesc.setScope("edit");
+        }
+
+        return layuiTableColumnMetaDesc;
+    }
+
+    //根据配置生成LayuiTableMetaDesc
+    private LayuiTableColumnMetaDesc buildLayuiTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+        String fieldName = field.getName();
+        Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap(); //所有的配置标签列表
+        //fieldNames包含所有的fieldName和otherFieldName
+        Set<String> fieldNames = Stream.of(
+                        elementDescriptorMap.values().stream().filter(t -> !t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())).map(t -> t.getColumn().getJavaProperty()),
+                        elementDescriptorMap.values().stream().filter(t -> !t.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())).map(HtmlElementDescriptor::getOtherFieldName)
+                ).flatMap(stringStream -> stringStream)
+                .collect(Collectors.toSet());
+        //获取displayFields，包含所有的fieldName和otherFieldName
+        Set<String> displayFields = new HashSet<>(listViewConfiguration.getDefaultDisplayFields());
+        if (!displayFields.isEmpty()) {
+            displayFields.forEach(displayField -> {
+                if (elementDescriptorMap.containsKey(displayField)) {
+                    HtmlElementDescriptor htmlElementDescriptor = elementDescriptorMap.get(displayField);
+                    displayFields.add(htmlElementDescriptor.getColumn().getJavaProperty());
+                    displayFields.add(htmlElementDescriptor.getOtherFieldName());
+                }
+            });
             if (!displayFields.contains(fieldName)) {
                 return null;
             }
@@ -99,6 +180,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         boolean defaultHidden = listViewConfiguration.getDefaultHiddenFields().contains(fieldName);
 
         LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, defaultHidden, introspectedTable);
+
         if (fieldNames.contains(field.getName())) {
             elementDescriptorMap.values().stream()
                     .filter(t -> (t.getColumn().getJavaProperty().equals(field.getName()) || t.getOtherFieldName().equals(field.getName())))
@@ -156,11 +238,16 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             layuiTableColumnMetaDesc.setEdit(false);
             layuiTableColumnMetaDesc.setScope("both");
         }
-        return layuiTableColumnMetaDesc.isHide() ? null : layuiTableColumnMetaDesc;
+        return layuiTableColumnMetaDesc;
     }
 
     private boolean enableEdit(InnerListViewConfiguration listViewConfiguration, String fieldName) {
-        return listViewConfiguration.getEnableEditFields().contains(fieldName) || !listViewConfiguration.getReadonlyFields().contains(fieldName);
+        List<String> editFields = listViewConfiguration.getEnableEditFields();
+        if (editFields.isEmpty()) {
+            return !listViewConfiguration.getReadonlyFields().contains(fieldName);
+        } else {
+            return editFields.contains(fieldName) && !listViewConfiguration.getReadonlyFields().contains(fieldName);
+        }
     }
 
     private LayuiTableColumnMetaDesc getLayuiTableColumnMetaDesc(InnerListViewConfiguration listViewConfiguration, Field field, boolean defaultHidden, IntrospectedTable introspectedTable) {
@@ -240,7 +327,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     private void addLayuiTableColumnMeta(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         List<InnerListViewConfiguration> innerListViewConfigurationList = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
         innerListViewConfigurationList.forEach(listViewConfiguration -> {
-            LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = buildLayuiTableColumnDesc(listViewConfiguration, field, introspectedColumn, introspectedTable);
+            LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = buildVxeTableColumnDesc(listViewConfiguration, field, introspectedColumn, introspectedTable);
             if (layuiTableColumnMetaDesc != null) {
                 OverrideListColumnProps(field, listViewConfiguration, layuiTableColumnMetaDesc);
                 String annotation = layuiTableColumnMetaDesc.toAnnotation();
@@ -389,8 +476,10 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
         layuiTableMetaDesc.setDefaultFilterExpr(listViewConfiguration.getDefaultFilterExpr());
         layuiTableMetaDesc.setShowRowNumber(listViewConfiguration.isShowRowNumber());
+        layuiTableMetaDesc.setShowActionColumn(listViewConfiguration.getShowActionColumn());
         layuiTableMetaDesc.setEditFormIn(listViewConfiguration.getEditFormIn());
         layuiTableMetaDesc.setDetailFormIn(listViewConfiguration.getDetailFormIn());
+          layuiTableMetaDesc.setEditableFields(listViewConfiguration.getEnableEditFields());
 
 
         //querys
@@ -431,11 +520,11 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             }
             List<CompositeQueryDesc> queryDesc = listViewConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
                 if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0),introspectedTable);
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
                 } else {
                     if (introspectedTable.getColumn(columnName).isPresent()) {
                         return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
-                    }else{
+                    } else {
                         return null;
                     }
                 }
