@@ -31,6 +31,8 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     private String hideExpression;
 
+    private String className;
+
     public VueFormContainerMetaDesc() {
         super();
         this.addImports(VueFormContainerMeta.class.getCanonicalName());
@@ -49,6 +51,7 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
         this.includeElements = String.join(",", htmlGroupContainerConfiguration.getIncludeElements());
         this.noBorder = htmlGroupContainerConfiguration.isNoBorder();
         this.hideExpression = htmlGroupContainerConfiguration.getHideExpression();
+        this.className = htmlGroupContainerConfiguration.getClassName();
     }
 
     @Override
@@ -85,6 +88,9 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
         }
         if (stringHasValue(hideExpression)) {
             items.add(format("hideExpression = \"{0}\"", hideExpression));
+        }
+        if (stringHasValue(className)) {
+            items.add(format("className = \"{0}\"", className));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -176,5 +182,13 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     public void setHideExpression(String hideExpression) {
         this.hideExpression = hideExpression;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 }

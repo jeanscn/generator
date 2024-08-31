@@ -1421,6 +1421,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(hideExpression)) {
             htmlGroupContainerConfiguration.setHideExpression(hideExpression);
         }
+        String className = attributes.getProperty("className");
+        if (stringHasValue(className)) {
+            htmlGroupContainerConfiguration.setClassName(className);
+        }
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -1986,6 +1990,18 @@ public class MyBatisGeneratorConfigurationParser {
         String targetArguments = attributes.getProperty("targetArguments");
         if (stringHasValue(targetArguments)) {
             mapstructMappingConfiguration.setTargetArguments(splitToList(targetArguments));
+        }
+        String ignoreFields = attributes.getProperty("ignoreFields");
+        if (stringHasValue(ignoreFields)) {
+            mapstructMappingConfiguration.setIgnoreFields(splitToSet(ignoreFields));
+        }
+        String ignoreDefault = attributes.getProperty("ignoreDefault");
+        if (stringHasValue(ignoreDefault)) {
+            mapstructMappingConfiguration.setIgnoreDefault(Boolean.parseBoolean(ignoreDefault));
+        }
+        String additionalMappings = attributes.getProperty("additionalMappings");
+        if (stringHasValue(additionalMappings)) {
+            mapstructMappingConfiguration.setAdditionalMappings(splitToList(additionalMappings));
         }
         configuration.addMappingConfigurations(mapstructMappingConfiguration);
     }

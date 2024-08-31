@@ -1,7 +1,12 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
+import cn.hutool.core.collection.ListUtil;
+import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
+import com.vgosoft.tool.core.VBeanUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
@@ -15,6 +20,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -86,7 +92,42 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             });
             mappingsInterface.addImportedType(source);
             mappingsInterface.addImportedType(target);
-            mappingsInterface.addMethod(VOGeneratorUtil.addMappingMethod(source, target, c.getType().equals("list"), introspectedTable));
+            Method method = VOGeneratorUtil.addMappingMethod(source, target, c.getType().equals("list"), introspectedTable);
+            FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
+            EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
+            List<String> allTableFields = introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList());
+            List<String> absFields = new ArrayList<>(); //与表结构字段一起控制是否允许添加映射或隐藏配置
+            if (entityAbstractParentEnum != null) {
+                absFields.addAll(entityAbstractParentEnum.fields());
+            }
+            absFields.addAll(Arrays.asList("persistenceStatus", "persistenceBeanName", "created", "createdId", "modified", "modifiedId", "version", "deleteFlag", "modelTempId", "id","workflowEnabled","restBasePath","viewPath"));
+            if (c.isIgnoreDefault()) {
+                c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD);
+            }
+            //忽略字段
+            for (String ignoreField : c.getIgnoreFields()) {
+                if (allTableFields.contains(ignoreField) || absFields.contains(ignoreField)) {
+                    method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
+                    mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
+                }
+            }
+            //额外映射字段
+            c.getAdditionalMappings().forEach(m -> {
+                if (m.contains("=")) {
+                    String[] split = m.split("=");
+                    if (split.length > 1) {
+                        split[0] = split[0].trim();
+                        split[1] = split[1].trim();
+                        if (allTableFields.contains(split[0]) || absFields.contains(split[0]) || absFields.contains(split[1]) || allTableFields.contains(split[1])) {
+                            method.addAnnotation(String.format("@Mapping(target = \"%s\", source = \"%s\")", split[0], split[1]));
+                            mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
+                        }
+                    }
+                }
+            });
+
+
+            mappingsInterface.addMethod(method);
         });
 
         /*
@@ -148,7 +189,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     if (stringHasValue(parentMenuId) && context.isUpdateMenuData() && introspectedTable.getTableConfiguration().isModules()) {
                         int sort = context.getSysMenuDataScriptLines().size() * 10;
                         String id = Mb3GenUtil.getDefaultViewId(introspectedTable);
-                        String title = viewConfiguration.getTitle()!=null?viewConfiguration.getTitle():introspectedTable.getRemarks(true);
+                        String title = viewConfiguration.getTitle() != null ? viewConfiguration.getTitle() : introspectedTable.getRemarks(true);
                         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
                         sqlBuilder.updateStringValues("id_", id);
                         sqlBuilder.updateStringValues("name_", introspectedTable.getTableConfiguration().getDomainObjectName());
@@ -161,7 +202,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         //构造path
                         String moduleName = this.getContext().getModuleKeyword();
                         String tableName = this.introspectedTable.getTableConfiguration().getTableName();
-                        sqlBuilder.updateStringValues("path_", "/"+String.join("/", moduleName, tableName));
+                        sqlBuilder.updateStringValues("path_", "/" + String.join("/", moduleName, tableName));
                         sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/open-view");
                         sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
                         introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql() + ";");
@@ -208,11 +249,11 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     .forEach(c -> introspectedTable.getColumn(c.getColumn()).ifPresent(column -> {
                         Field field = JavaBeansUtil.getJavaBeansField(column, context, introspectedTable);
                         field.setVisibility(JavaVisibility.PRIVATE);
-                        addFieldToRequestVOClass(field, requestVoClass, abstractVo,column);
+                        addFieldToRequestVOClass(field, requestVoClass, abstractVo, column);
                         Field other = JavaBeansUtil.getJavaBeansField(column, context, introspectedTable);
                         other.setName(other.getName() + "Other");
                         other.setVisibility(JavaVisibility.PRIVATE);
-                        addFieldToRequestVOClass(other, requestVoClass, abstractVo,column);
+                        addFieldToRequestVOClass(other, requestVoClass, abstractVo, column);
                     }));
 
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.requestVo.name()) || fileNotExist(AbstractVOGenerator.subPackageVo, requestVoClass.getType().getShortName())) {

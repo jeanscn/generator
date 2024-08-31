@@ -81,10 +81,17 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         }
         String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), FullyQualifiedJavaType.getStringInstance());
         IntrospectedColumn idColumn = introspectedTable.getColumn(formOptionGeneratorConfiguration.getIdColumn()).orElse(null);
-        String idGetterName = idColumn!=null?
-                JavaBeansUtil.getGetterMethodName(idColumn.getJavaProperty(), idColumn.getFullyQualifiedJavaType()):"getId";
+        String idGetterName = idColumn!=null?JavaBeansUtil.getGetterMethodName(idColumn.getJavaProperty(), idColumn.getFullyQualifiedJavaType()):"getId";
         if (formOptionGeneratorConfiguration.getDataType() == 0) {  //0-flat，1-tree
-            method.addBodyLine("        .map(t -> new FormSelectOption(t.{1}(), t.{0}(), selected))", getterMethodName,idGetterName);
+            String idGetter = "";
+            if (idColumn != null && idColumn.isStringColumn()) {
+                idGetter = "t."+idGetterName+"()";
+            }else if (idColumn != null && idColumn.isBigDecimalColumn()) {
+                idGetter = "t."+idGetterName+"().toPlainString()";
+            }else{
+                idGetter = "String.valueOf(t."+idGetterName+"())";
+            }
+            method.addBodyLine("        .map(t -> new FormSelectOption({1}, t.{0}(), selected))", getterMethodName,idGetter);
         } else {
             method.addBodyLine("         .map(c -> {0}(c, selected))",pMethodName);
             //添加一个内部递归方法

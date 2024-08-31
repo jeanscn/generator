@@ -236,8 +236,9 @@ public class VueFormGenerateUtil {
             }
         }
 
-        //是否为htmlElementRequired的字段
-        if (formItemRules.stream().noneMatch(r -> r.getVueFormItemMetaDesc().getFieldName().equals(introspectedColumn.getJavaProperty()) && r.isRequired())) {
+        //是否为requiredColumns的中的字段
+        //如果formItemRules中没有required的规则，且htmlGeneratorConfiguration中配置了该字段为必填，则生成required的规则
+        if (formItemRules.stream().noneMatch(r -> r.getVueFormItemMetaDesc().getFieldName().equalsIgnoreCase(introspectedColumn.getJavaProperty()) && r.isRequired())) {
             if (htmlGeneratorConfiguration.getElementRequired().contains(introspectedColumn.getActualColumnName())) {
                 FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
                 formItemRule.setRequired(true);

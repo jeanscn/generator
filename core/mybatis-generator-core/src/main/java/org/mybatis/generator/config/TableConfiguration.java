@@ -1059,8 +1059,8 @@ public class TableConfiguration extends PropertyHolder {
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(displayOnlyFields));
         //html的必填列
         this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
-            if (htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired") != null) {
-                htmlGeneratorConfiguration.getElementRequired().addAll(splitToSet(htmlGeneratorConfiguration.getProperties().getProperty("htmlElementRequired")));
+            if (htmlGeneratorConfiguration.getProperties().getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS) != null) {
+                htmlGeneratorConfiguration.getElementRequired().addAll(splitToSet(htmlGeneratorConfiguration.getProperties().getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS)));
             }
             htmlGeneratorConfiguration.getElementDescriptors()
                     .forEach(elementDescriptor -> {

@@ -47,7 +47,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("if (result.hasResult()) {");
             //增加PRE_DELETE事件发布
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
-                method.addBodyLine("publisher.publishClassEvent({0}.class, result.getResult(),EntityEventEnum.{1});",entityType.getShortName(), EntityEventEnum.PRE_DELETE.name());
+                method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{1});",entityType.getShortName(), EntityEventEnum.PRE_DELETE.name());
             }
             method.addBodyLine("{0} {1} = result.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, false);
@@ -95,7 +95,9 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         method.addBodyLine("try {");
         //增加PRE_DELETE事件发布
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
-            method.addBodyLine("publisher.publishClassEvent({0}.class, {1},EntityEventEnum.{2});",entityType.getShortName(), ids,EntityEventEnum.PRE_DELETE.name());
+            method.addBodyLine("ServiceResult<{0}> result = selectByPrimaryKey({1});",entityType.getShortName(),ids);
+            method.addBodyLine("if (!result.hasResult())  return ServiceResult.failure(ServiceCodeEnum.FAIL);");
+            method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{2});",entityType.getShortName(), ids,EntityEventEnum.PRE_DELETE.name());
         }
         method.addBodyLine("int i = mapper.{0}({1});",methodName,ids);
         method.addBodyLine("if (i > 0) {");

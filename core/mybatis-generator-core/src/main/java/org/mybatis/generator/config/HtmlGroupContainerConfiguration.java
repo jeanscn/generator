@@ -22,6 +22,8 @@ public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
 
     private String hideExpression;
 
+    private String className;
+
     private List<HtmlGroupContainerConfiguration> groupContainerConfigurations = new ArrayList<>();
     public String getElementKey() {
         return elementKey;
@@ -109,5 +111,13 @@ public class HtmlGroupContainerConfiguration   extends TypedPropertyHolder{
 
     public void setHideExpression(String hideExpression) {
         this.hideExpression = hideExpression;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 }

@@ -1,7 +1,9 @@
 package org.mybatis.generator.config;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MapstructMappingConfiguration extends TypedPropertyHolder {
 
@@ -14,6 +16,12 @@ public class MapstructMappingConfiguration extends TypedPropertyHolder {
     private List<String> targetArguments = new ArrayList<>();
 
     private String type = "single";
+
+    private Set<String> ignoreFields = new HashSet<>();
+
+    private boolean ignoreDefault = true;
+
+    private  List<String> additionalMappings = new ArrayList<>();
 
     public MapstructMappingConfiguration() {
         super();
@@ -63,5 +71,29 @@ public class MapstructMappingConfiguration extends TypedPropertyHolder {
 
     public void setTargetArguments(List<String> targetArguments) {
         this.targetArguments = targetArguments;
+    }
+
+    public Set<String> getIgnoreFields() {
+        return ignoreFields;
+    }
+
+    public void setIgnoreFields(Set<String> ignoreFields) {
+        this.ignoreFields = ignoreFields;
+    }
+
+    public List<String> getAdditionalMappings() {
+        return additionalMappings;
+    }
+
+    public void setAdditionalMappings(List<String> additionalMappings) {
+        this.additionalMappings = additionalMappings;
+    }
+
+    public boolean isIgnoreDefault() {
+        return ignoreDefault;
+    }
+
+    public void setIgnoreDefault(boolean ignoreDefault) {
+        this.ignoreDefault = ignoreDefault;
     }
 }

@@ -606,6 +606,7 @@
            8、includeElements 包含的元素，多个元素用逗号分隔（使用列名或elementKey）字段的columnName或者子容器的elementKey
            9、noBorder 是否无边框，默认false
            10、hideExpression 隐藏表达式，用于控制元素的显示与隐藏，例如：hideExpression="$.type=='1'"，表示当表单数据的type属性等于1时隐藏元素
+           11、className 容器样式类
            说明：
               1、hideExpression表达式中的，
                  1）可以通过$.属性名的方式引用当前表单数据的属性；
@@ -623,7 +624,8 @@
                 afterColumn CDATA #IMPLIED
                 includeElements CDATA #IMPLIED
                 noBorder (false|true) #IMPLIED
-                hideExpression CDATA #IMPLIED>
+                hideExpression CDATA #IMPLIED
+                className  CDATA #IMPLIED>
 
         <!--
             页面元素生成描述
@@ -808,6 +810,7 @@
             12、enablePager 是否启用分页，默认为true
             13、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             14、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            15、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -1669,14 +1672,23 @@
              2、targetType 必须，目的类型，完整类名称。
              2-1、targetArguments 目的类型泛型参数如：Map<String,String>中，”java.lang.String,java.lang.String“，多值用”,“分割
              3、type 单个对象single还是列表list，默认值为single
+             4、ignoreFields 忽略映射的字段，多值用”,“分割
+             5、ignoreDefault 是否忽略默认的字段映射，true-忽略，false-不忽略。缺省值为true.
+                     默认忽略的字段有：id,createTime,createBy,updateTime,updateBy,version等，见constant包GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD中的常量
+             6、additionalMappings 额外的映射配置，source=target，多值用”,“分割
+             说明：
+                1、如果同时有效，则在确定忽略映射忽略字段时ignoreFields、ignoreDefault会取合集。
             -->
-        <!ELEMENT mapstructMapping EMPTY>
+        <!ELEMENT mapstructMapping (property*)>
         <!ATTLIST mapstructMapping
                 sourceType CDATA #REQUIRED
                 targetType CDATA #REQUIRED
                 sourceArguments CDATA #IMPLIED
                 targetArguments CDATA #IMPLIED
-                type (single|list) #IMPLIED>
+                type (single|list) #IMPLIED
+                ignoreFields CDATA #IMPLIED
+                ignoreDefault (true|false) #IMPLIED
+                additionalMappings CDATA #IMPLIED>
         <!--
         xml文件中特殊字符的转义字符
         &lt;  < 小于

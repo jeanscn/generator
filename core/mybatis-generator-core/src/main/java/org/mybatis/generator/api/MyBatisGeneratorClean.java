@@ -9,6 +9,7 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.internal.HtmlFileMergerJaxp;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.XmlFileMergerJaxp;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -253,6 +254,17 @@ public class MyBatisGeneratorClean {
             File views = this.shellCallback.getDirectory(vueFilePath, "views");
             files = views.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + ".vue"));
             deleteFiles(files);
+            //清理启动包中的controller的单元测试类
+            String targetProject = "src/test/java";
+            String property = context.getProperty(PropertyRegistry.CONTEXT_ROOT_MODULE_NAME);
+            if (StringUtility.stringHasValue(property)) {
+                String tmpStr = StringUtility.getTargetProject("$PROJECT_DIR$\\" + property);
+                targetProject = tmpStr + "\\" + targetProject;
+                String path = baseTargetPackage.substring(0, baseTargetPackage.lastIndexOf("."));
+                File allTestFiles = this.shellCallback.getDirectory(targetProject, String.join(".",path,context.getModuleKeyword(),"controller"));
+                files = allTestFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ControllerTest.java"));
+                deleteFiles(files);
+            }
         }
     }
 

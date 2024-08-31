@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -10,6 +11,7 @@ import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 
@@ -48,7 +50,15 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         //方法体
         selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
         selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
-        selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(keys);");
+        String keyColumn = voCacheGeneratorConfiguration.getKeyColumn();
+        IntrospectedColumn column = introspectedTable.getColumn(keyColumn).orElse(null);
+        if (column != null && column.isStringColumn()) {
+            selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(keys);");
+        } else  if(column != null && column.isBigDecimalColumn()){
+            selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(keys.toPlainString());");
+        } else {
+            selectByKeysDictMethod.addBodyLine("selDictByKeysParam.addKeyString(String.valueOf(keys));");
+        }
         selectByKeysDictMethod.addBodyLine("if (types!=null && types.isPresent()) {");
         selectByKeysDictMethod.addBodyLine("types.ifPresent(selDictByKeysParam::addTypeString);");
         selectByKeysDictMethod.addBodyLine("}");
