@@ -170,8 +170,19 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             conTopClazz.addImportedType("com.vgosoft.mybatis.sqlbuilder.SelectSqlBuilder");
             conTopClazz.addImportedType("com.github.pagehelper.Page");
         }
-        //追加一个构造导入Excel模板的样例数据方法
+        //追加1、导入监听的工厂方法、2、构造导入Excel模板的样例数据方法
         if (introspectedTable.getRules().isGenerateExcelVO()) {
+            //追加一个导入监听的工厂方法
+            Method getImportReadListener = new Method("getImportReadListener");
+            getImportReadListener.setVisibility(JavaVisibility.PROTECTED);
+            FullyQualifiedJavaType retListenerType = new FullyQualifiedJavaType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
+            retListenerType.addTypeArgument(new FullyQualifiedJavaType(entityExcelImportVoType.getFullyQualifiedName()));
+            getImportReadListener.setReturnType(retListenerType);
+            getImportReadListener.addBodyLine("return new DefaultReadListener<>();");
+            conTopClazz.addMethod(getImportReadListener);
+            conTopClazz.addImportedType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
+
+            //追加一个构造导入Excel模板的样例数据方法
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");
             buildTemplateSampleData.setVisibility(JavaVisibility.PROTECTED);
             FullyQualifiedJavaType retType = FullyQualifiedJavaType.getNewListInstance();
@@ -312,10 +323,20 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
             //排序语句
             if (isContainOrderByClause) {
+                if (introspectedTable.getColumn("created_").isPresent()) {
+                    buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"created_ desc\"));");
+                }else if (introspectedTable.getColumn("modified_").isPresent()){
+                    buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"modified_ desc\"));");
+                }else{
+                    buildExample.addBodyLine("List<String> orderBy = new ArrayList<>();");
+                }
                 buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
-                buildExample.addBodyLine("example.setOrderByClause({0}.getOrderByClause());", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("orderBy.add({0}.getOrderByClause());", type.getShortNameFirstLowCase());
                 buildExample.addBodyLine("}");
                 conTopClazz.addImportedType(V_STRING_UTIL);
+                buildExample.addBodyLine("if (!orderBy.isEmpty()) {");
+                buildExample.addBodyLine("example.setOrderByClause(String.join(\",\", orderBy));");
+                buildExample.addBodyLine("}");
             }
             buildExample.addBodyLine("return example;");
         }

@@ -1091,6 +1091,7 @@
             3、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.entity中的entity
             4、enableChildren 生成children属性及子查询，默认为true。当该属性为true时，将在实体中添加children属性，并添加相应的selectByColumnParentId方法。
             5、equalsAndHashCodeColumns 可选 指定equals和hashCode方法的列名，多个列名用逗号分隔。缺省值为id
+            6、ignoreTenant 是否忽略租户字段，true-忽略，false-不忽略。缺省值为false。该配置在context的integrateMybatisPlus属性为true时有效。
             说明：
             启用enableChildren的前提条件是数据表有parent_id字段
         -->
@@ -1100,7 +1101,8 @@
                 noMetaAnnotation (false|true) #IMPLIED
                 targetSubPackage CDATA #IMPLIED
                 enableChildren (false|true) #IMPLIED
-                equalsAndHashCodeColumns CDATA #IMPLIED>
+                equalsAndHashCodeColumns CDATA #IMPLIED
+                ignoreTenant (false|true) #IMPLIED>
 
         <!--
             sqlMapper XML文件生成描述
@@ -1675,6 +1677,8 @@
              4、ignoreFields 忽略映射的字段，多值用”,“分割
              5、ignoreDefault 是否忽略默认的字段映射，true-忽略，false-不忽略。缺省值为true.
                      默认忽略的字段有：id,createTime,createBy,updateTime,updateBy,version等，见constant包GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD中的常量
+             6、ignoreBusiness 是否忽略默认的业务字段映射，true-忽略，false-不忽略。缺省值为true.
+                     默认忽略的字段有："applyId","viewPath","sort","fldSerNumber","numberRule","regDocNumber"等，见constant包GlobalConstant.MAPSTRUCT_IGNORE_BUSINESS_FIELD中的常量
              6、additionalMappings 额外的映射配置，source=target，多值用”,“分割
              说明：
                 1、如果同时有效，则在确定忽略映射忽略字段时ignoreFields、ignoreDefault会取合集。
@@ -1688,6 +1692,7 @@
                 type (single|list) #IMPLIED
                 ignoreFields CDATA #IMPLIED
                 ignoreDefault (true|false) #IMPLIED
+                ignoreBusiness (true|false) #IMPLIED
                 additionalMappings CDATA #IMPLIED>
         <!--
         xml文件中特殊字符的转义字符

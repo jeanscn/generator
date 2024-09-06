@@ -88,7 +88,7 @@ public class VoGenService {
         if (entityAbstractParentEnum != null) {
             exclude.addAll(entityAbstractParentEnum.columnNames());
         }
-        exclude.addAll(Arrays.asList("tenant_id", "bytes_"));
+        exclude.add("bytes_");
         return exclude;
     }
 

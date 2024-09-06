@@ -100,9 +100,12 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             if (entityAbstractParentEnum != null) {
                 absFields.addAll(entityAbstractParentEnum.fields());
             }
-            absFields.addAll(Arrays.asList("persistenceStatus", "persistenceBeanName", "created", "createdId", "modified", "modifiedId", "version", "deleteFlag", "modelTempId", "id","workflowEnabled","restBasePath","viewPath"));
+            absFields.addAll(Arrays.asList("persistenceStatus", "persistenceBeanName", "modelTempId", "workflowEnabled","restBasePath","viewPath"));
             if (c.isIgnoreDefault()) {
                 c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD);
+            }
+            if (c.isIgnoreBusiness()){
+                c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_BUSINESS_FIELD);
             }
             //忽略字段
             for (String ignoreField : c.getIgnoreFields()) {

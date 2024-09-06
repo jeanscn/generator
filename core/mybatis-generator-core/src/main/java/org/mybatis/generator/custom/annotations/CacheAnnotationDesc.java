@@ -124,6 +124,7 @@ public class CacheAnnotationDesc {
         StringBuilder sb = new StringBuilder("key = \"'");
         sb.append(serviceKey==null? String.join("", cacheNames):serviceKey);
         sb.append(":'");
+        sb.append(".concat(T(com.vgosoft.security.utils.SecurityUtils).getCurrentTenantId())");
         if (stringHasValue(key)) {
             sb.append(format(".concat({0})", key));
         } else {

@@ -50,6 +50,11 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         //类文件注释
         commentGenerator.addJavaFileComment(topLevelClass);
+        //是否忽略tenantId
+        if (context.isIntegrateMybatisPlus() && configuration.isIgnoreTenant()) {
+            topLevelClass.addAnnotation("@IgnoreTenant");
+            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.IgnoreTenant"));
+        }
         //父类
         FullyQualifiedJavaType superClass = getSuperClass();
         if (superClass != null) {

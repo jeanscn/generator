@@ -1999,6 +1999,11 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(ignoreDefault)) {
             mapstructMappingConfiguration.setIgnoreDefault(Boolean.parseBoolean(ignoreDefault));
         }
+        String ignoreBusiness = attributes.getProperty("ignoreBusiness");
+        if (stringHasValue(ignoreBusiness)) {
+            mapstructMappingConfiguration.setIgnoreBusiness(Boolean.parseBoolean(ignoreBusiness));
+        }
+
         String additionalMappings = attributes.getProperty("additionalMappings");
         if (stringHasValue(additionalMappings)) {
             mapstructMappingConfiguration.setAdditionalMappings(splitToList(additionalMappings));
@@ -2917,6 +2922,11 @@ public class MyBatisGeneratorConfigurationParser {
         }
         //判断enableChildren
         modelConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
+
+        String ignoreTenant = attributes.getProperty("ignoreTenant");
+        if (stringHasValue(ignoreTenant)) {
+            modelConfiguration.setIgnoreTenant(Boolean.parseBoolean(ignoreTenant));
+        }
 
         parseModelChildNodeProperty(context, tc, node, modelConfiguration);
         //继承tc的附加属性

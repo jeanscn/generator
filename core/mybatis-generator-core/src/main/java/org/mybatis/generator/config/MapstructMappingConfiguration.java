@@ -21,6 +21,8 @@ public class MapstructMappingConfiguration extends TypedPropertyHolder {
 
     private boolean ignoreDefault = true;
 
+    private boolean ignoreBusiness = true;
+
     private  List<String> additionalMappings = new ArrayList<>();
 
     public MapstructMappingConfiguration() {
@@ -95,5 +97,13 @@ public class MapstructMappingConfiguration extends TypedPropertyHolder {
 
     public void setIgnoreDefault(boolean ignoreDefault) {
         this.ignoreDefault = ignoreDefault;
+    }
+
+    public boolean isIgnoreBusiness() {
+        return ignoreBusiness;
+    }
+
+    public void setIgnoreBusiness(boolean ignoreBusiness) {
+        this.ignoreBusiness = ignoreBusiness;
     }
 }

@@ -57,7 +57,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
 
         //方法体
         method.addBodyLine("int ret = 0;");
-        method.addBodyLine("DefaultReadListener<{0}> readListener = new DefaultReadListener<>();",entityExcelImportVoType.getShortName());
+        method.addBodyLine("DefaultReadListener<{0}> readListener = getImportReadListener();",entityExcelImportVoType.getShortName());
         method.addBodyLine("try (InputStream inputStream = file.getInputStream()) {");
         method.addBodyLine("List<{0}> excelVOS = VgoEasyExcel.read(inputStream, {0}.class, readListener);",entityExcelImportVoType.getShortName());
         method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVOS);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());

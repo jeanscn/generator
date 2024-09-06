@@ -11,6 +11,8 @@ public class JavaModelGeneratorConfiguration extends AbstractModelGeneratorConfi
 
     private boolean enableChildren;
 
+    private boolean ignoreTenant = false;
+
     public JavaModelGeneratorConfiguration() {
         super();
     }
@@ -39,5 +41,13 @@ public class JavaModelGeneratorConfiguration extends AbstractModelGeneratorConfi
     @Override
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "JavaModelGeneratorConfiguration");
+    }
+
+    public boolean isIgnoreTenant() {
+        return ignoreTenant;
+    }
+
+    public void setIgnoreTenant(boolean ignoreTenant) {
+        this.ignoreTenant = ignoreTenant;
     }
 }
