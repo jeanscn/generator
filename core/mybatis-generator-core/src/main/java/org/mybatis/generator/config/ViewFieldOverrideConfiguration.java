@@ -21,6 +21,8 @@ public class ViewFieldOverrideConfiguration extends TypedPropertyHolder {
     private String label;
     private String width;
 
+    private String minWidth;
+
     private String align = "left";
 
     private String fixed;
@@ -105,5 +107,13 @@ public class ViewFieldOverrideConfiguration extends TypedPropertyHolder {
 
     public void setEdit(boolean edit) {
         this.edit = edit;
+    }
+
+    public String getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(String minWidth) {
+        this.minWidth = minWidth;
     }
 }

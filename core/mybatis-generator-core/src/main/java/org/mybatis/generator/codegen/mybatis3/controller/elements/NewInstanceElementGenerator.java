@@ -1,10 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
@@ -21,6 +19,18 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(RESPONSE_RESULT);
+
+        //为类添加属性protected EntityEventPublisher publisher;
+        boolean createdEvent = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getEntityEvent().contains(EntityEventEnum.CREATED.name());
+        if (createdEvent) {
+            Field field = new Field("publisher", new FullyQualifiedJavaType("com.vgosoft.core.event.entity.EntityEventPublisher"));
+            field.setVisibility(JavaVisibility.PROTECTED);
+            field.addAnnotation("@Resource");
+            parentElement.addField(field);
+            parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.event.entity.EntityEventPublisher"));
+            parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.constant.enums.core.EntityEventEnum"));
+            parentElement.addImportedType(new FullyQualifiedJavaType("javax.annotation.Resource"));
+        }
 
         FullyQualifiedJavaType type;
         FullyQualifiedJavaType returnType;
@@ -51,13 +61,14 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "实例化一个空对象，供前端使用.允许提供一些初始化值");
         if (introspectedTable.getRules().isGenerateCreateVO() && introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0} {1} = mappings.from{2}({3});"
-                    , entityType.getShortName(), entityType.getShortNameFirstLowCase(), type.getShortName(), type.getShortNameFirstLowCase());
-            method.addBodyLine("{0} object = mappings.to{0}({1});"
-                    , entityVoType.getShortName(),entityType.getShortNameFirstLowCase());
+            method.addBodyLine("{0} {1} = mappings.from{2}({3});", entityType.getShortName(), entityType.getShortNameFirstLowCase(), type.getShortName(), type.getShortNameFirstLowCase());
+            if (createdEvent) {
+                method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.CREATED);", entityType.getShortNameFirstLowCase());
+            }
+            method.addBodyLine("{0} object = mappings.to{0}({1});", entityVoType.getShortName(), entityType.getShortNameFirstLowCase());
             method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue(object));");
-        }else{
-            method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue({0}));",type.getShortNameFirstLowCase());
+        } else {
+            method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue({0}));", type.getShortNameFirstLowCase());
         }
         parentElement.addMethod(method);
     }

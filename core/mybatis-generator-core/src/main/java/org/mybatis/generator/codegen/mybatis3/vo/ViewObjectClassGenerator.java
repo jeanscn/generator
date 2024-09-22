@@ -93,21 +93,24 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             mappingsInterface.addImportedType(source);
             mappingsInterface.addImportedType(target);
             Method method = VOGeneratorUtil.addMappingMethod(source, target, c.getType().equals("list"), introspectedTable);
+            //添加mapping默认忽略属性
+            List<String> defaultFields = new ArrayList<>(Arrays.asList("id","persistenceBeanName","persistenceStatus", "modelTempId", "version", "workflowEnabled","restBasePath","viewPath"));
+
+            List<String> absFields = new ArrayList<>(Arrays.asList("workflowEnabled","restBasePath","viewPath")); //与表结构字段一起控制是否允许添加映射或隐藏配置
             FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
             EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
-            List<String> allTableFields = introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList());
-            List<String> absFields = new ArrayList<>(); //与表结构字段一起控制是否允许添加映射或隐藏配置
             if (entityAbstractParentEnum != null) {
                 absFields.addAll(entityAbstractParentEnum.fields());
             }
-            absFields.addAll(Arrays.asList("persistenceStatus", "persistenceBeanName", "modelTempId", "workflowEnabled","restBasePath","viewPath"));
             if (c.isIgnoreDefault()) {
                 c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD);
             }
             if (c.isIgnoreBusiness()){
                 c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_BUSINESS_FIELD);
             }
+            c.getIgnoreFields().addAll(defaultFields);
             //忽略字段
+            List<String> allTableFields = introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList());
             for (String ignoreField : c.getIgnoreFields()) {
                 if (allTableFields.contains(ignoreField) || absFields.contains(ignoreField)) {
                     method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
@@ -121,15 +124,13 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     if (split.length > 1) {
                         split[0] = split[0].trim();
                         split[1] = split[1].trim();
-                        if (allTableFields.contains(split[0]) || absFields.contains(split[0]) || absFields.contains(split[1]) || allTableFields.contains(split[1])) {
+                        if (absFields.contains(split[1]) || allTableFields.contains(split[1])) {
                             method.addAnnotation(String.format("@Mapping(target = \"%s\", source = \"%s\")", split[0], split[1]));
                             mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
                         }
                     }
                 }
             });
-
-
             mappingsInterface.addMethod(method);
         });
 

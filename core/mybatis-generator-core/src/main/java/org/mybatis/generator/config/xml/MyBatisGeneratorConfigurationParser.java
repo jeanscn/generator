@@ -2270,6 +2270,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(style)) {
             listColumnConfiguration.setStyle(style);
         }
+        String label = attributes.getProperty("label");
+        if (stringHasValue(label)) {
+            listColumnConfiguration.setLabel(label);
+        }
         String align = attributes.getProperty("align");
         if (stringHasValue(align)) {
             listColumnConfiguration.setAlign(align);
@@ -2690,6 +2694,10 @@ public class MyBatisGeneratorConfigurationParser {
         String width = attributes.getProperty("width");
         if (stringHasValue(width)) {
             viewFieldOverrideConfiguration.setWidth(width);
+        }
+        String minWidth = attributes.getProperty("minWidth");
+        if (stringHasValue(minWidth)) {
+            viewFieldOverrideConfiguration.setMinWidth(minWidth);
         }
         String align = attributes.getProperty("align");
         if (stringHasValue(align)) {

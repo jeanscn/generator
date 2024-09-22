@@ -38,6 +38,8 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         private String align;
 
+        private String label;
+
         public LayuiTableColumnMetaDesc() {
             super();
             this.addImports(LayuiTableColumnMeta.class.getCanonicalName());
@@ -86,6 +88,9 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
             }
             if (stringHasValue(scope) && !scope.equals("both")) {
                 items.add(format("scope = \"{0}\"", scope));
+            }
+            if (stringHasValue(label)) {
+                items.add(format("label = \"{0}\"", label));
             }
             if (stringHasValue(align)) {
                 items.add(format("align = \"{0}\"", align));
@@ -213,4 +218,11 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
         this.value = value;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
 }

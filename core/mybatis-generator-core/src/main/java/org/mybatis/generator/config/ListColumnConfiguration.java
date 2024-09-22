@@ -19,6 +19,8 @@ public class ListColumnConfiguration extends PropertyHolder{
 
     private String style;
 
+    private String label;
+
     private String align;
 
     public ListColumnConfiguration() {
@@ -79,5 +81,13 @@ public class ListColumnConfiguration extends PropertyHolder{
 
     public void setAlign(String align) {
         this.align = align;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

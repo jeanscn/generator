@@ -568,6 +568,8 @@ public class ExampleGenerator extends AbstractJavaGenerator {
                 answer.addMethod(getSetLikeRightMethod(introspectedColumn));
                 answer.addMethod(getSetEmptyMethod(introspectedColumn));
                 answer.addMethod(getSetNotEmptyMethod(introspectedColumn));
+                answer.addMethod(getSetEqualUpperCaseMethod(introspectedColumn));
+                answer.addMethod(getSetNotEqualUpperCaseMethod(introspectedColumn));
             }
 
             answer.addMethod(getSetInOrNotInMethod(introspectedColumn, true));
@@ -586,6 +588,14 @@ public class ExampleGenerator extends AbstractJavaGenerator {
 
     private Method getSetNotNullMethod(IntrospectedColumn introspectedColumn) {
         return getNoValueMethod(introspectedColumn, "IsNotNull", "is not null"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private Method getSetEqualUpperCaseMethod(IntrospectedColumn introspectedColumn) {
+        return getSingleValueMethod(introspectedColumn, "EqualUpperCase", "="); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private Method getSetNotEqualUpperCaseMethod(IntrospectedColumn introspectedColumn) {
+        return getSingleValueMethod(introspectedColumn, "NotEqualUpperCase", "<>"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private Method getSetEqualMethod(IntrospectedColumn introspectedColumn) {
@@ -656,7 +666,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
 
         sb.setLength(0);
-        sb.append(initializeAddLine(introspectedColumn));
+        sb.append(initializeAddLine(introspectedColumn, nameFragment));
         sb.append(' ');
         sb.append(operator);
         sb.append("\", "); //$NON-NLS-1$
@@ -691,7 +701,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         return sb.toString();
     }
 
-    private String initializeAddLine(IntrospectedColumn introspectedColumn) {
+    private String initializeAddLine(IntrospectedColumn introspectedColumn, String nameFragment) {
         StringBuilder sb = new StringBuilder();
         if (introspectedColumn.isJDBCDateColumn()) {
             sb.append("addCriterionForJDBCDate(\""); //$NON-NLS-1$
@@ -701,12 +711,26 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             sb.append("add"); //$NON-NLS-1$
             sb.append(introspectedColumn.getJavaProperty());
             sb.setCharAt(3, Character.toUpperCase(sb.charAt(3)));
-            sb.append("Criterion(\""); //$NON-NLS-1$
+            if (nameFragment.contains("UpperCase")) {
+                sb.append("Criterion(UPPER(\""); //$NON-NLS-1$
+            }else {
+                if (nameFragment.contains("UpperCase")) {
+                    sb.append("Criterion(\"UPPER("); //$NON-NLS-1$
+                } else {
+                    sb.append("Criterion(\""); //$NON-NLS-1$
+                }
+            }
         } else {
-            sb.append("addCriterion(\""); //$NON-NLS-1$
+            if (nameFragment.contains("UpperCase")) {
+                sb.append("addCriterion(\"UPPER("); //$NON-NLS-1$
+            } else {
+                sb.append("addCriterion(\""); //$NON-NLS-1$
+            }
         }
-
         sb.append(MyBatis3FormattingUtilities.getAliasedActualColumnName(introspectedColumn));
+        if (nameFragment.contains("UpperCase")) {
+            sb.append(")"); //$NON-NLS-1$
+        }
         return sb.toString();
     }
 
@@ -735,7 +759,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
 
         sb.setLength(0);
-        sb.append(initializeAddLine(introspectedColumn));
+        sb.append(initializeAddLine(introspectedColumn, "Between"));
         if (betweenMethod) {
             sb.append(" between"); //$NON-NLS-1$
         } else {
@@ -781,7 +805,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
 
         sb.setLength(0);
-        sb.append(initializeAddLine(introspectedColumn));
+        sb.append(initializeAddLine(introspectedColumn, inMethod ? "In" : "NotIn"));
         if (inMethod) {
             sb.append(" in"); //$NON-NLS-1$
         } else {
@@ -828,7 +852,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
 
         sb.setLength(0);
-        sb.append(initializeAddLine(introspectedColumn)); // addCriterion("tetd.id_
+        sb.append(initializeAddLine(introspectedColumn,"AnyCondition")); // addCriterion("tetd.id_
         sb.append(' ');
         sb.append("\"+expression);");
         method.addBodyLine(sb.toString());

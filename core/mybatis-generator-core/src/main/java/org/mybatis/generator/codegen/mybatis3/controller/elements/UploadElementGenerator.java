@@ -50,7 +50,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         }
         parameter.setRemark("添加的数据对象");
         method.addParameter(parameter);
-        responseResult.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        responseResult.addTypeArgument(entityType);
         method.setReturnType(responseResult);
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("上传处理异常，含IO读写异常");
@@ -79,7 +79,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (!serviceResult.isSuccess()) {");
         method.addBodyLine("return ResponseResult.failure(ApiCodeEnum.FAIL,serviceResult.getMessage());");
         method.addBodyLine("} else {");
-        method.addBodyLine(format("return ResponseResult.success({0}.getId(),\"上传成功！\");",entityType.getShortNameFirstLowCase()));
+        method.addBodyLine(format("return ResponseResult.success({0},\"上传成功！\");",entityType.getShortNameFirstLowCase()));
         method.addBodyLine("}");
         parentElement.addMethod(method);
     }

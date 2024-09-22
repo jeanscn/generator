@@ -259,6 +259,20 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
             layuiTableColumnMetaDesc.setOrder(getOrder(field, listViewConfiguration, introspectedTable));
         }
+        listViewConfiguration.getListColumnConfigurations().stream().filter(listColumn -> listColumn.getField().equals(field.getName())).findFirst().ifPresent(listColumn -> {
+            if (listColumn.getLabel() != null) {
+                layuiTableColumnMetaDesc.setLabel(listColumn.getLabel());
+            }
+            if (listColumn.getMinWidth() != null) {
+                layuiTableColumnMetaDesc.setMinWidth(listColumn.getMinWidth());
+            }
+            if (listColumn.getAlign() != null) {
+                layuiTableColumnMetaDesc.setAlign(listColumn.getAlign());
+            }
+            if (listColumn.getFixed() != null) {
+                layuiTableColumnMetaDesc.setFixed(listColumn.getField());
+            }
+        });
         return layuiTableColumnMetaDesc;
     }
 
@@ -359,6 +373,9 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             }
             if (columnConfiguration.getAlign() != null) {
                 layuiTableColumnMetaDesc.setAlign(columnConfiguration.getAlign());
+            }
+            if (columnConfiguration.getLabel() != null) {
+                layuiTableColumnMetaDesc.setLabel(columnConfiguration.getLabel());
             }
         } else if (layuiTableColumnMetaDesc.getEditor() != null) { //根据指定宽度
             switch (layuiTableColumnMetaDesc.getEditor()) {

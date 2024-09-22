@@ -27,6 +27,9 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     private String title;
 
     private String width;
+
+    private String minWidth;
+
     private String headerAlign = "left";
 
     private String align = "left";
@@ -159,6 +162,9 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         }
         if (this.width != null) {
             items.add(VStringUtil.format("width = \"{0}\"", this.width));
+        }
+        if (this.minWidth != null) {
+            items.add(VStringUtil.format("minWidth = \"{0}\"", this.minWidth));
         }
         if (this.headerAlign != null && !this.headerAlign.equals("left")) {
             items.add(VStringUtil.format("headerAlign = \"{0}\"", this.headerAlign));
@@ -356,5 +362,13 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
             return hiddenProperties;
         }
         return this.introspectedTable.getTableConfiguration().getHtmlHiddenFields();
+    }
+
+    public String getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(String minWidth) {
+        this.minWidth = minWidth;
     }
 }

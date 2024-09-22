@@ -19,7 +19,7 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  */
 public class JavaFlowableListenerGenerator extends AbstractJavaGenerator {
 
-    private static final String DEFAULT_FLOWABLE_LISTENER_CLASS = "com.vgosoft.workflow.event.AbstractAsyncFlowableEventListener";
+    private static final String DEFAULT_FLOWABLE_LISTENER_CLASS = "com.vgosoft.workflow.event.AbstractFlowableEventListener";
 
     public JavaFlowableListenerGenerator(String project) {
         super(project);
@@ -56,7 +56,7 @@ public class JavaFlowableListenerGenerator extends AbstractJavaGenerator {
                 " * {0}对应的工作流生命周期阶段事件监听\n" +
                 " * 目前有效事件类型包括：PROCESS_STARTED、PROCESS_COMPLETED。\n" +
                 " * 见枚举类：'{'@link org.flowable.common.engine.api.delegate.event.FlowableEngineEventType'}'\n" +
-                " * 事件监听器的实现类必须继承自'{'@link AbstractAsyncFlowableEventListener'}'\n" +
+                " * 事件监听器的实现类必须继承自'{'@link AbstractFlowableEventListener'}',也可以使用异步方法类'{'@link AbstractAsyncFlowableEventListener'}'（使用异步方法时安全上下文可能存在问题）\n" +
                 " * 并且使用'{'@link Component'}'注解进行标注。\n" +
                 " */",entityType.getShortName()));
         topClazz.addAnnotation("@Component");
