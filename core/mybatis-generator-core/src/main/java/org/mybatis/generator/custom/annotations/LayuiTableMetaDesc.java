@@ -36,6 +36,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
      * 设置表格的索引列固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
      */
     private String indexColumnFixed = "";
+    private String actionColumnWidth;
     private List<String> toolbar = new ArrayList<>();
     private Set<String> batchUpdateColumns = new HashSet<>();
     private List<String> defaultToolbar = new ArrayList<>();
@@ -120,6 +121,9 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (stringHasValue(actionColumnFixed) && !"false".equalsIgnoreCase(actionColumnFixed)) {
             items.add("actionColumnFixed = \"" + actionColumnFixed + "\"");
+        }
+        if (stringHasValue(actionColumnWidth)) {
+            items.add("actionColumnWidth = \"" + actionColumnWidth + "\"");
         }
         if (stringHasValue(indexColumnFixed) && !"false".equalsIgnoreCase(indexColumnFixed)) {
             items.add("indexColumnFixed = \"" + indexColumnFixed + "\"");
@@ -431,5 +435,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setEditableFields(List<String> editableFields) {
         this.editableFields = editableFields;
+    }
+
+    public String getActionColumnWidth() {
+        return actionColumnWidth;
+    }
+
+    public void setActionColumnWidth(String actionColumnWidth) {
+        this.actionColumnWidth = actionColumnWidth;
     }
 }

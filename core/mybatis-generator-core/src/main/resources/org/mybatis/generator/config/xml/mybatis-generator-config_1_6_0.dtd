@@ -1238,27 +1238,28 @@
             8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
             9、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
             10、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为right
-            11、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
-            12、queryColumns:应用复合查询表单的字段名,多值使用","。
-            13、fuzzyColumns:应用模糊查询的字段名,多值使用","。
-            14、filterColumns:应用过滤器查询的字段名,多值使用","。
-            15、totalRow 是否显示总计行，true显示，false不显示。缺省值false
-            16、totalFields：合计字段名列表,多值使用","。
-            17、defaultDisplayFields：默认显示的属性名列表,多值使用","。
-            18、defaultHiddenFields：默不显示的属性名列表,多值使用","。
-            19、enablePage 是否启用分页，true分页，false不分页，simple简单分页，auto自动隐藏。缺省值false
-            20、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
-            21、viewMenuElIcon view菜单项目的element图标
-            22、categoryTreeUrl 左侧分类树的数据来源url
-            23、categoryTreeMultiple 左侧分类树是否允许多选，true允许带checkbox，false不允许
-            24、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
-            25、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
-            26、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
-            27、viewMenuIcon view菜单项目的图标
-            28、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
-            28、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
-            29、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            30、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            11、actionColumnWidth：操作列宽度，缺省值为”“
+            12、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
+            13、queryColumns:应用复合查询表单的字段名,多值使用","。
+            14、fuzzyColumns:应用模糊查询的字段名,多值使用","。
+            15、filterColumns:应用过滤器查询的字段名,多值使用","。
+            16、totalRow 是否显示总计行，true显示，false不显示。缺省值false
+            17、totalFields：合计字段名列表,多值使用","。
+            18、defaultDisplayFields：默认显示的属性名列表,多值使用","。
+            19、defaultHiddenFields：默不显示的属性名列表,多值使用","。
+            20、enablePage 是否启用分页，true分页，false不分页，simple简单分页，auto自动隐藏。缺省值false
+            21、parentMenuId view菜单项目的父级id，优先级高于context标签中的parentMenuId
+            22、viewMenuElIcon view菜单项目的element图标
+            23、categoryTreeUrl 左侧分类树的数据来源url
+            24、categoryTreeMultiple 左侧分类树是否允许多选，true允许带checkbox，false不允许
+            25、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
+            26、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
+            27、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
+            28、viewMenuIcon view菜单项目的图标
+            29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
+            30、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
+            31、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            32、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             property配置：无
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
@@ -1276,6 +1277,7 @@
                 indexColumn %indexColumnType; #IMPLIED
                 actionColumn CDATA #IMPLIED
                 actionColumnFixed (right|left|false) #IMPLIED
+                actionColumnWidth CDATA #IMPLIED
                 indexColumnFixed (left|right|false) #IMPLIED
                 toolbar CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED

@@ -16,6 +16,7 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
     protected List<String> actionColumn = new ArrayList<>();
     protected String actionColumnFixed;
     protected String indexColumnFixed;
+    protected String actionColumnWidth;
     protected List<String> toolbar = new ArrayList<>();
     protected List<String> queryColumns = new ArrayList<>();
     protected List<String> fuzzyColumns = new ArrayList<>();
@@ -280,5 +281,13 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
 
     public void setShowActionColumn(String showActionColumn) {
         this.showActionColumn = showActionColumn;
+    }
+
+    public String getActionColumnWidth() {
+        return actionColumnWidth;
+    }
+
+    public void setActionColumnWidth(String actionColumnWidth) {
+        this.actionColumnWidth = actionColumnWidth;
     }
 }

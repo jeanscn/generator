@@ -48,6 +48,7 @@
                         </FormButtonsBar>
                     </template>
                 </VgoFormDrawer>
+                <vgoFileImport v-model="showImportDialog" :service="service" @on-success="importSuccess"/>
             </el-main>
         </el-container>
     </el-container>
@@ -81,12 +82,16 @@
     import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
     import { TGlobalDrawer } from '@/framework/layout/components/GlobalDrawer.vue';
     import { IButtonProps } from '@/framework/types/core';
+    import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
+
     const i18n = useI18n();
 
     const moduleKey = "${ modelPath }";
 
     const tableConfigStore = useTableConfigStore();
     const formConfigStore = useFormConfigStore();
+
+    const showImportDialog = ref(false);
 
     const route = useRoute();
     const meta = route.meta as { viewId: string };
@@ -146,6 +151,10 @@
             bizFormRef.value = null;
         }
     });
+
+    const importSuccess = () => {
+        tableRef.value!.refresh();
+    };
 
     const globalDialog:Ref<TGlobalDialog> = inject('globalDialog', ref({
         openGlobalDialog: () => {
@@ -246,7 +255,14 @@
             i18n: i18n,
             tableConfigProps: _tableConfigProps,
         };
-        extMethod.defaultDtCustomButtonActionHandler<T${ componentName }>(params);
+        switch (button.id) {
+            case 'top-custom-import':
+                showImportDialog.value = true;
+                break;
+            default:
+                extMethod.defaultDtCustomButtonActionHandler<T${ componentName }>(params);
+                break;
+        }
     };
 
     const defaultFormButtonActionHandler = (button: IButtonProps,popType:string) => {

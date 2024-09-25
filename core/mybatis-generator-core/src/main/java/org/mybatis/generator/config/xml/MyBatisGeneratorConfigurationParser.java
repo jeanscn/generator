@@ -2587,6 +2587,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(indexColumnFixed)) {
             voViewGeneratorConfiguration.setIndexColumnFixed(indexColumnFixed);
         }
+        String actionColumnWidth = attributes.getProperty("actionColumnWidth");
+        if (stringHasValue(actionColumnWidth)) {
+            voViewGeneratorConfiguration.setActionColumnWidth(actionColumnWidth);
+        }
         String toolbar = attributes.getProperty("toolbar");
         if (stringHasValue(toolbar)) {
             voViewGeneratorConfiguration.setToolbar(splitToList(toolbar));
