@@ -14,15 +14,13 @@ import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.ScalableElementEnum;
+import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,27 +93,38 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             Method method = VOGeneratorUtil.addMappingMethod(source, target, c.getType().equals("list"), introspectedTable);
             //添加mapping默认忽略属性
             List<String> defaultFields = new ArrayList<>(Arrays.asList("id","persistenceBeanName","persistenceStatus", "modelTempId", "version", "workflowEnabled","restBasePath","viewPath"));
-
-            List<String> absFields = new ArrayList<>(Arrays.asList("workflowEnabled","restBasePath","viewPath")); //与表结构字段一起控制是否允许添加映射或隐藏配置
-            FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(introspectedTable));
-            EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
-            if (entityAbstractParentEnum != null) {
-                absFields.addAll(entityAbstractParentEnum.fields());
-            }
+            List<String> absFields = new ArrayList<>(); //与表结构字段一起控制是否允许添加映射或隐藏配置
+            Set<String> ignoreFields = new HashSet<>();
             if (c.isIgnoreDefault()) {
-                c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD);
+                ignoreFields.addAll(GlobalConstant.MAPSTRUCT_IGNORE_DEFAULT_FIELD);
             }
             if (c.isIgnoreBusiness()){
-                c.getIgnoreFields().addAll(GlobalConstant.MAPSTRUCT_IGNORE_BUSINESS_FIELD);
+                ignoreFields.addAll(GlobalConstant.MAPSTRUCT_IGNORE_BUSINESS_FIELD);
             }
-            c.getIgnoreFields().addAll(defaultFields);
+            ignoreFields.addAll(defaultFields);
             //忽略字段
-            List<String> allTableFields = introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList());
-            for (String ignoreField : c.getIgnoreFields()) {
+            List<String> allTableFields = new ArrayList<>();
+            this.context.getIntrospectedTables().forEach(t -> {
+                String objectName = t.getTableConfiguration().getDomainObjectName();
+                if (target.getShortName().equals(objectName)) {
+                    allTableFields.addAll(t.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList()));
+                    FullyQualifiedJavaType rootClass = new FullyQualifiedJavaType(JavaBeansUtil.getRootClass(t));
+                    EntityAbstractParentEnum entityAbstractParentEnum = EntityAbstractParentEnum.ofCode(rootClass.getShortName());
+                    if (entityAbstractParentEnum != null) {
+                        absFields.addAll(entityAbstractParentEnum.fields());
+                    }
+                }
+            });
+            for (String ignoreField : ignoreFields) {
                 if (allTableFields.contains(ignoreField) || absFields.contains(ignoreField)) {
+                    c.getIgnoreFields().remove(ignoreField);
                     method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
                     mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
                 }
+            }
+            for (String ignoreField : c.getIgnoreFields()) {
+                method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
+                mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
             }
             //额外映射字段
             c.getAdditionalMappings().forEach(m -> {
@@ -191,7 +200,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                     String parentMenuId = Optional.ofNullable(viewConfiguration.getParentMenuId())
                             .orElse(context.getParentMenuId());
                     if (stringHasValue(parentMenuId) && context.isUpdateMenuData() && introspectedTable.getTableConfiguration().isModules()) {
-                        int sort = context.getSysMenuDataScriptLines().size() * 10;
+                        int sort = (context.getSysMenuDataScriptLines().size()+2) * 10;
                         String id = Mb3GenUtil.getDefaultViewId(introspectedTable);
                         String title = viewConfiguration.getTitle() != null ? viewConfiguration.getTitle() : introspectedTable.getRemarks(true);
                         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForMenu();
