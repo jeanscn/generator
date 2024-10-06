@@ -62,10 +62,14 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         commentGenerator.addMethodJavaDocLine(method, "获取指定根或所有的树形结构数据");
         //函数体
         method.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
-        method.addBodyLine(VStringUtil.format("nodeConverter.setRecords({0}.{1}({2}));",
-                serviceBeanName,
-                introspectedTable.getSelectByPrimaryKeysStatementId(),
-                "keys"));
+        method.addBodyLine("List<{0}> records = {1}.{2}(keys);",entityType.getShortName(), serviceBeanName,introspectedTable.getSelectByPrimaryKeysStatementId());
+        boolean isPresent = introspectedTable.getColumn(DefaultColumnNameEnum.SORT.columnName()).isPresent();
+        if (isPresent) {
+            method.addBodyLine("nodeConverter.setRecords(records.stream().sorted(Comparator.comparing({0}::getSort)).collect(Collectors.toList()));", entityType.getShortName());
+            parentElement.addImportedType("java.util.Comparator");
+        }else{
+            method.addBodyLine("nodeConverter.setRecords(records);");
+        }
         method.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
         method.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
         method.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");

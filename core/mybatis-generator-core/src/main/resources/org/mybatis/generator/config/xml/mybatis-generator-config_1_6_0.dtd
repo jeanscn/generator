@@ -1623,7 +1623,8 @@
             5、handler属性指定的方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
                     视图的操作按钮中的参数为：function handlerFunc(e, dt, node, config,id)，其中id为定义的按钮id，可以通过这个id来区分不同的按钮
             6、showCondition 表达式中可以使用$表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象），如：$.type == ‘1’ and $.status == ‘1’,$.xxx后面要紧跟空格
-            7、uiFrameType 页面框架名称，layui|zui|elPlus|antd，1.6.0版本新增默认为elPlus
+            7、configurable 是否允许用户配置按钮权限，true-允许，false-不允许。缺省值为true
+            8、uiFrameType 页面框架名称，layui|zui|elPlus|antd，1.6.0版本新增默认为elPlus
             -->
         <!ELEMENT htmlButton EMPTY>
         <!ATTLIST htmlButton
@@ -1641,6 +1642,7 @@
                 isPlain (true|false) #IMPLIED
                 css CDATA #IMPLIED
                 showCondition CDATA #IMPLIED
+                configurable (false|true) #IMPLIED
                 uiFrameType (layui|zui|elPlus|antd) #IMPLIED>
         <!--
             用于描述查询列配置信息

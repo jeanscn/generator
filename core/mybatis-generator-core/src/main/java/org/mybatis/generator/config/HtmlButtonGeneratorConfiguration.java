@@ -24,8 +24,9 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private boolean  isCircle = false;
     private boolean isPlain = false;
     private String css;
-
     private String showCondition = "true";
+    private boolean configurable = true;
+
     public HtmlButtonGeneratorConfiguration() {
         super();
     }
@@ -143,5 +144,13 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public boolean isConfigurable() {
+        return configurable;
+    }
+
+    public void setConfigurable(boolean configurable) {
+        this.configurable = configurable;
     }
 }

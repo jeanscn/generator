@@ -91,6 +91,9 @@ public class SerializablePlugin extends PluginAdapter {
             if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
                 field.addAnnotation("@TableField(exist = false)");
             }
+            if (introspectedTable.getContext().getJdkVersion()>8) {
+                field.addAnnotation("@Serial");
+            }
 
             if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
                 context.getCommentGenerator().addFieldAnnotation(field, introspectedTable,topLevelClass.getImportedTypes());
@@ -106,6 +109,9 @@ public class SerializablePlugin extends PluginAdapter {
             }
             if (!exist) {
                 topLevelClass.getFields().add(0,field);
+                if (introspectedTable.getContext().getJdkVersion()>8) {
+                    topLevelClass.addImportedType(new FullyQualifiedJavaType("java.io.Serial"));
+                }
             }
         }
     }

@@ -34,6 +34,8 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     private String css;
     private String showCondition;
 
+    private boolean configurable;
+
     public static HtmlButtonDesc create(ViewDefaultToolBarsEnum viewDefaultToolBarsEnum) {
         return new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
     }
@@ -53,12 +55,31 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.setShowCondition(htmlButtonGeneratorConfiguration.getShowCondition());
         htmlButtonDesc.setTitle(htmlButtonGeneratorConfiguration.getTitle());
         htmlButtonDesc.setLabel(htmlButtonGeneratorConfiguration.getLabel());
+        htmlButtonDesc.setConfigurable(htmlButtonGeneratorConfiguration.isConfigurable());
         return htmlButtonDesc;
     }
 
     public HtmlButtonDesc(String id) {
         super();
         this.id = id;
+        this.addImports(HtmlButton.class.getCanonicalName());
+    }
+
+    public HtmlButtonDesc(ViewDefaultToolBarsEnum viewDefaultToolBarsEnum) {
+        super();
+        this.id = viewDefaultToolBarsEnum.id();
+        this.value = viewDefaultToolBarsEnum.id();
+        this.text = viewDefaultToolBarsEnum.text();
+        this.label = viewDefaultToolBarsEnum.codeName();
+        this.title = viewDefaultToolBarsEnum.title();
+        this.icon = viewDefaultToolBarsEnum.elIcon();
+        this.classes = viewDefaultToolBarsEnum.classes();
+        this.handler = viewDefaultToolBarsEnum.handler();
+        this.type = viewDefaultToolBarsEnum.type();
+        this.css = viewDefaultToolBarsEnum.css();
+        this.showCondition = viewDefaultToolBarsEnum.showCondition();
+        this.isPlain = viewDefaultToolBarsEnum.plain();
+        this.configurable = viewDefaultToolBarsEnum.configurable();
         this.addImports(HtmlButton.class.getCanonicalName());
     }
 
@@ -104,6 +125,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         }
         if (this.showCondition!=null && !this.showCondition.equalsIgnoreCase("true")) {
             items.add("showCondition = \""+this.showCondition+"\"");
+        }
+        if (!this.configurable) {
+            items.add("configurable = false");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -226,5 +250,13 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public boolean isConfigurable() {
+        return configurable;
+    }
+
+    public void setConfigurable(boolean configurable) {
+        this.configurable = configurable;
     }
 }

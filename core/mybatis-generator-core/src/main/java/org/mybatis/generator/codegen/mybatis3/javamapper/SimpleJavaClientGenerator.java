@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper;
 
 import org.mybatis.generator.api.CommentGenerator;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -8,6 +9,7 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.SimpleXMLMapperGenerator;
@@ -19,6 +21,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -80,6 +83,13 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
         subInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         subInterface.addSuperInterface(type);
         subInterface.addImportedType(type);
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            subInterface.addAnnotation("@DataScope(tableName = \""+introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()+"\")");
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.DataScope"));
+            String primaryKeys = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+introspectedTable.getFullyQualifiedTable().getAlias()+"\", columnName = \""+ primaryKeys +"\")");
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.TableDataScope"));
+        }
 
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);

@@ -103,6 +103,8 @@ public abstract class IntrospectedTable {
 
     protected Map<String, String> permissionDataScriptLines = new HashMap<>();
 
+    protected Map<String, String> permissionActionDataScriptLines = new HashMap<>();
+
     protected Map<String, List<String>> topLevelClassExampleFields = new HashMap<>();
 
     /**
@@ -975,6 +977,8 @@ public abstract class IntrospectedTable {
 
     public abstract List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles();
 
+    public abstract List<GeneratedSqlSchemaFile> getGeneratedPermissionActionSqlDataFiles();
+
     /**
      * This method should return a list of generated Kotlin files related to this
      * table. This list could include a data classes, a mapper interface, extension methods, etc.
@@ -1211,6 +1215,14 @@ public abstract class IntrospectedTable {
 
     public void addPermissionDataScriptLines(String id, String permissionDataScriptLines) {
         this.permissionDataScriptLines.put(id, permissionDataScriptLines);
+    }
+
+    public Map<String, String> getPermissionActionDataScriptLines() {
+        return permissionActionDataScriptLines;
+    }
+
+    public void addPermissionActionDataScriptLines(String id, String permissionActionDataScriptLine) {
+        this.permissionActionDataScriptLines.put(id, permissionActionDataScriptLine);
     }
 
     public Map<String, List<String>> getTopLevelClassExampleFields() {

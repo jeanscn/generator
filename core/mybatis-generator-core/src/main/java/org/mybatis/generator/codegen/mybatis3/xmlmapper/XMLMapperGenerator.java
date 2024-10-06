@@ -9,10 +9,12 @@ import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.codegen.XmlConstants;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.*;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 public class XMLMapperGenerator extends AbstractXmlGenerator {
 

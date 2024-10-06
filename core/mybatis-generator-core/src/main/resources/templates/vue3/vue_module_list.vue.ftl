@@ -31,11 +31,11 @@
                         </FormButtonsBar>
                     </template>
                 </VgoDialog>
-                <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="getDrawerTitle"
+                <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="pageTitle"
                                :vgoTreeProps="{ checkStrictly: checkStrictly }" :apiObj="drawerTreeApiObj"
                                :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
                 </VgoTreeDrawer>
-                <VgoFormDrawer v-if="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"  :close-on-click-modal=false
+                <VgoFormDrawer :visible.sync="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"  :close-on-click-modal=false
                                :size="drawerSize as string | undefined" :formConfig="formConfig" :viewStatus="viewStatus"
                                @form-submit="onSubmit">
                     <${ componentName }Edit v-if="viewStatus === 1" ref="bizFormRef" v-model="formData"
@@ -87,6 +87,8 @@
     const i18n = useI18n();
 
     const moduleKey = "${ modelPath }";
+    const permissionKey = '${ permissionKey }';
+    const permissionActions = ref<string[]>([]);
 
     const tableConfigStore = useTableConfigStore();
     const formConfigStore = useFormConfigStore();
@@ -96,7 +98,8 @@
     const route = useRoute();
     const meta = route.meta as { viewId: string };
     const tableRef = ref<TVgoTableInstance>();
-    const tableConfigReady = ref(false);
+    const tableConfigReady = ref<boolean>(false);
+    const permissionReady = ref<boolean>(false);
     const showTreePanel = ref(false);
     const tableColumns = ref([]) as any;
     const _tableConfigProps = ref<TTableConfigProps | null>(null);
@@ -138,12 +141,13 @@
     });
     const viewStatus = ref<number>(1);
     const drawerSize = computed(() => {
-        return popSize.value === 'small' ? '40%' : 'large' ? '70%'  : 'largeX' ? '90%' : '50%';
+        return popSize.value === 'small' ? '40%' : popSize.value === 'large' ? '70%'  : popSize.value === 'largeX' ? '90%' : '50%';
     });
     const applyWorkflow = ref<number>(0);
     const moduleId = ref<string>('');
     onMounted(() => {
         loadViewConfig();
+        getActionPermission();
     });
 
     watch(() => showDialog.value, (val) => {
@@ -180,9 +184,17 @@
         },
     }));
 
+    const getActionPermission = async () => {
+        //获取对当前用户的操作权限
+        let permissionResp = await new ServiceApi('system/sys-permission-action-impl').get('get-current-user-permission-action',{permissionParentId: permissionKey});
+        if(permissionResp.data !== null){
+            permissionActions.value =  permissionResp.data.map((item: string) => item.substring(item.lastIndexOf(':') + 1));
+        }
+        permissionReady.value = true;
+    }
+
     const loadViewConfig = async () => {
         const tableKey = meta.viewId;
-
         _tableConfigProps.value = tableConfigStore.hasTableConfig(tableKey) ? tableConfigStore.getTableConfig(tableKey) : await tableConfigStore.fetchTableConfigAsync(tableKey);
         pageTitle.value = _tableConfigProps.value!.listName || '';
         tableColumns.value = _tableConfigProps.value!.tableColumns;
@@ -222,6 +234,7 @@
             checkStrictly: checkStrictly,
             showTreeDrawer: showTreeDrawer,
             showFormDrawer: showFormDrawer,
+            pageTitle: pageTitle,
             mainRecordId: mainRecordId,
             viewStatus: viewStatus,
             globalDialog: globalDialog,
@@ -229,6 +242,7 @@
             i18n: i18n,
             tableConfigProps: _tableConfigProps,
         };
+        pageTitle.value = _tableConfigProps.value!.listName || '';
         extMethod.defaultViewRowActionHandler<T${ componentName }>(params);
     };
 
@@ -255,6 +269,7 @@
             i18n: i18n,
             tableConfigProps: _tableConfigProps,
         };
+        pageTitle.value = _tableConfigProps.value!.listName || '';
         switch (button.id) {
             case 'top-custom-import':
                 showImportDialog.value = true;
@@ -279,6 +294,7 @@
             tableRef: tableRef,
             showTreeDrawer: showTreeDrawer,
             showFormDrawer: showFormDrawer,
+            pageTitle: pageTitle,
             popType: popType,
             bizFormRef: bizFormRef,
             globalDialog: globalDialog,
@@ -286,12 +302,9 @@
             i18n: i18n,
             viewStatus: viewStatus,
         };
+        pageTitle.value = _tableConfigProps.value!.listName || '';
         extMethod.defaultFormButtonActionHandler<T${ componentName }>(params);
     };
-
-    const getDrawerTitle = computed(() => {
-        return buttonRef.value?.label || '选择';
-    });
 
     const treeDrawerCheckCheck = (params: TTreeCheckDataProps) => {
         params = {

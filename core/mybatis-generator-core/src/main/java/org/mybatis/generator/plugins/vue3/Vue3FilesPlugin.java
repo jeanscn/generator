@@ -3,6 +3,7 @@ package org.mybatis.generator.plugins.vue3;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.permission.annotation.DataPermission;
 import com.vgosoft.tool.TypeConverterTsUtil;
+import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -49,6 +50,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             freeMakerContext.put("modelPath", modelPath);
             freeMakerContext.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
             freeMakerContext.put("tableRemark", tableRemark);
+            freeMakerContext.put("permissionKey", VMD5Util.MD5_15(introspectedTable.getContext().getModuleKeyword().toLowerCase()+":"+introspectedTable.getControllerBeanName().toLowerCase()));
             // 列渲染
             Map<String, String> columnRenderFunMap = new HashMap<>();
             if (introspectedTable.getRules().isGenerateViewVO()) {

@@ -15,12 +15,10 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import org.mybatis.generator.custom.annotations.*;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -175,17 +173,19 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 //是否默认按钮
                 ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(s);
                 if (viewDefaultToolBarsEnum != null) {
-                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
+                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum);
                     if (stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
                         htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
                     }else{
                         htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
                     }
+                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
                     return htmlButtonDesc.toAnnotation();
                 } else {
                     HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
                     if (htmlButtonGeneratorConfiguration != null) {
                         HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
+                        addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
                         return htmlButtonDesc.toAnnotation();
                     }
                 }
@@ -205,17 +205,19 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                 //是否默认按钮
                 ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode("ROW_"+s);
                 if (viewDefaultToolBarsEnum != null) {
-                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
+                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum);
                     if (stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
                         htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
                     }else{
                         htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
                     }
+                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
                     return htmlButtonDesc.toAnnotation();
                 } else {
                     HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
                     if (htmlButtonGeneratorConfiguration != null) {
                         HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
+                        addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
                         return htmlButtonDesc.toAnnotation();
                     }
                 }
@@ -305,6 +307,20 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         //构造ViewTableMeta
         viewVOClass.addAnnotation(viewTableMetaDesc.toAnnotation());
         viewVOClass.addImportedTypes(viewTableMetaDesc.getImportedTypes());
+    }
+
+    private void addActionPermissionSqlData(IntrospectedTable introspectedTable, HtmlButtonDesc htmlButtonDesc) {
+        if (!htmlButtonDesc.isConfigurable()) {
+            return;
+        }
+        String l1 = introspectedTable.getContext().getModuleKeyword().toLowerCase();
+        String l2 = introspectedTable.getControllerBeanName().toLowerCase();
+        String l3 = htmlButtonDesc.getId().toLowerCase();
+        Map<String, String> mapAction = new LinkedHashMap<>();
+        mapAction.put(l1, introspectedTable.getContext().getModuleName());
+        mapAction.put(l2, introspectedTable.getRemarks(true));
+        mapAction.put(l3, htmlButtonDesc.getTitle()!=null?htmlButtonDesc.getTitle():htmlButtonDesc.getLabel());
+        JavaBeansUtil.setPermissionActionSqlData(introspectedTable, mapAction);
     }
 
 

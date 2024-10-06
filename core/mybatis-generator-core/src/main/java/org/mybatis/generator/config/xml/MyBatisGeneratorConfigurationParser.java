@@ -2841,6 +2841,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(text)) {
             htmlButtonConfiguration.setText(Boolean.parseBoolean(text));
         }
+        String configurable = attributes.getProperty("configurable");
+        if (stringHasValue(configurable)) {
+            htmlButtonConfiguration.setConfigurable(Boolean.parseBoolean(configurable));
+        }
         return htmlButtonConfiguration;
     }
 

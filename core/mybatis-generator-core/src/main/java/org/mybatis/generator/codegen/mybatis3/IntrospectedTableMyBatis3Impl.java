@@ -27,6 +27,7 @@ import org.mybatis.generator.codegen.mybatis3.po.CachePoClassGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
+import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataPermissionActionScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataPermissionScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlSchemaScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.unittest.JavaControllerUnitTestGenerator;
@@ -390,7 +391,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     @Override
     public List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles() {
         List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
-        if (this.getPermissionDataScriptLines().size() == 0) {
+        if (this.getPermissionDataScriptLines().isEmpty()) {
             return answer;
         }
         String fileName = "data-permission-" + this.getTableConfiguration().getTableName().toLowerCase() + ".sql";
@@ -399,6 +400,22 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 "src/main/resources/sql",
                 this,
                 new SqlDataPermissionScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+        answer.add(generatedSqlSchemaFile);
+        return answer;
+    }
+
+    @Override
+    public List<GeneratedSqlSchemaFile> getGeneratedPermissionActionSqlDataFiles() {
+        List<GeneratedSqlSchemaFile> answer = new ArrayList<>();
+        if (this.getPermissionActionDataScriptLines().isEmpty()) {
+            return answer;
+        }
+        String fileName = "data-permission-action-" + this.getTableConfiguration().getTableName().toLowerCase() + ".sql";
+        GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
+                "init",
+                "src/main/resources/sql",
+                this,
+                new SqlDataPermissionActionScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
         answer.add(generatedSqlSchemaFile);
         return answer;
     }

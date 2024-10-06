@@ -509,4 +509,29 @@ public class JavaBeansUtil {
             index++;
         }
     }
+
+    public static void setPermissionActionSqlData(IntrospectedTable introspectedTable, Map<String, String> levels) {
+        int index = 0;
+        List<String> keys = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (Map.Entry<String, String> entry : levels.entrySet()) {
+            String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
+            String id = VMD5Util.MD5_15(code);
+            keys.add(code);
+            String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
+            names.add(name);
+            InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermissionAction();
+            sqlBuilder.updateStringValues("id_", id);
+            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionActionDataScriptLines().size() + 1));
+            if (index > 0) {
+                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
+            } else {
+                sqlBuilder.updateStringValues("parent_id", "0");
+            }
+            sqlBuilder.updateStringValues("code_", code);
+            sqlBuilder.updateStringValues("name_", name);
+            introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
+            index++;
+        }
+    }
 }

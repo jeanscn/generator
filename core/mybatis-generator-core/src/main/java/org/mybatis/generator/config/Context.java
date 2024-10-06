@@ -487,6 +487,7 @@ public class Context extends PropertyHolder {
 
             otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
             otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionSqlDataFiles());
+            otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionActionSqlDataFiles());
 
             generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));

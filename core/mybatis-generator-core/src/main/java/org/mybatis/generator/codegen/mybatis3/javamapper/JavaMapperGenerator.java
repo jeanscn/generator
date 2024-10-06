@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.javamapper;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.CommentGenerator;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
@@ -23,6 +24,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.MBG_MAPPER_BLOB_INTERFACE;
 import static org.mybatis.generator.custom.ConstantsUtil.MBG_MAPPER_INTERFACE;
@@ -137,6 +139,13 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         subInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         subInterface.addSuperInterface(type);
         subInterface.addImportedType(type);
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+            subInterface.addAnnotation("@DataScope(tableName = \""+introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()+"\")");
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.DataScope"));
+            String primaryKeys = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+introspectedTable.getFullyQualifiedTable().getAlias()+"\", columnName = \""+ primaryKeys +"\")");
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.TableDataScope"));
+        }
 
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
