@@ -136,7 +136,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         });
 
         //附加属性
-        Set<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
         List<Field> addtionalPropertiesFields = topLevelClass.getAddtionalPropertiesFields(additionalProperty);
         addtionalPropertiesFields.forEach(f -> {
             if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable,

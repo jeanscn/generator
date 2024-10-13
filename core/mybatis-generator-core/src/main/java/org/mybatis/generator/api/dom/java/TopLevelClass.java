@@ -76,7 +76,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
         this.staticImports.addAll(staticImports);
     }
     @Override
-    public List<Field> getAddtionalPropertiesFields(Set<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAddtionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
         List<Field> fields = new ArrayList<>();
         configurations.forEach(c -> {
             FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());

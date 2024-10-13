@@ -11,7 +11,7 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     protected Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
 
-    protected Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
+    protected List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
     protected final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
 
@@ -55,11 +55,11 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
         this.overridePropertyConfigurations = overridePropertyConfigurations;
     }
 
-    public Set<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
+    public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
         return additionalPropertyConfigurations;
     }
 
-    public void setAdditionalPropertyConfigurations(Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
+    public void setAdditionalPropertyConfigurations(List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
         this.additionalPropertyConfigurations = additionalPropertyConfigurations;
     }
 

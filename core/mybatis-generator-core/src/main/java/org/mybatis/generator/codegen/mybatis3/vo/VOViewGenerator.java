@@ -57,7 +57,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
                     }
                 });
         //附加属性
-        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         viewVOClass.getAddtionalPropertiesFields(additionalPropertyConfigurations)
                 .forEach(field -> {

@@ -7,10 +7,12 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -43,13 +45,24 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         if (!introspectedColumns.isEmpty()) {
             excelImportVoClass.addAnnotation("@AllArgsConstructor");
         }
+
+        List<Field> importFields = new ArrayList<>();
         for (IntrospectedColumn voColumn : introspectedColumns) {
             Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
             field.setVisibility(JavaVisibility.PRIVATE);
             field.setRemark(voColumn.getRemarks(true));
-            if (plugins.voExcelImportFieldGenerated(field, excelImportVoClass, voColumn, introspectedTable)) {
-                excelImportVoClass.addField(field);
-                excelImportVoClass.addImportedType(voColumn.getFullyQualifiedJavaType());
+            importFields.add(field);
+        }
+
+        //附加属性
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        importFields.addAll(excelImportVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations));
+
+        for (Field importField : importFields) {
+            if (plugins.voExcelImportFieldGenerated(importField, excelImportVoClass, null, introspectedTable)) {
+                excelImportVoClass.addField(importField);
+                excelImportVoClass.addImportedType(importField.getType());
             }
         }
 

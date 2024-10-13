@@ -103,6 +103,27 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 }
             }
 
+            //生成modal文件
+            String modalPath = String.join(File.separator, (modulesPath + "/modals").split("/"));
+            String projectModal = this.properties.getProperty("targetProject", modalPath);
+            String fileNameModal = introspectedTable.getTableConfiguration().getDomainObjectName() + "Modal";
+            Map<String, Object> modalMap = new HashMap<>();
+            modalMap.put("componentName", objectName);
+            modalMap.put("modelName", objectName);
+            modalMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
+            modalMap.put("modelPath", modelPath);
+            modalMap.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            modalMap.put("tableRemark", tableRemark);
+            String vueModalFileName = fileNameModal + ".vue";
+            GeneratedVueFile generatedVueModalFile = new GeneratedVueFile(
+                    vueModalFileName,
+                    projectModal,
+                    "",
+                    introspectedTable,
+                    "vue_module_modal.vue.ftl", modalMap);
+            generatedVueModalFile.setOverWriteFile(true);
+            answer.add(generatedVueModalFile);
+
             //生成edit组件
             String editPath = String.join(File.separator, (modulesPath + "/" + modelPath+ "/components").split("/"));
             String projectEdit = this.properties.getProperty("targetProject", editPath);

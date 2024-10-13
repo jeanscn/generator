@@ -182,6 +182,16 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             conTopClazz.addMethod(getImportReadListener);
             conTopClazz.addImportedType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
 
+            //追加一个导出的样式方法
+            Method getDefaultColumnWidthStyleStrategy = new Method("getDefaultColumnWidthStyleStrategy");
+            getDefaultColumnWidthStyleStrategy.setVisibility(JavaVisibility.PROTECTED);
+            FullyQualifiedJavaType retCellWriteHandler = new FullyQualifiedJavaType("com.alibaba.excel.write.handler.CellWriteHandler");
+            getDefaultColumnWidthStyleStrategy.setReturnType(retCellWriteHandler);
+            getDefaultColumnWidthStyleStrategy.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "type"));
+            getDefaultColumnWidthStyleStrategy.addBodyLine("return new DefaultColumnWidthStyleStrategy();");
+            conTopClazz.addMethod(getDefaultColumnWidthStyleStrategy);
+            conTopClazz.addImportedType("com.vgosoft.plugins.excel.listener.DefaultColumnWidthStyleStrategy");
+
             //追加一个构造导入Excel模板的样例数据方法
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");
             buildTemplateSampleData.setVisibility(JavaVisibility.PROTECTED);
@@ -220,6 +230,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             conTopClazz.addMethod(buildTemplateSampleData);
             conTopClazz.addImportedType(entityExcelImportVoType);
         }
+
         //追加一个example构造方法
         Map<String, String> nameFragments = new HashMap<>();
         if (introspectedTable.getTableConfiguration().getVoGeneratorConfiguration() != null
@@ -314,6 +325,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 }
                 buildExample.addBodyLine("}");
             }
+
             //增加任意条件
             if (introspectedTable.getRules().isGenerateRequestVO()) {
                 buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getAnyWhereCondition())) '{'", type.getShortNameFirstLowCase());

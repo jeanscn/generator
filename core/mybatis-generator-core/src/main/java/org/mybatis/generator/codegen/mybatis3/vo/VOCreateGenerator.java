@@ -78,7 +78,7 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         }
 
         //附加属性
-        Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voCreateGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         createVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voCreateFieldGenerated(field, createVoClass, null, introspectedTable)) {

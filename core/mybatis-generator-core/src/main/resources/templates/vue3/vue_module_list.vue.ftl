@@ -19,7 +19,7 @@
                         <PrivateTableColumnSlots :scope="scope" :slotName="column.prop"></PrivateTableColumnSlots>
                     </template>
                 </vgo-table>
-                <VgoDialog v-model="showDialog" :title="pageTitle" :popSize="popSize" :draggable="popDraggable" @close="destroyForm"
+                <VgoDialog v-if="showDialog" v-model="showDialog" :title="pageTitle" :popSize="popSize" :draggable="popDraggable" @close="destroyForm"
                            :closeOnClickModal=false :closeOnPressEscape=false>
                     <${ componentName }Edit v-if="showDialog && viewStatus === 1" ref="bizFormRef" v-model="formData"
                                         :formConfig="formConfig" :viewStatus="viewStatus" @form-submit="onSubmit"></${ componentName }Edit>

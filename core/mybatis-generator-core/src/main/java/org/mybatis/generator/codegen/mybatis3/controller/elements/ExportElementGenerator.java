@@ -60,7 +60,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
                 entityExcelVoType.getShortName());
         method.addBodyLine("        .map(JsonUtil::serializeObject)\n" +
                 "                .collect(Collectors.toList());");
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list);",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
+        method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"export\"));",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
         parentElement.addImportedType("java.util.stream.Collectors");
         parentElement.addImportedType("com.vgosoft.core.util.JsonUtil");

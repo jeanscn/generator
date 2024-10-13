@@ -67,14 +67,14 @@ public class Interface extends InnerInterface implements CompilationUnit {
     }
 
     @Override
-    public List<Field> getAddtionalPropertiesFields(Set<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAddtionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
         List<Field> fields = new ArrayList<>();
         configurations.stream()
                 .filter(c -> !(c.getName() == null || c.getType() == null))
                 .forEach(c -> {
                     FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
                     org.mybatis.generator.api.dom.java.Field field = new Field(c.getName(), type);
-                    if (c.getTypeArguments().size() > 0) {
+                    if (!c.getTypeArguments().isEmpty()) {
                         for (String typeArgument : c.getTypeArguments()) {
                             type.addTypeArgument(new FullyQualifiedJavaType(typeArgument));
                         }
