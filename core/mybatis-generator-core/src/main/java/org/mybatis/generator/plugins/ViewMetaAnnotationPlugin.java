@@ -1,10 +1,8 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.annotation.ViewFuzzyColumnMeta;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -12,15 +10,16 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ViewVoUiFrameEnum;
+import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
+import org.mybatis.generator.config.QueryColumnConfiguration;
+import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.ViewFieldOverrideConfiguration;
 import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getRootClass;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;

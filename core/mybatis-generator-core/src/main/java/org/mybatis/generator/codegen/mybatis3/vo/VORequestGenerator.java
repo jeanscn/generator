@@ -11,6 +11,7 @@ import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -55,7 +56,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         //增加countChildren开关
         addCountChildren(requestVoClass);
         //附加属性
-        addtionalProperties(voRequestGeneratorConfiguration, requestVoClass);
+        additionalProperties(voRequestGeneratorConfiguration, requestVoClass);
         //增加任意过滤条件接收
         addWhereConditionResult(requestVoClass);
         //增加前端过滤器属性
@@ -125,10 +126,10 @@ public class VORequestGenerator extends AbstractVOGenerator {
     }
 
     //附加属性
-    protected void addtionalProperties(AbstractModelGeneratorConfiguration configuration, TopLevelClass topLevelClass) {
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
+    protected void additionalProperties(AbstractModelGeneratorConfiguration configuration, TopLevelClass topLevelClass) {
+        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        topLevelClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
+        topLevelClass.getAdditionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voRequestFieldGenerated(field, topLevelClass, null, introspectedTable)) {
                         topLevelClass.addField(field);
                         topLevelClass.addImportedType(field.getType());

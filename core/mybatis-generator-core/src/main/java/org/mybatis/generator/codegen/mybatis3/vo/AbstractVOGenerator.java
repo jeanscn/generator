@@ -16,6 +16,7 @@ import org.mybatis.generator.internal.util.VoGenService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 /**
@@ -118,7 +119,7 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
     }
 
     protected void addJavaCollectionRelation(TopLevelClass topLevelClass,String type) {
-        List<RelationGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations();
+        TreeSet<RelationGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations();
         Stream<RelationGeneratorConfiguration> stream = configurations.stream().filter(RelationGeneratorConfiguration::isEnableInsert);
         if("update".equals(type)){
             stream = configurations.stream().filter(RelationGeneratorConfiguration::isEnableUpdate);

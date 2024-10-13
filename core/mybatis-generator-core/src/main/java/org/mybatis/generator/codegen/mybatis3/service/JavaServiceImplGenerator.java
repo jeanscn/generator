@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_SERVICE;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -34,7 +35,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     TableConfiguration tc;
     FullyQualifiedJavaType entityType;
     FullyQualifiedJavaType exampleType;
-    List<RelationGeneratorConfiguration> relationConfigurations;
+    TreeSet<RelationGeneratorConfiguration> relationConfigurations;
 
     private JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration;
 

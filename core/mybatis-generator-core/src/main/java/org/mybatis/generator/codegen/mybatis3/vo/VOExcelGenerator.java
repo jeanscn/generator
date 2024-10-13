@@ -52,9 +52,9 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
         allFields.addAll(fields);
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        allFields.addAll(excelVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations));
+        allFields.addAll(excelVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations));
         //添加属性
         List<Field> exportFields;
         if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {

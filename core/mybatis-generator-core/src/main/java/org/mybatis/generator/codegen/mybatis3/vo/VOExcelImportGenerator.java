@@ -13,6 +13,7 @@ import org.mybatis.generator.custom.ConstantsUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -55,9 +56,9 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         }
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        importFields.addAll(excelImportVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations));
+        importFields.addAll(excelImportVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations));
 
         for (Field importField : importFields) {
             if (plugins.voExcelImportFieldGenerated(importField, excelImportVoClass, null, introspectedTable)) {

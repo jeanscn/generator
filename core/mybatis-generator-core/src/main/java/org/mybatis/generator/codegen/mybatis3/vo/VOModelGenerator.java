@@ -75,9 +75,9 @@ public class VOModelGenerator extends AbstractVOGenerator {
                 });
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyVo = voModelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyVo = voModelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyVo.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        voClass.getAddtionalPropertiesFields(additionalPropertyVo).forEach(field -> {
+        voClass.getAdditionalPropertiesFields(additionalPropertyVo).forEach(field -> {
             if (plugins.voModelFieldGenerated(field, voClass, null, introspectedTable)) {
                 voClass.addField(field);
                 voClass.addImportedType(field.getType());

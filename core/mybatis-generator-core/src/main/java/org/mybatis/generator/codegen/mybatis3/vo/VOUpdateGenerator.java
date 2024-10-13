@@ -8,10 +8,7 @@ import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * updateVO生成器
@@ -63,9 +60,9 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         }
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        updateVoClass.getAddtionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
+        updateVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voUpdateFieldGenerated(field, updateVoClass, null, introspectedTable)) {
                         updateVoClass.addField(field);
                         updateVoClass.addImportedType(field.getType());

@@ -5,10 +5,8 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TopLevelClass extends InnerClass implements CompilationUnit {
 
@@ -76,8 +74,10 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
         this.staticImports.addAll(staticImports);
     }
     @Override
-    public List<Field> getAddtionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAdditionalPropertiesFields(TreeSet<VoAdditionalPropertyGeneratorConfiguration> configurations) {
         List<Field> fields = new ArrayList<>();
+        //configurations 去重
+        //configurations = configurations.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName))), ArrayList::new));
         configurations.forEach(c -> {
             FullyQualifiedJavaType type = new FullyQualifiedJavaType(c.getType());
             Field field = this.getFields().stream().filter(f -> f.getName().equals(c.getName())).findFirst().orElse(new Field(c.getName(), type));

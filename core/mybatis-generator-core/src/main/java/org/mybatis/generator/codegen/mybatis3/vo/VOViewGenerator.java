@@ -12,6 +12,7 @@ import org.mybatis.generator.custom.annotations.ApiModelDesc;
 
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -57,9 +58,9 @@ public class VOViewGenerator extends AbstractVOGenerator {
                     }
                 });
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        viewVOClass.getAddtionalPropertiesFields(additionalPropertyConfigurations)
+        viewVOClass.getAdditionalPropertiesFields(additionalPropertyConfigurations)
                 .forEach(field -> {
                     if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
                         viewVOClass.addField(field);

@@ -31,7 +31,7 @@ public class SelectByColumnElementGenerator extends
                     } else {
                         if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
                             answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
-                        } else if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().size() > 0) {
+                        } else if (!introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().isEmpty()) {
                             answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
                         } else {
                             answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));

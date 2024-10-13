@@ -99,7 +99,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private List<SelectBySqlMethodGeneratorConfiguration> selectBySqlMethodGeneratorConfigurations = new ArrayList<>();
 
-    private final List<RelationGeneratorConfiguration> relationGeneratorConfigurations = new ArrayList<>();
+    private final TreeSet<RelationGeneratorConfiguration> relationGeneratorConfigurations = new TreeSet<>(Comparator.comparing(RelationGeneratorConfiguration::getColumn));
 
     private final List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations = new ArrayList<>();
 
@@ -602,7 +602,7 @@ public class TableConfiguration extends PropertyHolder {
         this.selectBySqlMethodGeneratorConfigurations = selectBySqlMethodGeneratorConfigurations;
     }
 
-    public List<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
+    public TreeSet<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
         return relationGeneratorConfigurations;
     }
 

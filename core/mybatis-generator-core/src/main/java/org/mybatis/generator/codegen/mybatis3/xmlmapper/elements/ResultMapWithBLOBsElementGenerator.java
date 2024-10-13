@@ -29,7 +29,7 @@ public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenera
         answer.addAttribute(new Attribute("type", returnType)); //$NON-NLS-1$
 
         if (!introspectedTable.isConstructorBased()) {
-            if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().size() > 0) {
+            if (!introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().isEmpty()) {
                 answer.addAttribute(new Attribute("extends",introspectedTable.getRelationResultMapId()));
             }else{
                 answer.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));

@@ -12,7 +12,7 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     protected Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
 
-    protected List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
+    protected TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName));
 
     protected final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
 
@@ -56,21 +56,22 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
         this.overridePropertyConfigurations = overridePropertyConfigurations;
     }
 
-    public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
+    public TreeSet<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
         //去重
-        additionalPropertyConfigurations = additionalPropertyConfigurations.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName))), ArrayList::new));
+        //additionalPropertyConfigurations = additionalPropertyConfigurations.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName))), ArrayList::new));
         return additionalPropertyConfigurations;
     }
 
-    public void setAdditionalPropertyConfigurations(List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
+    public void setAdditionalPropertyConfigurations(TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
         this.additionalPropertyConfigurations = additionalPropertyConfigurations;
     }
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
-        Optional<VoAdditionalPropertyGeneratorConfiguration> first = additionalPropertyConfigurations.stream().filter(item -> item.getName().equals(additionalPropertyConfiguration.getName())).findFirst();
-        if (!first.isPresent()) {
-            additionalPropertyConfigurations.remove(additionalPropertyConfiguration);
-        }
+//        Optional<VoAdditionalPropertyGeneratorConfiguration> first = additionalPropertyConfigurations.stream().filter(item -> item.getName().equals(additionalPropertyConfiguration.getName())).findFirst();
+//        if (!first.isPresent()) {
+//            additionalPropertyConfigurations.remove(additionalPropertyConfiguration);
+//        }
+        this.additionalPropertyConfigurations.add(additionalPropertyConfiguration);
     }
 
     public List<VoNameFragmentGeneratorConfiguration> getVoNameFragmentGeneratorConfigurations() {
