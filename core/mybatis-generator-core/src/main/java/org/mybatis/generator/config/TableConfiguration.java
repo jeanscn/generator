@@ -137,7 +137,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private final Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
 
-    private final Set<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new HashSet<>();
+    private final List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
     private Set<String> enableDropTables = new HashSet<>();
 
@@ -1433,11 +1433,16 @@ public class TableConfiguration extends PropertyHolder {
         this.getOverridePropertyConfigurations().add(overridePropertyConfiguration);
     }
 
-    public Set<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
+    public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
         return additionalPropertyConfigurations;
     }
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
+        for (VoAdditionalPropertyGeneratorConfiguration propertyConfiguration : this.getAdditionalPropertyConfigurations()) {
+            if (propertyConfiguration.getName().equals(additionalPropertyConfiguration.getName())) {
+                return;
+            }
+        }
         this.getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
     }
 

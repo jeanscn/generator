@@ -4,6 +4,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractModelGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
@@ -56,6 +57,8 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
     }
 
     public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
+        //去重
+        additionalPropertyConfigurations = additionalPropertyConfigurations.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName))), ArrayList::new));
         return additionalPropertyConfigurations;
     }
 
@@ -64,7 +67,10 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
     }
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
-        this.additionalPropertyConfigurations.add(additionalPropertyConfiguration);
+        Optional<VoAdditionalPropertyGeneratorConfiguration> first = additionalPropertyConfigurations.stream().filter(item -> item.getName().equals(additionalPropertyConfiguration.getName())).findFirst();
+        if (!first.isPresent()) {
+            additionalPropertyConfigurations.remove(additionalPropertyConfiguration);
+        }
     }
 
     public List<VoNameFragmentGeneratorConfiguration> getVoNameFragmentGeneratorConfigurations() {
