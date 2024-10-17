@@ -2214,8 +2214,8 @@ public class MyBatisGeneratorConfigurationParser {
                     }
                     break;
                 case "listColumnDescriptor":
-                    ListColumnConfiguration listColumnDescriptor = parseListColumnDescriptor(childNode);
-                    innerListViewGeneratorConfiguration.getListColumnConfigurations().add(listColumnDescriptor);
+                    List<ListColumnConfiguration> listColumnDescriptors = parseListColumnDescriptor(childNode);
+                    innerListViewGeneratorConfiguration.getListColumnConfigurations().addAll(listColumnDescriptors);
                     break;
                 case (PropertyRegistry.ELEMENT_HTML_BUTTON):
                     HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
@@ -2243,43 +2243,48 @@ public class MyBatisGeneratorConfigurationParser {
         configuration.getInnerListViewConfigurations().add(innerListViewGeneratorConfiguration);
     }
 
-    private ListColumnConfiguration parseListColumnDescriptor(Node node) {
+    private List<ListColumnConfiguration> parseListColumnDescriptor(Node node) {
         Properties attributes = parseAttributes(node);
-        ListColumnConfiguration listColumnConfiguration = new ListColumnConfiguration();
-        String field = attributes.getProperty("field");
-        if (stringHasValue(field)) {
-            listColumnConfiguration.setField(field);
+        String fieldStr = attributes.getProperty("field");
+        Set<String> fields = splitToSet(fieldStr);
+        List<ListColumnConfiguration> listColumnConfigurations = new ArrayList<>();
+        for (String field : fields) {
+            ListColumnConfiguration listColumnConfiguration = new ListColumnConfiguration();
+            if (stringHasValue(field)) {
+                listColumnConfiguration.setField(field);
+            }
+            String width = attributes.getProperty("width");
+            if (stringHasValue(width)) {
+                listColumnConfiguration.setWidth(width);
+            }
+            String minWidth = attributes.getProperty("minWidth");
+            if (stringHasValue(minWidth)) {
+                listColumnConfiguration.setMinWidth(Integer.parseInt(minWidth));
+            }
+            String fixed = attributes.getProperty("fixed");
+            if (stringHasValue(fixed)) {
+                listColumnConfiguration.setFixed(fixed);
+            }
+            String templet = attributes.getProperty("templet");
+            if (stringHasValue(templet)) {
+                listColumnConfiguration.setTemplet(templet);
+            }
+            String style = attributes.getProperty("style");
+            if (stringHasValue(style)) {
+                listColumnConfiguration.setStyle(style);
+            }
+            String label = attributes.getProperty("label");
+            if (stringHasValue(label)) {
+                listColumnConfiguration.setLabel(label);
+            }
+            String align = attributes.getProperty("align");
+            if (stringHasValue(align)) {
+                listColumnConfiguration.setAlign(align);
+            }
+            parseChildNodeOnlyProperty(listColumnConfiguration, node);
+            listColumnConfigurations.add(listColumnConfiguration);
         }
-        String width = attributes.getProperty("width");
-        if (stringHasValue(width)) {
-            listColumnConfiguration.setWidth(width);
-        }
-        String minWidth = attributes.getProperty("minWidth");
-        if (stringHasValue(minWidth)) {
-            listColumnConfiguration.setMinWidth(Integer.parseInt(minWidth));
-        }
-        String fixed = attributes.getProperty("fixed");
-        if (stringHasValue(fixed)) {
-            listColumnConfiguration.setFixed(fixed);
-        }
-        String templet = attributes.getProperty("templet");
-        if (stringHasValue(templet)) {
-            listColumnConfiguration.setTemplet(templet);
-        }
-        String style = attributes.getProperty("style");
-        if (stringHasValue(style)) {
-            listColumnConfiguration.setStyle(style);
-        }
-        String label = attributes.getProperty("label");
-        if (stringHasValue(label)) {
-            listColumnConfiguration.setLabel(label);
-        }
-        String align = attributes.getProperty("align");
-        if (stringHasValue(align)) {
-            listColumnConfiguration.setAlign(align);
-        }
-        parseChildNodeOnlyProperty(listColumnConfiguration, node);
-        return listColumnConfiguration;
+        return listColumnConfigurations;
     }
 
     private void parseColumnRenderFun(Context context, TableConfiguration tc, AbstractModelGeneratorConfiguration configuration, Node childNode) {

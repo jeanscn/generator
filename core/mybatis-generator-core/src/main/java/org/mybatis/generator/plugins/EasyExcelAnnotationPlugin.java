@@ -71,6 +71,15 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         }else if (field.getType().getShortName().equals("Instant")){
             excelPropertyDesc.setConverter("InstantConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.InstantConverter");
+        }else if (field.getType().getShortName().equals("Date")){
+            excelPropertyDesc.setConverter("DateConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.DateConverter");
+        }else if (field.getType().getShortName().equals("BigDecimal")){
+            excelPropertyDesc.setConverter("BigDecimalConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.BigDecimalConverter");
+        }else if (field.getType().getShortName().equals("Integer")){
+            excelPropertyDesc.setConverter("IntegerConverter.class");
+            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.IntegerConverter");
         }
         field.addAnnotation(excelPropertyDesc.toAnnotation());
         topLevelClass.addImportedTypes(excelPropertyDesc.getImportedTypes());

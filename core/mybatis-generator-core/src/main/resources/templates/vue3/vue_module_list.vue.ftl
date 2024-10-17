@@ -4,7 +4,7 @@
 <template>
     <el-container>
         <el-aside width="220px" v-if="showTreePanel">
-            <TreePanel :treeDataUrl="categoryTreeUrl" :treePanelProps="treePanelProps"
+            <TreePanel :treeDataUrl="categoryTreeUrl" :treePanelProps="sideTreePanelProps"
                        @node-click="navTreeItemClick"></TreePanel>
         </el-aside>
         <el-container>
@@ -32,10 +32,10 @@
                     </template>
                 </VgoDialog>
                 <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="pageTitle"
-                               :vgoTreeProps="{ checkStrictly: checkStrictly }" :apiObj="drawerTreeApiObj"
+                               :apiObj="drawerTreeApiObj" :treePanelProps="drawerTreePanelProps"
                                :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
                 </VgoTreeDrawer>
-                <VgoFormDrawer :visible.sync="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"  :close-on-click-modal=false
+                <VgoFormDrawer v-if="showFormDrawer" :visible.sync="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"  :close-on-click-modal=false
                                :size="drawerSize as string | undefined" :formConfig="formConfig" :viewStatus="viewStatus"
                                @form-submit="onSubmit">
                     <${ componentName }Edit v-if="viewStatus === 1" ref="bizFormRef" v-model="formData"
@@ -115,7 +115,6 @@
     const showFormDrawer = ref<boolean>(false);
     const drawerTreeApiObj = ref<TTreeApiObj>();
     const treeSelected = ref<string[]>([]);
-    const checkStrictly = ref(false);
     const drawerOnButtonId = ref('');
     const buttonRef = ref<IButtonProps>();
     const mainRecordId = ref('');
@@ -126,7 +125,7 @@
         fetchTableData: async (params: any) => service.value!.listPost(params),
         fetchFormConfig: async (...params: any) =>  (API as TApi).common.formConfig.get(params),
     });
-    const treePanelProps = ref<TTreePanelProps>({
+    const sideTreePanelProps = ref<TTreePanelProps>({
         treePanelButtons: {
             showAll: true,
             collapseAll: true,
@@ -138,6 +137,30 @@
         vgoTreeProps: {
             showCheckbox: false,
         } as TVgoTreeProps,
+    });
+    const drawerTreePanelProps = ref<TTreePanelProps>({
+        treePanelButtons: {
+            showAll: false,
+            collapseAll: true,
+            expandAll: true,
+            add: false,
+            edit: false,
+            del: false,
+        } as TTreePanelButtons,
+        vgoTreeProps: {
+            showCheckbox: true,
+            checkStrictly: true,
+            defaultExpandAll: true,
+            props: {
+                children: 'children',
+                label: 'name',
+                value: 'id',
+                disabled: (data,node)=>{
+                    return false;
+                },
+            },
+        } as TVgoTreeProps,
+        treePanelWidth: '400px',
     });
     const viewStatus = ref<number>(1);
     const drawerSize = computed(() => {
@@ -231,7 +254,7 @@
             service: service,
             tableRef: tableRef,
             drawerTreeApiObj: drawerTreeApiObj,
-            checkStrictly: checkStrictly,
+            drawerTreePanelProps: drawerTreePanelProps,
             showTreeDrawer: showTreeDrawer,
             showFormDrawer: showFormDrawer,
             pageTitle: pageTitle,
