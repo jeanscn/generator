@@ -10,10 +10,8 @@ import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -47,11 +45,15 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
             excelImportVoClass.addAnnotation("@AllArgsConstructor");
         }
 
-        List<Field> importFields = new ArrayList<>();
+        TreeSet<Field> importFields = new TreeSet<>(Comparator.comparing(Field::getName));
+        TreeSet<IntrospectedColumn> initColumns = new TreeSet<>(Comparator.comparing(IntrospectedColumn::getActualColumnName));
         for (IntrospectedColumn voColumn : introspectedColumns) {
             Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
             field.setVisibility(JavaVisibility.PRIVATE);
             field.setRemark(voColumn.getRemarks(true));
+            if (voColumn.getDefaultValue() != null) {
+                initColumns.add(voColumn);
+            }
             importFields.add(field);
         }
 
@@ -65,6 +67,13 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
                 excelImportVoClass.addField(importField);
                 excelImportVoClass.addImportedType(importField.getType());
             }
+        }
+
+        //静态代码块
+        if (!initColumns.isEmpty()) {
+            InitializationBlock initializationBlock = new InitializationBlock(false);
+            addInitialization(new ArrayList<>(initColumns), initializationBlock,excelImportVoClass);
+            excelImportVoClass.addInitializationBlock(initializationBlock);
         }
 
         /*
