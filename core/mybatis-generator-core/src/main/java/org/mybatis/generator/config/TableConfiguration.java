@@ -2,6 +2,7 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.enums.core.*;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -135,7 +136,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private final Set<String> htmlDisplayOnlyFields = new HashSet<>();
 
-    private final Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
+    private final List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
 
     private final List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
@@ -1149,26 +1150,26 @@ public class TableConfiguration extends PropertyHolder {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         JavaModelGeneratorConfiguration javaModelGeneratorConfig = tc.getJavaModelGeneratorConfiguration();
         VOGeneratorConfiguration voGeneratorConfig = tc.getVoGeneratorConfiguration();
-        Set<OverridePropertyValueGeneratorConfiguration> overrides = new HashSet<>(tc.getOverridePropertyConfigurations());
+        List<OverridePropertyValueGeneratorConfiguration> overrides =tc.getOverridePropertyConfigurations();
         if (voGeneratorConfig != null && voGeneratorConfig.isGenerate()) {
-            overrides.addAll(voGeneratorConfig.getOverridePropertyConfigurations());
+            VCollectionUtil.addAllIfNotContains(overrides,voGeneratorConfig.getOverridePropertyConfigurations());
             if (voGeneratorConfig.getVoModelConfiguration() != null && voGeneratorConfig.getVoModelConfiguration().isGenerate()) {
-                Set<OverridePropertyValueGeneratorConfiguration> voOverrides = new HashSet<>(voGeneratorConfig.getVoModelConfiguration().getOverridePropertyConfigurations());
-                voOverrides.addAll(overrides);
+                List<OverridePropertyValueGeneratorConfiguration> voOverrides = voGeneratorConfig.getVoModelConfiguration().getOverridePropertyConfigurations();
+                VCollectionUtil.addAllIfNotContains(voOverrides,overrides);
                 voGeneratorConfig.getVoModelConfiguration().setOverridePropertyConfigurations(voOverrides);
             }
             if (voGeneratorConfig.getVoViewConfiguration() != null && voGeneratorConfig.getVoViewConfiguration().isGenerate()) {
-                Set<OverridePropertyValueGeneratorConfiguration> voViewOverrides = voGeneratorConfig.getVoViewConfiguration().getOverridePropertyConfigurations();
-                voViewOverrides.addAll(overrides);
+                List<OverridePropertyValueGeneratorConfiguration> voViewOverrides = voGeneratorConfig.getVoViewConfiguration().getOverridePropertyConfigurations();
+                VCollectionUtil.addAllIfNotContains(voViewOverrides,overrides);
                 voGeneratorConfig.getVoViewConfiguration().setOverridePropertyConfigurations(voViewOverrides);
             }
             if (voGeneratorConfig.getVoExcelConfiguration() != null && voGeneratorConfig.getVoExcelConfiguration().isGenerate()) {
-                Set<OverridePropertyValueGeneratorConfiguration> voExcelOverrides = voGeneratorConfig.getVoExcelConfiguration().getOverridePropertyConfigurations();
-                voExcelOverrides.addAll(overrides);
+                List<OverridePropertyValueGeneratorConfiguration> voExcelOverrides = voGeneratorConfig.getVoExcelConfiguration().getOverridePropertyConfigurations();
+                VCollectionUtil.addAllIfNotContains(voExcelOverrides,overrides);
                 voGeneratorConfig.getVoExcelConfiguration().setOverridePropertyConfigurations(voExcelOverrides);
             }
         } else {
-            overrides.addAll(javaModelGeneratorConfig.getOverridePropertyConfigurations());
+            VCollectionUtil.addAllIfNotContains(overrides,javaModelGeneratorConfig.getOverridePropertyConfigurations());
             javaModelGeneratorConfig.setOverridePropertyConfigurations(overrides);
         }
     }
@@ -1425,7 +1426,7 @@ public class TableConfiguration extends PropertyHolder {
         });
     }
 
-    public Set<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
+    public List<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
         return overridePropertyConfigurations;
     }
 

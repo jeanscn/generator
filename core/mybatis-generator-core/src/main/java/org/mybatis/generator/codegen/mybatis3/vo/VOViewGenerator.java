@@ -49,7 +49,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
             }
         }
         //增加映射
-        Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
+        List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voViewGeneratorConfiguration.getOverridePropertyConfigurations();
         voGenService.buildOverrideColumn(overridePropertyConfigurations, viewVOClass, ModelClassTypeEnum.viewVOClass)
                 .forEach(field -> {
                     if (plugins.voViewFieldGenerated(field, viewVOClass, null, introspectedTable)) {
@@ -58,7 +58,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
                     }
                 });
         //附加属性
-        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voViewGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         viewVOClass.getAdditionalPropertiesFields(additionalPropertyConfigurations)
                 .forEach(field -> {

@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -48,13 +49,13 @@ public class VOExcelGenerator extends AbstractVOGenerator {
             allFields.add(field);
         }
         //增加映射
-        Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
+        List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = voExcelGeneratorConfiguration.getOverridePropertyConfigurations();
         List<Field> fields = voGenService.buildOverrideColumn(overridePropertyConfigurations, excelVoClass, ModelClassTypeEnum.excelVoClass);
-        allFields.addAll(fields);
+        VCollectionUtil.addAllIfNotContains(allFields, fields);
         //附加属性
-        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
-        additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
-        allFields.addAll(excelVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations));
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        VCollectionUtil.addAllIfNotContains(additionalPropertyConfigurations,voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(allFields,excelVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations));
         //添加属性
         List<Field> exportFields;
         if (!voExcelGeneratorConfiguration.getExportIncludeFields().isEmpty()) {
@@ -67,8 +68,10 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         if (!exportFields.isEmpty()) {
             excelVoClass.addAnnotation("@AllArgsConstructor");
         }
+        int index = 0;
         for (Field exportField : exportFields) {
-            if (plugins.voExcelFieldGenerated(exportField, excelVoClass, null, introspectedTable)) {
+            index++;
+            if (plugins.voExcelFieldGenerated(exportField, excelVoClass, null, introspectedTable,index)) {
                 excelVoClass.addField(exportField);
                 excelVoClass.addImportedType(exportField.getType());
             }

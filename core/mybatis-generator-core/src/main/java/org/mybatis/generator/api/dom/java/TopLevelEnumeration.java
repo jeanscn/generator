@@ -68,7 +68,7 @@ public class TopLevelEnumeration extends InnerEnum implements CompilationUnit {
     }
 
     @Override
-    public List<Field> getAdditionalPropertiesFields(TreeSet<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAdditionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
         return new ArrayList<>();
     }
 

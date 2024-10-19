@@ -10,9 +10,9 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
 
     protected Set<String> excludeColumns = new HashSet<>();
 
-    protected Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new HashSet<>();
+    protected List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations = new ArrayList<>();
 
-    protected TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName));
+    protected List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>();
 
     protected final List<VoNameFragmentGeneratorConfiguration> voNameFragmentGeneratorConfigurations = new ArrayList<>();
 
@@ -44,34 +44,34 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
         return fullyQualifiedJavaType;
     }
 
-    public Set<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
+    public List<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
         return overridePropertyConfigurations;
     }
 
     public void addOverrideColumnConfigurations(OverridePropertyValueGeneratorConfiguration overridePropertyConfiguration) {
+        overridePropertyConfigurations.stream()
+                .filter(item -> item.getSourceColumnName().equals(overridePropertyConfiguration.getSourceColumnName())).findFirst()
+                .ifPresent(item -> overridePropertyConfigurations.remove(item));
         this.overridePropertyConfigurations.add(overridePropertyConfiguration );
     }
 
-    public void setOverridePropertyConfigurations(Set<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
+    public void setOverridePropertyConfigurations(List<OverridePropertyValueGeneratorConfiguration> overridePropertyConfigurations) {
         this.overridePropertyConfigurations = overridePropertyConfigurations;
     }
 
-    public TreeSet<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
-        //去重
-        //additionalPropertyConfigurations = additionalPropertyConfigurations.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName))), ArrayList::new));
+    public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
         return additionalPropertyConfigurations;
     }
 
-    public void setAdditionalPropertyConfigurations(TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
+    public void setAdditionalPropertyConfigurations(List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations) {
         this.additionalPropertyConfigurations = additionalPropertyConfigurations;
     }
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
-//        Optional<VoAdditionalPropertyGeneratorConfiguration> first = additionalPropertyConfigurations.stream().filter(item -> item.getName().equals(additionalPropertyConfiguration.getName())).findFirst();
-//        if (!first.isPresent()) {
-//            additionalPropertyConfigurations.remove(additionalPropertyConfiguration);
-//        }
-        this.additionalPropertyConfigurations.add(additionalPropertyConfiguration);
+        Optional<VoAdditionalPropertyGeneratorConfiguration> first = additionalPropertyConfigurations.stream().filter(item -> item.getName().equals(additionalPropertyConfiguration.getName())).findFirst();
+        if (!first.isPresent()) {
+            additionalPropertyConfigurations.add(additionalPropertyConfiguration);
+        }
     }
 
     public List<VoNameFragmentGeneratorConfiguration> getVoNameFragmentGeneratorConfigurations() {

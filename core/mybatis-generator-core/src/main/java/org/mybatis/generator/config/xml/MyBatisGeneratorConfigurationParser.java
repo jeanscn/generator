@@ -7,6 +7,7 @@ import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataFormat;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
@@ -898,8 +899,9 @@ public class MyBatisGeneratorConfigurationParser {
         relationGeneratorConfiguration.setModelTye(modelType);
 
         String voModelType = attributes.getProperty("voModelType");
-        relationGeneratorConfiguration.setVoModelTye(voModelType);
-
+        if (stringHasValue(voModelType)) {
+            relationGeneratorConfiguration.setVoModelTye(voModelType);
+        }
         String whereColumn = attributes.getProperty("whereColumn");
         if (stringHasValue(whereColumn)) {
             relationGeneratorConfiguration.setColumn(whereColumn);
@@ -1969,8 +1971,8 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
         //继承table的附件属性
-        configuration.getAdditionalPropertyConfigurations().addAll(tc.getAdditionalPropertyConfigurations());
-        configuration.getOverridePropertyConfigurations().addAll(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(configuration.getAdditionalPropertyConfigurations(), tc.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(configuration.getOverridePropertyConfigurations(), tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations());
         tc.setVoGeneratorConfiguration(configuration);
     }
 
@@ -2317,7 +2319,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, vOModelGeneratorConfiguration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            vOModelGeneratorConfiguration.setIncludeColumns(splitToSet(includeColumns));
+            vOModelGeneratorConfiguration.setIncludeColumns(splitToList(includeColumns));
         }
         String excludeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_EXCLUDE_COLUMNS);
         if (stringHasValue(excludeColumns)) {
@@ -2362,7 +2364,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            configuration.setIncludeColumns(splitToSet(includeColumns));
+            configuration.setIncludeColumns(splitToList(includeColumns));
         }
         String requiredColumns = attributes.getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS);
         if (stringHasValue(requiredColumns)) {
@@ -2407,7 +2409,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseColumnsList(attributes, configuration, voGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            configuration.setIncludeColumns(splitToSet(includeColumns));
+            configuration.setIncludeColumns(splitToList(includeColumns));
         }
         String requiredColumns = attributes.getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS);
         if (stringHasValue(requiredColumns)) {
@@ -2461,7 +2463,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         String importInclude = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_INCLUDE_COLUMNS);
         if (stringHasValue(importInclude)) {
-            vOExcelGeneratorConfiguration.setImportIncludeColumns(splitToSet(importInclude));
+            vOExcelGeneratorConfiguration.setImportIncludeColumns(splitToList(importInclude));
         }
         String importExclude = attributes.getProperty(PropertyRegistry.ELEMENT_IMPORT_EXCLUDE_COLUMNS);
         if (stringHasValue(importExclude)) {
@@ -2498,7 +2500,7 @@ public class MyBatisGeneratorConfigurationParser {
         parseTableListCommon(attributes, voViewGeneratorConfiguration);
         String includeColumns = attributes.getProperty(PropertyRegistry.ELEMENT_INCLUDE_COLUMNS);
         if (stringHasValue(includeColumns)) {
-            voViewGeneratorConfiguration.setIncludeColumns(splitToSet(includeColumns));
+            voViewGeneratorConfiguration.setIncludeColumns(splitToList(includeColumns));
         }
         String viewIcon = attributes.getProperty("viewMenuIcon");
         if (stringHasValue(viewIcon)) {

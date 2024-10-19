@@ -127,7 +127,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
 
     //附加属性
     protected void additionalProperties(AbstractModelGeneratorConfiguration configuration, TopLevelClass topLevelClass) {
-        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         topLevelClass.getAdditionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voRequestFieldGenerated(field, topLevelClass, null, introspectedTable)) {

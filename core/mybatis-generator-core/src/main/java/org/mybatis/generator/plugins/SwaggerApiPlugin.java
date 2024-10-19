@@ -108,12 +108,12 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
         return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
     }
 
     @Override
-    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
         return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
     }
 

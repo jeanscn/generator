@@ -5,14 +5,11 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfiguration {
 
-    private Set<String> includeColumns = new HashSet<>();
+    private List<String> includeColumns = new ArrayList<>();
 
     private String viewMenuIcon;
 
@@ -67,11 +64,11 @@ public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfigu
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "VOViewGeneratorConfiguration");
     }
-    public Set<String> getIncludeColumns() {
+    public List<String> getIncludeColumns() {
         return includeColumns;
     }
 
-    public void setIncludeColumns(Set<String> includeColumns) {
+    public void setIncludeColumns(List<String> includeColumns) {
         this.includeColumns = includeColumns;
     }
 

@@ -127,7 +127,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
         //增加映射
         VoGenService voGenService = new VoGenService(introspectedTable);
-        Set<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
+        List<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
         voGenService.buildOverrideColumn(overrideProperty, topLevelClass, ModelClassTypeEnum.modelClass).forEach(f -> {
             if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
                 topLevelClass.addField(f);
@@ -136,7 +136,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         });
 
         //附加属性
-        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalProperty = configuration.getAdditionalPropertyConfigurations();
         List<Field> additionalPropertiesFields = topLevelClass.getAdditionalPropertiesFields(additionalProperty);
         additionalPropertiesFields.forEach(f -> {
             if (plugins.modelFieldGenerated(f, topLevelClass, null, introspectedTable,

@@ -45,8 +45,8 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
             excelImportVoClass.addAnnotation("@AllArgsConstructor");
         }
 
-        TreeSet<Field> importFields = new TreeSet<>(Comparator.comparing(Field::getName));
-        TreeSet<IntrospectedColumn> initColumns = new TreeSet<>(Comparator.comparing(IntrospectedColumn::getActualColumnName));
+        List<Field> importFields = new ArrayList<>();
+        List<IntrospectedColumn> initColumns = new ArrayList<>();
         for (IntrospectedColumn voColumn : introspectedColumns) {
             Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
             field.setVisibility(JavaVisibility.PRIVATE);
@@ -58,12 +58,12 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         }
 
         //附加属性
-        TreeSet<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
         additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         importFields.addAll(excelImportVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations));
-
+        int idx = 1;
         for (Field importField : importFields) {
-            if (plugins.voExcelImportFieldGenerated(importField, excelImportVoClass, null, introspectedTable)) {
+            if (plugins.voExcelImportFieldGenerated(importField, excelImportVoClass, null, introspectedTable,idx++)) {
                 excelImportVoClass.addField(importField);
                 excelImportVoClass.addImportedType(importField.getType());
             }

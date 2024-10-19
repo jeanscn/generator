@@ -2,14 +2,11 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    private Set<String> includeColumns = new HashSet<>();
+    private List<String> includeColumns = new ArrayList<>();
 
     private List<String> requiredColumns = new ArrayList<>();
 
@@ -24,11 +21,11 @@ public class VOUpdateGeneratorConfiguration extends AbstractModelGeneratorConfig
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"UpdateVO"));
     }
 
-    public Set<String> getIncludeColumns() {
+    public List<String> getIncludeColumns() {
         return includeColumns;
     }
 
-    public void setIncludeColumns(Set<String> includeColumns) {
+    public void setIncludeColumns(List<String> includeColumns) {
         this.includeColumns = includeColumns;
     }
 

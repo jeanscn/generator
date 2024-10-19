@@ -28,7 +28,7 @@ public interface CompilationUnit {
 
     void addStaticImports(Set<String> staticImports);
 
-    List<Field> getAdditionalPropertiesFields(TreeSet<VoAdditionalPropertyGeneratorConfiguration> configurations);
+    List<Field> getAdditionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations);
 
     /**
      * Comments will be written at the top of the file as is, we do not append any start or end comment characters.

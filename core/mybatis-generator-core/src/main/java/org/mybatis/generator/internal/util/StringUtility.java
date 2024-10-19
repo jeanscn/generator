@@ -9,7 +9,7 @@ public class StringUtility {
      * Utility class. No instances allowed
      */
     private StringUtility() {
-        super();
+
     }
 
     public static boolean stringHasValue(String s) {
@@ -208,7 +208,9 @@ public class StringUtility {
         List<String> ret = new ArrayList<>();
         if (stringHasValue(str)) {
             String[] split = removeSpaces(str).split("[|,;，；、]");
-            Collections.addAll(ret, split);
+            for (String s : split) {
+                ret.add(s);
+            }
         }
         return ret;
     }
@@ -218,6 +220,17 @@ public class StringUtility {
         if (stringHasValue(str)) {
             String[] split = removeSpaces(str).split("[|,;，；、]");
             Collections.addAll(ret, split);
+        }
+        return ret;
+    }
+
+    public static TreeSet<String> splitToTreeSet(String str){
+        TreeSet<String> ret = new TreeSet<>();
+        if (stringHasValue(str)) {
+            String[] split = removeSpaces(str).split("[|,;，；、]");
+            for (String s : split) {
+                ret.add(s);
+            }
         }
         return ret;
     }

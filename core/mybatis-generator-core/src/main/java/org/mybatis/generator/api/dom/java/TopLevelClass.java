@@ -74,7 +74,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
         this.staticImports.addAll(staticImports);
     }
     @Override
-    public List<Field> getAdditionalPropertiesFields(TreeSet<VoAdditionalPropertyGeneratorConfiguration> configurations) {
+    public List<Field> getAdditionalPropertiesFields(List<VoAdditionalPropertyGeneratorConfiguration> configurations) {
         List<Field> fields = new ArrayList<>();
         //configurations 去重
         //configurations = configurations.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(VoAdditionalPropertyGeneratorConfiguration::getName))), ArrayList::new));

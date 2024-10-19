@@ -1198,7 +1198,7 @@
                 isFinal (true|false) #IMPLIED
                 visibility (public|private|protected) #IMPLIED
                 importedTypes CDATA #IMPLIED
-                remark CDATA #IMPLIED>
+                remark CDATA #REQUIRED>
 
         <!--
              用于指定requestVO自动构建查询Example类，字段匹配类型

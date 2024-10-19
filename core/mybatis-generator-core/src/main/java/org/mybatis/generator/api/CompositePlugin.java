@@ -1025,9 +1025,9 @@ public abstract class CompositePlugin implements Plugin {
     @Override
     public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass,
                                           IntrospectedColumn introspectedColumn,
-                                          IntrospectedTable introspectedTable) {
+                                          IntrospectedTable introspectedTable,int index) {
         for (Plugin plugin : plugins) {
-            if (!plugin.voExcelFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+            if (!plugin.voExcelFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable,index)) {
                 return false;
             }
         }
@@ -1037,9 +1037,9 @@ public abstract class CompositePlugin implements Plugin {
     @Override
     public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass,
                                          IntrospectedColumn introspectedColumn,
-                                         IntrospectedTable introspectedTable) {
+                                         IntrospectedTable introspectedTable,int index) {
         for (Plugin plugin : plugins) {
-            if (!plugin.voExcelImportFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable)) {
+            if (!plugin.voExcelImportFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable,index)) {
                 return false;
             }
         }

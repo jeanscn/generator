@@ -45,14 +45,23 @@ public class VoGenService {
      * @param excludeColumns        要排除的数据库列名列表
      * @return 内省列对象列表
      */
-    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames, Set<String> includeColumns, Set<String> excludeColumns) {
+    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames, List<String> includeColumns, Set<String> excludeColumns) {
+        List<IntrospectedColumn> ret = new ArrayList<>();
+
         //在给定的排除列列表中附加全局VO标签的排除列
         excludeColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getExcludeColumns());
         //将排除列追加到abstractVO列表中，整体排除
         abstractVOColumnNames.addAll(excludeColumns);
         if (includeColumns != null && !includeColumns.isEmpty()) {
-            List<String> includes = CollectionUtil.subtractToList(includeColumns, abstractVOColumnNames);
-            return getIntrospectedColumns(includes, false);
+            for (String includeColumn : includeColumns) {
+                if (!abstractVOColumnNames.contains(includeColumn)) {
+                    Optional<IntrospectedColumn> column = introspectedTable.getColumn(includeColumn);
+                    column.ifPresent(ret::add);
+                }
+            }
+//            List<String> includes = CollectionUtil.subtractToList(includeColumns, abstractVOColumnNames);
+//            return getIntrospectedColumns(includes, false);
+            return ret;
         } else {
             return getIntrospectedColumns(abstractVOColumnNames, true);
         }
@@ -66,7 +75,7 @@ public class VoGenService {
      * @param excludeColumns 要排除的
      * @return 所有列-VO抽象父类的列-当前vo配置排除+vo全局排除的
      */
-    public List<IntrospectedColumn> getAllVoColumns(List<String> fields, Set<String> includeColumns, Set<String> excludeColumns) {
+    public List<IntrospectedColumn> getAllVoColumns(List<String> fields, List<String> includeColumns, Set<String> excludeColumns) {
         List<IntrospectedColumn> voColumns = getVOColumns(this.getAbstractVOColumnNames(), includeColumns, excludeColumns); //排除abstractVO、指定排除、VO全局排除的列名
         if (fields == null || fields.isEmpty()) {
             return voColumns;
@@ -179,7 +188,7 @@ public class VoGenService {
      *
      * @param type ModelClassTypeEnum
      */
-    public List<Field> buildOverrideColumn(Set<OverridePropertyValueGeneratorConfiguration> configurations, TopLevelClass topLevelClass, ModelClassTypeEnum type) {
+    public List<Field> buildOverrideColumn(List<OverridePropertyValueGeneratorConfiguration> configurations, TopLevelClass topLevelClass, ModelClassTypeEnum type) {
 
         List<Field> answer = new ArrayList<>();
         for (OverridePropertyValueGeneratorConfiguration overrideConfiguration : configurations) {

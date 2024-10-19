@@ -2,13 +2,11 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class VOModelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    private Set<String> includeColumns = new HashSet<>();
+    private List<String> includeColumns = new ArrayList<>();
 
     private Set<String> validateIgnoreColumns = new HashSet<>();
 
@@ -19,11 +17,11 @@ public class VOModelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"VO"));
     }
 
-    public Set<String> getIncludeColumns() {
+    public List<String> getIncludeColumns() {
         return includeColumns;
     }
 
-    public void setIncludeColumns(Set<String> includeColumns) {
+    public void setIncludeColumns(List<String> includeColumns) {
         this.includeColumns = includeColumns;
     }
 

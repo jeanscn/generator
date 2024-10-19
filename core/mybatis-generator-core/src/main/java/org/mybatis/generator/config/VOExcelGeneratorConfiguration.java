@@ -2,10 +2,7 @@ package org.mybatis.generator.config;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
@@ -13,7 +10,7 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
     private Set<String> exportExcludeFields = new HashSet<>();
     private Set<String> exportIgnoreFields = new HashSet<>();
 
-    private Set<String> importIncludeColumns = new HashSet<>();
+    private List<String> importIncludeColumns = new ArrayList<>();
     private Set<String> importExcludeColumns = new HashSet<>();
     private Set<String> importIgnoreFields = new HashSet<>();
 
@@ -34,11 +31,11 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
 
 
 
-    public Set<String> getImportIncludeColumns() {
+    public List<String> getImportIncludeColumns() {
         return importIncludeColumns;
     }
 
-    public void setImportIncludeColumns(Set<String> importIncludeColumns) {
+    public void setImportIncludeColumns(List<String> importIncludeColumns) {
         this.importIncludeColumns = importIncludeColumns;
     }
 

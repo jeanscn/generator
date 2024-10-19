@@ -27,6 +27,9 @@ import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
  */
 public class Mb3GenUtil {
 
+    private Mb3GenUtil() {
+    }
+
     public static String getControllerBaseMappingPath(IntrospectedTable introspectedTable) {
         String beanName = ConfigUtil.getIntrospectedTableBeanName(introspectedTable.getTableConfiguration());
         String basePath = introspectedTable.getTableConfiguration().getServiceApiBasePath();

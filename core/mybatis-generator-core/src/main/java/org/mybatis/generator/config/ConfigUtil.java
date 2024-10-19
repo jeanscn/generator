@@ -1,5 +1,6 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
@@ -90,16 +91,16 @@ public class ConfigUtil {
     public static void addOverridePropertyConfiguration(OverridePropertyValueGeneratorConfiguration overrideConfiguration, final TableConfiguration tc) {
         if (tc.getVoGeneratorConfiguration() != null && tc.getVoGeneratorConfiguration().isGenerate()) {
             if (tc.getVoGeneratorConfiguration().getVoModelConfiguration() != null && tc.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()) {
-                tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+                VCollectionUtil.addIfNotContains(tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations(), overrideConfiguration);
             }
             if (tc.getVoGeneratorConfiguration().getVoViewConfiguration() != null && tc.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate()) {
-                tc.getVoGeneratorConfiguration().getVoViewConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+                VCollectionUtil.addIfNotContains(tc.getVoGeneratorConfiguration().getVoViewConfiguration().getOverridePropertyConfigurations(), overrideConfiguration);
             }
             if (tc.getVoGeneratorConfiguration().getVoExcelConfiguration() != null && tc.getVoGeneratorConfiguration().getVoExcelConfiguration().isGenerate()) {
-                tc.getVoGeneratorConfiguration().getVoExcelConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+                VCollectionUtil.addIfNotContains(tc.getVoGeneratorConfiguration().getVoExcelConfiguration().getOverridePropertyConfigurations(), overrideConfiguration);
             }
         } else {
-            tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations().add(overrideConfiguration);
+            VCollectionUtil.addIfNotContains(tc.getJavaModelGeneratorConfiguration().getOverridePropertyConfigurations(), overrideConfiguration);
         }
     }
 

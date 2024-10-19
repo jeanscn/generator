@@ -59,7 +59,9 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("int ret = 0;");
         method.addBodyLine("DefaultReadListener<{0}> readListener = getImportReadListener();",entityExcelImportVoType.getShortName());
         method.addBodyLine("try (InputStream inputStream = file.getInputStream()) {");
+        method.addBodyLine("saveMultipartFileToLocal(\"upload\",file);");
         method.addBodyLine("List<{0}> excelVOS = VgoEasyExcel.read(inputStream, {0}.class, readListener);",entityExcelImportVoType.getShortName());
+        method.addBodyLine("if (!readListener.isSaved()) {");
         method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVOS);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());
         method.addBodyLine("for ({0} {1} : {1}s) '{'",entityType.getShortName(),entityType.getShortNameFirstLowCase());
         method.addBodyLine("ServiceResult<{0}> insert = {1}Impl.insertOrUpdate({1});",entityType.getShortName(),entityType.getShortNameFirstLowCase());
@@ -67,7 +69,10 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("ret++;");
         method.addBodyLine("}");
         method.addBodyLine("}");
-        method.addBodyLine("return ResponseResult.success(ret, \"导入成功\"+ret+\"/\"+excelVOS.size());");
+        method.addBodyLine("}else{");
+        method.addBodyLine("ret = readListener.getSuccessCount();");
+        method.addBodyLine("}");
+        method.addBodyLine("return ResponseResult.success(ret, \"导入成功\"+ret+\"/\"+readListener.getRowTotal());");
         method.addBodyLine("} catch (VgoExcelValidationException e) {");
         method.addBodyLine("return ResponseResult.failure(ApiCodeEnum.FAIL_VALIDATION, e.getMessage());");
         method.addBodyLine("}");

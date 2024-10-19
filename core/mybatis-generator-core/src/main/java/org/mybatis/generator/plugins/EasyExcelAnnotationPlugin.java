@@ -25,8 +25,8 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addExcelAnnotation(topLevelClass,field,introspectedColumn);
+    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
+        addExcelAnnotation(topLevelClass,field,introspectedColumn,index);
         Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getExportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
@@ -36,8 +36,8 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addExcelAnnotation(topLevelClass,field,introspectedColumn);
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
+        addExcelAnnotation(topLevelClass,field,introspectedColumn,index);
         if (field.getInitializationString().isPresent()) {
             field.addAnnotation("@Builder.Default");
         }
@@ -49,12 +49,10 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         return true;
     }
 
-    private void addExcelAnnotation(TopLevelClass topLevelClass,Field field,IntrospectedColumn introspectedColumn){
+    private void addExcelAnnotation(TopLevelClass topLevelClass,Field field,IntrospectedColumn introspectedColumn,int index){
         String remark = introspectedColumn == null ? field.getRemark() : introspectedColumn.getRemarks(true);
         ExcelPropertyDesc excelPropertyDesc = new ExcelPropertyDesc(remark);
-        if (introspectedColumn != null) {
-            excelPropertyDesc.setOrder(introspectedColumn.getOrder());
-        }
+        excelPropertyDesc.setOrder(index);
         if (field.getAnnotations().stream()
                 .anyMatch(annotation -> annotation.contains("@Dict"))) {
             excelPropertyDesc.setConverter("ExportDictConverter.class");
