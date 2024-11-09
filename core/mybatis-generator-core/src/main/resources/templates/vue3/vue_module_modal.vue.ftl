@@ -2,8 +2,8 @@
 * @description DialogForm component for ${ componentName } module
 */
 <template>
-    <VgoDialog  v-model="showDialog" :title="pageTitle" :popSize="popSize" :draggable="popDraggable"
-                @close="destroyForm" :closeOnClickModal=false :closeOnPressEscape=false>
+    <VgoDialog  v-model="showDialog" :title="_pageTitle" :popSize="_popSize" :draggable="_popDraggable"
+                :elDialogProps="_elDialogProps" @close="destroyForm" :closeOnClickModal=false :closeOnPressEscape=false>
         <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
                          :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit"></${ componentName }Edit>
         <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
@@ -34,7 +34,7 @@
     import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
 
     import FormButtonsBar from '@/framework/workflow/components/FormButtonsBar.vue';
-
+    import { TElDialogProps } from '@/framework/components/vgoDialog/types';
     const emit = defineEmits(['update:modelValue', 'close']);
 
     const props = defineProps({
@@ -45,6 +45,10 @@
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },
         formData: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
         service: { type: Object as PropType<ServiceApi<any>>, default: EMPTY_OBJECT },
+        pageTitle: { type: String as PropType<string>, default: null },
+        popSize: { type: String as PropType<string>, default: null },
+        popDraggable: { type: Boolean as PropType<boolean>, default: null },
+        elDialogProps: { type: Object as PropType<TElDialogProps>, default: EMPTY_OBJECT },
     })
 
     const i18n = useI18n();
@@ -58,9 +62,20 @@
 
     const showDialog = ref(props.modelValue);
 
-    const pageTitle = ref('');
-    const popSize = ref<string>('largeX');
-    const popDraggable = ref<boolean>(false);
+    const defaultElDialogProps: TElDialogProps = {
+        destroyOnClose: true,
+        showClose: false,
+        width: '60%',
+        closeOnClickModal: false,
+        showFullscreen: true,
+        fullscreen: false,
+        draggable: true,
+    };
+    const _elDialogProps = ref<TElDialogProps>(_.merge(defaultElDialogProps, props.elDialogProps));
+    const _pageTitle = ref(props.pageTitle != null ? props.pageTitle : _elDialogProps.value.title || '');
+    const _popSize = ref<string>(props.popSize != null ? props.popSize : 'large');
+    const _popDraggable = ref<boolean>(props.popDraggable != null ? props.popDraggable : _elDialogProps.value.draggable || true);
+
     const _viewStatus = ref<number>(props.viewStatus);
     const _formConfig = ref<TFormConfig>(props.formConfig);
 
@@ -100,7 +115,7 @@
             formConfig: _formConfig,
             dialogVisible: showDialog,
             tableRef: tableRef,
-            pageTitle: pageTitle,
+            pageTitle: _pageTitle,
             popType: popType,
             bizFormRef: bizFormRef,
             i18n: i18n,
@@ -111,7 +126,7 @@
     };
 
     const onSubmit = (val) => {
-        tableRef.value!.updateRows([val]);
+        tableRef.value && tableRef.value.updateRows([val]);
     };
     const destroyForm = () => {
         showDialog.value = false;

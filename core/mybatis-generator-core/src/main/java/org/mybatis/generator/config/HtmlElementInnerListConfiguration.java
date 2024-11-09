@@ -51,6 +51,10 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private String hideExpression;
     private String disableExpression;
 
+    private String showActionColumn = "default";
+
+    private String enableEdit = "default";
+
     public HtmlElementInnerListConfiguration() {
     }
 
@@ -307,5 +311,21 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setDisableExpression(String disableExpression) {
         this.disableExpression = disableExpression;
+    }
+
+    public String getShowActionColumn() {
+        return showActionColumn;
+    }
+
+    public void setShowActionColumn(String showActionColumn) {
+        this.showActionColumn = showActionColumn;
+    }
+
+    public String getEnableEdit() {
+        return enableEdit;
+    }
+
+    public void setEnableEdit(String enableEdit) {
+        this.enableEdit = enableEdit;
     }
 }

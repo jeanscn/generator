@@ -1297,6 +1297,15 @@ public class MyBatisGeneratorConfigurationParser {
             htmlElementInnerList.setDisableExpression(disabledExpression);
         }
 
+        String showActionColumn = attributes.getProperty("showActionColumn");
+        if (stringHasValue(showActionColumn)) {
+            htmlElementInnerList.setShowActionColumn(showActionColumn);
+        }
+        String enableEdit = attributes.getProperty("enableEdit");
+        if (stringHasValue(enableEdit)) {
+            htmlElementInnerList.setEnableEdit(enableEdit);
+        }
+
         if (sourceBeanName != null) {
             htmlElementInnerList.setRestBasePath(moduleKeyword + "/" + VStringUtil.toHyphenCase(sourceBeanName));
         }

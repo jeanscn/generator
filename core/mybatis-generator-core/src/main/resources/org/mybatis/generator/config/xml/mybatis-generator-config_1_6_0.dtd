@@ -953,6 +953,7 @@
             21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
             23、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
+            24、enableEdit 是否启用编辑，default编辑状态与父表单保持一致，true数据可编辑，false数据不可编辑。缺省值default
             23、totalRow 是否显示合计行，默认为false
             24、totalFields 合计字段，多个字段用逗号分隔，用于指定默认显示合计的字段。
             25、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
@@ -988,6 +989,7 @@
                 batchUpdateColumns CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
                 showActionColumn (default|true|false) #IMPLIED
+                enableEdit (default|true|false) #IMPLIED
                 totalRow (true|false) #IMPLIED
                 totalFields CDATA #IMPLIED
                 totalText CDATA #IMPLIED

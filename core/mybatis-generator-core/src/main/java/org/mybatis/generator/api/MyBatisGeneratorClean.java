@@ -236,11 +236,20 @@ public class MyBatisGeneratorClean {
             String vueEndProjectPath = context.getVueEndProjectPath();
             String vueFilePath = vueEndProjectPath + "/src/modules/"+context.getModuleKeyword().toLowerCase();
             File file = new File(vueFilePath+"/"+tc.getDomainObjectName().toLowerCase());
+
+            //清理modal
+            File modalsPath = this.shellCallback.getDirectory(vueFilePath, "modals");
+            File[] modals = modalsPath.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "Modal.vue"));
+            deleteFiles(modals);
+
             if (file.exists()) {
+                //清理components types
                 File components = this.shellCallback.getDirectory(vueFilePath+"/"+tc.getDomainObjectName().toLowerCase(), "components");
                 deleteFiles(components.listFiles());
+                //清理types
                 File types = this.shellCallback.getDirectory(vueFilePath+"/"+tc.getDomainObjectName().toLowerCase(), "types");
                 deleteFiles(types.listFiles());
+
                 File vueOther = this.shellCallback.getDirectory(vueFilePath, tc.getDomainObjectName().toLowerCase());
                 deleteFiles(vueOther.listFiles());
                 if (vueOther.isDirectory()) {

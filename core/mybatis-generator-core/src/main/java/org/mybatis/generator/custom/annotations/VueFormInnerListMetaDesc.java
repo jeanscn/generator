@@ -90,6 +90,8 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
      * restful请求中的根路径
      */
     private String restBasePath;
+
+    private String enableEdit = "default";
     public VueFormInnerListMetaDesc() {
         super();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
@@ -137,6 +139,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.detailFormIn = innerListConfiguration.getDetailFormIn();
         this.hideExpression = innerListConfiguration.getHideExpression();
         this.disabledExpression = innerListConfiguration.getDisableExpression();
+        this.enableEdit = innerListConfiguration.getEnableEdit();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
     }
 
@@ -230,6 +233,9 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(disabledExpression)) {
             items.add("disabledExpression = \"" + disabledExpression + "\"");
+        }
+        if (VStringUtil.isNotBlank(enableEdit) && !"default".equals(enableEdit)) {
+            items.add("enableEdit = \"" + enableEdit + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -472,5 +478,13 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public void setDisabledExpression(String disabledExpression) {
         this.disabledExpression = disabledExpression;
+    }
+
+    public String getEnableEdit() {
+        return enableEdit;
+    }
+
+    public void setEnableEdit(String enableEdit) {
+        this.enableEdit = enableEdit;
     }
 }

@@ -62,6 +62,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     private boolean showRowNumber = true;
     private String showActionColumn = "default";
+
     private String editFormIn;
     private String detailFormIn;
     private List<String> editableFields = new ArrayList<>();
