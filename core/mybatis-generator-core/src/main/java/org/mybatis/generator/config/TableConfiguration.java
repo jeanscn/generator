@@ -784,7 +784,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private void calculateAdditionalProperty(IntrospectedTable introspectedTable) {
         this.getAdditionalPropertyConfigurations().forEach(additionalPropertyConfiguration -> {
-            this.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
+            VCollectionUtil.addIfNotContains(this.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations(), additionalPropertyConfiguration);
             if (this.getVoGeneratorConfiguration().getVoModelConfiguration() != null) {
                 this.getVoGeneratorConfiguration().getVoModelConfiguration().getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
             }

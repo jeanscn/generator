@@ -1,5 +1,6 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -68,10 +69,7 @@ public abstract class AbstractModelGeneratorConfiguration extends AbstractGenera
     }
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
-        Optional<VoAdditionalPropertyGeneratorConfiguration> first = additionalPropertyConfigurations.stream().filter(item -> item.getName().equals(additionalPropertyConfiguration.getName())).findFirst();
-        if (!first.isPresent()) {
-            additionalPropertyConfigurations.add(additionalPropertyConfiguration);
-        }
+        VCollectionUtil.addIfNotContains(additionalPropertyConfigurations, additionalPropertyConfiguration);
     }
 
     public List<VoNameFragmentGeneratorConfiguration> getVoNameFragmentGeneratorConfigurations() {

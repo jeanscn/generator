@@ -17,6 +17,7 @@ import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -2362,7 +2363,7 @@ public class MyBatisGeneratorConfigurationParser {
         });
         parseModelChildNodeProperty(context, tc, node, vOModelGeneratorConfiguration);
         //继承vo的附加属性
-        vOModelGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(vOModelGeneratorConfiguration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         //添加到vo配置
         voGeneratorConfiguration.setVoModelConfiguration(vOModelGeneratorConfiguration);
     }
@@ -2407,7 +2408,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         parseModelChildNodeProperty(context, tc, node, configuration);
         //继承vo的附加属性
-        configuration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(configuration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         //添加到vo配置
         voGeneratorConfiguration.setVoCreateConfiguration(configuration);
     }
@@ -2448,7 +2449,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         parseModelChildNodeProperty(context, tc, node, configuration);
         //继承vo的附加属性
-        configuration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(configuration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         //添加到vo配置
         voGeneratorConfiguration.setVoUpdateConfiguration(configuration);
     }
@@ -2497,7 +2498,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         parseModelChildNodeProperty(context, tc, node, vOExcelGeneratorConfiguration);
         //继承vo的附加属性
-        vOExcelGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(vOExcelGeneratorConfiguration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         //添加到vo配置
         voGeneratorConfiguration.setVoExcelConfiguration(vOExcelGeneratorConfiguration);
     }
@@ -2569,7 +2570,7 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
         //继承vo的附件属性
-        voViewGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(voViewGeneratorConfiguration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         voGeneratorConfiguration.setVoViewConfiguration(voViewGeneratorConfiguration);
     }
 
@@ -2886,7 +2887,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         parseModelChildNodeProperty(context, tc, node, voRequestGeneratorConfiguration);
         //继承vo的附加属性
-        voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations().addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(voRequestGeneratorConfiguration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         //添加到vo配置
         voGeneratorConfiguration.setVoRequestConfiguration(voRequestGeneratorConfiguration);
     }
@@ -2962,7 +2963,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         parseModelChildNodeProperty(context, tc, node, modelConfiguration);
         //继承tc的附加属性
-        modelConfiguration.getAdditionalPropertyConfigurations().addAll(tc.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(modelConfiguration.getAdditionalPropertyConfigurations(), tc.getAdditionalPropertyConfigurations());
         //添加到tc配置
         tc.setJavaModelGeneratorConfiguration(modelConfiguration);
         parseAbstractConfigAttributes(attributes, modelConfiguration, node);

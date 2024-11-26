@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
@@ -61,7 +62,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
 
         //附加属性
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voUpdateGeneratorConfiguration.getAdditionalPropertyConfigurations();
-        additionalPropertyConfigurations.addAll(voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        VCollectionUtil.addAllIfNotContains(additionalPropertyConfigurations, voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         updateVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations).forEach(field -> {
                     if (plugins.voUpdateFieldGenerated(field, updateVoClass, null, introspectedTable)) {
                         updateVoClass.addField(field);

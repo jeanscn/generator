@@ -45,7 +45,7 @@
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },
         formData: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
         service: { type: Object as PropType<ServiceApi<any>>, default: EMPTY_OBJECT },
-        pageTitle: { type: String as PropType<string>, default: null },
+        pageTitle: { type: String as PropType<string>, default: '${ tableRemark }' },
         popSize: { type: String as PropType<string>, default: null },
         popDraggable: { type: Boolean as PropType<boolean>, default: null },
         elDialogProps: { type: Object as PropType<TElDialogProps>, default: EMPTY_OBJECT },

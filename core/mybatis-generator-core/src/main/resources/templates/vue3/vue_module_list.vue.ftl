@@ -240,7 +240,7 @@
 
     const defaultViewRowActionHandler = (rowData: any, button: IButtonProps) => {
         drawerOnButtonId.value = button.id;
-        formData.value = rowData;
+        formData.value = {...rowData};
         buttonRef.value = button;
         let params: TViewRowActionParam<T${ componentName }> = {
             moduleKey: moduleKey,
