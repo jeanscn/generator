@@ -23,6 +23,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     private String title;
     private String label;
     private String icon;
+    private String elIcon;
     private String classes;
     private String handler;
     private String type;
@@ -45,6 +46,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.setType(htmlButtonGeneratorConfiguration.getType());
         htmlButtonDesc.setText(htmlButtonGeneratorConfiguration.isText());
         htmlButtonDesc.setIcon(htmlButtonGeneratorConfiguration.getIcon());
+        htmlButtonDesc.setElIcon(htmlButtonGeneratorConfiguration.getElIcon());
         htmlButtonDesc.setClasses(htmlButtonGeneratorConfiguration.getClasses());
         htmlButtonDesc.setHandler(htmlButtonGeneratorConfiguration.getHandler());
         htmlButtonDesc.isCircle = htmlButtonGeneratorConfiguration.isCircle();
@@ -72,7 +74,8 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         this.text = viewDefaultToolBarsEnum.text();
         this.label = viewDefaultToolBarsEnum.codeName();
         this.title = viewDefaultToolBarsEnum.title();
-        this.icon = viewDefaultToolBarsEnum.elIcon();
+        this.icon = viewDefaultToolBarsEnum.icon();
+        this.elIcon = viewDefaultToolBarsEnum.elIcon();
         this.classes = viewDefaultToolBarsEnum.classes();
         this.handler = viewDefaultToolBarsEnum.handler();
         this.type = viewDefaultToolBarsEnum.type();
@@ -258,5 +261,13 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setConfigurable(boolean configurable) {
         this.configurable = configurable;
+    }
+
+    public String getElIcon() {
+        return elIcon;
+    }
+
+    public void setElIcon(String elIcon) {
+        this.elIcon = elIcon;
     }
 }

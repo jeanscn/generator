@@ -1199,6 +1199,7 @@ public class MyBatisGeneratorConfigurationParser {
         String sourceBeanName = attributes.getProperty("sourceBeanName");
         if (stringHasValue(sourceBeanName)) {
             htmlElementInnerList.setSourceBeanName(sourceBeanName);
+            htmlElementInnerList.setSourceBeanNameKebabCase(VStringUtil.toHyphenCase(sourceBeanName));
         }
         htmlElementInnerList.setRelationField(attributes.getProperty("relationField"));
         String sourceViewVoClass = attributes.getProperty("sourceListViewClass");

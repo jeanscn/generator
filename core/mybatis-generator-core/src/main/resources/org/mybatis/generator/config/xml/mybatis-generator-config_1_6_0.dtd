@@ -960,6 +960,7 @@
             26、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             27、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             28、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            29、sourceViewPath (仅H5版本使用)引用的源表的页面viewPath简单名称
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -996,7 +997,8 @@
                 editFormIn (inner|dialog|drawer) #IMPLIED
                 detailFormIn (inner|dialog|drawer) #IMPLIED
                 hideExpression CDATA #IMPLIED
-                restBasePath  CDATA #IMPLIED>
+                restBasePath  CDATA #IMPLIED
+                sourceViewPath  CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
@@ -1606,16 +1608,17 @@
             2、text 可选，是否为文本按钮
             3、title 可选，按钮显示的提示信息
             4、label 可选，按钮显示的标签
-            5、icon 可选，按钮显示的图标
-            6、classes 可选，按钮的样式
-            7、handler 可选，按钮的点击事件处理方法
-            8、type 可选，按钮的类型，button-按钮|link-a标签
-            9、isLink 可选，按钮是否是链接，true-是，false-否。缺省值为false
-            10、isRound 可选，按钮是否是圆角，true-是，false-否。缺省值为false
-            11、isCircle 可选，按钮是否是圆形，true-是，false-否。缺省值为false
-            12、isPlain 可选，按钮是否是朴素按钮，true-是，false-否。缺省值为false
-            13、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
-            14、showCondition 可选。按钮的显示条件。默认为“true”
+            5、icon 可选，h5的按钮显示的图标
+            6、elIcon 可选，vue3的按钮显示的图标
+            7、classes 可选，按钮的样式
+            8、handler 可选，按钮的点击事件处理方法
+            9、type 可选，按钮的类型，button-按钮|link-a标签
+            10、isLink 可选，按钮是否是链接，true-是，false-否。缺省值为false
+            11、isRound 可选，按钮是否是圆角，true-是，false-否。缺省值为false
+            12、isCircle 可选，按钮是否是圆形，true-是，false-否。缺省值为false
+            13、isPlain 可选，按钮是否是朴素按钮，true-是，false-否。缺省值为false
+            14、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
+            15、showCondition 可选。按钮的显示条件。默认为“true”
             使用说明：
             1、仅在个性化按钮或者链接时，需要定制。视图的默认操作包括：CREATE,EDIT,REMOVE,SEARCH,REFRESH,EXPORT,IMPORT,PRINT,COLUMN等不需要定制
                     视图操作列中的VIEW,EDIT,DELETE不需要定制；
@@ -1635,6 +1638,7 @@
                 title CDATA #IMPLIED
                 label CDATA #IMPLIED
                 icon CDATA #IMPLIED
+                elIcon CDATA #IMPLIED
                 classes CDATA #IMPLIED
                 handler CDATA #IMPLIED
                 type (primary| success| warning| danger| info) #IMPLIED

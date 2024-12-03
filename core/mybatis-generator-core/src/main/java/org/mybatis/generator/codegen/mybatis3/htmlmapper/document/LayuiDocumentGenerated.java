@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
+import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
@@ -34,8 +35,8 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
 
     private final GeneratorInitialParameters generatorInitialParameters;
 
-    public LayuiDocumentGenerated(GeneratorInitialParameters generatorInitialParameters,Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        super(generatorInitialParameters,document, htmlGeneratorConfiguration);
+    public LayuiDocumentGenerated(GeneratorInitialParameters generatorInitialParameters, Document document, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(generatorInitialParameters, document, htmlGeneratorConfiguration);
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
         this.document = document;
         this.rootElement = document.getRootElement();
@@ -87,7 +88,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             HtmlElement div = new HtmlElement("div");
             String moduleKeyword = VStringUtil.stringHasValue(listConfiguration.getModuleKeyword()) ? listConfiguration.getModuleKeyword() : introspectedTable.getContext().getModuleKeyword();
-            String format = VStringUtil.format("{0}/fragments/{1}::{2}", moduleKeyword,Mb3GenUtil.getInnerListFragmentFileName(listConfiguration,introspectedTable),ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
+            String format = VStringUtil.format("{0}/fragments/{1}::{2}", moduleKeyword, Mb3GenUtil.getInnerListFragmentFileName(listConfiguration, introspectedTable), ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
             div.addAttribute(new Attribute("th:replace", format));
             body.get("body").addElement(div);
             //根据数据源添加
@@ -101,6 +102,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         }
         return true;
     }
+
     private void addVerifyButton(HtmlElement parent) {
         String form_verify_id = "btn_form_verify";
         HtmlElement btn = new HtmlElement("button");
@@ -136,14 +138,16 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         form.addAttribute(new Attribute("lay-filter", "mainForm"));
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
-        for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
-            if (introspectedTable.getRules().isGenerateVoModel()) {
-                if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
-                        && !baseColumn.isPrimaryKey()
-                        && !baseColumn.getActualColumnName().equalsIgnoreCase("version_")) {
-                    continue;
-                }
-            }
+        List<IntrospectedColumn> formColumns;
+        List<String> fields = new ArrayList<>(Arrays.asList("id", "version"));
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            VOModelGeneratorConfiguration voModelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration();
+            formColumns = voGenService.getAllVoColumns(fields, voModelConfiguration.getIncludeColumns(), voModelConfiguration.getExcludeColumns());
+            VCollectionUtil.addAllIfNotContains(formColumns, voGenService.getAbstractVOColumns());
+        } else {
+            formColumns = introspectedTable.getNonBLOBColumns();
+        }
+        for (IntrospectedColumn baseColumn : formColumns) {
             if (GenerateUtils.isHiddenColumn(introspectedTable, baseColumn, htmlGeneratorConfiguration)) {
                 hiddenColumns.add(baseColumn);
             } else {
@@ -184,13 +188,13 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         }
 
         int pageColumnsConfig = getPageColumnsConfig(12);
-        Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns,12);
+        Map<Integer, List<IntrospectedColumn>> baseColumnsRows = getHtmlRows(displayColumns, 12);
         String entityKey = GenerateUtils.getEntityKeyStr(introspectedTable);
         List<IntrospectedColumn> rtfColumn = new ArrayList<>();
         if (pageColumnsConfig > 1) {
             /*添加表格*/
             HtmlElement table = new HtmlElement("table");
-            addCssClassToElement(table, "layui-table","table-layout-fixed","main-form-table");
+            addCssClassToElement(table, "layui-table", "table-layout-fixed", "main-form-table");
             for (List<IntrospectedColumn> rowIntrospectedColumns : baseColumnsRows.values()) {
                 /*行*/
                 HtmlElement tr = addTrWithClassToParent(table, "");
@@ -199,11 +203,11 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                 for (IntrospectedColumn introspectedColumn : rowIntrospectedColumns) {
                     colNum++;
 
-                    HtmlElement td = addDtWithClassToTr(tr, "",0);
+                    HtmlElement td = addDtWithClassToTr(tr, "", 0);
                     //label
                     drawLabel(introspectedColumn, td);
                     //input
-                    HtmlElement block = addDivWithClassToParent(td, "layui-input-block","class-"+VStringUtil.toHyphenCase(introspectedColumn.getActualColumnName()));
+                    HtmlElement block = addDivWithClassToParent(td, "layui-input-block", "class-" + VStringUtil.toHyphenCase(introspectedColumn.getActualColumnName()));
                     //如果是单独一列，且长度大于255，则占满一行
                     if (rowIntrospectedColumns.size() == 1
                             && (rowIntrospectedColumns.get(0).getLength() > 255
@@ -234,7 +238,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                         HtmlElement td = new HtmlElement("td");
                         td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
                         HtmlElement div = new HtmlElement("div");
-                        div.addAttribute(new Attribute("th:replace", "subpages/webjarsPluginsRequired2.html::commonAttachmentFragment('" + label + "','file','"+basePath+"')"));
+                        div.addAttribute(new Attribute("th:replace", "subpages/webjarsPluginsRequired2.html::commonAttachmentFragment('" + label + "','file','" + basePath + "')"));
                         table.addElement(atr);
                         atr.addElement(td);
                         td.addElement(div);
@@ -252,7 +256,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                 if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
                     HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
                     if (rowIntrospectedColumns.stream().map(IntrospectedColumn::getActualColumnName).anyMatch(col -> listConfiguration.getAfterColumn().equals(col))) {
-                        addInnerList(table, htmlGeneratorConfiguration,pageColumnsConfig);
+                        addInnerList(table, htmlGeneratorConfiguration, pageColumnsConfig);
                         HtmlElement listKey = generateHtmlInput("innerListKey", true, false, true, false);
                         listKey.addAttribute(new Attribute("value", listConfiguration.getListKey()));
                         form.addElement(listKey);
@@ -283,7 +287,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                     //label
                     drawLabel(introspectedColumn, formItem);
                     //input
-                    HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block","class-"+VStringUtil.toHyphenCase(introspectedColumn.getActualColumnName()));
+                    HtmlElement inputInline = addDivWithClassToParent(formItem, "layui-input-block", "class-" + VStringUtil.toHyphenCase(introspectedColumn.getActualColumnName()));
                     if (introspectedColumn.isLongVarchar()) {
                         rtfColumn.add(introspectedColumn);
                         drawRtfContentDiv(entityKey, introspectedColumn, inputInline);
@@ -309,7 +313,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
                     if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
                         HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
                         if (introspectedColumn.getActualColumnName().equals(listConfiguration.getAfterColumn())) {
-                            addInnerList(form, htmlGeneratorConfiguration,pageColumnsConfig);
+                            addInnerList(form, htmlGeneratorConfiguration, pageColumnsConfig);
                             HtmlElement listKey = generateHtmlInput("innerListKey", true, false, true, false);
                             listKey.addAttribute(new Attribute("value", listConfiguration.getListKey()));
                             form.addElement(listKey);
@@ -383,7 +387,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         HtmlElement div = new HtmlElement("div");
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             div.addAttribute(new Attribute("th:replace", "vgowf/jsp/workflowsubjsp.html::workflowsubjsp"));
-        }else{
+        } else {
             div.addAttribute(new Attribute("th:replace", "vgoweb/fragments/vgocoresub.html::vgocoresubjsp"));
         }
         form.addElement(div);
@@ -406,7 +410,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         td.addElement(div);
     }
 
-    private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration,int pageColumnsConfig) {
+    private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration, int pageColumnsConfig) {
         HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
         HtmlElement atr = new HtmlElement("tr");
         content.addElement(atr);
@@ -426,46 +430,47 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
     private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, HtmlElement parent, HtmlElement td) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (htmlElementDescriptor!=null) { //如果配置了当前字段的元素描述，则使用配置的元素描述
+        if (htmlElementDescriptor != null) { //如果配置了当前字段的元素描述，则使用配置的元素描述
             switch (htmlElementDescriptor.getTagType().toLowerCase()) {
                 case "dropdownlist":
-                    DropdownListThymeleafHtmlGenerator dropdownListHtmlGenerator = new DropdownListThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                    DropdownListThymeleafHtmlGenerator dropdownListHtmlGenerator = new DropdownListThymeleafHtmlGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                     dropdownListHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     dropdownListHtmlGenerator.addHtmlElement(parent);
                     break;
                 case "switch":
                     //增加美化的switch
-                    SwitchThymeleafHtmlGenerator switchHtmlGenerator = new SwitchThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                    SwitchThymeleafHtmlGenerator switchHtmlGenerator = new SwitchThymeleafHtmlGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                     switchHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     switchHtmlGenerator.addHtmlElement(parent);
                     break;
                 case "radio":
-                    RadioThymeleafHtmlGenerator radioHtmlGenerator = new RadioThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                    RadioThymeleafHtmlGenerator radioHtmlGenerator = new RadioThymeleafHtmlGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                     radioHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     radioHtmlGenerator.addHtmlElement(parent);
                     break;
                 case "checkbox":
-                    CheckBoxThymeleafHtmlGenerator checkBoxHtmlGenerator = new CheckBoxThymeleafHtmlGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                    CheckBoxThymeleafHtmlGenerator checkBoxHtmlGenerator = new CheckBoxThymeleafHtmlGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                     checkBoxHtmlGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     checkBoxHtmlGenerator.addHtmlElement(parent);
                     break;
                 case "date":
-                    DateThymeleafHtmlElementGenerator dateHtmlElementGenerator = new DateThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                    DateThymeleafHtmlElementGenerator dateHtmlElementGenerator = new DateThymeleafHtmlElementGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                     dateHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     dateHtmlElementGenerator.addHtmlElement(parent);
                     break;
                 case "select":
-                    SelectElementGeneratorThymeleaf selectElementGenerator = new SelectElementGeneratorThymeleaf(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                case "cascader":
+                    SelectElementGeneratorThymeleaf selectElementGenerator = new SelectElementGeneratorThymeleaf(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                     selectElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                     selectElementGenerator.addHtmlElement(parent);
                     break;
                 default:
                     if (GenerateUtils.isDateType(introspectedColumn)) {
-                        DateThymeleafHtmlElementGenerator date = new DateThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                        DateThymeleafHtmlElementGenerator date = new DateThymeleafHtmlElementGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                         date.setHtmlElementDescriptor(htmlElementDescriptor);
                         date.addHtmlElement(parent);
                     } else {
-                        InputThymeleafHtmlElementGenerator inputHtmlElementGenerator = new InputThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                        InputThymeleafHtmlElementGenerator inputHtmlElementGenerator = new InputThymeleafHtmlElementGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                         inputHtmlElementGenerator.setHtmlElementDescriptor(htmlElementDescriptor);
                         inputHtmlElementGenerator.addHtmlElement(parent);
                     }
@@ -473,10 +478,10 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
             }
         } else {
             if (GenerateUtils.isDateType(introspectedColumn)) {
-                DateThymeleafHtmlElementGenerator date = new DateThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                DateThymeleafHtmlElementGenerator date = new DateThymeleafHtmlElementGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                 date.addHtmlElement(parent);
             } else {
-                InputThymeleafHtmlElementGenerator inputHtmlElementGenerator = new InputThymeleafHtmlElementGenerator(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
+                InputThymeleafHtmlElementGenerator inputHtmlElementGenerator = new InputThymeleafHtmlElementGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
                 inputHtmlElementGenerator.addHtmlElement(parent);
             }
         }
@@ -488,7 +493,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         addCssClassToElement(label, "layui-form-label");
         if (htmlElementDescriptor == null) {
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
-        } else if(!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.codeName())){
+        } else if (!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.codeName())) {
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         }
         String labelText;
@@ -501,7 +506,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         HtmlElement label_p = new HtmlElement("p");
         if (!introspectedColumn.isNullable()) {
             label_p.addAttribute(new Attribute("class", "label-text label-required"));
-        }else{
+        } else {
             label_p.addAttribute(new Attribute("class", "label-text"));
         }
         label_p.addElement(new TextElement(labelText));
@@ -513,7 +518,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
             label.addElement(label_p2);
             label.addAttribute(new Attribute("title", introspectedColumn.getSubRemarks()));
         }
-        addCssClassToElement(label, "class-"+introspectedColumn.getActualColumnName());
+        addCssClassToElement(label, "class-" + introspectedColumn.getActualColumnName());
         //追加样式css
         if (htmlElementDescriptor != null && htmlElementDescriptor.getLabelCss() != null) {
             addCssStyleToElement(label, htmlElementDescriptor.getLabelCss());
@@ -526,15 +531,15 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         String config = getHtmlBarPositionConfig();
         if (!HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
-            addCssClassToElement(btnClose, "footer-btn","layui-btn-primary");
+            addCssClassToElement(btnClose, "footer-btn", "layui-btn-primary");
             if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
-                addCssClassToElement(btnReset, "footer-btn","btn-primary");
+                addCssClassToElement(btnReset, "footer-btn", "btn-primary");
             }
         }
-        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream().anyMatch(t-> HtmlDocumentTypeEnum.PRINT.equals(t.getType()))) {
+        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream().anyMatch(t -> HtmlDocumentTypeEnum.PRINT.equals(t.getType()))) {
             HtmlElement btnPrint = addLayButton(toolBar, btn_print_id, "打印预览", "&#xe66d;");
-            addCssClassToElement(btnPrint, "footer-btn","btn-primary");
+            addCssClassToElement(btnPrint, "footer-btn", "btn-primary");
         }
     }
 }

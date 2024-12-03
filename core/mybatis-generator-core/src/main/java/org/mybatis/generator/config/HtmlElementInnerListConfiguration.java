@@ -22,6 +22,8 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private String sourceViewPath = "";
 
     private String sourceBeanName;
+
+    private String sourceBeanNameKebabCase;
     private String relationField;
     private String sourceListViewClass;
     private String relationKey = "id";
@@ -327,5 +329,13 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setEnableEdit(String enableEdit) {
         this.enableEdit = enableEdit;
+    }
+
+    public String getSourceBeanNameKebabCase() {
+        return sourceBeanNameKebabCase;
+    }
+
+    public void setSourceBeanNameKebabCase(String sourceBeanNameKebabCase) {
+        this.sourceBeanNameKebabCase = sourceBeanNameKebabCase;
     }
 }

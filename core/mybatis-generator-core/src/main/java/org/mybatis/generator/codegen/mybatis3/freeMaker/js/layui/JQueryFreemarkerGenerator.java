@@ -4,6 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
@@ -92,7 +93,8 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
         freeMakerContext.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
         // 页面内列表js生成相关
         if (introspectedTable.getRules().isAdditionInnerList(this.htmlGeneratorConfiguration) ) {
-            freeMakerContext.put("innerList", this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0));
+            HtmlElementInnerListConfiguration innerListConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
+            freeMakerContext.put("innerList", innerListConfiguration);
         }
         Template template = getLayuiTemplate(templateName);
         return generatorFileContent(template);

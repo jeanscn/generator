@@ -16,6 +16,7 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private String title;
     private String label;
     private String icon;
+    private String elIcon;
     private String classes;
     private String handler;
 
@@ -152,5 +153,13 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     public void setConfigurable(boolean configurable) {
         this.configurable = configurable;
+    }
+
+    public String getElIcon() {
+        return elIcon;
+    }
+
+    public void setElIcon(String elIcon) {
+        this.elIcon = elIcon;
     }
 }
