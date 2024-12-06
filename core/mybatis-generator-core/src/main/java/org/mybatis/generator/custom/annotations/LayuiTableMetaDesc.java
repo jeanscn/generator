@@ -55,7 +55,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private Set<String> totalFields = new HashSet<>();
     private String totalText;
 
-    private boolean enablePager = true;
+    private String enablePage = "true";
 
     private String vxeListButtons = "";
     private String defaultFilterExpr;
@@ -162,8 +162,8 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         if (stringHasValue(vxeListButtons) && !"innerAddBtn".equals(vxeListButtons)) {
             items.add("vxeListButtons = \"" + vxeListButtons + "\"");
         }
-        if (!enablePager) {
-            items.add("enablePager = false");
+        if (enablePage.equals("false")) {
+           items.add("enablePage = \"false\"");
         }
         if (!showRowNumber) {
             items.add("showRowNumber = false");
@@ -390,12 +390,12 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         this.vxeListButtons = vxeListButtons;
     }
 
-    public boolean isEnablePager() {
-        return enablePager;
+    public String getEnablePage() {
+        return enablePage;
     }
 
-    public void setEnablePager(boolean enablePager) {
-        this.enablePager = enablePager;
+    public void setEnablePage(String enablePage) {
+        this.enablePage = enablePage;
     }
 
     public boolean isShowRowNumber() {

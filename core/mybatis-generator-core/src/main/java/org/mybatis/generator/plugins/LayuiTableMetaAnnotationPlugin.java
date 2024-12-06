@@ -480,7 +480,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
         layuiTableMetaDesc.setTotalFields(listViewConfiguration.getTotalFields());
         layuiTableMetaDesc.setTotalText(listViewConfiguration.getTotalText());
-        layuiTableMetaDesc.setEnablePager(listViewConfiguration.isEnablePager());
+        layuiTableMetaDesc.setEnablePage(listViewConfiguration.isEnablePager()?"true":"false");
         layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
         layuiTableMetaDesc.setParentMenuId(listViewConfiguration.getParentMenuId());
         layuiTableMetaDesc.setViewMenuElIcon(listViewConfiguration.getViewMenuElIcon());

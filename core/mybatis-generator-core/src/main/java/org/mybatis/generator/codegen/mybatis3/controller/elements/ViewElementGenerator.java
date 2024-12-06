@@ -41,9 +41,16 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         parameter.setRemark("参数，view方法参数对象。");
         method.addParameter(parameter);
 
+        Parameter response = new Parameter(new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse"), "response");
+        response.setRemark("响应对象");
+        method.addParameter(response);
+        parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
+
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        parentElement.addImportedType("java.lang.Exception");
+        parentElement.addImportedType("javax.annotation.security.PermitAll");
+        method.addAnnotation("@PermitAll");
+        parentElement.addImportedType("javax.annotation.security.PermitAll");
         method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("view", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "查看");
@@ -52,6 +59,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         commentGenerator.addMethodJavaDocLine(method, "根据主键获取单个业务实例");
         String entityName = introspectedTable.getRules().isGenerateVoModel() ? this.entityVoType.getShortName() : entityType.getShortName();
         //函数体
+        method.addBodyLine("response.addHeader(\"X-Frame-Options\", \"SAMEORIGIN\");");
+
         sb.append("ModelAndView mv = new ModelAndView();");
         method.addBodyLine(sb.toString());
         //method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
@@ -86,6 +95,11 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
             HtmlElementInnerListConfiguration innerListConfiguration = listConfiguration.get(0);
             if (innerListConfiguration != null && innerListConfiguration.getSourceListViewClass() != null) {
                 method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
+
+                method.addBodyLine("if (!VStringUtil.stringHasValue(viewParam.getListKey())) {");
+                method.addBodyLine("viewParam.setListKey(\""+innerListConfiguration.getListKey()+"\");");
+                method.addBodyLine("}");
+
                 method.addBodyLine("if (VStringUtil.stringHasValue(viewParam.getListKey())) {");
                 method.addBodyLine("// 内嵌列表");
                 FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceListViewClass());
@@ -120,6 +134,11 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewParam.getViewStatus()).orElse(\"1\"));");
         method.addBodyLine("mv.addAllObjects(getCurrentUserInfo());");
+//        method.addBodyLine("mv.addObject(\"currentUser\", new OrgUser());");
+//        method.addBodyLine("mv.addObject(\"currentDept\", new OrgDepartment());");
+//        parentElement.addImportedType("com.vgosoft.organization.entity.OrgUser");
+//        parentElement.addImportedType("com.vgosoft.organization.entity.OrgDepartment");
+
         sb.setLength(0);
         sb.append("String viewName = VStringUtil.format(\"");
         sb.append(introspectedTable.getTableConfiguration().getHtmlBasePath()).append("/");
