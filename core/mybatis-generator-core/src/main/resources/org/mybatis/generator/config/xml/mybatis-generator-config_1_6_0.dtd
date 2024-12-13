@@ -811,6 +811,7 @@
             13、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             14、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             15、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
+            16、renderHref 是否在只读模式下渲染为超级链接，默认为false
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -831,7 +832,8 @@
                 defaultFilterExpr CDATA #IMPLIED
                 enablePager (true|false) #IMPLIED
                 hideExpression CDATA #IMPLIED
-                disabledExpression CDATA #IMPLIED>
+                disabledExpression CDATA #IMPLIED
+                renderHref (false|true) #IMPLIED>
 
         <!--
             为元素添加一个超级链接或操作
