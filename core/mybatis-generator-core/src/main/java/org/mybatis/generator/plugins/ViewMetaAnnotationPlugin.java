@@ -106,6 +106,12 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             if (stringHasValue(config.getWidth())) {
                 viewColumnMetaDesc.setWidth(config.getWidth());
             }
+            if (stringHasValue(config.getMinWidth())) {
+                viewColumnMetaDesc.setMinWidth(config.getMinWidth());
+            }
+            if (stringHasValue(config.getHeaderAlign())) {
+                viewColumnMetaDesc.setAlign(config.getHeaderAlign());
+            }
             if (stringHasValue(config.getAlign())) {
                 viewColumnMetaDesc.setAlign(config.getAlign());
             }
