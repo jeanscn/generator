@@ -52,10 +52,10 @@ public class Mb3GenUtil {
         return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
     }
 
-public static String getModelId(IntrospectedTable introspectedTable) {
-    String modelKey = getModelKey(introspectedTable);
-    return VMD5Util.MD5_15(modelKey);
-}
+    public static String getModelId(IntrospectedTable introspectedTable) {
+        String modelKey = getModelKey(introspectedTable);
+        return VMD5Util.MD5_15(modelKey);
+    }
 
 
     public static String getDefaultViewId(IntrospectedTable introspectedTable) {
@@ -82,20 +82,20 @@ public static String getModelId(IntrospectedTable introspectedTable) {
     }
 
     public static String getInnerListFragmentFileName(@Nullable HtmlElementInnerListConfiguration listConfiguration, IntrospectedTable introspectedTable) {
-        if (listConfiguration!=null) {
-            String listKey = stringHasValue(listConfiguration.getListKey())?"_"+listConfiguration.getListKey():"";
-            return listConfiguration.getSourceViewPath()+listKey+"_"+ ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS+".html";
-        }else{
-            return introspectedTable.getTableConfiguration().getTableName()+"_"+ ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS+".html";
+        if (listConfiguration != null) {
+            String listKey = stringHasValue(listConfiguration.getListKey()) ? "_" + listConfiguration.getListKey() : "";
+            return listConfiguration.getSourceViewPath() + listKey + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
+        } else {
+            return introspectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
         }
     }
 
     public static String getHtmlInnerListFragmentFileName(@Nullable InnerListViewConfiguration innerListViewConfiguration, IntrospectedTable introspectedTable) {
-        if (innerListViewConfiguration!=null) {
-            String listKey = stringHasValue(innerListViewConfiguration.getListKey())?"_"+innerListViewConfiguration.getListKey():"";
-            return innerListViewConfiguration.getEditExtendsForm()+listKey+"_"+ ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS+".html";
-        }else{
-            return introspectedTable.getTableConfiguration().getTableName()+"_"+ ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS+".html";
+        if (innerListViewConfiguration != null) {
+            String listKey = stringHasValue(innerListViewConfiguration.getListKey()) ? "_" + innerListViewConfiguration.getListKey() : "";
+            return innerListViewConfiguration.getEditExtendsForm() + listKey + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
+        } else {
+            return introspectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
         }
     }
 
@@ -116,6 +116,9 @@ public static String getModelId(IntrospectedTable introspectedTable) {
                         break;
                     case "年月":
                         dateType = "month";
+                        break;
+                    case "年周":
+                        dateType = "week";
                         break;
                     case "日期":
                         dateType = "date";

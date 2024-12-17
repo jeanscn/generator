@@ -18,7 +18,7 @@ public class WfStateElementDescriptor implements DefaultHtmlElementDescriptorFac
         elementDescriptor.setName(column.getActualColumnName());
         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM.getCode());
         elementDescriptor.setEnumClassName("com.vgosoft.workflow.enums.WorkFlowStatusEnum");
-        elementDescriptor.setTagType(HtmlElementTagTypeEnum.INPUT.codeName());
+        elementDescriptor.setTagType(HtmlElementTagTypeEnum.SELECT.codeName());
         elementDescriptor.setColumn(column);
         elementDescriptor.setOtherFieldName(DefaultColumnNameEnum.WF_STATE.otherFieldName());
         return elementDescriptor;

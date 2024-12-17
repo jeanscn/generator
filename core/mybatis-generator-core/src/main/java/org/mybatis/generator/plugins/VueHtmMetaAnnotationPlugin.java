@@ -154,7 +154,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             }
             if (elementDescriptor != null) { //存在字段配置的内容
                 //设置multiple
-                vueFormItemMetaDesc.setMultiple(Boolean.valueOf(elementDescriptor.getMultiple()));
+                vueFormItemMetaDesc.setMultiple(elementDescriptor.isMultiple());
                 vueFormItemMetaDesc.setOtherFieldName(elementDescriptor.getOtherFieldName());
                 //设置dataSource
                 if (VStringUtil.stringHasValue(elementDescriptor.getDataSource())) {

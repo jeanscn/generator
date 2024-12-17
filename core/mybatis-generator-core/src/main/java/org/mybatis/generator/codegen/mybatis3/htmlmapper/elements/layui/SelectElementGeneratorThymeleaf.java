@@ -33,9 +33,7 @@ public class SelectElementGeneratorThymeleaf extends AbstractThymeleafLayuiEleme
         input.addAttribute(new Attribute("data-field", javaProperty));
         input.addAttribute(new Attribute("readonly", "readonly"));
         input.addAttribute(new Attribute("th:value", getFieldValueFormatPattern(ThymeleafValueScopeEnum.READ)));
-        if (htmlElementDescriptor.getMultiple()!=null) {
-            input.addAttribute(new Attribute("data-multiple", htmlElementDescriptor.getMultiple()));
-        }
+        input.addAttribute(new Attribute("data-multiple", htmlElementDescriptor.isMultiple()? "true" : "false"));
         if (!isReadonly(this.introspectedColumn)) {
             addElementVerify(introspectedColumn.getActualColumnName(), input, this.htmlElementDescriptor);
             input.addAttribute(new Attribute("for-type", "lay-select"));

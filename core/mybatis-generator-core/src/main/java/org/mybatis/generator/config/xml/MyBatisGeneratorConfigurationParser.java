@@ -1562,9 +1562,10 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         String multiple = attributes.getProperty("multiple");
-        if (stringHasValue(multiple)) {
-            htmlElementDescriptor.setMultiple(multiple);
+        if (stringHasValue(multiple) && "true".equals(multiple)) {
+            htmlElementDescriptor.setMultiple(true);
         }
+
         String remoteApiParse = attributes.getProperty("remoteApiParse");
         if (stringHasValue(remoteApiParse) && "true".equals(remoteApiParse)) {
             htmlElementDescriptor.setRemoteApiParse(true);

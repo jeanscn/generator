@@ -34,7 +34,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String placeholder; // 提示文字
     private String maxlength; // 最大长度
     private String minlength; // 最小长度
-    private Boolean multiple; // 是否允许多选
+    private Boolean multiple = false; // 是否允许多选
     // 类型,input-可能是text、password、url、textarea；date-可能是time、datetime
     private String type;
     private String valueFormat; // 日期格式化

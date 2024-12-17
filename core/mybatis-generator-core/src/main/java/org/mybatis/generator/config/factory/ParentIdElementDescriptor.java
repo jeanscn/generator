@@ -26,7 +26,7 @@ public class ParentIdElementDescriptor implements DefaultHtmlElementDescriptorFa
             elementDescriptor.setRemoteToTree(true);
             elementDescriptor.setRemoteApiParse(true);
             elementDescriptor.setRemoteAsync(true);
-            elementDescriptor.setMultiple("false");
+            elementDescriptor.setMultiple(false);
             elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/async-tree");
             elementDescriptor.setExcludeSelf(true);
         }else{

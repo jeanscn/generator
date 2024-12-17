@@ -53,7 +53,7 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String listViewClass;
 
-    private String multiple;
+    private boolean multiple;
 
     private boolean remoteApiParse = false;
 
@@ -282,11 +282,11 @@ public class HtmlElementDescriptor  extends PropertyHolder{
         this.listViewClass = listViewClass;
     }
 
-    public String getMultiple() {
+    public boolean isMultiple() {
         return multiple;
     }
 
-    public void setMultiple(String multiple) {
+    public void setMultiple(boolean multiple) {
         this.multiple = multiple;
     }
 

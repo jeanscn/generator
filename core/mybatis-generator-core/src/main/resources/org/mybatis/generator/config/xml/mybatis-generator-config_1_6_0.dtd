@@ -6,7 +6,7 @@
         <!ENTITY % renderFunValues "(colDefsOdata|colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsAsLink_readonly|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist|signArea)" >
         <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|Role|InnerList)" >
-        <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|日期|日期时间|时间)" >
+        <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|年周|日期|日期时间|时间)" >
         <!ENTITY % valueType "(text|number|date|time|datetime|year|month|shortmonth|quarter)" >
         <!ENTITY % queryExpression "(EqualTo|NotEqualTo|GreaterThan|LessThan|GreaterThanOrEqualTo|LessThanOrEqualTo|Like|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between|In|NotIn)" >
         <!ENTITY % indexColumnType "(NONE|CHECKBOX|RADIO|ROW_INDEX|EXPAND)" >

@@ -97,19 +97,52 @@ public class VueFormGenerateUtil {
             if (elementDescriptor != null && elementDescriptor.getDataFormat() != null) {
                 switch (elementDescriptor.getDataFormat()) {
                     case "年":
-                        vueFormItemMetaDesc.setType("date");
+                        if (elementDescriptor.isDateRange()) {
+                            vueFormItemMetaDesc.setDateRange(true);
+                            vueFormItemMetaDesc.setType("yearrange");
+                        } else if (elementDescriptor.isMultiple()) {
+                            vueFormItemMetaDesc.setMultiple(true);
+                            vueFormItemMetaDesc.setType("years");
+                        } else {
+                            vueFormItemMetaDesc.setType("year");
+                        }
                         vueFormItemMetaDesc.setValueFormat("YYYY");
                         break;
                     case "年月":
-                        vueFormItemMetaDesc.setType("date");
+                        if (elementDescriptor.isDateRange()) {
+                            vueFormItemMetaDesc.setDateRange(true);
+                            vueFormItemMetaDesc.setType("monthrange");
+                        } else if (elementDescriptor.isMultiple()) {
+                            vueFormItemMetaDesc.setMultiple(true);
+                            vueFormItemMetaDesc.setType("months");
+                        } else {
+                            vueFormItemMetaDesc.setType("month");
+                        }
                         vueFormItemMetaDesc.setValueFormat("YYYY-MM");
                         break;
+                    case "年周":
+                        vueFormItemMetaDesc.setType("week");
+                        vueFormItemMetaDesc.setValueFormat("YYYY-WW");
+                        break;
                     case "日期":
-                        vueFormItemMetaDesc.setType("date");
+                        if (elementDescriptor.isDateRange()) {
+                            vueFormItemMetaDesc.setDateRange(true);
+                            vueFormItemMetaDesc.setType("daterange");
+                        } else if (elementDescriptor.isMultiple()) {
+                            vueFormItemMetaDesc.setMultiple(true);
+                            vueFormItemMetaDesc.setType("dates");
+                        } else {
+                            vueFormItemMetaDesc.setType("date");
+                        }
                         vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD");
                         break;
                     case "日期时间":
-                        vueFormItemMetaDesc.setType("datetime");
+                        if (elementDescriptor.isDateRange()) {
+                            vueFormItemMetaDesc.setDateRange(true);
+                            vueFormItemMetaDesc.setType("datetimerange");
+                        } else {
+                            vueFormItemMetaDesc.setType("datetime");
+                        }
                         vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD HH:mm:ss");
                         break;
                     case "时间":
