@@ -46,6 +46,8 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     private List<VueFormContainerMetaDesc> containerMeta = new ArrayList<>();
 
+    private List<VueFormApprovalMetaDesc> approvalMeta = new ArrayList<>();
+
     public static VueFormMetaDesc create(IntrospectedTable introspectedTable) {
         return new VueFormMetaDesc(introspectedTable);
     }
@@ -82,16 +84,20 @@ public class VueFormMetaDesc extends AbstractAnnotation {
             items.add("popDraggable = false");
         }
         if (!uploadMeta.isEmpty()) {
-            items.add("\nuploadMeta = {\n        " + uploadMeta.stream().map(VueFormUploadMetaDesc::toAnnotation).collect(Collectors.joining(",")) + "\n}");
+            items.add("\n        uploadMeta = {\n                " + uploadMeta.stream().map(VueFormUploadMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
             this.addImports(VueFormUploadMeta.class.getCanonicalName());
         }
         if (!innerListMeta.isEmpty()) {
-            items.add("\ninnerListMeta = {\n        " + innerListMeta.stream().map(VueFormInnerListMetaDesc::toAnnotation).collect(Collectors.joining(",\n")) + "\n}");
+            items.add("\n        innerListMeta = {\n                " + innerListMeta.stream().map(VueFormInnerListMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
             this.addImports(VueFormInnerListMeta.class.getCanonicalName());
         }
         if (!containerMeta.isEmpty()) {
             items.add("\n        containerMeta = {\n                " + containerMeta.stream().map(VueFormContainerMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
             this.addImports(VueFormContainerMeta.class.getCanonicalName());
+        }
+        if (!approvalMeta.isEmpty()) {
+            items.add("\n        approvalMeta = {\n                " + approvalMeta.stream().map(VueFormApprovalMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
+            this.addImports(VueFormApprovalMetaDesc.class.getCanonicalName());
         }
         if (!this.getReadonlyFields().isEmpty()) {
             items.add(VStringUtil.format("readonlyFields = \"{0}\"", String.join(",", this.getReadonlyFields())));
@@ -211,5 +217,13 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     public void setHiddenFields(Set<String> hiddenFields) {
         this.hiddenFields = hiddenFields;
+    }
+
+    public List<VueFormApprovalMetaDesc> getApprovalMeta() {
+        return approvalMeta;
+    }
+
+    public void setApprovalMeta(List<VueFormApprovalMetaDesc> approvalMeta) {
+        this.approvalMeta = approvalMeta;
     }
 }

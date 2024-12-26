@@ -5,7 +5,7 @@
         -->
         <!ENTITY % renderFunValues "(colDefsOdata|colDefsAsLink|colDefsState|colDefsYesNo|colDefsPriority|colDefsWfStatus|colDefsReadState|colDefsDatefmt|colDefsAsLinkSlide|colDefsAsLink_parent|colDefsAsLink_readonly|colDefsPublishStatus|extendFuncFirst|extendFuncSecond|extendFuncOther)" >
         <!ENTITY % tagType "(input|radio|checkbox|switch|date|time|datetime|select|title|cascader|checkboxGroup|slider|number|color|rate|tableselect|upload|editor|dropdownlist|signArea)" >
-        <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|Role|InnerList)" >
+        <!ENTITY % dataSource "(Dict|DictData|DictUser|DictSys|DictEnum|DictModule|Organ|Department|User|Role|InnerList|DateRange)" >
         <!ENTITY % dataFormat "(启停|有无|是否|性别|缓急|级别|年|年月|年周|日期|日期时间|时间)" >
         <!ENTITY % valueType "(text|number|date|time|datetime|year|month|shortmonth|quarter)" >
         <!ENTITY % queryExpression "(EqualTo|NotEqualTo|GreaterThan|LessThan|GreaterThanOrEqualTo|LessThanOrEqualTo|Like|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between|In|NotIn)" >
@@ -910,7 +910,9 @@
             2、elementKey 元素唯一标识，用于引用元素。不能与与数据库的列名或属性名重复。
             3、afterColumn 在指定列的后面添加审批意见组件,如果未指定或指定的字段不存在。则放置在最后一行。
             4、label 审批意见组件的标题，默认为“审批意见”
-            5、locationTag 审批意见组件的位置标签，默认为“审批意见”
+            5、placeholder 审批意见组件的提示信息，默认为“请输入审批意见”
+            6、locationTag 审批意见组件的位置标签，默认为“审批意见”
+            7、rows 审批意见组件的行数，默认为3
             说明：
               1、hideExpression表达式中的，
                  1）可以通过$.属性名的方式引用当前表单数据的属性；
@@ -923,8 +925,10 @@
                 elementKey CDATA #REQUIRED
                 afterColumn CDATA #IMPLIED
                 label  CDATA #IMPLIED
+                placeholder CDATA #IMPLIED
                 locationTag CDATA #IMPLIED
-                hideExpression CDATA #IMPLIED>
+                hideExpression CDATA #IMPLIED
+                rows CDATA #IMPLIED>
 
         <!--
             用来描述页面列表元素的配置

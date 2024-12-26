@@ -268,6 +268,8 @@ public interface Rules {
 
     boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
 
+    boolean isGenerateApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
+
     boolean isGenerateExcelVO();
 
     boolean isGenerateRequestVO();

@@ -272,6 +272,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        return false;
+    }
+
+    @Override
     public boolean isGenerateExcelVO() {
         return false;
     }

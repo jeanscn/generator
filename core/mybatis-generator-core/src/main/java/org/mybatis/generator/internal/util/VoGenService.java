@@ -206,7 +206,7 @@ public class VoGenService {
                 javaType = targetColumn.getFullyQualifiedJavaType();
                 propertyName = targetColumn.getJavaProperty();
             } else {
-                propertyName = overrideConfiguration.getTargetPropertyName() == null ? ConfigUtil.getOverrideJavaProperty(sourceColumn.getJavaProperty()) : overrideConfiguration.getTargetPropertyName();
+                propertyName = overrideConfiguration.getTargetPropertyName() == null ? ConfigUtil.getOverrideJavaProperty(sourceColumn.getJavaProperty(), null) : overrideConfiguration.getTargetPropertyName();
                 javaType = overrideConfiguration.getTargetPropertyType() == null ? FullyQualifiedJavaType.getStringInstance() : new FullyQualifiedJavaType(overrideConfiguration.getTargetPropertyType());
             }
             Field field = new Field(propertyName, javaType);
@@ -282,6 +282,10 @@ public class VoGenService {
                             dictEnumDesc.addAnnotationToField(field, topLevelClass);
                         }
                         break;
+                    case "DateRangeFormat":
+                        DateRangeFormatDesc dateRangeDesc = getDateRangeFormatDesc(overrideConfiguration, sourceColumn);
+                        dateRangeDesc.addAnnotationToField(field, topLevelClass);
+                        break;
                     default:
                         break;
                 }
@@ -295,6 +299,21 @@ public class VoGenService {
             answer.add(field);
         }
         return answer;
+    }
+
+    private static DateRangeFormatDesc getDateRangeFormatDesc(OverridePropertyValueGeneratorConfiguration overrideConfiguration, IntrospectedColumn sourceColumn) {
+        DateRangeFormatDesc dateRangeDesc = new DateRangeFormatDesc();
+        dateRangeDesc.setSource(sourceColumn.getJavaProperty());
+        HtmlElementDescriptor elementDescriptor = overrideConfiguration.getElementDescriptor();
+        if (elementDescriptor != null) {
+            if (elementDescriptor.getDataFmt() != null) {
+                dateRangeDesc.setPattern(elementDescriptor.getDataFmt());
+            }
+            if (elementDescriptor.getDateRangeSeparator() != null) {
+                dateRangeDesc.setSeparator(elementDescriptor.getDateRangeSeparator());
+            }
+        }
+        return dateRangeDesc;
     }
 
     public OverridePropertyValueGeneratorConfiguration getOverridePropertyValueConfiguration(IntrospectedColumn introspectedColumn) {
@@ -313,7 +332,7 @@ public class VoGenService {
     }
 
     public void addConfigurationSuperInterface(TopLevelClass topLevelClass, PropertyHolder configuration) {
-        String superInterface =configuration.getProperty("superInterface");
+        String superInterface = configuration.getProperty("superInterface");
         if (StringUtility.stringHasValue(superInterface)) {
             Arrays.stream(superInterface.split(","))
                     .map(FullyQualifiedJavaType::new)

@@ -904,7 +904,7 @@ public class TableConfiguration extends PropertyHolder {
                         .forEach(elementDescriptor -> {
                             //添加附件属性
                             if (elementDescriptor.getOtherFieldName() != null && !elementDescriptor.getColumn().getJavaProperty().equals(elementDescriptor.getOtherFieldName())) {
-                                addHtmlElementAddtionalAttribute(elementDescriptor, introspectedTable);
+                                addHtmlElementAdditionalAttribute(elementDescriptor, introspectedTable);
                             }
                         }));
         // 为页内列表的所有html元素描述器生成OverrideProperty属性
@@ -917,7 +917,7 @@ public class TableConfiguration extends PropertyHolder {
                         .forEach(elementDescriptor -> {
                             //添加附件属性
                             if (elementDescriptor.getOtherFieldName() != null && !elementDescriptor.getColumn().getJavaProperty().equals(elementDescriptor.getOtherFieldName())) {
-                                addHtmlElementAddtionalAttribute(elementDescriptor, introspectedTable);
+                                addHtmlElementAdditionalAttribute(elementDescriptor, introspectedTable);
                             }
                         }));
     }
@@ -964,10 +964,20 @@ public class TableConfiguration extends PropertyHolder {
                                 if (defaultColumnNameEnum != null) {
                                     elementDescriptor.setOtherFieldName(defaultColumnNameEnum.otherFieldName());
                                 } else {
-                                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty()));
+                                    elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty(),elementDescriptor));
                                 }
                                 elementDescriptor.setColumn(column);
                                 switch (elementDescriptor.getDataFormat()) {
+                                    case "年":
+                                    case "年月":
+                                    case "年周":
+                                    case "日期":
+                                    case "日期时间":
+                                    case "时间":
+                                        if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
+                                            elementDescriptor.setOtherFieldName(elementDescriptor.getName());
+                                        }
+                                    break;
                                     case "exist":
                                     case "有":
                                     case "有无":
@@ -1228,7 +1238,7 @@ public class TableConfiguration extends PropertyHolder {
                 if (HtmlElementTagTypeEnum.INPUT.codeName().equals(elementDescriptor.getTagType())) {
                     introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(c.getJavaProperty()));
                 } else {
-                    introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty())));
+                    introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty(),elementDescriptor)));
                 }
             }
             //当DataSource值分别为DictSys、DictData、DictUser，且没有配置dataUrl，且指定了DictCode，则分别自动配置dataUrl
@@ -1396,7 +1406,7 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
-    private void addHtmlElementAddtionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {
+    private void addHtmlElementAdditionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {
         //不需要转换的数据源，直接返回
         if (!stringHasValue(elementDescriptor.getDataSource())) {
             return;

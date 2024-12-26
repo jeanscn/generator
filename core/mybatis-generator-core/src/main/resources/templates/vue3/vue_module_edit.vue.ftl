@@ -2,12 +2,12 @@
 * @description ${ tableRemark }编辑组件
 */
 <template>
-    <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="formConfig"
+    <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
               :viewStatus="viewStatus" @form-submit="onSubmit"  @item-call-back="callHookByName"></vgo-form>
 </template>
 
 <script lang="ts" setup name="${ modelName }Edit">
-    import { onMounted, PropType, Ref, ref, unref, watch } from 'vue';
+    import { onMounted, onUnmounted, PropType, Ref, provide, ref, unref, watch } from 'vue';
     import { EMPTY_OBJECT } from '@/framework/utils/constant';
     import tool from '@/framework/utils/tool';
     import { ServiceApi } from '@/api/service';
@@ -17,8 +17,12 @@
     import { useFormConfigStore } from '@/store/formConfig';
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
-    const i18n = useI18n();
+    <#if workflowEnabled >
+    import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
 
+    const currentTaskAttributesStore = useCurrentTaskAttributesStore();
+    </#if>
+    const i18n = useI18n();
     const formConfigStore = useFormConfigStore();
 
     const props = defineProps({
@@ -38,6 +42,7 @@
     const formConfigReady = ref(false);
 
     watch(() => props.modelValue, async (val) => {
+        if(Object.keys(_formConfig.value).length === 0) return;
         _formData.value = unref(val) || EMPTY_OBJECT;
         if (Object.keys(_formData.value).length === 0) {
             _formData.value = await loadNewInstance<T${ modelName }>(_formConfig, service as Ref<ServiceApi<T${ modelName }>>,i18n) as T${ modelName };
@@ -47,7 +52,7 @@
                 _formConfig.value?.formItems,
             );
         }
-    }, { immediate: true });
+    }, { deep: true, immediate: true });
 
     watch(() => _formData.value, (val) => {
         emit('update:modelValue', val);
@@ -63,8 +68,31 @@
         }
     };
 
-    onMounted(() => {
+    <#if workflowEnabled >
+    const isTaskAttributesLoaded = ref(false);
+    provide('isTaskAttributesLoaded', isTaskAttributesLoaded);
+    </#if>
+
+    onMounted( <#if workflowEnabled > async </#if> () => {
         fetchFormConfigAsync(_formConfig);
+        <#if workflowEnabled >
+        if(!!_formData.value && _formData.value['workflowEnabled']===1){
+            const taskAttributes = await currentTaskAttributesStore.getCurrentTaskAttributesWithFetch(_formData.value?.id);
+            _formData.value['actionList'] = taskAttributes?.taskExtAttributes?.actionList||[];
+            _formData.value['taskAttributes'] = taskAttributes;
+        }
+        isTaskAttributesLoaded.value = true;
+        </#if>
+    });
+
+    onUnmounted(() => {
+        <#if workflowEnabled >
+        if(_formData.value){
+            currentTaskAttributesStore.deleteCurrentTaskAttributes(_formData.value?.id);
+            _formData.value['actionList'] = [];
+            _formData.value['taskAttributes'] = {};
+        }
+        </#if>
     });
 
     const onSubmit = (val) => {
@@ -89,9 +117,14 @@
         }
     };
 
+    const getFormRef = () => {
+        return vgoFormRef.value;
+    };
+
     defineExpose({
         submit,
         validate,
+        getFormRef,
     })
 
 </script>

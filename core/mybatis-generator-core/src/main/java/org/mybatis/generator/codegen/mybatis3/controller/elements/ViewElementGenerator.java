@@ -135,15 +135,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewParam.getViewStatus()).orElse(\"1\"));");
 
         method.addBodyLine("Map<String, Object> currentUserInfo = getCurrentUserInfo();");
-        parentElement.addImportedType("java.util.Map");
-        method.addBodyLine("if (currentUserInfo.keySet().isEmpty()) {");
-        method.addBodyLine("mv.addObject(\"currentUser\", new OrgUser());");
-        method.addBodyLine("mv.addObject(\"currentDept\", new OrgDepartment());");
-        parentElement.addImportedType("com.vgosoft.organization.entity.OrgUser");
-        parentElement.addImportedType("com.vgosoft.organization.entity.OrgDepartment");
-        method.addBodyLine("} else {");
         method.addBodyLine("mv.addAllObjects(getCurrentUserInfo());");
-        method.addBodyLine("}");
+        parentElement.addImportedType("java.util.Map");
 
         sb.setLength(0);
         sb.append("String viewName = VStringUtil.format(\"");

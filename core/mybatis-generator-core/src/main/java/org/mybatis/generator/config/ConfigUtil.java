@@ -1,5 +1,6 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -34,7 +35,14 @@ public class ConfigUtil {
         }
     }
 
-    public static String getOverrideJavaProperty(final String propertyName) {
+    public static String getOverrideJavaProperty(final String propertyName, HtmlElementDescriptor elementDescriptor) {
+        if (elementDescriptor != null) {
+            if (stringHasValue(elementDescriptor.getOtherFieldName())) {
+                return elementDescriptor.getOtherFieldName();
+            }else if(elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()) || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE_TIME.codeName())){
+                return propertyName;
+            }
+        }
         if (propertyName.length() > 2 && propertyName.endsWith("Id")) {
             return propertyName.substring(0, propertyName.length() - 2) + "Text";
         } else {
@@ -45,7 +53,7 @@ public class ConfigUtil {
     // 通过HtmlElementDescriptor配置，创建转换属性配置
     public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(HtmlElementDescriptor elementDescriptor, final IntrospectedTable introspectedTable) {
         OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration(), elementDescriptor.getName());
-
+        overrideConfiguration.setElementDescriptor(elementDescriptor);
         HtmlElementDataSourceEnum anEnum = HtmlElementDataSourceEnum.getEnum(elementDescriptor.getDataSource());
         if (anEnum != null && stringHasValue(anEnum.getBeanName())) {
             overrideConfiguration.setBeanName(anEnum.getBeanName());

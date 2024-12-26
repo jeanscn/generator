@@ -6,7 +6,7 @@
             :type="stateText === '启用' ? 'primary' : stateText === '停用' ? 'warning' : 'info'">
         {{ stateText }}
     </el-tag>
-    <#if workflowEnabled ??>
+    <#if workflowEnabled >
     <el-tag v-else-if="slotName === 'priority'"
             :type="scope.row.priority > 50 ? 'danger' : 'info'">
         {{ urgencyText }}
@@ -28,7 +28,7 @@
         scope: { type: Object, default: () => { } }
     });
     const rowData = ref(props.scope.row);
-    <#if workflowEnabled ??>
+    <#if workflowEnabled >
     const stateText = computed(() => textMaps.stateTextMap[rowData.value.state] || '--');
     const urgencyText = computed(() => textMaps.urgencyTextMap[rowData.value.priority] || '--');
     </#if>

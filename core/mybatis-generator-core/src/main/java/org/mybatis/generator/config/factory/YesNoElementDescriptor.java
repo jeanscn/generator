@@ -29,7 +29,7 @@ public class YesNoElementDescriptor implements DefaultHtmlElementDescriptorFacto
         if (columnNameEnum != null) {
             elementDescriptor.setOtherFieldName(columnNameEnum.otherFieldName());
         } else {
-            elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty()));
+            elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(column.getJavaProperty(),elementDescriptor));
         }
         return elementDescriptor;
     }

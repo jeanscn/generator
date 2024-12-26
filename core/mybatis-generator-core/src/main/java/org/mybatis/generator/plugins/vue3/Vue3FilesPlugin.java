@@ -35,6 +35,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
         if (!this.isGenerateVueFile(introspectedTable)) {
             return answer;
         }
+        boolean workflowInstance = GenerateUtils.isWorkflowInstance(introspectedTable);
         if (htmlGeneratorConfiguration != null) {
             String modulesPath = getVueEndProjectBasePath(introspectedTable);
             String objectName = introspectedTable.getTableConfiguration().getDomainObjectName();
@@ -45,6 +46,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             String project = this.properties.getProperty("targetProject", viewPath);
             String fileName = introspectedTable.getTableConfiguration().getDomainObjectName();
             Map<String, Object> freeMakerContext = new HashMap<>();
+            freeMakerContext.put("workflowEnabled", workflowInstance);
             freeMakerContext.put("componentName", objectName);
             freeMakerContext.put("tableName", introspectedTable.getTableConfiguration().getTableName());
             freeMakerContext.put("modelPath", modelPath);
@@ -108,6 +110,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             String projectModal = this.properties.getProperty("targetProject", modalPath);
             String fileNameModal = introspectedTable.getTableConfiguration().getDomainObjectName() + "Modal";
             Map<String, Object> modalMap = new HashMap<>();
+            modalMap.put("workflowEnabled", workflowInstance);
             modalMap.put("componentName", objectName);
             modalMap.put("modelName", objectName);
             modalMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
@@ -129,6 +132,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             String projectEdit = this.properties.getProperty("targetProject", editPath);
             String fileNameEdit = introspectedTable.getTableConfiguration().getDomainObjectName() + "Edit";
             Map<String, Object> editMap = new HashMap<>();
+            editMap.put("workflowEnabled", workflowInstance);
             editMap.put("modelName", objectName);
             editMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
             editMap.put("modelPath", modelPath);
@@ -147,6 +151,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             //生成detail组件
             String fileNameDetail = introspectedTable.getTableConfiguration().getDomainObjectName() + "Detail";
             Map<String, Object> detailMap = new HashMap<>();
+            detailMap.put("workflowEnabled", workflowInstance);
             detailMap.put("modelName", objectName);
             detailMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
             detailMap.put("modelPath", modelPath);
@@ -167,9 +172,9 @@ public class Vue3FilesPlugin extends PluginAdapter {
             String projectSlots = this.properties.getProperty("targetProject", slotsPath);
             String fileNamePrivateTableColumnSlots = "PrivateTableColumnSlots";
             Map<String, Object> privateTableColumnSlotsMap = new HashMap<>();
+            privateTableColumnSlotsMap.put("workflowEnabled", workflowInstance);
             privateTableColumnSlotsMap.put("modelName", objectName);
             privateTableColumnSlotsMap.put("tableRemark", tableRemark);
-            privateTableColumnSlotsMap.put("workflowEnabled", GenerateUtils.isWorkflowInstance(introspectedTable));
             String vuePrivateTableColumnSlotsFileName = fileNamePrivateTableColumnSlots + ".vue";
             GeneratedVueFile generatedVuePrivateTableColumnSlotsFile = new GeneratedVueFile(
                     vuePrivateTableColumnSlotsFileName,

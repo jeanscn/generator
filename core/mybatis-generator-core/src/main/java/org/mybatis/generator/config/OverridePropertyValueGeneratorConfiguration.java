@@ -38,6 +38,8 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     private String enumClassName;
 
+    private HtmlElementDescriptor elementDescriptor;
+
 
     public OverridePropertyValueGeneratorConfiguration(Context context, TableConfiguration tc,String sourceColumnNames) {
         super();
@@ -159,5 +161,13 @@ public class OverridePropertyValueGeneratorConfiguration extends TypedPropertyHo
 
     public void addImportTypes(String importType) {
         this.importTypes.add(importType);
+    }
+
+    public HtmlElementDescriptor getElementDescriptor() {
+        return elementDescriptor;
+    }
+
+    public void setElementDescriptor(HtmlElementDescriptor elementDescriptor) {
+        this.elementDescriptor = elementDescriptor;
     }
 }

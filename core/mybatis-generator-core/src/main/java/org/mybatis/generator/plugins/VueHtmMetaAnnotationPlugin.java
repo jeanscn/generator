@@ -61,6 +61,13 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                     vueFormMetaDesc.getInnerListMeta().add(new VueFormInnerListMetaDesc(listConfigurations.get(i),introspectedTable,i+1));
                 }
             }
+
+            //审批意见注解
+            if (introspectedTable.getRules().isGenerateApprovalComment(htmlGeneratorConfiguration)) {
+                for (HtmlApprovalCommentConfiguration htmlApprovalCommentConfiguration : htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations()) {
+                    vueFormMetaDesc.getApprovalMeta().add(new VueFormApprovalMetaDesc(htmlApprovalCommentConfiguration));
+                }
+            }
             //布局容器注解
             htmlGeneratorConfiguration.getLayoutDescriptor().getGroupContainerConfigurations().forEach(e -> {
                 VueFormContainerMetaDesc vueFormContainerMetaDesc = new VueFormContainerMetaDesc(e);

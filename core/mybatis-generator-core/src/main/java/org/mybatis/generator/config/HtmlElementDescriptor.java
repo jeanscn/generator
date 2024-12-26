@@ -82,6 +82,8 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private String disabledExpression;
     private Set<String> watchFields = new HashSet<>();
 
+    private String DateRangeSeparator;
+
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
     public HtmlElementDescriptor() {
@@ -436,5 +438,13 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setWatchFields(Set<String> watchFields) {
         this.watchFields = watchFields;
+    }
+
+    public String getDateRangeSeparator() {
+        return DateRangeSeparator;
+    }
+
+    public void setDateRangeSeparator(String dateRangeSeparator) {
+        DateRangeSeparator = dateRangeSeparator;
     }
 }

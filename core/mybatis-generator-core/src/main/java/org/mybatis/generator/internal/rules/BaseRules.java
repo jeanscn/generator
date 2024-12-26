@@ -674,6 +674,11 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean isGenerateApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        return htmlGeneratorConfiguration != null &&  !htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().isEmpty();
+    }
+
+    @Override
     public boolean isGenerateCachePO() {
         VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
         return voCacheGeneratorConfiguration != null && voCacheGeneratorConfiguration.isGenerate();

@@ -13,9 +13,15 @@ public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     private String afterColumn;
 
+    private int rows = 3;
+
     private String label = "审批意见";
 
+    private String placeholder = "请输入审批意见";
+
     private String locationTag = "审批意见";
+
+    private int span = 24;
 
     public boolean isGenerate() {
         return generate;
@@ -55,5 +61,29 @@ public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     public void setElementKey(String elementKey) {
         this.elementKey = elementKey;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public String getPlaceholder() {
+        return placeholder;
+    }
+
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+    }
+
+    public int getSpan() {
+        return span;
+    }
+
+    public void setSpan(int span) {
+        this.span = span;
     }
 }

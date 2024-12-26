@@ -1088,12 +1088,24 @@ public class MyBatisGeneratorConfigurationParser {
             approvalCommentConfiguration.setAfterColumn(afterColumn);
         }
         String label = attributes.getProperty("label");
-        if (stringHasValue(label)) {
+        if (stringHasValue(label) && !label.equals("审批意见")) {
             approvalCommentConfiguration.setLabel(label);
         }
+        String placeholder = attributes.getProperty("placeholder");
+        if (stringHasValue(placeholder) && !placeholder.equals("请输入审批意见")) {
+            approvalCommentConfiguration.setPlaceholder(placeholder);
+        }
         String locationTag = attributes.getProperty("locationTag");
-        if (stringHasValue(locationTag)) {
+        if (stringHasValue(locationTag) && !locationTag.equals("审批意见")) {
             approvalCommentConfiguration.setLocationTag(locationTag);
+        }
+        String rows = attributes.getProperty("rows");
+        if (stringHasValue(rows) && !rows.equals("3")) {
+            approvalCommentConfiguration.setRows(Integer.parseInt(rows));
+        }
+        String span = attributes.getProperty("span");
+        if (stringHasValue(span) && !span.equals("24")) {
+            approvalCommentConfiguration.setSpan(Integer.parseInt(span));
         }
         htmlGeneratorConfiguration.addHtmlApprovalCommentConfiguration(approvalCommentConfiguration);
     }
