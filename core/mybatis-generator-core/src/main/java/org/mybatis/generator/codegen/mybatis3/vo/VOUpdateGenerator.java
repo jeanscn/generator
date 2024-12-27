@@ -33,7 +33,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         updateVoClass.addMultipleImports("lombok");
         addApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
         updateVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
-        updateVoClass.addSerialVersionUID();
+        updateVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         //添加id属性
         List<String> fields = new ArrayList<>(Collections.singletonList("id"));

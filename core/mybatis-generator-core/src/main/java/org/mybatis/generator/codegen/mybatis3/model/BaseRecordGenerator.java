@@ -146,6 +146,11 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             }
         });
 
+        //增加actionType属性
+        if (! introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            addActionType(topLevelClass);
+        }
+
         if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
             //增加任意过滤条件接收
             addWhereConditionResult(topLevelClass);

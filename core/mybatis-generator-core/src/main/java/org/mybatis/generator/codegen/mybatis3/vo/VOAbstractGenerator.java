@@ -42,7 +42,7 @@ public class VOAbstractGenerator extends AbstractVOGenerator{
             abstractVo.addAnnotation("@AllArgsConstructor");
         }
         abstractVo.addImportedType("lombok.*");
-        abstractVo.addSerialVersionUID();
+        abstractVo.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         //添加属性
         List<IntrospectedColumn> abstractVOColumns = voGenService.getAbstractVOColumns();
         for (IntrospectedColumn introspectedColumn : abstractVOColumns) {

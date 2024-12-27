@@ -36,7 +36,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
         ApiModelDesc apiModelDesc = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
         apiModelDesc.addAnnotationToTopLevelClass(viewVOClass);
         viewVOClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
-        viewVOClass.addSerialVersionUID();
+        viewVOClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voViewGeneratorConfiguration.getIncludeColumns(), voViewGeneratorConfiguration.getExcludeColumns());
         for (IntrospectedColumn voColumn : introspectedColumns) {
             if (!(isAbstractVOColumn(voColumn) || voViewGeneratorConfiguration.getExcludeColumns().contains(voColumn.getActualColumnName()))) {

@@ -38,7 +38,7 @@ public class VOExcelGenerator extends AbstractVOGenerator {
         excelVoClass.addImportedType("lombok.*");
         excelVoClass.addAnnotation("@Data");
         excelVoClass.addAnnotation("@NoArgsConstructor");
-        excelVoClass.addSerialVersionUID();
+        excelVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         //获得所有可能的属性
         List<Field> allFields = new ArrayList<>();

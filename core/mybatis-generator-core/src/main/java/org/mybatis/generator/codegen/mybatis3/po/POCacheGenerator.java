@@ -39,7 +39,7 @@ public class POCacheGenerator extends AbstractVOGenerator {
         cachePoClass.addImportedType(ConstantsUtil.I_BASE_DTO);
         cachePoClass.addImportedType("lombok.*");
         cachePoClass.addAnnotation("@Data");
-        cachePoClass.addSerialVersionUID();
+        cachePoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         List<IntrospectedColumn> pkColumns = introspectedTable.getPrimaryKeyColumns();
         List<IntrospectedColumn> oColumns = Stream.of(config.getKeyColumn(), config.getTypeColumn(), config.getValueColumn())

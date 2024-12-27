@@ -7,9 +7,11 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
@@ -213,5 +215,21 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected boolean includeBLOBColumns() {
         return !introspectedTable.getRules().generateRecordWithBLOBsClass()
                 && introspectedTable.hasBLOBColumns();
+    }
+
+    /**
+     * 增加actionType属性
+     *
+     * @param topLevelClass 请求VO类
+     */
+    protected void addActionType(TopLevelClass topLevelClass) {
+        Field addActionType = new Field("actionType", FullyQualifiedJavaType.getStringInstance());
+        addActionType.setVisibility(JavaVisibility.PRIVATE);
+        addActionType.setRemark("查询应用场景的类型标识");
+        new ApiModelPropertyDesc(addActionType.getRemark(), "selector").addAnnotationToField(addActionType, topLevelClass);
+        Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> f.getName().equals("actionType")).findFirst();
+        if (!actionType.isPresent()) {
+            topLevelClass.addField(addActionType);
+        }
     }
 }

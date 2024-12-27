@@ -35,7 +35,7 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         addApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
         voGenService.addConfigurationSuperInterface(createVoClass, voCreateGeneratorConfiguration);
         createVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
-        createVoClass.addSerialVersionUID();
+        createVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         //添加id属性
         List<String> fields = new ArrayList<>(Collections.singletonList("id"));
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(fields, voCreateGeneratorConfiguration.getIncludeColumns(), voCreateGeneratorConfiguration.getExcludeColumns());

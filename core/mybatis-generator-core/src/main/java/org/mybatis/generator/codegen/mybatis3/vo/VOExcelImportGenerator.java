@@ -37,7 +37,7 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         excelImportVoClass.addAnnotation("@Data");
         excelImportVoClass.addAnnotation("@Builder");
         excelImportVoClass.addAnnotation("@NoArgsConstructor");
-        excelImportVoClass.addSerialVersionUID();
+        excelImportVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         //添加属性
         List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getImportIncludeColumns(), voExcelGeneratorConfiguration.getImportExcludeColumns());

@@ -39,7 +39,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         voClass.addMultipleImports("lombok");
         voClass.addAnnotation("@NoArgsConstructor");
         addApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
-        voClass.addSerialVersionUID();
+        voClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         //添加父类
         voGenService.addConfigurationSuperInterface(voClass, voModelGeneratorConfiguration);
         //添加id、version属性
@@ -123,6 +123,10 @@ public class VOModelGenerator extends AbstractVOGenerator {
         pTempId.setVisibility(JavaVisibility.PRIVATE);
         voClass.addField(pTempId);
 
+        //增加actionType属性
+        if (!introspectedTable.getRules().isGenerateRequestVO()) {
+            addActionType(voClass);
+        }
         //添加静态代码块
         //获取vo中的含父类和子类的所有字段
         List<IntrospectedColumn> columns = VCollectionUtil.addAllIfNotContains(voGenService.getAbstractVOColumns(), introspectedColumns);

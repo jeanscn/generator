@@ -107,12 +107,16 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
         return fields;
     }
 
-    public void addSerialVersionUID() {
+    public void addSerialVersionUID(int jdkVersion) {
         Field field = new Field("serialVersionUID", new FullyQualifiedJavaType("long"));
         field.setFinal(true);
         field.setInitializationString("1L");
         field.setStatic(true);
         field.setVisibility(JavaVisibility.PRIVATE);
+        if (jdkVersion>=14) {
+            field.addAnnotation("@Serial");
+            this.addImportedType("java.io.Serial");
+        }
         this.addField(field);
     }
 

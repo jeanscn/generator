@@ -242,9 +242,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         Method buildExample = new Method("buildExample");
         buildExample.setVisibility(JavaVisibility.PROTECTED);
         //actionType 用来区分查询应用场景的类型标识
-        Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
-        actionType.setRemark("用来区分查询应用场景的类型标识");
-        buildExample.addParameter(actionType);
+        //Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
+        //actionType.setRemark("用来区分查询应用场景的类型标识");
+        //buildExample.addParameter(actionType);
         //对象参数
         FullyQualifiedJavaType paramType = introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType : introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType;
         Parameter parameter = new Parameter(paramType, paramType.getShortNameFirstLowCase());

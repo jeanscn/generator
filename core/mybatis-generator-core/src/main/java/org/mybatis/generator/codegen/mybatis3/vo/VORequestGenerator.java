@@ -33,7 +33,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         requestVoClass.addMultipleImports("lombok");
         voGenService.addConfigurationSuperInterface(requestVoClass, voRequestGeneratorConfiguration);
         addApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);
-        requestVoClass.addSerialVersionUID();
+        requestVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         Set<String> excludeColumns = voGenService.getDefaultExcludeColumnNames(voRequestGeneratorConfiguration.getExcludeColumns());
         for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
@@ -62,6 +62,8 @@ public class VORequestGenerator extends AbstractVOGenerator {
         addWhereConditionResult(requestVoClass);
         //增加前端过滤器属性
         addFilterMap(requestVoClass);
+        //增加actionType属性
+        addActionType(requestVoClass);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
         mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
         return requestVoClass;
