@@ -204,7 +204,9 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
     protected void selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
         //String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
-        method.addBodyLine("{0} example = buildExample(actionType,{1});",
+        method.addBodyLine("if (actionType != null) {0}.setActionType(actionType);", introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase() :
+                introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        method.addBodyLine("{0} example = buildExample({1});",
                 exampleType.getShortName(),
                 introspectedTable.getRules().isGenerateRequestVO() ? requestVOVar :
                         introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());

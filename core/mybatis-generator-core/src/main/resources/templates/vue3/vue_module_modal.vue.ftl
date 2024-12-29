@@ -1,19 +1,44 @@
 /**
 * @description DialogForm component for ${ componentName } module
+* @version: modal template version 1.0.1
 */
 <template>
-    <VgoDialog  v-model="showDialog" :title="_pageTitle" :popSize="_popSize" :draggable="_popDraggable"
-                :elDialogProps="_elDialogProps" @close="destroyForm" :closeOnClickModal=false :closeOnPressEscape=false>
-        <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
-                         :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit"></${ componentName }Edit>
-        <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
-                           :formConfig="_formConfig" :viewStatus="_viewStatus"></${ componentName }Detail>
-        <template #footer>
-            <FormButtonsBar v-model="_formData" :formConfig="_formConfig" :viewStatus="_viewStatus" popType="dialog"
-                            @default-form-button-click="defaultFormButtonActionHandler($event, 'dialog')">
-            </FormButtonsBar>
-        </template>
-    </VgoDialog>
+    <div class="form-modal-container">
+        <VgoDialog v-if="showDialog && type === 'dialog'" v-model="showDialog"
+                   :title="_pageTitle"
+                   :popSize="_popSize"
+                   :draggable="_popDraggable"
+                   :elDialogProps="_elDialogProps"
+                   @close="destroyForm">
+            <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
+                           :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit" />
+            <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
+                             :formConfig="_formConfig" :viewStatus="_viewStatus" />
+            <template #footer>
+                <FormButtonsBar v-model="_formData" :formConfig="_formConfig" :viewStatus="_viewStatus" popType="dialog"
+                                @default-form-button-click="defaultFormButtonActionHandler($event, 'dialog')">
+                </FormButtonsBar>
+            </template>
+        </VgoDialog>
+        <VgoFormDrawer v-if="showDialog && type === 'drawer'" v-model="showDialog"
+                       :title="_pageTitle"
+                       :size="_popSize"
+                       :elDrawerProps="_elDrawerProps"
+                       @close="destroyForm">
+            <${ componentName }Edit v-if="_viewStatus === 1" ref="bizFormRef" v-model="_formData"
+                           :formConfig="_formConfig"
+                           :viewStatus="_viewStatus"
+                           @form-submit="onSubmit"/>
+            <${ componentName }Detail v-if="_viewStatus === 0" ref="bizFormRef" v-model="_formData"
+                             :formConfig="_formConfig"
+                             :viewStatus="_viewStatus" />
+            <template #footer>
+                <FormButtonsBar v-model="_formData" :formConfig="_formConfig" :viewStatus="_viewStatus" popType="drawer"
+                                @default-form-button-click="defaultFormButtonActionHandler($event, 'drawer')">
+                </FormButtonsBar>
+            </template>
+        </VgoFormDrawer>
+    </div>
 </template>
 
 <script lang="ts" setup name="${ componentName }Modal">
@@ -35,20 +60,24 @@
 
     import FormButtonsBar from '@/framework/workflow/components/FormButtonsBar.vue';
     import { TElDialogProps } from '@/framework/components/vgoDialog/types';
+    import VgoFormDrawer from '@/framework/components/vgoDrawer/VgoFormDrawer.vue';
+    import { TElDrawerProps } from '@/framework/components/vgoDrawer/types';
+
     const emit = defineEmits(['update:modelValue', 'close']);
 
     const props = defineProps({
         modelValue: { type: Boolean as PropType<boolean>, default: false },
+        type: { type: String as PropType<'drawer' | 'dialog'>, default: 'dialog' },
         viewStatus: { type: Number as PropType<number>, default: 1 },
-        moduleId: { type: String as PropType<string>, default: '' },
-        applyWorkflow: { type: Number as PropType<number>, default: 0 },
+        moduleId: { type: String as PropType<string>, default: '${ moduleId }' },
+        applyWorkflow: { type: Number as PropType<number>, default: ${workflowEnabled } },
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },
         formData: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
-        service: { type: Object as PropType<ServiceApi<any>>, default: EMPTY_OBJECT },
         pageTitle: { type: String as PropType<string>, default: '${ tableRemark }' },
         popSize: { type: String as PropType<string>, default: null },
         popDraggable: { type: Boolean as PropType<boolean>, default: null },
         elDialogProps: { type: Object as PropType<TElDialogProps>, default: EMPTY_OBJECT },
+        elDrawerProps: { type: Object as PropType<TElDrawerProps>, default: EMPTY_OBJECT },
     })
 
     const i18n = useI18n();
@@ -61,24 +90,34 @@
     const bizFormRef = ref();
 
     const showDialog = ref(props.modelValue);
+    const dialogType = ref<'dialog' | 'drawer'>(props.type);
 
     const defaultElDialogProps: TElDialogProps = {
         destroyOnClose: true,
         showClose: false,
-        width: '60%',
-        closeOnClickModal: false,
+        width: '70%',
         showFullscreen: true,
         fullscreen: false,
         draggable: true,
+        closeOnPressEscape: false,
+        closeOnClickModal: false,
     };
     const _elDialogProps = ref<TElDialogProps>(_.merge(defaultElDialogProps, props.elDialogProps));
-    const _pageTitle = ref(props.pageTitle != null ? props.pageTitle : _elDialogProps.value.title || '');
-    const _popSize = ref<string>(props.popSize != null ? props.popSize : 'large');
-    const _popDraggable = ref<boolean>(props.popDraggable != null ? props.popDraggable : _elDialogProps.value.draggable || true);
+    const defaultElDrawerProps = {
+        title: '${ tableRemark }',
+        showFullscreen: true,
+        fullscreen: false,
+        closeOnClickModal: false,
+        destroyOnClose: true,
+        size: '70%',
+    };
+    const _elDrawerProps = ref<TElDrawerProps>(_.merge(defaultElDrawerProps, props.elDrawerProps));
 
+    const _pageTitle = ref(props.pageTitle != null ? props.pageTitle : _elDialogProps.value.title || '');
+    const _popSize = ref<string>(props.popSize != null ? props.popSize : '70%');
+    const _popDraggable = ref<boolean>(props.popDraggable != null ? props.popDraggable : _elDialogProps.value.draggable || true);
     const _viewStatus = ref<number>(props.viewStatus);
     const _formConfig = ref<TFormConfig>(props.formConfig);
-
     const _formData = ref<T${ modelName }>(props.formData);
     const _service = ref<ServiceApi<T${ modelName }>>();
 
@@ -86,7 +125,11 @@
 
     watch(() => props.modelValue, (val) => {
         showDialog.value = val;
-    },{ immediate: true });
+    });
+
+    watch(() => showDialog.value, (val) => {
+        emit('update:modelValue', val);
+    });
 
 
     onMounted(() => { })
@@ -114,6 +157,7 @@
             formData: _formData,
             formConfig: _formConfig,
             dialogVisible: showDialog,
+            dialogType: dialogType,
             tableRef: tableRef,
             pageTitle: _pageTitle,
             popType: popType,
@@ -131,10 +175,13 @@
     const destroyForm = () => {
         showDialog.value = false;
         _formData.value = {};
-        emit('update:modelValue', false);
         emit('close');
     };
-
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+    .form-modal-container {
+        display: flex;
+        flex-direction: column;
+    }
+</style>

@@ -63,7 +63,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         //增加前端过滤器属性
         addFilterMap(requestVoClass);
         //增加actionType属性
-        addActionType(requestVoClass);
+        addActionType(requestVoClass,introspectedTable);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
         mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
         return requestVoClass;

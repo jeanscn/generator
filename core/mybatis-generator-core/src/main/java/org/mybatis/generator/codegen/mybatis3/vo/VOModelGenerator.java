@@ -9,6 +9,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
@@ -93,7 +94,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
 
         voClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
         //persistenceBeanName属性
-        addPersistenceBeanNameProperty(voClass, introspectedTable.getControllerBeanName());
+        addPersistenceBeanNameProperty(voClass, introspectedTable);
 
         //检查是否有定制的新属性
         introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().forEach(relationProperty -> {
@@ -119,13 +120,13 @@ public class VOModelGenerator extends AbstractVOGenerator {
         });
 
         //临时id的属性，pTempId
-        Field pTempId = new Field("pTempId", FullyQualifiedJavaType.getStringInstance());
-        pTempId.setVisibility(JavaVisibility.PRIVATE);
-        voClass.addField(pTempId);
+//        Field pTempId = new Field("pTempId", FullyQualifiedJavaType.getStringInstance());
+//        pTempId.setVisibility(JavaVisibility.PRIVATE);
+//        voClass.addField(pTempId);
 
         //增加actionType属性
         if (!introspectedTable.getRules().isGenerateRequestVO()) {
-            addActionType(voClass);
+            addActionType(voClass,introspectedTable);
         }
         //添加静态代码块
         //获取vo中的含父类和子类的所有字段
@@ -147,7 +148,8 @@ public class VOModelGenerator extends AbstractVOGenerator {
         return voClass;
     }
 
-    private void addPersistenceBeanNameProperty(TopLevelClass voClass,String initString) {
+    private void addPersistenceBeanNameProperty(TopLevelClass voClass,IntrospectedTable introspectedTable) {
+        String initString = introspectedTable.getControllerBeanName();
         Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
         persistenceBeanName.setInitializationString("\""+initString+"\"");
         persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
@@ -156,5 +158,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         persistenceBeanName.addAnnotation(apiModelPropertyDesc.toAnnotation());
         voClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
         voClass.addField(persistenceBeanName);
+        FieldItem fieldItem = new FieldItem(persistenceBeanName);
+        introspectedTable.getVoModelFields().add(fieldItem);
     }
 }

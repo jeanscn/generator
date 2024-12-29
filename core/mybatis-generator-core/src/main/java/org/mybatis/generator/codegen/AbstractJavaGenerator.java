@@ -7,6 +7,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;
@@ -222,7 +223,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      *
      * @param topLevelClass 请求VO类
      */
-    protected void addActionType(TopLevelClass topLevelClass) {
+    protected void addActionType(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
         Field addActionType = new Field("actionType", FullyQualifiedJavaType.getStringInstance());
         addActionType.setVisibility(JavaVisibility.PRIVATE);
         addActionType.setRemark("查询应用场景的类型标识");
@@ -230,6 +231,8 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> f.getName().equals("actionType")).findFirst();
         if (!actionType.isPresent()) {
             topLevelClass.addField(addActionType);
+            FieldItem fieldItem = new FieldItem(addActionType);
+            introspectedTable.getVoModelFields().add(fieldItem);
         }
     }
 }

@@ -21,6 +21,8 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private final String fieldName;
 
     private final String fieldLabel;
+
+    private String fieldSubLabel;
     private String otherFieldName;
     private Integer span = 24;
     private String tips;
@@ -94,6 +96,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         items.add(VStringUtil.format("fieldName = \"{0}\"", this.getFieldName()));
         this.fieldLabel = introspectedColumn.getRemarks(true);
         items.add(VStringUtil.format("fieldLabel = \"{0}\"", this.getFieldLabel()));
+        this.fieldSubLabel = introspectedColumn.getSubRemarks();
         this.addImports(VueFormItemMeta.class.getCanonicalName());
     }
 
@@ -104,6 +107,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.stringHasValue(this.getFieldValue())) {
             items.add(VStringUtil.format("fieldValue = \"{0}\"", this.getFieldValue()));
+        }
+        if (VStringUtil.stringHasValue(this.getFieldSubLabel())) {
+            items.add(VStringUtil.format("fieldSubLabel = \"{0}\"", this.getFieldSubLabel()));
         }
         if(VStringUtil.stringHasValue(this.getOtherFieldName())){
             items.add(VStringUtil.format("otherFieldName = \"{0}\"", this.getOtherFieldName()));
@@ -254,6 +260,10 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public String getFieldLabel() {
         return fieldLabel;
+    }
+
+    public String getFieldSubLabel() {
+        return fieldSubLabel;
     }
 
     public Integer getSpan() {
@@ -626,4 +636,6 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     public void setWatchFields(Set<String> watchFields) {
         this.watchFields = watchFields;
     }
+
+
 }

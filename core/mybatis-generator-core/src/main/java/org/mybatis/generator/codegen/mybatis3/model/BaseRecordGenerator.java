@@ -148,7 +148,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
         //增加actionType属性
         if (! introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
-            addActionType(topLevelClass);
+            addActionType(topLevelClass,introspectedTable);
         }
 
         if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {

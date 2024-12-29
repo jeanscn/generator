@@ -110,13 +110,14 @@ public class Vue3FilesPlugin extends PluginAdapter {
             String projectModal = this.properties.getProperty("targetProject", modalPath);
             String fileNameModal = introspectedTable.getTableConfiguration().getDomainObjectName() + "Modal";
             Map<String, Object> modalMap = new HashMap<>();
-            modalMap.put("workflowEnabled", workflowInstance);
+            modalMap.put("workflowEnabled", workflowInstance?1:0);
             modalMap.put("componentName", objectName);
             modalMap.put("modelName", objectName);
             modalMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
             modalMap.put("modelPath", modelPath);
             modalMap.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
             modalMap.put("tableRemark", tableRemark);
+            modalMap.put("moduleId", Mb3GenUtil.getModelId(introspectedTable));
             String vueModalFileName = fileNameModal + ".vue";
             GeneratedVueFile generatedVueModalFile = new GeneratedVueFile(
                     vueModalFileName,
@@ -207,7 +208,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (this.isGenerateVueFile(introspectedTable)) {
-            FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn));
+            FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName());
             if (introspectedColumn != null) {
                 fieldItem.setRemarks(introspectedColumn.getRemarks(false));
             }else{
@@ -221,7 +222,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         if (this.isGenerateVueFile(introspectedTable)) {
-            FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName(), isOptionalTypeField(introspectedColumn));
+            FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName());
             if (introspectedColumn != null) {
                 fieldItem.setRemarks(introspectedColumn.getRemarks(false));
             }else{

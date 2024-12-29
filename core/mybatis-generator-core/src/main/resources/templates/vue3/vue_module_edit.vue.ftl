@@ -1,5 +1,6 @@
 /**
 * @description ${ tableRemark }编辑组件
+* @version: edit template version 1.0.1
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"

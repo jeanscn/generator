@@ -1,5 +1,6 @@
 /**
 * @description ${ tableRemark }列表列插槽渲染
+* @version: slots template version 1.0.1
 */
 <template #[slotName]="scope">
     <el-tag v-if="slotName === 'state'"

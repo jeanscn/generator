@@ -1,5 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
+* @version: list template version 1.0.1
 */
 <template>
     <el-container>
@@ -15,39 +16,30 @@
                            @view-row-button-click="defaultViewRowActionHandler"
                            @view-toolbar-button-click="defaultDtCustomButtonActionHandler"
                            row-key="id" stripe remoteSort>
-                    <template v-for="column in _tableConfigProps!.tableColumns" :key="Math.random" #[column.prop]="scope">
+                    <template v-for="(column,index) in _tableConfigProps!.tableColumns" :key="`column_`+index" #[column.prop]="scope">
                         <PrivateTableColumnSlots :scope="scope" :slotName="column.prop"></PrivateTableColumnSlots>
                     </template>
                 </vgo-table>
-                <VgoDialog v-if="showDialog" v-model="showDialog" :title="pageTitle" :popSize="popSize" :draggable="popDraggable" @close="destroyForm"
-                           :closeOnClickModal=false :closeOnPressEscape=false>
-                    <${ componentName }Edit v-if="showDialog && viewStatus === 1" ref="bizFormRef" v-model="formData"
-                                        :formConfig="formConfig" :viewStatus="viewStatus" @form-submit="onSubmit"></${ componentName }Edit>
-                    <${ componentName }Detail v-if="showDialog && viewStatus === 0" ref="bizFormRef" v-model="formData"
-                                          :formConfig="formConfig" :viewStatus="viewStatus"></${ componentName }Detail>
-                    <template #footer>
-                        <FormButtonsBar v-model="formData" :formConfig="formConfig" :viewStatus="viewStatus"
-                            popType="dialog" @default-form-button-click="defaultFormButtonActionHandler($event,'dialog')">
-                        </FormButtonsBar>
-                    </template>
-                </VgoDialog>
+                <${ componentName }Modal v-if="showDialog" v-model="showDialog"
+                                :type="dialogType"
+                                :viewStatus="viewStatus"
+                                :moduleId="moduleId"
+                                :applyWorkflow="applyWorkflow"
+                                :formConfig="formConfig"
+                                :formData="formData"
+                                :service="service"
+                                :pageTitle="pageTitle"
+                                :popSize="popSize"
+                                :popDraggable="popDraggable"
+                                :closeOnClickModal=false
+                                :closeOnPressEscape=false
+                                @form-submit="onSubmit"
+                                @close="destroyForm">
+                </${ componentName }Modal>
                 <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="pageTitle"
                                :apiObj="drawerTreeApiObj" :treePanelProps="drawerTreePanelProps"
                                :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
                 </VgoTreeDrawer>
-                <VgoFormDrawer v-if="showFormDrawer" :visible.sync="showFormDrawer" v-model="showFormDrawer" :title="pageTitle" :formData="formData"  :close-on-click-modal=false
-                               :size="drawerSize as string | undefined" :formConfig="formConfig" :viewStatus="viewStatus"
-                               @form-submit="onSubmit">
-                    <${ componentName }Edit v-if="viewStatus === 1" ref="bizFormRef" v-model="formData"
-                                        :formConfig="formConfig" :viewStatus="viewStatus" @form-submit="onSubmit"></${ componentName }Edit>
-                    <${ componentName }Detail v-if="viewStatus === 0" ref="bizFormRef" v-model="formData"
-                                          :formConfig="formConfig" :viewStatus="viewStatus"></${ componentName }Detail>
-                    <template #footer>
-                        <FormButtonsBar v-model="formData" :formConfig="formConfig" :viewStatus="viewStatus"
-                            popType="drawer" @default-form-button-click="defaultFormButtonActionHandler($event,'drawer')">
-                        </FormButtonsBar>
-                    </template>
-                </VgoFormDrawer>
                 <vgoFileImport v-model="showImportDialog" :service="service" @on-success="importSuccess"/>
             </el-main>
         </el-container>
@@ -56,7 +48,7 @@
 </template>
 <script lang="ts" setup name="${ componentName }">
 
-    import { Ref, watch, onMounted, ref, computed, inject } from 'vue';
+    import { Ref, watch, onMounted, ref, inject } from 'vue';
     import { useRoute } from 'vue-router';
     import { TTableConfigProps, TTableApiObj, TVgoTableInstance } from "@/framework/components/vgoTable/types";
     import API from '@/api';
@@ -68,21 +60,18 @@
     import { TFormConfig } from '@/framework/components/vgoForm/types';
     import { T${ componentName } } from '../${ modelPath }/types/T${ componentName }';
     import VgoTreeDrawer from '@/framework/components/vgoDrawer/VgoTreeDrawer.vue';
-    import VgoFormDrawer from '@/framework/components/vgoDrawer/VgoFormDrawer.vue';
-    import ${ componentName }Edit from '../${ modelPath }/components/${ componentName }Edit.vue';
-    import ${ componentName }Detail from '../${ modelPath }/components/${ componentName }Detail.vue';
     import PrivateTableColumnSlots from '../${ modelPath }/PrivateTableColumnSlots.vue';
     import { useTableConfigStore } from '@/store/tableConfig';
     import { useFormConfigStore } from '@/store/formConfig';
     import { TDtCustomButtonActionParam, TFormButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
     import { TTreeCheckDataProps, TVgoTreeProps } from '@/framework/components/vgoTree/types';
-    import FormButtonsBar from '@/framework/workflow/components/FormButtonsBar.vue';
     import { TApi } from '@/api/types';
     import { useI18n } from 'vue-i18n';
     import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
     import { TGlobalDrawer } from '@/framework/layout/components/GlobalDrawer.vue';
     import { IButtonProps } from '@/framework/types/core';
     import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
+    import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
 
     const i18n = useI18n();
 
@@ -105,6 +94,7 @@
     const _tableConfigProps = ref<TTableConfigProps | null>(null);
     const pageTitle = ref('');
     const showDialog = ref(false);
+    const dialogType = ref<'dialog' | 'drawer'>('dialog');
     const formConfig = ref<TFormConfig>();
     const formData = ref<T${ componentName }>({});
     const popSize = ref<string>('default');
@@ -112,7 +102,6 @@
     const bizFormRef = ref();
     const restBasePath = ref<any>('');
     const showTreeDrawer = ref<boolean>(false);
-    const showFormDrawer = ref<boolean>(false);
     const drawerTreeApiObj = ref<TTreeApiObj>();
     const treeSelected = ref<string[]>([]);
     const drawerOnButtonId = ref('');
@@ -163,9 +152,6 @@
         treePanelWidth: '400px',
     });
     const viewStatus = ref<number>(1);
-    const drawerSize = computed(() => {
-        return popSize.value === 'small' ? '40%' : popSize.value === 'large' ? '70%'  : popSize.value === 'largeX' ? '90%' : '50%';
-    });
     const applyWorkflow = ref<number>(0);
     const moduleId = ref<string>('');
     onMounted(() => {
@@ -251,12 +237,12 @@
             formData: formData,
             formConfig: formConfig,
             dialogVisible: showDialog,
+            dialogType: dialogType,
             service: service,
             tableRef: tableRef,
             drawerTreeApiObj: drawerTreeApiObj,
             drawerTreePanelProps: drawerTreePanelProps,
             showTreeDrawer: showTreeDrawer,
-            showFormDrawer: showFormDrawer,
             pageTitle: pageTitle,
             mainRecordId: mainRecordId,
             viewStatus: viewStatus,
@@ -281,9 +267,9 @@
             formData: formData,
             formConfig: formConfig,
             dialogVisible: showDialog,
+            dialogType: dialogType,
             service: service,
             showTreeDrawer: showTreeDrawer,
-            showFormDrawer: showFormDrawer,
             tableRef: tableRef as Ref<any>,
             pageTitle: pageTitle,
             viewStatus: viewStatus,
@@ -314,9 +300,9 @@
             formData: formData,
             formConfig: formConfig,
             dialogVisible: showDialog,
+            dialogType: dialogType,
             tableRef: tableRef,
             showTreeDrawer: showTreeDrawer,
-            showFormDrawer: showFormDrawer,
             pageTitle: pageTitle,
             popType: popType,
             bizFormRef: bizFormRef,

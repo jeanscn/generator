@@ -1,5 +1,6 @@
 /**
 * @description ${ tableRemark }显示详情
+* @version: detail template version 1.0.1
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
@@ -131,10 +132,15 @@
         margin: 5px 0;
         border-bottom: 1px solid var(--el-border-color);
     }
-    :deep(.el-form-item__label){
-        font-weight: 500;
-        ::after{
-            content: '：  ';
+
+    :deep(.el-form-item__label) {
+        .main-label {
+            font-weight: 500;
+
+            &::after {
+                content: '：';
+                margin-right: 8px;
+            }
         }
     }
 </style>

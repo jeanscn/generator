@@ -1,5 +1,6 @@
 /**
 * @description ${ tableRemark }-表单钩子函数定义
+* @version: hooks template version 1.0.1
 */
 import { Ref } from "vue";
 import { T${ modelName } } from "./types/T${ modelName }";

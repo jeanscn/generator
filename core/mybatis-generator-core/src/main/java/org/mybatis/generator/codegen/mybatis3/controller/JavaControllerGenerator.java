@@ -336,9 +336,19 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             //排序语句
             if (isContainOrderByClause) {
                 if (introspectedTable.getColumn("created_").isPresent()) {
-                    buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"created_ desc\"));");
+                    if (context.getJdkVersion()>8) {
+                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"created_ desc\"));");
+                    }else{
+                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(Collections.singleton(\"created_ desc\"));");
+                        conTopClazz.addImportedType("java.util.Collections");
+                    }
                 }else if (introspectedTable.getColumn("modified_").isPresent()){
-                    buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"modified_ desc\"));");
+                    if (context.getJdkVersion()>8) {
+                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"modified_ desc\"));");
+                    }else{
+                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(Collections.singleton(\"modified_ desc\"));");
+                        conTopClazz.addImportedType("java.util.Collections");
+                    }
                 }else{
                     buildExample.addBodyLine("List<String> orderBy = new ArrayList<>();");
                 }
