@@ -73,9 +73,9 @@
         applyWorkflow: { type: Number as PropType<number>, default: ${workflowEnabled } },
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },
         formData: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
-        pageTitle: { type: String as PropType<string>, default: '${ tableRemark }' },
-        popSize: { type: String as PropType<string>, default: null },
-        popDraggable: { type: Boolean as PropType<boolean>, default: null },
+        pageTitle: { type: String as PropType<string>, default: undefined },
+        popSize: { type: String as PropType<string>, default: undefined },
+        popDraggable: { type: Boolean as PropType<boolean>, default: undefined },
         elDialogProps: { type: Object as PropType<TElDialogProps>, default: EMPTY_OBJECT },
         elDrawerProps: { type: Object as PropType<TElDrawerProps>, default: EMPTY_OBJECT },
     })
@@ -93,25 +93,37 @@
     const dialogType = ref<'dialog' | 'drawer'>(props.type);
 
     const defaultElDialogProps: TElDialogProps = {
+        title: '${ tableRemark }',
         destroyOnClose: true,
-        showClose: false,
-        width: '70%',
-        showFullscreen: true,
-        fullscreen: false,
+        width: '80%',
         draggable: true,
         closeOnPressEscape: false,
         closeOnClickModal: false,
+        appendToBody: true,
     };
-    const _elDialogProps = ref<TElDialogProps>(_.merge(defaultElDialogProps, props.elDialogProps));
-    const defaultElDrawerProps = {
+    const _elDialogProps = ref<TElDialogProps>(_.merge(defaultElDialogProps,
+        props.elDialogProps,
+        {
+            title: props.pageTitle,
+            width: props.popSize,
+            draggable: props.popDraggable,
+        }));
+
+    const defaultElDrawerProps: TElDrawerProps = {
         title: '${ tableRemark }',
         showFullscreen: true,
         fullscreen: false,
-        closeOnClickModal: false,
+        closeOnClickModal: true,
         destroyOnClose: true,
         size: '70%',
+        appendToBody: true,
     };
-    const _elDrawerProps = ref<TElDrawerProps>(_.merge(defaultElDrawerProps, props.elDrawerProps));
+    const _elDrawerProps = ref<TElDrawerProps>(_.merge(defaultElDrawerProps,
+        props.elDrawerProps,
+        {
+            title: props.pageTitle,
+            size: props.popSize,
+        }));
 
     const _pageTitle = ref(props.pageTitle != null ? props.pageTitle : _elDialogProps.value.title || '');
     const _popSize = ref<string>(props.popSize != null ? props.popSize : '70%');
