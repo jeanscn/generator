@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.1
+* @version: list template version 1.0.3
 */
 <template>
     <el-container>
@@ -17,9 +17,25 @@
                            @view-toolbar-button-click="defaultDtCustomButtonActionHandler"
                            row-key="id" stripe remoteSort>
                     <template v-for="(column,index) in _tableConfigProps!.tableColumns" :key="`column_`+index" #[column.prop]="scope">
-                        <PrivateTableColumnSlots :scope="scope" :slotName="column.prop"></PrivateTableColumnSlots>
+                        <span>
+							<el-link
+                                    v-if="selectedHref(column)"
+                                    type="primary"
+                                    class="table-cell-link"
+                                    @click="openSelectedHrefModal(column, scope.row)"
+                                    :underline="false"
+                            >
+								<span class="table-cell-link-text">
+									<PrivateTableColumnSlots :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
+								</span>
+							</el-link>
+							<span v-else>
+								<PrivateTableColumnSlots :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
+							</span>
+						</span>
                     </template>
                 </vgo-table>
+                <LoadModals v-if="selectedDataLoaded" v-model="showSelectedModal" type="drawer" :viewStatus="0" :formData="tableSelectedRemoteData" />
                 <${ componentName }Modal v-if="showDialog" v-model="showDialog"
                                 :type="dialogType"
                                 :viewStatus="viewStatus"
@@ -50,7 +66,7 @@
 
     import { Ref, watch, onMounted, ref, inject } from 'vue';
     import { useRoute } from 'vue-router';
-    import { TTableConfigProps, TTableApiObj, TVgoTableInstance } from "@/framework/components/vgoTable/types";
+    import { TTableConfigProps, TTableApiObj, TVgoTableInstance, ICustomColumnProps } from "@/framework/components/vgoTable/types";
     import API from '@/api';
     import { ServiceApi } from '@/api/service';
     import { isEmpty, isNullOrUnDef } from '@/framework/utils/is';
@@ -63,7 +79,7 @@
     import PrivateTableColumnSlots from '../${ modelPath }/PrivateTableColumnSlots.vue';
     import { useTableConfigStore } from '@/store/tableConfig';
     import { useFormConfigStore } from '@/store/formConfig';
-    import { TDtCustomButtonActionParam, TFormButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
+    import { TDtCustomButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
     import { TTreeCheckDataProps, TVgoTreeProps } from '@/framework/components/vgoTree/types';
     import { TApi } from '@/api/types';
     import { useI18n } from 'vue-i18n';
@@ -72,6 +88,7 @@
     import { IButtonProps } from '@/framework/types/core';
     import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
     import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
+    import LoadModals from '@/modules/components/loadModals/index.vue'
 
     const i18n = useI18n();
 
@@ -144,7 +161,8 @@
                 children: 'children',
                 label: 'name',
                 value: 'id',
-                disabled: (data,node)=>{
+                disabled: () => {
+                    // 入参可以是data,node,node.data
                     return false;
                 },
             },
@@ -158,6 +176,27 @@
         loadViewConfig();
         getActionPermission();
     });
+
+    const showSelectedModal = ref<boolean>(false)
+    const selectedDataLoaded = ref<boolean>(false)
+    const tableSelectedRemoteData = ref<any>({})
+    const selectedHref = (column: ICustomColumnProps) => {
+        if (!column) return false
+        if (column.renderFunction && column.renderFunction.includes('colDefsAsLink')) {
+            return true
+        }
+        return false
+    }
+    const openSelectedHrefModal = async (column: ICustomColumnProps, rowData: any) => {
+        tableSelectedRemoteData.value = {}
+        selectedDataLoaded.value = false
+        showSelectedModal.value = false
+        if (selectedHref(column)) {
+            Object.assign(tableSelectedRemoteData.value, rowData)
+            selectedDataLoaded.value = true
+            showSelectedModal.value = true
+        }
+    }
 
     watch(() => showDialog.value, (val) => {
         if (!val) {
@@ -289,32 +328,6 @@
         }
     };
 
-    const defaultFormButtonActionHandler = (button: IButtonProps,popType:string) => {
-        buttonRef.value = button;
-        let params: TFormButtonActionParam<T${ componentName }> = {
-            moduleKey: moduleKey,
-            moduleId: moduleId.value,
-            applyWorkflow: applyWorkflow.value,
-            service: service,
-            button: button,
-            formData: formData,
-            formConfig: formConfig,
-            dialogVisible: showDialog,
-            dialogType: dialogType,
-            tableRef: tableRef,
-            showTreeDrawer: showTreeDrawer,
-            pageTitle: pageTitle,
-            popType: popType,
-            bizFormRef: bizFormRef,
-            globalDialog: globalDialog,
-            globalDrawer: globalDrawer,
-            i18n: i18n,
-            viewStatus: viewStatus,
-        };
-        pageTitle.value = _tableConfigProps.value!.listName || '';
-        extMethod.defaultFormButtonActionHandler<T${ componentName }>(params);
-    };
-
     const treeDrawerCheckCheck = (params: TTreeCheckDataProps) => {
         params = {
             moduleKey: moduleKey,
@@ -338,4 +351,22 @@
     };
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+    :deep(.table-cell-link) {
+        display: contents;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    :deep(.table-cell-link-text) {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    :deep(.el-link__inner) {
+        display: flex;
+    }
+</style>

@@ -1643,6 +1643,14 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(watchFields)) {
             htmlElementDescriptor.setWatchFields(splitToSet(watchFields));
         }
+        String renderHref = attributes.getProperty("renderHref");
+        if (stringHasValue(renderHref)) {
+            htmlElementDescriptor.setRenderHref(Boolean.parseBoolean(renderHref));
+        }
+        String hrefDataKeyField = attributes.getProperty("hrefDataKeyField");
+        if (stringHasValue(hrefDataKeyField)) {
+            htmlElementDescriptor.setHrefDataKeyField(hrefDataKeyField);
+        }
 
         //计算属性及子元素
         NodeList childNodes = node.getChildNodes();

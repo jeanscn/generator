@@ -22,7 +22,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     private final String fieldLabel;
 
-    private String fieldSubLabel;
+    private final String fieldSubLabel;
     private String otherFieldName;
     private Integer span = 24;
     private String tips;
@@ -84,6 +84,10 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String hideExpression = "";
 
     private String disabledExpression = "";
+
+    private boolean renderHref = false;
+
+    private String hrefDataKeyField = "";
 
     private Set<String> watchFields = new HashSet<>();
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
@@ -243,6 +247,12 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(this.disabledExpression)) {
             items.add(VStringUtil.format("disabledExpression = \"{0}\"", this.disabledExpression));
+        }
+        if (this.renderHref) {
+            items.add(VStringUtil.format("renderHref = true"));
+        }
+        if (VStringUtil.isNotBlank(this.hrefDataKeyField)) {
+            items.add(VStringUtil.format("hrefDataKeyField = \"{0}\"", this.hrefDataKeyField));
         }
         if (!this.watchFields.isEmpty()) {
             items.add(VStringUtil.format("watchFields = \"{0}\"", String.join(",", this.watchFields)));
@@ -637,5 +647,19 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         this.watchFields = watchFields;
     }
 
+    public boolean isRenderHref() {
+        return renderHref;
+    }
 
+    public void setRenderHref(boolean renderHref) {
+        this.renderHref = renderHref;
+    }
+
+    public String getHrefDataKeyField() {
+        return hrefDataKeyField;
+    }
+
+    public void setHrefDataKeyField(String hrefDataKeyField) {
+        this.hrefDataKeyField = hrefDataKeyField;
+    }
 }

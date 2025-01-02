@@ -27,8 +27,6 @@ import java.util.*;
  * @version 3.0
  */
 public class Vue3FilesPlugin extends PluginAdapter {
-
-
     @Override
     public List<GeneratedFile> contextGenerateAdditionalWebFiles(IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         List<GeneratedFile> answer = new ArrayList<>();
@@ -54,14 +52,9 @@ public class Vue3FilesPlugin extends PluginAdapter {
             freeMakerContext.put("tableRemark", tableRemark);
             freeMakerContext.put("permissionKey", VMD5Util.MD5_15(introspectedTable.getContext().getModuleKeyword().toLowerCase()+":"+introspectedTable.getControllerBeanName().toLowerCase()));
             // 列渲染
-            Map<String, String> columnRenderFunMap = new HashMap<>();
+            Map<String, String> columnRenderFunMap = Mb3GenUtil.getColumnRenderFunMap(introspectedTable);
             if (introspectedTable.getRules().isGenerateViewVO()) {
                 VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-                viewConfiguration.getVoColumnRenderFunGeneratorConfigurations().forEach(config -> {
-                    config.getFieldNames().forEach(fieldName -> {
-                        columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun());
-                    });
-                });
                 freeMakerContext.put("modelType", viewConfiguration.getTableType());
             }
             freeMakerContext.put("columnRenderFunMap", columnRenderFunMap);

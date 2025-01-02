@@ -695,6 +695,8 @@
             27、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             28、dataUrlParams 数据接口url的请求参数，用于指定请求参数，如：id=1或者id=$.id&a=1。,#XXX#表示当前记录的XXX属性值。
             29、watchFields 监听字段，用于指定监听字段，当被监听属性值发生变化时，重新获得options选项。带有options的组件有效，多值使用逗号分割。
+            30、renderHref 是否在只读模式下渲染为超级链接，默认为false；
+            31、hrefDataKeyField 超级链接获取数据的key属性名，当前渲染字段的值不是key值时，需要指定该字段名，其值为要访问的链接数据的唯一标识，当renderHref为true时有效；
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -746,7 +748,9 @@
                 hideExpression CDATA #IMPLIED
                 disabledExpression CDATA #IMPLIED
                 dataUrlParams CDATA #IMPLIED
-                watchFields CDATA #IMPLIED>
+                watchFields CDATA #IMPLIED
+                renderHref (false|true) #IMPLIED
+                hrefDataKeyField CDATA #IMPLIED>
 
         <!ELEMENT htmlSwitchDescriptor (property*)>
         <!ATTLIST htmlSwitchDescriptor
@@ -1589,6 +1593,7 @@
              属性信息：
              1、fieldNames 必须，字段属性名，多值用”,“分割
              2、renderFun 必须，方法名。
+             3、extendFuncOther 可选，扩展方法名。当renderFun为extendFuncOther时，需要指定该属性
              renderFun说明：
                 1、colDefsAsLink 用于将字段值渲染为超链接
                 2、colDefsState 用于将字段值渲染为状态，1->启用、0->停用

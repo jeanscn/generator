@@ -251,6 +251,12 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (VStringUtil.stringHasValue(elementDescriptor.getDataUrlParams())) {
                     vueFormItemMetaDesc.setDataUrlParams(elementDescriptor.getDataUrlParams());
                 }
+                if (elementDescriptor.isRenderHref()) {
+                    vueFormItemMetaDesc.setRenderHref(true);
+                }
+                if (VStringUtil.stringHasValue(elementDescriptor.getHrefDataKeyField())) {
+                    vueFormItemMetaDesc.setHrefDataKeyField(elementDescriptor.getHrefDataKeyField());
+                }
                 if (!elementDescriptor.getWatchFields().isEmpty()) {
                     vueFormItemMetaDesc.setWatchFields(elementDescriptor.getWatchFields());
                 }

@@ -15,6 +15,8 @@ import org.mybatis.generator.custom.ConstantsUtil;
 
 import javax.annotation.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -201,5 +203,19 @@ public class Mb3GenUtil {
             }
         }
         return null;
+    }
+
+    public static Map<String,String> getColumnRenderFunMap(IntrospectedTable introspectedTable) {
+        // 列渲染
+        Map<String, String> columnRenderFunMap = new HashMap<>();
+        if (introspectedTable.getRules().isGenerateViewVO()) {
+            VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+            viewConfiguration.getVoColumnRenderFunGeneratorConfigurations().forEach(config -> {
+                config.getFieldNames().forEach(fieldName -> {
+                    columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun());
+                });
+            });
+        }
+        return columnRenderFunMap;
     }
 }

@@ -84,6 +84,10 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String DateRangeSeparator;
 
+    private boolean renderHref;
+
+    private String hrefDataKeyField;
+
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
     public HtmlElementDescriptor() {
@@ -446,5 +450,21 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setDateRangeSeparator(String dateRangeSeparator) {
         DateRangeSeparator = dateRangeSeparator;
+    }
+
+    public boolean isRenderHref() {
+        return renderHref;
+    }
+
+    public void setRenderHref(boolean renderHref) {
+        this.renderHref = renderHref;
+    }
+
+    public String getHrefDataKeyField() {
+        return hrefDataKeyField;
+    }
+
+    public void setHrefDataKeyField(String hrefDataKeyField) {
+        this.hrefDataKeyField = hrefDataKeyField;
     }
 }
