@@ -1,9 +1,6 @@
 package org.mybatis.generator.api.dom.java;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class AbstractJavaType extends JavaElement {
 
@@ -58,7 +55,10 @@ public abstract class AbstractJavaType extends JavaElement {
     }
 
     public void addField(Field field) {
-        fields.add(field);
+        Optional<Field> optionalField = fields.stream().filter(f -> f.getName().equals(field.getName())).findFirst();
+        if (!optionalField.isPresent()) {
+            fields.add(field);
+        }
     }
 
 

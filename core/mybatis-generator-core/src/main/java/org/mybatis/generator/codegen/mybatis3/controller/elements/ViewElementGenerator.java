@@ -1,13 +1,12 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
+import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
@@ -33,21 +32,20 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType("org.springframework.web.servlet.ModelAndView");
         parentElement.addImportedType(entityType);
         FullyQualifiedJavaType paraType = new FullyQualifiedJavaType("com.vgosoft.web.pojo.ControllerViewParam");
+        //创建方法
         final String methodPrefix = "view";
-        StringBuilder sb = new StringBuilder();
         Method method = createMethod(methodPrefix);
-
+        //添加参数,返回值,异常
         Parameter parameter = new Parameter(paraType, "viewParam");
         parameter.setRemark("参数，view方法参数对象。");
         method.addParameter(parameter);
-
         Parameter response = new Parameter(new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse"), "response");
         response.setRemark("响应对象");
         method.addParameter(response);
         parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
-
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
+        //添加注解
         parentElement.addImportedType("javax.annotation.security.PermitAll");
         method.addAnnotation("@PermitAll");
         parentElement.addImportedType("javax.annotation.security.PermitAll");
@@ -56,107 +54,162 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         addSecurityPreAuthorize(method, methodPrefix, "查看");
         method.addAnnotation(new ApiOperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                 "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图"), parentElement);
+        //添加注释
         commentGenerator.addMethodJavaDocLine(method, "根据主键获取单个业务实例");
         String entityName = introspectedTable.getRules().isGenerateVoModel() ? this.entityVoType.getShortName() : entityType.getShortName();
+        String entityVar = entityName.substring(0, 1).toLowerCase() + entityName.substring(1);
         //函数体
         method.addBodyLine("response.addHeader(\"X-Frame-Options\", \"SAMEORIGIN\");");
-
-        sb.append("ModelAndView mv = new ModelAndView();");
-        method.addBodyLine(sb.toString());
-        //method.addBodyLine("JsonUtil.init(SpringContextHolder.getBean(ObjectMapper.class));");
-        method.addBodyLine("{0} object = null;", entityName);
+        method.addBodyLine("ModelAndView mv = new ModelAndView();");
+        method.addBodyLine("String viewName = null;");
+        method.addBodyLine("{0} {1} = null;", entityName, entityVar);
         method.addBodyLine("if (viewParam.getId() != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(viewParam.getId());", entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
-
-        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+        method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) { //如果是流程实例
+            //为父元素添加当前方法的使用的属性
+            parentElement.addImportedType("javax.annotation.Resource");
+            FullyQualifiedJavaType qualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
+            qualifiedJavaType.addTypeArgument(entityType);
+            Field workflowTraceInfoImpl = new Field("workflowTraceInfoImpl", qualifiedJavaType);
+            workflowTraceInfoImpl.addAnnotation("@Resource");
+            workflowTraceInfoImpl.setVisibility(JavaVisibility.PROTECTED);
+            parentElement.addField(workflowTraceInfoImpl);
+            parentElement.addImportedType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
+            //添加审批记录
             method.addBodyLine("if (\"true\".equals(viewParam.getWithTraceInfo())) {");
             method.addBodyLine("// 流程审批记录");
-            method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-            method.addBodyLine("IWorkflowTraceInfo<{0}> workflowTraceInfo = SpringContextHolder.getBean(IWorkflowTraceInfo.class);", entityType.getShortName());
-            method.addBodyLine("List<WorkflowTraceInfo> traceInfo = workflowTraceInfo.getTraceInfo({0});", entityType.getShortNameFirstLowCase());
-            method.addBodyLine("mv.addObject(\"traceInfo\", traceInfo);");
+            method.addBodyLine("mv.addObject(\"traceInfo\", workflowTraceInfoImpl.getTraceInfo({0}));", entityType.getShortNameFirstLowCase());
             method.addBodyLine("}");
-            parentElement.addImportedType("com.vgosoft.workflow.adapter.pojo.dto.WorkflowTraceInfo");
-            parentElement.addImportedType("com.vgosoft.core.entity.IWorkflowBaseEntity");
-            parentElement.addImportedType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
         }
 
-        if (GenerateUtils.isBusinessInstance(introspectedTable)) {
-            method.addBodyLine("if (\"true\".equals(viewParam.getWithAttachments()) ) {");
-            method.addBodyLine("// 附件列表");
-            method.addBodyLine("IVbizFileAttachment fileAttachmentService = SpringContextHolder.getBean(IVbizFileAttachment.class);");
-            method.addBodyLine("mv.addObject(\"attachments\", fileAttachmentService.selectByColumnRecordId(viewParam.getId()));");
-            method.addBodyLine("}");
-            parentElement.addImportedType("com.vgosoft.bizcore.service.IVbizFileAttachment");
-        }
-        List<HtmlElementInnerListConfiguration> listConfiguration = this.htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
-        if (!listConfiguration.isEmpty()) {
-            HtmlElementInnerListConfiguration innerListConfiguration = listConfiguration.get(0);
-            if (innerListConfiguration != null && innerListConfiguration.getSourceListViewClass() != null) {
-                method.addBodyLine("List<LayuiTableHeader> listHeaders = new ArrayList<>();");
-
-                method.addBodyLine("if (!VStringUtil.stringHasValue(viewParam.getListKey())) {");
-                method.addBodyLine("viewParam.setListKey(\""+innerListConfiguration.getListKey()+"\");");
-                method.addBodyLine("}");
-
-                method.addBodyLine("if (VStringUtil.stringHasValue(viewParam.getListKey())) {");
-                method.addBodyLine("// 内嵌列表");
-                FullyQualifiedJavaType javaType = new FullyQualifiedJavaType(innerListConfiguration.getSourceListViewClass());
-                parentElement.addImportedType(javaType);
-                method.addBodyLine("Layuitable innerList = getInnerList(viewParam.getListKey(), {1}.class, 0);", innerListConfiguration.getListKey(), javaType.getShortName());
-                method.addBodyLine("if (innerList != null)  listHeaders = innerList.getCols().get(0);");
-                method.addBodyLine("}");
-                method.addBodyLine("mv.addObject(\"innerListHeaders\", listHeaders);");
-                parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
-                parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
-
+        introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+            if (htmlGeneratorConfiguration.isGenerate()) {
+                if (htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.PRINT)) {
+                    method.addBodyLine("if (\"print_\".equals(viewParam.getPrefix())) {");
+                    setViewName(method, htmlGeneratorConfiguration);
+                    method.addBodyLine("mv.addObject(\"viewStatus\", \"0\");");
+                    method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
+                    addBusCommentsToMethod(htmlGeneratorConfiguration, method, parentElement);
+                    //附件
+                    addAttachmentToModel(htmlGeneratorConfiguration, method, parentElement);
+                    // 子表
+                    addInnerListToModel(htmlGeneratorConfiguration, method, parentElement);
+                    method.addBodyLine("}");
+                } else if (htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.VIEWONLY)) {
+                    method.addBodyLine("if (\"view_\".equals(viewParam.getPrefix())) {");
+                    setViewName(method, htmlGeneratorConfiguration);
+                    method.addBodyLine("mv.addObject(\"viewStatus\", \"0\");");
+                    method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
+                    addBusCommentsToMethod(htmlGeneratorConfiguration, method, parentElement);
+                    //附件
+                    addAttachmentToModel(htmlGeneratorConfiguration, method, parentElement);
+                    // 子表
+                    addInnerListToModel(htmlGeneratorConfiguration, method, parentElement);
+                    method.addBodyLine("}");
+                } else {
+                    method.addBodyLine("if (!VStringUtil.stringHasValue(viewParam.getPrefix()) || \"edit_\".equals(viewParam.getPrefix())) {");
+                    setViewName(method, htmlGeneratorConfiguration);
+                    method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewParam.getViewStatus()).orElse(\"1\"));");
+                    method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
+                    addBusCommentsToMethod(htmlGeneratorConfiguration, method, parentElement);
+                    //附件
+                    addAttachmentToModel(htmlGeneratorConfiguration, method, parentElement);
+                    // 子表
+                    addInnerListToModel(htmlGeneratorConfiguration, method, parentElement);
+                    method.addBodyLine("}");
+                }
             }
-        }
+        });
 
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("object = mappings.to{0}VO(serviceResult.getResult());", entityType.getShortName());
+            method.addBodyLine("{0} = mappings.to{1}VO(serviceResult.getResult());", entityVar, entityType.getShortName());
         } else {
-            method.addBodyLine("object = serviceResult.getResult();", entityType.getShortName());
+            method.addBodyLine("{0} = serviceResult.getResult();", entityVar);
         }
-        method.addBodyLine("}else{");
+        method.addBodyLine("} else {");
         method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
         method.addBodyLine("}");
-        method.addBodyLine("}else{");
-        method.addBodyLine("object = updateNewInstanceDefaultValue(new {0}());", entityName);
+        method.addBodyLine("} else {");
+        method.addBodyLine("{0} = updateNewInstanceDefaultValue(new {1}());", entityVar, entityName);
         method.addBodyLine("}");
-        method.addBodyLine("if (object != null) {");
-        method.addBodyLine("{0} {1} = JsonUtil.serializeObject(object);", entityName, entityType.getShortNameFirstLowCase());
-        method.addBodyLine("if (viewParam.getRValue()!=null && viewParam.getRField()!=null) {");
+        method.addBodyLine("if ({0} != null) '{'", entityVar);
+        method.addBodyLine("{0} {1} = JsonUtil.serializeObject({2});", entityName, entityType.getShortNameFirstLowCase(), entityVar);
+        method.addBodyLine("if (viewParam.getRValue() != null && viewParam.getRField() != null) {");
         method.addBodyLine("VReflectionUtil.writeField({0}, viewParam.getRField(), viewParam.getRValue());", entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"{0}\", {1});", this.entityNameKey, entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
-        method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewParam.getViewStatus()).orElse(\"1\"));");
-
-        method.addBodyLine("Map<String, Object> currentUserInfo = getCurrentUserInfo();");
         method.addBodyLine("mv.addAllObjects(getCurrentUserInfo());");
-        parentElement.addImportedType("java.util.Map");
-
-        sb.setLength(0);
-        sb.append("String viewName = VStringUtil.format(\"");
-        sb.append(introspectedTable.getTableConfiguration().getHtmlBasePath()).append("/");
-        sb.append("{0}");
-        sb.append(StringUtility.substringBeforeLast(this.htmlGeneratorConfiguration.getHtmlFileName(), "."));
-        sb.append("\",Optional.ofNullable(viewParam.getPrefix()).orElse(\"\"));");
-        method.addBodyLine(sb.toString());
         method.addBodyLine("mv.setViewName(viewName);");
         method.addBodyLine("return mv;");
 
         parentElement.addImportedType("com.vgosoft.tool.core.VReflectionUtil");
         parentElement.addImportedType("com.vgosoft.core.util.JsonUtil");
-        parentElement.addImportedType("com.vgosoft.core.util.SpringContextHolder");
-        parentElement.addImportedType("com.fasterxml.jackson.databind.ObjectMapper");
         parentElement.addImportedType("java.util.Optional");
         parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
         parentElement.addImportedType("com.vgosoft.web.pojo.ControllerViewParam");
         parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");
         parentElement.addImportedType(entityVoType);
         parentElement.addMethod(method);
+    }
+
+    private void addInnerListToModel(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Method method, TopLevelClass parentElement) {
+        // 子表
+        List<HtmlElementInnerListConfiguration> listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
+        if (!listConfiguration.isEmpty()) {
+            HtmlElementInnerListConfiguration innerListConfiguration = listConfiguration.get(0);
+            if (innerListConfiguration != null && innerListConfiguration.getSourceListViewClass() != null) {
+                method.addBodyLine("String listKey = \"{0}\";", innerListConfiguration.getListKey());
+                FullyQualifiedJavaType viewType = new FullyQualifiedJavaType(innerListConfiguration.getSourceListViewClass());
+                method.addBodyLine("Layuitable innerList = getInnerList(listKey, {0}.class, 0);", viewType.getShortName());
+                method.addBodyLine("if (innerList != null) {");
+                method.addBodyLine("mv.addObject(\"innerListHeaders\", innerList.getCols().get(0));");
+                method.addBodyLine("}");
+                parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
+                parentElement.addImportedType(innerListConfiguration.getSourceListViewClass());
+            }
+        }
+
+    }
+
+    private void addAttachmentToModel(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Method method, TopLevelClass parentElement) {
+        if (!htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isEmpty()) {
+            //为父元素添加当前方法的使用的属性
+            parentElement.addImportedType("javax.annotation.Resource");
+            Field vbizFileAttachment = new Field("vbizFileAttachmentImpl", new FullyQualifiedJavaType("com.vgosoft.bizcore.service.IVbizFileAttachment"));
+            vbizFileAttachment.addAnnotation("@Resource");
+            vbizFileAttachment.setVisibility(JavaVisibility.PROTECTED);
+            parentElement.addField(vbizFileAttachment);
+            parentElement.addImportedType("com.vgosoft.bizcore.service.IVbizFileAttachment");
+            //添加附件
+            method.addBodyLine("// 附件列表");
+            method.addBodyLine("mv.addObject(\"attachments\", vbizFileAttachmentImpl.selectByColumnRecordId(viewParam.getId()));");
+        }
+    }
+
+    private void addBusCommentsToMethod(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Method method, TopLevelClass parentElement) {
+        if (!htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().isEmpty()) {
+            //为父元素添加当前方法的使用的属性
+            parentElement.addImportedType("javax.annotation.Resource");
+            FullyQualifiedJavaType qualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
+            qualifiedJavaType.addTypeArgument(entityType);
+            Field workflowTraceInfoImpl = new Field("workflowTraceInfoImpl", qualifiedJavaType);
+            workflowTraceInfoImpl.addAnnotation("@Resource");
+            workflowTraceInfoImpl.setVisibility(JavaVisibility.PROTECTED);
+            parentElement.addField(workflowTraceInfoImpl);
+            parentElement.addImportedType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
+            //添加审批意见
+            method.addBodyLine("// 业务审批意见");
+            method.addBodyLine("mv.addObject(\"comments\", workflowTraceInfoImpl.getBusComments({0}));", entityType.getShortNameFirstLowCase());
+        }
+    }
+
+    private void setViewName(Method method, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        String basePath = introspectedTable.getTableConfiguration().getHtmlBasePath() + "/";
+        String viewPath = StringUtility.substringBeforeLast(htmlGeneratorConfiguration.getHtmlFileName(), ".");
+        String viewName = basePath + viewPath;
+        method.addBodyLine("viewName = \"{0}\";", viewName);
     }
 }
