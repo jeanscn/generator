@@ -23,6 +23,8 @@ public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     private int span = 24;
 
+    private String tips = "";
+
     public boolean isGenerate() {
         return generate;
     }
@@ -85,5 +87,13 @@ public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     public void setSpan(int span) {
         this.span = span;
+    }
+
+    public String getTips() {
+        return tips;
+    }
+
+    public void setTips(String tips) {
+        this.tips = tips;
     }
 }

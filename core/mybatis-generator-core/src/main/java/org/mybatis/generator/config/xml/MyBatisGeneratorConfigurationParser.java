@@ -1107,6 +1107,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(span) && !span.equals("24")) {
             approvalCommentConfiguration.setSpan(Integer.parseInt(span));
         }
+        String tips = attributes.getProperty("tips");
+        if (stringHasValue(tips)) {
+            approvalCommentConfiguration.setTips(tips);
+        }
         htmlGeneratorConfiguration.addHtmlApprovalCommentConfiguration(approvalCommentConfiguration);
     }
 
@@ -1146,9 +1150,9 @@ public class MyBatisGeneratorConfigurationParser {
             htmlFileAttachmentConfiguration.setLimit(Integer.parseInt(limit));
         }
 
-        String tip = attributes.getProperty("tip");
-        if (stringHasValue(tip)) {
-            htmlFileAttachmentConfiguration.setTip(tip);
+        String tips = attributes.getProperty("tips");
+        if (stringHasValue(tips)) {
+            htmlFileAttachmentConfiguration.setTips(tips);
         }
 
         String basePath = attributes.getProperty("restBasePath");
@@ -1318,6 +1322,21 @@ public class MyBatisGeneratorConfigurationParser {
         String enableEdit = attributes.getProperty("enableEdit");
         if (stringHasValue(enableEdit)) {
             htmlElementInnerList.setEnableEdit(enableEdit);
+        }
+
+        String printMode = attributes.getProperty("printMode");
+        if (stringHasValue(printMode)) {
+            htmlElementInnerList.setPrintMode(printMode);
+        }
+
+        String printFormColumnsNum = attributes.getProperty("printFormColumnsNum");
+        if (stringHasValue(printFormColumnsNum)) {
+            htmlElementInnerList.setPrintFormColumnsNum(Integer.parseInt(printFormColumnsNum));
+        }
+
+        String printFields = attributes.getProperty("printFields");
+        if (stringHasValue(printFields)) {
+            htmlElementInnerList.setPrintFields(splitToList(printFields));
         }
 
         if (sourceBeanName != null) {
@@ -1650,6 +1669,10 @@ public class MyBatisGeneratorConfigurationParser {
         String hrefDataKeyField = attributes.getProperty("hrefDataKeyField");
         if (stringHasValue(hrefDataKeyField)) {
             htmlElementDescriptor.setHrefDataKeyField(hrefDataKeyField);
+        }
+        String tips = attributes.getProperty("tips");
+        if (stringHasValue(tips)) {
+            htmlElementDescriptor.setTips(tips);
         }
 
         //计算属性及子元素

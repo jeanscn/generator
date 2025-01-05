@@ -18,6 +18,8 @@ public class VueFormApprovalMetaDesc extends AbstractAnnotation {
 
     private String afterColumn = "";
 
+    private String tips = "";
+
     public VueFormApprovalMetaDesc() {
         super();
     }
@@ -31,6 +33,7 @@ public class VueFormApprovalMetaDesc extends AbstractAnnotation {
         this.label = configuration.getLabel();
         this.span = configuration.getSpan();
         this.afterColumn = configuration.getAfterColumn();
+        this.tips = configuration.getTips();
     }
 
     @Override
@@ -56,7 +59,10 @@ public class VueFormApprovalMetaDesc extends AbstractAnnotation {
         if (VStringUtil.stringHasValue(this.afterColumn)) {
             items.add("afterColumn = \"" + this.afterColumn + "\"");
         }
-        return ANNOTATION_NAME + "(" + String.join("       ,", items.toArray(new String[0])) + ")";
+        if (VStringUtil.stringHasValue(this.tips)) {
+            items.add("tips = \"" + this.tips + "\"");
+        }
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
     public String getAnnotationName() {
@@ -117,5 +123,13 @@ public class VueFormApprovalMetaDesc extends AbstractAnnotation {
 
     public void setAfterColumn(String afterColumn) {
         this.afterColumn = afterColumn;
+    }
+
+    public String getTips() {
+        return tips;
+    }
+
+    public void setTips(String tips) {
+        this.tips = tips;
     }
 }

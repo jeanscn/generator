@@ -2,8 +2,11 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.tool.core.VStringUtil;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -56,6 +59,12 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
     private String showActionColumn = "default";
 
     private String enableEdit = "default";
+
+    private String printMode = "table";
+
+    private int printFormColumnsNum = 2;
+
+    private List<String> printFields = new ArrayList<>();
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -337,5 +346,33 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setSourceBeanNameKebabCase(String sourceBeanNameKebabCase) {
         this.sourceBeanNameKebabCase = sourceBeanNameKebabCase;
+    }
+
+    public String getPrintMode() {
+        return printMode;
+    }
+
+    public void setPrintMode(String printMode) {
+        this.printMode = printMode;
+    }
+
+    public int getPrintFormColumnsNum() {
+        return printFormColumnsNum;
+    }
+
+    public void setPrintFormColumnsNum(int printFormColumnsNum) {
+        this.printFormColumnsNum = printFormColumnsNum;
+    }
+
+    public List<String> getPrintFields() {
+        return printFields.stream().distinct().collect(Collectors.toList());
+    }
+
+    public void addPrintField(String printField) {
+        this.printFields.add(printField);
+    }
+
+    public void setPrintFields(List<String> printFields) {
+        this.printFields = printFields;
     }
 }

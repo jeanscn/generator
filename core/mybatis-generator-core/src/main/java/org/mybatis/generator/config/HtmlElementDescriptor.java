@@ -88,6 +88,8 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private String hrefDataKeyField;
 
+    private String tips;
+
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
     public HtmlElementDescriptor() {
@@ -466,5 +468,13 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setHrefDataKeyField(String hrefDataKeyField) {
         this.hrefDataKeyField = hrefDataKeyField;
+    }
+
+    public String getTips() {
+        return tips;
+    }
+
+    public void setTips(String tips) {
+        this.tips = tips;
     }
 }

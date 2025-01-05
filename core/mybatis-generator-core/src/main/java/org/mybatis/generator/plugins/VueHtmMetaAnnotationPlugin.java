@@ -260,6 +260,9 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (!elementDescriptor.getWatchFields().isEmpty()) {
                     vueFormItemMetaDesc.setWatchFields(elementDescriptor.getWatchFields());
                 }
+                if (VStringUtil.stringHasValue(elementDescriptor.getTips())) {
+                    vueFormItemMetaDesc.setTips(elementDescriptor.getTips());
+                }
             }else{
                 vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }

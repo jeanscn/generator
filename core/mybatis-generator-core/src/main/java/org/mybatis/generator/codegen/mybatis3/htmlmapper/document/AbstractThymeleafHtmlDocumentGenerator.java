@@ -102,7 +102,9 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
                 contentHeader.addElement(headerText);
             }
         }else if(htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.PRINT)) {
-            content = addDivWithIdToParent(out, "printArea");
+            HtmlElement printContainer = addDivWithClassToParent(out, "print-container");
+            printContainer.addAttribute(new Attribute("id", "printContainer"));
+            content = addDivWithIdToParent(printContainer, "printArea");
             HtmlElement div = addDivWithClassToParent(content, "print-title");
             if (VStringUtil.stringHasValue(docTitle)) {
                 addDivWithClassToParent(div, "title").addElement(new TextElement(docTitle));

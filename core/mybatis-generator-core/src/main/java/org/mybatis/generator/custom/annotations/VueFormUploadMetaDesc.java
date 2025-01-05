@@ -18,7 +18,7 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
     private String type = "text";
     private String location = "table";
     private int limit = 0;
-    private String tip = "";
+    private String tips = "";
 
     private String label = "附件";
 
@@ -55,9 +55,9 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
         if (limit!=0) {
             this.items.add(VStringUtil.format("limit = {0}", this.getLimit()));
         }
-        this.tip = configuration.getTip();
-        if (!"".equals(this.getTip())) {
-            this.items.add(VStringUtil.format("tip = \"{0}\"", this.getTip()));
+        this.tips = configuration.getTips();
+        if (!"".equals(this.getTips())) {
+            this.items.add(VStringUtil.format("tips = \"{0}\"", this.getTips()));
         }
         this.label = configuration.getLabel();
         if(!"附件".equals(this.getLabel())) {
@@ -117,12 +117,12 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
         this.limit = limit;
     }
 
-    public String getTip() {
-        return tip;
+    public String getTips() {
+        return tips;
     }
 
-    public void setTip(String tip) {
-        this.tip = tip;
+    public void setTips(String tips) {
+        this.tips = tips;
     }
 
     public String getLabel() {

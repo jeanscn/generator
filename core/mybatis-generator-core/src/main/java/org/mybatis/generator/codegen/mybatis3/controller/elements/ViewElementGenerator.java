@@ -165,10 +165,19 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
                 FullyQualifiedJavaType viewType = new FullyQualifiedJavaType(innerListConfiguration.getSourceListViewClass());
                 method.addBodyLine("Layuitable innerList = getInnerList(listKey, {0}.class, 0);", viewType.getShortName());
                 method.addBodyLine("if (innerList != null) {");
-                method.addBodyLine("mv.addObject(\"innerListHeaders\", innerList.getCols().get(0));");
+                method.addBodyLine("List<LayuiTableHeader> tableHeaders = innerList.getCols().get(0);");
+                method.addBodyLine("mv.addObject(\"innerListHeaders\", tableHeaders);");
+                method.addBodyLine("Map<String,String> headerMap = new HashMap<>();");
+                method.addBodyLine("for (LayuiTableHeader tableHeader : tableHeaders) {");
+                method.addBodyLine("headerMap.put(tableHeader.getField(),tableHeader.getTitle());");
+                method.addBodyLine("}");
+                method.addBodyLine("mv.addObject(\"innerListHeaderMap\",headerMap);");
                 method.addBodyLine("}");
                 parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
                 parentElement.addImportedType(innerListConfiguration.getSourceListViewClass());
+                parentElement.addImportedType("java.util.Map");
+                parentElement.addImportedType("java.util.HashMap");
+                parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
             }
         }
 

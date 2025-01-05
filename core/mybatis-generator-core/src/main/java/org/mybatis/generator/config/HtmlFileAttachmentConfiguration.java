@@ -19,7 +19,7 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     private Integer limit = 0;
 
-    private String tip = "";
+    private String tips = "";
 
     private String restBasePath = "/bizcore/vbiz-file-attachment-impl";
 
@@ -112,13 +112,6 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
         this.limit = limit;
     }
 
-    public String getTip() {
-        return tip;
-    }
-
-    public void setTip(String tip) {
-        this.tip = tip;
-    }
     public int getOrder() {
         return order;
     }
@@ -141,5 +134,13 @@ public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     public void setDisableExpression(String disableExpression) {
         this.disableExpression = disableExpression;
+    }
+
+    public String getTips() {
+        return tips;
+    }
+
+    public void setTips(String tips) {
+        this.tips = tips;
     }
 }

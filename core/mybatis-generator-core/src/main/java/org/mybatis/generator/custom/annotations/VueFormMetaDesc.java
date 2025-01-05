@@ -1,9 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.annotation.VueFormContainerMeta;
-import com.vgosoft.core.annotation.VueFormInnerListMeta;
-import com.vgosoft.core.annotation.VueFormMeta;
-import com.vgosoft.core.annotation.VueFormUploadMeta;
+import com.vgosoft.core.annotation.*;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -97,7 +94,7 @@ public class VueFormMetaDesc extends AbstractAnnotation {
         }
         if (!approvalMeta.isEmpty()) {
             items.add("\n        approvalMeta = {\n                " + approvalMeta.stream().map(VueFormApprovalMetaDesc::toAnnotation).collect(Collectors.joining(",\n                ")) + "\n        }");
-            this.addImports(VueFormApprovalMetaDesc.class.getCanonicalName());
+            this.addImports(VueFormApprovalMeta.class.getCanonicalName());
         }
         if (!this.getReadonlyFields().isEmpty()) {
             items.add(VStringUtil.format("readonlyFields = \"{0}\"", String.join(",", this.getReadonlyFields())));

@@ -244,86 +244,208 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             p.addAttribute(new Attribute("th:text", "${item?.name}?:_"));
         }
         //添加意见
-        if (htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().stream()
-                .anyMatch(HtmlApprovalCommentConfiguration::isGenerate)) {
-            HtmlElement atr = new HtmlElement("tr");
-            table.addElement(atr);
-            HtmlElement tdl = addDtWithClassToTr(atr, "label", 0);
-            tdl.addElement(new TextElement("审批信息"));
-            HtmlElement tdv = addDtWithClassToTr(atr, "", pageColumnsConfig * 2 - 1);
-            HtmlElement tableTrack = new HtmlElement("table");
-            addCssClassToElement(tableTrack, "layui-table", "inner-traceInfo");
-            tdv.addElement(tableTrack);
-            HtmlElement tr1 = new HtmlElement("tr");
-            tr1.addAttribute(new Attribute("th:each", "item,itemStat:${traceInfo}"));
-            tableTrack.addElement(tr1);
-            HtmlElement td1 = new HtmlElement("td");
-            tr1.addElement(td1);
-            HtmlElement span1 = new HtmlElement("span");
-            span1.addAttribute(new Attribute("th:utext", "${item.comment}"));
-            addCssClassToElement(span1, "traceInfo-comment");
-            td1.addElement(span1);
-            HtmlElement span2 = new HtmlElement("span");
-            span2.addAttribute(new Attribute("th:text", "${item.username}"));
-            addCssClassToElement(span2, "traceInfo-username");
-            td1.addElement(span2);
-            HtmlElement span3 = new HtmlElement("span");
-            span3.addAttribute(new Attribute("th:text", "${item.commentTime==null?(item.endTime==null?item.startTimeText:item.endTimeText):item.commentTimeText}"));
-            addCssClassToElement(span3, "traceInfo-time");
-            td1.addElement(span3);
-        }
+        htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().forEach(configuration -> {
+            if (configuration.isGenerate()) {
+                addApprovalCommentTag(pageColumnsConfig, configuration, table);
+            }
+        });
+
         //是否需要插入页面列表
         if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
-            HtmlElement tableList = new HtmlElement("table");
-            parent.addElement(tableList);
-            tableList.addAttribute(new Attribute("th:if", "${not #lists.isEmpty(innerListHeaders)}"));
-            HtmlElement thead = new HtmlElement("thead");
-            tableList.addElement(thead);
-            HtmlElement tr = new HtmlElement("tr");
-            thead.addElement(tr);
-            HtmlElement th = new HtmlElement("td");
-            th.addAttribute(new Attribute("th:each", "header:${innerListHeaders}"));
-            th.addAttribute(new Attribute("th:text", "${header.title}"));
-            th.addAttribute(new Attribute("class", "item_label"));
-            tr.addElement(th);
-            HtmlElement tbody = new HtmlElement("tbody");
-            tbody.addAttribute(new Attribute("id", "innerListBody"));
-            tableList.addElement(tbody);
+            HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
+            if (listConfiguration.getPrintMode().equals("form")) {
+                // 添加内置列表，打印模式为form时
+                String labelWidth = layoutDescriptor.getLabelWidth();
+                int pageColumnsNum = layoutDescriptor.getPageColumnsNum();  // 用来计算colspan的值
+                String placeId = "detail-table";
+                String tplId = "detailTableTpl";
+                //渲染的占位元素
+                HtmlElement detailTable = new HtmlElement("table");
+                detailTable.addAttribute(new Attribute("id", placeId));
+                parent.addElement(detailTable);
+                // 子表layui-html模板
+                HtmlElement script = new HtmlElement("script");
+                script.addAttribute(new Attribute("type", "text/html"));
+                script.addAttribute(new Attribute("id", tplId));
+                parent.addElement(script);
+                HtmlElement innerListBody = new HtmlElement("tbody");
+                script.addElement(innerListBody);
+                innerListBody.addElement(new TextElement("{{# layui.each(d, function(index, item){ }}"));
+                //要显示的列（属性）
+                List<String> printFields = listConfiguration.getPrintFields();
+                if (!printFields.isEmpty()) {
+                    // 处理第一个字段
+                    String firstField = printFields.get(0);
+                    HtmlElement trFirst = new HtmlElement("tr");
+                    HtmlElement tdFirstLabel = new HtmlElement("td");
+                    tdFirstLabel.addAttribute(new Attribute("class", "label"));
+                    tdFirstLabel.addAttribute(new Attribute("style", "width: " + labelWidth + ";word-wrap: break-word;"));
+                    tdFirstLabel.addAttribute(new Attribute("th:text", "${ innerListHeaderMap['"+firstField+"'] }"));
+                    trFirst.addElement(tdFirstLabel);
+                    HtmlElement tdFirstValue = new HtmlElement("td");
+                    if (pageColumnsNum>1) {
+                        tdFirstValue.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsNum * 2 -1)));
+                    }
+                    trFirst.addElement(tdFirstValue);
+                    tdFirstValue.addElement(new TextElement("{{= item." + firstField + " }}"));
+                    innerListBody.addElement(trFirst);
+                    // 处理剩余字段
+                    HtmlElement tr = new HtmlElement("tr");
+                    innerListBody.addElement(tr);
+                    int colCount = 0;
+                    HtmlElement lastTd = null;
+                    for (int i = 1; i < printFields.size(); i++) {
+                        String fieldName = printFields.get(i);
+                        // 创建label td
+                        HtmlElement tdLabel = new HtmlElement("td");
+                        tdLabel.addAttribute(new Attribute("class", "label"));
+                        tdLabel.addAttribute(new Attribute("style", "width: " + labelWidth + ";word-wrap: break-word;"));
+                        tdLabel.addAttribute(new Attribute("th:text", "${ innerListHeaderMap['"+fieldName+"'] }"));
+                        tr.addElement(tdLabel);
+                        // 创建value td
+                        HtmlElement tdValue = new HtmlElement("td");
+                        tdValue.addAttribute(new Attribute("class", "detail-value"));
+                        tdValue.addAttribute(new Attribute("style", "word-wrap: break-word;"));
+                        tdValue.addElement(new TextElement("{{= item." + fieldName + " }}"));
+                        tr.addElement(tdValue);
+                        lastTd = tdValue;
+                        colCount += 2;
+                        // 如果当前行已满，创建新行
+                        if (colCount >= pageColumnsNum * 2) {
+                            tr = new HtmlElement("tr");
+                            innerListBody.addElement(tr);
+                            colCount = 0;
+                        }
+                    }
+                    // 如果最后一行未满，合并剩余列
+                    if (colCount > 0 && colCount < pageColumnsNum * 2) {
+                        lastTd.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsNum * 2 - colCount + 1)));
+                    }
+                } else {
+                    HtmlElement tr = new HtmlElement("tr");
+                    HtmlElement td = new HtmlElement("td");
+                    td.addElement(new TextElement("没有配置要打印的字段"));
+                    tr.addElement(td);
+                    innerListBody.addElement(tr);
+                }
+                innerListBody.addElement(new TextElement("{{# }); }}"));
 
-            scriptElement.addAttribute(new Attribute("th:inline", "javascript"));
-            scriptElement.addElement(new TextElement("    $(function () {"));
-            scriptElement.addElement(new TextElement("        let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
-            if (listConfiguration.getRelationKey() != null) {
-                scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?."+ listConfiguration.getRelationKey() +"}]]*/'';"));
-            }else{
+
+                scriptElement.addAttribute(new Attribute("th:inline", "javascript"));
+                scriptElement.addElement(new TextElement("    layui.use(['laytpl'], function () {"));
+                scriptElement.addElement(new TextElement("                let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
                 scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
-            }
-            scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\"+relationField;"));
-            scriptElement.addElement(new TextElement("        let innerBody = $(\"#innerListBody\");"));
-            scriptElement.addElement(new TextElement("        loadDetail(innerListHeaders, dataUrl, innerBody, layui);"));
-            scriptElement.addElement(new TextElement("    });"));
+                scriptElement.addElement(new TextElement("        let dataUrl = \""+ listConfiguration.getDataUrl() +"?pageSize=0&applyId=\" + relationField;"));
+                scriptElement.addElement(new TextElement("        const laytpl = layui.laytpl;"));
+                scriptElement.addElement(new TextElement("        let getTpl = document.getElementById('"+tplId+"').innerHTML;"));
+                scriptElement.addElement(new TextElement("        const elemView = document.getElementById('"+placeId+"');"));
+                scriptElement.addElement(new TextElement("        $.requestJsonSuccessCallback($.addRootPath(dataUrl), function (resp) {"));
+                scriptElement.addElement(new TextElement("            let data = resp.data;"));
+                scriptElement.addElement(new TextElement("            laytpl(getTpl).render(data, function (html) {"));
+                scriptElement.addElement(new TextElement("                elemView.innerHTML = html;"));
+                scriptElement.addElement(new TextElement("            });"));
+                scriptElement.addElement(new TextElement("        }, {type: \"GET\"});"));
+                scriptElement.addElement(new TextElement("    });"));
 
+            } else {
+                // 添加内置列表，打印模式为table时
+                HtmlElement tableList = new HtmlElement("table");
+                tableList.addAttribute(new Attribute("id", "detail-table"));
+                tableList.addAttribute(new Attribute("th:if", "${not #lists.isEmpty(innerListHeaders)}"));
+                parent.addElement(tableList);
+                HtmlElement thead = new HtmlElement("thead");
+                tableList.addElement(thead);
+                HtmlElement tr = new HtmlElement("tr");
+                thead.addElement(tr);
+                HtmlElement th = new HtmlElement("td");
+                th.addAttribute(new Attribute("th:each", "header:${innerListHeaders}"));
+                th.addAttribute(new Attribute("th:text", "${header.title}"));
+                th.addAttribute(new Attribute("class", "item_label"));
+                tr.addElement(th);
+                HtmlElement tbody = new HtmlElement("tbody");
+                tbody.addAttribute(new Attribute("id", "innerListBody"));
+                tableList.addElement(tbody);
+
+                scriptElement.addAttribute(new Attribute("th:inline", "javascript"));
+                scriptElement.addElement(new TextElement("    $(function () {"));
+                scriptElement.addElement(new TextElement("        let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
+                if (listConfiguration.getRelationKey() != null) {
+                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?."+ listConfiguration.getRelationKey() +"}]]*/'';"));
+                }else{
+                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
+                }
+                scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\"+relationField;"));
+                scriptElement.addElement(new TextElement("        let innerBody = $(\"#innerListBody\");"));
+                scriptElement.addElement(new TextElement("        loadDetail(innerListHeaders, dataUrl, innerBody, layui);"));
+                scriptElement.addElement(new TextElement("    });"));
+            }
         }
     }
 
-    private static void addApprovalCommentTag(int pageColumnsConfig, HtmlApprovalCommentConfiguration configuration, HtmlElement table) {
+    private void addApprovalCommentTag(int pageColumnsConfig, HtmlApprovalCommentConfiguration configuration, HtmlElement table) {
         HtmlElement atr = new HtmlElement("tr");
         table.addElement(atr);
-        HtmlElement td = new HtmlElement("td");
-        td.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsConfig)));
-        atr.addElement(td);
-        HtmlElement label = new HtmlElement("label");
-        label.addAttribute(new Attribute("class", "layui-form-label"));
-        label.addElement(new TextElement(configuration.getLabel()));
-        td.addElement(label);
-        HtmlElement div = new HtmlElement("div");
-        div.addAttribute(new Attribute("data-location", configuration.getLocationTag()));
-        div.addAttribute(new Attribute("class", "data-value layui-input-block comments-container"));
-        td.addElement(div);
+        HtmlElement tdl = addDtWithClassToTr(atr, "label", 0);
+        tdl.addElement(new TextElement(configuration.getLabel()));
+        HtmlElement tdv = addDtWithClassToTr(atr, "", pageColumnsConfig * 2 - 1);
+
+        HtmlElement tableTrack = new HtmlElement("table");
+        addCssClassToElement(tableTrack, "layui-table", "inner-traceInfo");
+        tdv.addElement(tableTrack);
+        HtmlElement tr1 = new HtmlElement("tr");
+        tr1.addAttribute(new Attribute("th:each", "item,itemStat:${comments}"));
+        tableTrack.addElement(tr1);
+        HtmlElement td1 = new HtmlElement("td");
+        tr1.addElement(td1);
+        HtmlElement commentDiv = new HtmlElement("div");
+        addCssClassToElement(commentDiv, "traceInfo-comment");
+        commentDiv.addAttribute(new Attribute("th:utext", "${item.busComment}"));
+        td1.addElement(commentDiv);
+        HtmlElement signatureDiv = addDivWithClassToParent(td1, "traceInfo-signature");
+        HtmlElement span1 = new HtmlElement("span");
+        addCssClassToElement(span1, "traceInfo-username");
+        span1.addAttribute(new Attribute("th:utext", "${item.userName}"));
+        signatureDiv.addElement(span1);
+        HtmlElement span2 = new HtmlElement("span");
+        addCssClassToElement(span2, "traceInfo-username");
+        span2.addAttribute(new Attribute("th:utext", "${item.deptName}"));
+        signatureDiv.addElement(span2);
+        HtmlElement span3 = new HtmlElement("span");
+        addCssClassToElement(span3, "traceInfo-time");
+        span3.addAttribute(new Attribute("th:utext", "${#temporals.format(item.signDateTime, 'yyyy-MM-dd HH:mm:ss')}"));
+        signatureDiv.addElement(span3);
     }
 
-    private void addInnerList(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration, int pageColumnsConfig) {
+    private void addInnerList(HtmlElement content, int pageColumnsConfig) {
+        HtmlElement atr = new HtmlElement("tr");
+        content.addElement(atr);
+        HtmlElement tdl = addDtWithClassToTr(atr, "label", 0);
+        tdl.addElement(new TextElement("审批信息"));
+        HtmlElement tdv = addDtWithClassToTr(atr, "", pageColumnsConfig * 2 - 1);
+        HtmlElement tableTrack = new HtmlElement("table");
+        addCssClassToElement(tableTrack, "layui-table", "inner-traceInfo");
+        tdv.addElement(tableTrack);
+        HtmlElement tr1 = new HtmlElement("tr");
+        tr1.addAttribute(new Attribute("th:each", "item,itemStat:${traceInfo}"));
+        tableTrack.addElement(tr1);
+        HtmlElement td1 = new HtmlElement("td");
+        tr1.addElement(td1);
+        HtmlElement span1 = new HtmlElement("span");
+        span1.addAttribute(new Attribute("th:utext", "${item.comment}"));
+        addCssClassToElement(span1, "traceInfo-comment");
+        td1.addElement(span1);
+        HtmlElement span2 = new HtmlElement("span");
+        span2.addAttribute(new Attribute("th:text", "${item.username}"));
+        addCssClassToElement(span2, "traceInfo-username");
+        td1.addElement(span2);
+        HtmlElement span3 = new HtmlElement("span");
+        span3.addAttribute(new Attribute("th:text", "${item.commentTime==null?(item.endTime==null?item.startTimeText:item.endTimeText):item.commentTimeText}"));
+        addCssClassToElement(span3, "traceInfo-time");
+        td1.addElement(span3);
+    }
+
+    private void addTraceInfo(HtmlElement content, HtmlGeneratorConfiguration htmlGeneratorConfiguration, int pageColumnsConfig) {
         HtmlElementInnerListConfiguration htmlElementInnerList = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
         HtmlElement atr = new HtmlElement("tr");
         content.addElement(atr);

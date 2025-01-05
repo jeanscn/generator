@@ -697,6 +697,7 @@
             29、watchFields 监听字段，用于指定监听字段，当被监听属性值发生变化时，重新获得options选项。带有options的组件有效，多值使用逗号分割。
             30、renderHref 是否在只读模式下渲染为超级链接，默认为false；
             31、hrefDataKeyField 超级链接获取数据的key属性名，当前渲染字段的值不是key值时，需要指定该字段名，其值为要访问的链接数据的唯一标识，当renderHref为true时有效；
+            32、tips 提示信息，用于指定组件进一步说明，显示在label后的tip信息。
             说明：
             ** department|user：在select时有效，表示选择部门或选择用户。自动生成一个指定的otherFieldName属性，用于存储已选的中文信息。
             ** 如果不指定otherFieldName，则默认为otherFieldName=去除“Id”后缀的属性名+"Text"
@@ -750,8 +751,44 @@
                 dataUrlParams CDATA #IMPLIED
                 watchFields CDATA #IMPLIED
                 renderHref (false|true) #IMPLIED
-                hrefDataKeyField CDATA #IMPLIED>
+                hrefDataKeyField CDATA #IMPLIED
+                tips CDATA #IMPLIED>
 
+        <!--
+            页面元素内部列表描述
+            属性信息：
+            1、column 数据库字段名
+            2、dataUrl 数据接口请求地址
+            3、dataFormat 数据格式：  启停|有无|是否|性别，可应用在radio、switch、dropdownlist；
+                                    缓急|级别，仅在radio、dropdownlist时有效；
+                                    年|年月，仅在date时有效。
+            4、otherFieldName 显示用属性名
+            5、dataSource 数据来源：  DictData-来自sys_dict_data
+                                    Dict-来自指定beanName对应的表，如果该bean的SelectByKeysDict方法存在，则使用该方法,否则使用SelectByPrimaryKey方法。
+                                        建议使用SelectByKeysDict方法，���方法是缓存数据，SelectByPrimaryKey存在性能问题。
+                                    DictSys-来自sys_cfg-dict表缓存数据
+                                    DictUser-来自sys_dict_content表缓存数据
+                                    DictEnum-来自枚举。
+            6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
+            7、applyProperty 适用属性（label），数据来源为dict时，需要指定引用数据的属性名
+            8、applyPropertyKey 适用属性（value），数据来源为dict时，需要指定引用数据的属性名
+            9、dictCode dataSource为DictData时，指定字典编码（在dataSource为DictData时必须指定此属性）。
+                    * com.vgosoft.core.constant.enums.core.YesNoEnum  是否
+                    * com.vgosoft.core.constant.enums.core.ExistOrNotEnum 有无
+                    * com.vgosoft.core.constant.enums.core.GenderEnum 性别
+                    * com.vgosoft.core.constant.enums.core.CommonStatusEnum 启停
+                    * com.vgosoft.core.constant.enums.core.LevelListEnum 级别
+                    * com.vgosoft.core.constant.enums.core.UrgencyEnum 缓急
+            10、callback 当tagType为select时，指定的选择后回调方法，如果指定为selectByTable中的methodSuffix时候，会自动生成关系表数据的更新。指定为其他时候在js中生成默认的空方法。用于个性化处理。
+            11、switchText 当tagType为switch时，且switch的值为1-开，0-关时，可以指定switch的标题。如（启用|停用、有效|无效、开|关）等，如果不指定默认为“启用|禁用”。
+            12、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            13、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
+            14、watchFields 监听字段，用于指定监听字段，当被监听属性值发生变化时，重新获得options选项。带有options的组件有效，多值使用逗号分割。
+            15、tips 提示信息，用于指定组件进一步说明，显示在label后的tip信息。
+            说明：
+            1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
+            2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
+        -->
         <!ELEMENT htmlSwitchDescriptor (property*)>
         <!ATTLIST htmlSwitchDescriptor
                 column CDATA #REQUIRED
@@ -767,7 +804,8 @@
                 switchText CDATA #IMPLIED
                 hideExpression CDATA #IMPLIED
                 disabledExpression CDATA #IMPLIED
-                watchFields CDATA #IMPLIED>
+                watchFields CDATA #IMPLIED
+                tips CDATA #IMPLIED>
 
         <!--
             页面元素表单扩展设计与渲染的描述
@@ -817,6 +855,7 @@
             15、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             16、renderHref 是否在只读模式下渲染为超级链接，默认为false；
             17、hrefDataKeyField 超级链接获取数据的key属性名，当前渲染字段的值不是key值时，需要指定该字段名，其值为要访问的链接数据的唯一标识，当renderHref为true时有效；
+            18、tips 提示信息，用于指定组件进一步说明，显示在label后的tip信息。
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -839,7 +878,8 @@
                 hideExpression CDATA #IMPLIED
                 disabledExpression CDATA #IMPLIED
                 renderHref (false|true) #IMPLIED
-                hrefDataKeyField CDATA #IMPLIED>
+                hrefDataKeyField CDATA #IMPLIED
+                tips CDATA #IMPLIED>
 
         <!--
             为元素添加一个超级链接或操作
@@ -881,7 +921,7 @@
             3、multiple 是否允许多附件上传，默认为true
             4、type 文件列表的类型。'text' | 'picture' | 'picture-card'，默认是text（vue更新）
             5、location 附件上传后的存放类型，table-指定附件表保存，local-本地存储，oss-云oss存储。默认为table
-            6、tip 附件上传组件显示的提示信息（vue新增）
+            6、tips 附件上传组件显示的提示信息（vue新增）
             7、limit 附件上传组件的限制数量，默认为0-不限制（vue新增）
             8、restBasePath 附件上传组件的基础路径，用于指定附件上传的基础路径。
             9、label 附件上传组件的标题，默认为“附件”
@@ -901,7 +941,7 @@
                 location (file|table|local|oss) #IMPLIED
                 type (text|picture|picture-card) #IMPLIED
                 limit CDATA #IMPLIED
-                tip CDATA #IMPLIED
+                tips CDATA #IMPLIED
                 restBasePath CDATA #IMPLIED
                 label  CDATA #IMPLIED
                 afterColumn CDATA #IMPLIED
@@ -919,6 +959,7 @@
             5、placeholder 审批意见组件的提示信息，默认为“请输入审批意见”
             6、locationTag 审批意见组件的位置标签，默认为“审批意见”
             7、rows 审批意见组件的行数，默认为3
+            8、tips 审批意见组件的提示信息
             说明：
               1、hideExpression表达式中的，
                  1）可以通过$.属性名的方式引用当前表单数据的属性；
@@ -934,7 +975,8 @@
                 placeholder CDATA #IMPLIED
                 locationTag CDATA #IMPLIED
                 hideExpression CDATA #IMPLIED
-                rows CDATA #IMPLIED>
+                rows CDATA #IMPLIED
+                tips CDATA #IMPLIED>
 
         <!--
             用来描述页面列表元素的配置
@@ -973,6 +1015,9 @@
             27、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             28、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             29、sourceViewPath (仅H5版本使用)引用的源表的页面viewPath简单名称
+            30、printMode 仅在generateHtml.type=print时有效 打印模式下子表的展现形式，table-表格模式，form-表单模式，该模式下子表显示为表单多列，第一个数据独立一行，其他数据根据指定printFormColumnsNum值确定列数；默认table。
+            31、printFormColumnsNum 仅在generateHtml.type=print时有效 打印模式下表单模式的列数，该值为大于0的整数，默认为2。
+            32、printFields 仅在generateHtml.type=print且printMode=form时有效 打印模式下表单模式的显示的属性集合。
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -1010,7 +1055,10 @@
                 detailFormIn (inner|dialog|drawer) #IMPLIED
                 hideExpression CDATA #IMPLIED
                 restBasePath  CDATA #IMPLIED
-                sourceViewPath  CDATA #IMPLIED>
+                sourceViewPath  CDATA #IMPLIED
+                printMode (table|form) #IMPLIED
+                printFormColumnsNum CDATA #IMPLIED
+                printFields CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
