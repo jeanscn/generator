@@ -257,7 +257,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
             if (listConfiguration.getPrintMode().equals("form")) {
                 // 添加内置列表，打印模式为form时
                 String labelWidth = layoutDescriptor.getLabelWidth();
-                int pageColumnsNum = layoutDescriptor.getPageColumnsNum();  // 用来计算colspan的值
+                int pageColumnsNum = listConfiguration.getPrintFormColumnsNum();  // 用来计算colspan的值
                 String placeId = "detail-table";
                 String tplId = "detailTableTpl";
                 //渲染的占位元素
@@ -312,7 +312,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                         lastTd = tdValue;
                         colCount += 2;
                         // 如果当前行已满，创建新行
-                        if (colCount >= pageColumnsNum * 2) {
+                        if (colCount >= pageColumnsNum * 2 && i < printFields.size() - 1) {
                             tr = new HtmlElement("tr");
                             innerListBody.addElement(tr);
                             colCount = 0;
@@ -334,9 +334,13 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
 
                 scriptElement.addAttribute(new Attribute("th:inline", "javascript"));
                 scriptElement.addElement(new TextElement("    layui.use(['laytpl'], function () {"));
-                scriptElement.addElement(new TextElement("                let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
-                scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
-                scriptElement.addElement(new TextElement("        let dataUrl = \""+ listConfiguration.getDataUrl() +"?pageSize=0&applyId=\" + relationField;"));
+                scriptElement.addElement(new TextElement("        let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
+                if (listConfiguration.getRelationKey() != null) {
+                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?."+ listConfiguration.getRelationKey() +"}]]*/'';"));
+                }else{
+                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
+                }
+                scriptElement.addElement(new TextElement("        let dataUrl = \""+ listConfiguration.getDataUrl() +"?pageSize=0&" + listConfiguration.getRelationField() + "=\" + relationField;"));
                 scriptElement.addElement(new TextElement("        const laytpl = layui.laytpl;"));
                 scriptElement.addElement(new TextElement("        let getTpl = document.getElementById('"+tplId+"').innerHTML;"));
                 scriptElement.addElement(new TextElement("        const elemView = document.getElementById('"+placeId+"');"));

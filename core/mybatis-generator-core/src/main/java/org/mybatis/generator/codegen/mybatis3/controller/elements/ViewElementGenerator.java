@@ -167,10 +167,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
                 method.addBodyLine("if (innerList != null) {");
                 method.addBodyLine("List<LayuiTableHeader> tableHeaders = innerList.getCols().get(0);");
                 method.addBodyLine("mv.addObject(\"innerListHeaders\", tableHeaders);");
-                method.addBodyLine("Map<String,String> headerMap = new HashMap<>();");
-                method.addBodyLine("for (LayuiTableHeader tableHeader : tableHeaders) {");
-                method.addBodyLine("headerMap.put(tableHeader.getField(),tableHeader.getTitle());");
-                method.addBodyLine("}");
+                method.addBodyLine("Map<String,String> headerMap = getViewFieldMap({0}.class);", viewType.getShortName());
                 method.addBodyLine("mv.addObject(\"innerListHeaderMap\",headerMap);");
                 method.addBodyLine("}");
                 parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
