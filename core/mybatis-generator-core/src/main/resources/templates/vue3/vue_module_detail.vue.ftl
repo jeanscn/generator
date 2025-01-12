@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.1
+* @version: detail template version 1.0.2
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
@@ -129,11 +129,16 @@
     :deep(.el-form-item) {
         --font-size: 1em;
         --el-form-label-font-size: 1em;
-        margin: 5px 0;
+        margin: 7.5px 0 -1px 0;
         border-bottom: 1px solid var(--el-border-color);
+        height: 100%;
     }
 
     :deep(.el-form-item__label) {
+        min-height: 32px;
+        line-height: 32px;
+        height: 100%;
+        font-size: var(--el-form-label-font-size);
         .main-label {
             font-weight: 500;
 
@@ -141,6 +146,18 @@
                 content: '：';
                 margin-right: 8px;
             }
+        }
+    }
+    :deep(a:link) {
+        text-decoration: underline !important;
+        color: var(--el-color-primary-dark-3);
+    }
+
+    :deep(.vgo-editor) {
+        min-height: 120px;
+        img {
+            max-width: 100%;
+            height: auto;
         }
     }
 </style>

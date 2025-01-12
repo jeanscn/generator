@@ -25,7 +25,6 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         parentElement.addImportedType(entityType);
         parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
         parentElement.addImportedType("org.springframework.util.Assert");
-        parentElement.addImportedType("org.apache.commons.lang3.BooleanUtils");
 
         final String methodPrefix = "download";
         Method method = createMethod(methodPrefix);
@@ -38,30 +37,30 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         typeParameter.addAnnotation("@PathVariable");
         typeParameter.setRemark("下载后展示方式：1-下载，0-浏览器中打开");
         method.addParameter(typeParameter);
-        FullyQualifiedJavaType response = new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse");
-        Parameter parameter = new Parameter(response, "response");
-        parameter.setRemark("Http响应");
-        method.addParameter(parameter);
-        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        method.setExceptionRemark("下载处理异常，含IO异常");
-
-        method.addAnnotation(new SystemLogDesc("下载数据",introspectedTable),parentElement);
+        method.setReturnType(new FullyQualifiedJavaType("ResponseEntity<byte[]>"));
+        method.addAnnotation("@PermitAll");
+        method.addAnnotation(new SystemLogDesc("下载（预览）",introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethodEnum.GET);
-        requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMappingDesc,parentElement);
-        parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"下载");
-        method.addAnnotation(new ApiOperationDesc("单个文件下载", "单个文件下载接口"),parentElement);
-
-        commentGenerator.addMethodJavaDocLine(method, "单个文件下载");
+        method.addAnnotation(new ApiOperationDesc("单个文件下载（预览）", "单个文件下载(预览)接口"),parentElement);
+        commentGenerator.addMethodJavaDocLine(method, "单个文件下载(预览)接口");
 
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));
+        method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine(format("{0} {1} = serviceResult.getResult();", entityType.getShortName(),entityType.getShortNameFirstLowCase()));
-        method.addBodyLine(format("Assert.notNull({0}, \"获取文件失败！\");", entityType.getShortNameFirstLowCase()));
-        method.addBodyLine(format("byte[] bytes = {0}.getBytes();", entityType.getShortNameFirstLowCase()));
-        method.addBodyLine(format("String fileName = {0}.getName() == null ? id : {0}.getName();", entityType.getShortNameFirstLowCase()));
-        method.addBodyLine("setResponseContent(fileName, response, bytes, BooleanUtils.toBoolean(type));");
+        method.addBodyLine("byte[] bytes = {0}.getBytes();", entityType.getShortNameFirstLowCase());
+        method.addBodyLine(format("HttpHeaders headers = getHeaders({0}, Boolean.parseBoolean(type));", entityType.getShortNameFirstLowCase()));
+        method.addBodyLine("return new ResponseEntity<>(bytes, headers, HttpStatus.OK);");
+        method.addBodyLine("} else {");
+        method.addBodyLine("return new ResponseEntity<>(HttpStatus.NOT_FOUND);");
+        method.addBodyLine("}");
         parentElement.addMethod(method);
+        parentElement.addImportedType("org.springframework.http.HttpHeaders");
+        parentElement.addImportedType("org.springframework.http.HttpStatus");
+        parentElement.addImportedType("org.springframework.http.ResponseEntity");
+        parentElement.addImportedType("javax.annotation.security.PermitAll");
+
     }
 }

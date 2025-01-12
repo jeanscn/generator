@@ -260,7 +260,7 @@ public class VueFormGenerateUtil {
                     formItemRule.setMessage(introspectedColumn.getRemarks(true) + "必须为日期");
                     formItemRules.add(formItemRule);
                 }
-                if (introspectedColumn.isStringColumn() && introspectedColumn.getLength() > 0) {
+                if (introspectedColumn.isStringColumn() && introspectedColumn.getLength() > 0 && introspectedColumn.getLength() < 5000) {
                     FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
                     formItemRule.setMax(introspectedColumn.getLength());
                     formItemRule.setMessage(introspectedColumn.getRemarks(true) + "最大长度为" + introspectedColumn.getLength());

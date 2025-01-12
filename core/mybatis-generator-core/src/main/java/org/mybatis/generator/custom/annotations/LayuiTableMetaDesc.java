@@ -113,11 +113,11 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
             items.add("indexColumn = \"" + indexColumn + "\"");
         }
         if (this.querys.length > 0) {
-            items.add(VStringUtil.format("querys = '{'{0}'}'", String.join("\n        , ", this.querys)));
+            items.add(VStringUtil.format("\n        querys = '{'{0}'}'", String.join("\n                , ", this.querys)));
             this.addImports(CompositeQuery.class.getCanonicalName());
         }
         if (this.filters.length > 0) {
-            items.add(VStringUtil.format("filters = '{'{0}'}'", String.join("\n        , ", this.filters)));
+            items.add(VStringUtil.format("\n        filters = '{'{0}'}'", String.join("\n                , ", this.filters)));
             this.addImports(CompositeQuery.class.getCanonicalName());
         }
         if (stringHasValue(actionColumnFixed) && !"false".equalsIgnoreCase(actionColumnFixed)) {

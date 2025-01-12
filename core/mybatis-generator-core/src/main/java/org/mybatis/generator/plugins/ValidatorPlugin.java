@@ -62,7 +62,7 @@ public class ValidatorPlugin extends PluginAdapter {
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         ignoreColumns.addAll(tc.getVoGeneratorConfiguration().getValidateIgnoreColumns());
-        addNotNullValidate(field, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey()?updateValidate:insertAndUpdateValidate, introspectedTable, ignoreColumns);
+        addNotNullValidate(field, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey() ? updateValidate : insertAndUpdateValidate, introspectedTable, ignoreColumns);
         addLengthValidate(field, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
         return true;
     }
@@ -131,12 +131,12 @@ public class ValidatorPlugin extends PluginAdapter {
         boolean generateCreateVO = introspectedTable.getRules().isGenerateCreateVO();
         boolean generateUpdateVO = introspectedTable.getRules().isGenerateUpdateVO();
         if (!(generateCreateVO || generateUpdateVO)) {
-            addNotNullValidate(javaElement, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey()?updateValidate:insertAndUpdateValidate, introspectedTable, ignoreColumns);
+            addNotNullValidate(javaElement, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey() ? updateValidate : insertAndUpdateValidate, introspectedTable, ignoreColumns);
         } else if (!generateCreateVO) {
             addCreateValidate(javaElement, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
         } else if (!generateUpdateVO) {
             addUpdateValidate(javaElement, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
-        }else{
+        } else {
             return true;
         }
         addLengthValidate(javaElement, topLevelClass, introspectedColumn, insertAndUpdateValidate, introspectedTable, ignoreColumns);
@@ -191,7 +191,9 @@ public class ValidatorPlugin extends PluginAdapter {
                                    IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
         //校验字符串长度
         if (introspectedColumn.getLength() == 0
-                || validateIgnoreColumns.contains(introspectedColumn.getActualColumnName())) {
+                || validateIgnoreColumns.contains(introspectedColumn.getActualColumnName())
+                || introspectedColumn.isBLOBColumn()
+                || introspectedColumn.getLength() > 5000) {
             return;
         }
         if (introspectedColumn.isStringColumn()) {
@@ -214,16 +216,16 @@ public class ValidatorPlugin extends PluginAdapter {
                 topLevelClass.addImportedTypes(validateSize.getImportedTypes());
                 topLevelClass.addImportedTypes(getImportedTypes(validateGroups));
             }
-        }else if(introspectedColumn.isNumericColumn()){
+        } else if (introspectedColumn.isNumericColumn()) {
             ValidateDigits validateDigits = new ValidateDigits();
             validateDigits.setInteger(String.valueOf(introspectedColumn.getLength()));
             validateDigits.setFraction(String.valueOf(introspectedColumn.getScale()));
-            if (introspectedColumn.getScale()>0) {
+            if (introspectedColumn.getScale() > 0) {
                 validateDigits.setMessage(VStringUtil.format("{0}的整数位数不能超过{1}，小数位数不能超过{2}"
                         , introspectedColumn.getRemarks(true)
                         , introspectedColumn.getLength()
                         , introspectedColumn.getScale()));
-            }else{
+            } else {
                 validateDigits.setMessage(VStringUtil.format("{0}的整数位数不能超过{1}"
                         , introspectedColumn.getRemarks(true)
                         , introspectedColumn.getLength()));
@@ -249,7 +251,7 @@ public class ValidatorPlugin extends PluginAdapter {
                                     String[] validateGroups,
                                     IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
         ColumnOverride override = introspectedTable.getTableConfiguration().getColumnOverrides().stream().filter(columnOverride -> columnOverride.getColumnName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        boolean isOverrideRequired =  override != null && override.isRequired();
+        boolean isOverrideRequired = override != null && override.isRequired();
         if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey() && !isOverrideRequired)) {
             return;
         }

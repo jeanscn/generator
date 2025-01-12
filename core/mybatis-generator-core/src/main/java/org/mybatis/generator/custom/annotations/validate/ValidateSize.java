@@ -45,7 +45,7 @@ public class ValidateSize extends AbstractAnnotation {
         if (groups!=null && groups.length>0) {
             this.items.add("groups = {"+String.join(", ",groups)+"}");
         }
-        if (this.items.size()>0) return "@Size("+ String.join(", ",items.toArray(new String[0])) +")";
+        if (!this.items.isEmpty()) return "@Size("+ String.join(", ",items.toArray(new String[0])) +")";
         else return "@Size";
     }
 
