@@ -58,7 +58,7 @@ public class DictEnumDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(generic)) {
             this.items.add(VStringUtil.format("generic = \"{0}\"", this.generic));
         }
-        if (this.items.size() > 0) return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
+        if (!this.items.isEmpty()) return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
         else return ANNOTATION_NAME;
     }
 }

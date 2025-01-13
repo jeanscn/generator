@@ -36,10 +36,10 @@ public class SystemLogDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("value = \"{0}:{1}\"", introspectedTable.getRemarks(true),value));
         }
         if (logType != null) {
-            items.add(VStringUtil.format("logType=LogTypesEnum.{0}", logType.name()));
+            items.add(VStringUtil.format("logType = LogTypesEnum.{0}", logType.name()));
         }
         if (targetTable != null) {
-            items.add(VStringUtil.format("logType=LogTargetTableEnum.{0}", targetTable.name()));
+            items.add(VStringUtil.format("logType = LogTargetTableEnum.{0}", targetTable.name()));
         }
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }

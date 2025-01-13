@@ -6,16 +6,18 @@ public class FieldItem {
     public String name;
     public String type;
     public String remarks;
+    public boolean required;
 
     public FieldItem(String name, String type) {
-        this.name = name+("?");
+        this.name = name;
         this.type = type;
     }
 
     public FieldItem(Field field) {
-        this.name = field.getName()+("?");
+        this.name = field.getName();
         this.type = field.getType().getShortName();
         this.remarks = field.getRemark();
+        this.required = false;
     }
 
     public String getName() {
@@ -40,5 +42,13 @@ public class FieldItem {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }

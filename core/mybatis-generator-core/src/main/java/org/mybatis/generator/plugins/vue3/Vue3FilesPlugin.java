@@ -71,17 +71,22 @@ public class Vue3FilesPlugin extends PluginAdapter {
             }
 
             //生成vue的type文件
-            List<FieldItem> fieldsList = introspectedTable.getVoModelFields();
-            if (!fieldsList.isEmpty()) {
+            List<FieldItem> fields = introspectedTable.getVoModelFields();
+            if (!fields.isEmpty()) {
                 String typePath = String.join(File.separator, (modulesPath + "/" + modelPath + "/types").split("/"));
                 String projectType = this.properties.getProperty("targetProject", typePath);
                 String fileNameType = "T" + introspectedTable.getTableConfiguration().getDomainObjectName();
                 Map<String, Object> map = new HashMap<>();
-                fieldsList.forEach(fieldItem -> {
+                List<FieldItem> fieldsList = new ArrayList<>();
+                for (FieldItem field : fields) {
+                    FieldItem fieldItem = new FieldItem(field.getName(), field.getType());
+                    fieldItem.setRemarks(field.getRemarks());
+                    fieldItem.setRequired(field.isRequired());
                     String type = fieldItem.getType();
                     String tsType = TypeConverterTsUtil.convertToTsType(type);
                     fieldItem.setType(tsType);
-                });
+                    fieldsList.add(fieldItem);
+                }
                 map.put("fields", fieldsList);
                 map.put("typeName", fileNameType);
                 map.put("tableRemark", tableRemark);
@@ -204,6 +209,9 @@ public class Vue3FilesPlugin extends PluginAdapter {
             FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName());
             if (introspectedColumn != null) {
                 fieldItem.setRemarks(introspectedColumn.getRemarks(false));
+                if (introspectedColumn.isRequired()) {
+                    fieldItem.setRequired(true);
+                }
             }else{
                 fieldItem.setRemarks(field.getRemark());
             }
@@ -218,6 +226,9 @@ public class Vue3FilesPlugin extends PluginAdapter {
             FieldItem fieldItem = new FieldItem(field.getName(), field.getType().getShortName());
             if (introspectedColumn != null) {
                 fieldItem.setRemarks(introspectedColumn.getRemarks(false));
+                if (introspectedColumn.isRequired()) {
+                    fieldItem.setRequired(true);
+                }
             }else{
                 fieldItem.setRemarks(field.getRemark());
             }

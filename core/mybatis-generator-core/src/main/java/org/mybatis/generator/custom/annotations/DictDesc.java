@@ -51,7 +51,7 @@ public class DictDesc extends AbstractAnnotation{
         if (VStringUtil.isNotBlank(source)) {
             this.items.add(VStringUtil.format("source = \"{0}\"", this.source));
         }
-        if (this.items.size()>0) return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
+        if (!this.items.isEmpty()) return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
         else return ANNOTATION_NAME;
     }
 

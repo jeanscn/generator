@@ -101,7 +101,7 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getListKey())) {
             items.add(VStringUtil.format("listKey = \"{0}\"", this.getListKey()));
         }
-        if (this.toolbar.length>0) {
+        if (this.toolbar.length > 0) {
             items.add(VStringUtil.format("toolbar = '{'{0}'}'", String.join(", ", this.toolbar)));
         }
         if (VStringUtil.isNotBlank(this.getTitle())) {
@@ -210,7 +210,7 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.detailFormIn) && !"drawer".equals(this.detailFormIn)) {
             items.add(VStringUtil.format("detailFormIn = \"{0}\"", this.getDetailFormIn()));
         }
-        return ANNOTATION_NAME + "(" + String.join("\n       ,", items.toArray(new String[0])) + ")";
+        return ANNOTATION_NAME + "(" + String.join("\n        , ", items.toArray(new String[0])) + ")";
     }
 
     public String getValue() {

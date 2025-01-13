@@ -158,43 +158,43 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        this.items.add(VStringUtil.format("value=\"{0}\"", this.column));
+        this.items.add(VStringUtil.format("value = \"{0}\"", this.column));
         if (stringHasValue(this.listKey)) {
-            this.items.add(VStringUtil.format("listKey=\"{0}\"", this.listKey));
+            this.items.add(VStringUtil.format("listKey = \"{0}\"", this.listKey));
         }
         if (stringHasValue(this.remark)) {
-            this.items.add(VStringUtil.format("remark=\"{0}\"", this.remark));
+            this.items.add(VStringUtil.format("remark = \"{0}\"", this.remark));
         } else {
-            this.items.add(VStringUtil.format("remark=\"{0}\"", this.introspectedColumn.getRemarks(true)));
+            this.items.add(VStringUtil.format("remark = \"{0}\"", this.introspectedColumn.getRemarks(true)));
         }
         if (!this.tagName.equals(HtmlElementTagTypeEnum.INPUT)) {
-            this.items.add(VStringUtil.format("tagName=HtmlElementTagTypeEnum.{0}", this.tagName.name()));
+            this.items.add(VStringUtil.format("tagName = HtmlElementTagTypeEnum.{0}", this.tagName.name()));
             this.addImports("com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum");
         }
         if (!this.getQueryMode().equals(QueryModesEnum.LIKE)) {
-            this.items.add(VStringUtil.format("queryMode=QueryModesEnum.{0}", this.getQueryMode().name()));
+            this.items.add(VStringUtil.format("queryMode = QueryModesEnum.{0}", this.getQueryMode().name()));
             this.addImports("com.vgosoft.core.constant.enums.core.QueryModesEnum");
         }
         if (this.getOrder() != 10) {
-            this.items.add(VStringUtil.format("order={0}", this.getOrder()));
+            this.items.add(VStringUtil.format("order = {0}", this.getOrder()));
         }
         if (!this.getFieldType().equals(FieldTypeEnum.TEXT)) {
-            this.items.add(VStringUtil.format("fieldType=FieldTypeEnum.{0}", this.getFieldType().name()));
+            this.items.add(VStringUtil.format("fieldType = FieldTypeEnum.{0}", this.getFieldType().name()));
             this.addImports("com.vgosoft.core.constant.enums.db.FieldTypeEnum");
         }
         if (VStringUtil.isNotBlank(this.getDataUrl())) {
-            this.items.add(VStringUtil.format("dataUrl=\"{0}\"", this.getDataUrl()));
+            this.items.add(VStringUtil.format("dataUrl = \"{0}\"", this.getDataUrl()));
         }
         if (VStringUtil.isNotBlank(this.getField())) {
-            this.items.add(VStringUtil.format("field=\"{0}\"", this.getField()));
+            this.items.add(VStringUtil.format("field = \"{0}\"", this.getField()));
         } else {
-            this.items.add(VStringUtil.format("field=\"{0}\"", this.introspectedColumn.getJavaProperty()));
+            this.items.add(VStringUtil.format("field = \"{0}\"", this.introspectedColumn.getJavaProperty()));
         }
         if (VStringUtil.isNotBlank(this.getTableName())) {
-            this.items.add(VStringUtil.format("tableName=\"{0}\"", this.getTableName()));
+            this.items.add(VStringUtil.format("tableName = \"{0}\"", this.getTableName()));
         }
         if (VStringUtil.isNotBlank(this.getTableAlias())) {
-            this.items.add(VStringUtil.format("tableAlias=\"{0}\"", this.getTableAlias()));
+            this.items.add(VStringUtil.format("tableAlias = \"{0}\"", this.getTableAlias()));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
