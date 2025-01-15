@@ -1,6 +1,6 @@
 /**
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.1
+* @version: modal template version 1.0.3
 */
 <template>
     <div class="form-modal-container">
@@ -9,7 +9,11 @@
                    :popSize="_popSize"
                    :draggable="_popDraggable"
                    :elDialogProps="_elDialogProps"
-                   @close="destroyForm">
+                   @open="onOpen"
+                   @opened="onOpened"
+                   @close="onClose"
+                   @closed="onClosed"
+        >
             <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
                            :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit" />
             <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
@@ -24,7 +28,10 @@
                        :title="_pageTitle"
                        :size="_popSize"
                        :elDrawerProps="_elDrawerProps"
-                       @close="destroyForm">
+                       @open="onOpen"
+                       @opened="onOpened"
+                       @close="onClose"
+                       @closed="onClosed">
             <${ componentName }Edit v-if="_viewStatus === 1" ref="bizFormRef" v-model="_formData"
                            :formConfig="_formConfig"
                            :viewStatus="_viewStatus"
@@ -63,7 +70,7 @@
     import VgoFormDrawer from '@/framework/components/vgoDrawer/VgoFormDrawer.vue';
     import { TElDrawerProps } from '@/framework/components/vgoDrawer/types';
 
-    const emit = defineEmits(['update:modelValue', 'close']);
+    const emit = defineEmits(['update:modelValue', 'open', 'opened', 'close', 'closed']);
 
     const props = defineProps({
         modelValue: { type: Boolean as PropType<boolean>, default: false },
@@ -78,6 +85,7 @@
         popDraggable: { type: Boolean as PropType<boolean>, default: undefined },
         elDialogProps: { type: Object as PropType<TElDialogProps>, default: EMPTY_OBJECT },
         elDrawerProps: { type: Object as PropType<TElDrawerProps>, default: EMPTY_OBJECT },
+        tableRef: { type: Object as PropType<TVgoTableInstance | undefined>, default: undefined },
     })
 
     const i18n = useI18n();
@@ -85,7 +93,7 @@
     const _moduleId = ref<string>(props.moduleId);
     const _applyWorkflow = ref<number>(props.applyWorkflow);
 
-    const tableRef = ref<TVgoTableInstance>();
+    const _tableRef = ref<TVgoTableInstance | undefined>(props.tableRef);
     const buttonRef = ref<IButtonProps>();
     const bizFormRef = ref();
 
@@ -94,12 +102,10 @@
 
     const defaultElDialogProps: TElDialogProps = {
         title: '${ tableRemark }',
-        destroyOnClose: true,
         width: '80%',
         draggable: true,
         closeOnPressEscape: false,
         closeOnClickModal: false,
-        appendToBody: true,
     };
     const _elDialogProps = ref<TElDialogProps>(_.merge(defaultElDialogProps,
         props.elDialogProps,
@@ -114,9 +120,7 @@
         showFullscreen: true,
         fullscreen: false,
         closeOnClickModal: true,
-        destroyOnClose: true,
         size: '70%',
-        appendToBody: true,
     };
     const _elDrawerProps = ref<TElDrawerProps>(_.merge(defaultElDrawerProps,
         props.elDrawerProps,
@@ -126,7 +130,7 @@
         }));
 
     const _pageTitle = ref(props.pageTitle != null ? props.pageTitle : _elDialogProps.value.title || '');
-    const _popSize = ref<string>(props.popSize != null ? props.popSize : '70%');
+    const _popSize = ref<string|undefined>(props.popSize);
     const _popDraggable = ref<boolean>(props.popDraggable != null ? props.popDraggable : _elDialogProps.value.draggable || true);
     const _viewStatus = ref<number>(props.viewStatus);
     const _formConfig = ref<TFormConfig>(props.formConfig);
@@ -170,7 +174,7 @@
             formConfig: _formConfig,
             dialogVisible: showDialog,
             dialogType: dialogType,
-            tableRef: tableRef,
+            tableRef: _tableRef,
             pageTitle: _pageTitle,
             popType: popType,
             bizFormRef: bizFormRef,
@@ -182,13 +186,25 @@
     };
 
     const onSubmit = (val) => {
-        tableRef.value && tableRef.value.updateRows([val]);
+        _tableRef.value && _tableRef.value.updateRows([val]);
     };
-    const destroyForm = () => {
-        showDialog.value = false;
-        _formData.value = {};
-        emit('close');
-    };
+    const onOpen = () => {
+        emit('open')
+    }
+
+    const onOpened = () => {
+        emit('opened')
+    }
+
+    const onClose = () => {
+        emit('close')
+    }
+
+    const onClosed = () => {
+        showDialog.value = false
+        _formData.value = EMPTY_OBJECT as any
+        emit('closed')
+    }
 </script>
 
 <style lang="scss" scoped>

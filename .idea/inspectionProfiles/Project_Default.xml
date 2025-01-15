@@ -9,11 +9,39 @@
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="4">
+          <list size="7">
             <item index="0" class="java.lang.String" itemvalue="lay-event" />
             <item index="1" class="java.lang.String" itemvalue="lay-date" />
             <item index="2" class="java.lang.String" itemvalue="lay-ignore" />
             <item index="3" class="java.lang.String" itemvalue="lay-date-format" />
+            <item index="4" class="java.lang.String" itemvalue="v-else" />
+            <item index="5" class="java.lang.String" itemvalue="v-for" />
+            <item index="6" class="java.lang.String" itemvalue=":key" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="16">
+            <item index="0" class="java.lang.String" itemvalue="nobr" />
+            <item index="1" class="java.lang.String" itemvalue="noembed" />
+            <item index="2" class="java.lang.String" itemvalue="comment" />
+            <item index="3" class="java.lang.String" itemvalue="noscript" />
+            <item index="4" class="java.lang.String" itemvalue="embed" />
+            <item index="5" class="java.lang.String" itemvalue="script" />
+            <item index="6" class="java.lang.String" itemvalue="LoadModals" />
+            <item index="7" class="java.lang.String" itemvalue="vgo-table" />
+            <item index="8" class="java.lang.String" itemvalue="el-link" />
+            <item index="9" class="java.lang.String" itemvalue="PrivateTableColumnSlots" />
+            <item index="10" class="java.lang.String" itemvalue="el-main" />
+            <item index="11" class="java.lang.String" itemvalue="el-container" />
+            <item index="12" class="java.lang.String" itemvalue="el-aside" />
+            <item index="13" class="java.lang.String" itemvalue="TreePanel" />
+            <item index="14" class="java.lang.String" itemvalue="VgoTreeDrawer" />
+            <item index="15" class="java.lang.String" itemvalue="vgoFileImport" />
           </list>
         </value>
       </option>

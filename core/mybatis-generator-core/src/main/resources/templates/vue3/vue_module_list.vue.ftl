@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.3
+* @version: list template version 1.0.7
 */
 <template>
     <el-container>
@@ -35,7 +35,16 @@
 						</span>
                     </template>
                 </vgo-table>
-                <LoadModals v-if="selectedDataLoaded" v-model="showSelectedModal" type="drawer" :viewStatus="0" :formData="tableSelectedRemoteData" />
+                <LoadModals v-if="selectedDataLoaded"
+                    v-model="showSelectedModal"
+                    :type="selectedModalType"
+                    :viewStatus="selectedModalViewStatus"
+                    :popSize="selectedModalViewSize"
+                    :formData="tableSelectedRemoteData"
+                    :elDialogProps="selectedModalElDialogProps"
+                    :elDrawerProps="selectedModalElDrawerProps"
+                    @close="destroyComponent">
+                </LoadModals>
                 <${ componentName }Modal v-if="showDialog" v-model="showDialog"
                                 :type="dialogType"
                                 :viewStatus="viewStatus"
@@ -49,6 +58,7 @@
                                 :popDraggable="popDraggable"
                                 :closeOnClickModal=false
                                 :closeOnPressEscape=false
+                                :tableRef="tableRef"
                                 @form-submit="onSubmit"
                                 @close="destroyForm">
                 </${ componentName }Modal>
@@ -56,7 +66,7 @@
                                :apiObj="drawerTreeApiObj" :treePanelProps="drawerTreePanelProps"
                                :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
                 </VgoTreeDrawer>
-                <vgoFileImport v-model="showImportDialog" :service="service" @on-success="importSuccess"/>
+                <vgoFileImport v-model="showImportDialog" :service="service" @on-success="importSuccess"></vgoFileImport>
             </el-main>
         </el-container>
     </el-container>
@@ -64,7 +74,7 @@
 </template>
 <script lang="ts" setup name="${ componentName }">
 
-    import { Ref, watch, onMounted, ref, inject } from 'vue';
+    import { Ref, watch, onMounted, ref, inject, provide, nextTick } from 'vue';
     import { useRoute } from 'vue-router';
     import { TTableConfigProps, TTableApiObj, TVgoTableInstance, ICustomColumnProps } from "@/framework/components/vgoTable/types";
     import API from '@/api';
@@ -113,7 +123,7 @@
     const showDialog = ref(false);
     const dialogType = ref<'dialog' | 'drawer'>('dialog');
     const formConfig = ref<TFormConfig>();
-    const formData = ref<T${ componentName }>({});
+    const formData = ref<T${ componentName }|undefined>();
     const popSize = ref<string>('default');
     const popDraggable = ref<boolean>(false);
     const bizFormRef = ref();
@@ -131,6 +141,7 @@
         fetchTableData: async (params: any) => service.value!.listPost(params),
         fetchFormConfig: async (...params: any) =>  (API as TApi).common.formConfig.get(params),
     });
+    provide('tableRef', tableRef);
     const sideTreePanelProps = ref<TTreePanelProps>({
         treePanelButtons: {
             showAll: true,
@@ -180,21 +191,33 @@
     const showSelectedModal = ref<boolean>(false)
     const selectedDataLoaded = ref<boolean>(false)
     const tableSelectedRemoteData = ref<any>({})
+    const selectedModalViewStatus = ref<number>(0)
+    const selectedModalViewSize = ref<string>('default') //弹窗大小
+    const selectedModalType = ref<'dialog' | 'drawer'>('drawer') //弹窗类型
+    const selectedModalElDialogProps = ref<Object>({}) // ep弹窗属性
+    const selectedModalElDrawerProps = ref<Object>({}) // ep抽屉属性
     const selectedHref = (column: ICustomColumnProps) => {
-        if (!column) return false
+        if (!column) return false;
         if (column.renderFunction && column.renderFunction.includes('colDefsAsLink')) {
-            return true
+            return true;
         }
-        return false
+        return false;
     }
     const openSelectedHrefModal = async (column: ICustomColumnProps, rowData: any) => {
-        tableSelectedRemoteData.value = {}
-        selectedDataLoaded.value = false
-        showSelectedModal.value = false
+        tableSelectedRemoteData.value = {};
+        selectedDataLoaded.value = false;
+        showSelectedModal.value = false;
+        // 检查是否可以打开抽屉
         if (selectedHref(column)) {
-            Object.assign(tableSelectedRemoteData.value, rowData)
-            selectedDataLoaded.value = true
-            showSelectedModal.value = true
+            // 更新数据
+            Object.assign(tableSelectedRemoteData.value, rowData);
+            nextTick(() => {
+                selectedDataLoaded.value = true;
+                showSelectedModal.value = true;
+            });
+        } else {
+            // 如果不能打开，输出调试信息
+            console.warn('无法打开抽屉，column 不符合条件', column);
         }
     }
 
@@ -244,6 +267,7 @@
     const loadViewConfig = async () => {
         const tableKey = meta.viewId;
         _tableConfigProps.value = tableConfigStore.hasTableConfig(tableKey) ? tableConfigStore.getTableConfig(tableKey) : await tableConfigStore.fetchTableConfigAsync(tableKey);
+        _tableConfigProps.value!.moduleKey = moduleKey;
         pageTitle.value = _tableConfigProps.value!.listName || '';
         tableColumns.value = _tableConfigProps.value!.tableColumns;
         restBasePath.value = _tableConfigProps.value!.restBasePath;
@@ -348,6 +372,11 @@
 
     const destroyForm = () => {
         showDialog.value = false;
+    };
+    const destroyComponent = () => {
+        showSelectedModal.value = false;
+        tableSelectedRemoteData.value = {};
+        selectedDataLoaded.value = false;
     };
 </script>
 
