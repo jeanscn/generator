@@ -115,6 +115,12 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
         if (introspectedTable.getRules().isGenerateViewVO()) {
+            VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+            if (viewConfiguration.getToolbar().contains("RECYCLE")) {
+                addRecycleElement(conTopClazz);
+            }
+        }
+        if (introspectedTable.getRules().isGenerateViewVO()) {
             addGetDefaultViewConfigElement(conTopClazz);
             addGetDefaultViewElement(conTopClazz);
         }
@@ -427,6 +433,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             }
         }
         return answer;
+    }
+
+    private void addRecycleElement(TopLevelClass conTopClazz) {
+        AbstractControllerElementGenerator elementGenerator = new RecycleBatchElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, conTopClazz);
     }
 
     private void addNewInstanceElement(TopLevelClass conTopClazz) {

@@ -70,7 +70,7 @@
     import VgoFormDrawer from '@/framework/components/vgoDrawer/VgoFormDrawer.vue';
     import { TElDrawerProps } from '@/framework/components/vgoDrawer/types';
 
-    const emit = defineEmits(['update:modelValue', 'open', 'opened', 'close', 'closed']);
+    const emit = defineEmits(['update:modelValue', 'onSubmit' , 'open', 'opened', 'close', 'closed']);
 
     const props = defineProps({
         modelValue: { type: Boolean as PropType<boolean>, default: false },
@@ -99,6 +99,10 @@
 
     const showDialog = ref(props.modelValue);
     const dialogType = ref<'dialog' | 'drawer'>(props.type);
+
+    if (!_tableRef.value) {
+        _tableRef.value = inject('tableRef')
+    }
 
     const defaultElDialogProps: TElDialogProps = {
         title: '${ tableRemark }',
@@ -186,7 +190,7 @@
     };
 
     const onSubmit = (val) => {
-        _tableRef.value && _tableRef.value.updateRows([val]);
+        emit('onSubmit', val);
     };
     const onOpen = () => {
         emit('open')

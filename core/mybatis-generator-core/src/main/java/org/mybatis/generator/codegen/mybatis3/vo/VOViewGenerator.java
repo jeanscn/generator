@@ -11,9 +11,7 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelDesc;
 
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -72,6 +70,24 @@ public class VOViewGenerator extends AbstractVOGenerator {
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(viewVOType));
         mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), false));
         mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), true));
+
+        // 如果添加了移入回收站按钮，则添到回收站的映射
+        if (voViewGeneratorConfiguration.getToolbar().contains("RECYCLE")) {
+            FullyQualifiedJavaType sysRecycleBin = new FullyQualifiedJavaType("com.vgosoft.system.entity.SysRecycleBin");
+            Method method = addMappingMethod(entityType, sysRecycleBin, false);
+            Set<String> ignoreFields = new HashSet<>(Arrays.asList("id", "deleteFlag", "version", "created", "modified", "createdId", "modifiedId"));
+            for (String ignoreField : ignoreFields) {
+                method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
+                mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
+            }
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", constant  = \"%s\")", "recordTableName", introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()));
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "businessBeanName", "persistenceBeanName"));
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "businessBeanName", "persistenceBeanName"));
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "recordId", "id"));
+            mappingsInterface.addMethod(method);
+            mappingsInterface.addMethod(addMappingMethod(entityType, sysRecycleBin, true));
+        }
+
         return viewVOClass;
     }
 }
