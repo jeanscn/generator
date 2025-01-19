@@ -65,6 +65,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
                 view.setTitle("查看更多");
                 view.setClasses("layui-btn layui-btn-primary layui-btn-sm");
                 view.setIcon("layui-icon layui-icon-more");
+                view.setElIcon("el-icon-more-filled");
                 buttons.add(view);
             }
             if (bar.equalsIgnoreCase("SAVE")) {
@@ -73,6 +74,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
                 save.setTitle("保存行数据");
                 save.setClasses("layui-btn layui-btn-primary layui-btn-sm");
                 save.setIcon("layui-icon layui-icon-ok");
+                save.setElIcon("el-icon-select");
                 buttons.add(save);
             }
             if(bar.equalsIgnoreCase("REMOVE")) {
@@ -81,6 +83,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
                 remove.setTitle("删除行数据");
                 remove.setClasses("llayui-btn layui-btn-primary layui-btn-sm");
                 remove.setIcon("layui-icon layui-icon-close");
+                remove.setElIcon("el-icon-close-bold");
                 buttons.add(remove);
             }
             if (htmlButtonsMap.containsKey(bar)) {
@@ -100,6 +103,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
                 add.setTitle("新增");
                 add.setClasses("layui-btn layui-btn-sm layui-btn-primary");
                 add.setIcon("layui-icon layui-icon-addition");
+                add.setElIcon("el-icon-plus");
                 buttons.add(add);
             }
             if (bar.equalsIgnoreCase("delete") || bar.equalsIgnoreCase("default")) {
@@ -107,6 +111,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
                 delete.setTitle("删除");
                 delete.setClasses("layui-btn layui-btn-sm layui-btn-primary");
                 delete.setIcon("layui-icon layui-icon-delete");
+                delete.setElIcon("el-icon-delete");
                 buttons.add(delete);
             }
             if (htmlButtonsMap.containsKey(bar)) {

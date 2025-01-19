@@ -173,7 +173,6 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
                 parentElement.addImportedType("com.vgosoft.web.plugins.laytable.Layuitable");
                 parentElement.addImportedType(innerListConfiguration.getSourceListViewClass());
                 parentElement.addImportedType("java.util.Map");
-                parentElement.addImportedType("java.util.HashMap");
                 parentElement.addImportedType("com.vgosoft.web.plugins.laytable.LayuiTableHeader");
             }
         }

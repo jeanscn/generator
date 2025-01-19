@@ -33,6 +33,10 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         addSecurityPreAuthorize(method,methodPrefix,"移入回收站");
         method.addAnnotation(new ApiOperationDesc("批量移入回收站", "把给定的对象批量移入回收站"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "批量移入回收站");
+        FullyQualifiedJavaType exceptionType = new FullyQualifiedJavaType("java.lang.Exception");
+        method.addException(exceptionType);
+        method.setExceptionRemark("异常");
+        parentElement.addImportedType(exceptionType);
 
         // 判断是否有VO对象
         String entityVar = entityType.getShortNameFirstLowCase();
@@ -57,14 +61,14 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         method.addBodyLine("sysRecycleBins.forEach(sysRecycleBin -> sysRecycleBin.setOperateUserId(getCurrentUser().getId()));");
         method.addBodyLine("ServiceResult<List<SysRecycleBin>> result = sysRecycleBinImpl.insertBatch(sysRecycleBins);");
         method.addBodyLine(" if (result.hasResult()) {");
-        method.addBodyLine("List<SysRecycleBinRecord> records = sysRecycleBinRecordImpl.createSysRecycleBinRecordFromBusiness({0}s,\"{1}\");",entityVar,introspectedTable.getFullyQualifiedTable().getIntrospectedTableName());
+        method.addBodyLine("List<SysRecycleBinRecord> records = sysRecycleBinRecordImpl.createSysRecycleBinRecordFromBusiness({0}s,null);",entityVar);
         method.addBodyLine("ServiceResult<List<SysRecycleBinRecord>> listServiceResult = sysRecycleBinRecordImpl.insertBatch(records);");
         method.addBodyLine("if (listServiceResult.hasResult()) {");
         method.addBodyLine("{0}Example example = new {0}Example();",entityType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
         method.addBodyLine("ServiceResult<Integer> deleteResult = {0}Impl.deleteByExample(example);",entityVar);
         method.addBodyLine("if (deleteResult.hasResult() && deleteResult.getResult() > 0) {");
-        method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.PRE_DELETE);",entityVar);
+        method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.RECYCLED);",entityVar);
         method.addBodyLine("return success((long) deleteResult.getResult(), deleteResult.getAffectedRows());");
         method.addBodyLine("} else {");
         method.addBodyLine("throw new RuntimeException(\"清除原数据失败\");");
@@ -79,7 +83,6 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
 
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.entity.SysRecycleBin"));
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.entity.SysRecycleBinRecord"));
-        parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.tmri.serv.entity.example.TmriBudgetExample"));
         FullyQualifiedJavaType sysRecycleBinType = new FullyQualifiedJavaType("com.vgosoft.system.service.ISysRecycleBin");
         Field sysRecycleBinImpl = new Field("sysRecycleBinImpl",sysRecycleBinType );
         sysRecycleBinImpl.addAnnotation("@Resource");

@@ -1,6 +1,7 @@
 package org.mybatis.generator.internal.rules;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
@@ -652,10 +653,17 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean isGenerateRecycleBin() {
+        return isGenerateViewVO()
+                && tc.getVoGeneratorConfiguration().getVoViewConfiguration().getToolbar().contains(ViewDefaultToolBarsEnum.RECYCLE.code());
+    }
+
+    @Override
     public boolean isGenerateEventListener() {
-        return tc.getJavaServiceImplGeneratorConfiguration() != null
+        return (tc.getJavaServiceImplGeneratorConfiguration() != null
                 && tc.getJavaServiceImplGeneratorConfiguration().isGenerate()
-                && !tc.getJavaServiceImplGeneratorConfiguration().getEntityEvent().isEmpty();
+                && !tc.getJavaServiceImplGeneratorConfiguration().getEntityEvent().isEmpty()
+                || this.isGenerateRecycleBin());
     }
 
     @Override
@@ -670,12 +678,12 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        return htmlGeneratorConfiguration != null &&  !htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().isEmpty();
+        return htmlGeneratorConfiguration != null && !htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().isEmpty();
     }
 
     @Override
     public boolean isGenerateApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        return htmlGeneratorConfiguration != null &&  !htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().isEmpty();
+        return htmlGeneratorConfiguration != null && !htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().isEmpty();
     }
 
     @Override

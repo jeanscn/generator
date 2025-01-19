@@ -252,6 +252,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateRecycleBin() {
+        return false;
+    }
+
+    @Override
     public boolean isGenerateEventListener() {
         return false;
     }

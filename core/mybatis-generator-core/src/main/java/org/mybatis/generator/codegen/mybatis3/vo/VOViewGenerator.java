@@ -80,9 +80,6 @@ public class VOViewGenerator extends AbstractVOGenerator {
                 method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
                 mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
             }
-            method.addAnnotation(String.format("@Mapping(target = \"%s\", constant  = \"%s\")", "recordTableName", introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()));
-            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "businessBeanName", "persistenceBeanName"));
-            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "businessBeanName", "persistenceBeanName"));
             method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "recordId", "id"));
             mappingsInterface.addMethod(method);
             mappingsInterface.addMethod(addMappingMethod(entityType, sysRecycleBin, true));

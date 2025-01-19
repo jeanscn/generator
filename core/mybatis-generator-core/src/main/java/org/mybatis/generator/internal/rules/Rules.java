@@ -260,6 +260,8 @@ public interface Rules {
 
     boolean isGenerateViewVO();
 
+    boolean isGenerateRecycleBin();
+
     boolean isGenerateEventListener();
 
     boolean isGenerateWfEventListener();

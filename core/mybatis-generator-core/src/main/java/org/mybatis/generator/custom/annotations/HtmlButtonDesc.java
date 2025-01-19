@@ -99,6 +99,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         if (this.icon!=null) {
             items.add("icon = \""+this.icon+"\"");
         }
+        if (this.elIcon!=null) {
+            items.add("elIcon = \""+this.elIcon+"\"");
+        }
         if (this.classes!=null) {
             items.add("classes = \""+this.classes+"\"");
         }
@@ -117,7 +120,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         if (this.isPlain) {
             items.add("isPlain = true");
         }
-        if (this.type!=null) {
+        if (this.type!=null && !this.type.equalsIgnoreCase("primary")) {
             items.add("type = \""+this.type+"\"");
         }
         if (this.label != null) {

@@ -114,11 +114,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addUpdateBatchElement(conTopClazz);
         addDeleteElement(conTopClazz);
         addDeleteBatchElement(conTopClazz);
-        if (introspectedTable.getRules().isGenerateViewVO()) {
-            VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-            if (viewConfiguration.getToolbar().contains("RECYCLE")) {
-                addRecycleElement(conTopClazz);
-            }
+        if (introspectedTable.getRules().isGenerateRecycleBin()) {
+            addRecycleElement(conTopClazz);
         }
         if (introspectedTable.getRules().isGenerateViewVO()) {
             addGetDefaultViewConfigElement(conTopClazz);

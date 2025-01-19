@@ -2863,6 +2863,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(icon)) {
             htmlButtonConfiguration.setIcon(icon);
         }
+        String elIcon = attributes.getProperty("elIcon");
+        if (stringHasValue(elIcon)) {
+            htmlButtonConfiguration.setElIcon(elIcon);
+        }
         String type = attributes.getProperty("type");
         if (stringHasValue(type)) {
             htmlButtonConfiguration.setType(type);
