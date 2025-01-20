@@ -53,13 +53,12 @@ public class ConstantsUtil {
     public final static String SERVICE_RESULT = "com.vgosoft.core.adapter.ServiceResult";
     public final static String RESPONSE_RESULT = "com.vgosoft.core.adapter.web.respone.ResponseResult";
     public final static String RESPONSE_PAGEHELPER_RESULT = "com.vgosoft.mybatis.pojo.ResponsePagehelperResult";
-    //public final static String PAGE_RESULT = "com.vgosoft.core.adapter.web.respone.PageResult";
     public static final String MODEL_AND_VIEW = "org.springframework.web.servlet.ModelAndView";
     public static final String VIEW_DT_TABLE = "com.vgosoft.web.entity.ViewDtTable";
 
     public static final String VIEW_DT_TABLE_VO = "com.vgosoft.web.pojo.vo.ViewDtTableVO";
     public static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
-    public static final String SPRING_CONTEXT_HOLDER = "com.vgosoft.core.util.SpringContextHolder";
+    public static final String SPRING_CONTEXT_HOLDER = "com.vgosoft.tool.core.SpringContextHolder";
 
     public static final String Z_TREE_DATA_SIMPLE = "com.vgosoft.core.pojo.ztree.ZtreeDataSimple";
     public static final String Z_TREE_DATA_SIMPLE_CATE = "com.vgosoft.core.pojo.ztree.ZtreeDataViewCate";

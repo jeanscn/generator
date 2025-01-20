@@ -146,7 +146,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("return mv;");
 
         parentElement.addImportedType("com.vgosoft.tool.core.VReflectionUtil");
-        parentElement.addImportedType("com.vgosoft.core.util.JsonUtil");
+        parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");
         parentElement.addImportedType("java.util.Optional");
         parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
         parentElement.addImportedType("com.vgosoft.web.pojo.ControllerViewParam");
