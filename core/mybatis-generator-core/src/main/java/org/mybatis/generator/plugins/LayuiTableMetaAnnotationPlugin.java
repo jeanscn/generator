@@ -8,6 +8,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
+import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableColumnMetaDesc;
@@ -98,7 +99,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             return null;
         }
         boolean enableEdit = enableEdit(listViewConfiguration, fieldName);
-        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, hiddenFields.contains(fieldName), introspectedTable);
+        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, hiddenFields.contains(fieldName), introspectedTable,introspectedColumn);
         if (onlyReadFields.contains(fieldName)) {
             layuiTableColumnMetaDesc.setEdit(false);
             layuiTableColumnMetaDesc.setScope("readonly");
@@ -178,7 +179,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         boolean enableEdit = enableEdit(listViewConfiguration, fieldName);
         boolean defaultHidden = listViewConfiguration.getDefaultHiddenFields().contains(fieldName);
 
-        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, defaultHidden, introspectedTable);
+        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, defaultHidden, introspectedTable,introspectedColumn);
 
         if (fieldNames.contains(field.getName())) {
             elementDescriptorMap.values().stream()
@@ -249,7 +250,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         }
     }
 
-    private LayuiTableColumnMetaDesc getLayuiTableColumnMetaDesc(InnerListViewConfiguration listViewConfiguration, Field field, boolean defaultHidden, IntrospectedTable introspectedTable) {
+    private LayuiTableColumnMetaDesc getLayuiTableColumnMetaDesc(InnerListViewConfiguration listViewConfiguration, Field field, boolean defaultHidden, IntrospectedTable introspectedTable,IntrospectedColumn introspectedColumn) {
         //生成@LayuiTableColumnMeta注解
         LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = new LayuiTableColumnMetaDesc();
         layuiTableColumnMetaDesc.setValue(listViewConfiguration.getListKey());
@@ -272,6 +273,12 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
                 layuiTableColumnMetaDesc.setFixed(listColumn.getField());
             }
         });
+        //设置rules
+        String rules = VueFormGenerateUtil.innerListItemRules(listViewConfiguration, introspectedColumn);
+        if (stringHasValue(rules)) {
+            layuiTableColumnMetaDesc.addImports("com.vgosoft.core.annotation.VueFormItemRule");
+            layuiTableColumnMetaDesc.setRules(rules);
+        }
         return layuiTableColumnMetaDesc;
     }
 

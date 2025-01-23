@@ -1078,8 +1078,10 @@
             3、noServiceAnnotation 是否不添加@Service注解，既实现类不注入ioc
             4、targetSubPackage 包路径的子路径,如com.vgosoft.xxx.service中的service
             property配置：
-            1、entityEvent， 是否发布实体事件.不指定该属性则不启用。事件类型包括：CREATED,PRE_UPDATE,UPDATED,PRE_DELETE,DELETED。见枚举：com.vgosoft.core.constant.enums.core.EntityEventEnum
-                    目前不支持在byExample、byTable、bySql相关方法中添加事件。
+            1、entityEvent， 是否发布实体事件.不指定该属性则不启用。事件类型包括：CREATED,PRE_INSERT,INSERTED,PRE_UPDATE,UPDATED,RECYCLED、RESTORED,PRE_DELETE,DELETED。
+                见枚举：com.vgosoft.core.constant.enums.core.EntityEventEnum
+                说明：1、目前不支持在byExample、byTable、bySql相关方法中添加事件。
+                     2、RECYCLED、RESTORED配置仅影响初次生成监听器的生成对应的方法配置,而是否发布消息取决于是否启用了移入回收站的操作。
         -->
         <!ELEMENT generateService (property*)>
         <!ATTLIST generateService
@@ -1442,8 +1444,8 @@
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
-            2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlReadonlyFields配置
-            3、showRowNumber 必填的列，多个”,“分隔。注意，不会合并当前表htmlConfig中的requiredColumns配置
+            2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。该属性不会合并当前表htmlConfig中的htmlReadonlyFields配置
+            3、requiredColumns 必填的列，多个”,“分隔。注意，会合并当前表htmlConfig中的requiredColumns配置
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
        -->

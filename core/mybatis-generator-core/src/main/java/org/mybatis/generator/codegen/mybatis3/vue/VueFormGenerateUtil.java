@@ -9,13 +9,16 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
+import org.mybatis.generator.config.InnerListViewConfiguration;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormItemRuleDesc;
 
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -279,6 +282,44 @@ public class VueFormGenerateUtil {
                 formItemRule.setMessage(introspectedColumn.getRemarks(true) + "不能为空");
                 formItemRules.add(formItemRule);
             }
+        }
+
+        //生成rules注解
+        return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
+    }
+
+    public static String innerListItemRules(InnerListViewConfiguration listViewConfiguration, IntrospectedColumn introspectedColumn) {
+        if (introspectedColumn == null) {
+            return null;
+        }
+        //根据introspectedColumn的类型生成rules
+        Set<FormItemRule> formItemRules = new HashSet<>();
+        if (!introspectedColumn.isNullable()
+                || introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()
+                || introspectedColumn.isJdbcCharacterColumn()) {
+            if (!introspectedColumn.isNullable()) {
+                FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "不能为空");
+                formItemRule.setRequired(true);
+                formItemRules.add(formItemRule);
+            }
+            if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()) {
+                FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "必须为日期");
+                formItemRule.setType("date");
+                formItemRules.add(formItemRule);
+            }
+            if (introspectedColumn.isStringColumn() && introspectedColumn.getLength() > 0 && introspectedColumn.getLength() < 5000) {
+                FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "最大长度为" + introspectedColumn.getLength());
+                formItemRule.setMax(introspectedColumn.getLength());
+                formItemRules.add(formItemRule);
+            }
+        }
+
+        //是否为requiredColumns的中的字段
+        if (introspectedColumn.isNullable() && listViewConfiguration.getRequiredColumns().contains(introspectedColumn.getActualColumnName())) {
+            FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "不能为空");
+            formItemRule.setRequired(true);
+            formItemRule.setMin(1);
+            formItemRules.add(formItemRule);
         }
 
         //生成rules注解

@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.LayuiTableColumnMeta;
+import com.vgosoft.core.annotation.VueFormItemRule;
+import com.vgosoft.tool.core.VStringUtil;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -22,6 +24,7 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
         private int minWidth;
         private String fixed;
         private String templet;
+        private String rules;
         private boolean totalRow;
         private boolean edit;
 
@@ -61,6 +64,10 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
             }
             if (stringHasValue(templet)) {
                 items.add(format("templet = \"{0}\"", templet));
+            }
+            if (VStringUtil.stringHasValue(this.getRules())) {
+                this.addImports(VueFormItemRule.class.getCanonicalName());
+                items.add(VStringUtil.format("\n            rules = '{'{0}'}'\n            ", this.getRules()));
             }
             if (totalRow) {
                 items.add("totalRow = true");
@@ -224,5 +231,13 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getRules() {
+        return rules;
+    }
+
+    public void setRules(String rules) {
+        this.rules = rules;
     }
 }

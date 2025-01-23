@@ -48,14 +48,14 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
         }
         //增加PRE_INSERT事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
-            insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())) {
+            insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
         }
         insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
         insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
         //增加INSERTED事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
-            insertSelectiveMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name())) {
+            insertSelectiveMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
         }
         insertSelectiveMethod.addBodyLine("return serviceResult;");
         insertSelectiveMethod.addBodyLine("} else {\n" +

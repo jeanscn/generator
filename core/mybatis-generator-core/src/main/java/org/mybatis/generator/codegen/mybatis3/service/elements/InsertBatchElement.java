@@ -37,8 +37,8 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         //增加PRE_INSERT事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
-            method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_UPDATE.name());
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())) {
+            method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_INSERT.name());
         }
         if (!configs.isEmpty()) {
             method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
@@ -49,8 +49,8 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("if (i > 0) {");
         //增加INSERTED事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
-            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.UPDATED.name());
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name())) {
+            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.INSERTED.name());
         }
         method.addBodyLine("return ServiceResult.success({0},i);",entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("}else{");

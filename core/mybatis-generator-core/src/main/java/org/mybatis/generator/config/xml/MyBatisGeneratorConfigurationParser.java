@@ -3102,6 +3102,17 @@ public class MyBatisGeneratorConfigurationParser {
         parseChildNodeOnlyProperty(jdbcConnectionConfiguration, node);
     }
 
+    protected Properties parseAttributes(Node node) {
+        Properties attributes = new Properties();
+        NamedNodeMap nnm = node.getAttributes();
+        for (int i = 0; i < nnm.getLength(); i++) {
+            Node attribute = nnm.item(i);
+            String value = parsePropertyTokens(attribute.getNodeValue());
+            attributes.put(attribute.getNodeName(), value);
+        }
+        return attributes;
+    }
+
     protected void parseClassPathEntry(Configuration configuration, Node node) {
         Properties attributes = parseAttributes(node);
 
@@ -3114,17 +3125,6 @@ public class MyBatisGeneratorConfigurationParser {
         String name = attributes.getProperty("name"); //$NON-NLS-1$
         String value = attributes.getProperty("value"); //$NON-NLS-1$
         propertyHolder.addProperty(name, value);
-    }
-
-    protected Properties parseAttributes(Node node) {
-        Properties attributes = new Properties();
-        NamedNodeMap nnm = node.getAttributes();
-        for (int i = 0; i < nnm.getLength(); i++) {
-            Node attribute = nnm.item(i);
-            String value = parsePropertyTokens(attribute.getNodeValue());
-            attributes.put(attribute.getNodeName(), value);
-        }
-        return attributes;
     }
 
     String parsePropertyTokens(String s) {

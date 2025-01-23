@@ -48,14 +48,14 @@ public class InsertElement extends AbstractServiceElementGenerator {
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
         //增加PRE_UPDATE事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
-            insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())) {
+            insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
         }
         insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
         insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
         //增加UPDATED事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
-            insertMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name())) {
+            insertMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
         }
         insertMethod.addBodyLine("return serviceResult;");
         insertMethod.addBodyLine("} else {");

@@ -754,7 +754,7 @@ public class TableConfiguration extends PropertyHolder {
         generateDefaultElementDescriptor(introspectedTable);
         //根据默认字段配置，生成默认的dataTables列表中column渲染默认配置
         generateDefaultColumnRenderConfiguration(context);
-        //计算页内列表元素描述
+        //计算页内列表元素描述,包括：htmlHiddenFields、requiredColumns
         calculateInnerListElementDescriptor(introspectedTable);
 
         //批量处理overrideProperty的配置文档：继承、去重
@@ -1268,21 +1268,17 @@ public class TableConfiguration extends PropertyHolder {
         List<InnerListViewConfiguration> innerListViewConfigurations = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
         innerListViewConfigurations
                 .forEach(innerListViewConfiguration -> {
-                    Set<HtmlElementDescriptor> htmlElements = new HashSet<>(innerListViewConfiguration.getHtmlElements());
                     if (stringHasValue(innerListViewConfiguration.getEditExtendsForm())) {
                         introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
                                 .filter(htmlConfiguration -> htmlConfiguration.getSimpleViewPath().equals(innerListViewConfiguration.getEditExtendsForm()))
                                 .findFirst()
                                 .ifPresent(htmlGeneratorConfiguration -> {
                                     innerListViewConfiguration.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
-                                    htmlElements.addAll(htmlGeneratorConfiguration.getElementDescriptors());
-                                    //innerListViewConfiguration.getReadonlyFields().addAll(htmlGeneratorConfiguration.getReadonlyFields());
-                                    Set<String> fields = htmlGeneratorConfiguration.getHiddenFieldNames();
-                                    innerListViewConfiguration.getDefaultHiddenFields().addAll(fields);
+                                    innerListViewConfiguration.getHtmlElements().addAll(htmlGeneratorConfiguration.getElementDescriptors());
+                                    innerListViewConfiguration.getDefaultHiddenFields().addAll(htmlGeneratorConfiguration.getHiddenFieldNames());
                                     innerListViewConfiguration.getRequiredColumns().addAll(htmlGeneratorConfiguration.getElementRequired());
                                 });
                     }
-                    innerListViewConfiguration.setHtmlElements(new ArrayList<>(htmlElements));
                 });
     }
 
