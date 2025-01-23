@@ -2,15 +2,14 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.enums.core.*;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.factory.*;
-import com.vgosoft.core.constant.enums.core.DictTypeEnum;
-import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
-import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
