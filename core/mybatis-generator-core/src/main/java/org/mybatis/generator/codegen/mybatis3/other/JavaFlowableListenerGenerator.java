@@ -86,7 +86,7 @@ public class JavaFlowableListenerGenerator extends AbstractJavaGenerator {
                 method = new Method("processCompleteEvent");
                 break;
             default:
-                throw new RuntimeException(getString("RuntimeError.12"));
+                throw new RuntimeException(getString("创建流程监听类发生错误，未知的时间类型：{0}-{1}",introspectedTable.getTableConfiguration().getTableName(),entityEvent));
         }
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addParameter(new Parameter(new FullyQualifiedJavaType("Object"), "entity"));

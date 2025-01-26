@@ -37,7 +37,7 @@ public class SelectByExampleWithoutBLOBsMethodGenerator extends AbstractJavaMapp
         } else if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             listType = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
-            throw new RuntimeException(getString("RuntimeError.12")); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.12","SelectByExampleWithoutBLOBs")); //$NON-NLS-1$
         }
 
         importedTypes.add(listType);

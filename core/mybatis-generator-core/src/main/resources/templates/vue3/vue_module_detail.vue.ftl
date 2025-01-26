@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.2
+* @version: detail template version 1.0.3
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
@@ -8,13 +8,10 @@
 </template>
 
 <script lang="ts" setup name="${ modelName }Detail">
-    import { onMounted, onUnmounted, PropType, provide, ref, unref, watch } from 'vue';
-    import tool from '@/framework/utils/tool';
+    import { onMounted, onUnmounted, PropType, provide, ref, Ref, watch } from 'vue';
     import { EMPTY_OBJECT } from '@/framework/utils/constant';
     import { TFormConfig } from '@/framework/components/vgoForm/types';
     import { T${ modelName } } from '../types/T${ modelName }';
-    import { ServiceApi } from '@/api/service';
-    import { ElMessage } from 'element-plus';
     import { useFormConfigStore } from '@/store/formConfig';
     import { useI18n } from 'vue-i18n';
     <#if workflowEnabled >
@@ -36,7 +33,6 @@
 
     const vgoFormRef = ref();
 
-    const service = ref<ServiceApi<T${ modelName }>>(new ServiceApi<T${ modelName }>(_restBasePath));
     const _formConfig = ref<TFormConfig>(props.formConfig);
     const _formData = ref<T${ modelName }>(props.modelValue);
     const formConfigReady = ref(false);
@@ -52,21 +48,15 @@
         emit('update:modelValue', val);
     });
 
-    const getFormConfig = async () => {
-        let formKey = _restBasePath.replace(/\//g, '-');
-        _formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
-        formConfigReady.value = true;
-    }
-
-    const getFormData = async () => {
-        service.value.get(props.dataId).then((resp) => {
-            _formData.value = tool.perOnload(
-                resp.data,
-                _formConfig.value?.formItems,
-            );
-            dataReady.value = true;
-        });
-    }
+    const fetchFormConfigAsync = async (_formConfig:Ref<TFormConfig>) => {
+        if (Object.keys(_formConfig.value).length === 0) {
+            let formKey = _restBasePath.replace(/\//g, '-');
+            _formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
+            formConfigReady.value = true;
+        } else {
+            formConfigReady.value = true;
+        }
+    };
 
     <#if workflowEnabled >
     const isTaskAttributesLoaded = ref(false);
@@ -74,27 +64,7 @@
     </#if>
 
     onMounted( <#if workflowEnabled > async </#if> () => {
-        if (Object.keys(_formConfig.value).length === 0) {
-            getFormConfig();
-            formConfigReady.value = true;
-        } else {
-            formConfigReady.value = true;
-        }
-        if (Object.keys(_formData.value).length === 0 ) {
-            if(props.dataId){
-                getFormData();
-            }else{
-                _formData.value = {};
-                dataReady.value = true;
-                ElMessage.error('没有获取到${ tableRemark }数据');
-            }
-        } else {
-            _formData.value = tool.perOnload(
-                unref(_formData.value),
-                _formConfig.value?.formItems,
-            );
-            dataReady.value = true;
-        }
+        fetchFormConfigAsync(_formConfig);
         <#if workflowEnabled >
         if(!!_formData.value && _formData.value['workflowEnabled']===1){
             const taskAttributes = await currentTaskAttributesStore.getCurrentTaskAttributesWithFetch(_formData.value?.id);

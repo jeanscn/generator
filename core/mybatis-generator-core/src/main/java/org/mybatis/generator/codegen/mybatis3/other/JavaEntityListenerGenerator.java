@@ -61,9 +61,9 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
 
         topClazz.addJavaDocLine(VStringUtil.format("/**\n" +
                 " * {0}实体生命周期阶段事件监听\n" +
-                " * 事件类型包括：CREATED,PRE_UPDATE,UPDATED,RECYCLED,RESTORED,PRE_DELETE,DELETED。\n" +
+                " * 事件类型包括：CREATED,PRE_INSERT,INSERTED,PRE_UPDATE,UPDATED,RECYCLED、RESTORED,PRE_DELETE,DELETED。\n" +
                 " * 见枚举类：'{'@link com.vgosoft.core.constant.enums.core.EntityEventEnum'}'\n" +
-                " * 事件监听器的实现类必须继承自'{'@link "+supClazzType.getShortName()+"'}'\n" +
+                " * 事件监听器的实现类必须继承自'{'@link " + supClazzType.getShortName() + "'}'\n" +
                 " * 并且使用'{'@link Component'}'注解进行标注。\n" +
                 " */", entityType.getShortName()));
         topClazz.addAnnotation("@Component");
@@ -93,6 +93,12 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
             case "CREATED":
                 addDefaultMethod(topLevelClass, entityType, "entityCreatedEvent");
                 break;
+            case "PRE_INSERT":
+                addDefaultMethod(topLevelClass, entityType, "entityPreInsertEvent");
+                break;
+            case "INSERTED":
+                addDefaultMethod(topLevelClass, entityType, "entityInsertedEvent");
+                break;
             case "PRE_UPDATE":
                 addDefaultMethod(topLevelClass, entityType, "entityPreUpdateEvent");
                 break;
@@ -102,7 +108,7 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
             case "RECYCLED":
                 if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
                     addRecyclePersonListMethod(topLevelClass, entityType);
-                }else{
+                } else {
                     addDefaultMethod(topLevelClass, entityType, "entityRecycledEvent");
                 }
                 break;
@@ -116,7 +122,7 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
                 addDefaultMethod(topLevelClass, entityType, "entityDeletedEvent");
                 break;
             default:
-                throw new RuntimeException(getString("RuntimeError.12"));
+                throw new RuntimeException(getString("创建监听类出现错误,位置的事件类型：{0}-{1}",introspectedTable.getTableConfiguration().getTableName(), entityEvent));
         }
         topLevelClass.addImportedType("java.util.List");
     }
@@ -136,7 +142,7 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addParameter(new Parameter(new FullyQualifiedJavaType("java.util.List<" + entityType.getShortName() + ">"), "entityList"));
         method.addBodyLine("try {");
-        if (context.getJdkVersion()>8) {
+        if (context.getJdkVersion() > 8) {
             method.addBodyLine("List<String> recordIds = entityList.stream().map({0}::getId).toList();", entityType.getShortName());
         } else {
             method.addBodyLine("List<String> recordIds = entityList.stream().map({0}::getId).collect(Collectors.toList());", entityType.getShortName());

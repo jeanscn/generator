@@ -34,7 +34,7 @@ public class SelectByExampleWithRelationMethodGenerator extends
         } else if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             listType = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
-            throw new RuntimeException(getString("RuntimeError.12")); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.12","SelectByExampleWithRelation")); //$NON-NLS-1$
         }
 
         importedTypes.add(listType);

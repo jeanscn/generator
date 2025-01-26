@@ -55,7 +55,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("if (affectedRows > 0) {");
             //增加DELETED事件发布
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())) {
-                method.addBodyLine("publisher.publishClassEvent({0}.class, {1},EntityEventEnum.{2});",entityType.getShortName(), pks,EntityEventEnum.DELETED.name());
+                method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});",EntityEventEnum.DELETED.name());
             }
             method.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             method.addBodyLine("}}");
@@ -103,7 +103,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         method.addBodyLine("if (i > 0) {");
         //增加DELETED事件发布
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())) {
-            method.addBodyLine("publisher.publishClassEvent({0}.class, {1},EntityEventEnum.{2});",entityType.getShortName(), ids,EntityEventEnum.DELETED.name());
+            method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});",EntityEventEnum.DELETED.name());
         }
         method.addBodyLine("return ServiceResult.success(i, i);");
         method.addBodyLine("} else {");
