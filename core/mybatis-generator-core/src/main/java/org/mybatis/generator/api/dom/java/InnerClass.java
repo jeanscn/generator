@@ -77,30 +77,30 @@ public class InnerClass extends AbstractJavaType {
         this.isFinal = isFinal;
     }
 
-    public boolean isContainField(String fieldName){
+    public boolean isNotContainField(String fieldName){
         long count = this.getFields().stream().filter(f-> f.getName().equals(fieldName)).count();
         if (count>0) {
-            return true;
+            return false;
         }
         if (this.getSuperClass().isPresent()) {
             try {
                 Class<?> aClass = ObjectFactory.internalClassForName(this.getSuperClass().get().getFullyQualifiedName());
                 java.lang.reflect.Field field = VReflectionUtil.getField(aClass, fieldName);
-                return field!=null;
+                return field == null;
             } catch (ClassNotFoundException e) {
-                return false;
+                return true;
             }
         }
-        return false;
+        return true;
     }
 
     public boolean addField(Field field, Integer index, boolean checkUnique) {
         if (index == null) index = getFields().size();
-        if (getFields().size()==0) {
+        if (getFields().isEmpty()) {
             getFields().add(index,field);
             return true;
         }else if (checkUnique) {
-            if (!isContainField(field.getName())) {
+            if (isNotContainField(field.getName())) {
                 getFields().add(index,field);
                 return true;
             }
