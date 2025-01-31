@@ -13,10 +13,10 @@ import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
-import org.mybatis.generator.internal.util.StringUtility;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
 
@@ -115,8 +115,10 @@ public class VOModelGenerator extends AbstractVOGenerator {
             relationProperty.getImportTypes().forEach(voClass::addImportedType);
             new ApiModelPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0))
                     .addAnnotationToField(field, voClass);
-            voClass.addField(field, null, true);
-            voClass.addImportedType(fullyQualifiedJavaType);
+            if (plugins.voModelFieldGenerated(field, voClass, null, introspectedTable)) {
+                voClass.addField(field, null, true);
+                voClass.addImportedType(fullyQualifiedJavaType);
+            }
         });
 
         //临时id的属性，pTempId

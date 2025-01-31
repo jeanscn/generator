@@ -125,7 +125,7 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
             stream = configurations.stream().filter(RelationGeneratorConfiguration::isEnableUpdate);
         }
         stream.forEach(c -> {
-            if (!topLevelClass.isContainField(c.getPropertyName())) {
+            if (topLevelClass.isNotContainField(c.getPropertyName())) {
                 FullyQualifiedJavaType fullyQualifiedJavaType;
                 if (c.getType().equals(RelationTypeEnum.collection)) {
                     fullyQualifiedJavaType = FullyQualifiedJavaType.getNewListInstance();
@@ -140,8 +140,10 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
                 if (c.getType().equals(RelationTypeEnum.collection)) {
                     field.setInitializationString("new ArrayList<>()");
                 }
-                topLevelClass.addField(field);
-                topLevelClass.addImportedType(c.getVoModelTye());
+                if (plugins.voModelFieldGenerated(field, topLevelClass, null, introspectedTable)) {
+                    topLevelClass.addField(field);
+                    topLevelClass.addImportedType(c.getVoModelTye());
+                }
             }
         });
     }
