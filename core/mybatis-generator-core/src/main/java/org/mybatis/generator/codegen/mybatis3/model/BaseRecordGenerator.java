@@ -193,7 +193,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             FullyQualifiedJavaType returnType;
             Field field;
             FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(relationProperty.getModelTye());
-            if (!topLevelClass.isContainField(relationProperty.getPropertyName())) {
+            if (topLevelClass.isNotContainField(relationProperty.getPropertyName())) {
                 if (relationProperty.getType().equals(RelationTypeEnum.collection)) {
                     FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
                     topLevelClass.addImportedType(listType);
