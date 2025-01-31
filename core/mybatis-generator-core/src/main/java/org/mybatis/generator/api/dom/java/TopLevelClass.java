@@ -1,12 +1,8 @@
 package org.mybatis.generator.api.dom.java;
 
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TopLevelClass extends InnerClass implements CompilationUnit {
 
@@ -100,7 +96,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                 c.getImportedTypes().forEach(this::addImportedType);
             }
             field.setRemark(c.getRemark());
-            if (!this.isContainField(field.getName())) {
+            if (this.isNotContainField(field.getName())) {
                 fields.add(field);
             }
         });
