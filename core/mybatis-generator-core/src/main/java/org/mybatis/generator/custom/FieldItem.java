@@ -2,6 +2,8 @@ package org.mybatis.generator.custom;
 
 import org.mybatis.generator.api.dom.java.Field;
 
+import java.util.Objects;
+
 public class FieldItem {
     public String name;
     public String type;
@@ -50,5 +52,18 @@ public class FieldItem {
 
     public void setRequired(boolean required) {
         this.required = required;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldItem fieldItem = (FieldItem) o;
+        return Objects.equals(name, fieldItem.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
