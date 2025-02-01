@@ -4,6 +4,6 @@
 */
 export type ${ typeName } = {
 <#list fields as field>
-    ${ field.name }<#if !field.required>?</#if>: ${ field.type };   // ${ field.remarks }
+    ${ field.name }<#if !field.required>?</#if>: ${ field.type };   // <#if field.remarks??>${ field.remarks }<#else>-</#if>
 </#list>
 }

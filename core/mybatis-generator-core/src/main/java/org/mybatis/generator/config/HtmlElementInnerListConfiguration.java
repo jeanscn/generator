@@ -66,6 +66,10 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private List<String> printFields = new ArrayList<>();
 
+    private List<String> verify = new ArrayList<>();
+
+
+
     public HtmlElementInnerListConfiguration() {
     }
 
@@ -374,5 +378,13 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setPrintFields(List<String> printFields) {
         this.printFields = printFields;
+    }
+
+    public List<String> getVerify() {
+        return verify;
+    }
+
+    public void setVerify(List<String> verify) {
+        this.verify = verify;
     }
 }

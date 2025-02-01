@@ -92,6 +92,8 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     private String restBasePath;
 
     private String enableEdit = "default";
+
+    private String verify =  "none";
     public VueFormInnerListMetaDesc() {
         super();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
@@ -140,6 +142,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.hideExpression = innerListConfiguration.getHideExpression();
         this.disabledExpression = innerListConfiguration.getDisableExpression();
         this.enableEdit = innerListConfiguration.getEnableEdit();
+        this.verify = innerListConfiguration.getVerify().stream().distinct().collect(Collectors.joining(","));
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
     }
 
@@ -236,6 +239,9 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(enableEdit) && !"default".equals(enableEdit)) {
             items.add("enableEdit = \"" + enableEdit + "\"");
+        }
+        if (VStringUtil.isNotBlank(verify) && !verify.contains("none")) {
+            items.add("verify = \"" + verify + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -486,5 +492,13 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public void setEnableEdit(String enableEdit) {
         this.enableEdit = enableEdit;
+    }
+
+    public String getVerify() {
+        return verify;
+    }
+
+    public void setVerify(String verify) {
+        this.verify = verify;
     }
 }

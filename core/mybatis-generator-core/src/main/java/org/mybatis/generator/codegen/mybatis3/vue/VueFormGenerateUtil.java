@@ -12,10 +12,7 @@ import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormItemRuleDesc;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -320,7 +317,7 @@ public class VueFormGenerateUtil {
         }
 
         //生成rules注解
-        return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
+        return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).sorted().collect(Collectors.joining("\n                    , "));
     }
 
     public static void setRemoteValueType(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor) {

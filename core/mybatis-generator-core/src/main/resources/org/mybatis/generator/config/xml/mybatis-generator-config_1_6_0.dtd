@@ -1018,6 +1018,7 @@
             30、printMode 仅在generateHtml.type=print时有效 打印模式下子表的展现形式，table-表格模式，form-表单模式，该模式下子表显示为表单多列，第一个数据独立一行，其他数据根据指定printFormColumnsNum值确定列数；默认table。
             31、printFormColumnsNum 仅在generateHtml.type=print时有效 打印模式下表单模式的列数，该值为大于0的整数，默认为2。
             32、printFields 仅在generateHtml.type=print且printMode=form时有效 打印模式下表单模式的显示的属性集合。
+            33、verify 验证规则关键字，对于htmlElementInnerList仅required有效，当包含required关键字时，表格数据不能为空并且对没有保存的新增或更新数据进行提醒并终止整个表单的提交。其他验证规则请在模块的hooks文件中进行编写。
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -1058,7 +1059,8 @@
                 sourceViewPath  CDATA #IMPLIED
                 printMode (table|form) #IMPLIED
                 printFormColumnsNum CDATA #IMPLIED
-                printFields CDATA #IMPLIED>
+                printFields CDATA #IMPLIED
+                verify (none|required) #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：

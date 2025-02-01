@@ -20,6 +20,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -71,7 +72,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             }
 
             //生成vue的type文件
-            List<FieldItem> fields = introspectedTable.getVoModelFields();
+            List<FieldItem> fields = introspectedTable.getVoModelFields().stream().distinct().collect(Collectors.toList());
             if (!fields.isEmpty()) {
                 String typePath = String.join(File.separator, (modulesPath + "/" + modelPath + "/types").split("/"));
                 String projectType = this.properties.getProperty("targetProject", typePath);

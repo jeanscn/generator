@@ -1341,6 +1341,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (sourceBeanName != null) {
             htmlElementInnerList.setRestBasePath(moduleKeyword + "/" + VStringUtil.toHyphenCase(sourceBeanName));
         }
+        String verify = attributes.getProperty("verify");
+        if (stringHasValue(verify)) {
+            htmlElementInnerList.setVerify(VStringUtil.splitToList(verify));
+        }
         htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().add(htmlElementInnerList);
     }
 
