@@ -1,8 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.VueFormInnerListMeta;
-import com.vgosoft.core.annotation.VueFormMeta;
-import com.vgosoft.core.annotation.VueFormUploadMeta;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;

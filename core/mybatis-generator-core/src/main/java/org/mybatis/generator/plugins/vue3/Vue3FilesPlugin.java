@@ -1,7 +1,6 @@
 package org.mybatis.generator.plugins.vue3;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.core.permission.annotation.DataPermission;
 import com.vgosoft.tool.TypeConverterTsUtil;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
@@ -19,7 +18,10 @@ import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
