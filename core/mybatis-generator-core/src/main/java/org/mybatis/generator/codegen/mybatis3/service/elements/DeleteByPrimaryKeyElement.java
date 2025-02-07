@@ -96,7 +96,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         //增加PRE_DELETE事件发布
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
             method.addBodyLine("ServiceResult<{0}> result = selectByPrimaryKey({1});",entityType.getShortName(),ids);
-            method.addBodyLine("if (!result.hasResult())  return ServiceResult.failure(ServiceCodeEnum.FAIL);");
+            method.addBodyLine("if (!result.hasResult())  return ServiceResult.failure(ServiceCodeEnum.FAIL, result.getMessage());");
             method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{2});",entityType.getShortName(), ids,EntityEventEnum.PRE_DELETE.name());
         }
         method.addBodyLine("int i = mapper.{0}({1});",methodName,ids);
@@ -110,7 +110,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         method.addBodyLine("}");
         method.addBodyLine("} catch (Exception e) {");
-        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.RUNTIME_ERROR, e);");
+        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.RUNTIME_ERROR, e.getMessage(), e);");
         method.addBodyLine("}");
     }
 }
