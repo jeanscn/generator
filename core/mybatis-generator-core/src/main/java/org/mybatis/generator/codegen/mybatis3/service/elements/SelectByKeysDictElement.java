@@ -69,7 +69,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         selectByKeysDictMethod.addBodyLine("return ServiceResult.success(mappings.to{0}CachePOs(result));"
                 , entityType.getShortName());
         selectByKeysDictMethod.addBodyLine("}else{");
-        selectByKeysDictMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
+        selectByKeysDictMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"未查询到数据\");");
         selectByKeysDictMethod.addBodyLine("}");
         parentElement.addMethod(selectByKeysDictMethod);
 

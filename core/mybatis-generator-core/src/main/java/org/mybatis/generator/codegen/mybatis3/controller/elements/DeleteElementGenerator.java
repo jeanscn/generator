@@ -50,7 +50,7 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (result.hasResult() && result.getResult() > 0) {");
         method.addBodyLine("return success((long) result.getResult(),result.getAffectedRows());");
         method.addBodyLine("} else {");
-        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_CUSTOM,result.getMessage());");
         method.addBodyLine("}");
 
         parentElement.addMethod(method);

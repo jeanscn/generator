@@ -59,7 +59,7 @@ public class InsertElement extends AbstractServiceElementGenerator {
         }
         insertMethod.addBodyLine("return serviceResult;");
         insertMethod.addBodyLine("} else {");
-        insertMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
+        insertMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, serviceResult.getMessage());");
         insertMethod.addBodyLine("}");
         parentElement.addMethod(insertMethod);
     }

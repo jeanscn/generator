@@ -1345,6 +1345,15 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(verify)) {
             htmlElementInnerList.setVerify(VStringUtil.splitToList(verify));
         }
+        String actionColumn = attributes.getProperty("actionColumn");
+        if (stringHasValue(actionColumn)) {
+            htmlElementInnerList.setActionColumn(VStringUtil.splitToList(actionColumn));
+        }
+        String actionColumnWidth = attributes.getProperty("actionColumnWidth");
+        if (stringHasValue(actionColumnWidth)) {
+            htmlElementInnerList.setActionColumnWidth(actionColumnWidth);
+        }
+
         htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().add(htmlElementInnerList);
     }
 

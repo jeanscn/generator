@@ -63,7 +63,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
             method.addBodyLine("return success(serviceResult.getResult(),serviceResult.getAffectedRows());");
         }
         method.addBodyLine("}else{");
-        method.addBodyLine("return failure(ApiCodeEnum.FAIL_OPERATION);");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_CUSTOM,serviceResult.getMessage());");
         method.addBodyLine("}");
 
         parentElement.addMethod(method);

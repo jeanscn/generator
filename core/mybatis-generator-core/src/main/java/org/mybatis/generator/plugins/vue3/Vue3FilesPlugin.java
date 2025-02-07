@@ -18,10 +18,7 @@ import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -81,10 +78,15 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 String fileNameType = "T" + introspectedTable.getTableConfiguration().getDomainObjectName();
                 Map<String, Object> map = new HashMap<>();
                 List<FieldItem> fieldsList = new ArrayList<>();
+                List<String> noRequiredFields = Arrays.asList("id","version");
                 for (FieldItem field : fields) {
                     FieldItem fieldItem = new FieldItem(field.getName(), field.getType());
                     fieldItem.setRemarks(field.getRemarks());
-                    fieldItem.setRequired(field.isRequired());
+                    if (noRequiredFields.contains(fieldItem.getName())) {
+                        fieldItem.setRequired(false);
+                    }else{
+                        fieldItem.setRequired(field.isRequired());
+                    }
                     String type = fieldItem.getType();
                     String tsType = TypeConverterTsUtil.convertToTsType(type);
                     fieldItem.setType(tsType);

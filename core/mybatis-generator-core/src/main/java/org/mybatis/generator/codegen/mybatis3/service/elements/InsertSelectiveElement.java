@@ -59,7 +59,7 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         }
         insertSelectiveMethod.addBodyLine("return serviceResult;");
         insertSelectiveMethod.addBodyLine("} else {\n" +
-                "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
+                "            return ServiceResult.failure(ServiceCodeEnum.WARN, serviceResult.getMessage());\n" +
                 "        }");
         parentElement.addMethod(insertSelectiveMethod);
     }

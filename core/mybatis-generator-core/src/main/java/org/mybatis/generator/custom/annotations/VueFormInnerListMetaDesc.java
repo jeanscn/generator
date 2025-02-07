@@ -92,6 +92,11 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     private String enableEdit = "default";
 
     private String verify =  "none";
+
+    private List<String> actionColumn = new ArrayList<>();
+
+    private String actionColumnWidth;
+
     public VueFormInnerListMetaDesc() {
         super();
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
@@ -240,6 +245,12 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(verify) && !verify.contains("none")) {
             items.add("verify = \"" + verify + "\"");
+        }
+        if (!actionColumn.isEmpty()) {
+            items.add("actionColumn  = \"" + String.join(",", this.actionColumn) + "\"");
+        }
+        if (VStringUtil.isNotBlank(actionColumnWidth)) {
+            items.add("actionColumnWidth = \"" + actionColumnWidth + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -498,5 +509,21 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public void setVerify(String verify) {
         this.verify = verify;
+    }
+
+    public List<String> getActionColumn() {
+        return actionColumn;
+    }
+
+    public void setActionColumn(List<String> actionColumn) {
+        this.actionColumn = actionColumn;
+    }
+
+    public String getActionColumnWidth() {
+        return actionColumnWidth;
+    }
+
+    public void setActionColumnWidth(String actionColumnWidth) {
+        this.actionColumnWidth = actionColumnWidth;
     }
 }

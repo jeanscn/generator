@@ -1006,19 +1006,21 @@
             20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
-            23、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
-            24、enableEdit 是否启用编辑，default编辑状态与父表单保持一致，true数据可编辑，false数据不可编辑。缺省值default
-            23、totalRow 是否显示合计行，默认为false
-            24、totalFields 合计字段，多个字段用逗号分隔，用于指定默认显示合计的字段。
-            25、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
-            26、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            27、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            28、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
-            29、sourceViewPath (仅H5版本使用)引用的源表的页面viewPath简单名称
-            30、printMode 仅在generateHtml.type=print时有效 打印模式下子表的展现形式，table-表格模式，form-表单模式，该模式下子表显示为表单多列，第一个数据独立一行，其他数据根据指定printFormColumnsNum值确定列数；默认table。
-            31、printFormColumnsNum 仅在generateHtml.type=print时有效 打印模式下表单模式的列数，该值为大于0的整数，默认为2。
-            32、printFields 仅在generateHtml.type=print且printMode=form时有效 打印模式下表单模式的显示的属性集合。
-            33、verify 验证规则关键字，对于htmlElementInnerList仅required有效，当包含required关键字时，表格数据不能为空并且对没有保存的新增或更新数据进行提醒并终止整个表单的提交。其他验证规则请在模块的hooks文件中进行编写。
+            23、enableEdit 是否启用编辑，default编辑状态与父表单保持一致，true数据可编辑，false数据不可编辑。缺省值default
+            24、totalRow 是否显示合计行，默认为false
+            25、totalFields 合计字段，多个字段用逗号分隔，用于指定默认显示合计的字段。
+            26、totalText 合计文本，用于指定默认显示合计的文本。默认为”合计“
+            27、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            28、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            29、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            30、sourceViewPath (仅H5版本使用)引用的源表的页面viewPath简单名称
+            31、printMode 仅在generateHtml.type=print时有效 打印模式下子表的展现形式，table-表格模式，form-表单模式，该模式下子表显示为表单多列，第一个数据独立一行，其他数据根据指定printFormColumnsNum值确定列数；默认table。
+            32、printFormColumnsNum 仅在generateHtml.type=print时有效 打印模式下表单模式的列数，该值为大于0的整数，默认为2。
+            33、printFields 仅在generateHtml.type=print且printMode=form时有效 打印模式下表单模式的显示的属性集合。
+            34、verify 验证规则关键字，对于htmlElementInnerList仅required有效，当包含required关键字时，表格数据不能为空并且对没有保存的新增或更新数据进行提醒并终止整个表单的提交。其他验证规则请在模块的hooks文件中进行编写。
+            35、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
+            36、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE、RECYCLE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE、RECYCLE以及自定义操作按钮的id值。如果不为空会覆盖列表定义viewVO的actionColumn。
+            37、actionColumnWidth：操作列宽度，缺省值为”“.当actionColumn有值时有效。
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -1047,7 +1049,6 @@
                 defaultFilterExpr CDATA #IMPLIED
                 batchUpdateColumns CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
-                showActionColumn (default|true|false) #IMPLIED
                 enableEdit (default|true|false) #IMPLIED
                 totalRow (true|false) #IMPLIED
                 totalFields CDATA #IMPLIED
@@ -1060,7 +1061,10 @@
                 printMode (table|form) #IMPLIED
                 printFormColumnsNum CDATA #IMPLIED
                 printFields CDATA #IMPLIED
-                verify (none|required) #IMPLIED>
+                verify (none|required) #IMPLIED
+                showActionColumn (default|true|false) #IMPLIED
+                actionColumn CDATA #IMPLIED
+                actionColumnWidth CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：

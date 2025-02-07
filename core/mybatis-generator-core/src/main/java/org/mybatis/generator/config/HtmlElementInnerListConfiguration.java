@@ -68,7 +68,9 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     private List<String> verify = new ArrayList<>();
 
+    private List<String> actionColumn = new ArrayList<>();
 
+    private String actionColumnWidth;
 
     public HtmlElementInnerListConfiguration() {
     }
@@ -386,5 +388,21 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setVerify(List<String> verify) {
         this.verify = verify;
+    }
+
+    public List<String> getActionColumn() {
+        return actionColumn;
+    }
+
+    public void setActionColumn(List<String> actionColumn) {
+        this.actionColumn = actionColumn;
+    }
+
+    public String getActionColumnWidth() {
+        return actionColumnWidth;
+    }
+
+    public void setActionColumnWidth(String actionColumnWidth) {
+        this.actionColumnWidth = actionColumnWidth;
     }
 }
