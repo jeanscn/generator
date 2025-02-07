@@ -52,7 +52,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 updateByPrimaryKeySelective.addBodyLine("if (result.hasResult()) {\n" +
                         "            return result;\n" +
                         "        } else {\n" +
-                        "            return ServiceResult.failure(ServiceCodeEnum.WARN, e.getMessage());\n" +
+                        "            return ServiceResult.failure(ServiceCodeEnum.WARN, result.getMessage());\n" +
                         "        }");
             }
             parentElement.addImportedType(SERVICE_CODE_ENUM);
@@ -84,7 +84,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 updateByPrimaryKey.addBodyLine("if (result.hasResult()) {\n" +
                         "            return result;\n" +
                         "        } else {\n" +
-                        "            return ServiceResult.failure(ServiceCodeEnum.WARN, e.getMessage());\n" +
+                        "            return ServiceResult.failure(ServiceCodeEnum.WARN, result.getMessage());\n" +
                         "        }");
             }
             parentElement.addImportedType(SERVICE_CODE_ENUM);

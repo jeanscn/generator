@@ -71,16 +71,17 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.RECYCLED);",entityVar);
         method.addBodyLine("return success((long) deleteResult.getResult(), deleteResult.getAffectedRows());");
         method.addBodyLine("} else {");
-        method.addBodyLine("throw new RuntimeException(\"清除原数据失败\");");
+        method.addBodyLine("throw new VgoException(\"清除原数据失败\");");
         method.addBodyLine("}");
         method.addBodyLine("} else {");
-        method.addBodyLine("throw new RuntimeException(\"回收站记录插入失败\");");
+        method.addBodyLine("throw new VgoException(\"回收站记录插入失败\");");
         method.addBodyLine("}");
         method.addBodyLine("} else {");
-        method.addBodyLine("throw new RuntimeException(\"回收站记录插入失败\");");
+        method.addBodyLine("throw new VgoException(\"回收站记录插入失败\");");
         method.addBodyLine("}");
         parentElement.addMethod(method);
 
+        parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.exception.VgoException"));
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.entity.SysRecycleBin"));
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.entity.SysRecycleBinRecord"));
         FullyQualifiedJavaType sysRecycleBinType = new FullyQualifiedJavaType("com.vgosoft.system.service.ISysRecycleBin");
