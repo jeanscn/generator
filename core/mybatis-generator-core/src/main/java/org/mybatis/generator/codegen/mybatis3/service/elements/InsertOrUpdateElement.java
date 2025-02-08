@@ -10,6 +10,7 @@ import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 
 /**
@@ -28,25 +29,31 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_CODE_ENUM);
-
+        boolean containsPreUpdateEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name());
+        boolean containsUpdatedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name());
         Method method = serviceMethods.getInsertOrUpdateMethod(parentElement, false,true);
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         method.addAnnotation("@Override");
+        if (containsPreUpdateEvent || containsUpdatedEvent) {
+            parentElement.addImportedType("java.lang.Exception");
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        }
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsertOrUpdate)
                 .collect(Collectors.toList());
         if (!configs.isEmpty()) {
             outSubBatchMethodBody(method, "INSERTORUPDATE", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
         }
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+        if (containsPreUpdateEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_UPDATE.name());
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertOrUpdateStatementId(), entityType.getShortNameFirstLowCase());
         method.addBodyLine("if (i > 0) {");
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+        if (containsUpdatedEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.UPDATED.name());
         }
         method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase());

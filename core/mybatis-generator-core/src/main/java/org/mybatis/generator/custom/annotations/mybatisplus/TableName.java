@@ -44,11 +44,15 @@ public class TableName extends AbstractAnnotation {
         if (schema != null) {
             this.items.add(VStringUtil.format("schema = \"{0}\"", this.schema));
         }
-        this.items.add(VStringUtil.format("keepGlobalPrefix = {0}", this.keepGlobalPrefix));
+        if (this.keepGlobalPrefix) {
+            this.items.add("keepGlobalPrefix = true");
+        }
         if (resultMap != null) {
             this.items.add(VStringUtil.format("resultMap = \"{0}\"", this.resultMap));
         }
-        this.items.add(VStringUtil.format("autoResultMap = {0}", this.autoResultMap));
+        if (this.autoResultMap) {
+            this.items.add("autoResultMap = true");
+        }
         if (excludeProperty != null) {
             this.items.add(VStringUtil.format("excludeProperty = {0}", String.join( ",",excludeProperty)));
         }

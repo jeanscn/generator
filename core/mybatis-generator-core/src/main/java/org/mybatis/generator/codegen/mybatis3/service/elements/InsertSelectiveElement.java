@@ -30,7 +30,8 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        boolean containsPreInsertEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name());
+        boolean containsInsertedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name());
 
         Method insertSelectiveMethod = serviceMethods.getInsertMethod(parentElement, false, true,true);
 
@@ -40,6 +41,11 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         }
 
         insertSelectiveMethod.addAnnotation("@Override");
+        if (containsPreInsertEvent || containsInsertedEvent) {
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+            parentElement.addImportedType("java.lang.Exception");
+            insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        }
         List<RelationGeneratorConfiguration> configs1 = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
@@ -48,13 +54,13 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
         }
         //增加PRE_INSERT事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())) {
+        if (containsPreInsertEvent) {
             insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
         }
         insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
         insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
         //增加INSERTED事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name())) {
+        if (containsInsertedEvent) {
             insertSelectiveMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
         }
         insertSelectiveMethod.addBodyLine("return serviceResult;");

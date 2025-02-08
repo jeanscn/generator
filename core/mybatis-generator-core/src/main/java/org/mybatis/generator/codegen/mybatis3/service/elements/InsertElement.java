@@ -29,17 +29,21 @@ public class InsertElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
         parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
+        boolean containsPreInsertEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name());
+        boolean containsInsertedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name());
 
         Method insertMethod = serviceMethods.getInsertMethod(parentElement, false, false,true);
-
         CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
         if (introspectedTable.getRules().isGenerateCachePO()) {
             insertMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
-
         insertMethod.addAnnotation("@Override");
+        if (containsPreInsertEvent || containsInsertedEvent) {
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+            parentElement.addImportedType("java.lang.Exception");
+            insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        }
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
@@ -48,13 +52,13 @@ public class InsertElement extends AbstractServiceElementGenerator {
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
         //增加PRE_UPDATE事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())) {
+        if (containsPreInsertEvent) {
             insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
         }
         insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
         insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
         //增加UPDATED事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name())) {
+        if (containsInsertedEvent) {
             insertMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
         }
         insertMethod.addBodyLine("return serviceResult;");

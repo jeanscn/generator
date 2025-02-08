@@ -29,9 +29,15 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
 
+        boolean containPreDeleteEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name());
+        boolean containDeletedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name());
+
         Method method = serviceMethods.getDeleteByPrimaryKeyMethod(parentElement, false);
         method.addAnnotation("@Override");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        if(containPreDeleteEvent || containDeletedEvent) {
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        }
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
@@ -46,7 +52,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("ServiceResult<{0}> result = this.selectByPrimaryKey({1});", entityType.getShortName(), pks);
             method.addBodyLine("if (result.hasResult()) {");
             //增加PRE_DELETE事件发布
-            if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
+            if (containPreDeleteEvent) {
                 method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{1});",entityType.getShortName(), EntityEventEnum.PRE_DELETE.name());
             }
             method.addBodyLine("{0} {1} = result.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
@@ -54,15 +60,14 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("int affectedRows = mapper.deleteByPrimaryKey({0});", pks);
             method.addBodyLine("if (affectedRows > 0) {");
             //增加DELETED事件发布
-            if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())) {
+            if (containDeletedEvent) {
                 method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});",EntityEventEnum.DELETED.name());
             }
             method.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             method.addBodyLine("}}");
             method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         } else {
-            if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())
-                    || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())) {
+            if (containPreDeleteEvent || containDeletedEvent) {
                 overwriteParentDeleteByPrimaryKey(method ,introspectedTable.getDeleteByPrimaryKeyStatementId());
             }else{
                 method.addBodyLine("return super.{0}({1});", introspectedTable.getDeleteByPrimaryKeyStatementId()

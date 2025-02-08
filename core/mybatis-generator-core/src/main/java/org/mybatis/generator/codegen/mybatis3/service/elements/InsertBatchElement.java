@@ -29,15 +29,22 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addImportedType(SERVICE_CODE_ENUM);
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+
+        boolean containsPreInsertEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name());
+        boolean containsInsertedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name());
 
         Method method = serviceMethods.getInsertBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
+        if (containsPreInsertEvent || containsInsertedEvent) {
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+            parentElement.addImportedType("java.lang.Exception");
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        }
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         //增加PRE_INSERT事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())) {
+        if (containsPreInsertEvent) {
             method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_INSERT.name());
         }
         if (!configs.isEmpty()) {
@@ -49,7 +56,7 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("if (i > 0) {");
         //增加INSERTED事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name())) {
+        if (containsInsertedEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.INSERTED.name());
         }
         method.addBodyLine("return ServiceResult.success({0},i);",entityType.getShortNameFirstLowCase() + "s");

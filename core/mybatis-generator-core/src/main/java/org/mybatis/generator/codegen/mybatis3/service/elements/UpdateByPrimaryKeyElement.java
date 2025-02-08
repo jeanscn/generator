@@ -34,6 +34,8 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        parentElement.addImportedType("java.lang.Exception");
+        updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         if (introspectedTable.getRules().isGenerateCachePO()) {
             updateByPrimaryKeySelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
@@ -41,7 +43,6 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
-            updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             outSubBatchMethodBody(updateByPrimaryKeySelective, "UPDATE", "record", parentElement, configs, false);
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()) || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
                 overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());

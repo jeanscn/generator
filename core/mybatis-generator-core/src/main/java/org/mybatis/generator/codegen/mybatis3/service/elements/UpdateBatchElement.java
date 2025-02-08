@@ -30,10 +30,16 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        boolean containsPreUpdateEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name());
+        boolean containsUpdatedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name());
 
         Method method = serviceMethods.getUpdateBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
+        if (containsPreUpdateEvent || containsUpdatedEvent) {
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+            parentElement.addImportedType("java.lang.Exception");
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        }
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
@@ -48,13 +54,13 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
             method.addBodyLine("}");
         }
         //增加update事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
+        if (containsPreUpdateEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.PRE_UPDATE.name());
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getUpdateBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("if (i > 0) {");
         //增加update事件发布
-        if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
+        if (containsUpdatedEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.UPDATED.name());
         }
         method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase() + "s");
