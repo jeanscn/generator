@@ -33,6 +33,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         Method deleteByExampleMethod = serviceMethods.getDeleteByExampleMethod(parentElement, false);
         deleteByExampleMethod.addAnnotation("@Override");
         if(containPreDeleteEvent || containDeletedEvent) {
+            parentElement.addImportedType("java.lang.Exception");
             parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
             deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         }
@@ -50,6 +51,8 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
             deleteByExampleMethod.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
         }
         if (!collect.isEmpty()) {
+            parentElement.addImportedType("java.lang.Exception");
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
             deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
 
             deleteByExampleMethod.addBodyLine("for ({0} {1} : result.getResult()) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());

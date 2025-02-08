@@ -35,6 +35,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         Method method = serviceMethods.getDeleteByPrimaryKeyMethod(parentElement, false);
         method.addAnnotation("@Override");
         if(containPreDeleteEvent || containDeletedEvent) {
+            parentElement.addImportedType("java.lang.Exception");
             parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
             method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
         }
@@ -48,6 +49,8 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 .collect(Collectors.toList());
 
         if (!deleteConfigs.isEmpty()) {
+            parentElement.addImportedType("java.lang.Exception");
+            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
             method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
             method.addBodyLine("ServiceResult<{0}> result = this.selectByPrimaryKey({1});", entityType.getShortName(), pks);
             method.addBodyLine("if (result.hasResult()) {");
