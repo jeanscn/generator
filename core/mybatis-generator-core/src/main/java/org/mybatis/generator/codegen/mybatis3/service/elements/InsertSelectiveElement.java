@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,15 +43,13 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
 
         insertSelectiveMethod.addAnnotation("@Override");
         if (containsPreInsertEvent || containsInsertedEvent) {
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            parentElement.addImportedType("java.lang.Exception");
-            insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,insertSelectiveMethod,"READ_COMMITTED");
         }
         List<RelationGeneratorConfiguration> configs1 = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (!configs1.isEmpty()) {
-            insertSelectiveMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,insertSelectiveMethod,"READ_COMMITTED");
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
         }
         //增加PRE_INSERT事件发布

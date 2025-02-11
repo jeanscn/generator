@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +36,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         Method method = serviceMethods.getDeleteByPrimaryKeyMethod(parentElement, false);
         method.addAnnotation("@Override");
         if(containPreDeleteEvent || containDeletedEvent) {
-            parentElement.addImportedType("java.lang.Exception");
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"DEFAULT");
         }
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
@@ -49,9 +48,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
                 .collect(Collectors.toList());
 
         if (!deleteConfigs.isEmpty()) {
-            parentElement.addImportedType("java.lang.Exception");
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"DEFAULT");
             method.addBodyLine("ServiceResult<{0}> result = this.selectByPrimaryKey({1});", entityType.getShortName(), pks);
             method.addBodyLine("if (result.hasResult()) {");
             //增加PRE_DELETE事件发布

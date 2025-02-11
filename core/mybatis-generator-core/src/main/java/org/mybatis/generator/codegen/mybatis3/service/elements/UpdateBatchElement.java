@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,9 +37,7 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         Method method = serviceMethods.getUpdateBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
         if (containsPreUpdateEvent || containsUpdatedEvent) {
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            parentElement.addImportedType("java.lang.Exception");
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
         }
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
@@ -48,7 +47,7 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
                 .filter(RelationGeneratorConfiguration::isEnableUpdate)
                 .collect(Collectors.toList());
         if (!configs.isEmpty()) {
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
             method.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "UPDATE", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
             method.addBodyLine("}");

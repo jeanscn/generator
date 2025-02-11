@@ -8,6 +8,7 @@ import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
@@ -103,11 +104,11 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         parent.addImportedType("org.springframework.transaction.interceptor.TransactionAspectSupport");
     }
 
-    protected void addCacheEnableAnnotations(List<String> cacheAnnotationList, Method method,TopLevelClass parentElement) {
+    protected void addCacheEnableAnnotations(List<String> cacheAnnotationList, Method method, TopLevelClass parentElement) {
         if (cacheAnnotationList.size() == 1) {
             method.addAnnotation(cacheAnnotationList.get(0));
             parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
-        } else if (cacheAnnotationList.size() > 1)  {
+        } else if (cacheAnnotationList.size() > 1) {
             method.addAnnotation("@Caching(cacheable = {\n" +
                     String.join(",\n", cacheAnnotationList) + "\n" +
                     "})");
@@ -116,7 +117,7 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         }
     }
 
-    protected void addCacheCacheEvictAnnotations(List<String> cacheAnnotationList, Method method,TopLevelClass parentElement) {
+    protected void addCacheCacheEvictAnnotations(List<String> cacheAnnotationList, Method method, TopLevelClass parentElement) {
         if (cacheAnnotationList.size() == 1) {
             method.addAnnotation(cacheAnnotationList.get(0));
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
@@ -129,13 +130,13 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         }
     }
 
-    protected String generateSelectByTableCacheNames(SelectByTableGeneratorConfiguration configuration, String cacheType){
+    protected String generateSelectByTableCacheNames(SelectByTableGeneratorConfiguration configuration, String cacheType) {
         if (cacheType.equals("cache")) {
-            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty()+"sCache";
+            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
         } else if (cacheType.equals("evict")) {
-            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty()+"sCache";
+            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
         } else {
-            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty()+"sCache";
+            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
         }
     }
 }

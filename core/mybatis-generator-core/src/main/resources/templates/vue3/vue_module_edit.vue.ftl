@@ -3,8 +3,16 @@
 * @version: edit template version 1.0.1
 */
 <template>
-    <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
-              :viewStatus="viewStatus" @form-submit="onSubmit"  @item-call-back="callHookByName"></vgo-form>
+    <vgoForm
+            v-if="formConfigReady"
+            v-model="_formData"
+            ref="vgoFormRef"
+            :formConfig="_formConfig"
+            :viewStatus="viewStatus"
+            @form-submit="onSubmit"
+            @item-call-back="callHookByName"
+            @row-deleted="rowDeleted"
+    ></vgoForm>
 </template>
 
 <script lang="ts" setup name="${ modelName }Edit">
@@ -18,6 +26,7 @@
     import { useFormConfigStore } from '@/store/formConfig';
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
+    import { TVgoVxeTableRowDeletedParams } from '@/framework/components/VgoVxeTable/types';
     <#if workflowEnabled >
     import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
 
@@ -115,6 +124,12 @@
             useExtentHooks.default[hookName](params);
         } else {
             console.log('Hook ['+ hookName + '] does not exist');
+        }
+    };
+
+    const rowDeleted = (params: TVgoVxeTableRowDeletedParams) => {
+        if (typeof useExtentHooks.default[`rowDeleted`] === 'function') {
+            useExtentHooks.default[`rowDeleted`](params)
         }
     };
 

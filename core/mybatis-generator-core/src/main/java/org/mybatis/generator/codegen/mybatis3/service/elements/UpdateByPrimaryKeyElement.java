@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,9 +34,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         /* updateByPrimaryKeySelective */
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        parentElement.addImportedType("java.lang.Exception");
-        updateByPrimaryKeySelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByPrimaryKeySelective,"READ_COMMITTED");
         if (introspectedTable.getRules().isGenerateCachePO()) {
             updateByPrimaryKeySelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
@@ -74,7 +73,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
                     .collect(Collectors.toList());
-            updateByPrimaryKey.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByPrimaryKey,"READ_COMMITTED");
             outSubBatchMethodBody(updateByPrimaryKey, "UPDATE", "record", parentElement, configs, false);
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()) || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
                 overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());

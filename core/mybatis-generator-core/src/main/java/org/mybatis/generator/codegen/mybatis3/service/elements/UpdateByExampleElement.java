@@ -4,6 +4,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
 
@@ -25,9 +26,7 @@ public class UpdateByExampleElement extends AbstractServiceElementGenerator {
         CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
         Method updateByExampleSelective = serviceMethods.getUpdateByExample(parentElement, false, true);
         updateByExampleSelective.addAnnotation("@Override");
-        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        parentElement.addImportedType("java.lang.Exception");
-        updateByExampleSelective.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+        Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByExampleSelective,"READ_COMMITTED");
         if (introspectedTable.getRules().isGenerateCachePO()) {
             updateByExampleSelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }

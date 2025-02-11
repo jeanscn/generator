@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,9 +37,7 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
         Method method = serviceMethods.getInsertBatchMethod(parentElement, false,true);
         method.addAnnotation("@Override");
         if (containsPreInsertEvent || containsInsertedEvent) {
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            parentElement.addImportedType("java.lang.Exception");
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
         }
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
@@ -48,7 +47,7 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
             method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_INSERT.name());
         }
         if (!configs.isEmpty()) {
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
             method.addBodyLine("for ({0} {1} : {1}s) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "INSERT", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
             method.addBodyLine("}");

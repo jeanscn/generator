@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,15 +41,13 @@ public class InsertElement extends AbstractServiceElementGenerator {
         }
         insertMethod.addAnnotation("@Override");
         if (containsPreInsertEvent || containsInsertedEvent) {
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            parentElement.addImportedType("java.lang.Exception");
-            insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,insertMethod,"READ_COMMITTED");
         }
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)
                 .collect(Collectors.toList());
         if (!configs.isEmpty()) {
-            insertMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,insertMethod,"READ_COMMITTED");
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
         //增加PRE_UPDATE事件发布

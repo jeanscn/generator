@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,9 +39,7 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
         }
         method.addAnnotation("@Override");
         if (containsPreUpdateEvent || containsUpdatedEvent) {
-            parentElement.addImportedType("java.lang.Exception");
-            method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
         }
         List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsertOrUpdate)

@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,9 +34,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         Method deleteByExampleMethod = serviceMethods.getDeleteByExampleMethod(parentElement, false);
         deleteByExampleMethod.addAnnotation("@Override");
         if(containPreDeleteEvent || containDeletedEvent) {
-            parentElement.addImportedType("java.lang.Exception");
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,deleteByExampleMethod,"DEFAULT");
         }
 
         if (introspectedTable.getRules().isGenerateCachePO()) {
@@ -51,10 +50,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
             deleteByExampleMethod.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
         }
         if (!collect.isEmpty()) {
-            parentElement.addImportedType("java.lang.Exception");
-            parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-            deleteByExampleMethod.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-
+            Mb3GenUtil.addTransactionalAnnotation(parentElement,deleteByExampleMethod,"DEFAULT");
             deleteByExampleMethod.addBodyLine("for ({0} {1} : result.getResult()) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, false);
             deleteByExampleMethod.addBodyLine("}");

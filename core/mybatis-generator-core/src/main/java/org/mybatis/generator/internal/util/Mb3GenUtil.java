@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Attribute;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
@@ -21,6 +23,7 @@ import java.util.Optional;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
+import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -217,5 +220,24 @@ public class Mb3GenUtil {
             });
         }
         return columnRenderFunMap;
+    }
+
+    /**
+     * 添加事务注解
+     *
+     * @param parentElement 类
+     * @param method        方法
+     * @param isolation     事务隔离级别：DEFAULT，READ_UNCOMMITTED，READ_COMMITTED，REPEATABLE_READ,SERIALIZABLE
+     */
+    public static void addTransactionalAnnotation(TopLevelClass parentElement, Method method, @Nullable String isolation) {
+        parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
+        parentElement.addImportedType("java.lang.Exception");
+        if (isolation != null && !"DEFAULT".equals(isolation)) {
+            parentElement.addImportedType("org.springframework.transaction.annotation.Isolation");
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class, isolation = Isolation." + isolation + ")");
+        } else {
+            method.addAnnotation("@Transactional(rollbackFor = Exception.class)" );
+        }
+
     }
 }

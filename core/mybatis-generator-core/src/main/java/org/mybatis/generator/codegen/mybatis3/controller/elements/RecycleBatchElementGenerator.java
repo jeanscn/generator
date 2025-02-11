@@ -6,6 +6,7 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
@@ -22,8 +23,7 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         final String methodPrefix = "recycleBatch";
         Method method = createMethod(methodPrefix);
         method.setVisibility(JavaVisibility.PUBLIC);
-        method.addAnnotation("@Transactional(rollbackFor = Exception.class)");
-        parentElement.addImportedType(new FullyQualifiedJavaType("org.springframework.transaction.annotation.Transactional"));
+        Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
         response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
         method.setReturnType(response);
