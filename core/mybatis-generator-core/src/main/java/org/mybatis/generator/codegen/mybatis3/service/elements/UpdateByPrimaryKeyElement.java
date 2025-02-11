@@ -92,6 +92,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());
         }
         parentElement.addMethod(updateByPrimaryKey);
+        parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
     }
 
     /**
@@ -103,16 +104,12 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
         }
         method.addBodyLine("int i = mapper.{0}(record);",methodName);
-        method.addBodyLine("if (i > 0) {");
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
             method.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
         }
         method.addBodyLine("return ServiceResult.success(record,i);");
-        method.addBodyLine("} else {");
-        method.addBodyLine(" return ServiceResult.failure(ServiceCodeEnum.WARN);");
-        method.addBodyLine("}");
         method.addBodyLine("} catch (Exception e) {");
-        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.RUNTIME_ERROR, e.getMessage());");
+        method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         method.addBodyLine("}");
     }
 }

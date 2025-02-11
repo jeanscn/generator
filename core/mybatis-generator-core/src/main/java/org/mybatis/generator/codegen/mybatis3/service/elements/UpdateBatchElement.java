@@ -52,20 +52,21 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
             outSubBatchMethodBody(method, "UPDATE", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
             method.addBodyLine("}");
         }
+        method.addBodyLine("try {");
         //增加update事件发布
         if (containsPreUpdateEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.PRE_UPDATE.name());
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getUpdateBatchStatementId(), entityType.getShortNameFirstLowCase() + "s");
-        method.addBodyLine("if (i > 0) {");
         //增加update事件发布
         if (containsUpdatedEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.UPDATED.name());
         }
-        method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase() + "s");
-        method.addBodyLine("}else{");
-        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
+        method.addBodyLine("return ServiceResult.success({0}, i);", entityType.getShortNameFirstLowCase() + "s");
+        method.addBodyLine("} catch (Exception e) {");
+        method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         method.addBodyLine("}");
         parentElement.addMethod(method);
+        parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
     }
 }

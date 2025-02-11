@@ -47,19 +47,19 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
         if (!configs.isEmpty()) {
             outSubBatchMethodBody(method, "INSERTORUPDATE", entityType.getShortNameFirstLowCase(), parentElement, configs, false);
         }
+        method.addBodyLine("try {");
         if (containsPreUpdateEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_UPDATE.name());
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertOrUpdateStatementId(), entityType.getShortNameFirstLowCase());
-        method.addBodyLine("if (i > 0) {");
         if (containsUpdatedEvent) {
             method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.UPDATED.name());
         }
         method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase());
-        method.addBodyLine("}else{");
-        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN);");
+        method.addBodyLine("} catch (Exception e) {");
+        method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         method.addBodyLine("}");
         parentElement.addMethod(method);
-
+        parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
     }
 }
