@@ -1040,7 +1040,11 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
                 case PropertyRegistry.ELEMENT_HTML_TABLE_SELECT_DESCRIPTOR:
                     HtmlElementDescriptor htmlTableSelectDescriptor = parseHtmlElementDescriptor(childNode);
-                    htmlTableSelectDescriptor.setTagType(HtmlElementTagTypeEnum.TABLE_SELECT.codeName());
+                    if (!stringHasValue(htmlTableSelectDescriptor.getTagType())) {
+                        htmlTableSelectDescriptor.setTagType(HtmlElementTagTypeEnum.TABLE_SELECT.codeName());
+                    } else {
+                        htmlTableSelectDescriptor.setTagType(HtmlElementTagTypeEnum.ofCodeName(htmlTableSelectDescriptor.getTagType()).codeName());
+                    }
                     htmlTableSelectDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT.codeName());
                     htmlTableSelectDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                     if (stringHasValue(htmlTableSelectDescriptor.getName()) && stringHasValue(htmlTableSelectDescriptor.getTagType())) {
@@ -2620,6 +2624,10 @@ public class MyBatisGeneratorConfigurationParser {
                     QueryColumnConfiguration queryColumnConfiguration = parseQueryColumn(tc, childNode);
                     voViewGeneratorConfiguration.addQueryColumnConfigurations(queryColumnConfiguration);
                     break;
+                case ("filterColumn"):
+                    FilterColumnConfiguration filterColumnConfiguration = parseFilterColumn(tc, childNode);
+                    voViewGeneratorConfiguration.addFilterColumnsConfigurations(filterColumnConfiguration);
+                    break;
                 case ("fieldOverrides"):
                     ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = parseFieldOverrides(context, tc, childNode, voViewGeneratorConfiguration);
                     voViewGeneratorConfiguration.addViewFieldOverrideConfiguration(viewFieldOverrideConfiguration);
@@ -2856,6 +2864,48 @@ public class MyBatisGeneratorConfigurationParser {
             queryColumnConfiguration.setDataUrl(dataUrl);
         }
         return queryColumnConfiguration;
+    }
+
+    private FilterColumnConfiguration parseFilterColumn(TableConfiguration tc, Node childNode) {
+        FilterColumnConfiguration filterColumnConfiguration = new FilterColumnConfiguration(tc);
+        Properties attributes = parseAttributes(childNode);
+        String column = attributes.getProperty("column");
+        if (stringHasValue(column)) {
+            filterColumnConfiguration.setColumn(column);
+        }
+        String tagName = attributes.getProperty("tagType");
+        if (stringHasValue(tagName)) {
+            filterColumnConfiguration.setTagName(HtmlElementTagTypeEnum.ofCodeName(tagName));
+        }
+        String remark = attributes.getProperty("remark");
+        if (stringHasValue(remark)) {
+            filterColumnConfiguration.setRemark(remark);
+        }
+        String queryMode = attributes.getProperty("queryMode");
+        if (stringHasValue(queryMode)) {
+            filterColumnConfiguration.setQueryMode(QueryModesEnum.ofCodeName(queryMode));
+        }
+        String order = attributes.getProperty("order");
+        if (stringHasValue(order)) {
+            filterColumnConfiguration.setOrder(Integer.parseInt(order));
+        }
+        String repeat = attributes.getProperty("repeat");
+        if (stringHasValue(repeat)) {
+            filterColumnConfiguration.setRepeat(Boolean.parseBoolean(repeat));
+        }
+        String operators = attributes.getProperty("operators");
+        if (stringHasValue(operators)) {
+            filterColumnConfiguration.setOperators(splitToList(operators));
+        }
+        String multiple = attributes.getProperty("multiple");
+        if (stringHasValue(multiple)) {
+            filterColumnConfiguration.setMultiple(Boolean.parseBoolean(multiple));
+        }
+        String range = attributes.getProperty("range");
+        if (stringHasValue(range)) {
+            filterColumnConfiguration.setRange(Boolean.parseBoolean(range));
+        }
+        return filterColumnConfiguration;
     }
 
     private HtmlButtonGeneratorConfiguration parseHtmlButton(Node childNode) {

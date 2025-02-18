@@ -1,7 +1,15 @@
 /**
-* @description ${ tableRemark }-表单钩子函数定义
-* @version: hooks template version 1.0.1
-*/
+ * @description ${ tableRemark }-表单钩子函数定义
+ * @version: hooks template version 1.0.2
+ * 个性化的钩子函数集合。
+ * 固定的函数名称包括：
+ * 1.	innerListDataAllReady - 子表数据加载完成的钩子
+ * 		innerListDataAllReady: (data: any, grid: any, listKey: string, formData: T${ modelName }) => {})
+ * 		参数：data: 子表数据，grid: 子表实例，listKey: 子表键，formData: 主表数据
+ * 2.	rowDeleted - 子表行删除后的钩子
+ * 		rowDeleted: (params: TVgoVxeTableRowDeletedParams) => {})
+ */
+
 import { Ref } from "vue";
 import { T${ modelName } } from "./types/T${ modelName }";
 import { TPrivateHooksParams } from "@/framework/components/vgoForm/types";

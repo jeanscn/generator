@@ -33,6 +33,10 @@ public class CompositeQueryDesc extends AbstractAnnotation {
     private String field;
     private String tableName;
     private String tableAlias;
+    private boolean repeat = false;
+    private String operators;
+    private boolean multiple;
+    private boolean range;
 
     private final IntrospectedColumn introspectedColumn;
 
@@ -196,6 +200,18 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getTableAlias())) {
             this.items.add(VStringUtil.format("tableAlias = \"{0}\"", this.getTableAlias()));
         }
+        if (this.isRepeat()) {
+            this.items.add("repeat = true");
+        }
+        if (VStringUtil.isNotBlank(this.getOperators())) {
+            this.items.add(VStringUtil.format("operators = \"{0}\"", this.getOperators()));
+        }
+        if (this.isMultiple()) {
+            this.items.add("multiple = true");
+        }
+        if (this.isRange()) {
+            this.items.add("range = true");
+        }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
@@ -289,5 +305,37 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     public void setListKey(String listKey) {
         this.listKey = listKey;
+    }
+
+    public boolean isRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(boolean repeat) {
+        this.repeat = repeat;
+    }
+
+    public String getOperators() {
+        return operators;
+    }
+
+    public void setOperators(String operators) {
+        this.operators = operators;
+    }
+
+    public boolean isMultiple() {
+        return multiple;
+    }
+
+    public void setMultiple(boolean multiple) {
+        this.multiple = multiple;
+    }
+
+    public boolean isRange() {
+        return range;
+    }
+
+    public void setRange(boolean range) {
+        this.range = range;
     }
 }

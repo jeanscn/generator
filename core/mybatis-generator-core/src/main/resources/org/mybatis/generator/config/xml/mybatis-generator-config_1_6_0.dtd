@@ -863,6 +863,7 @@
         <!ELEMENT htmlTableSelectDescriptor (property*)>
         <!ATTLIST htmlTableSelectDescriptor
                 column CDATA #REQUIRED
+                tagType (tableselect|tableSelectPop) #IMPLIED
                 otherFieldName CDATA #IMPLIED
                 dataUrl CDATA #REQUIRED
                 dataUrlParams CDATA #IMPLIED
@@ -1337,7 +1338,7 @@
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
         -->
 
-        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*,htmlButton*,queryColumn*,fieldOverrides*)>
+        <!ELEMENT viewVO (property*,overridePropertyValue*,additionalProperty*,columnRenderFun*,innerListView*,htmlButton*,queryColumn*,fieldOverrides*,filterColumn*)>
         <!ATTLIST viewVO
                 generate (true|false) #IMPLIED
                 includeColumns CDATA #IMPLIED
@@ -1748,6 +1749,29 @@
                 enumClassFullName CDATA #IMPLIED
                 dictCode CDATA #IMPLIED
                 dataUrl CDATA #IMPLIED>
+
+        <!--
+            用于描述过滤器列配置信息
+            属性信息：
+            1、column 必须，列名
+            2、tagType 可选，列的html标签名，如：select、input、dropdownlist等
+            3、remark 可选，列中文描述
+            4、queryMode 可选，比较方式
+            5、order 可选，排序
+            6、repeat 可选，是否允许重复
+            7、operators 可选，可用的操作符列表.EqualTo,NotEqualTo,GreaterThan,LessThan,GreaterThanOrEqualTo,LessThanOrEqualTo,Like,NotLike,NotLikeAny,LikeAny,LikeRight,LikeLeft,Between,In,NotIn.0个，1个或多个
+        -->
+        <!ELEMENT filterColumn (property*)>
+        <!ATTLIST filterColumn
+                column CDATA #REQUIRED
+                tagType %tagType; #IMPLIED
+                remark CDATA #IMPLIED
+                queryMode %queryExpression; #IMPLIED
+                order CDATA #IMPLIED
+                repeat (false|true) #IMPLIED
+                operators CDATA #IMPLIED
+                multiple (false|true) #IMPLIED
+                range (false|true) #IMPLIED>
 
         <!--
              增加一个mapstruct转换方法

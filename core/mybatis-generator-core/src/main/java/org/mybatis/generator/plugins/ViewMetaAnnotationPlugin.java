@@ -274,7 +274,12 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             }).filter(Objects::nonNull).collect(Collectors.toList());
             //更新顺序号，order
             for (int i = 0; i < queryDesc.size(); i++) {
-                queryDesc.get(i).setOrder(i + 1);
+                CompositeQueryDesc compositeQueryDesc = queryDesc.get(i);
+                compositeQueryDesc.setOrder(i + 1);
+                voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().filter(f -> f.getColumn().equals(compositeQueryDesc.getColumn())).findFirst().ifPresent(f -> {
+                    compositeQueryDesc.setOperators(f.getOperators().stream().distinct().collect(Collectors.joining(",")));
+                    compositeQueryDesc.setRepeat(f.isRepeat());
+                });
             }
             //转换为注解
             String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);

@@ -36,6 +36,7 @@ public class VueFormGenerateUtil {
                 case DATE:
                 case CASCADER:
                 case TABLE_SELECT:
+                case TABLE_SELECT_POP:
                     return "请选择";
                 case NUMBER:
                     return "请输入数字";

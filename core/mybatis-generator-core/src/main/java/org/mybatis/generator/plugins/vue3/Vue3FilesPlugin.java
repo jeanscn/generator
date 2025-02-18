@@ -142,6 +142,8 @@ public class Vue3FilesPlugin extends PluginAdapter {
             editMap.put("modelPath", modelPath);
             editMap.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
             editMap.put("tableRemark", tableRemark);
+            // 是否包含内置列表
+            editMap.put("hasInnerList", !htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().isEmpty());
             String vueEditFileName = fileNameEdit + ".vue";
             GeneratedVueFile generatedVueEditFile = new GeneratedVueFile(
                     vueEditFileName,

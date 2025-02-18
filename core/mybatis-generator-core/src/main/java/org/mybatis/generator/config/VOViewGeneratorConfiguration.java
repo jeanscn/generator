@@ -19,6 +19,8 @@ public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfigu
 
     private final List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
 
+    private final List<FilterColumnConfiguration> filterColumnsConfigurations = new ArrayList<>();
+
     private List<ViewFieldOverrideConfiguration> viewFieldOverrideConfigurations = new ArrayList<>();
 
     private TableConfiguration tableConfiguration;
@@ -121,5 +123,13 @@ public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfigu
 
     public void setTableConfiguration(TableConfiguration tableConfiguration) {
         this.tableConfiguration = tableConfiguration;
+    }
+
+    public List<FilterColumnConfiguration> getFilterColumnsConfigurations() {
+        return filterColumnsConfigurations;
+    }
+
+    public void addFilterColumnsConfigurations(FilterColumnConfiguration filterColumnConfiguration) {
+        this.filterColumnsConfigurations.add(filterColumnConfiguration);
     }
 }

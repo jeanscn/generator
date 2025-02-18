@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }编辑组件
-* @version: edit template version 1.0.1
+* @version: edit template version 1.0.2
 */
 <template>
     <vgoForm
@@ -11,7 +11,10 @@
             :viewStatus="viewStatus"
             @form-submit="onSubmit"
             @item-call-back="callHookByName"
+            <#if hasInnerList>
             @row-deleted="rowDeleted"
+            @inner-list-data-all-ready="innerListDataAllReady"
+            </#if>
     ></vgoForm>
 </template>
 
@@ -26,7 +29,9 @@
     import { useFormConfigStore } from '@/store/formConfig';
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
+    <#if hasInnerList>
     import { TVgoVxeTableRowDeletedParams } from '@/framework/components/VgoVxeTable/types';
+    </#if>
     <#if workflowEnabled >
     import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
 
@@ -87,7 +92,7 @@
         fetchFormConfigAsync(_formConfig);
         <#if workflowEnabled >
         if(!!_formData.value && _formData.value['workflowEnabled']===1){
-            const taskAttributes = await currentTaskAttributesStore.getCurrentTaskAttributesWithFetch(_formData.value?.id);
+            const taskAttributes = await currentTaskAttributesStore.getCurrentTaskAttributesWithFetch(_formData.value?.id || 'undefined');
             _formData.value['actionList'] = taskAttributes?.taskExtAttributes?.actionList||[];
             _formData.value['taskAttributes'] = taskAttributes;
         }
@@ -98,7 +103,7 @@
     onUnmounted(() => {
         <#if workflowEnabled >
         if(_formData.value){
-            currentTaskAttributesStore.deleteCurrentTaskAttributes(_formData.value?.id);
+            currentTaskAttributesStore.deleteCurrentTaskAttributes(_formData.value?.id || 'undefined');
             _formData.value['actionList'] = [];
             _formData.value['taskAttributes'] = {};
         }
@@ -127,11 +132,18 @@
         }
     };
 
+    <#if hasInnerList>
     const rowDeleted = (params: TVgoVxeTableRowDeletedParams) => {
         if (typeof useExtentHooks.default[`rowDeleted`] === 'function') {
             useExtentHooks.default[`rowDeleted`](params)
         }
     };
+    const innerListDataAllReady = (data: any, grid: any, listKey: string, formData: T${ modelName }) => {
+        if (typeof useExtentHooks.default[`innerListDataAllReady`] === 'function') {
+            useExtentHooks.default[`innerListDataAllReady`](data, grid, listKey, formData);
+        }
+    };
+    </#if>
 
     const getFormRef = () => {
         return vgoFormRef.value;
