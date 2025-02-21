@@ -298,7 +298,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
 
         //添加checkbox的隐藏input，避免提交时没有值
         for (HtmlElementDescriptor htmlElementDescriptor : htmlGeneratorConfiguration.getElementDescriptors()) {
-            if (htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.codeName())) {
+            if (htmlElementDescriptor.getTagType()!=null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.CHECKBOX.codeName())) {
                 HtmlElement input = new HtmlElement("input");
                 input.addAttribute(new Attribute("name",
                         htmlElementDescriptor.getColumn().getJavaProperty() +
@@ -452,7 +452,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         addCssClassToElement(label, "layui-form-label");
         if (htmlElementDescriptor == null) {
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
-        } else if(!htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.codeName())){
+        } else if(htmlElementDescriptor.getTagType()!=null && !htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.RADIO.codeName())){
             label.addAttribute(new Attribute("for", introspectedColumn.getJavaProperty()));
         }
         OverridePropertyValueGeneratorConfiguration overrideConfig = voGenService.getOverridePropertyValueConfiguration(introspectedColumn);

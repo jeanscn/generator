@@ -7,6 +7,7 @@ import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.config.AbstractFilterConditionConfiguration;
 import org.mybatis.generator.config.QueryColumnConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -21,61 +22,61 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@CompositeQuery";
 
-    private String listKey;
-
+    private IntrospectedColumn introspectedColumn;
+    private String tableName;
+    private String tableAlias;
     private String column;
-    private String remark;
+    private String listKey;
     private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.INPUT;
+    private String field;
+    private String remark;
     private QueryModesEnum queryMode = QueryModesEnum.LIKE;
     private int order;
     private FieldTypeEnum fieldType = FieldTypeEnum.TEXT;
+
     private String dataUrl;
-    private String field;
-    private String tableName;
-    private String tableAlias;
+    private boolean multiple = false;
+    private boolean range = false;
     private boolean repeat = false;
     private String operators;
-    private boolean multiple;
-    private boolean range;
 
-    private final IntrospectedColumn introspectedColumn;
 
     public static CompositeQueryDesc create(IntrospectedColumn introspectedColumn) {
         return new CompositeQueryDesc(introspectedColumn);
     }
 
-    public static CompositeQueryDesc create(QueryColumnConfiguration queryColumnConfiguration, IntrospectedTable introspectedTable) {
-        CompositeQueryDesc compositeQueryDesc = new CompositeQueryDesc(queryColumnConfiguration, introspectedTable);
-        if (queryColumnConfiguration.getDataFormat() != null) {
-            String enumClassNameByDataFmt = Mb3GenUtil.getEnumClassNameByDataFmt(queryColumnConfiguration.getDataFormat().codeName());
+    public static CompositeQueryDesc create(AbstractFilterConditionConfiguration abstractFilterConditionConfiguration, IntrospectedTable introspectedTable) {
+        CompositeQueryDesc compositeQueryDesc = new CompositeQueryDesc(abstractFilterConditionConfiguration, introspectedTable);
+        if (abstractFilterConditionConfiguration.getDataFormat() != null) {
+            String enumClassNameByDataFmt = Mb3GenUtil.getEnumClassNameByDataFmt(abstractFilterConditionConfiguration.getDataFormat().codeName());
             if (enumClassNameByDataFmt != null) {
-                queryColumnConfiguration.setEnumClassFullName(enumClassNameByDataFmt);
-                queryColumnConfiguration.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM);
+                abstractFilterConditionConfiguration.setEnumClassFullName(enumClassNameByDataFmt);
+                abstractFilterConditionConfiguration.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM);
             }
         }
-        if (queryColumnConfiguration.getDataSource() != null) {
-            switch (queryColumnConfiguration.getDataSource()) {
+        if (abstractFilterConditionConfiguration.getDataSource() != null) {
+            switch (abstractFilterConditionConfiguration.getDataSource()) {
                 case DICT_DATA:
-                    if (queryColumnConfiguration.getDictCode() != null) {
-                        compositeQueryDesc.setDataUrl("/system/sys-dict-data-impl/option/" + queryColumnConfiguration.getDictCode());
+                    if (abstractFilterConditionConfiguration.getDictCode() != null) {
+                        compositeQueryDesc.setDataUrl("/system/sys-dict-data-impl/option/" + abstractFilterConditionConfiguration.getDictCode());
                     } else {
-                        compositeQueryDesc.setDataUrl("/system/sys-dict-data-impl/option/" + queryColumnConfiguration.getField());
+                        compositeQueryDesc.setDataUrl("/system/sys-dict-data-impl/option/" + abstractFilterConditionConfiguration.getField());
                     }
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT_SYS:
-                    if (queryColumnConfiguration.getDictCode() != null) {
-                        compositeQueryDesc.setDataUrl("/system/sys-cfg-dict-impl/option/" + queryColumnConfiguration.getDictCode());
+                    if (abstractFilterConditionConfiguration.getDictCode() != null) {
+                        compositeQueryDesc.setDataUrl("/system/sys-cfg-dict-impl/option/" + abstractFilterConditionConfiguration.getDictCode());
                     } else {
-                        compositeQueryDesc.setDataUrl("/system/sys-cfg-dict-impl/option/" + queryColumnConfiguration.getField());
+                        compositeQueryDesc.setDataUrl("/system/sys-cfg-dict-impl/option/" + abstractFilterConditionConfiguration.getField());
                     }
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT_USER:
-                    if (queryColumnConfiguration.getDictCode() != null) {
-                        compositeQueryDesc.setDataUrl("/system/dict-content-impl/option/" + queryColumnConfiguration.getDictCode());
+                    if (abstractFilterConditionConfiguration.getDictCode() != null) {
+                        compositeQueryDesc.setDataUrl("/system/dict-content-impl/option/" + abstractFilterConditionConfiguration.getDictCode());
                     } else {
-                        compositeQueryDesc.setDataUrl("/system/dict-content-impl/option/" + queryColumnConfiguration.getField());
+                        compositeQueryDesc.setDataUrl("/system/dict-content-impl/option/" + abstractFilterConditionConfiguration.getField());
                     }
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
@@ -84,8 +85,8 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
                 case DICT_ENUM:
-                    if (queryColumnConfiguration.getEnumClassFullName() != null) {
-                        compositeQueryDesc.setDataUrl("/system/enum/options/" + queryColumnConfiguration.getEnumClassFullName());
+                    if (abstractFilterConditionConfiguration.getEnumClassFullName() != null) {
+                        compositeQueryDesc.setDataUrl("/system/enum/options/" + abstractFilterConditionConfiguration.getEnumClassFullName());
                     }
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
@@ -145,19 +146,23 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         }
     }
 
-    public CompositeQueryDesc(QueryColumnConfiguration queryColumnConfiguration, IntrospectedTable introspectedTable) {
+    public CompositeQueryDesc(AbstractFilterConditionConfiguration queryColumnConfiguration, IntrospectedTable introspectedTable) {
         super();
-        this.listKey = queryColumnConfiguration.getListKey();
+        this.introspectedColumn = introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null);
+        this.tableName = introspectedTable.getTableConfiguration().getTableName();
+        this.tableAlias = introspectedTable.getTableConfiguration().getAlias();
         this.column = queryColumnConfiguration.getColumn();
-        this.remark = queryColumnConfiguration.getRemark();
         this.tagName = queryColumnConfiguration.getTagName();
+        this.field = queryColumnConfiguration.getField();
+        this.remark = queryColumnConfiguration.getRemark();
         this.queryMode = queryColumnConfiguration.getQueryMode();
         this.order = queryColumnConfiguration.getOrder();
         this.fieldType = queryColumnConfiguration.getFieldType();
         this.dataUrl = queryColumnConfiguration.getDataUrl();
-        this.field = queryColumnConfiguration.getField();
+        this.listKey = queryColumnConfiguration.getListKey();
+        this.multiple = queryColumnConfiguration.isMultiple();
+        this.range = queryColumnConfiguration.isRange();
         this.addImports("com.vgosoft.core.annotation.CompositeQuery");
-        this.introspectedColumn = introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null);
     }
 
     @Override
@@ -171,18 +176,18 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         } else {
             this.items.add(VStringUtil.format("remark = \"{0}\"", this.introspectedColumn.getRemarks(true)));
         }
-        if (!this.tagName.equals(HtmlElementTagTypeEnum.INPUT)) {
+        if (this.tagName!=null && !this.tagName.equals(HtmlElementTagTypeEnum.INPUT)) {
             this.items.add(VStringUtil.format("tagName = HtmlElementTagTypeEnum.{0}", this.tagName.name()));
             this.addImports("com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum");
         }
-        if (!this.getQueryMode().equals(QueryModesEnum.LIKE)) {
+        if (this.getQueryMode()!=null && !this.getQueryMode().equals(QueryModesEnum.LIKE)) {
             this.items.add(VStringUtil.format("queryMode = QueryModesEnum.{0}", this.getQueryMode().name()));
             this.addImports("com.vgosoft.core.constant.enums.core.QueryModesEnum");
         }
         if (this.getOrder() != 10) {
             this.items.add(VStringUtil.format("order = {0}", this.getOrder()));
         }
-        if (!this.getFieldType().equals(FieldTypeEnum.TEXT)) {
+        if (this.getFieldType() != null && !this.getFieldType().equals(FieldTypeEnum.TEXT)) {
             this.items.add(VStringUtil.format("fieldType = FieldTypeEnum.{0}", this.getFieldType().name()));
             this.addImports("com.vgosoft.core.constant.enums.db.FieldTypeEnum");
         }

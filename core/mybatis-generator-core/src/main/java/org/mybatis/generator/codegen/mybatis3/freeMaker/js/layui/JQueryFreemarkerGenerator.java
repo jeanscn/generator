@@ -46,7 +46,7 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
             if (StringUtility.stringHasValue(elementDescriptor.getCallback())) {
                 callBackMethod.setTagName(elementDescriptor.getTagType());
                 callBackMethod.setColumnName(elementDescriptor.getName());
-                if (elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.codeName())) {
+                if (elementDescriptor.getTagType()!=null && elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.SELECT.codeName())) {
                     //INNER_TABLE和树形结构的select标签，返回的方法的参数不同
                     if (HtmlElementDataSourceEnum.INNER_TABLE.getCode().equals(elementDescriptor.getDataSource())) {
                         callBackMethod.getRemarks().clear();

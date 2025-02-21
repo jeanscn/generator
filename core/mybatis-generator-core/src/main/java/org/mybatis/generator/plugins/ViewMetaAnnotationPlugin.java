@@ -10,10 +10,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
-import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
-import org.mybatis.generator.config.QueryColumnConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
-import org.mybatis.generator.config.ViewFieldOverrideConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -259,11 +256,14 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         //filters
         if (!voViewGeneratorConfiguration.getFilterColumns().isEmpty()) {
             //按列名分组
-            Map<String, List<QueryColumnConfiguration>> listMap = voViewGeneratorConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
+            Map<String, List<FilterColumnConfiguration>> listMap = voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().collect(Collectors.groupingBy(FilterColumnConfiguration::getColumn));
             //去重,转换为CompositeQueryDesc
             List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
                 if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0),introspectedTable);
+                    CompositeQueryDesc compositeQueryDesc = CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                    compositeQueryDesc.setRepeat(listMap.get(columnName).get(0).isRepeat());
+                    compositeQueryDesc.setOperators(listMap.get(columnName).get(0).getOperators().stream().distinct().collect(Collectors.joining(",")));
+                    return compositeQueryDesc;
                 } else {
                     if (introspectedTable.getColumn(columnName).isPresent()) {
                         return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());

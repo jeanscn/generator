@@ -281,11 +281,11 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                     HtmlElement tdFirstLabel = new HtmlElement("td");
                     tdFirstLabel.addAttribute(new Attribute("class", "label"));
                     tdFirstLabel.addAttribute(new Attribute("style", "width: " + labelWidth + ";word-wrap: break-word;"));
-                    tdFirstLabel.addAttribute(new Attribute("th:text", "${ innerListHeaderMap['"+firstField+"'] }"));
+                    tdFirstLabel.addAttribute(new Attribute("th:text", "${ innerListHeaderMap['" + firstField + "'] }"));
                     trFirst.addElement(tdFirstLabel);
                     HtmlElement tdFirstValue = new HtmlElement("td");
-                    if (pageColumnsNum>1) {
-                        tdFirstValue.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsNum * 2 -1)));
+                    if (pageColumnsNum > 1) {
+                        tdFirstValue.addAttribute(new Attribute("colspan", String.valueOf(pageColumnsNum * 2 - 1)));
                     }
                     trFirst.addElement(tdFirstValue);
                     tdFirstValue.addElement(new TextElement("{{= item." + firstField + " }}"));
@@ -301,7 +301,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                         HtmlElement tdLabel = new HtmlElement("td");
                         tdLabel.addAttribute(new Attribute("class", "label"));
                         tdLabel.addAttribute(new Attribute("style", "width: " + labelWidth + ";word-wrap: break-word;"));
-                        tdLabel.addAttribute(new Attribute("th:text", "${ innerListHeaderMap['"+fieldName+"'] }"));
+                        tdLabel.addAttribute(new Attribute("th:text", "${ innerListHeaderMap['" + fieldName + "'] }"));
                         tr.addElement(tdLabel);
                         // 创建value td
                         HtmlElement tdValue = new HtmlElement("td");
@@ -336,14 +336,14 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                 scriptElement.addElement(new TextElement("    layui.use(['laytpl'], function () {"));
                 scriptElement.addElement(new TextElement("        let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
                 if (listConfiguration.getRelationKey() != null) {
-                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?."+ listConfiguration.getRelationKey() +"}]]*/'';"));
-                }else{
+                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + listConfiguration.getRelationKey() + "}]]*/'';"));
+                } else {
                     scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
                 }
-                scriptElement.addElement(new TextElement("        let dataUrl = \""+ listConfiguration.getDataUrl() +"?pageSize=0&" + listConfiguration.getRelationField() + "=\" + relationField;"));
+                scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\" + relationField;"));
                 scriptElement.addElement(new TextElement("        const laytpl = layui.laytpl;"));
-                scriptElement.addElement(new TextElement("        let getTpl = document.getElementById('"+tplId+"').innerHTML;"));
-                scriptElement.addElement(new TextElement("        const elemView = document.getElementById('"+placeId+"');"));
+                scriptElement.addElement(new TextElement("        let getTpl = document.getElementById('" + tplId + "').innerHTML;"));
+                scriptElement.addElement(new TextElement("        const elemView = document.getElementById('" + placeId + "');"));
                 scriptElement.addElement(new TextElement("        $.requestJsonSuccessCallback($.addRootPath(dataUrl), function (resp) {"));
                 scriptElement.addElement(new TextElement("            let data = resp.data;"));
                 scriptElement.addElement(new TextElement("            laytpl(getTpl).render(data, function (html) {"));
@@ -375,8 +375,8 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                 scriptElement.addElement(new TextElement("    $(function () {"));
                 scriptElement.addElement(new TextElement("        let innerListHeaders = /*[[${innerListHeaders}]]*/[];"));
                 if (listConfiguration.getRelationKey() != null) {
-                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?."+ listConfiguration.getRelationKey() +"}]]*/'';"));
-                }else{
+                    scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?." + listConfiguration.getRelationKey() + "}]]*/'';"));
+                } else {
                     scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
                 }
                 scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\"+relationField;"));
@@ -469,7 +469,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
     private String getThymeleafValueFieldName(IntrospectedColumn introspectedColumn) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor != null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
+        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor != null && htmlElementDescriptor.getTagType() != null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
             return getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READONLY);
         } else {
             return thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READONLY, htmlElementDescriptor);
