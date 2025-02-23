@@ -4,27 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="java17">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/AbstractThymeleafHtmlGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/AbstractThymeleafHtmlGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/GenerateUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/htmlmapper/GenerateUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vue/VueFormGenerateUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vue/VueFormGenerateUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGeneratorConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGeneratorConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGroupContainerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/HtmlGroupContainerConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/TableConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/config/xml/MyBatisGeneratorConfigurationParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormContainerMetaDesc.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormContainerMetaDesc.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_html_fragments.html.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/layui/app_html_fragments.html.ftl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/vue3/vue_module_list.vue.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/resources/templates/vue3/vue_module_list.vue.ftl" afterDir="false" />
-    </list>
-    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" afterDir="false" />
+    <list default="true" id="ef88a952-c058-4147-ad7a-838bcec3ccd9" name="Changes" comment="增加过滤器配置">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/pasm_test.RmggvQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/pasm_test.RmggvQ.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36e7f9d6-f9c0-4dc1-afd0-c12381ad9631/storage_v2/_src_/schema/sys.zb4BAA.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_11_31___Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/_2023-12-01_11_31___Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vue/VueFormGenerateUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/codegen/mybatis3/vue/VueFormGenerateUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormItemMetaDesc.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/annotations/VueFormItemMetaDesc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/custom/db/ValidateDatabaseTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins/VueHtmMetaAnnotationPlugin.java" afterDir="false" />
     </list>
+    <list id="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" name="Ignore Changes" comment="Ignore Changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,7 +51,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="generator150" />
+        <entry key="$PROJECT_DIR$" value="generator148" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -74,28 +71,6 @@
         <option name="url" value="https://github.com/jeanscn/generator.git" />
       </UrlAndAccount>
     </option>
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/.idea/workspace.xml">
-      <ranges>
-        <range start1="6" end1="7" start2="6" end2="25" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="8" end1="9" start2="26" end2="26" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="10" end1="11" start2="27" end2="27" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="60" end1="60" start2="76" end2="98" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="78" end1="79" start2="116" end2="117" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="84" end1="85" start2="122" end2="123" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="95" end1="96" start2="133" end2="134" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="108" end1="108" start2="146" end2="147" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="110" end1="110" start2="149" end2="154" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="125" end1="126" start2="169" end2="170" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="127" end1="127" start2="171" end2="172" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="189" end1="189" start2="234" end2="241" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="635" end1="635" start2="687" end2="727" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="979" end1="980" start2="1071" end2="1072" changelist="ef88a952-c058-4147-ad7a-838bcec3ccd9" />
-        <range start1="1020" end1="1021" start2="1112" end2="1112" changelist="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" />
-        <range start1="1045" end1="1046" start2="1136" end2="1138" changelist="0ae372a9-ba3d-46fd-90c2-afa123d8ed17" />
-      </ranges>
-    </file>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -142,13 +117,14 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;JUnit.XmlCodeGenerationTest.testXmlParse.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.XmlCodeGenerationTest.testXmlParse.executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator [clean].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator [compile].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator [deploy].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator [install].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator-core [clean].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator-core [deploy].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.mybatis-generator-core [install].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator-maven-plugin [clean].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator-maven-plugin [deploy].executor&quot;: &quot;Run&quot;,
     &quot;Maven.mybatis-generator-maven-plugin [install].executor&quot;: &quot;Run&quot;,
@@ -167,7 +143,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.runner&quot;,
     &quot;spring.configuration.checksum&quot;: &quot;3c0d6ba51a0e8e5e7ee3724f3660977e&quot;,
     &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -198,11 +174,11 @@
       <recent name="org.mybatis.generator.config" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="org.mybatis.generator.codegen.mybatis3.controller.elements" />
-      <recent name="org.mybatis.generator.codegen.mybatis3.htmlmapper.document" />
       <recent name="org.mybatis.generator.config" />
+      <recent name="org.mybatis.generator.codegen.mybatis3.controller.elements" />
       <recent name="org.mybatis.generator.codegen.mybatis3.sqlschema" />
-      <recent name="org.mybatis.generator.codegen.mybatis3.other" />
+      <recent name="org.mybatis.generator.api" />
+      <recent name="org.mybatis.generator.maven" />
     </key>
   </component>
   <component name="RunManager">
@@ -231,13 +207,6 @@
         <item itemvalue="JUnit.XmlCodeGenerationTest.testXmlParse" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="jdk-1.8.0_402-corretto-1.8.0_402-4caba194b151-ae57be32" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -725,6 +694,121 @@
       <workItem from="1722756217010" duration="379000" />
       <workItem from="1722766154214" duration="2327000" />
       <workItem from="1722784864060" duration="2876000" />
+      <workItem from="1723044294603" duration="33686000" />
+      <workItem from="1723253299113" duration="1253000" />
+      <workItem from="1723303114762" duration="2371000" />
+      <workItem from="1723340673191" duration="612000" />
+      <workItem from="1723389818599" duration="7308000" />
+      <workItem from="1723541944144" duration="16000" />
+      <workItem from="1723541967110" duration="309000" />
+      <workItem from="1723571835857" duration="2846000" />
+      <workItem from="1723691220020" duration="7179000" />
+      <workItem from="1723797497086" duration="385000" />
+      <workItem from="1723903808814" duration="3729000" />
+      <workItem from="1723911801055" duration="30371000" />
+      <workItem from="1724029912578" duration="1989000" />
+      <workItem from="1724174885274" duration="4033000" />
+      <workItem from="1724340085286" duration="5442000" />
+      <workItem from="1724488611172" duration="594000" />
+      <workItem from="1724575348944" duration="2423000" />
+      <workItem from="1724668247090" duration="3587000" />
+      <workItem from="1724912305916" duration="21469000" />
+      <workItem from="1725161755383" duration="2851000" />
+      <workItem from="1725274865227" duration="1855000" />
+      <workItem from="1725341897847" duration="2925000" />
+      <workItem from="1725360257397" duration="11697000" />
+      <workItem from="1725561882146" duration="3001000" />
+      <workItem from="1725961647912" duration="3712000" />
+      <workItem from="1726017774964" duration="1646000" />
+      <workItem from="1726121998294" duration="1116000" />
+      <workItem from="1726289092552" duration="797000" />
+      <workItem from="1726637672756" duration="4023000" />
+      <workItem from="1726885054833" duration="56000" />
+      <workItem from="1726983658810" duration="7709000" />
+      <workItem from="1727012243242" duration="9549000" />
+      <workItem from="1727068688852" duration="7069000" />
+      <workItem from="1727233719558" duration="369000" />
+      <workItem from="1727234263531" duration="17769000" />
+      <workItem from="1727362901031" duration="6346000" />
+      <workItem from="1727519195908" duration="24139000" />
+      <workItem from="1728124074996" duration="15480000" />
+      <workItem from="1728318674627" duration="789000" />
+      <workItem from="1728461790694" duration="9553000" />
+      <workItem from="1728518646016" duration="2762000" />
+      <workItem from="1728685688133" duration="2335000" />
+      <workItem from="1728717851994" duration="1126000" />
+      <workItem from="1728792020017" duration="7228000" />
+      <workItem from="1728801215866" duration="1118000" />
+      <workItem from="1728802462096" duration="5994000" />
+      <workItem from="1728967603062" duration="6310000" />
+      <workItem from="1729195017227" duration="1071000" />
+      <workItem from="1729198216539" duration="2764000" />
+      <workItem from="1729206112852" duration="901000" />
+      <workItem from="1729214817977" duration="22260000" />
+      <workItem from="1729337932741" duration="619000" />
+      <workItem from="1729345091931" duration="2931000" />
+      <workItem from="1729490596789" duration="3286000" />
+      <workItem from="1729610159806" duration="4295000" />
+      <workItem from="1729687527074" duration="1203000" />
+      <workItem from="1729691207809" duration="11000" />
+      <workItem from="1729766122652" duration="251000" />
+      <workItem from="1729781068088" duration="3173000" />
+      <workItem from="1730947730363" duration="7958000" />
+      <workItem from="1731055113175" duration="8155000" />
+      <workItem from="1731246374673" duration="3662000" />
+      <workItem from="1731499721765" duration="2698000" />
+      <workItem from="1732605835714" duration="10097000" />
+      <workItem from="1733022759960" duration="1675000" />
+      <workItem from="1733070887531" duration="18084000" />
+      <workItem from="1733238266101" duration="3685000" />
+      <workItem from="1733318223692" duration="4006000" />
+      <workItem from="1733476031870" duration="3762000" />
+      <workItem from="1733574516716" duration="8166000" />
+      <workItem from="1733683166062" duration="3589000" />
+      <workItem from="1734067677861" duration="4229000" />
+      <workItem from="1734293165472" duration="742000" />
+      <workItem from="1734335817743" duration="652000" />
+      <workItem from="1734355526024" duration="5260000" />
+      <workItem from="1734400381364" duration="1135000" />
+      <workItem from="1734420228362" duration="14105000" />
+      <workItem from="1734484965877" duration="598000" />
+      <workItem from="1734504609720" duration="23343000" />
+      <workItem from="1734970505421" duration="5194000" />
+      <workItem from="1735008655321" duration="8719000" />
+      <workItem from="1735194590475" duration="1774000" />
+      <workItem from="1735216043349" duration="6324000" />
+      <workItem from="1735259720656" duration="1019000" />
+      <workItem from="1735307918627" duration="16397000" />
+      <workItem from="1735488918761" duration="3554000" />
+      <workItem from="1735527636134" duration="6867000" />
+      <workItem from="1735622168276" duration="18588000" />
+      <workItem from="1735886836261" duration="6411000" />
+      <workItem from="1735960528922" duration="43060000" />
+      <workItem from="1736103349842" duration="6888000" />
+      <workItem from="1736204466412" duration="7404000" />
+      <workItem from="1736386381710" duration="1405000" />
+      <workItem from="1736513879176" duration="3515000" />
+      <workItem from="1736601249691" duration="8748000" />
+      <workItem from="1736705630619" duration="5087000" />
+      <workItem from="1736739188637" duration="2224000" />
+      <workItem from="1736759810462" duration="23867000" />
+      <workItem from="1737085839877" duration="41184000" />
+      <workItem from="1737429635653" duration="613000" />
+      <workItem from="1737464570076" duration="6178000" />
+      <workItem from="1737545636299" duration="23079000" />
+      <workItem from="1737949062267" duration="8763000" />
+      <workItem from="1738246376396" duration="16899000" />
+      <workItem from="1738563159658" duration="17372000" />
+      <workItem from="1738827684413" duration="1824000" />
+      <workItem from="1738829856977" duration="14940000" />
+      <workItem from="1739200172190" duration="12181000" />
+      <workItem from="1739402232323" duration="8975000" />
+      <workItem from="1739773433508" duration="2721000" />
+      <workItem from="1739785818667" duration="24062000" />
+      <workItem from="1740197727095" duration="5912000" />
+      <workItem from="1740283964891" duration="599000" />
+      <workItem from="1740286025137" duration="574000" />
+      <workItem from="1740286612520" duration="2144000" />
     </task>
     <task id="LOCAL-00015" summary="调整context的几个property为attribute">
       <created>1662480978993</created>
@@ -1069,7 +1153,7 @@
       <option name="project" value="LOCAL" />
       <updated>1690042090096</updated>
     </task>
-    <option name="localTasksCounter" value="105" />
+    <option name="localTasksCounter" value="160" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1110,32 +1194,32 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="更新selectByDict方法的参数，type改为Optional类型，以便于接收null。及其它更新。" />
-    <MESSAGE value="更新selectByKeysDict\fetchTreeData方法的引入内容" />
-    <MESSAGE value="增加生成弹窗回调方法的生成功能。" />
-    <MESSAGE value="增加1、单独生成excel导入实体，2、生成弹窗回调方法的生成功能。" />
-    <MESSAGE value="增加是否外键列属性，增加页内列表相关。" />
-    <MESSAGE value="Changes" />
-    <MESSAGE value="增加页面附件和意见组件的生成。" />
-    <MESSAGE value="修订默认页面元素生成属性存在的问题。" />
-    <MESSAGE value="列表操作按钮相关内容。" />
-    <MESSAGE value="批量更新" />
-    <MESSAGE value="更新" />
-    <MESSAGE value="生成service支持spring事件的相关调整" />
-    <MESSAGE value="打印生成及相关修改" />
-    <MESSAGE value="1、修正内嵌列表滚动条的问题，2、修正view控制器非业务模块生成错误。" />
-    <MESSAGE value="1、修正生成的selectByDict带code时无效的问题。" />
-    <MESSAGE value="修改" />
-    <MESSAGE value="修改HtmlElementTagTypeEnum枚举" />
-    <MESSAGE value="调整视图操作列的操作权限配置" />
-    <MESSAGE value="增加页面当前用户信息隐藏字段" />
-    <MESSAGE value="Ignore Changes" />
     <MESSAGE value="branch about" />
     <MESSAGE value="调整主表单打印子表数据来源部分代码的生成。在页面添加js片段" />
     <MESSAGE value="修改生成插入、更新方法清空缓存部分代码" />
     <MESSAGE value="修正日期时间格式的字段的生成静态代码初始值的问题" />
+    <MESSAGE value="Ignore Changes" />
     <MESSAGE value="java17" />
-    <option name="LAST_COMMIT_MESSAGE" value="java17" />
+    <MESSAGE value="htmlTableSelectDescriptor增加属性renderHref属性" />
+    <MESSAGE value="补充ViewColumnMetaDesc遗漏的minWidth、headerAlign配置项的赋值" />
+    <MESSAGE value="修改vue字段注解的年、月、周、时间段的类型生成信息" />
+    <MESSAGE value="vue模板增加版本号，type增加actionType及persistenceBeanName等" />
+    <MESSAGE value="完善生成vue页面、列表中链接的相关内容" />
+    <MESSAGE value="页面打印列表支持表单结构" />
+    <MESSAGE value="1、detail页面模板调整页面item下划线和container边框线，2、修改生成download的接口的返回值为ResponseEntity，3、去除blob字段的长度限制规则" />
+    <MESSAGE value="1、调整生成的vue文件格式，2、ts的type文件required去掉？" />
+    <MESSAGE value="重构回收站功能" />
+    <MESSAGE value="统一json为jackson" />
+    <MESSAGE value="增加内置表格单元格验证的相关生成" />
+    <MESSAGE value="更新" />
+    <MESSAGE value="重构equals和hashCode方法" />
+    <MESSAGE value="完善" />
+    <MESSAGE value="innerList配置增加verify属性" />
+    <MESSAGE value="runtimeException调整为VgoException" />
+    <MESSAGE value="为启用消息事件的service增加事务" />
+    <MESSAGE value="调整update返回0时为正常" />
+    <MESSAGE value="增加过滤器配置" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加过滤器配置" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

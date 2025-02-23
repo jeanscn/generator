@@ -252,7 +252,7 @@ public class ValidateDatabaseTable {
             List<String> collect = affectPKs.stream()
                     .filter(t -> !pkColumnName.contains(t))
                     .collect(Collectors.toList());
-            if (collect.size() > 0) {
+            if (!collect.isEmpty()) {
                 warnings.add(VStringUtil.format("需要设置为主键的字段：{0}->{1}", tc.getTableName(), String.join(",", collect)));
                 if (sb.length() > 0) sb.append(",\n");
                 sb.append("ADD PRIMARY KEY (");

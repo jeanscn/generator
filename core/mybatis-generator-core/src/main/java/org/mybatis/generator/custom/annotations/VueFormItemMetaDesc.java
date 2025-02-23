@@ -4,6 +4,7 @@ import com.vgosoft.core.annotation.VueFormItemMeta;
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,6 +40,7 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private Boolean multiple = false; // 是否允许多选
     // 类型,input-可能是text、password、url、textarea；date-可能是time、datetime
     private String type;
+    private String tsType = "";
     private String valueFormat; // 日期格式化
     private boolean dateRange = false; // 是否为日期范围
     private boolean remoteApiParse = false; // 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
@@ -151,6 +153,9 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.stringHasValue(this.getType())) {
             items.add(VStringUtil.format("type = \"{0}\"", this.getType()));
+        }
+        if (VStringUtil.stringHasValue(this.getTsType())) {
+            items.add(VStringUtil.format("tsType = \"{0}\"", this.getTsType()));
         }
         if (VStringUtil.stringHasValue(this.getValueFormat())) {
             items.add(VStringUtil.format("valueFormat = \"{0}\"", this.getValueFormat()));
@@ -661,5 +666,13 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setHrefDataKeyField(String hrefDataKeyField) {
         this.hrefDataKeyField = hrefDataKeyField;
+    }
+
+    public String getTsType() {
+        return tsType;
+    }
+
+    public void setTsType(String tsType) {
+        this.tsType = tsType;
     }
 }

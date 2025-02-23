@@ -1,6 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.tool.TypeConverterTsUtil;
 import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -153,6 +154,9 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             vueFormItemMetaDesc.setPlaceholder(VueFormGenerateUtil.getDefaultPlaceholder(elementDescriptor, introspectedColumn));
             //设置component
             VueFormGenerateUtil.setComponentName(vueFormItemMetaDesc,elementDescriptor, introspectedColumn);
+
+            //设置前端支持的类型
+            vueFormItemMetaDesc.setTsType(TypeConverterTsUtil.convertToTsType(field.getType().getShortName()));
             //设置日期时间属性
             VueFormGenerateUtil.setDateTimeTypFormat(vueFormItemMetaDesc, elementDescriptor, introspectedColumn);
             //设置隐藏状态

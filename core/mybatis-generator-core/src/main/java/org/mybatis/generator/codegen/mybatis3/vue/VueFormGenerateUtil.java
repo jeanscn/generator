@@ -92,6 +92,12 @@ public class VueFormGenerateUtil {
 
     public static void setDateTimeTypFormat(VueFormItemMetaDesc vueFormItemMetaDesc, @Nullable HtmlElementDescriptor elementDescriptor, @Nullable IntrospectedColumn introspectedColumn) {
         if (HtmlElementTagTypeEnum.DATE.codeName().equals(vueFormItemMetaDesc.getComponent()) || HtmlElementTagTypeEnum.TIME.codeName().equals(vueFormItemMetaDesc.getComponent())) {
+            if (HtmlElementTagTypeEnum.DATE.codeName().equals(vueFormItemMetaDesc.getComponent())) {
+                vueFormItemMetaDesc.setTsType("date");
+            } else {
+                vueFormItemMetaDesc.setTsType("time");
+            }
+
             if (elementDescriptor != null && elementDescriptor.getDataFormat() != null) {
                 switch (elementDescriptor.getDataFormat()) {
                     case "年":
@@ -198,7 +204,6 @@ public class VueFormGenerateUtil {
                 vueFormItemMetaDesc.setValueFormat("string");
             }
         }
-
     }
 
     public static void addDataUrl(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor, String defaultDataUrl) {
@@ -341,6 +346,5 @@ public class VueFormGenerateUtil {
                 vueFormItemMetaDesc.setRemoteValueType("string");
             }
         }
-
     }
 }
