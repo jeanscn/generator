@@ -22,7 +22,7 @@ public class CompositeQueryDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@CompositeQuery";
 
-    private IntrospectedColumn introspectedColumn;
+    private final IntrospectedColumn introspectedColumn;
     private String tableName;
     private String tableAlias;
     private String column;
@@ -30,9 +30,9 @@ public class CompositeQueryDesc extends AbstractAnnotation {
     private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.INPUT;
     private String field;
     private String remark;
-    private QueryModesEnum queryMode = QueryModesEnum.LIKE;
+    private QueryModesEnum queryMode;
     private int order;
-    private FieldTypeEnum fieldType = FieldTypeEnum.TEXT;
+    private FieldTypeEnum fieldType;
 
     private String dataUrl;
     private boolean multiple = false;
@@ -53,6 +53,9 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                 abstractFilterConditionConfiguration.setEnumClassFullName(enumClassNameByDataFmt);
                 abstractFilterConditionConfiguration.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM);
             }
+        }
+        if (abstractFilterConditionConfiguration.getTagName()!=null && abstractFilterConditionConfiguration.getTagName().equals(HtmlElementTagTypeEnum.INPUT)) {
+            compositeQueryDesc.setQueryMode(QueryModesEnum.LIKE);
         }
         if (abstractFilterConditionConfiguration.getDataSource() != null) {
             switch (abstractFilterConditionConfiguration.getDataSource()) {

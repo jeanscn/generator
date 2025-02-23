@@ -523,7 +523,8 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             }).filter(Objects::nonNull).collect(Collectors.toList());
             //更新顺序号，order
             for (int i = 0; i < queryDesc.size(); i++) {
-                queryDesc.get(i).setOrder(i + 1);
+                CompositeQueryDesc compositeQueryDesc = queryDesc.get(i);
+                compositeQueryDesc.setOrder(i + 1);
             }
             //转换为注解
             String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
