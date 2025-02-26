@@ -27,7 +27,7 @@ public class CompositeQueryDesc extends AbstractAnnotation {
     private String tableAlias;
     private String column;
     private String listKey;
-    private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.INPUT;
+    private HtmlElementTagTypeEnum tagName = HtmlElementTagTypeEnum.UNKNOWN;
     private String field;
     private String remark;
     private QueryModesEnum queryMode;
