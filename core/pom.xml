@@ -295,36 +295,17 @@
     <module>mybatis-generator-systests-mybatis3-java8</module>
     <module>mybatis-generator-systests-kotlin</module>-->
   </modules>
-
-  <repositories>
-    <repository>
-      <id>nexus</id>
-      <url>http://maven.vgosoft.com:8083/repository/maven-snapshots/</url>
-    </repository>
-    <repository>
-      <id>maven-central</id>
-      <name>maven-central</name>
-      <url>http://maven.vgosoft.com:8083/repository/maven-public/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
   <profiles>
     <profile>
       <id>release</id>
       <distributionManagement>
         <snapshotRepository>
           <id>nexus</id>
-          <url>http://maven.vgosoft.com:8083/repository/maven-snapshots/</url>
+          <url>http://1oeik6033301.vicp.fun:51534/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
           <id>nexus</id>
-          <url>http://maven.vgosoft.com:8083/repository/maven-releases/</url>
+          <url>http://1oeik6033301.vicp.fun:51534/repository/maven-releases/</url>
         </repository>
       </distributionManagement>
     </profile>
