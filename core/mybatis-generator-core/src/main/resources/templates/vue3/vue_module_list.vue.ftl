@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.7
+* @version: list template version 1.0.8
 */
 <template>
     <el-container>
@@ -35,15 +35,15 @@
 						</span>
                     </template>
                 </vgo-table>
-                <LoadModals v-if="selectedDataLoaded"
-                    v-model="showSelectedModal"
-                    :type="selectedModalType"
-                    :viewStatus="selectedModalViewStatus"
-                    :popSize="selectedModalViewSize"
-                    :formData="tableSelectedRemoteData"
-                    :elDialogProps="selectedModalElDialogProps"
-                    :elDrawerProps="selectedModalElDrawerProps"
-                    @close="destroyComponent">
+                <LoadModals v-if="loadModalsProps.dataLoaded"
+                            v-model="loadModalsProps.modelValue"
+                            :type="loadModalsProps.type"
+                            :viewStatus="loadModalsProps.viewStatus"
+                            :popSize="loadModalsProps.popSize"
+                            :formData="loadModalsProps.formData"
+                            :elDialogProps="loadModalsProps.elDialogProps"
+                            :elDrawerProps="loadModalsProps.elDrawerProps"
+                            @close="destroyComponent">
                 </LoadModals>
                 <${ componentName }Modal v-if="showDialog" v-model="showDialog"
                                 :type="dialogType"
@@ -98,7 +98,8 @@
     import { IButtonProps } from '@/framework/types/core';
     import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
     import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
-    import LoadModals from '@/modules/components/loadModals/index.vue'
+    import LoadModals from '@/modules/components/loadModals/index.vue';
+    import { loadModalsProps } from '../${ modelPath }/PrivateUseFormHooks';
 
     const i18n = useI18n();
 
@@ -188,14 +189,6 @@
         getActionPermission();
     });
 
-    const showSelectedModal = ref<boolean>(false)
-    const selectedDataLoaded = ref<boolean>(false)
-    const tableSelectedRemoteData = ref<any>({})
-    const selectedModalViewStatus = ref<number>(0)
-    const selectedModalViewSize = ref<string>('default') //弹窗大小
-    const selectedModalType = ref<'dialog' | 'drawer'>('drawer') //弹窗类型
-    const selectedModalElDialogProps = ref<Object>({}) // ep弹窗属性
-    const selectedModalElDrawerProps = ref<Object>({}) // ep抽屉属性
     const selectedHref = (column: ICustomColumnProps) => {
         if (!column) return false;
         if (column.renderFunction && column.renderFunction.includes('colDefsAsLink')) {
@@ -204,16 +197,16 @@
         return false;
     }
     const openSelectedHrefModal = async (column: ICustomColumnProps, rowData: any) => {
-        tableSelectedRemoteData.value = {};
-        selectedDataLoaded.value = false;
-        showSelectedModal.value = false;
+        loadModalsProps.formData = {};
+        loadModalsProps.dataLoaded = false;
+        loadModalsProps.modelValue = false;
         // 检查是否可以打开抽屉
         if (selectedHref(column)) {
             // 更新数据
-            Object.assign(tableSelectedRemoteData.value, rowData);
+            Object.assign(loadModalsProps.formData, rowData);
             nextTick(() => {
-                selectedDataLoaded.value = true;
-                showSelectedModal.value = true;
+                loadModalsProps.dataLoaded = true;
+                loadModalsProps.modelValue = true;
             });
         } else {
             // 如果不能打开，输出调试信息
@@ -374,9 +367,9 @@
         showDialog.value = false;
     };
     const destroyComponent = () => {
-        showSelectedModal.value = false;
-        tableSelectedRemoteData.value = {};
-        selectedDataLoaded.value = false;
+        loadModalsProps.modelValue = false;
+        loadModalsProps.formData = {};
+        loadModalsProps.dataLoaded = false;
     };
 </script>
 
