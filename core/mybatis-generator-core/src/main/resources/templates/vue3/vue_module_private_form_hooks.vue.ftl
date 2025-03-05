@@ -1,6 +1,6 @@
 /**
  * @description ${ tableRemark }-表单钩子函数定义
- * @version: hooks template version 1.0.3
+ * @version: hooks template version 1.0.4
  * 个性化的钩子函数集合。
  * 固定的函数名称包括：
  * 1.	innerListDataAllReady - 子表数据加载完成的钩子
@@ -10,24 +10,9 @@
  * 		rowDeleted: (params: TVgoVxeTableRowDeletedParams) => {})
  */
 
-import { Ref, reactive } from "vue";
+import { Ref } from "vue";
 import { T${ modelName } } from "./types/T${ modelName }";
 import { TPrivateHooksParams } from "@/framework/components/vgoForm/types";
-import { TLoadModalProps } from '@/modules/components/loadModals/types'
-
-
-// 动态弹窗共享参数
-export const loadModalsProps = reactive<TLoadModalProps>({
-    dataLoaded: false,
-    modelValue: false,
-    type: 'dialog' as 'drawer' | 'dialog',
-    viewStatus: 0,
-    popSize: 'default',
-    formData: null,
-    elDialogProps: {},
-    elDrawerProps: {},
-    tableRef: undefined,
-})
 
 export default {
     /*

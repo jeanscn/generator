@@ -206,6 +206,23 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     "vue_module_private_form_hooks.vue.ftl", privateUseFormHooksMap);
             generatedVuePrivateUseFormHooksFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
             answer.add(generatedVuePrivateUseFormHooksFile);
+
+            //生成SharedVariables共享变量定义文件
+            String variablesPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
+            String projectVariables = this.properties.getProperty("targetProject", variablesPath);
+            String fileNameSharedVariables = "sharedVariables";
+            Map<String, Object> sharedVariablesMap = new HashMap<>();
+            sharedVariablesMap.put("modelName", objectName);
+            sharedVariablesMap.put("tableRemark", tableRemark);
+            sharedVariablesMap.put("modelPath", modelPath);
+            GeneratedVueFile generatedSharedVariablesFile = new GeneratedVueFile(
+                    fileNameSharedVariables + ".ts",
+                    projectVariables,
+                    "",
+                    introspectedTable,
+                    "vue_module_shared_variables.ts.ftl", sharedVariablesMap);
+            generatedSharedVariablesFile.setOverWriteFile(true);
+            answer.add(generatedSharedVariablesFile);
         }
         return answer;
     }

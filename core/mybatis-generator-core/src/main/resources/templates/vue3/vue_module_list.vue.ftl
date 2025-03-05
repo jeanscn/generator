@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.8
+* @version: list template version 1.0.10
 */
 <template>
     <el-container>
@@ -56,9 +56,10 @@
                                 :pageTitle="pageTitle"
                                 :popSize="popSize"
                                 :popDraggable="popDraggable"
-                                :closeOnClickModal=false
-                                :closeOnPressEscape=false
+                                :closeOnClickModal="false"
+                                :closeOnPressEscape="false"
                                 :tableRef="tableRef"
+                                :isModeal="false"
                                 @form-submit="onSubmit"
                                 @close="destroyForm">
                 </${ componentName }Modal>
@@ -99,7 +100,7 @@
     import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
     import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
     import LoadModals from '@/modules/components/loadModals/index.vue';
-    import { loadModalsProps } from '../${ modelPath }/PrivateUseFormHooks';
+    import { loadModalsProps } from '../${ modelPath }/sharedVariables';
 
     const i18n = useI18n();
 

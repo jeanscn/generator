@@ -1,6 +1,6 @@
 /**
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.3
+* @version: modal template version 1.0.5
 */
 <template>
     <div class="form-modal-container">
@@ -86,6 +86,7 @@
         elDialogProps: { type: Object as PropType<TElDialogProps>, default: EMPTY_OBJECT },
         elDrawerProps: { type: Object as PropType<TElDrawerProps>, default: EMPTY_OBJECT },
         tableRef: { type: Object as PropType<TVgoTableInstance | undefined>, default: undefined },
+        isModal: { type: Boolean as PropType<boolean>, default: false },
     })
 
     const i18n = useI18n();
@@ -99,10 +100,6 @@
 
     const showDialog = ref(props.modelValue);
     const dialogType = ref<'dialog' | 'drawer'>(props.type);
-
-    if (!_tableRef.value) {
-        _tableRef.value = inject('tableRef')
-    }
 
     const defaultElDialogProps: TElDialogProps = {
         title: '${ tableRemark }',
@@ -185,6 +182,7 @@
             i18n: i18n,
             viewStatus: _viewStatus,
             globalDialog: globalDialog,
+            isModal: props.isModal,
         };
         extMethod.defaultFormButtonActionHandler<T${ modelName }>(params);
     };
