@@ -61,6 +61,8 @@ public class JavaFlowableListenerGenerator extends AbstractJavaGenerator {
                 " */",entityType.getShortName()));
         topClazz.addAnnotation("@Component");
         topClazz.addImportedType("org.springframework.stereotype.Component");
+        topClazz.addImportedType("com.vgosoft.workflow.event.AbstractAsyncFlowableEventListener");
+        topClazz.addImportedType("com.vgosoft.workflow.event.AbstractFlowableEventListener");
 
         // 添加无参构造方法
         Method method = new Method(clazzName);
@@ -68,15 +70,15 @@ public class JavaFlowableListenerGenerator extends AbstractJavaGenerator {
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addBodyLine("super({0}.class.getSimpleName());",entityType.getShortName());
         topClazz.addMethod(method);
-        addOverrideMethod(topClazz,"PROCESS_STARTED");
-        addOverrideMethod(topClazz,"PROCESS_COMPLETED");
+        addOverrideMethod(topClazz,"PROCESS_STARTED",entityType);
+        addOverrideMethod(topClazz,"PROCESS_COMPLETED",entityType);
         topClazz.addImportedType(entityType);
         topClazz.addImportedType(supClazzType);
         answer.add(topClazz);
         return answer;
     }
 
-    private void addOverrideMethod(TopLevelClass topLevelClass, String entityEvent) {
+    private void addOverrideMethod(TopLevelClass topLevelClass, String entityEvent,FullyQualifiedJavaType entityType) {
         Method method;
         switch (entityEvent) {
             case "PROCESS_STARTED":
@@ -93,7 +95,13 @@ public class JavaFlowableListenerGenerator extends AbstractJavaGenerator {
         method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "processDefinitionKey"));
         method.addParameter(new Parameter(new FullyQualifiedJavaType("Map<String, Object>"), "variables"));
         method.addAnnotation("@Override");
-        method.addBodyLine("super.{0}(entity, processDefinitionKey, variables);",method.getName());
+        if (context.getJdkVersion()>=16) {
+            method.addBodyLine("if (!(entity instanceof {0} {1})) return;",entityType.getShortName(),entityType.getShortNameFirstLowCase());
+        } else {
+            method.addBodyLine("if (!(entity instanceof {0})) return;",entityType.getShortName());
+            method.addBodyLine("{0} {1} = ({0}) entity;",entityType.getShortName(),entityType.getShortNameFirstLowCase());
+        }
+        method.addBodyLine("super.{0}({1}, processDefinitionKey, variables);",method.getName(),entityType.getShortNameFirstLowCase());
         topLevelClass.addMethod(method);
         topLevelClass.addImportedType("java.util.Map");
     }
