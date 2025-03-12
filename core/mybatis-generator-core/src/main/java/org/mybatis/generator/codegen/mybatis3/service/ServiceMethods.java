@@ -187,6 +187,25 @@ public class ServiceMethods {
         return method;
     }
 
+    public Method getUpdateDeleteFlagMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter record = new Parameter(entityType, entityType.getShortNameFirstLowCase());
+        record.setRemark("设置删除状态的数据对象");
+        parameters.add(record);
+        Parameter deleteFlag = new Parameter(FullyQualifiedJavaType.getIntInstance(), "deleteFlag");
+        deleteFlag.setRemark("逻辑删除标识（1-删除，0-正常）");
+        parameters.add(deleteFlag);
+        Method method = getMethodByType(introspectedTable.getUpdateDeleteFlagStatementId(),
+                ReturnTypeEnum.MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(),
+                introspectedTable.getRemarks(true)+"int 清理无效数据的影响行数(1-成功，0-失败)",
+                parameters,
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method,  "设置数据逻辑删除的状态（1-删除，0-正常）");
+        return method;
+    }
+
     public Method getSelectByMultiStringIdsMethod(CompilationUnit parentElement, boolean isAbstract) {
         List<Parameter> parameters = new ArrayList<>();
         Parameter ids = new Parameter(FullyQualifiedJavaType.getStringInstance(), "ids");

@@ -74,6 +74,14 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         /*
          * insertOrUpdate
+         */
+        introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
+            Method method = serviceMethods.getUpdateDeleteFlagMethod(bizINF, true, true);
+            bizINF.addMethod(method);
+        });
+
+        /*
+         * insertOrUpdate
          * */
         if (introspectedTable.getRules().generateInsertOrUpdate()) {
             bizINF.addMethod(serviceMethods.getInsertOrUpdateMethod(bizINF, true, true));

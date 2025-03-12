@@ -301,11 +301,11 @@
       <distributionManagement>
         <snapshotRepository>
           <id>nexus</id>
-          <url>http://1oeik6033301.vicp.fun:51534/repository/maven-snapshots/</url>
+          <url>http://1oeik6033301.vicp.fun:34990/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
           <id>nexus</id>
-          <url>http://1oeik6033301.vicp.fun:51534/repository/maven-releases/</url>
+          <url>http://1oeik6033301.vicp.fun:34990/repository/maven-releases/</url>
         </repository>
       </distributionManagement>
     </profile>

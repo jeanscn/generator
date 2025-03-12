@@ -671,6 +671,10 @@ public abstract class IntrospectedTable {
         return "insertOrUpdate";
     }
 
+    public String getUpdateDeleteFlagStatementId() {
+        return "updateDeleteFlag";
+    }
+
     public String getSelectByKeysDictStatementId() {
         return "selectByKeysDict";
     }

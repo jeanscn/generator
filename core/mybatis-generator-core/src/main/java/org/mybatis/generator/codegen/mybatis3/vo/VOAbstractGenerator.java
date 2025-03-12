@@ -15,10 +15,10 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
  * 2023-03-29 17:17
  * @version 3.0
  */
-public class VOAbstractGenerator extends AbstractVOGenerator{
+public class VOAbstractGenerator extends AbstractVOGenerator {
 
-    public VOAbstractGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings,Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+    public VOAbstractGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override

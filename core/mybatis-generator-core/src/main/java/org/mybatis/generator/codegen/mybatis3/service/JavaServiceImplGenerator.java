@@ -111,6 +111,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
          * UpdateBatch
          * */
         addUpdateBatchElement(bizGenClazzImpl);
+
+        addUpdateDeleteFlagElement(bizGenClazzImpl);
         /*
          * insertOrUpdate
          * */
@@ -213,6 +215,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
 
         return answer;
+    }
+
+    private void addUpdateDeleteFlagElement(TopLevelClass bizGenClazzImpl) {
+        introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
+            AbstractServiceElementGenerator elementGenerator = new UpdateDeleteFlagElement();
+            initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
+        });
     }
 
     private void addSelectByExampleWithChildrenCountElement(TopLevelClass bizGenClazzImpl) {
