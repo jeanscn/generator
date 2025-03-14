@@ -139,7 +139,7 @@ public class ServiceMethods {
         List<Parameter> parameters = new ArrayList<>();
         parameters.add(new Parameter(entityType, "record").setRemark("待插入的数据对象"));
         Method method =  getMethodByType(
-                isSelective?introspectedTable.getInsertStatementId():introspectedTable.getInsertSelectiveStatementId(),
+                isSelective?introspectedTable.getInsertSelectiveStatementId():introspectedTable.getInsertStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
                 isService?introspectedTable.getRemarks(true)+"对象ServiceResult封装":"成功插入的记录数",

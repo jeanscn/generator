@@ -52,20 +52,25 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,insertSelectiveMethod,"READ_COMMITTED");
             outSubBatchMethodBody(insertSelectiveMethod, "INSERT", "record", parentElement, configs1, false);
         }
-        //增加PRE_INSERT事件发布
+        insertSelectiveMethod.addBodyLine("try {");
+        //增加PRE_UPDATE事件发布
         if (containsPreInsertEvent) {
             insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
         }
-        insertSelectiveMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insertSelective(record);",entityType.getShortName());
-        insertSelectiveMethod.addBodyLine("if (serviceResult.hasResult()) {");
-        //增加INSERTED事件发布
+        insertSelectiveMethod.addBodyLine("int i = mapper.insertSelective(record);");
+        insertSelectiveMethod.addBodyLine("if (i > 0) {");
+        //增加UPDATED事件发布
         if (containsInsertedEvent) {
-            insertSelectiveMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
+            insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
         }
-        insertSelectiveMethod.addBodyLine("return serviceResult;");
-        insertSelectiveMethod.addBodyLine("} else {\n" +
-                "            return ServiceResult.failure(ServiceCodeEnum.WARN, serviceResult.getMessage());\n" +
-                "        }");
+        insertSelectiveMethod.addBodyLine("return ServiceResult.success(record, i);");
+        insertSelectiveMethod.addBodyLine("} else {");
+        insertSelectiveMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"插入失败\");");
+        insertSelectiveMethod.addBodyLine("}");
+
+        insertSelectiveMethod.addBodyLine("} catch (Exception e) {");
+        insertSelectiveMethod.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
+        insertSelectiveMethod.addBodyLine("}");
         parentElement.addMethod(insertSelectiveMethod);
     }
 }

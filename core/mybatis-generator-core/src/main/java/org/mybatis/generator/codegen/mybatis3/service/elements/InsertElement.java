@@ -50,19 +50,24 @@ public class InsertElement extends AbstractServiceElementGenerator {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,insertMethod,"READ_COMMITTED");
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
+        insertMethod.addBodyLine("try {");
         //增加PRE_UPDATE事件发布
         if (containsPreInsertEvent) {
             insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
         }
-        insertMethod.addBodyLine("ServiceResult<{0}> serviceResult = super.insert(record);",entityType.getShortName());
-        insertMethod.addBodyLine("if (serviceResult.hasResult()) {");
+        insertMethod.addBodyLine("int i = mapper.insert(record);");
+        insertMethod.addBodyLine("if (i > 0) {");
         //增加UPDATED事件发布
         if (containsInsertedEvent) {
-            insertMethod.addBodyLine("publisher.publishEvent(serviceResult.getResult(), EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
+            insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
         }
-        insertMethod.addBodyLine("return serviceResult;");
+        insertMethod.addBodyLine("return ServiceResult.success(record, i);");
         insertMethod.addBodyLine("} else {");
-        insertMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, serviceResult.getMessage());");
+        insertMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"插入失败\");");
+        insertMethod.addBodyLine("}");
+
+        insertMethod.addBodyLine("} catch (Exception e) {");
+        insertMethod.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         insertMethod.addBodyLine("}");
         parentElement.addMethod(insertMethod);
     }

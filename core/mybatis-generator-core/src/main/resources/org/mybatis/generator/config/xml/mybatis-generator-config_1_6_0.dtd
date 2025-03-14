@@ -1743,6 +1743,7 @@
                 remark CDATA #IMPLIED
                 queryMode %queryExpression; #IMPLIED
                 fieldType %valueType; #IMPLIED
+                multiple (true|false) #IMPLIED
                 order CDATA #IMPLIED
                 dataFormat %dataFormat; #IMPLIED
                 dataSource %dataSource; #IMPLIED

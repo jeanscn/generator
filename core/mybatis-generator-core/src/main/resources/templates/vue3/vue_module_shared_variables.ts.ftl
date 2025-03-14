@@ -11,7 +11,7 @@ export const loadModalsProps = reactive<TLoadModalProps>({
     modelValue: false,
     type: 'dialog' as 'drawer' | 'dialog',
     viewStatus: 0,
-    popSize: 'default',
+    popSize: 'largeX',
     formData: null,
     elDialogProps: {},
     elDrawerProps: {},

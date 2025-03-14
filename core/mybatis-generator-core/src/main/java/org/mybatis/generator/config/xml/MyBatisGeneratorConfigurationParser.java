@@ -2863,6 +2863,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(dataUrl)) {
             queryColumnConfiguration.setDataUrl(dataUrl);
         }
+        String multiple = attributes.getProperty("multiple");
+        if (stringHasValue(multiple)) {
+            queryColumnConfiguration.setMultiple(Boolean.parseBoolean(multiple));
+        }
         return queryColumnConfiguration;
     }
 

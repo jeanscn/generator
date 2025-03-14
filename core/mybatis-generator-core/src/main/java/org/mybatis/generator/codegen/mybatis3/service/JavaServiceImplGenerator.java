@@ -337,8 +337,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         if (introspectedTable.getRules().generateInsert()
                 && (introspectedTable.getRules().isGenerateCachePO()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
-                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
-                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new InsertElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -348,8 +348,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         if (introspectedTable.getRules().generateInsert()
                 && (introspectedTable.getRules().isGenerateCachePO()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
-                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
-                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
+                || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
             AbstractServiceElementGenerator elementGenerator = new InsertSelectiveElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
