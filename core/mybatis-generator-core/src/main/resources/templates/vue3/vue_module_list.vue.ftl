@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.10
+* @version: list template version 1.0.12
 */
 <template>
     <el-container>
@@ -106,7 +106,6 @@
 
     const moduleKey = "${ modelPath }";
     const permissionKey = '${ permissionKey }';
-    const permissionActions = ref<string[]>([]);
 
     const tableConfigStore = useTableConfigStore();
     const formConfigStore = useFormConfigStore();
@@ -117,7 +116,6 @@
     const meta = route.meta as { viewId: string };
     const tableRef = ref<TVgoTableInstance>();
     const tableConfigReady = ref<boolean>(false);
-    const permissionReady = ref<boolean>(false);
     const showTreePanel = ref(false);
     const tableColumns = ref([]) as any;
     const _tableConfigProps = ref<TTableConfigProps | null>(null);
@@ -187,7 +185,6 @@
     const moduleId = ref<string>('');
     onMounted(() => {
         loadViewConfig();
-        getActionPermission();
     });
 
     const selectedHref = (column: ICustomColumnProps) => {
@@ -249,19 +246,11 @@
         },
     }));
 
-    const getActionPermission = async () => {
-        //获取对当前用户的操作权限
-        let permissionResp = await new ServiceApi('system/sys-permission-action-impl').get('get-current-user-permission-action',{permissionParentId: permissionKey});
-        if(permissionResp.data !== null){
-            permissionActions.value =  permissionResp.data.map((item: string) => item.substring(item.lastIndexOf(':') + 1));
-        }
-        permissionReady.value = true;
-    }
-
     const loadViewConfig = async () => {
         const tableKey = meta.viewId;
         _tableConfigProps.value = tableConfigStore.hasTableConfig(tableKey) ? tableConfigStore.getTableConfig(tableKey) : await tableConfigStore.fetchTableConfigAsync(tableKey);
         _tableConfigProps.value!.moduleKey = moduleKey;
+        _tableConfigProps.value!.permissionId = permissionKey;
         pageTitle.value = _tableConfigProps.value!.listName || '';
         tableColumns.value = _tableConfigProps.value!.tableColumns;
         restBasePath.value = _tableConfigProps.value!.restBasePath;
