@@ -715,7 +715,7 @@
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
         -->
-        <!ELEMENT htmlElementDescriptor (property*,hrefElement?)>
+        <!ELEMENT htmlElementDescriptor (property*,htmlButton*,hrefElement?)>
         <!ATTLIST htmlElementDescriptor
                 column CDATA #REQUIRED
                 tagType %tagType; #REQUIRED
@@ -1026,7 +1026,7 @@
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
         -->
-        <!ELEMENT htmlElementInnerList EMPTY>
+        <!ELEMENT htmlElementInnerList (property*,htmlButton*)>
         <!ATTLIST htmlElementInnerList
                 elementKey CDATA #REQUIRED
                 listKey CDATA #IMPLIED
@@ -1065,7 +1065,9 @@
                 verify (none|required) #IMPLIED
                 showActionColumn (default|true|false) #IMPLIED
                 actionColumn CDATA #IMPLIED
-                actionColumnWidth CDATA #IMPLIED>
+                actionColumnWidth CDATA #IMPLIED
+                dataUrlParams CDATA #IMPLIED
+                disabledExpression CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
@@ -1689,6 +1691,8 @@
             13、isPlain 可选，按钮是否是朴素按钮，true-是，false-否。缺省值为false
             14、css 可选。按钮的样式。该样式在列表操作按钮上无效。可以应用在行操作、内置列表操作和表单操作按钮上。
             15、showCondition 可选。按钮的显示条件。默认为“true”
+            16、configurable 是否允许用户配置按钮权限，true-允许，false-不允许。缺省值为false
+            17、uiFrameType 页面框架名称，layui|zui|elPlus|antd，1.6.0版本新增默认为elPlus
             使用说明：
             1、仅在个性化按钮或者链接时，需要定制。视图的默认操作包括：CREATE,EDIT,REMOVE,SEARCH,REFRESH,EXPORT,IMPORT,PRINT,COLUMN等不需要定制
                     视图操作列中的VIEW,EDIT,DELETE不需要定制；
@@ -1698,8 +1702,6 @@
             5、handler属性指定的方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
                     视图的操作按钮中的参数为：function handlerFunc(e, dt, node, config,id)，其中id为定义的按钮id，可以通过这个id来区分不同的按钮
             6、showCondition 表达式中可以使用$表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象），如：$.type == ‘1’ and $.status == ‘1’,$.xxx后面要紧跟空格
-            7、configurable 是否允许用户配置按钮权限，true-允许，false-不允许。缺省值为true
-            8、uiFrameType 页面框架名称，layui|zui|elPlus|antd，1.6.0版本新增默认为elPlus
             -->
         <!ELEMENT htmlButton EMPTY>
         <!ATTLIST htmlButton
