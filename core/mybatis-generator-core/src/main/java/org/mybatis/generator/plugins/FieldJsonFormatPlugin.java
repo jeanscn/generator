@@ -25,15 +25,19 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-       addJsonFieldFormat(field, topLevelClass, introspectedColumn);
+        addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
-       return true;
+        if (!introspectedTable.getRules().isGenerateVoModel()) {
+            addJSONSerialize(field, topLevelClass, introspectedColumn);
+        }
+        return true;
     }
 
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
+        addJSONSerialize(field, topLevelClass, introspectedColumn);
         return true;
     }
 
@@ -41,6 +45,7 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
+        addJSONSerialize(field, topLevelClass, introspectedColumn);
         return true;
     }
 
@@ -87,5 +92,14 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
             topLevelClass.addImportedType("org.springframework.format.annotation.DateTimeFormat");
             field.addAnnotation("@DateTimeFormat(pattern = \"" + datePattern + "\")");
         }
+    }
+
+    private void addJSONSerialize(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
+        if (introspectedColumn == null || !"JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName())) {
+            return;
+        }
+        topLevelClass.addImportedType("com.fasterxml.jackson.databind.annotation.JsonSerialize");
+        topLevelClass.addImportedType("com.vgosoft.system.parser.JsonRecordSerializer");
+        field.addAnnotation("@JsonSerialize(using = JsonRecordSerializer.class)");
     }
 }
