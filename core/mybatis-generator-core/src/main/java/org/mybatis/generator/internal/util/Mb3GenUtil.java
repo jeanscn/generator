@@ -2,6 +2,9 @@ package org.mybatis.generator.internal.util;
 
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.IBaseEnum;
+import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
+import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
+import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.ObjectFactory;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
@@ -14,12 +17,12 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 
 import javax.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
@@ -33,6 +36,12 @@ import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONA
 public class Mb3GenUtil {
 
     private Mb3GenUtil() {
+    }
+
+    public static String getParentMenuId(IntrospectedTable introspectedTable,VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
+        String parentMenuId = voViewGeneratorConfiguration.getParentMenuId();
+        String contextParentMenuId = introspectedTable.getContext().getParentMenuId();
+        return VStringUtil.stringHasValue(parentMenuId)?parentMenuId:VStringUtil.stringHasValue(contextParentMenuId)?contextParentMenuId:null;
     }
 
     public static String getControllerBaseMappingPath(IntrospectedTable introspectedTable) {
@@ -239,5 +248,119 @@ public class Mb3GenUtil {
             method.addAnnotation("@Transactional(rollbackFor = Exception.class)" );
         }
 
+    }
+
+    /**
+     * 设置权限数据sql脚本
+     * @param introspectedTable IntrospectedTable 内省表对象
+     * @param levels 权限数据
+     */
+    public static void setPermissionSqlData(IntrospectedTable introspectedTable, Map<String, String> levels) {
+        int index = 0;
+        List<String> keys = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (Map.Entry<String, String> entry : levels.entrySet()) {
+            String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
+            String id = VMD5Util.MD5_15(code);
+            keys.add(code);
+            String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
+            names.add(name);
+            InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
+            sqlBuilder.updateStringValues("id_", id);
+            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
+            if (index > 0) {
+                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
+            } else {
+                sqlBuilder.updateStringValues("parent_id", "0");
+            }
+            sqlBuilder.updateStringValues("code_", code);
+            sqlBuilder.updateStringValues("name_", name);
+            introspectedTable.addPermissionDataScriptLines(id, sqlBuilder.toSql()+";");
+            index++;
+        }
+    }
+
+    /**
+     * 通过操作的id集合，生成HtmlButtonDesc注解
+     * @param buttonIds 操作id集合
+     * @param htmlButtonGeneratorConfigurations HtmlButtonGeneratorConfiguration 按钮生成配置集合
+     * @return List<String> 按钮注解字符串的集合
+     */
+    public static List<String> genHtmlButtonAnnotationDescFromKeys(IntrospectedTable introspectedTable,List<String> buttonIds, Set<HtmlButtonGeneratorConfiguration> htmlButtonGeneratorConfigurations, @Nullable String parentMenuId){
+        return buttonIds.stream().filter(VStringUtil::stringHasValue).map(buttonId -> {
+           // 先检查配置中是否存在
+            HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = htmlButtonGeneratorConfigurations.stream()
+                    .filter(configuration -> buttonId.equals(configuration.getId()))
+                    .findFirst().orElse(null);
+            if (htmlButtonGeneratorConfiguration != null) {
+                HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
+                if (htmlButtonDesc.isConfigurable() && VStringUtil.stringHasValue(parentMenuId)) {
+                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc,parentMenuId);
+                }
+                return htmlButtonDesc.toAnnotation();
+            }
+            ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(buttonId);
+            if (viewDefaultToolBarsEnum != null) {
+                HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum);
+                if (StringUtility.stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
+                    htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
+                }else{
+                    htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
+                }
+                if (htmlButtonDesc.isConfigurable() && VStringUtil.stringHasValue(parentMenuId)) {
+                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc,parentMenuId);
+                }
+                return htmlButtonDesc.toAnnotation();
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+    }
+
+    /**
+     * 添加操作权限数据
+     * @param introspectedTable IntrospectedTable 内省表对象
+     * @param htmlButtonDesc HtmlButtonDesc 按钮描述对象
+     * @param parentMenuId 父级菜单ID
+     */
+    private static void addActionPermissionSqlData(IntrospectedTable introspectedTable, HtmlButtonDesc htmlButtonDesc, String parentMenuId) {
+        String l2 = introspectedTable.getControllerBeanName().toLowerCase();
+        String l3 = htmlButtonDesc.getId().toLowerCase();
+        Map<String, String> mapAction = new LinkedHashMap<>();
+        mapAction.put(l2, introspectedTable.getRemarks(true));
+        mapAction.put(l3, htmlButtonDesc.getTitle()!=null?htmlButtonDesc.getTitle():htmlButtonDesc.getLabel());
+        setPermissionActionSqlData(introspectedTable, mapAction,parentMenuId);
+    }
+
+    /**
+     * 设置权限操作数据sql脚本
+     * @param introspectedTable IntrospectedTable 内省表对象
+     * @param levels 权限数据
+     * @param parentMenuId 父级菜单ID
+     */
+    private static void setPermissionActionSqlData(IntrospectedTable introspectedTable, Map<String, String> levels, String parentMenuId) {
+        int index = 0;
+        List<String> keys = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (Map.Entry<String, String> entry : levels.entrySet()) {
+            String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
+            String id = VMD5Util.MD5_15(code);
+            keys.add(code);
+            String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
+            names.add(name);
+            InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermissionAction();
+            sqlBuilder.updateStringValues("id_", id);
+            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionActionDataScriptLines().size() + 1));
+            sqlBuilder.updateStringValues("code_", code);
+            sqlBuilder.updateStringValues("name_", name);
+            if (index > 0) {
+                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
+                introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
+            } else {
+                sqlBuilder.updateStringValues("parent_id", parentMenuId);
+                introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
+            }
+            index++;
+        }
     }
 }

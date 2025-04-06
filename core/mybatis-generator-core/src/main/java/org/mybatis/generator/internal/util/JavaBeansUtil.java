@@ -4,6 +4,7 @@ import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import com.vgosoft.tool.core.VMD5Util;
+import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -11,6 +12,8 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import java.io.File;
@@ -483,55 +486,5 @@ public class JavaBeansUtil {
             ret = new ArrayList<>();
         }
         return ret;
-    }
-
-    public static void setPermissionSqlData(IntrospectedTable introspectedTable, Map<String, String> levels) {
-        int index = 0;
-        List<String> keys = new ArrayList<>();
-        List<String> names = new ArrayList<>();
-        for (Map.Entry<String, String> entry : levels.entrySet()) {
-            String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
-            String id = VMD5Util.MD5_15(code);
-            keys.add(code);
-            String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
-            names.add(name);
-            InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
-            sqlBuilder.updateStringValues("id_", id);
-            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
-            if (index > 0) {
-                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
-            } else {
-                sqlBuilder.updateStringValues("parent_id", "0");
-            }
-            sqlBuilder.updateStringValues("code_", code);
-            sqlBuilder.updateStringValues("name_", name);
-            introspectedTable.addPermissionDataScriptLines(id, sqlBuilder.toSql()+";");
-            index++;
-        }
-    }
-
-    public static void setPermissionActionSqlData(IntrospectedTable introspectedTable, Map<String, String> levels) {
-        int index = 0;
-        List<String> keys = new ArrayList<>();
-        List<String> names = new ArrayList<>();
-        for (Map.Entry<String, String> entry : levels.entrySet()) {
-            String code = index == 0 ? entry.getKey() : keys.get(index - 1) + ":" + entry.getKey();
-            String id = VMD5Util.MD5_15(code);
-            keys.add(code);
-            String name = index == 0 ? entry.getValue() : names.get(index - 1) + ":" + entry.getValue();
-            names.add(name);
-            InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermissionAction();
-            sqlBuilder.updateStringValues("id_", id);
-            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionActionDataScriptLines().size() + 1));
-            if (index > 0) {
-                sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
-            } else {
-                sqlBuilder.updateStringValues("parent_id", "0");
-            }
-            sqlBuilder.updateStringValues("code_", code);
-            sqlBuilder.updateStringValues("name_", name);
-            introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
-            index++;
-        }
     }
 }
