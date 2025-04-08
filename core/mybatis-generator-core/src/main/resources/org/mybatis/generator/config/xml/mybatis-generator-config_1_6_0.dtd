@@ -689,7 +689,7 @@
             21、keyMapLabel 数据源中的label字段名，默认为label。
             22、keyMapValue 数据源中的value字段名，默认为value。
             23、enablePager 是否启用分页，默认为false
-            24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
+            24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
             25、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             26、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             27、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
@@ -1003,7 +1003,7 @@
             16、editMode 编辑模式，row-行编辑，cell-单元格编辑，默认cell
             17、editableFields 编辑字段，多个字段用逗号分隔，用于指定默认允许编辑的字段，如果不指定则默认为所有字段。
             18、enablePager 是否启用分页，默认为false
-            19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：innerAddBtn,batchAddBtn,batchDeleteBtn,batchEditBtn,exportBtn,zoomBtn,customBtn
+            19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
             20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
@@ -1020,11 +1020,19 @@
             33、printFields 仅在generateHtml.type=print且printMode=form时有效 打印模式下表单模式的显示的属性集合。
             34、verify 验证规则关键字，对于htmlElementInnerList仅required有效，当包含required关键字时，表格数据不能为空并且对没有保存的新增或更新数据进行提醒并终止整个表单的提交。其他验证规则请在模块的hooks文件中进行编写。
             35、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
-            36、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE、RECYCLE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE、RECYCLE以及自定义操作按钮的id值。如果不为空会覆盖列表定义viewVO的actionColumn。
+            36、actionColumn：操作列的操作列表。包括：查看、编辑、删除中的0个或多个。可选值：INNER_ROW_EDIT,INNER_ROW_REMOVE,INNER_ROW_VIEW以及自定义操作按钮的id值
             37、actionColumnWidth：操作列宽度，缺省值为”“.当actionColumn有值时有效。
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
+            3、vxeListButtons中指定的按钮的showCondition表达式上下文可以包括：
+                1）当前表所在的父文档所有的属性：xxxx
+                2）当前表所在的父文档的编辑状态：parentViewStatus === 1（编辑状态）parentViewStatus === 0（非编辑状态）
+                3）当前表的编辑状态：viewStatus === 1（编辑状态）viewStatus === 0（非编辑状态）
+                4）当前用户的信息：currentUser.xxx
+                5) 当前表的列表所有数据：tableData
+                6) 当前表的已经选择的数据行：tableSelectedRows
+                7) 如果需要取值使用$.xxx的方式：prop === ‘$.id’，最终表达式为prop === '1909422174356246528'
         -->
         <!ELEMENT htmlElementInnerList (property*,htmlButton*)>
         <!ATTLIST htmlElementInnerList
@@ -1311,7 +1319,7 @@
             6、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,RECYCLE,EXPORT,IMPORT,PRINT以及自定义操作按钮的id值
             7、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
             8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
-            9、actionColumn：操作列的操作列表。包括：VIEW-查看、EDIT-编辑、REMOVE、RECYCLE-删除中的0个或多个。可选值：VIEW,EDIT,REMOVE以及自定义操作按钮的id值
+            9、actionColumn：操作列的操作列表。包括：ROW_VIEW-查看、ROW_EDIT-编辑、ROW_REMOVE、ROW_RECYCLE-删除中的0个或多个。可选值：ROW_VIEW,ROW_EDIT,ROW_REMOVE以及自定义操作按钮的id值
             10、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为right
             11、actionColumnWidth：操作列宽度，缺省值为”“
             12、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
@@ -1411,7 +1419,7 @@
             2、title 标题，缺省值为“”，用来指定生成的菜单名称等
             3、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
             4、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式。缺省值：编辑时：CHECKBOX，只读时：ROW_INDEX
-            5、actionColumn：操作列的操作列表。包括：NONE-无、VIEW-查看、EDIT-编辑、REMOVE-删除中的1个或多个。缺省值：''，即无操作列
+            5、actionColumn：操作列的操作列表。包括：查看、编辑、删除中的0个或多个。可选值：INNER_ROW_EDIT,INNER_ROW_REMOVE,INNER_ROW_VIEW以及自定义操作按钮的id值
             6、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为right
             7、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false
             8、toolbar：表格顶部工具栏的设置。“false”-不显示工具条；“true"-仅显示右侧操作按钮；'default'-开启工具栏并显示默认模板(add\delete)\自定义工具栏id值。缺省值：default
@@ -1451,12 +1459,21 @@
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
+            35、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。该属性不会合并当前表htmlConfig中的htmlReadonlyFields配置
             3、requiredColumns 必填的列，多个”,“分隔。注意，会合并当前表htmlConfig中的requiredColumns配置
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
+            2、vxeListButtons中指定的按钮的showCondition表达式上下文可以包括：
+                1）当前表所在的父文档所有的属性：xxxx
+                2）当前表所在的父文档的编辑状态：parentViewStatus === 1（编辑状态）parentViewStatus === 0（非编辑状态）
+                3）当前表的编辑状态：viewStatus === 1（编辑状态）viewStatus === 0（非编辑状态）
+                4）当前用户的信息：currentUser.xxx
+                5) 当前表的列表所有数据：tableData
+                6) 当前表的已经选择的数据行：tableSelectedRows
+                7) 如果需要取值使用$.xxx的方式：prop === ‘$.id’，最终表达式为prop === '1909422174356246528'
        -->
         <!ELEMENT innerListView (property*,htmlElementDescriptor*,listColumnDescriptor*,htmlButton*,queryColumn*)>
         <!ATTLIST innerListView
@@ -1468,6 +1485,7 @@
                 actionColumnFixed (right|left|false) #IMPLIED
                 indexColumnFixed (left|right|false) #IMPLIED
                 toolbar CDATA #IMPLIED
+                vxeListButtons CDATA #IMPLIED
                 queryColumns CDATA #IMPLIED
                 fuzzyColumns CDATA #IMPLIED
                 filterColumns CDATA #IMPLIED
@@ -1701,7 +1719,8 @@
             4、如果定义了个性化按钮，需要在视图的defaultToolbar属性中指定该按钮的id，多个按钮用”,“分隔。
             5、handler属性指定的方法，需要在项目webjars包的/webjars/project/js/datatables_colrenders.js文件中定义该方法
                     视图的操作按钮中的参数为：function handlerFunc(e, dt, node, config,id)，其中id为定义的按钮id，可以通过这个id来区分不同的按钮
-            6、showCondition 表达式中可以使用$表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象），如：$.type == ‘1’ and $.status == ‘1’,$.xxx后面要紧跟空格
+            6、showCondition 表达式中可以使用$表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象或见说明），如：type == ‘1’ and status == ‘1’。如果需要取值使用$.xxx的方式：prop === ‘$.id’，最终表达式为prop === '1909422174356246528'
+            7、disabledCondition 表达式中可以使用$表示数据对象（行中操作表示行数据,表操作宿主的表示表单对象或见说明），如：$.type == ‘1’ and $.status == ‘1’,$.xxx后面要紧跟空格
             -->
         <!ELEMENT htmlButton EMPTY>
         <!ATTLIST htmlButton
@@ -1720,7 +1739,9 @@
                 isPlain (true|false) #IMPLIED
                 css CDATA #IMPLIED
                 showCondition CDATA #IMPLIED
+                disabledCondition CDATA #IMPLIED
                 configurable (false|true) #IMPLIED
+                localeKey CDATA #IMPLIED
                 uiFrameType (layui|zui|elPlus|antd) #IMPLIED>
         <!--
             用于描述查询列配置信息

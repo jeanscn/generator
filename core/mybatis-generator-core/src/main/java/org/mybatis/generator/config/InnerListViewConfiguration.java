@@ -7,27 +7,27 @@ import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class InnerListViewConfiguration extends AbstractTableListCommonConfiguration{
+public class InnerListViewConfiguration extends AbstractTableListCommonConfiguration {
 
     private String height;
     private String width = "";
     private boolean even = true;
     private List<String> enableEditFields = new ArrayList<>();
     private String editExtendsForm;
-     private List<HtmlElementDescriptor> htmlElements = new ArrayList<>();
+    private List<HtmlElementDescriptor> htmlElements = new ArrayList<>();
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
     private final Map<String, HtmlElementDescriptor> elementDescriptorMap = new HashMap<>();
     private final List<InnerListEditTemplate> innerListEditTemplate = new ArrayList<>();
     private final List<ListColumnConfiguration> listColumnConfigurations = new ArrayList<>();
-    private final  Set<String> readonlyFields = new HashSet<>();
+    private final Set<String> readonlyFields = new HashSet<>();
     private final Set<String> requiredColumns = new HashSet<>();
-    private final List<HtmlButtonGeneratorConfiguration> htmlButtons = new ArrayList<>();
+    private final Set<HtmlButtonGeneratorConfiguration> htmlButtons = new HashSet<>();
     private final List<QueryColumnConfiguration> queryColumnConfigurations = new ArrayList<>();
+    private List<String> vxeListButtons = new ArrayList<>();
 
     {
         this.listKey = "";
         this.size = "mg";
-        this.actionColumn = new ArrayList<>();
         this.toolbar = new ArrayList<>();
         this.queryColumns = new ArrayList<>();
         this.fuzzyColumns = new ArrayList<>();
@@ -49,7 +49,7 @@ public class InnerListViewConfiguration extends AbstractTableListCommonConfigura
      * 构造器
      */
     public InnerListViewConfiguration() {
-       super();
+        super();
     }
 
     public String getHeight() {
@@ -107,6 +107,7 @@ public class InnerListViewConfiguration extends AbstractTableListCommonConfigura
     public void setHtmlGeneratorConfiguration(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
+
     public Set<String> getRequiredColumns() {
         return requiredColumns;
     }
@@ -119,9 +120,11 @@ public class InnerListViewConfiguration extends AbstractTableListCommonConfigura
         elementDescriptorMap.putAll(map);
         return elementDescriptorMap;
     }
+
     public List<InnerListEditTemplate> getInnerListEditTemplate() {
         return innerListEditTemplate;
     }
+
     public Set<String> getReadonlyFields() {
         return readonlyFields;
     }
@@ -130,12 +133,19 @@ public class InnerListViewConfiguration extends AbstractTableListCommonConfigura
         return listColumnConfigurations;
     }
 
-    public List<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
-        return htmlButtons;
-    }
-
     public List<QueryColumnConfiguration> getQueryColumnConfigurations() {
         return queryColumnConfigurations;
     }
 
+    public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
+        return htmlButtons;
+    }
+
+    public List<String> getVxeListButtons() {
+        return vxeListButtons;
+    }
+
+    public void setVxeListButtons(List<String> vxeListButtons) {
+        this.vxeListButtons = vxeListButtons;
+    }
 }

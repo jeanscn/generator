@@ -26,7 +26,9 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private boolean isPlain = false;
     private String css;
     private String showCondition = "true";
-    private boolean configurable = true;
+    private String disabledCondition = "false";
+    private boolean configurable = false;
+    private String localeKey;
 
     public HtmlButtonGeneratorConfiguration() {
         super();
@@ -161,5 +163,21 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     public void setElIcon(String elIcon) {
         this.elIcon = elIcon;
+    }
+
+    public String getDisabledCondition() {
+        return disabledCondition;
+    }
+
+    public void setDisabledCondition(String disabledCondition) {
+        this.disabledCondition = disabledCondition;
+    }
+
+    public String getLocaleKey() {
+        return localeKey;
+    }
+
+    public void setLocaleKey(String localeKey) {
+        this.localeKey = localeKey;
     }
 }

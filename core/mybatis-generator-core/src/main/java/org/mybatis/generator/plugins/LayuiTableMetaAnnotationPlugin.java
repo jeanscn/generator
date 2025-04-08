@@ -479,7 +479,10 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
         layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
         layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
-        layuiTableMetaDesc.setActionColumn(listViewConfiguration.getActionColumn());
+        List<String> columnActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getActionColumn(), listViewConfiguration.getHtmlButtons(), null);
+        layuiTableMetaDesc.setColumnActions(String.join(",", columnActionsA));
+        List<String> toolbarActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getVxeListButtons(), listViewConfiguration.getHtmlButtons(), null);
+        layuiTableMetaDesc.setToolbarActions(String.join(",", toolbarActionsA));
         layuiTableMetaDesc.setIndexColumnFixed(listViewConfiguration.getIndexColumnFixed());
         layuiTableMetaDesc.setActionColumnFixed(listViewConfiguration.getActionColumnFixed());
         layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());

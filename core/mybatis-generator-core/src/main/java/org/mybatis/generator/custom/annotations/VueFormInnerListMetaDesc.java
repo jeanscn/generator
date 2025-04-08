@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations;
 
+import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.annotation.VueFormInnerListMeta;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -72,7 +73,6 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     private String editMode;
     private String editableFields;
     private boolean enablePager;
-    private String vxeListButtons = "";
     private String defaultFilterExpr;
     private List<String> batchUpdateColumns = new ArrayList<>();
     private boolean showRowNumber = true;
@@ -91,9 +91,10 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     private String enableEdit = "default";
 
-    private String verify =  "none";
+    private String verify = "none";
 
-    private List<String> actionColumn = new ArrayList<>();
+    private String toolbarActions;
+    private String columnActions;
 
     private String actionColumnWidth;
 
@@ -104,12 +105,12 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 
     public VueFormInnerListMetaDesc(HtmlElementInnerListConfiguration innerListConfiguration, IntrospectedTable introspectedTable, int index) {
         super();
-        if(VStringUtil.stringHasValue(innerListConfiguration.getElementKey())){
+        if (VStringUtil.stringHasValue(innerListConfiguration.getElementKey())) {
             this.value = innerListConfiguration.getElementKey();
-        }else{
-            this.value =  innerListConfiguration.getModuleKeyword() +
-                    "_" +  Mb3GenUtil.getDefaultHtmlKey(introspectedTable) +
-                    "_" +  index;
+        } else {
+            this.value = innerListConfiguration.getModuleKeyword() +
+                    "_" + Mb3GenUtil.getDefaultHtmlKey(introspectedTable) +
+                    "_" + index;
         }
         this.listKey = innerListConfiguration.getListKey();
         this.label = innerListConfiguration.getLabel();
@@ -128,11 +129,6 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.editMode = innerListConfiguration.getEditMode();
         this.editableFields = String.join(",", innerListConfiguration.getEditableFields());
         this.enablePager = innerListConfiguration.isEnablePager();
-        if (!innerListConfiguration.getVxeListButtons().isEmpty()) {
-            this.vxeListButtons = String.join(",", innerListConfiguration.getVxeListButtons());
-        }else{
-            this.vxeListButtons = "";
-        }
         this.defaultFilterExpr = innerListConfiguration.getDefaultFilterExpr();
         this.batchUpdateColumns = new ArrayList<>(innerListConfiguration.getBatchUpdateColumns());
         this.showRowNumber = innerListConfiguration.isShowRowNumber();
@@ -143,7 +139,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.editFormIn = innerListConfiguration.getEditFormIn();
         this.detailFormIn = innerListConfiguration.getDetailFormIn();
         this.hideExpression = innerListConfiguration.getHideExpression();
-        this.disabledExpression = innerListConfiguration.getDisableExpression();
+        this.disabledExpression = innerListConfiguration.getDisabledExpression();
         this.enableEdit = innerListConfiguration.getEnableEdit();
         this.verify = innerListConfiguration.getVerify().stream().distinct().collect(Collectors.joining(","));
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
@@ -156,10 +152,10 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(listKey)) {
             items.add("listKey = \"" + listKey + "\"");
         }
-        if (VStringUtil.isNotBlank(label) ) {
+        if (VStringUtil.isNotBlank(label)) {
             items.add("label = \"" + label + "\"");
         }
-        if(VStringUtil.stringHasValue(moduleKeyword)){
+        if (VStringUtil.stringHasValue(moduleKeyword)) {
             items.add("moduleKeyword = \"" + moduleKeyword + "\"");
         }
         if (VStringUtil.isNotBlank(sourceBeanName)) {
@@ -199,13 +195,18 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
             items.add("editMode = \"" + editMode + "\"");
         }
         if (VStringUtil.stringHasValue(editableFields)) {
-            items.add("editableFields = \"" + editableFields + "\"");
+            items.add("\n                        editableFields = \"" + editableFields + "\"");
         }
         if (enablePager) {
             items.add("enablePager = true");
         }
-        if (!"innerAddBtn".equals(vxeListButtons)) {
-            items.add("vxeListButtons = \"" + vxeListButtons + "\"");
+        if (this.toolbarActions != null) {
+            items.add(VStringUtil.format("\n                        toolbarActions = '{'{0}'}'", this.toolbarActions));
+            this.addImports(HtmlButton.class.getCanonicalName());
+        }
+        if (this.columnActions != null) {
+            items.add(VStringUtil.format("\n                        columnActions = '{'{0}'}'", this.columnActions));
+            this.addImports(HtmlButton.class.getCanonicalName());
         }
         if (VStringUtil.stringHasValue(defaultFilterExpr)) {
             items.add("defaultFilterExpr = \"" + defaultFilterExpr + "\"");
@@ -217,10 +218,10 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
             items.add("showRowNumber = false");
         }
         if (totalRow) {
-            items.add("totalRow = true");
+            items.add("\n                        totalRow = true");
         }
         if (!totalFields.isEmpty()) {
-            items.add("totalFields  = \"" + String.join(",", this.totalFields) + "\"");
+            items.add("totalFields = \"" + String.join(",", this.totalFields) + "\"");
         }
         if (VStringUtil.stringHasValue(totalText) && !"合计".equals(totalText)) {
             items.add("totalText = \"" + totalText + "\"");
@@ -245,9 +246,6 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         }
         if (VStringUtil.isNotBlank(verify) && !verify.contains("none")) {
             items.add("verify = \"" + verify + "\"");
-        }
-        if (!actionColumn.isEmpty()) {
-            items.add("actionColumn  = \"" + String.join(",", this.actionColumn) + "\"");
         }
         if (VStringUtil.isNotBlank(actionColumnWidth)) {
             items.add("actionColumnWidth = \"" + actionColumnWidth + "\"");
@@ -399,14 +397,6 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.enablePager = enablePager;
     }
 
-    public String getVxeListButtons() {
-        return vxeListButtons;
-    }
-
-    public void setVxeListButtons(String vxeListButtons) {
-        this.vxeListButtons = vxeListButtons;
-    }
-
     public String getDefaultFilterExpr() {
         return defaultFilterExpr;
     }
@@ -511,12 +501,12 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.verify = verify;
     }
 
-    public List<String> getActionColumn() {
-        return actionColumn;
+    public String getColumnActions() {
+        return columnActions;
     }
 
-    public void setActionColumn(List<String> actionColumn) {
-        this.actionColumn = actionColumn;
+    public void setColumnActions(String columnActions) {
+        this.columnActions = columnActions;
     }
 
     public String getActionColumnWidth() {
@@ -526,4 +516,13 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     public void setActionColumnWidth(String actionColumnWidth) {
         this.actionColumnWidth = actionColumnWidth;
     }
+
+    public String getToolbarActions() {
+        return toolbarActions;
+    }
+
+    public void setToolbarActions(String toolbarActions) {
+        this.toolbarActions = toolbarActions;
+    }
+
 }

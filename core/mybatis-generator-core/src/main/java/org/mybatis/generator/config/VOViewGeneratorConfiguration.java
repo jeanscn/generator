@@ -3,7 +3,6 @@ package org.mybatis.generator.config;
 import com.vgosoft.core.constant.GlobalConstant;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
 

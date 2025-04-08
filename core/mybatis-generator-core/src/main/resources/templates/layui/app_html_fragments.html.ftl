@@ -8,7 +8,7 @@
     <!-- 行操作模板 -->
     <script type="text/html" id="TPL-inner-list-row-toolbar">
         <div class="layui-clear-space">
-        <#list actionColumn as item>
+        <#list columnActions as item>
             <#if  item??>
             <button class="${item.classes!''}" lay-event="${item.id!''}" <#if item.title?? && item.title!="" > title="${item.title}"</#if>>
                 <#if item.label?? && item.label!="" > "${item.label}" </#if>

@@ -49,16 +49,16 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
         //设置顶部buttons
         freeMakerContext.put("buttons", getHtmlButtonGeneratorConfigurations());
         //设置行操作
-        freeMakerContext.put("actionColumn", getRowActionButtonGeneratorConfigurations());
+        freeMakerContext.put("columnActions", getRowActionButtonGeneratorConfigurations());
         Template template = getLayuiTemplate(templateName);
         return generatorFileContent(template);
     }
 
     private List<HtmlButtonGeneratorConfiguration>  getRowActionButtonGeneratorConfigurations() {
-        List<String> actionColumn = innerListViewConfiguration.getActionColumn();
+        List<String> columnActions = innerListViewConfiguration.getActionColumn();
         List<HtmlButtonGeneratorConfiguration> buttons = new ArrayList<>();
         Map<String, HtmlButtonGeneratorConfiguration> htmlButtonsMap = getHtmlButtonGeneratorConfigurationMap();
-        for (String bar : actionColumn) {
+        for (String bar : columnActions) {
             if (bar.equalsIgnoreCase("VIEW")) {
                 HtmlButtonGeneratorConfiguration view = new HtmlButtonGeneratorConfiguration("view");
                 view.setType("a");

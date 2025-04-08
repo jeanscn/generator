@@ -1,7 +1,5 @@
 package org.mybatis.generator.config;
 
-import com.vgosoft.tool.core.VStringUtil;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,62 +11,39 @@ import java.util.stream.Collectors;
  * 2023-06-12 13:43
  * @version 4.0
  */
-public class HtmlElementInnerListConfiguration extends PropertyHolder{
+public class HtmlElementInnerListConfiguration extends AbstractHtmlElementDescriptor {
 
     private String elementKey;
-
-    private String listKey;
-
     private String label = "";
-
     private String moduleKeyword;
     private String sourceViewPath = "";
-
     private String sourceBeanName;
-
     private String sourceBeanNameKebabCase;
     private String relationField;
     private String sourceListViewClass;
     private String relationKey = "id";
-
     private String tagId;
-
     private String dataField;
-
-    private String dataUrl;
     private int span = 24;
     private String afterColumn;
     private String containerType;
-    private int order =10;
+    private int order = 10;
     private String editMode;
     private Set<String> editableFields = new HashSet<>();
-    private boolean enablePager = false;
-    private Set<String> vxeListButtons = new HashSet<>();
-    private String defaultFilterExpr;
     private Set<String> batchUpdateColumns = new HashSet<>();
     private boolean showRowNumber = true;
     private boolean totalRow;
     private Set<String> totalFields = new HashSet<>();
     private String totalText = "合计";
-    private String  restBasePath;
+    private String restBasePath;
     private String editFormIn;
     private String detailFormIn;
-    private String hideExpression;
-    private String disableExpression;
-
     private String showActionColumn = "default";
-
     private String enableEdit = "default";
-
     private String printMode = "table";
-
     private int printFormColumnsNum = 2;
-
     private List<String> printFields = new ArrayList<>();
-
     private List<String> verify = new ArrayList<>();
-
-    private List<String> actionColumn = new ArrayList<>();
 
     private String actionColumnWidth;
 
@@ -91,18 +66,6 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.dataField = dataField;
     }
 
-    public String getDataUrl() {
-        //如果不是以“/”开头，则加上
-        if (VStringUtil.stringHasValue(dataUrl) && !dataUrl.startsWith("/")) {
-            dataUrl = "/" + dataUrl;
-        }
-        return dataUrl;
-    }
-
-    public void setDataUrl(String dataUrl) {
-        this.dataUrl = dataUrl;
-    }
-
     public String getTagId() {
         return tagId;
     }
@@ -113,7 +76,7 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public String getSourceViewPath() {
         if (sourceViewPath.contains("/")) {
-            sourceViewPath = sourceViewPath.substring(sourceViewPath.lastIndexOf("/")+1);
+            sourceViewPath = sourceViewPath.substring(sourceViewPath.lastIndexOf("/") + 1);
         }
         return sourceViewPath;
     }
@@ -152,14 +115,6 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setRelationKey(String relationKey) {
         this.relationKey = relationKey;
-    }
-
-    public String getListKey() {
-        return listKey;
-    }
-
-    public void setListKey(String listKey) {
-        this.listKey = listKey;
     }
 
     public String getAfterColumn() {
@@ -208,30 +163,6 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setEditMode(String editMode) {
         this.editMode = editMode;
-    }
-
-    public boolean isEnablePager() {
-        return enablePager;
-    }
-
-    public void setEnablePager(boolean enablePager) {
-        this.enablePager = enablePager;
-    }
-
-    public Set<String> getVxeListButtons() {
-        return vxeListButtons;
-    }
-
-    public void setVxeListButtons(Set<String> vxeListButtons) {
-        this.vxeListButtons = vxeListButtons;
-    }
-
-    public String getDefaultFilterExpr() {
-        return defaultFilterExpr;
-    }
-
-    public void setDefaultFilterExpr(String defaultFilterExpr) {
-        this.defaultFilterExpr = defaultFilterExpr;
     }
 
     public boolean isShowRowNumber() {
@@ -314,22 +245,6 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
         this.detailFormIn = detailFormIn;
     }
 
-    public String getHideExpression() {
-        return hideExpression;
-    }
-
-    public void setHideExpression(String hideExpression) {
-        this.hideExpression = hideExpression;
-    }
-
-    public String getDisableExpression() {
-        return disableExpression;
-    }
-
-    public void setDisableExpression(String disableExpression) {
-        this.disableExpression = disableExpression;
-    }
-
     public String getShowActionColumn() {
         return showActionColumn;
     }
@@ -388,14 +303,6 @@ public class HtmlElementInnerListConfiguration extends PropertyHolder{
 
     public void setVerify(List<String> verify) {
         this.verify = verify;
-    }
-
-    public List<String> getActionColumn() {
-        return actionColumn;
-    }
-
-    public void setActionColumn(List<String> actionColumn) {
-        this.actionColumn = actionColumn;
     }
 
     public String getActionColumnWidth() {

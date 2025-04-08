@@ -9,15 +9,19 @@ import java.util.Set;
 
 public class AbstractTableListCommonConfiguration extends AbstractModelGeneratorConfiguration{
 
-    protected String listKey;
     protected String title;
     protected String size;
+
+    protected String listKey;
     protected String indexColumn;
-    protected List<String> actionColumn = new ArrayList<>();
-    protected String actionColumnFixed;
     protected String indexColumnFixed;
-    protected String actionColumnWidth;
+
     protected List<String> toolbar = new ArrayList<>();
+    protected List<String> actionColumn = new ArrayList<>();
+
+    protected String actionColumnWidth;
+    protected String actionColumnFixed;
+
     protected List<String> queryColumns = new ArrayList<>();
     protected List<String> fuzzyColumns = new ArrayList<>();
     protected List<String> filterColumns = new ArrayList<>();

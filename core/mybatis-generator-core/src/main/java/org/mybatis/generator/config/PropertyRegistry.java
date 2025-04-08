@@ -172,6 +172,10 @@ public class PropertyRegistry {
 
     public static final String ELEMENT_IMPORT_TYPE = "importType";
 
+    public static final String ELEMENT_ACTION_COLUMN = "actionColumn";
+
+    public static final String ELEMENT_VXE_LIST_BUTTONS = "vxeListButtons";
+
 
 
 }

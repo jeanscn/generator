@@ -40,10 +40,10 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
     private String listType;
     private final String tableName;
     private final String tableAlias;
-    private String[] toolbar = new String[0];
     private ViewIndexColumnEnum indexColumn;
     private String indexColWidth;
-    private String actionColumn;
+    private String[] toolbar = new String[0];
+    private String columnActions;
     private String toolbarActions;
     private String[] ignoreFields = new String[0];
     private String[] columns = new String[0];
@@ -126,8 +126,8 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("indexColumn = ViewIndexColumnEnum.{0}", this.getIndexColumn().name()));
             this.addImports(ViewIndexColumnEnum.class.getCanonicalName());
         }
-        if (this.actionColumn != null) {
-            items.add(VStringUtil.format("actionColumn = '{'{0}'}'", this.actionColumn));
+        if (this.columnActions != null) {
+            items.add(VStringUtil.format("columnActions = '{'{0}'}'", this.columnActions));
             this.addImports(HtmlButton.class.getCanonicalName());
         }
         if (this.toolbarActions != null) {
@@ -357,12 +357,12 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         this.restBasePath = restBasePath;
     }
 
-    public String getActionColumn() {
-        return actionColumn;
+    public String getColumnActions() {
+        return columnActions;
     }
 
-    public void setActionColumn(String actionColumn) {
-        this.actionColumn = actionColumn;
+    public void setColumnActions(String columnActions) {
+        this.columnActions = columnActions;
     }
 
     public String getToolbarActions() {

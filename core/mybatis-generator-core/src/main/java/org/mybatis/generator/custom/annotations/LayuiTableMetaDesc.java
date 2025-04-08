@@ -1,6 +1,7 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.CompositeQuery;
+import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.annotation.LayuiTableMeta;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
@@ -27,7 +28,6 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private String title;
     private String size;
     private String indexColumn;
-    private List<String> actionColumn = new ArrayList<>();
     /**
      * 设置表格尾部工具栏区域固定位置.可选值有：left 固定在左 right 固定在右 "false"或"" 不固定
      */
@@ -38,6 +38,8 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private String indexColumnFixed = "";
     private String actionColumnWidth;
     private List<String> toolbar = new ArrayList<>();
+    private String toolbarActions;
+    private String columnActions;
     private Set<String> batchUpdateColumns = new HashSet<>();
     private List<String> defaultToolbar = new ArrayList<>();
     private String parentMenuId;
@@ -57,7 +59,6 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     private String enablePage = "true";
 
-    private String vxeListButtons = "";
     private String defaultFilterExpr;
 
     private boolean showRowNumber = true;
@@ -106,8 +107,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
                 items.add("toolbar = \"" + String.join(",", toolbar) + "\"");
             }
         }
-        if (!actionColumn.isEmpty()) {
-            items.add("actionColumn = \"" + String.join(",", actionColumn) + "\"");
+        if (this.columnActions != null) {
+            items.add(VStringUtil.format("\n                        columnActions = '{'{0}'}'", this.columnActions));
+            this.addImports(HtmlButton.class.getCanonicalName());
+        }
+        if (this.toolbarActions != null) {
+            items.add(VStringUtil.format("\n                        toolbarActions = '{'{0}'}'", this.toolbarActions));
+            this.addImports(HtmlButton.class.getCanonicalName());
         }
         if (stringHasValue(indexColumn) && !"CHECKBOX".equals(indexColumn)) {
             items.add("indexColumn = \"" + indexColumn + "\"");
@@ -158,9 +164,6 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (stringHasValue(defaultFilterExpr)) {
             items.add("defaultFilterExpr = \"" + defaultFilterExpr + "\"");
-        }
-        if (stringHasValue(vxeListButtons) && !"innerAddBtn".equals(vxeListButtons)) {
-            items.add("vxeListButtons = \"" + vxeListButtons + "\"");
         }
         if (enablePage.equals("false")) {
            items.add("enablePage = \"false\"");
@@ -244,14 +247,6 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setToolbar(List<String> toolbar) {
         this.toolbar = toolbar;
-    }
-
-    public List<String> getActionColumn() {
-        return actionColumn;
-    }
-
-    public void setActionColumn(List<String> actionColumn) {
-        this.actionColumn = actionColumn;
     }
 
     public String getIndexColumn() {
@@ -382,14 +377,6 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         this.defaultFilterExpr = defaultFilterExpr;
     }
 
-    public String getVxeListButtons() {
-        return vxeListButtons;
-    }
-
-    public void setVxeListButtons(String vxeListButtons) {
-        this.vxeListButtons = vxeListButtons;
-    }
-
     public String getEnablePage() {
         return enablePage;
     }
@@ -444,5 +431,21 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setActionColumnWidth(String actionColumnWidth) {
         this.actionColumnWidth = actionColumnWidth;
+    }
+
+    public String getToolbarActions() {
+        return toolbarActions;
+    }
+
+    public void setToolbarActions(String toolbarActions) {
+        this.toolbarActions = toolbarActions;
+    }
+
+    public String getColumnActions() {
+        return columnActions;
+    }
+
+    public void setColumnActions(String columnActions) {
+        this.columnActions = columnActions;
     }
 }

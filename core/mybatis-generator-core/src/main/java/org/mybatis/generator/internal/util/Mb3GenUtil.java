@@ -297,7 +297,7 @@ public class Mb3GenUtil {
                 if (htmlButtonDesc.isConfigurable() && VStringUtil.stringHasValue(parentMenuId)) {
                     addActionPermissionSqlData(introspectedTable, htmlButtonDesc,parentMenuId);
                 }
-                return htmlButtonDesc.toAnnotation();
+                return "\n                                "+htmlButtonDesc.toAnnotation();
             }
             ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(buttonId);
             if (viewDefaultToolBarsEnum != null) {
@@ -310,7 +310,7 @@ public class Mb3GenUtil {
                 if (htmlButtonDesc.isConfigurable() && VStringUtil.stringHasValue(parentMenuId)) {
                     addActionPermissionSqlData(introspectedTable, htmlButtonDesc,parentMenuId);
                 }
-                return htmlButtonDesc.toAnnotation();
+                return "\n                                "+htmlButtonDesc.toAnnotation();
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());

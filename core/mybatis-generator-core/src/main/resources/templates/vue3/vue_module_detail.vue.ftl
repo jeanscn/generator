@@ -1,10 +1,12 @@
 /**
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.3
+* @version: detail template version 1.0.4
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
-              :viewStatus="viewStatus" :hideRequiredAsterisk="true" labelSuffix=":"></vgo-form>
+        :viewStatus="viewStatus" :hideRequiredAsterisk="true" labelSuffix=":"
+        @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
+        @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"></vgo-form>
 </template>
 
 <script lang="ts" setup name="${ modelName }Detail">
@@ -14,6 +16,7 @@
     import { T${ modelName } } from '../types/T${ modelName }';
     import { useFormConfigStore } from '@/store/formConfig';
     import { useI18n } from 'vue-i18n';
+    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
     <#if workflowEnabled >
     import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
 
@@ -38,7 +41,11 @@
     const formConfigReady = ref(false);
     const dataReady = ref(false);
 
-    const emit = defineEmits(['update:modelValue']);
+    const emit = defineEmits([
+        'update:modelValue',
+        'vxe-toolbar-button-click',
+        'vxe-row-button-click',
+    ]);
 
     watch(() => props.modelValue, (val) => {
         _formData.value = val;
@@ -67,7 +74,7 @@
         fetchFormConfigAsync(_formConfig);
         <#if workflowEnabled >
         if(!!_formData.value && _formData.value['workflowEnabled']===1){
-            const taskAttributes = await currentTaskAttributesStore.getCurrentTaskAttributesWithFetch(_formData.value?.id);
+            const taskAttributes = await currentTaskAttributesStore.getCurrentTaskAttributesWithFetch(_formData.value?.id ?? '');
             _formData.value['actionList'] = taskAttributes?.taskExtAttributes?.actionList||[];
             _formData.value['taskAttributes'] = taskAttributes;
         }
@@ -78,7 +85,7 @@
     onUnmounted(() => {
         <#if workflowEnabled >
         if(_formData.value){
-            currentTaskAttributesStore.deleteCurrentTaskAttributes(_formData.value?.id);
+            currentTaskAttributesStore.deleteCurrentTaskAttributes(_formData.value?.id ?? '');
             _formData.value['actionList'] = [];
             _formData.value['taskAttributes'] = {};
         }

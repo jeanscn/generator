@@ -2,6 +2,7 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 
 import java.util.List;
@@ -34,8 +35,11 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
     private boolean isPlain;
     private String css;
     private String showCondition;
+    private String disabledCondition;
 
     private boolean configurable;
+
+    private String localeKey;
 
     public static HtmlButtonDesc create(ViewDefaultToolBarsEnum viewDefaultToolBarsEnum) {
         return new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
@@ -55,9 +59,14 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.isRound = htmlButtonGeneratorConfiguration.isRound();
         htmlButtonDesc.setCss(htmlButtonGeneratorConfiguration.getCss());
         htmlButtonDesc.setShowCondition(htmlButtonGeneratorConfiguration.getShowCondition());
+        htmlButtonDesc.setDisabledCondition(htmlButtonGeneratorConfiguration.getDisabledCondition());
         htmlButtonDesc.setTitle(htmlButtonGeneratorConfiguration.getTitle());
         htmlButtonDesc.setLabel(htmlButtonGeneratorConfiguration.getLabel());
         htmlButtonDesc.setConfigurable(htmlButtonGeneratorConfiguration.isConfigurable());
+        htmlButtonDesc.setLocaleKey(htmlButtonGeneratorConfiguration.getLocaleKey());
+        htmlButtonDesc.setCircle(htmlButtonGeneratorConfiguration.isCircle());
+        htmlButtonDesc.setRound(htmlButtonGeneratorConfiguration.isRound());
+        htmlButtonDesc.setLink(htmlButtonGeneratorConfiguration.isLink());
         return htmlButtonDesc;
     }
 
@@ -81,8 +90,13 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         this.type = viewDefaultToolBarsEnum.type();
         this.css = viewDefaultToolBarsEnum.css();
         this.showCondition = viewDefaultToolBarsEnum.showCondition();
+        this.disabledCondition = viewDefaultToolBarsEnum.disabledCondition();
         this.isPlain = viewDefaultToolBarsEnum.plain();
         this.configurable = viewDefaultToolBarsEnum.configurable();
+        this.localeKey = viewDefaultToolBarsEnum.localeKey();
+        this.isLink = viewDefaultToolBarsEnum.isLink();
+        this.isRound = viewDefaultToolBarsEnum.isRound();
+        this.isCircle = viewDefaultToolBarsEnum.isCircle();
         this.addImports(HtmlButton.class.getCanonicalName());
     }
 
@@ -126,14 +140,20 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         if (this.label != null) {
             items.add("label = \""+this.label+"\"");
         }
-        if (this.css!=null) {
+        if (VStringUtil.stringHasValue(this.css)) {
             items.add("css = \""+this.css+"\"");
         }
         if (this.showCondition!=null && !this.showCondition.equalsIgnoreCase("true")) {
             items.add("showCondition = \""+this.showCondition+"\"");
         }
-        if (!this.configurable) {
-            items.add("configurable = false");
+        if (this.disabledCondition!=null && !this.disabledCondition.equalsIgnoreCase("false")) {
+            items.add("disabledCondition = \""+this.disabledCondition+"\"");
+        }
+        if (this.configurable) {
+            items.add("configurable = true");
+        }
+        if (VStringUtil.stringHasValue(this.localeKey)) {
+            items.add("localeKey = \""+this.localeKey+"\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -272,5 +292,21 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setElIcon(String elIcon) {
         this.elIcon = elIcon;
+    }
+
+    public String getDisabledCondition() {
+        return disabledCondition;
+    }
+
+    public void setDisabledCondition(String disabledCondition) {
+        this.disabledCondition = disabledCondition;
+    }
+
+    public String getLocaleKey() {
+        return localeKey;
+    }
+
+    public void setLocaleKey(String localeKey) {
+        this.localeKey = localeKey;
     }
 }

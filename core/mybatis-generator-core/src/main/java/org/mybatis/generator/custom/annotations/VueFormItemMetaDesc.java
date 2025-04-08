@@ -6,6 +6,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,18 +21,15 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     private String fieldValue;
     private final String fieldName;
-
-    private final String fieldLabel;
-
-    private final String fieldSubLabel;
     private String otherFieldName;
+    private final String fieldLabel;
+    private final String fieldSubLabel;
     private Integer span = 24;
     private String tips;
     private String component;
     private String rules;
     private String hideHandle;
     private String requiredHandle;
-
     private Boolean defaultHidden = false; // 默认隐藏
     // 以下为options属性
     private String placeholder; // 提示文字
@@ -40,27 +38,25 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private Boolean multiple = false; // 是否允许多选
     // 类型,input-可能是text、password、url、textarea；date-可能是time、datetime
     private String type;
-    private String tsType = "";
     private String valueFormat; // 日期格式化
     private boolean dateRange = false; // 是否为日期范围
     private boolean remoteApiParse = false; // 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
-
     private boolean remoteToTree = false; // 远程数据源转树形结构
-
+    private String remoteValueType = "string"; // 远程数据源返回的数据中，value对应的字段类型,remoteApiParse为true时有效
     private boolean remoteAsync = false; // 远程数据源是否异步加载
-
     private boolean excludeSelf = false; // 远程数据源是否排除自身
 
-    private String remoteValueType = "string"; // 远程数据源返回的数据中，value对应的字段类型,remoteApiParse为true时有效
     private String keyMapLabel = "name"; // 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
     private String keyMapValue = "id"; // 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
     private String dataUrl = ""; // 远程数据源的URL
     private String dataUrlParams = ""; // 数据源
     private String dataSource = "";
     private String beanName = "";
+
     private String applyProperty = "";
     private String applyPropertyKey = "";
     private String enumClassFullName = "";
+
     private String dictCode = "";
     private String callback = "";
 
@@ -69,29 +65,27 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String switchText = "";
 
     private String listKey = "";
-
     private String sourceListViewClass = "";
-
     private String parentFormKey = "";
 
     private String designIdField = "";
-
-    private String designRestBasePath = "";
-
     private String configJsonfield = "";
     private boolean enablePager;
-    private String vxeListButtons = "";
 
     private String defaultFilterExpr = "";
     private String hideExpression = "";
-
     private String disabledExpression = "";
+    private Set<String> watchFields = new HashSet<>();
 
     private boolean renderHref = false;
-
     private String hrefDataKeyField = "";
+    private String tsType = "";
 
-    private Set<String> watchFields = new HashSet<>();
+    private String columnActions;
+    private String toolbarActions;
+
+    private String designRestBasePath = "";
+
     public static VueFormItemMetaDesc create(IntrospectedColumn introspectedColumn) {
         return new VueFormItemMetaDesc(introspectedColumn);
     }
@@ -241,8 +235,11 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         if (!this.enablePager) {
             items.add(VStringUtil.format("enablePager = false"));
         }
-        if (VStringUtil.isNotBlank(this.vxeListButtons)) {
-            items.add(VStringUtil.format("vxeListButtons = \"{0}\"", this.vxeListButtons));
+        if (VStringUtil.isNotBlank(this.toolbarActions)) {
+            items.add(VStringUtil.format("toolbarActions = \"{0}\"", this.toolbarActions));
+        }
+        if (VStringUtil.isNotBlank(this.columnActions)) {
+            items.add(VStringUtil.format("columnActions = \"{0}\"", this.columnActions));
         }
         if (VStringUtil.isNotBlank(this.defaultFilterExpr)) {
             items.add(VStringUtil.format("defaultFilterExpr = \"{0}\"", this.defaultFilterExpr));
@@ -604,14 +601,6 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
         this.enablePager = enablePager;
     }
 
-    public String getVxeListButtons() {
-        return vxeListButtons;
-    }
-
-    public void setVxeListButtons(String vxeListButtons) {
-        this.vxeListButtons = vxeListButtons;
-    }
-
     public String getDefaultFilterExpr() {
         return defaultFilterExpr;
     }
@@ -674,5 +663,21 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
 
     public void setTsType(String tsType) {
         this.tsType = tsType;
+    }
+
+    public String getColumnActions() {
+        return columnActions;
+    }
+
+    public void setColumnActions(String columnActions) {
+        this.columnActions = columnActions;
+    }
+
+    public String getToolbarActions() {
+        return toolbarActions;
+    }
+
+    public void setToolbarActions(String toolbarActions) {
+        this.toolbarActions = toolbarActions;
     }
 }

@@ -1,7 +1,6 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -12,7 +11,6 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.annotations.*;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
@@ -171,30 +169,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
 
         //toolbar
         if (!voViewGeneratorConfiguration.getToolbar().isEmpty()) {
-            String collect = voViewGeneratorConfiguration.getToolbar().stream().map(s -> {
-                //是否默认按钮
-                ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode(s);
-                if (viewDefaultToolBarsEnum != null) {
-                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum);
-                    if (stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
-                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
-                    }else{
-                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
-                    }
-                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
-                    return htmlButtonDesc.toAnnotation();
-                } else {
-                    HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
-                    if (htmlButtonGeneratorConfiguration != null) {
-                        HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
-                        addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
-                        return htmlButtonDesc.toAnnotation();
-                    }
-                }
-                return null;
-            }).filter(Objects::nonNull).collect(Collectors.joining(","));
-            viewTableMetaDesc.setToolbarActions(collect);
-
+            String parentMenuId = Mb3GenUtil.getParentMenuId(introspectedTable,voViewGeneratorConfiguration);
+            List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, voViewGeneratorConfiguration.getToolbar(), voViewGeneratorConfiguration.getHtmlButtons(), parentMenuId);
+            viewTableMetaDesc.setToolbarActions(String.join(",", annotations));
         }
         //indexColumn
         ViewIndexColumnEnum viewIndexColumnEnum = ViewIndexColumnEnum.ofCode(voViewGeneratorConfiguration.getIndexColumn());
@@ -203,29 +180,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         //actionColumn
         if (!voViewGeneratorConfiguration.getActionColumn().isEmpty()) {
-            String collect = voViewGeneratorConfiguration.getActionColumn().stream().map(s -> {
-                //是否默认按钮
-                ViewDefaultToolBarsEnum viewDefaultToolBarsEnum = ViewDefaultToolBarsEnum.ofCode("ROW_"+s);
-                if (viewDefaultToolBarsEnum != null) {
-                    HtmlButtonDesc htmlButtonDesc = new HtmlButtonDesc(viewDefaultToolBarsEnum);
-                    if (stringHasValue(viewDefaultToolBarsEnum.elIcon())) {
-                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.elIcon());
-                    }else{
-                        htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
-                    }
-                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
-                    return htmlButtonDesc.toAnnotation();
-                } else {
-                    HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = voViewGeneratorConfiguration.getHtmlButtons().stream().filter(h -> h.getId().equals(s)).findFirst().orElse(null);
-                    if (htmlButtonGeneratorConfiguration != null) {
-                        HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
-                        addActionPermissionSqlData(introspectedTable, htmlButtonDesc);
-                        return htmlButtonDesc.toAnnotation();
-                    }
-                }
-                return null;
-            }).filter(Objects::nonNull).collect(Collectors.joining(","));
-            viewTableMetaDesc.setActionColumn(collect);
+            String parentMenuId = Mb3GenUtil.getParentMenuId(introspectedTable,voViewGeneratorConfiguration);
+            List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, voViewGeneratorConfiguration.getActionColumn(), voViewGeneratorConfiguration.getHtmlButtons(), parentMenuId);
+            viewTableMetaDesc.setColumnActions(String.join(",", annotations));
         }
         //querys
         if (!voViewGeneratorConfiguration.getQueryColumns().isEmpty()) {
@@ -318,21 +275,6 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewVOClass.addAnnotation(viewTableMetaDesc.toAnnotation());
         viewVOClass.addImportedTypes(viewTableMetaDesc.getImportedTypes());
     }
-
-    private void addActionPermissionSqlData(IntrospectedTable introspectedTable, HtmlButtonDesc htmlButtonDesc) {
-        if (!htmlButtonDesc.isConfigurable()) {
-            return;
-        }
-        String l1 = introspectedTable.getContext().getModuleKeyword().toLowerCase();
-        String l2 = introspectedTable.getControllerBeanName().toLowerCase();
-        String l3 = htmlButtonDesc.getId().toLowerCase();
-        Map<String, String> mapAction = new LinkedHashMap<>();
-        mapAction.put(l1, introspectedTable.getContext().getModuleName());
-        mapAction.put(l2, introspectedTable.getRemarks(true));
-        mapAction.put(l3, htmlButtonDesc.getTitle()!=null?htmlButtonDesc.getTitle():htmlButtonDesc.getLabel());
-        JavaBeansUtil.setPermissionActionSqlData(introspectedTable, mapAction);
-    }
-
 
     private void updateOrder(Field field, IntrospectedTable introspectedTable, ViewColumnMetaDesc viewColumnMetaDesc) {
         //更新order

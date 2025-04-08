@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }编辑组件
-* @version: edit template version 1.0.2
+* @version: edit template version 1.0.4
 */
 <template>
     <vgoForm
@@ -14,6 +14,8 @@
             <#if hasInnerList>
             @row-deleted="rowDeleted"
             @inner-list-data-all-ready="innerListDataAllReady"
+            @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
+            @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"
             </#if>
     ></vgoForm>
 </template>
@@ -30,7 +32,7 @@
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
     <#if hasInnerList>
-    import { TVgoVxeTableRowDeletedParams } from '@/framework/components/VgoVxeTable/types';
+    import { TVgoVxeTableRowDeletedParams, TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
     </#if>
     <#if workflowEnabled >
     import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
@@ -46,7 +48,14 @@
         viewStatus: { type: Number as PropType<number>, default: 1 },                       //是否为查看状态
     })
 
-    const emit = defineEmits(['form-submit', 'update:modelValue']);
+    const emit = defineEmits([
+        'form-submit',
+        'update:modelValue',
+        <#if hasInnerList>
+        'vxe-toolbar-button-click',
+        'vxe-row-button-click',
+        </#if>
+    ]);
 
     const _restBasePath = '${ restBasePath }';
 

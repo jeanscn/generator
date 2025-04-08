@@ -1,6 +1,6 @@
 /**
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.5
+* @version: modal template version 1.0.6
 */
 <template>
     <div class="form-modal-container">
@@ -15,9 +15,15 @@
                    @closed="onClosed"
         >
             <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
-                           :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit" />
+                           :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit"
+                           @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
+                           @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"
+                            />
             <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
-                             :formConfig="_formConfig" :viewStatus="_viewStatus" />
+                            :formConfig="_formConfig" :viewStatus="_viewStatus"
+                            @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
+                            @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"
+                            />
             <template #footer>
                 <FormButtonsBar v-model="_formData" :formConfig="_formConfig" :viewStatus="_viewStatus" popType="dialog"
                                 @default-form-button-click="defaultFormButtonActionHandler($event, 'dialog')">
@@ -69,8 +75,13 @@
     import { TElDialogProps } from '@/framework/components/vgoDialog/types';
     import VgoFormDrawer from '@/framework/components/vgoDrawer/VgoFormDrawer.vue';
     import { TElDrawerProps } from '@/framework/components/vgoDrawer/types';
+    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
 
-    const emit = defineEmits(['update:modelValue', 'onSubmit' , 'open', 'opened', 'close', 'closed']);
+    const emit = defineEmits(['update:modelValue',
+        'onSubmit' , 'open', 'opened', 'close', 'closed',
+        'vxe-toolbar-button-click',
+        'vxe-row-button-click',
+    ]);
 
     const props = defineProps({
         modelValue: { type: Boolean as PropType<boolean>, default: false },

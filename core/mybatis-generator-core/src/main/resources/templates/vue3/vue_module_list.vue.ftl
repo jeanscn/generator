@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.12
+* @version: list template version 1.0.13
 */
 <template>
     <el-container>
@@ -43,6 +43,8 @@
                             :formData="loadModalsProps.formData"
                             :elDialogProps="loadModalsProps.elDialogProps"
                             :elDrawerProps="loadModalsProps.elDrawerProps"
+                            @vxe-toolbar-button-click="defaultInnerListTopButtonActionHandler"
+                            @vxe-row-button-click="defaultInnerListRowButtonActionHandler"
                             @close="destroyComponent">
                 </LoadModals>
                 <${ componentName }Modal v-if="showDialog" v-model="showDialog"
@@ -60,6 +62,8 @@
                                 :closeOnPressEscape="false"
                                 :tableRef="tableRef"
                                 :isModeal="false"
+                                @vxe-toolbar-button-click="defaultInnerListTopButtonActionHandler"
+                                @vxe-row-button-click="defaultInnerListRowButtonActionHandler"
                                 @form-submit="onSubmit"
                                 @close="destroyForm">
                 </${ componentName }Modal>
@@ -101,6 +105,7 @@
     import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
     import LoadModals from '@/modules/components/loadModals/index.vue';
     import { loadModalsProps } from '../${ modelPath }/sharedVariables';
+    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
 
     const i18n = useI18n();
 
@@ -333,6 +338,21 @@
                 extMethod.defaultDtCustomButtonActionHandler<T${ componentName }>(params);
                 break;
         }
+    };
+
+    const defaultInnerListTopButtonActionHandler = (params: TVxeTableActionsParams) => {
+        params = {
+            moduleKey: moduleKey,
+            ...params,
+        };
+        extMethod.defaultInnerListTopButtonActionHandler(params);
+    };
+    const defaultInnerListRowButtonActionHandler = (params: TVxeTableActionsParams) => {
+        params = {
+            moduleKey: moduleKey,
+            ...params,
+        };
+        extMethod.defaultInnerListRowButtonActionHandler(params);
     };
 
     const treeDrawerCheckCheck = (params: TTreeCheckDataProps) => {

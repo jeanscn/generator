@@ -12,6 +12,7 @@ import org.mybatis.generator.custom.annotations.IAnnotation;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.LinkedHashMap;
@@ -265,7 +266,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
             map.put(l1, introspectedTable.getContext().getModuleName());
             map.put(l2, introspectedTable.getRemarks(true));
             map.put(l3, nameKey);
-            JavaBeansUtil.setPermissionSqlData(introspectedTable, map);
+            Mb3GenUtil.setPermissionSqlData(introspectedTable, map);
         }
     }
 

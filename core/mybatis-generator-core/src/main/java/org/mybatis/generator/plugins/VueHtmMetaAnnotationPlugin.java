@@ -59,7 +59,17 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
                 List<HtmlElementInnerListConfiguration> listConfigurations = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
                 for (int i = 0; i <listConfigurations.size(); i++) {
-                    vueFormMetaDesc.getInnerListMeta().add(new VueFormInnerListMetaDesc(listConfigurations.get(i),introspectedTable,i+1));
+                    HtmlElementInnerListConfiguration listConfiguration = listConfigurations.get(i);
+                    VueFormInnerListMetaDesc vueFormInnerListMetaDesc = new VueFormInnerListMetaDesc(listConfiguration, introspectedTable, i + 1);
+                    if (!listConfiguration.getVxeListButtons().isEmpty()) {
+                        List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listConfiguration.getVxeListButtons(), listConfiguration.getHtmlButtons(), null);
+                        vueFormInnerListMetaDesc.setToolbarActions(String.join(",", annotations));
+                    }
+                    if (!listConfiguration.getActionColumn().isEmpty()) {
+                        List<String> actionColumnAnnotation = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listConfiguration.getActionColumn(), listConfiguration.getHtmlButtons(), null);
+                        vueFormInnerListMetaDesc.setColumnActions(String.join(",", actionColumnAnnotation));
+                    }
+                    vueFormMetaDesc.getInnerListMeta().add(vueFormInnerListMetaDesc);
                 }
             }
 
@@ -242,7 +252,16 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                     vueFormItemMetaDesc.setConfigJsonfield(elementDescriptor.getConfigJsonfield());
                 }
                 vueFormItemMetaDesc.setEnablePager(elementDescriptor.isEnablePager());
-                vueFormItemMetaDesc.setVxeListButtons(String.join(",", elementDescriptor.getVxeListButtons()));
+
+                if (!elementDescriptor.getActionColumn().isEmpty()) {
+                    List<String> columnActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, elementDescriptor.getActionColumn(), elementDescriptor.getHtmlButtons(), null);
+                    vueFormItemMetaDesc.setColumnActions(String.join(",", columnActionsA));
+                }
+                if (!elementDescriptor.getVxeListButtons().isEmpty()) {
+                    List<String> toolbarActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, elementDescriptor.getVxeListButtons(), elementDescriptor.getHtmlButtons(), null);
+                    vueFormItemMetaDesc.setToolbarActions(String.join(",", toolbarActionsA));
+                }
+
                 if (VStringUtil.stringHasValue(elementDescriptor.getDefaultFilterExpr())) {
                     vueFormItemMetaDesc.setDefaultFilterExpr(elementDescriptor.getDefaultFilterExpr());
                 }

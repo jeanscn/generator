@@ -33,7 +33,7 @@ public class HtmlFragmentsPlugin extends PluginAdapter {
             return answer;
         }
         List<InnerListViewConfiguration> innerListViewConfigurations = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
-        if (innerListViewConfigurations != null && innerListViewConfigurations.size() > 0) {
+        if (innerListViewConfigurations != null && !innerListViewConfigurations.isEmpty()) {
             for (InnerListViewConfiguration innerListViewConfiguration : innerListViewConfigurations) {
                 String innerListFragmentsFileName = Mb3GenUtil.getHtmlInnerListFragmentFileName(innerListViewConfiguration,introspectedTable);
                 GeneratedHtmlFragmentsFile generatedHtmlFragmentsFile = new GeneratedHtmlFragmentsFile(

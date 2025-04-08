@@ -6,7 +6,7 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
 
-public class HtmlElementDescriptor  extends PropertyHolder{
+public class HtmlElementDescriptor  extends AbstractHtmlElementDescriptor{
 
     private IntrospectedColumn column;
 
@@ -15,9 +15,6 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private String name;
 
     private String tagType;
-
-    private String dataUrl;
-    private String dataUrlParams;
 
     private String dataFormat;
 
@@ -49,8 +46,6 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     private boolean dateRange = false;
 
-    private String listKey;
-
     private String listViewClass;
 
     private boolean multiple;
@@ -74,22 +69,11 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     private String designIdField;
     private String configJsonfield = "jsonContent";
 
-    private boolean enablePager;
-    private Set<String> vxeListButtons = new HashSet<>();
-
-    private String defaultFilterExpr;
-    private String hideExpression;
-    private String disabledExpression;
     private Set<String> watchFields = new HashSet<>();
-
-    private String DateRangeSeparator;
-
+    private String dateRangeSeparator;
     private boolean renderHref;
-
     private String hrefDataKeyField;
-
     private String tips;
-
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
 
     public HtmlElementDescriptor() {
@@ -146,14 +130,6 @@ public class HtmlElementDescriptor  extends PropertyHolder{
 
     public void setTagType(String tagType) {
         this.tagType = tagType;
-    }
-
-    public String getDataUrl() {
-        return dataUrl;
-    }
-
-    public void setDataUrl(String dataUrl) {
-        this.dataUrl = dataUrl;
     }
 
     public String getOtherFieldName() {
@@ -274,14 +250,6 @@ public class HtmlElementDescriptor  extends PropertyHolder{
         this.dateRange = dateRange;
     }
 
-    public String getListKey() {
-        return listKey;
-    }
-
-    public void setListKey(String listKey) {
-        this.listKey = listKey;
-    }
-
     public String getListViewClass() {
         return listViewClass;
     }
@@ -390,54 +358,6 @@ public class HtmlElementDescriptor  extends PropertyHolder{
         this.configJsonfield = configJsonfield;
     }
 
-    public boolean isEnablePager() {
-        return enablePager;
-    }
-
-    public void setEnablePager(boolean enablePager) {
-        this.enablePager = enablePager;
-    }
-
-    public Set<String> getVxeListButtons() {
-        return vxeListButtons;
-    }
-
-    public void setVxeListButtons(Set<String> vxeListButtons) {
-        this.vxeListButtons = vxeListButtons;
-    }
-
-    public String getDefaultFilterExpr() {
-        return defaultFilterExpr;
-    }
-
-    public void setDefaultFilterExpr(String defaultFilterExpr) {
-        this.defaultFilterExpr = defaultFilterExpr;
-    }
-
-    public String getHideExpression() {
-        return hideExpression;
-    }
-
-    public void setHideExpression(String hideExpression) {
-        this.hideExpression = hideExpression;
-    }
-
-    public String getDisabledExpression() {
-        return disabledExpression;
-    }
-
-    public void setDisabledExpression(String disabledExpression) {
-        this.disabledExpression = disabledExpression;
-    }
-
-    public String getDataUrlParams() {
-        return dataUrlParams;
-    }
-
-    public void setDataUrlParams(String dataUrlParams) {
-        this.dataUrlParams = dataUrlParams;
-    }
-
     public Set<String> getWatchFields() {
         return watchFields;
     }
@@ -447,11 +367,11 @@ public class HtmlElementDescriptor  extends PropertyHolder{
     }
 
     public String getDateRangeSeparator() {
-        return DateRangeSeparator;
+        return dateRangeSeparator;
     }
 
     public void setDateRangeSeparator(String dateRangeSeparator) {
-        DateRangeSeparator = dateRangeSeparator;
+        this.dateRangeSeparator = dateRangeSeparator;
     }
 
     public boolean isRenderHref() {
