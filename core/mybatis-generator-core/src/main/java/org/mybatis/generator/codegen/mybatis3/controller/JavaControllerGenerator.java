@@ -178,6 +178,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             //追加一个导入监听的工厂方法
             Method getImportReadListener = new Method("getImportReadListener");
             getImportReadListener.setVisibility(JavaVisibility.PROTECTED);
+
+            Parameter param = new Parameter(new FullyQualifiedJavaType(entityExcelImportVoType.getFullyQualifiedName()), "param");
+            param.setRemark("导入的初始化参数,用来接收需要引入的初始数据");
+            getImportReadListener.addParameter(param);
+
             FullyQualifiedJavaType retListenerType = new FullyQualifiedJavaType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
             retListenerType.addTypeArgument(new FullyQualifiedJavaType(entityExcelImportVoType.getFullyQualifiedName()));
             getImportReadListener.setReturnType(retListenerType);
@@ -216,7 +221,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             VOExcelGeneratorConfiguration voExcelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration();
 
             List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelConfiguration.getImportIncludeColumns(), voExcelConfiguration.getImportExcludeColumns());
+            Set<String> importIgnoreFields = voExcelConfiguration.getImportIgnoreFields();
             for (IntrospectedColumn excelVOColumn : introspectedColumns) {
+                if (importIgnoreFields.contains(excelVOColumn.getJavaProperty())) {
+                    continue;
+                }
                 buildTemplateSampleData.addBodyLine("                .{0}({1})",
                         excelVOColumn.getJavaProperty(),
                         JavaBeansUtil.getColumnExampleValue(excelVOColumn));
@@ -338,30 +347,31 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
             //排序语句
             if (isContainOrderByClause) {
-                if (introspectedTable.getColumn("created_").isPresent()) {
-                    if (context.getJdkVersion()>8) {
-                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"created_ desc\"));");
-                    }else{
-                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(Collections.singleton(\"created_ desc\"));");
-                        conTopClazz.addImportedType("java.util.Collections");
-                    }
-                }else if (introspectedTable.getColumn("modified_").isPresent()){
-                    if (context.getJdkVersion()>8) {
-                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(List.of(\"modified_ desc\"));");
-                    }else{
-                        buildExample.addBodyLine("List<String> orderBy = new ArrayList<>(Collections.singleton(\"modified_ desc\"));");
-                        conTopClazz.addImportedType("java.util.Collections");
-                    }
-                }else{
-                    buildExample.addBodyLine("List<String> orderBy = new ArrayList<>();");
-                }
-                buildExample.addBodyLine("if (!VStringUtil.isBlank({0}.getOrderByClause())) '{'", type.getShortNameFirstLowCase());
-                buildExample.addBodyLine("orderBy.add({0}.getOrderByClause());", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("List<String> orderBy = new ArrayList<>();");
+                buildExample.addBodyLine("String orderByClause = {0}.getOrderByClause();", type.getShortNameFirstLowCase());
+                buildExample.addBodyLine("if (VStringUtil.stringHasValue(orderByClause)) {");
+                buildExample.addBodyLine("orderBy.add(orderByClause);");
+                buildExample.addBodyLine("} else {");
+                buildExample.addBodyLine("orderByClause = \"\";");
                 buildExample.addBodyLine("}");
-                conTopClazz.addImportedType(V_STRING_UTIL);
+                if (introspectedTable.getColumn("sort_").isPresent()) {
+                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"sort_\")) {");
+                    buildExample.addBodyLine("orderBy.add(\"sort_ asc\");");
+                    buildExample.addBodyLine("}");
+                }
+                if (introspectedTable.getColumn("created_").isPresent()) {
+                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"created_\")) {");
+                    buildExample.addBodyLine("orderBy.add(\"created_ asc\");");
+                    buildExample.addBodyLine("}");
+                } else if (introspectedTable.getColumn("modified_").isPresent()) {
+                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"modified_\")) {");
+                    buildExample.addBodyLine("orderBy.add(\"modified_ asc\");");
+                    buildExample.addBodyLine("}");
+                }
                 buildExample.addBodyLine("if (!orderBy.isEmpty()) {");
                 buildExample.addBodyLine("example.setOrderByClause(String.join(\",\", orderBy));");
                 buildExample.addBodyLine("}");
+                conTopClazz.addImportedType(V_STRING_UTIL);
             }
             buildExample.addBodyLine("return example;");
         }
