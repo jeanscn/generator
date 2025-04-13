@@ -34,6 +34,9 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
      * 列表标题（库表注释）
      */
     private String label = "";
+
+    private boolean showTitle = true;
+
     private String moduleKeyword;
     /**
      * 列表所在的bean名
@@ -70,7 +73,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     private String afterColumn;
     private String containerType;
     private int order = 10;
-    private String editMode;
+    private String editMode = "row";
     private String editableFields;
     private boolean enablePager;
     private String defaultFilterExpr;
@@ -113,7 +116,12 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
                     "_" + index;
         }
         this.listKey = innerListConfiguration.getListKey();
-        this.label = innerListConfiguration.getLabel();
+        if (VStringUtil.stringHasValue(innerListConfiguration.getLabel())) {
+            this.label = innerListConfiguration.getLabel();
+        } else {
+            this.label = introspectedTable.getRemarks(true);
+        }
+        this.showTitle = innerListConfiguration.isShowTitle();
         this.moduleKeyword = innerListConfiguration.getModuleKeyword();
         this.sourceBeanName = innerListConfiguration.getSourceBeanName();
         this.relationField = innerListConfiguration.getRelationField();
@@ -155,6 +163,9 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(label)) {
             items.add("label = \"" + label + "\"");
         }
+        if (!showTitle) {
+            items.add("showTitle = false");
+        }
         if (VStringUtil.stringHasValue(moduleKeyword)) {
             items.add("moduleKeyword = \"" + moduleKeyword + "\"");
         }
@@ -191,7 +202,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         if (order != 10) {
             items.add("order = " + order);
         }
-        if (VStringUtil.stringHasValue(editMode) && !"cell".equals(editMode)) {
+        if (VStringUtil.stringHasValue(editMode) && !"row".equals(editMode)) {
             items.add("editMode = \"" + editMode + "\"");
         }
         if (VStringUtil.stringHasValue(editableFields)) {
@@ -525,4 +536,11 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.toolbarActions = toolbarActions;
     }
 
+    public boolean isShowTitle() {
+        return showTitle;
+    }
+
+    public void setShowTitle(boolean showTitle) {
+        this.showTitle = showTitle;
+    }
 }

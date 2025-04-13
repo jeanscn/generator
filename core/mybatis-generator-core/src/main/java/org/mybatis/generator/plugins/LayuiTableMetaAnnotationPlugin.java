@@ -1,6 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -476,7 +477,12 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration, TopLevelClass topLevelClass) {
         LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
         layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
-        layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
+        if (VStringUtil.stringHasValue(listViewConfiguration.getTitle())) {
+            layuiTableMetaDesc.setTitle(listViewConfiguration.getTitle());
+        } else {
+            layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
+        }
+        layuiTableMetaDesc.setShowTitle(listViewConfiguration.isShowTitle());
         layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
         layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
         List<String> columnActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getActionColumn(), listViewConfiguration.getHtmlButtons(), null);
@@ -505,8 +511,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableMetaDesc.setShowActionColumn(listViewConfiguration.getShowActionColumn());
         layuiTableMetaDesc.setEditFormIn(listViewConfiguration.getEditFormIn());
         layuiTableMetaDesc.setDetailFormIn(listViewConfiguration.getDetailFormIn());
-          layuiTableMetaDesc.setEditableFields(listViewConfiguration.getEnableEditFields());
-
+        layuiTableMetaDesc.setEditableFields(listViewConfiguration.getEnableEditFields());
 
         //querys
         if (!listViewConfiguration.getQueryColumns().isEmpty()) {

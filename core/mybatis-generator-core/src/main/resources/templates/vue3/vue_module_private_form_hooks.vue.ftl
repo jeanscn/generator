@@ -8,6 +8,9 @@
  * 		参数：data: 子表数据，grid: 子表实例，listKey: 子表键，formData: 主表数据
  * 2.	rowDeleted - 子表行删除后的钩子
  * 		rowDeleted: (params: TVgoVxeTableRowDeletedParams) => {})
+ * 3.	defaultInnerListButtonActionHandler - 子表按钮操作的钩子
+ * 		defaultInnerListButtonActionHandler: (params: TVxeTableActionsParams) => {})
+ * 		参数：params: 子表按钮操作的参数
  */
 
 import { Ref } from "vue";

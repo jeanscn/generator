@@ -10,10 +10,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
@@ -127,7 +124,8 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         topLevelClass.addAnnotation("@CacheConfig(cacheManager = CACHE_MANAGER_NAME)");
     }
 
-    protected void addInitialization(List<IntrospectedColumn> columns, InitializationBlock initializationBlock, TopLevelClass topLevelClass) {
+    protected Set<String> addInitialization(List<IntrospectedColumn> columns, InitializationBlock initializationBlock, TopLevelClass topLevelClass) {
+        Set<String>  columnNames = new HashSet<>();
         //在静态代码块中添加默认值
         final List<String> defaultFields = new ArrayList<>();
         topLevelClass.getSuperClass().ifPresent(s -> {
@@ -138,6 +136,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         });
         columns.forEach(c -> {
             if (c.getDefaultValue() != null && !c.getDefaultValue().equalsIgnoreCase("null") && !defaultFields.contains(c.getJavaProperty())) {
+                columnNames.add(c.getActualColumnName());
                 if (c.getDefaultValue().equals("CURRENT_TIMESTAMP")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
@@ -179,6 +178,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 }
             }
         });
+        return columnNames;
     }
 
     /**

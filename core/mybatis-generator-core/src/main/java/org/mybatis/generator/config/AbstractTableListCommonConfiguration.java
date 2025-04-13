@@ -10,6 +10,7 @@ import java.util.Set;
 public class AbstractTableListCommonConfiguration extends AbstractModelGeneratorConfiguration{
 
     protected String title;
+    private boolean showTitle;
     protected String size;
 
     protected String listKey;
@@ -293,5 +294,13 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
 
     public void setActionColumnWidth(String actionColumnWidth) {
         this.actionColumnWidth = actionColumnWidth;
+    }
+
+    public boolean isShowTitle() {
+        return showTitle;
+    }
+
+    public void setShowTitle(boolean showTitle) {
+        this.showTitle = showTitle;
     }
 }

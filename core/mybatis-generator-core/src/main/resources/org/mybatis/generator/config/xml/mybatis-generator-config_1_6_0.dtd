@@ -1000,7 +1000,7 @@
             13、afterColumn 在指定列的后面添加列表组件,如果未指定或指定的字段不存在。则放置在最后一行。
             14、containerType 容器类型，none-不生成容器，tab-生成容器tab，border-使用border包围，默认none
             15、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
-            16、editMode 编辑模式，row-行编辑，cell-单元格编辑，默认cell
+            16、editMode 编辑模式，row-行编辑，cell-单元格编辑，默认row
             17、editableFields 编辑字段，多个字段用逗号分隔，用于指定默认允许编辑的字段，如果不指定则默认为所有字段。
             18、enablePager 是否启用分页，默认为false
             19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
@@ -1022,6 +1022,8 @@
             35、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
             36、actionColumn：操作列的操作列表。包括：查看、编辑、删除中的0个或多个。可选值：INNER_ROW_EDIT,INNER_ROW_REMOVE,INNER_ROW_VIEW以及自定义操作按钮的id值
             37、actionColumnWidth：操作列宽度，缺省值为”“.当actionColumn有值时有效。
+            38、title 列表的标题，默认为“”。当不指定的时候，默认使用label属性值。
+            39、showTitle 是否显示标题，true显示，false不显示。缺省值true
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -1039,6 +1041,7 @@
                 elementKey CDATA #REQUIRED
                 listKey CDATA #IMPLIED
                 label CDATA #IMPLIED
+                showTitle (false|true) #IMPLIED
                 moduleKeyword CDATA #IMPLIED
                 sourceBeanName CDATA #REQUIRED
                 relationField CDATA #REQUIRED
@@ -1075,7 +1078,8 @@
                 actionColumn CDATA #IMPLIED
                 actionColumnWidth CDATA #IMPLIED
                 dataUrlParams CDATA #IMPLIED
-                disabledExpression CDATA #IMPLIED>
+                disabledExpression CDATA #IMPLIED
+                title CDATA #IMPLIED>
         <!--
             Dao接口生成描述
             属性信息：
@@ -1460,6 +1464,7 @@
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
             35、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
+            36、showTitle 是否显示标题，true显示，false不显示。缺省值true
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。该属性不会合并当前表htmlConfig中的htmlReadonlyFields配置
@@ -1479,6 +1484,7 @@
         <!ATTLIST innerListView
                 listKey CDATA #IMPLIED
                 title CDATA #IMPLIED
+                showTitle (false|true) #IMPLIED
                 size (sm|md|lg) #IMPLIED
                 indexColumn %indexColumnType;  #IMPLIED
                 actionColumn CDATA #IMPLIED

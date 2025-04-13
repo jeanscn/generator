@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.13
+* @version: list template version 1.0.15
 */
 <template>
     <el-container>
@@ -43,8 +43,7 @@
                             :formData="loadModalsProps.formData"
                             :elDialogProps="loadModalsProps.elDialogProps"
                             :elDrawerProps="loadModalsProps.elDrawerProps"
-                            @vxe-toolbar-button-click="defaultInnerListTopButtonActionHandler"
-                            @vxe-row-button-click="defaultInnerListRowButtonActionHandler"
+                            @vxe-button-click="defaultInnerListButtonActionHandler"
                             @close="destroyComponent">
                 </LoadModals>
                 <${ componentName }Modal v-if="showDialog" v-model="showDialog"
@@ -62,8 +61,7 @@
                                 :closeOnPressEscape="false"
                                 :tableRef="tableRef"
                                 :isModeal="false"
-                                @vxe-toolbar-button-click="defaultInnerListTopButtonActionHandler"
-                                @vxe-row-button-click="defaultInnerListRowButtonActionHandler"
+                                @vxe-button-click="defaultInnerListButtonActionHandler"
                                 @form-submit="onSubmit"
                                 @close="destroyForm">
                 </${ componentName }Modal>
@@ -259,7 +257,7 @@
         pageTitle.value = _tableConfigProps.value!.listName || '';
         tableColumns.value = _tableConfigProps.value!.tableColumns;
         restBasePath.value = _tableConfigProps.value!.restBasePath;
-        applyWorkflow.value = _tableConfigProps.value!.applyWorkflow || 0;
+        applyWorkflow.value = _tableConfigProps.value!.applyWorkflow ?? 0;
         moduleId.value = _tableConfigProps.value!.moduleId || '';
         service.value = new ServiceApi(restBasePath.value);
         tableConfigReady.value = true;
@@ -272,7 +270,7 @@
         let formKey = restBasePath.value.replace(/\//g, '-');
         formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
         popSize.value = formConfig.value!.popSize||'default';
-        popDraggable.value = formConfig.value!.popDraggable||false;
+        popDraggable.value = formConfig.value!.popDraggable ?? false;
     };
 
     const defaultViewRowActionHandler = (rowData: any, button: IButtonProps) => {
@@ -340,19 +338,12 @@
         }
     };
 
-    const defaultInnerListTopButtonActionHandler = (params: TVxeTableActionsParams) => {
+    const defaultInnerListButtonActionHandler = (params: TVxeTableActionsParams) => {
         params = {
             moduleKey: moduleKey,
             ...params,
         };
-        extMethod.defaultInnerListTopButtonActionHandler(params);
-    };
-    const defaultInnerListRowButtonActionHandler = (params: TVxeTableActionsParams) => {
-        params = {
-            moduleKey: moduleKey,
-            ...params,
-        };
-        extMethod.defaultInnerListRowButtonActionHandler(params);
+        extMethod.defaultInnerListButtonActionHandler(params);
     };
 
     const treeDrawerCheckCheck = (params: TTreeCheckDataProps) => {

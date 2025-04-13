@@ -93,7 +93,16 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         List<IntrospectedColumn> columns = VCollectionUtil.addAllIfNotContains(voGenService.getAbstractVOColumns(), introspectedColumns);
         InitializationBlock initializationBlock = new InitializationBlock(false);
         //在静态代码块中添加默认值
-        addInitialization(columns,initializationBlock, createVoClass);
+        Set<String> initializationColumns = addInitialization(columns, initializationBlock, createVoClass);
+        //额外添加createId和modifiedId
+        IntrospectedColumn createdId = introspectedTable.getColumn("created_id").orElse(null);
+        if (createdId!=null && !initializationColumns.contains(createdId.getActualColumnName())) {
+            initializationBlock.addBodyLine("this.createdId = \"\";");
+        }
+        IntrospectedColumn modifiedId = introspectedTable.getColumn("modified_id").orElse(null);
+        if (modifiedId!=null && !initializationColumns.contains(modifiedId.getActualColumnName())) {
+            initializationBlock.addBodyLine("this.modifiedId = \"\";");
+        }
         createVoClass.addInitializationBlock(initializationBlock);
 
         /*

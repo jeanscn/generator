@@ -26,6 +26,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
      */
     private String value;
     private String title;
+    private boolean showTitle = true;
     private String size;
     private String indexColumn;
     /**
@@ -81,6 +82,9 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (stringHasValue(title)) {
             items.add("title = \"" + title + "\"");
+        }
+        if (!showTitle) {
+            items.add("showTitle = false");
         }
         if (stringHasValue(width) && !"0".equals(width) && !"0px".equals(width) && !"0%".equals(width)) {
             items.add("width = " + width);
@@ -447,5 +451,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setColumnActions(String columnActions) {
         this.columnActions = columnActions;
+    }
+
+    public boolean isShowTitle() {
+        return showTitle;
+    }
+
+    public void setShowTitle(boolean showTitle) {
+        this.showTitle = showTitle;
     }
 }

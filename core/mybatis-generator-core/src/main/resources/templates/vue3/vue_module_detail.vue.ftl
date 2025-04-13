@@ -1,12 +1,12 @@
 /**
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.4
+* @version: detail template version 1.0.5
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
         :viewStatus="viewStatus" :hideRequiredAsterisk="true" labelSuffix=":"
-        @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
-        @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"></vgo-form>
+        @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)">
+    </vgo-form>
 </template>
 
 <script lang="ts" setup name="${ modelName }Detail">
@@ -43,8 +43,7 @@
 
     const emit = defineEmits([
         'update:modelValue',
-        'vxe-toolbar-button-click',
-        'vxe-row-button-click',
+        'vxe-button-click',
     ]);
 
     watch(() => props.modelValue, (val) => {

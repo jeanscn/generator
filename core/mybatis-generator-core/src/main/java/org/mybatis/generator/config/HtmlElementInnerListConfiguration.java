@@ -15,6 +15,7 @@ public class HtmlElementInnerListConfiguration extends AbstractHtmlElementDescri
 
     private String elementKey;
     private String label = "";
+    private boolean showTitle;
     private String moduleKeyword;
     private String sourceViewPath = "";
     private String sourceBeanName;
@@ -28,7 +29,7 @@ public class HtmlElementInnerListConfiguration extends AbstractHtmlElementDescri
     private String afterColumn;
     private String containerType;
     private int order = 10;
-    private String editMode;
+    private String editMode = "row";
     private Set<String> editableFields = new HashSet<>();
     private Set<String> batchUpdateColumns = new HashSet<>();
     private boolean showRowNumber = true;
@@ -311,5 +312,13 @@ public class HtmlElementInnerListConfiguration extends AbstractHtmlElementDescri
 
     public void setActionColumnWidth(String actionColumnWidth) {
         this.actionColumnWidth = actionColumnWidth;
+    }
+
+    public boolean isShowTitle() {
+        return showTitle;
+    }
+
+    public void setShowTitle(boolean showTitle) {
+        this.showTitle = showTitle;
     }
 }

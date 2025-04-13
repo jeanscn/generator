@@ -1205,6 +1205,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(label)) {
             htmlElementInnerList.setLabel(label);
         }
+        String  showTitle = attributes.getProperty("showTitle");
+        if (stringHasValue(showTitle)) {
+            htmlElementInnerList.setShowTitle(Boolean.parseBoolean(showTitle));
+        }
         String moduleKeyword = attributes.getProperty(PropertyRegistry.CONTEXT_MODULE_KEYWORD);
         if (stringHasValue(moduleKeyword)) {
             htmlElementInnerList.setModuleKeyword(moduleKeyword.toLowerCase());
@@ -2674,6 +2678,10 @@ public class MyBatisGeneratorConfigurationParser {
         String title = attributes.getProperty("title");
         if (stringHasValue(title)) {
             voViewGeneratorConfiguration.setTitle(title);
+        }
+        String  showTitle = attributes.getProperty("showTitle");
+        if (stringHasValue(showTitle)) {
+            voViewGeneratorConfiguration.setShowTitle(Boolean.parseBoolean(showTitle));
         }
         String size = attributes.getProperty("size");
         if (stringHasValue(size)) {

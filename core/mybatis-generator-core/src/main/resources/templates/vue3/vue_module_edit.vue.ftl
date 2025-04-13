@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }编辑组件
-* @version: edit template version 1.0.4
+* @version: edit template version 1.0.5
 */
 <template>
     <vgoForm
@@ -14,8 +14,7 @@
             <#if hasInnerList>
             @row-deleted="rowDeleted"
             @inner-list-data-all-ready="innerListDataAllReady"
-            @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
-            @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"
+            @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)"
             </#if>
     ></vgoForm>
 </template>
@@ -52,8 +51,7 @@
         'form-submit',
         'update:modelValue',
         <#if hasInnerList>
-        'vxe-toolbar-button-click',
-        'vxe-row-button-click',
+        'vxe-button-click',
         </#if>
     ]);
 

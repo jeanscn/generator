@@ -1,43 +1,41 @@
 /**
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.6
+* @version: modal template version 1.0.9
 */
 <template>
     <div class="form-modal-container">
         <VgoDialog v-if="showDialog && type === 'dialog'" v-model="showDialog"
-                   :title="_pageTitle"
-                   :popSize="_popSize"
-                   :draggable="_popDraggable"
-                   :elDialogProps="_elDialogProps"
-                   @open="onOpen"
-                   @opened="onOpened"
-                   @close="onClose"
-                   @closed="onClosed"
+            :title="_pageTitle"
+            :popSize="_popSize"
+            :draggable="_popDraggable"
+            :elDialogProps="_elDialogProps"
+            @open="onOpen"
+            @opened="onOpened"
+            @close="onClose"
+            @closed="onClosed"
         >
             <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
-                           :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit"
-                           @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
-                           @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"
-                            />
+                :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit"
+                @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)"
+                />
             <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
-                            :formConfig="_formConfig" :viewStatus="_viewStatus"
-                            @vxe-toolbar-button-click="(params: TVxeTableActionsParams) => $emit('vxe-toolbar-button-click', params)"
-                            @vxe-row-button-click="(params: TVxeTableActionsParams) => $emit('vxe-row-button-click', params)"
-                            />
+                :formConfig="_formConfig" :viewStatus="_viewStatus"
+                @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)"
+                />
             <template #footer>
                 <FormButtonsBar v-model="_formData" :formConfig="_formConfig" :viewStatus="_viewStatus" popType="dialog"
-                                @default-form-button-click="defaultFormButtonActionHandler($event, 'dialog')">
+                    @default-form-button-click="defaultFormButtonActionHandler($event, 'dialog')">
                 </FormButtonsBar>
             </template>
         </VgoDialog>
         <VgoFormDrawer v-if="showDialog && type === 'drawer'" v-model="showDialog"
-                       :title="_pageTitle"
-                       :size="_popSize"
-                       :elDrawerProps="_elDrawerProps"
-                       @open="onOpen"
-                       @opened="onOpened"
-                       @close="onClose"
-                       @closed="onClosed">
+            :title="_pageTitle"
+            :size="_popSize"
+            :elDrawerProps="_elDrawerProps"
+            @open="onOpen"
+            @opened="onOpened"
+            @close="onClose"
+            @closed="onClosed">
             <${ componentName }Edit v-if="_viewStatus === 1" ref="bizFormRef" v-model="_formData"
                            :formConfig="_formConfig"
                            :viewStatus="_viewStatus"
@@ -79,8 +77,7 @@
 
     const emit = defineEmits(['update:modelValue',
         'onSubmit' , 'open', 'opened', 'close', 'closed',
-        'vxe-toolbar-button-click',
-        'vxe-row-button-click',
+        'vxe-button-click',
     ]);
 
     const props = defineProps({
@@ -143,7 +140,7 @@
 
     const _pageTitle = ref(props.pageTitle != null ? props.pageTitle : _elDialogProps.value.title || '');
     const _popSize = ref<string|undefined>(props.popSize);
-    const _popDraggable = ref<boolean>(props.popDraggable != null ? props.popDraggable : _elDialogProps.value.draggable || true);
+    const _popDraggable = ref<boolean>(props.popDraggable ?? _elDialogProps.value.draggable ?? true);
     const _viewStatus = ref<number>(props.viewStatus);
     const _formConfig = ref<TFormConfig>(props.formConfig);
     const _formData = ref<T${ modelName }>(props.formData);
