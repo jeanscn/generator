@@ -1,29 +1,34 @@
 /**
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.6
+* @version: detail template version 1.0.7
 */
 <template>
-    <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
+    <vgoForm v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
         :viewStatus="viewStatus" :hideRequiredAsterisk="true" labelSuffix=":"
-        @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)">
-    </vgo-form>
+        <#if hasInnerList>
+        @inner-list-data-all-ready="innerListDataAllReady"
+        @vxe-button-click="defaultInnerListButtonActionHandler"
+        </#if>
+    ></vgoForm>
 </template>
 
 <script lang="ts" setup name="${ modelName }Detail">
-    import { onMounted, onUnmounted, PropType, provide, ref, Ref, watch } from 'vue';
+    import { onMounted, onUnmounted, PropType, <#if workflowEnabled >provide,</#if> ref, Ref, watch } from 'vue';
     import { EMPTY_OBJECT } from '@/framework/utils/constant';
     import { TFormConfig } from '@/framework/components/vgoForm/types';
     import { T${ modelName } } from '../types/T${ modelName }';
     import { useFormConfigStore } from '@/store/formConfig';
-    import { useI18n } from 'vue-i18n';
+    <#if hasInnerList>
+    import * as extMethod from '@/hooks/useCustomHandle';
+    import * as useExtentHooks from '../PrivateUseFormHooks';
     import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
+    </#if>
     <#if workflowEnabled >
     import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
 
     const currentTaskAttributesStore = useCurrentTaskAttributesStore();
     </#if>
     const formConfigStore = useFormConfigStore();
-    const i18n = useI18n();
 
     const props = defineProps({
         modelValue: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
@@ -32,18 +37,21 @@
         dataId: { type: String as PropType<string>, default: null },                       //数据id
     })
 
+    <#if hasInnerList>
+    const moduleKey = "${ modelPath }";
+    </#if>
     const _restBasePath = '${ restBasePath }';
-
     const vgoFormRef = ref();
-
     const _formConfig = ref<TFormConfig>(props.formConfig);
     const _formData = ref<T${ modelName }>(props.modelValue);
     const formConfigReady = ref(false);
-    const dataReady = ref(false);
 
     const emit = defineEmits([
         'update:modelValue',
+    <#if hasInnerList>
+        'inner-list-data-all-ready',
         'vxe-button-click',
+    </#if>
     ]);
 
     watch(() => props.modelValue, (val) => {
@@ -53,6 +61,27 @@
     watch(() => _formData.value, (val) => {
         emit('update:modelValue', val);
     });
+
+    <#if hasInnerList>
+    const innerListDataAllReady = (data: any, grid: any, listKey: string, formData: T${ modelName }) => {
+        if (typeof useExtentHooks.default[`innerListDataAllReady`] === 'function') {
+            useExtentHooks.default[`innerListDataAllReady`](data, grid, listKey, formData);
+        }else{
+            emit('inner-list-data-all-ready', data, grid, listKey, formData);
+        }
+    };
+    const defaultInnerListButtonActionHandler = (params: TVxeTableActionsParams) => {
+        params = {
+            moduleKey: moduleKey,
+            ...params,
+        };
+        if (extMethod.defaultInnerListButtonActionHandler && typeof extMethod.defaultInnerListButtonActionHandler === 'function') {
+            extMethod.defaultInnerListButtonActionHandler(params);
+        } else {
+            emit('vxe-button-click', params);
+        };
+    };
+    </#if>
 
     const fetchFormConfigAsync = async (_formConfig:Ref<TFormConfig>) => {
         if (Object.keys(_formConfig.value).length === 0) {

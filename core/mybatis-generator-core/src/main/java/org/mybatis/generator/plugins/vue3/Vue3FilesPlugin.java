@@ -163,6 +163,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             detailMap.put("modelPath", modelPath);
             detailMap.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
             detailMap.put("tableRemark", tableRemark);
+            detailMap.put("hasInnerList", !htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().isEmpty());
             String vueDetailFileName = fileNameDetail + ".vue";
             GeneratedVueFile generatedVueDetailFile = new GeneratedVueFile(
                     vueDetailFileName,

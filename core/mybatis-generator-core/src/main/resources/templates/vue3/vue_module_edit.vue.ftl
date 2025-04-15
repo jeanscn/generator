@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }编辑组件
-* @version: edit template version 1.0.6
+* @version: edit template version 1.0.7
 */
 <template>
     <vgoForm
@@ -14,13 +14,13 @@
             <#if hasInnerList>
             @row-deleted="rowDeleted"
             @inner-list-data-all-ready="innerListDataAllReady"
-            @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)"
+            @vxe-button-click="defaultInnerListButtonActionHandler"
             </#if>
     ></vgoForm>
 </template>
 
 <script lang="ts" setup name="${ modelName }Edit">
-    import { onMounted, onUnmounted, PropType, Ref, provide, ref, unref, watch } from 'vue';
+    import { onMounted, onUnmounted, PropType, Ref, <#if workflowEnabled >provide,</#if> ref, unref, watch } from 'vue';
     import { EMPTY_OBJECT } from '@/framework/utils/constant';
     import tool from '@/framework/utils/tool';
     import { ServiceApi } from '@/api/service';
@@ -31,6 +31,7 @@
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
     <#if hasInnerList>
+    import * as extMethod from '@/hooks/useCustomHandle';
     import { TVgoVxeTableRowDeletedParams, TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
     </#if>
     <#if workflowEnabled >
@@ -55,6 +56,9 @@
         </#if>
     ]);
 
+    <#if hasInnerList>
+    const moduleKey = "${ modelPath }";
+    </#if>
     const _restBasePath = '${ restBasePath }';
 
     const vgoFormRef = ref();
@@ -79,6 +83,20 @@
     watch(() => _formData.value, (val) => {
         emit('update:modelValue', val);
     });
+
+    <#if hasInnerList>
+    const defaultInnerListButtonActionHandler = (params: TVxeTableActionsParams) => {
+        params = {
+            moduleKey: moduleKey,
+            ...params,
+        };
+        if (extMethod.defaultInnerListButtonActionHandler && typeof extMethod.defaultInnerListButtonActionHandler === 'function') {
+            extMethod.defaultInnerListButtonActionHandler(params);
+        } else {
+            emit('vxe-button-click', params);
+        };
+    };
+    </#if>
 
     const fetchFormConfigAsync = async (_formConfig:Ref<TFormConfig>) => {
         if (Object.keys(_formConfig.value).length === 0) {
