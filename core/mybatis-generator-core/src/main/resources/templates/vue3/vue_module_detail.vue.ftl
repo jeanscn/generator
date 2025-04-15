@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.5
+* @version: detail template version 1.0.6
 */
 <template>
     <vgo-form v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"

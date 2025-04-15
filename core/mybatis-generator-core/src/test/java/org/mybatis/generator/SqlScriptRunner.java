@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
@@ -52,7 +54,7 @@ public class SqlScriptRunner {
 
             Statement statement = connection.createStatement();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(sourceFile));
+            BufferedReader br = new BufferedReader(new InputStreamReader(sourceFile, DEFAULT_CHARSET));
 
             String sql;
 

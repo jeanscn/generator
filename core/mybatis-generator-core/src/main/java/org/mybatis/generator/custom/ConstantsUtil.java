@@ -2,6 +2,8 @@ package org.mybatis.generator.custom;
 
 import com.vgosoft.core.constant.GlobalConstant;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -12,6 +14,8 @@ import java.util.*;
  * @version 3.0
  */
 public class ConstantsUtil {
+
+    public static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public static final String GENERATED_FLAG = "@VCF.generated";
     //实体接口

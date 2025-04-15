@@ -3023,6 +3023,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(localeKey)) {
             htmlButtonConfiguration.setLocaleKey(localeKey);
         }
+        String componentType = attributes.getProperty("componentType");
+        if (stringHasValue(componentType)) {
+            htmlButtonConfiguration.setComponentType(componentType);
+        }
         return htmlButtonConfiguration;
     }
 

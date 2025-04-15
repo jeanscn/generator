@@ -14,9 +14,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
@@ -48,7 +50,7 @@ public class HtmlFileMergerJaxp {
 
         try {
             return getMergedSource(new InputSource(new StringReader(generatedHtmlFile.getFormattedContent())),
-                new InputSource(new InputStreamReader(new FileInputStream(existingFile), StandardCharsets.UTF_8)),
+                new InputSource(new InputStreamReader(Files.newInputStream(existingFile.toPath()), DEFAULT_CHARSET)),
                 existingFile.getName());
         } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new ShellException(getString("Warning.13", //$NON-NLS-1$

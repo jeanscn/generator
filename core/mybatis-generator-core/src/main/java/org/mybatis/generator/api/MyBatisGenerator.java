@@ -15,6 +15,7 @@ import org.mybatis.generator.internal.XmlFileMergerJaxp;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -442,7 +444,7 @@ public class MyBatisGenerator {
         try (FileOutputStream fos = new FileOutputStream(file, false)) {
             OutputStreamWriter osw;
             if (fileEncoding == null) {
-                osw = new OutputStreamWriter(fos);
+                osw = new OutputStreamWriter(fos, DEFAULT_CHARSET);
             } else {
                 osw = new OutputStreamWriter(fos, Charset.forName(fileEncoding));
             }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +15,8 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 
 public class ProviderApplyWhereMethodGenerator extends AbstractJavaProviderMethodGenerator {
 
@@ -52,7 +55,7 @@ public class ProviderApplyWhereMethodGenerator extends AbstractJavaProviderMetho
 
         InputStream is =
                 ProviderApplyWhereMethodGenerator.class.getResourceAsStream("ApplyWhereMethod.txt"); //$NON-NLS-1$
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is)))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is), DEFAULT_CHARSET))) {
             String line;
             boolean foundDelimiter = false;
             while ((line = br.readLine()) != null) {

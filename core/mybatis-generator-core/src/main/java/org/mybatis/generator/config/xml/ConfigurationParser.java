@@ -17,11 +17,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class ConfigurationParser {
@@ -70,8 +73,8 @@ public class ConfigurationParser {
     public Configuration parseConfiguration(File inputFile) throws IOException,
             XMLParserException {
 
-        FileReader fr = new FileReader(inputFile);
-
+        //FileReader fr = new FileReader(inputFile);
+        Reader fr = new InputStreamReader(Files.newInputStream(inputFile.toPath()), DEFAULT_CHARSET);
         return parseConfiguration(fr);
     }
 

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
@@ -19,6 +20,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
+
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 
 /**
  * This class is used to execute an SQL script before a code generation
@@ -191,7 +194,7 @@ public class SqlScriptRunner {
             if (is == null) {
                 throw new MojoExecutionException("SQL script file does not exist: " + resource);
             }
-            answer = new BufferedReader(new InputStreamReader(is));
+            answer = new BufferedReader(new InputStreamReader(is, DEFAULT_CHARSET));
         } else {
             File file = new File(sourceFile);
             if (!file.exists()) {

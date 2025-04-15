@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }编辑组件
-* @version: edit template version 1.0.5
+* @version: edit template version 1.0.6
 */
 <template>
     <vgoForm

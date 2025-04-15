@@ -1,5 +1,6 @@
 package org.mybatis.generator.internal;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.XMLConstants;
@@ -58,7 +60,7 @@ public class XmlFileMergerJaxp {
 
         try {
             return getMergedSource(new InputSource(new StringReader(generatedXmlFile.getFormattedContent())),
-                new InputSource(new InputStreamReader(new FileInputStream(existingFile), StandardCharsets.UTF_8)),
+                new InputSource(new InputStreamReader(Files.newInputStream(existingFile.toPath()), DEFAULT_CHARSET)),
                 existingFile.getName());
         } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new ShellException(getString("Warning.13", //$NON-NLS-1$

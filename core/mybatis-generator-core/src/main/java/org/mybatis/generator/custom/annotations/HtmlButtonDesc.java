@@ -41,6 +41,8 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     private String localeKey;
 
+    private String componentType;
+
     public static HtmlButtonDesc create(ViewDefaultToolBarsEnum viewDefaultToolBarsEnum) {
         return new HtmlButtonDesc(viewDefaultToolBarsEnum.id());
     }
@@ -67,6 +69,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         htmlButtonDesc.setCircle(htmlButtonGeneratorConfiguration.isCircle());
         htmlButtonDesc.setRound(htmlButtonGeneratorConfiguration.isRound());
         htmlButtonDesc.setLink(htmlButtonGeneratorConfiguration.isLink());
+        htmlButtonDesc.setComponentType(htmlButtonGeneratorConfiguration.getComponentType());
         return htmlButtonDesc;
     }
 
@@ -97,6 +100,7 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         this.isLink = viewDefaultToolBarsEnum.isLink();
         this.isRound = viewDefaultToolBarsEnum.isRound();
         this.isCircle = viewDefaultToolBarsEnum.isCircle();
+        this.componentType = viewDefaultToolBarsEnum.componentType();
         this.addImports(HtmlButton.class.getCanonicalName());
     }
 
@@ -154,6 +158,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         }
         if (VStringUtil.stringHasValue(this.localeKey)) {
             items.add("localeKey = \""+this.localeKey+"\"");
+        }
+        if (VStringUtil.stringHasValue(this.componentType) && !this.componentType.equalsIgnoreCase("button")) {
+            items.add("componentType = \""+this.componentType+"\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
@@ -308,5 +315,13 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public void setLocaleKey(String localeKey) {
         this.localeKey = localeKey;
+    }
+
+    public String getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
     }
 }

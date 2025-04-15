@@ -1748,6 +1748,7 @@
                 disabledCondition CDATA #IMPLIED
                 configurable (false|true) #IMPLIED
                 localeKey CDATA #IMPLIED
+                componentType (icon|text|popSelect|button) #IMPLIED
                 uiFrameType (layui|zui|elPlus|antd) #IMPLIED>
         <!--
             用于描述查询列配置信息

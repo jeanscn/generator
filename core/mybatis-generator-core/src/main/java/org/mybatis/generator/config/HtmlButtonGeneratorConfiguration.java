@@ -29,6 +29,7 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private String disabledCondition = "false";
     private boolean configurable = false;
     private String localeKey;
+    private String componentType = "button"; // 组件类型
 
     public HtmlButtonGeneratorConfiguration() {
         super();
@@ -179,5 +180,13 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 
     public void setLocaleKey(String localeKey) {
         this.localeKey = localeKey;
+    }
+
+    public String getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
     }
 }

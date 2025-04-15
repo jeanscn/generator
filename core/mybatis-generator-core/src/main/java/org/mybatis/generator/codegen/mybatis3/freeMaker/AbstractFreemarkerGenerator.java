@@ -28,7 +28,7 @@ public abstract class AbstractFreemarkerGenerator extends AbstractJavaGenerator 
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_32);
         configuration.setClassForTemplateLoading(getClass(), "/templates/layui");
         try {
-            return configuration.getTemplate(name);
+            return configuration.getTemplate(name, "UTF-8");
         } catch (IOException e) {
             warnings.add("获取jquery模板["+name+"]失败");
             return null;
@@ -39,7 +39,7 @@ public abstract class AbstractFreemarkerGenerator extends AbstractJavaGenerator 
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_32);
         configuration.setClassForTemplateLoading(getClass(), "/templates/vue3");
         try {
-            return configuration.getTemplate(name);
+            return configuration.getTemplate(name, "UTF-8");
         } catch (IOException e) {
             warnings.add("获取vue3模板["+name+"]失败");
             return null;

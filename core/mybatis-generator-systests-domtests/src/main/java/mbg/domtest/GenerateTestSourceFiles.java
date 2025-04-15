@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +17,10 @@ import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.reflections.Reflections;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
+
 public class GenerateTestSourceFiles {
+
 
     public static void main (String[] args) {
         if (args.length < 1 || !StringUtility.stringHasValue(args[0])) {
@@ -101,7 +106,7 @@ public class GenerateTestSourceFiles {
 
     private void writeFile(File file, String content) throws IOException {
         FileOutputStream fos = new FileOutputStream(file, false);
-        OutputStreamWriter osw = new OutputStreamWriter(fos);
+        OutputStreamWriter osw = new OutputStreamWriter(fos, DEFAULT_CHARSET);
 
         BufferedWriter bw = new BufferedWriter(osw);
         bw.write(content);
