@@ -19,7 +19,7 @@ public class SelectByColumnElementGenerator extends
 
     @Override
     public void addElements(XmlElement parentElement) {
-        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().size() == 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             return;
         }
         introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream().filter(c -> c.getColumns().size() > 0)

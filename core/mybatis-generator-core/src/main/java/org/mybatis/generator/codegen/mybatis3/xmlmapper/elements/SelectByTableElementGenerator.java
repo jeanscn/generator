@@ -20,7 +20,7 @@ public class SelectByTableElementGenerator extends
 
     @Override
     public void addElements(XmlElement parentElement) {
-        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().size() == 0) {
+        if (introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().isEmpty()) {
             return;
         }
         for (SelectByTableGeneratorConfiguration configuration : introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration()) {
