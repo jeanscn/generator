@@ -97,6 +97,8 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
             if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
                 bizINF.addMethod(serviceMethods.getSelectWithChildrenCountMethod(bizINF, true,true));
             }
+            bizINF.addMethod(serviceMethods.getSelectByKeysWithAllParentMethod(bizINF, true, true));
+            bizINF.addMethod(serviceMethods.getSelectByKeysWithChildrenMethod(bizINF, true, true));
         }
 
         //增加SelectBySqlMethod

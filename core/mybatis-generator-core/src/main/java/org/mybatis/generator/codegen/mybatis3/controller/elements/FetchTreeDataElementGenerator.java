@@ -80,37 +80,6 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parentElement.addImportedType("com.vgosoft.web.plugins.ztree.TreeUtil");
 
         /*
-         * 异步 asyncFetchTreeData方法定义
-         */
-        final String asyncMethodPrefix = "asyncFetchTreeData";
-        Method aMethod = createMethod(asyncMethodPrefix);
-        parameters.forEach(aMethod::addParameter);
-        aMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
-                entityType,
-                parentElement));
-        aMethod.setReturnRemark("对象集合结果封装对象,带有子集合数量");
-        aMethod.addAnnotation(new SystemLogDesc("查询带有子集合数量数据", introspectedTable), parentElement);
-        aMethod.addAnnotation(new RequestMappingDesc("async-tree", RequestMethodEnum.GET), parentElement);
-        aMethod.addAnnotation(new ApiOperationDesc("带有子集合数量数据查询", "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据"), parentElement);
-        commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据");
-        //函数体
-        aMethod.addBodyLine("{0}Example example = new {0}Example();", entityType.getShortName());
-        aMethod.addBodyLine("keys = keys == null ? \"0\" : keys;");
-        aMethod.addBodyLine("List<String> parentIds = splitToList(keys);");
-        aMethod.addBodyLine("example.createCriteria().andParentIdIn(parentIds);");
-//        aMethod.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
-//        aMethod.addBodyLine("nodeConverter.setRecords({0}.selectByExample(example).getResult());", serviceBeanName);
-//        aMethod.addBodyLine("List<ZtreeDataSimple> ztreeDataSimples = nodeConverter.convertTreeNodeDataSimple();");
-//        aMethod.addBodyLine("if (VStringUtil.stringHasValue(eids)) {");
-//        aMethod.addBodyLine("VStringUtil.splitter(true).splitToList(eids)");
-//        aMethod.addBodyLine(".forEach(pid -> TreeUtil.setNoCheckedRecursively(ztreeDataSimples, pid));");
-//        aMethod.addBodyLine("}");
-        //aMethod.addBodyLine("List<{0}> records = {1}.selectByExampleWithChildrenCount(example).getResult();",entityType.getShortName(), serviceBeanName);
-        aMethod.addBodyLine("List<{0}> records = {1}.selectByExample(example).getResult();",entityType.getShortName(), serviceBeanName);
-        aMethod.addBodyLine("return ResponseResult.success(records);");
-        parentElement.addMethod(aMethod);
-
-        /*
          * fetchTreeCateGenerate方法定义
          * 生成树形分类数据查询方法
          */
@@ -150,6 +119,69 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             methodCate.addBodyLine("return ResponseResult.success(ztreeDataViewCates);");
             parentElement.addMethod(methodCate);
         });
+
+
+        /*
+         * 异步 asyncFetchTreeData方法定义
+         */
+        final String asyncMethodPrefix = "asyncFetchTreeData";
+        Method aMethod = createMethod(asyncMethodPrefix);
+        Parameter parameter4 = new Parameter(new FullyQualifiedJavaType("java.lang.Boolean"), "returnPath");
+        parameter4.addAnnotation("@RequestParam(required = false)");
+        parameter4.setRemark("是否返回路径");
+        parameters.add(parameter4);
+        parameters.forEach(aMethod::addParameter);
+        aMethod.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
+                entityType,
+                parentElement));
+        aMethod.setReturnRemark("对象集合结果封装对象,带有子集合数量");
+        aMethod.addAnnotation(new SystemLogDesc("查询带有子集合数量数据", introspectedTable), parentElement);
+        aMethod.addAnnotation(new RequestMappingDesc("async-tree", RequestMethodEnum.GET), parentElement);
+        aMethod.addAnnotation(new ApiOperationDesc("带有子集合数量数据查询", "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据"), parentElement);
+        commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据");
+        //函数体
+        aMethod.addBodyLine("{0}Example example = new {0}Example();", entityType.getShortName());
+        aMethod.addBodyLine("keys = keys == null ? \"0\" : keys;");
+        aMethod.addBodyLine("List<String> parentIds = splitToList(keys);");
+        aMethod.addBodyLine("example.createCriteria().andParentIdIn(parentIds);");
+        aMethod.addBodyLine(" if (keys.equals(\"0\")) {");
+        aMethod.addBodyLine("example.or(example.createCriteria().andParentIdIsNull());");
+        aMethod.addBodyLine("}");
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            aMethod.addBodyLine("ServiceResult<List<{0}>> serviceResult = {1}.selectByExampleWithChildrenCount(example);",entityType.getShortName(),serviceBeanName);
+            aMethod.addBodyLine("if (!serviceResult.hasResult() || serviceResult.getResult().isEmpty()) {");
+            aMethod.addBodyLine("return ResponseResult.success(new ArrayList<>());");
+            aMethod.addBodyLine("}");
+            aMethod.addBodyLine("List<{0}> result = serviceResult.getResult();",entityType.getShortName());
+            aMethod.addBodyLine("result.forEach(record -> {");
+            aMethod.addBodyLine("if (record.getChildrenCount() == 0L) record.setLeaf(true);");
+            aMethod.addBodyLine("});");
+        } else {
+            aMethod.addBodyLine("List<{0}> result = {1}.selectByExample(example).getResult();",entityType.getShortName(), serviceBeanName);
+            aMethod.addBodyLine("if (result.isEmpty()) {");
+            aMethod.addBodyLine("return ResponseResult.success(new ArrayList<>());");
+            aMethod.addBodyLine("}");
+        }
+        aMethod.addBodyLine("List<List<String>> pathValues = new ArrayList<>();");
+        aMethod.addBodyLine("if (VStringUtil.stringHasValue(eids) && returnPath != null && returnPath) {");
+        aMethod.addBodyLine("List<String> split = splitter(true).splitToList(eids);");
+        aMethod.addBodyLine("for (String id : split) {");
+        aMethod.addBodyLine("ServiceResult<List<{0}>> listServiceResult = {1}.selectByKeysWithAllParent(Collections.singletonList(id));",entityType.getShortName(), serviceBeanName);
+        aMethod.addBodyLine("if (listServiceResult.hasResult()) {");
+        aMethod.addBodyLine("result.addAll(listServiceResult.getResult());");
+        aMethod.addBodyLine("List<String> path = listServiceResult.getResult().stream()");
+        aMethod.addBodyLine("        .map({0}::getId).collect(Collectors.toList());", entityType.getShortName());
+        aMethod.addBodyLine("pathValues.add(path);");
+        aMethod.addBodyLine("}");
+        aMethod.addBodyLine("}");
+        aMethod.addBodyLine("}");
+        aMethod.addBodyLine("ResponseResult<List<{0}>> success = success(result.stream().distinct().collect(Collectors.toList()));", entityType.getShortName());
+        aMethod.addBodyLine("success.addAttribute(\"pathValues\", pathValues);");
+        aMethod.addBodyLine("return success;");
+        parentElement.addMethod(aMethod);
+        parentElement.addImportedType("java.util.stream.Collectors");
+        parentElement.addImportedType("java.util.ArrayList");
+        parentElement.addImportedType("java.util.List");
     }
 
     private void addExcludeIdsData() {

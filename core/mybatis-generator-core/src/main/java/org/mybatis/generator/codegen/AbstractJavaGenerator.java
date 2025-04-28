@@ -221,17 +221,43 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     /**
      * 增加actionType属性
      *
-     * @param topLevelClass 请求VO类
+     * @param topLevelClass 类
+     * @param introspectedTable 表对象
      */
     protected void addActionType(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
         Field addActionType = new Field("actionType", FullyQualifiedJavaType.getStringInstance());
         addActionType.setVisibility(JavaVisibility.PRIVATE);
         addActionType.setRemark("查询应用场景的类型标识");
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            addActionType.addAnnotation("@TableField(exist = false)");
+        }
         new ApiModelPropertyDesc(addActionType.getRemark(), "selector").addAnnotationToField(addActionType, topLevelClass);
         Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> f.getName().equals("actionType")).findFirst();
         if (!actionType.isPresent()) {
             topLevelClass.addField(addActionType);
             FieldItem fieldItem = new FieldItem(addActionType);
+            introspectedTable.getVoModelFields().add(fieldItem);
+        }
+    }
+
+    /**
+     * 增加ignoreDeleteFlag属性
+     * @param topLevelClass 类
+     * @param introspectedTable  表对象
+     */
+    protected void addIgnoreDeleteFlag(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        Field ignoreDeleteFlag = new Field("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+        ignoreDeleteFlag.setVisibility(JavaVisibility.PRIVATE);
+        ignoreDeleteFlag.setRemark("是否忽略删除标记");
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            ignoreDeleteFlag.addAnnotation("@TableField(exist = false)");
+        }
+        new ApiModelPropertyDesc(ignoreDeleteFlag.getRemark(), "false").addAnnotationToField(ignoreDeleteFlag, topLevelClass);
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignoreDeleteFlag")).findFirst();
+        if (!optionalField.isPresent()) {
+            topLevelClass.addField(ignoreDeleteFlag);
+            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
+            FieldItem fieldItem = new FieldItem(ignoreDeleteFlag);
             introspectedTable.getVoModelFields().add(fieldItem);
         }
     }

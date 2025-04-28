@@ -12,6 +12,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.factory.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.*;
@@ -773,7 +774,7 @@ public class TableConfiguration extends PropertyHolder {
         //根据所有配置信息，进行调整
         //enableChildren.
         calculateSelectByParentIdConfig(warnings, introspectedTable);
-        //如果存在parent_id字段，则自动添加children属性
+        //如果存在parent_id字段，则自动添加children属性，检查是否存在is_leaf字段、disable字段，如果不存在则添加
         calculateChildrenRelationConfig(introspectedTable);
         //计算selectBySql配置
         calculateSelectBySqlMethodProperty(introspectedTable);
@@ -1304,8 +1305,25 @@ public class TableConfiguration extends PropertyHolder {
      */
     private void calculateChildrenRelationConfig(IntrospectedTable introspectedTable) {
         String parentIdColumnName = DefaultColumnNameEnum.PARENT_ID.columnName();
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
-            introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
+        introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
+            if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.LEAF.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
+                VoAdditionalPropertyGeneratorConfiguration leafAdditionalPropertyConfiguration = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(introspectedTable,
+                        DefaultColumnNameEnum.LEAF,
+                        "false",
+                        Collections.singletonList("@TableField(exist = false)"));
+                leafAdditionalPropertyConfiguration.getImportedTypes().add("com.baomidou.mybatisplus.annotation.TableField");
+                this.addAdditionalPropertyConfigurations(leafAdditionalPropertyConfiguration);
+            }
+            if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.DISABLED.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
+                VoAdditionalPropertyGeneratorConfiguration disabledAdditionalPropertyConfiguration = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(introspectedTable,
+                        DefaultColumnNameEnum.DISABLED,
+                        "false",
+                        Collections.singletonList("@TableField(exist = false)"));
+                disabledAdditionalPropertyConfiguration.getImportedTypes().add("com.baomidou.mybatisplus.annotation.TableField");
+                this.addAdditionalPropertyConfigurations(disabledAdditionalPropertyConfiguration);
+            }
+
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
                 if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.CHILDREN.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
                     RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
                     relationGeneratorConfiguration.setRemark("子集合");
@@ -1333,20 +1351,20 @@ public class TableConfiguration extends PropertyHolder {
                     relationGeneratorConfiguration.addImportTypes("java.util.ArrayList");
                     this.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
                 }
-
-                IntrospectedColumn childrenCountColumn = introspectedTable.getColumn(DefaultColumnNameEnum.CHILDREN_COUNT.columnName()).orElse(null);
-                if (childrenCountColumn == null) {
-                    VoAdditionalPropertyGeneratorConfiguration childrenCount = new VoAdditionalPropertyGeneratorConfiguration(introspectedTable.getContext(), this);
-                    childrenCount.setName(DefaultColumnNameEnum.CHILDREN_COUNT.fieldName());
-                    childrenCount.setRemark(DefaultColumnNameEnum.CHILDREN_COUNT.comment());
-                    childrenCount.setInitializationString("0");
-                    childrenCount.setType(FullyQualifiedJavaType.getIntegerInstance().getFullyQualifiedName());
-                    this.addAdditionalPropertyConfigurations(childrenCount);
+                if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.CHILDREN_COUNT.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
+                    IntrospectedColumn childrenCountColumn = introspectedTable.getColumn(DefaultColumnNameEnum.CHILDREN_COUNT.columnName()).orElse(null);
+                    if (childrenCountColumn == null) {
+                        VoAdditionalPropertyGeneratorConfiguration childrenCount = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(introspectedTable,
+                                DefaultColumnNameEnum.CHILDREN_COUNT,
+                                "0",
+                                Collections.singletonList("@TableField(exist = false)"));
+                        childrenCount.setType(FullyQualifiedJavaType.getIntegerInstance().getFullyQualifiedName());
+                        childrenCount.getImportedTypes().add("com.baomidou.mybatisplus.annotation.TableField");
+                        this.addAdditionalPropertyConfigurations(childrenCount);
+                    }
                 }
-            });
-
-
-        }
+            }
+        });
     }
 
     private void calculateSelectBySqlMethodProperty(IntrospectedTable introspectedTable) {

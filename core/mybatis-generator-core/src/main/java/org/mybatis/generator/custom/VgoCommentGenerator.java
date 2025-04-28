@@ -59,7 +59,33 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     //给model以外字段添加注释，如example类
     @Override
     public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
-
+        if ("ignoreDeleteFlag".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 是否忽略删除标记");
+            field.addJavaDocLine(" */");
+        } else if ("distinct".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 是否去重");
+            field.addJavaDocLine(" */");
+        } else if ("oredCriteria".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 过滤条件");
+            field.addJavaDocLine(" */");
+        } else if ("orderByClause".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 排序条件");
+            field.addJavaDocLine(" */");
+        } else if ("limit".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 分页条件");
+            field.addJavaDocLine(" */");
+        } else if ("offset".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 偏移量条件");
+            field.addJavaDocLine(" */");
+        } else {
+            super.addFieldComment(field, introspectedTable);
+        }
     }
 
     //在java文件顶端加注释

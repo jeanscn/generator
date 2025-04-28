@@ -1,24 +1,22 @@
 /**
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.9
+* @version: modal template version 1.0.10
 */
 <template>
     <div class="form-modal-container">
-        <VgoDialog v-if="showDialog && type === 'dialog'" v-model="showDialog"
-            :title="_pageTitle"
+        <VgoDialog :modelValue="showDialog && dialogType === 'dialog'"
+                   @update:modelValue="(val) => updateVisibility(val)"
+                   :title="_pageTitle"
             :popSize="_popSize"
             :draggable="_popDraggable"
             :elDialogProps="_elDialogProps"
-            @open="onOpen"
-            @opened="onOpened"
-            @close="onClose"
-            @closed="onClosed"
+            v-on="modalEvents"
         >
-            <${ componentName }Edit v-if="showDialog && _viewStatus === 1" ref="bizFormRef" v-model="_formData"
+            <${ componentName }Edit v-if="_viewStatus === 1" ref="bizFormRef" v-model="_formData"
                 :formConfig="_formConfig" :viewStatus="_viewStatus" @form-submit="onSubmit"
                 @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)"
                 />
-            <${ componentName }Detail v-if="showDialog && _viewStatus === 0" ref="bizFormRef" v-model="_formData"
+            <${ componentName }Detail v-if="_viewStatus === 0" ref="bizFormRef" v-model="_formData"
                 :formConfig="_formConfig" :viewStatus="_viewStatus"
                 @vxe-button-click="(params: TVxeTableActionsParams) => $emit('vxe-button-click', params)"
                 />
@@ -28,14 +26,12 @@
                 </FormButtonsBar>
             </template>
         </VgoDialog>
-        <VgoFormDrawer v-if="showDialog && type === 'drawer'" v-model="showDialog"
+        <VgoFormDrawer :modelValue="showDialog && dialogType === 'drawer'"
+                       @update:modelValue="(val) => updateVisibility(val)"
             :title="_pageTitle"
             :size="_popSize"
             :elDrawerProps="_elDrawerProps"
-            @open="onOpen"
-            @opened="onOpened"
-            @close="onClose"
-            @closed="onClosed">
+            v-on="modalEvents">
             <${ componentName }Edit v-if="_viewStatus === 1" ref="bizFormRef" v-model="_formData"
                            :formConfig="_formConfig"
                            :viewStatus="_viewStatus"
@@ -53,7 +49,7 @@
 </template>
 
 <script lang="ts" setup name="${ componentName }Modal">
-    import { onMounted, watch, PropType, ref, inject, Ref } from 'vue';
+    import { onMounted, watch, PropType, ref, inject, Ref, provide  } from 'vue';
     import { TFormConfig } from '@/framework/components/vgoForm/types';
     import { IButtonProps } from '@/framework/types/core';
     import { TFormButtonActionParam } from '@/hooks/types';
@@ -95,6 +91,7 @@
         elDrawerProps: { type: Object as PropType<TElDrawerProps>, default: EMPTY_OBJECT },
         tableRef: { type: Object as PropType<TVgoTableInstance | undefined>, default: undefined },
         isModal: { type: Boolean as PropType<boolean>, default: false },
+        loadModalProvideData: { type: Object as PropType<Record<string, any> | null>, default: null },
     })
 
     const i18n = useI18n();
@@ -145,6 +142,7 @@
     const _formConfig = ref<TFormConfig>(props.formConfig);
     const _formData = ref<T${ modelName }>(props.formData);
     const _service = ref<ServiceApi<T${ modelName }>>();
+    provide('loadModalProvideData', props.loadModalProvideData);
 
     _service.value = new ServiceApi<T${ modelName }>(_formConfig.value.restBasePath);
 
@@ -156,6 +154,11 @@
         emit('update:modelValue', val);
     });
 
+    const updateVisibility = (val) => {
+        if (!val) {
+            showDialog.value = false;
+        }
+    };
 
     onMounted(() => { })
 
@@ -198,23 +201,25 @@
     const onSubmit = (val) => {
         emit('onSubmit', val);
     };
-    const onOpen = () => {
-        emit('open')
-    }
 
-    const onOpened = () => {
-        emit('opened')
-    }
+    const modalEvents = {
+        open: () => {
+            emit('open')
+        },
+        opened: () => {
+            emit('opened')
+        },
+        close: () => {
+            emit('close')
+        },
+        closed: () => {
+            _formData.value = EMPTY_OBJECT as any;
+            buttonRef.value = undefined;
+            bizFormRef.value = undefined;
+            emit('closed')
+        },
+    };
 
-    const onClose = () => {
-        emit('close')
-    }
-
-    const onClosed = () => {
-        showDialog.value = false
-        _formData.value = EMPTY_OBJECT as any
-        emit('closed')
-    }
 </script>
 
 <style lang="scss" scoped>

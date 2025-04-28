@@ -118,6 +118,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addSelectByKeysDictMethod(interfaze);
         addDeleteByTableMethod(interfaze);
         addInsertByTableMethod(interfaze);
+        addSelectByKeysWithAllParentAndChildrenMethod(interfaze);
 
         if (context.getPlugins().clientGenerated(interfaze, introspectedTable)) {
             answer.add(interfaze);
@@ -364,6 +365,15 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                 .generateUpdateByPrimaryKeyWithoutBLOBs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new UpdateByPrimaryKeyWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void addSelectByKeysWithAllParentAndChildrenMethod(Interface interfaze) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            AbstractJavaMapperMethodGenerator pMethodGenerator = new SelectByKeysWithParentMethodGenerator();
+            initializeAndExecuteGenerator(pMethodGenerator, interfaze);
+            AbstractJavaMapperMethodGenerator cMethodGenerator = new SelectByKeysWithChildrenMethodGenerator();
+            initializeAndExecuteGenerator(cMethodGenerator, interfaze);
         }
     }
 

@@ -17,4 +17,5 @@ export const loadModalsProps = reactive<TLoadModalProps>({
     elDrawerProps: {},
     tableRef: undefined,
     requestResult: null,
+    loadModalProvideData: null,
 });

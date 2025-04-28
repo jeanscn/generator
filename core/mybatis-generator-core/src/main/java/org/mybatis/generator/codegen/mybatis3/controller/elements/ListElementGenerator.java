@@ -34,15 +34,18 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         Method method = createMethod(methodPrefix);
         MethodParameterDescript descriptor = new MethodParameterDescript(parentElement, "get");
         descriptor.setValid(true);
+        // @Validated(value= ValidateQuery.class)  VO vo
         Parameter parameter = buildMethodParameter(descriptor);
         parameter.setRemark("用于接收属性同名参数");
         parameter.addAnnotation("@Validated(value= ValidateQuery.class)");
         parentElement.addImportedType("com.vgosoft.core.valid.ValidateQuery");
         method.addParameter(parameter);
+        //@RequestParam(required = false) String actionType
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
         actionType.setRemark("可选参数，查询场景标识");
         method.addParameter(actionType);
+
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType,
                 parentElement));
@@ -100,6 +103,11 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addMethod(postMethod);
         parentElement.addImportedType("com.vgosoft.web.utils.ParameterUtil");
         parentElement.addImportedType("com.vgosoft.core.adapter.web.FilterParam");
+        parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
+        parentElement.addImportedType("java.lang.Boolean");
+        parentElement.addImportedType("org.springframework.validation.annotation.Validated");
+        parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");
+        parentElement.addImportedType("org.springframework.web.bind.annotation.RequestBody");
     }
 
     private void resultPartBodyLines(TopLevelClass parentElement, Method method) {
@@ -144,6 +152,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
             addSelectByExample(method, requestVOVar);
             method.addBodyLine("page = (Page<{0}>) result.getResult();", entityType.getShortName());
             method.addBodyLine("}");
+
             parentElement.addImportedType("com.github.pagehelper.Page");
             parentElement.addImportedType("com.github.pagehelper.PageHelper");
         } else {

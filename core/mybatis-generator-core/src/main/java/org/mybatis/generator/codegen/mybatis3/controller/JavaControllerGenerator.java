@@ -280,6 +280,12 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         if (!columns.isEmpty()) {
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
+            introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
+                String entityName = introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase()
+                        : introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase()
+                        : entityType.getShortNameFirstLowCase();
+                buildExample.addBodyLine("if ({0}.isIgnoreDeleteFlag()) example.setIgnoreDeleteFlag(true);", entityName);
+            });
             for (IntrospectedColumn column : columns) {
                 String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), column.getFullyQualifiedJavaType());
                 boolean isBetween = nameFragments.containsKey(column.getActualColumnName()) && "between".equalsIgnoreCase(nameFragments.get(column.getActualColumnName()));

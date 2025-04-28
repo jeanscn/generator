@@ -401,6 +401,40 @@ public class ServiceMethods {
         return method;
     }
 
+    public Method getSelectByKeysWithAllParentMethod(CompilationUnit parentElement,
+                                             boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter p1 = new Parameter(new FullyQualifiedJavaType("List<String>"), "ids");
+        p1.setRemark("数据标识列表");
+        parameters.add(p1);
+        Method method = getMethodByType(introspectedTable.getSelectByKeysWithAllParent(),
+                isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST,
+                entityType,
+                introspectedTable.getRemarks(true)+(isService?"对象列表ServiceResult封装":"对象列表"),
+                parameters,
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method,"获取指定ID的数据及其所有父级，递归深度限制为10，防止性能问题");
+        return method;
+    }
+
+    public Method getSelectByKeysWithChildrenMethod(CompilationUnit parentElement,
+                                                     boolean isAbstract,boolean isService) {
+        List<Parameter> parameters = new ArrayList<>();
+        Parameter p1 = new Parameter(new FullyQualifiedJavaType("List<String>"), "ids");
+        p1.setRemark("数据标识列表");
+        parameters.add(p1);
+        Method method = getMethodByType(introspectedTable.getSelectByKeysWithAllChildren(),
+                isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST,
+                entityType,
+                introspectedTable.getRemarks(true)+(isService?"对象列表ServiceResult封装":"对象列表"),
+                parameters,
+                isAbstract,
+                parentElement);
+        context.getCommentGenerator().addMethodJavaDocLine(method,"获取指定ID的数据及其所有后代，递归深度限制为10，防止性能问题");
+        return method;
+    }
+
     public List<IntrospectedColumn> getSelectDictParameterColumns(VOCacheGeneratorConfiguration config, IntrospectedTable introspectedTable) {
         if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
             return Stream.of(config.getTypeColumn(), config.getKeyColumn())

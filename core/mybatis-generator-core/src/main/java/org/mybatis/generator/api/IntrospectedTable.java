@@ -679,6 +679,14 @@ public abstract class IntrospectedTable {
         return "selectByKeysDict";
     }
 
+    public String getSelectByKeysWithAllParent() {
+        return "selectByKeysWithAllParent";
+    }
+
+    public String getSelectByKeysWithAllChildren() {
+        return "selectByKeysWithAllChildren";
+    }
+
     public String getUpdateBySqlStatementId() {
         return "updateBySql";
     }

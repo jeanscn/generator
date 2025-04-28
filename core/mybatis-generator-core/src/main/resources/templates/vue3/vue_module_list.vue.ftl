@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.15
+* @version: list template version 1.0.16
 */
 <template>
     <el-container>
@@ -26,11 +26,13 @@
                                     :underline="false"
                             >
 								<span class="table-cell-link-text">
-									<PrivateTableColumnSlots :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
+									<PrivateTableColumnSlots v-memo="[scope.row[column.prop], column.prop]"
+                                                             :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
 								</span>
 							</el-link>
 							<span v-else>
-								<PrivateTableColumnSlots :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
+								<PrivateTableColumnSlots v-memo="[scope.row[column.prop], column.prop]"
+                                                         :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
 							</span>
 						</span>
                     </template>
@@ -43,6 +45,7 @@
                             :formData="loadModalsProps.formData"
                             :elDialogProps="loadModalsProps.elDialogProps"
                             :elDrawerProps="loadModalsProps.elDrawerProps"
+                            :loadModalProvideData="loadModalsProps.loadModalProvideData"
                             @vxe-button-click="defaultInnerListButtonActionHandler"
                             @close="destroyComponent">
                 </LoadModals>

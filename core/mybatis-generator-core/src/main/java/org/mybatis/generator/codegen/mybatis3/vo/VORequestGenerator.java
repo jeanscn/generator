@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -56,6 +57,8 @@ public class VORequestGenerator extends AbstractVOGenerator {
         addCascadeResult(requestVoClass);
         //增加countChildren开关
         addCountChildren(requestVoClass);
+        //增加ignoreDeleteFlag开关
+        addIgnoreDeleteFlag(requestVoClass,introspectedTable);
         //附加属性
         additionalProperties(voRequestGeneratorConfiguration, requestVoClass);
         //增加任意过滤条件接收
@@ -98,7 +101,6 @@ public class VORequestGenerator extends AbstractVOGenerator {
             requestVoClass.addField(cascade);
         }
     }
-
 
     private void addOrderByClause(TopLevelClass requestVoClass) {
         Field orderByClause = new Field("orderByClause", FullyQualifiedJavaType.getStringInstance());

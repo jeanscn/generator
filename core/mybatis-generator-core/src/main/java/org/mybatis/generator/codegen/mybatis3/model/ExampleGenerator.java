@@ -88,6 +88,25 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         commentGenerator.addGeneralMethodComment(method, introspectedTable);
         topLevelClass.addMethod(method);
 
+        // add field, getter, setter for ignoreDeleteFlag
+        // protected boolean ignoreDeleteFlag;
+        field = new Field("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance()); //$NON-NLS-1$
+        field.setVisibility(JavaVisibility.PROTECTED);
+        commentGenerator.addFieldComment(field, introspectedTable);
+        topLevelClass.addField(field);
+        method = new Method("setIgnoreDeleteFlag"); //$NON-NLS-1$
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "ignoreDeleteFlag")); //$NON-NLS-1$
+        method.addBodyLine("this.ignoreDeleteFlag = ignoreDeleteFlag;"); //$NON-NLS-1$
+        commentGenerator.addGeneralMethodComment(method, introspectedTable);
+        topLevelClass.addMethod(method);
+        method = new Method("isIgnoreDeleteFlag"); //$NON-NLS-1$
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+        method.addBodyLine("return ignoreDeleteFlag;"); //$NON-NLS-1$
+        commentGenerator.addGeneralMethodComment(method, introspectedTable);
+        topLevelClass.addMethod(method);
+
         // add field and methods for the list of ored criteria
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType("java.util.List<Criteria>"); //$NON-NLS-1$
         field = new Field("oredCriteria", fqjt); //$NON-NLS-1$
@@ -143,6 +162,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.addBodyLine("oredCriteria.clear();"); //$NON-NLS-1$
         method.addBodyLine("orderByClause = null;"); //$NON-NLS-1$
         method.addBodyLine("distinct = false;"); //$NON-NLS-1$
+        method.addBodyLine("ignoreDeleteFlag = false;"); //$NON-NLS-1$
         commentGenerator.addGeneralMethodComment(method, introspectedTable);
         topLevelClass.addMethod(method);
 

@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.model;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
@@ -125,6 +126,9 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         }
 
 
+
+        addOrgUserOverrideMethod(topLevelClass, introspectedTable);
+
         //增加映射
         VoGenService voGenService = new VoGenService(introspectedTable);
         List<OverridePropertyValueGeneratorConfiguration> overrideProperty = configuration.getOverridePropertyConfigurations();
@@ -149,6 +153,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         //增加actionType属性
         if (! introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
             addActionType(topLevelClass,introspectedTable);
+            addIgnoreDeleteFlag(topLevelClass,introspectedTable);
         }
 
         if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
@@ -330,5 +335,35 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         new ApiModelPropertyDesc(filterMap.getRemark(), "filterParam = ‘{}’").addAnnotationToField(filterMap, topLevelClass);
         topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
         topLevelClass.addField(filterMap);
+    }
+
+    private void addOrgUserOverrideMethod(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        if (!"org_user".equalsIgnoreCase(introspectedTable.getTableConfiguration().getTableName())) {
+            return;
+        }
+        Method getContactInfo = new Method("getContactInfo");
+        getContactInfo.setVisibility(JavaVisibility.PUBLIC);
+        getContactInfo.setReturnType(FullyQualifiedJavaType.getStringInstance());
+        getContactInfo.addAnnotation("@Override");
+        getContactInfo.addBodyLine("return this.telephone != null ? this.telephone : this.mobilePhone;");
+        topLevelClass.addMethod(getContactInfo);
+
+        Method getDepartmentIds = new Method("getDepartmentIds");
+        getDepartmentIds.setVisibility(JavaVisibility.PUBLIC);
+        getDepartmentIds.setReturnType(new FullyQualifiedJavaType("java.util.List<String>"));
+        getDepartmentIds.addAnnotation("@Override");
+        getDepartmentIds.addBodyLine("Set<String> ids = new HashSet<>();");
+        getDepartmentIds.addBodyLine("ids.add(this.mainDeptId);");
+        getDepartmentIds.addBodyLine("if (VStringUtil.stringHasValue(this.otherDeptId)) {");
+        getDepartmentIds.addBodyLine("ids.addAll(Arrays.asList(this.otherDeptId.split(\",\")));");
+        getDepartmentIds.addBodyLine("}");
+        getDepartmentIds.addBodyLine("return new ArrayList<>(ids);");
+        topLevelClass.addMethod(getDepartmentIds);
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.List"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Set"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashSet"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Arrays"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.ArrayList"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.tool.core.VStringUtil"));
     }
 }

@@ -387,11 +387,20 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     }
 
     protected TextElement buildOrderByDefault() {
-        IntrospectedColumn column = introspectedTable.getColumn("SORT_").orElse(null);
-        if (column != null) {
-            return new TextElement("order by " + column.getActualColumnName());
+        StringBuilder sb = new StringBuilder();
+        introspectedTable.getColumn("sort_").ifPresent(introspectedColumn -> {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append("sort_");
+        });
+        introspectedTable.getColumn("created_").ifPresent(introspectedColumn -> {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append("created_ ");
+        });
+        if (sb.length() > 0) {
+            return new TextElement("ORDER BY " + sb);
+        } else {
+            return null;
         }
-        return null;
     }
 
     protected void addResultMap(XmlElement answer) {
@@ -424,6 +433,12 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         XmlElement when = new XmlElement("when");
         when.addAttribute(new Attribute("test", listProperty + " != null and " + listProperty + ".size() > 0"));
         when.addElement(new TextElement("and " + MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn) + " in"));
+        XmlElement foreach = getForeachXmlElement(listProperty);
+        when.addElement(foreach);
+        return when;
+    }
+
+    protected static XmlElement getForeachXmlElement(String listProperty) {
         XmlElement foreach = new XmlElement("foreach");
         foreach.addAttribute(new Attribute("collection", listProperty));
         foreach.addAttribute(new Attribute("item", "item"));
@@ -431,8 +446,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         foreach.addAttribute(new Attribute("separator", ","));
         foreach.addAttribute(new Attribute("close", ")"));
         foreach.addElement(new TextElement("#{item}"));
-        when.addElement(foreach);
-        return when;
+        return foreach;
     }
 
     /**

@@ -67,7 +67,8 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addListBySqlElement(answer);
         addSelectBySqlConditionElement(answer,false);
         addSelectBySqlConditionElement(answer,true);
-
+        addSelectByKeysWithAllParentElement(answer);
+        addSelectByKeysWithAllChildrenElement(answer);
         addSelectByExampleWithRelationElement(answer);
 
         addSelectByForeignKeyElement(answer);
@@ -150,6 +151,20 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     private void addSelectMapBySqlElement(XmlElement parentElement) {
         AbstractXmlElementGenerator elementGenerator = new SelectMapBySqlElementGenerator();
         initializeAndExecuteGenerator(elementGenerator, parentElement);
+    }
+
+    private void addSelectByKeysWithAllParentElement(XmlElement parentElement) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            AbstractXmlElementGenerator parentGenerator = new SelectByKeysWithAllParentGenerator();
+            initializeAndExecuteGenerator(parentGenerator, parentElement);
+        }
+    }
+
+    private void addSelectByKeysWithAllChildrenElement(XmlElement parentElement) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
+            AbstractXmlElementGenerator childrenGenerator = new SelectByKeysWithChildrenGenerator();
+            initializeAndExecuteGenerator(childrenGenerator, parentElement);
+        }
     }
 
 

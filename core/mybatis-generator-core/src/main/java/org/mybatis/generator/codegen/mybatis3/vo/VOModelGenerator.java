@@ -129,6 +129,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         //增加actionType属性
         if (!introspectedTable.getRules().isGenerateRequestVO()) {
             addActionType(voClass,introspectedTable);
+            addIgnoreDeleteFlag(voClass,introspectedTable);
         }
         //添加静态代码块
         //获取vo中的含父类和子类的所有字段

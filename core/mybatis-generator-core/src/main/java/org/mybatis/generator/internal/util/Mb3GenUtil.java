@@ -2,6 +2,7 @@ package org.mybatis.generator.internal.util;
 
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.IBaseEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.html.Attribute;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
@@ -362,5 +364,22 @@ public class Mb3GenUtil {
             }
             index++;
         }
+    }
+
+    public static VoAdditionalPropertyGeneratorConfiguration generateAdditionalPropertyFromDefaultColumnNameEnum(IntrospectedTable introspectedTable,
+                                                                                                           DefaultColumnNameEnum defaultColumnNameEnum,
+                                                                                                           String initializationString,
+                                                                                                           List<String> annotations) {
+        VoAdditionalPropertyGeneratorConfiguration leafAdditionalPropertyConfiguration = new VoAdditionalPropertyGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration());
+        leafAdditionalPropertyConfiguration.setName(defaultColumnNameEnum.fieldName());
+        leafAdditionalPropertyConfiguration.setRemark(defaultColumnNameEnum.comment());
+        if (initializationString != null) {
+            leafAdditionalPropertyConfiguration.setInitializationString(initializationString);
+        }
+        leafAdditionalPropertyConfiguration.setType(FullyQualifiedJavaType.getBooleanPrimitiveInstance().getFullyQualifiedName());
+        if (annotations != null) {
+            leafAdditionalPropertyConfiguration.setAnnotations(annotations);
+        }
+        return leafAdditionalPropertyConfiguration;
     }
 }

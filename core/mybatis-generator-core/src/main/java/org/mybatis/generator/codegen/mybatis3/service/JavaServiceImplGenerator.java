@@ -230,6 +230,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 AbstractServiceElementGenerator elementGenerator = new SelectByExampleWithChildrenCountElement();
                 initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
             }
+            SelectByKeysWithAllParentElement selectByKeysWithAllParentElement = new SelectByKeysWithAllParentElement();
+            initializeAndExecuteGenerator(selectByKeysWithAllParentElement, bizGenClazzImpl);
+            SelectByKeysWithAllChildrenElement selectByKeysWithAllChildrenElement = new SelectByKeysWithAllChildrenElement();
+            initializeAndExecuteGenerator(selectByKeysWithAllChildrenElement, bizGenClazzImpl);
         }
     }
 
