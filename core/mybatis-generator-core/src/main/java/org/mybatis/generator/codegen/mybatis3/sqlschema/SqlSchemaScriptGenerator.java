@@ -3,6 +3,8 @@ package org.mybatis.generator.codegen.mybatis3.sqlschema;
 import com.vgosoft.core.constant.Empty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.mybatis.generator.api.IndexInfo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.AbstractSqlScriptGenerator;
@@ -66,6 +68,16 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                 columnSql.add("    PRIMARY KEY (`"+primaryKeyColumn.getActualColumnName()+"`) USING BTREE");
             }else{
                 columnSql.add("    PRIMARY KEY (`"+primaryKeyColumn.getActualColumnName()+"`)");
+            }
+        }
+        //生成添加索引的sql
+        if (!introspectedTable.getIndexes().isEmpty()) {
+            for (IndexInfo index : introspectedTable.getIndexes()) {
+                String indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING BTREE", index.getName(), StringUtils.join(index.getColumnNames(), "`,`"));
+                if (VStringUtil.stringHasValue(index.getComments())) {
+                    indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING BTREE COMMENT '{2}'", index.getName(), StringUtils.join(index.getColumnNames(), "`,`"), index.getComments());
+                }
+                columnSql.add(indexSql);
             }
         }
         ret.add(String.join(",\n", columnSql));

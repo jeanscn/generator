@@ -101,6 +101,8 @@ public abstract class IntrospectedTable {
 
     protected final List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
+    protected final List<IndexInfo> indexes = new ArrayList<>();
+
     protected Map<String, String> permissionDataScriptLines = new HashMap<>();
 
     protected Map<String, String> permissionActionDataScriptLines = new HashMap<>();
@@ -730,6 +732,14 @@ public abstract class IntrospectedTable {
 
     private boolean isSubPackagesEnabled(PropertyHolder propertyHolder) {
         return isTrue(propertyHolder.getProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES));
+    }
+
+    public List<IndexInfo> getIndexes() {
+        return indexes;
+    }
+
+    public void addIndex(IndexInfo indexInfo) {
+        indexes.add(indexInfo);
     }
 
     protected String calculateJavaClientInterfacePackage() {

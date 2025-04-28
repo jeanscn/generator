@@ -1,9 +1,6 @@
 package org.mybatis.generator.internal.db;
 
-import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.JavaTypeResolver;
+import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;
 import org.mybatis.generator.config.*;
@@ -72,6 +69,57 @@ public class DatabaseIntrospector {
             }
         } catch (SQLException e) {
             // ignore the primary key if there's any error
+        } finally {
+            closeResultSet(rs);
+        }
+    }
+
+    private void calculateIndex(FullyQualifiedTable table, IntrospectedTable introspectedTable) {
+        ResultSet rs = null;
+
+        try {
+            rs = databaseMetaData.getIndexInfo(
+                    table.getIntrospectedCatalog(),
+                    table.getIntrospectedSchema(),
+                    table.getIntrospectedTableName(),
+                    false, // unique=false获取所有索引(包括非唯一索引)
+                    true); // approximate
+
+            // 使用Map存储索引信息，以索引名为键
+            Map<String, IndexInfo> indexInfoMap = new HashMap<>();
+
+            while (rs.next()) {
+                String indexName = rs.getString("INDEX_NAME");
+
+                // 过滤掉主键索引和空索引名
+                if (indexName == null || "PRIMARY".equals(indexName)) {
+                    continue;
+                }
+
+                // 获取索引信息
+                boolean nonUnique = rs.getBoolean("NON_UNIQUE");
+                short ordinalPosition = rs.getShort("ORDINAL_POSITION");
+                String columnName = rs.getString("COLUMN_NAME");
+                String ascOrDesc = rs.getString("ASC_OR_DESC"); // 可能为null
+                // 索引注释
+                // 索引注释 - 安全获取，REMARKS列在标准JDBC中不存在
+                String indexComment = null;
+
+                // 获取或创建索引信息对象
+                IndexInfo indexInfo = indexInfoMap.computeIfAbsent(indexName, k ->
+                    new IndexInfo(indexName, !nonUnique));
+                indexInfo.setComments(indexComment);
+                // 添加列信息
+                indexInfo.addColumn(columnName, ordinalPosition, ascOrDesc);
+            }
+
+            // 将收集到的索引信息添加到IntrospectedTable
+            for (IndexInfo indexInfo : indexInfoMap.values()) {
+                introspectedTable.addIndex(indexInfo);
+            }
+
+        } catch (SQLException e) {
+            warnings.add(getString("Warning.27", e.getMessage()));
         } finally {
             closeResultSet(rs);
         }
@@ -467,7 +515,7 @@ public class DatabaseIntrospector {
             }
             //introspectedColumn.setRemarks(rs.getString("REMARKS")); //$NON-NLS-1$
             String remark = null;
-            if (remarks.size() > 0) {
+            if (!remarks.isEmpty()) {
                 remark = remarks.get(introspectedColumn.getActualColumnName());
             }
             if (remark != null) {
@@ -588,6 +636,8 @@ public class DatabaseIntrospector {
             }
 
             calculatePrimaryKey(table, introspectedTable);
+
+            calculateIndex(table, introspectedTable);
 
             enhanceIntrospectedTable(introspectedTable);
 
