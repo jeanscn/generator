@@ -122,7 +122,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     }
 
     protected void calculateHtmlMapperGenerator(List<String> warnings, ProgressCallback progressCallback) {
-        if (this.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
+        if (!this.getTableConfiguration().getHtmlMapGeneratorConfigurations().isEmpty()) {
             htmlGenerator = new HTMLGenerator();
             initializeAbstractGenerator(htmlGenerator, warnings, progressCallback);
         }

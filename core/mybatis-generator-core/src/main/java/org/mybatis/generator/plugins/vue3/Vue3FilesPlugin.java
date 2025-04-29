@@ -51,6 +51,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             freeMakerContext.put("restBasePath", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
             freeMakerContext.put("tableRemark", tableRemark);
             freeMakerContext.put("permissionKey", VMD5Util.MD5_15(introspectedTable.getControllerBeanName().toLowerCase()));
+            freeMakerContext.put("isHideAction", introspectedTable.getRules().isGenerateHideListBin());
             // 列渲染
             Map<String, String> columnRenderFunMap = Mb3GenUtil.getColumnRenderFunMap(introspectedTable);
             if (introspectedTable.getRules().isGenerateViewVO()) {

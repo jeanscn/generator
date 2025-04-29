@@ -262,6 +262,8 @@ public interface Rules {
 
     boolean isGenerateRecycleBin();
 
+    boolean isGenerateHideListBin();
+
     boolean isGenerateEventListener();
 
     boolean isGenerateWfEventListener();

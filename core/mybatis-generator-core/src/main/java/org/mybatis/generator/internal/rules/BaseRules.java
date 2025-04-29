@@ -659,6 +659,12 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean isGenerateHideListBin() {
+        return isGenerateViewVO()
+                && tc.getVoGeneratorConfiguration().getVoViewConfiguration().getToolbar().contains(ViewDefaultToolBarsEnum.HIDE.code());
+    }
+
+    @Override
     public boolean isGenerateEventListener() {
         return (tc.getJavaServiceImplGeneratorConfiguration() != null
                 && tc.getJavaServiceImplGeneratorConfiguration().isGenerate()

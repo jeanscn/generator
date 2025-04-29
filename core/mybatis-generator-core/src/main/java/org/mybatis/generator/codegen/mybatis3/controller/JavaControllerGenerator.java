@@ -117,6 +117,9 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         if (introspectedTable.getRules().isGenerateRecycleBin()) {
             addRecycleElement(conTopClazz);
         }
+        if (introspectedTable.getRules().isGenerateHideListBin()) {
+            addHideBatchElement(conTopClazz);
+        }
         if (introspectedTable.getRules().isGenerateViewVO()) {
             addGetDefaultViewConfigElement(conTopClazz);
             addGetDefaultViewElement(conTopClazz);
@@ -199,6 +202,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             getDefaultColumnWidthStyleStrategy.addBodyLine("return new DefaultColumnWidthStyleStrategy();");
             conTopClazz.addMethod(getDefaultColumnWidthStyleStrategy);
             conTopClazz.addImportedType("com.vgosoft.plugins.excel.listener.DefaultColumnWidthStyleStrategy");
+            conTopClazz.addImportedType("com.alibaba.excel.write.handler.CellWriteHandler");
 
             //追加一个构造导入Excel模板的样例数据方法
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");
@@ -253,10 +257,6 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         }
         Method buildExample = new Method("buildExample");
         buildExample.setVisibility(JavaVisibility.PROTECTED);
-        //actionType 用来区分查询应用场景的类型标识
-        //Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
-        //actionType.setRemark("用来区分查询应用场景的类型标识");
-        //buildExample.addParameter(actionType);
         //对象参数
         FullyQualifiedJavaType paramType = introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType : introspectedTable.getRules().isGenerateVoModel() ? entityVoType : entityType;
         Parameter parameter = new Parameter(paramType, paramType.getShortNameFirstLowCase());
@@ -281,11 +281,16 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
             introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
-                String entityName = introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase()
-                        : introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase()
-                        : entityType.getShortNameFirstLowCase();
-                buildExample.addBodyLine("if ({0}.isIgnoreDeleteFlag()) example.setIgnoreDeleteFlag(true);", entityName);
+                buildExample.addBodyLine("if ({0}.isIgnoreDeleteFlag()) example.setIgnoreDeleteFlag(true);", paramType.getShortNameFirstLowCase());
             });
+            if (introspectedTable.getRules().isGenerateHideListBin()) {
+                buildExample.addBodyLine("if ({0}.isHideIds()) '{'", paramType.getShortNameFirstLowCase());
+                buildExample.addBodyLine("List<String> filterIds = sysPerFilterOutBinImpl.getCurrentUserFilterOutBinIds(\"{0}\");",entityType.getShortName().toLowerCase());
+                buildExample.addBodyLine("if (!filterIds.isEmpty()) {");
+                buildExample.addBodyLine("criteria.andIdNotIn(filterIds);");
+                buildExample.addBodyLine("}");
+                buildExample.addBodyLine("}");
+            }
             for (IntrospectedColumn column : columns) {
                 String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), column.getFullyQualifiedJavaType());
                 boolean isBetween = nameFragments.containsKey(column.getActualColumnName()) && "between".equalsIgnoreCase(nameFragments.get(column.getActualColumnName()));
@@ -450,6 +455,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
     private void addRecycleElement(TopLevelClass conTopClazz) {
         AbstractControllerElementGenerator elementGenerator = new RecycleBatchElementGenerator();
+        initializeAndExecuteGenerator(elementGenerator, conTopClazz);
+    }
+
+    private void addHideBatchElement(TopLevelClass conTopClazz) {
+        AbstractControllerElementGenerator elementGenerator = new HideBatchElementGenerator();
         initializeAndExecuteGenerator(elementGenerator, conTopClazz);
     }
 

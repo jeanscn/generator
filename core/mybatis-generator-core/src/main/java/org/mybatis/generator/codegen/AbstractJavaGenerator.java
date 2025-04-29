@@ -235,8 +235,10 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> f.getName().equals("actionType")).findFirst();
         if (!actionType.isPresent()) {
             topLevelClass.addField(addActionType);
-            FieldItem fieldItem = new FieldItem(addActionType);
-            introspectedTable.getVoModelFields().add(fieldItem);
+            if (introspectedTable.getRules().isGenerateVoModel()) {
+                FieldItem fieldItem = new FieldItem(addActionType);
+                introspectedTable.getVoModelFields().add(fieldItem);
+            }
         }
     }
 
@@ -257,8 +259,60 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         if (!optionalField.isPresent()) {
             topLevelClass.addField(ignoreDeleteFlag);
             topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
-            FieldItem fieldItem = new FieldItem(ignoreDeleteFlag);
-            introspectedTable.getVoModelFields().add(fieldItem);
+            if (introspectedTable.getRules().isGenerateVoModel()) {
+                FieldItem fieldItem = new FieldItem(ignoreDeleteFlag);
+                introspectedTable.getVoModelFields().add(fieldItem);
+            }
+        }
+    }
+
+    /**
+     * 增加ignoreIdList属性
+     * @param topLevelClass 类
+     * @param introspectedTable  表对象
+     */
+    protected void addIgnoreIdList(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        FullyQualifiedJavaType type = FullyQualifiedJavaType.getNewListInstance();
+        type.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        Field ignoreIdList = new Field("ignoreIdList", type);
+        ignoreIdList.setVisibility(JavaVisibility.PRIVATE);
+        ignoreIdList.setRemark("查询忽略id列表");
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            ignoreIdList.addAnnotation("@TableField(exist = false)");
+        }
+        new ApiModelPropertyDesc(ignoreIdList.getRemark(), "[]").addAnnotationToField(ignoreIdList, topLevelClass);
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignoreIdList")).findFirst();
+        if (!optionalField.isPresent()) {
+            topLevelClass.addField(ignoreIdList);
+            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
+            if (introspectedTable.getRules().isGenerateVoModel()) {
+                FieldItem fieldItem = new FieldItem(ignoreIdList);
+                introspectedTable.getVoModelFields().add(fieldItem);
+            }
+        }
+    }
+
+    /**
+     * 增加isIgnoreIds属性
+     * @param topLevelClass 类
+     * @param introspectedTable  表对象
+     */
+    protected void addIsHideIds(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        Field isHideIds = new Field("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+        isHideIds.setVisibility(JavaVisibility.PRIVATE);
+        isHideIds.setRemark("是否忽略隐藏id列表");
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            isHideIds.addAnnotation("@TableField(exist = false)");
+        }
+        new ApiModelPropertyDesc(isHideIds.getRemark(), "false").addAnnotationToField(isHideIds, topLevelClass);
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("isHideIds")).findFirst();
+        if (!optionalField.isPresent()) {
+            topLevelClass.addField(isHideIds);
+            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
+            if (introspectedTable.getRules().isGenerateVoModel()) {
+                FieldItem fieldItem = new FieldItem(isHideIds);
+                introspectedTable.getVoModelFields().add(fieldItem);
+            }
         }
     }
 }

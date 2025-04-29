@@ -257,6 +257,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateHideListBin() {
+        return false;
+    }
+
+    @Override
     public boolean isGenerateEventListener() {
         return false;
     }

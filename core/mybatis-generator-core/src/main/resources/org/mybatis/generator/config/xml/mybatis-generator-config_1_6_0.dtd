@@ -1320,10 +1320,10 @@
                 当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
             4、listKey 列表的唯一标识，用于唯一标识列表，如果不指定则默认为全小写的beanName+后缀（+default+view），md5，如：sysdictimpl+default+view在md5
             5、title 标题，缺省值为“表简要注释”，用来指定生成的菜单名称等
-            6、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,RECYCLE,EXPORT,IMPORT,PRINT以及自定义操作按钮的id值
+            6、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,RECYCLE,HIDE,EXPORT,IMPORT以及自定义操作按钮的id值
             7、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
             8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
-            9、actionColumn：操作列的操作列表。包括：ROW_VIEW-查看、ROW_EDIT-编辑、ROW_REMOVE、ROW_RECYCLE-删除中的0个或多个。可选值：ROW_VIEW,ROW_EDIT,ROW_REMOVE以及自定义操作按钮的id值
+            9、actionColumn：操作列的操作列表。包括：ROW_VIEW-查看、ROW_EDIT-编辑、ROW_REMOVE、ROW_RECYCLE-删除中的0个或多个、ROW_HIDE。可选值：ROW_VIEW,ROW_EDIT,ROW_REMOVE以及自定义操作按钮的id值
             10、actionColumnFixed：操作列固定方式，包括：left-左、right-右、false-不固定。缺省值为right
             11、actionColumnWidth：操作列宽度，缺省值为”“
             12、indexColumnFixed：行选择列固定方式，包括：left-左、right-右、false-不固定。缺省值为false

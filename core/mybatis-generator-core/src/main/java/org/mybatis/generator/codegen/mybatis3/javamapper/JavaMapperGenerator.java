@@ -90,7 +90,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             interfaze.addSuperInterface(fqjt);
             interfaze.addImportedType(fqjt);
         }
-
 //        addCountByExampleMethod(interfaze);
 //        addDeleteByExampleMethod(interfaze);
 //        addDeleteByPrimaryKeyMethod(interfaze);
@@ -139,13 +138,23 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         subInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         subInterface.addSuperInterface(type);
         subInterface.addImportedType(type);
+
+        String alias = introspectedTable.getFullyQualifiedTable().getAlias();
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            subInterface.addAnnotation("@DataScope(tableName = \""+introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()+"\")");
-            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.DataScope"));
+            // 业务权限管理表sys_ru_authority控制
             String primaryKeys = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
-            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+introspectedTable.getFullyQualifiedTable().getAlias()+"\", columnName = \""+ primaryKeys +"\")");
-            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.TableDataScope"));
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+alias+"\", columnName = \""+ primaryKeys +"\")");
+            // 添加wf_state!=4的过滤条件
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 20, tableAlias = \""+alias+"\", columnName = \"wf_state\", queryMode = QueryModesEnum.NOTEQUAL, columnValue = \"4\")");
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.mybatisplus.annotation.TableDataScope"));
         }
+        // 添加delete_flag!=1的过滤条件
+        introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
+            String columnName = column.getActualColumnName();
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 20, tableAlias = \""+alias+"\", columnName = \""+columnName+"\", queryMode = QueryModesEnum.NOTEQUAL, columnValue = \"1\")");
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.mybatisplus.annotation.TableDataScope"));
+            subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.constant.enums.core.QueryModesEnum"));
+        });
 
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);

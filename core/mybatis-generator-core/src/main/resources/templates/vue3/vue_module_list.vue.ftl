@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.16
+* @version: list template version 1.0.17
 */
 <template>
     <el-container>
@@ -144,7 +144,7 @@
     const service = ref<ServiceApi<any>>();
     const tableApiObj = ref<TTableApiObj>({
         fetchTableConfig: async (...params: any) => (API as TApi).common.viewConfig.post(params),
-        fetchTableData: async (params: any) => service.value!.listPost(params),
+        fetchTableData: async (params: any) => service.value!.listPost(<#if isHideAction>Object.assign(params, {hideIds: true})<#else>params</#if>),
         fetchFormConfig: async (...params: any) =>  (API as TApi).common.formConfig.get(params),
     });
     provide('tableRef', tableRef);

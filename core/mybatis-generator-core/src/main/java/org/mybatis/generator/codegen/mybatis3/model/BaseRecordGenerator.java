@@ -151,12 +151,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         });
 
         //增加actionType属性
-        if (! introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+        if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
             addActionType(topLevelClass,introspectedTable);
             addIgnoreDeleteFlag(topLevelClass,introspectedTable);
-        }
-
-        if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            //增加ignoreIdList属性
+            addIgnoreIdList(topLevelClass, introspectedTable);
+            addIsHideIds(topLevelClass, introspectedTable);
             //增加任意过滤条件接收
             addWhereConditionResult(topLevelClass);
             //增加前端过滤器属性

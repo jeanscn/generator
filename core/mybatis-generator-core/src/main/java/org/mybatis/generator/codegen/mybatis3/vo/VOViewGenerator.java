@@ -72,7 +72,7 @@ public class VOViewGenerator extends AbstractVOGenerator {
         mappingsInterface.addMethod(addMappingMethod(entityType, viewVOClass.getType(), true));
 
         // 如果添加了移入回收站按钮，则添到回收站的映射
-        if (voViewGeneratorConfiguration.getToolbar().contains("RECYCLE")) {
+        if (introspectedTable.getRules().isGenerateRecycleBin()) {
             FullyQualifiedJavaType sysRecycleBin = new FullyQualifiedJavaType("com.vgosoft.system.entity.SysRecycleBin");
             Method method = addMappingMethod(entityType, sysRecycleBin, false);
             Set<String> ignoreFields = new HashSet<>(Arrays.asList("id", "deleteFlag", "version", "created", "modified", "createdId", "modifiedId"));
@@ -84,6 +84,22 @@ public class VOViewGenerator extends AbstractVOGenerator {
             method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "businessBeanName", "persistenceBeanName"));
             mappingsInterface.addMethod(method);
             mappingsInterface.addMethod(addMappingMethod(entityType, sysRecycleBin, true));
+        }
+
+        // 如果添加了隐藏按钮，则添到隐藏列表的映射
+        if (introspectedTable.getRules().isGenerateHideListBin()) {
+            FullyQualifiedJavaType sysPerFilterOutBin = new FullyQualifiedJavaType("com.vgosoft.system.entity.SysPerFilterOutBin");
+            Method method = addMappingMethod(entityType, sysPerFilterOutBin, false);
+            Set<String> ignoreFields = new HashSet<>(Arrays.asList("id", "deleteFlag", "version", "created", "modified", "createdId", "modifiedId"));
+            for (String ignoreField : ignoreFields) {
+                method.addAnnotation(String.format("@Mapping(target = \"%s\", ignore = true)", ignoreField));
+                mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
+            }
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "recordId", "id"));
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", source  = \"%s\")", "businessBeanName", "persistenceBeanName"));
+            method.addAnnotation(String.format("@Mapping(target = \"%s\", constant  = \"%s\")", "moduleKey", entityType.getShortName().toLowerCase()));
+            mappingsInterface.addMethod(method);
+            mappingsInterface.addMethod(addMappingMethod(entityType, sysPerFilterOutBin, true));
         }
 
         return viewVOClass;
