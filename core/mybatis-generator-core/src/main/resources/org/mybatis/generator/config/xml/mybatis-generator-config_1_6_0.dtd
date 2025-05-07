@@ -1019,11 +1019,12 @@
             32、printFormColumnsNum 仅在generateHtml.type=print时有效 打印模式下表单模式的列数，该值为大于0的整数，默认为2。
             33、printFields 仅在generateHtml.type=print且printMode=form时有效 打印模式下表单模式的显示的属性集合。
             34、verify 验证规则关键字，对于htmlElementInnerList仅required有效，当包含required关键字时，表格数据不能为空并且对没有保存的新增或更新数据进行提醒并终止整个表单的提交。其他验证规则请在模块的hooks文件中进行编写。
-            35、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
-            36、actionColumn：操作列的操作列表。包括：查看、编辑、删除中的0个或多个。可选值：INNER_ROW_EDIT,INNER_ROW_REMOVE,INNER_ROW_VIEW以及自定义操作按钮的id值
-            37、actionColumnWidth：操作列宽度，缺省值为”“.当actionColumn有值时有效。
-            38、title 列表的标题，默认为“”。当不指定的时候，默认使用label属性值。
-            39、showTitle 是否显示标题，true显示，false不显示。缺省值true
+            35、defaultSort 默认排序，格式为：columnName orderType。orderType可选值为asc、desc，如：created_ desc。默认为空。
+            36、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
+            37、actionColumn：操作列的操作列表。包括：查看、编辑、删除中的0个或多个。可选值：INNER_ROW_EDIT,INNER_ROW_REMOVE,INNER_ROW_VIEW以及自定义操作按钮的id值
+            38、actionColumnWidth：操作列宽度，缺省值为”“.当actionColumn有值时有效。
+            39、title 列表的标题，默认为“”。当不指定的时候，默认使用label属性值。
+            40、showTitle 是否显示标题，true显示，false不显示。缺省值true
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -1074,6 +1075,7 @@
                 printFormColumnsNum CDATA #IMPLIED
                 printFields CDATA #IMPLIED
                 verify (none|required) #IMPLIED
+                defaultSort CDATA #IMPLIED
                 showActionColumn (default|true|false) #IMPLIED
                 actionColumn CDATA #IMPLIED
                 actionColumnWidth CDATA #IMPLIED
@@ -1344,9 +1346,10 @@
             27、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVO的指定；
             28、viewMenuIcon view菜单项目的图标
             29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
-            30、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
-            31、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            32、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            30. defaultSort 默认排序，格式为：columnName orderType。orderType可选值为asc、desc，如：created_ desc。默认为空。
+            31、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
+            32、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            33、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             property配置：无
             说明：
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
@@ -1386,6 +1389,7 @@
                 equalsAndHashCodeColumns CDATA #IMPLIED
                 viewMenuIcon CDATA #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
+                defaultSort CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
                 editFormIn (inner|dialog|drawer) #IMPLIED
                 detailFormIn (inner|dialog|drawer) #IMPLIED>
@@ -1455,16 +1459,17 @@
             27、evenRow 是否显示偶数行背景色，true显示，false不显示。缺省值true（已过期）
             28、rowNumberColumn 是否显示序号列，true显示，false不显示。缺省值true
             29、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。。
-            30、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
-            31、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
-            32、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            33、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
-            34、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
+            30. defaultSort 默认排序，格式为：columnName orderType。orderType可选值为asc、desc，如：created_ desc。默认为空。
+            31、showRowNumber 是否显示序号列，true显示，false不显示。缺省值true
+            32、showActionColumn 是否显示操作列，default编辑状态且有操作按钮时显示，true显示，false不显示。缺省值default
+            33、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            34、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
+            35、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
-            35、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
-            36、showTitle 是否显示标题，true显示，false不显示。缺省值true
+            36、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
+            37、showTitle 是否显示标题，true显示，false不显示。缺省值true
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
             2、htmlReadonlyFields 列表中只读的属性，多个”,“分隔。该属性不会合并当前表htmlConfig中的htmlReadonlyFields配置
@@ -1513,6 +1518,7 @@
                 width CDATA #IMPLIED
                 evenRow (true|false) #IMPLIED
                 defaultFilterExpr CDATA #IMPLIED
+                defaultSort CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
                 showActionColumn (default|true|false) #IMPLIED
                 editFormIn (inner|dialog|drawer) #IMPLIED

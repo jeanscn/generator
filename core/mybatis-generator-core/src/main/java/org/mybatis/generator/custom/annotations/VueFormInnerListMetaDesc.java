@@ -78,6 +78,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
     private boolean enablePager;
     private String defaultFilterExpr;
     private List<String> batchUpdateColumns = new ArrayList<>();
+    private String defaultSort;
     private boolean showRowNumber = true;
     private boolean totalRow = false;
     private Set<String> totalFields = new HashSet<>();
@@ -139,6 +140,7 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.enablePager = innerListConfiguration.isEnablePager();
         this.defaultFilterExpr = innerListConfiguration.getDefaultFilterExpr();
         this.batchUpdateColumns = new ArrayList<>(innerListConfiguration.getBatchUpdateColumns());
+        this.defaultSort = innerListConfiguration.getDefaultSort();
         this.showRowNumber = innerListConfiguration.isShowRowNumber();
         this.totalRow = innerListConfiguration.isTotalRow();
         this.totalFields = new HashSet<>(innerListConfiguration.getTotalFields());
@@ -224,6 +226,9 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         }
         if (!batchUpdateColumns.isEmpty()) {
             items.add("batchUpdateColumns  = \"" + String.join(",", this.batchUpdateColumns) + "\"");
+        }
+        if (VStringUtil.stringHasValue(defaultSort)) {
+            items.add("defaultSort = \"" + defaultSort + "\"");
         }
         if (!showRowNumber) {
             items.add("showRowNumber = false");

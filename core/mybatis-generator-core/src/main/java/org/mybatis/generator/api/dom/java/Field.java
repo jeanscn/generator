@@ -11,6 +11,7 @@ public class Field extends JavaElement {
     private boolean isVolatile;
     private boolean isFinal;
     private String remark;
+    private String sourceColumnName;
 
     public Field(String name, FullyQualifiedJavaType type) {
         this.name = name;
@@ -25,6 +26,8 @@ public class Field extends JavaElement {
         this.isTransient = field.isTransient;
         this.isVolatile = field.isVolatile;
         this.isFinal = field.isFinal;
+        this.remark = field.remark;
+        this.sourceColumnName = field.sourceColumnName;
     }
 
     public String getName() {
@@ -81,6 +84,14 @@ public class Field extends JavaElement {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getSourceColumnName() {
+        return sourceColumnName;
+    }
+
+    public void setSourceColumnName(String sourceColumnName) {
+        this.sourceColumnName = sourceColumnName;
     }
 
     @Override

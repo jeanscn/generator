@@ -133,6 +133,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setDetailFormIn(voViewGeneratorConfiguration.getDetailFormIn());
         viewTableMetaDesc.setEditFormIn(voViewGeneratorConfiguration.getEditFormIn());
         viewTableMetaDesc.setShowActionColumn(voViewGeneratorConfiguration.getShowActionColumn());
+        viewTableMetaDesc.setDefaultSort(voViewGeneratorConfiguration.getDefaultSort());
         //createUrl
         String createUrl = "";
         FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));

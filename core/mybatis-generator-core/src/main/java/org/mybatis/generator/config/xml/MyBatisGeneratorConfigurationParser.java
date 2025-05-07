@@ -1285,6 +1285,10 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(batchUpdateColumns)) {
             htmlElementInnerList.setBatchUpdateColumns(splitToSet(batchUpdateColumns));
         }
+        String defaultSort = attributes.getProperty("defaultSort");
+        if (stringHasValue(defaultSort)) {
+            htmlElementInnerList.setDefaultSort(defaultSort);
+        }
         String showRowNumber = attributes.getProperty("showRowNumber");
         if (stringHasValue(showRowNumber)) {
             htmlElementInnerList.setShowRowNumber(Boolean.parseBoolean(showRowNumber));
@@ -2789,6 +2793,10 @@ public class MyBatisGeneratorConfigurationParser {
         String showRowNumber = attributes.getProperty("showRowNumber");
         if (stringHasValue(showRowNumber)) {
             voViewGeneratorConfiguration.setShowRowNumber(Boolean.parseBoolean(showRowNumber));
+        }
+        String defaultSort = attributes.getProperty("defaultSort");
+        if (stringHasValue(defaultSort)) {
+            voViewGeneratorConfiguration.setDefaultSort(defaultSort);
         }
         String showActionColumn = attributes.getProperty("showActionColumn");
         if (stringHasValue(showActionColumn)) {

@@ -1,6 +1,6 @@
 /**
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.17
+* @version: list template version 1.0.19
 */
 <template>
     <el-container>
@@ -13,10 +13,11 @@
                 <vgo-table v-if="tableConfigReady" ref="tableRef" tableName="${ tableName }"  modelType="${ modelType!'default' }"
                            :apiObj="tableApiObj.fetchTableData"
                            :tableConfigProps="_tableConfigProps"
+                           :defaultSort = "defaultSort"
                            @view-row-button-click="defaultViewRowActionHandler"
                            @view-toolbar-button-click="defaultDtCustomButtonActionHandler"
                            row-key="id" stripe remoteSort>
-                    <template v-for="(column,index) in _tableConfigProps!.tableColumns" :key="`column_`+index" #[column.prop]="scope">
+                    <template v-for="(column,index) in _tableConfigProps!.columns" :key="`column_`+index" #[column.prop]="scope">
                         <span>
 							<el-link
                                     v-if="selectedHref(column)"
@@ -82,7 +83,7 @@
 
     import { Ref, watch, onMounted, ref, inject, provide, nextTick } from 'vue';
     import { useRoute } from 'vue-router';
-    import { TTableConfigProps, TTableApiObj, TVgoTableInstance, ICustomColumnProps } from "@/framework/components/vgoTable/types";
+    import { TTableConfigProps, TTableApiObj, TVgoTableInstance, TColumn, ExtendedSort } from "@/framework/components/vgoTable/types";
     import API from '@/api';
     import { ServiceApi } from '@/api/service';
     import { isEmpty, isNullOrUnDef } from '@/framework/utils/is';
@@ -123,7 +124,6 @@
     const tableRef = ref<TVgoTableInstance>();
     const tableConfigReady = ref<boolean>(false);
     const showTreePanel = ref(false);
-    const tableColumns = ref([]) as any;
     const _tableConfigProps = ref<TTableConfigProps | null>(null);
     const pageTitle = ref('');
     const showDialog = ref(false);
@@ -146,6 +146,11 @@
         fetchTableConfig: async (...params: any) => (API as TApi).common.viewConfig.post(params),
         fetchTableData: async (params: any) => service.value!.listPost(<#if isHideAction>Object.assign(params, {hideIds: true})<#else>params</#if>),
         fetchFormConfig: async (...params: any) =>  (API as TApi).common.formConfig.get(params),
+    });
+    const defaultSort = ref<ExtendedSort>({
+        prop: '${ defaultSortProp!"" }',
+        order: '${ defaultSortOrder!"descending" }',
+        column: '${ defaultSortColumn!"" }',
     });
     provide('tableRef', tableRef);
     const sideTreePanelProps = ref<TTreePanelProps>({
@@ -193,14 +198,14 @@
         loadViewConfig();
     });
 
-    const selectedHref = (column: ICustomColumnProps) => {
+    const selectedHref = (column: TColumn) => {
         if (!column) return false;
         if (column.renderFunction && column.renderFunction.includes('colDefsAsLink')) {
             return true;
         }
         return false;
     }
-    const openSelectedHrefModal = async (column: ICustomColumnProps, rowData: any) => {
+    const openSelectedHrefModal = async (column: TColumn, rowData: any) => {
         loadModalsProps.formData = {};
         loadModalsProps.dataLoaded = false;
         loadModalsProps.modelValue = false;
@@ -258,7 +263,6 @@
         _tableConfigProps.value!.moduleKey = moduleKey;
         _tableConfigProps.value!.permissionId = permissionKey;
         pageTitle.value = _tableConfigProps.value!.listName || '';
-        tableColumns.value = _tableConfigProps.value!.tableColumns;
         restBasePath.value = _tableConfigProps.value!.restBasePath;
         applyWorkflow.value = _tableConfigProps.value!.applyWorkflow ?? 0;
         moduleId.value = _tableConfigProps.value!.moduleId || '';

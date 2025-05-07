@@ -372,11 +372,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 }
                 if (introspectedTable.getColumn("created_").isPresent()) {
                     buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"created_\")) {");
-                    buildExample.addBodyLine("orderBy.add(\"created_ asc\");");
+                    buildExample.addBodyLine("orderBy.add(\"created_ desc\");");
                     buildExample.addBodyLine("}");
                 } else if (introspectedTable.getColumn("modified_").isPresent()) {
                     buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"modified_\")) {");
-                    buildExample.addBodyLine("orderBy.add(\"modified_ asc\");");
+                    buildExample.addBodyLine("orderBy.add(\"modified_ desc\");");
                     buildExample.addBodyLine("}");
                 }
                 buildExample.addBodyLine("if (!orderBy.isEmpty()) {");

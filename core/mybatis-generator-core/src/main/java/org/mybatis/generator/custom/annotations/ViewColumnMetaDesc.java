@@ -59,6 +59,8 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     private boolean defaultDisplay;
 
+    private String columnName;
+
     private final IntrospectedTable introspectedTable;
 
     private IntrospectedColumn introspectedColumn;
@@ -76,6 +78,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         this.introspectedTable = introspectedTable;
         this.value = field.getName();
         this.title = title;
+        this.columnName = field.getSourceColumnName();
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         this.addImports(ViewColumnMeta.class.getCanonicalName());
         parseDefaultFormatRender(field.getType(), field.getName());
@@ -89,6 +92,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         this.value = introspectedColumn.getJavaProperty();
         this.title = introspectedColumn.getRemarks(true) != null ? introspectedColumn.getRemarks(true) : introspectedColumn.getActualColumnName();
         this.configuration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        this.columnName = introspectedColumn.getActualColumnName();
         this.addImports(ViewColumnMeta.class.getCanonicalName());
         parseDefaultFormatRender(introspectedColumn.getFullyQualifiedJavaType(), introspectedColumn.getJavaProperty());
         parseRenderFun(introspectedColumn.getJavaProperty());
@@ -175,6 +179,9 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (this.fixed != null && !this.fixed.isEmpty()) {
             items.add(VStringUtil.format("fixed = \"{0}\"", this.fixed));
         }
+        if (VStringUtil.stringHasValue(this.columnName)) {
+            items.add(VStringUtil.format("columnName = \"{0}\"", this.columnName));
+        }
         if (this.edit) {
             items.add("edit = true");
         }
@@ -188,7 +195,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (this.searchable != null) {
             items.add(VStringUtil.format("searchable = {0}", this.searchable));
         }
-        if (this.orderable != null && !this.orderable.equals("false")) {
+        if (this.orderable.equalsIgnoreCase("false")) {
             items.add("orderable = false");
         }
         if (this.render != null) {
@@ -370,5 +377,13 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     public void setMinWidth(String minWidth) {
         this.minWidth = minWidth;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
     }
 }

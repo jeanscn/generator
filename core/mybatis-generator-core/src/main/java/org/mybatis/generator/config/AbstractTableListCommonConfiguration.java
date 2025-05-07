@@ -43,6 +43,8 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
 
     protected String defaultFilterExpr;
 
+    protected String defaultSort;
+
     protected boolean showRowNumber = true;
     protected String showActionColumn = "default";
     protected String editFormIn;
@@ -302,5 +304,13 @@ public class AbstractTableListCommonConfiguration extends AbstractModelGenerator
 
     public void setShowTitle(boolean showTitle) {
         this.showTitle = showTitle;
+    }
+
+    public String getDefaultSort() {
+        return defaultSort;
+    }
+
+    public void setDefaultSort(String defaultSort) {
+        this.defaultSort = defaultSort;
     }
 }

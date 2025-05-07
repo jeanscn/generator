@@ -61,7 +61,7 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
     private String enablePage = "true";
 
     private String defaultFilterExpr;
-
+    private String defaultSort;
     private boolean showRowNumber = true;
     private String showActionColumn = "default";
 
@@ -111,11 +111,11 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
                 items.add("toolbar = \"" + String.join(",", toolbar) + "\"");
             }
         }
-        if (this.columnActions != null) {
+        if (VStringUtil.stringHasValue(this.columnActions)) {
             items.add(VStringUtil.format("\n                        columnActions = '{'{0}'}'", this.columnActions));
             this.addImports(HtmlButton.class.getCanonicalName());
         }
-        if (this.toolbarActions != null) {
+        if (VStringUtil.stringHasValue(this.toolbarActions)) {
             items.add(VStringUtil.format("\n                        toolbarActions = '{'{0}'}'", this.toolbarActions));
             this.addImports(HtmlButton.class.getCanonicalName());
         }
@@ -171,6 +171,9 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
         }
         if (enablePage.equals("false")) {
            items.add("enablePage = \"false\"");
+        }
+        if (stringHasValue(defaultSort)) {
+            items.add("defaultSort = \"" + defaultSort + "\"");
         }
         if (!showRowNumber) {
             items.add("showRowNumber = false");
@@ -459,5 +462,13 @@ public class LayuiTableMetaDesc extends AbstractAnnotation {
 
     public void setShowTitle(boolean showTitle) {
         this.showTitle = showTitle;
+    }
+
+    public String getDefaultSort() {
+        return defaultSort;
+    }
+
+    public void setDefaultSort(String defaultSort) {
+        this.defaultSort = defaultSort;
     }
 }

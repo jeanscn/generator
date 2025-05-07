@@ -1,6 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.tool.core.VBeanUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -476,42 +477,44 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
      */
     private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration, TopLevelClass topLevelClass) {
         LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
+
+        VBeanUtil.copyProperties(listViewConfiguration, layuiTableMetaDesc);
         layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
-        if (VStringUtil.stringHasValue(listViewConfiguration.getTitle())) {
-            layuiTableMetaDesc.setTitle(listViewConfiguration.getTitle());
-        } else {
+        if (!stringHasValue(layuiTableMetaDesc.getTitle())) {
             layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
         }
-        layuiTableMetaDesc.setShowTitle(listViewConfiguration.isShowTitle());
-        layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
-        layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
-        List<String> columnActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getActionColumn(), listViewConfiguration.getHtmlButtons(), null);
-        layuiTableMetaDesc.setColumnActions(String.join(",", columnActionsA));
-        List<String> toolbarActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getVxeListButtons(), listViewConfiguration.getHtmlButtons(), null);
-        layuiTableMetaDesc.setToolbarActions(String.join(",", toolbarActionsA));
-        layuiTableMetaDesc.setIndexColumnFixed(listViewConfiguration.getIndexColumnFixed());
-        layuiTableMetaDesc.setActionColumnFixed(listViewConfiguration.getActionColumnFixed());
-        layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
-        layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
-        layuiTableMetaDesc.setTotalFields(listViewConfiguration.getTotalFields());
-        layuiTableMetaDesc.setTotalText(listViewConfiguration.getTotalText());
+        List<String> columnActions = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getActionColumn(), listViewConfiguration.getHtmlButtons(), null);
+        layuiTableMetaDesc.setColumnActions(String.join(",", columnActions));
+        List<String> toolbarActions = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getVxeListButtons(), listViewConfiguration.getHtmlButtons(), null);
+        layuiTableMetaDesc.setToolbarActions(String.join(",", toolbarActions));
         layuiTableMetaDesc.setEnablePage(listViewConfiguration.isEnablePager()?"true":"false");
-        layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
-        layuiTableMetaDesc.setParentMenuId(listViewConfiguration.getParentMenuId());
-        layuiTableMetaDesc.setViewMenuElIcon(listViewConfiguration.getViewMenuElIcon());
-        layuiTableMetaDesc.setCategoryTreeUrl(listViewConfiguration.getCategoryTreeUrl());
-        layuiTableMetaDesc.setCategoryTreeMultiple(listViewConfiguration.isCategoryTreeMultiple());
-        layuiTableMetaDesc.setUiFrameType(listViewConfiguration.getUiFrameType());
-        layuiTableMetaDesc.setTableType(listViewConfiguration.getTableType());
-        layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
-        layuiTableMetaDesc.setWidth(listViewConfiguration.getWidth());
-        layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
-        layuiTableMetaDesc.setDefaultFilterExpr(listViewConfiguration.getDefaultFilterExpr());
-        layuiTableMetaDesc.setShowRowNumber(listViewConfiguration.isShowRowNumber());
-        layuiTableMetaDesc.setShowActionColumn(listViewConfiguration.getShowActionColumn());
-        layuiTableMetaDesc.setEditFormIn(listViewConfiguration.getEditFormIn());
-        layuiTableMetaDesc.setDetailFormIn(listViewConfiguration.getDetailFormIn());
-        layuiTableMetaDesc.setEditableFields(listViewConfiguration.getEnableEditFields());
+
+        //layuiTableMetaDesc.setShowTitle(listViewConfiguration.isShowTitle());
+        //layuiTableMetaDesc.setSize(listViewConfiguration.getSize());
+        //layuiTableMetaDesc.setIndexColumn(listViewConfiguration.getIndexColumn());
+        //layuiTableMetaDesc.setIndexColumnFixed(listViewConfiguration.getIndexColumnFixed());
+        //layuiTableMetaDesc.setActionColumnFixed(listViewConfiguration.getActionColumnFixed());
+        //layuiTableMetaDesc.setToolbar(listViewConfiguration.getToolbar());
+        //layuiTableMetaDesc.setTotalRow(listViewConfiguration.isTotalRow());
+        //layuiTableMetaDesc.setTotalFields(listViewConfiguration.getTotalFields());
+        //layuiTableMetaDesc.setTotalText(listViewConfiguration.getTotalText());
+        //layuiTableMetaDesc.setDefaultToolbar(listViewConfiguration.getDefaultToolbar());
+        //layuiTableMetaDesc.setParentMenuId(listViewConfiguration.getParentMenuId());
+        //layuiTableMetaDesc.setViewMenuElIcon(listViewConfiguration.getViewMenuElIcon());
+        //layuiTableMetaDesc.setCategoryTreeUrl(listViewConfiguration.getCategoryTreeUrl());
+        //layuiTableMetaDesc.setCategoryTreeMultiple(listViewConfiguration.isCategoryTreeMultiple());
+        //layuiTableMetaDesc.setUiFrameType(listViewConfiguration.getUiFrameType());
+        //layuiTableMetaDesc.setTableType(listViewConfiguration.getTableType());
+        //layuiTableMetaDesc.setHeight(listViewConfiguration.getHeight());
+        //layuiTableMetaDesc.setWidth(listViewConfiguration.getWidth());
+        //layuiTableMetaDesc.setEven(listViewConfiguration.isEven());
+        //layuiTableMetaDesc.setDefaultFilterExpr(listViewConfiguration.getDefaultFilterExpr());
+        //layuiTableMetaDesc.setDefaultSort(listViewConfiguration.getDefaultSort());
+        //layuiTableMetaDesc.setShowRowNumber(listViewConfiguration.isShowRowNumber());
+        //layuiTableMetaDesc.setShowActionColumn(listViewConfiguration.getShowActionColumn());
+        //layuiTableMetaDesc.setEditFormIn(listViewConfiguration.getEditFormIn());
+        //layuiTableMetaDesc.setDetailFormIn(listViewConfiguration.getDetailFormIn());
+        //layuiTableMetaDesc.setEditableFields(listViewConfiguration.getEnableEditFields());
 
         //querys
         if (!listViewConfiguration.getQueryColumns().isEmpty()) {

@@ -39,6 +39,7 @@ public class HtmlElementInnerListConfiguration extends AbstractHtmlElementDescri
     private String restBasePath;
     private String editFormIn;
     private String detailFormIn;
+    private String defaultSort;
     private String showActionColumn = "default";
     private String enableEdit = "default";
     private String printMode = "table";
@@ -320,5 +321,13 @@ public class HtmlElementInnerListConfiguration extends AbstractHtmlElementDescri
 
     public void setShowTitle(boolean showTitle) {
         this.showTitle = showTitle;
+    }
+
+    public String getDefaultSort() {
+        return defaultSort;
+    }
+
+    public void setDefaultSort(String defaultSort) {
+        this.defaultSort = defaultSort;
     }
 }

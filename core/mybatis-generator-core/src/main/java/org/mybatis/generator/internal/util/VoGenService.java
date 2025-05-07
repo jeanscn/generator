@@ -201,13 +201,16 @@ public class VoGenService {
             //创建转换后的属性对象
             FullyQualifiedJavaType javaType;
             String propertyName;
+            String sourceColumnName;
             IntrospectedColumn targetColumn = introspectedTable.getColumn(overrideConfiguration.getTargetColumnName()).orElse(null);
             if (targetColumn != null) {
                 javaType = targetColumn.getFullyQualifiedJavaType();
                 propertyName = targetColumn.getJavaProperty();
+                sourceColumnName = targetColumn.getActualColumnName();
             } else {
                 propertyName = overrideConfiguration.getTargetPropertyName() == null ? ConfigUtil.getOverrideJavaProperty(sourceColumn.getJavaProperty(), null) : overrideConfiguration.getTargetPropertyName();
                 javaType = overrideConfiguration.getTargetPropertyType() == null ? FullyQualifiedJavaType.getStringInstance() : new FullyQualifiedJavaType(overrideConfiguration.getTargetPropertyType());
+                sourceColumnName = overrideConfiguration.getSourceColumnName();
             }
             Field field = new Field(propertyName, javaType);
             //如果在topLevelClass以及父类中已经存在，则跳过
@@ -217,6 +220,7 @@ public class VoGenService {
             if (introspectedTable.getAllColumns().stream().anyMatch(c -> c.getJavaProperty().equals(propertyName))) {
                 continue;
             }
+            field.setSourceColumnName(sourceColumnName);
             //设置属性的注释
             field.setRemark(overrideConfiguration.getRemark() != null ? overrideConfiguration.getRemark() : sourceColumn.getRemarks(true));
             field.setVisibility(JavaVisibility.PRIVATE);

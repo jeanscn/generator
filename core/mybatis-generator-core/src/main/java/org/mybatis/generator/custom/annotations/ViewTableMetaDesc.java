@@ -65,7 +65,7 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
     private String totalText = "合计";
     private String defaultFilterExpr;
     private boolean showRowNumber = true;
-
+    private String defaultSort = "";
     private String showActionColumn = "default";
     private String editFormIn;
     private String detailFormIn;
@@ -197,6 +197,9 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         }
         if (!this.showRowNumber) {
             items.add("showRowNumber = false");
+        }
+        if (VStringUtil.stringHasValue(this.defaultSort)) {
+            items.add(VStringUtil.format("defaultSort = \"{0}\"", this.getDefaultSort()));
         }
         if (VStringUtil.isNotBlank(this.showActionColumn) && !"default".equals(this.showActionColumn)) {
             items.add(VStringUtil.format("showActionColumn = \"{0}\"", this.getShowActionColumn()));
@@ -515,5 +518,13 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
 
     public void setShowActionColumn(String showActionColumn) {
         this.showActionColumn = showActionColumn;
+    }
+
+    public String getDefaultSort() {
+        return defaultSort;
+    }
+
+    public void setDefaultSort(String defaultSort) {
+        this.defaultSort = defaultSort;
     }
 }

@@ -52,11 +52,36 @@ public class Vue3FilesPlugin extends PluginAdapter {
             freeMakerContext.put("tableRemark", tableRemark);
             freeMakerContext.put("permissionKey", VMD5Util.MD5_15(introspectedTable.getControllerBeanName().toLowerCase()));
             freeMakerContext.put("isHideAction", introspectedTable.getRules().isGenerateHideListBin());
+
             // 列渲染
             Map<String, String> columnRenderFunMap = Mb3GenUtil.getColumnRenderFunMap(introspectedTable);
             if (introspectedTable.getRules().isGenerateViewVO()) {
                 VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
                 freeMakerContext.put("modelType", viewConfiguration.getTableType());
+                if (VStringUtil.stringHasValue(viewConfiguration.getDefaultSort())) {
+                    String defaultSort = viewConfiguration.getDefaultSort();
+                    String[] split = defaultSort.split(",");
+                    String[] sort = split[0].toLowerCase().split(" ");
+                    introspectedTable.getColumn(sort[0]).ifPresent(column -> {
+                        freeMakerContext.put("defaultSortColumn", column.getActualColumnName());
+                        freeMakerContext.put("defaultSortProp", column.getJavaProperty());
+                    });
+                    if (sort.length > 1) {
+                        if ("asc".equals(sort[1])) {
+                            freeMakerContext.put("defaultSortOrder", "ascending");
+                        } else if ("desc".equals(sort[1])) {
+                            freeMakerContext.put("defaultSortOrder", "descending");
+                        } else {
+                            freeMakerContext.put("defaultSortOrder", "ascending");
+                        }
+                    } else {
+                        freeMakerContext.put("defaultSortOrder", "ascending");
+                    }
+                } else if (introspectedTable.getColumn("created_").isPresent()) {
+                    freeMakerContext.put("defaultSortColumn", "created_");
+                    freeMakerContext.put("defaultSortProp", "created");
+                    freeMakerContext.put("defaultSortOrder", "descending");
+                }
             }
             freeMakerContext.put("columnRenderFunMap", columnRenderFunMap);
             if (VStringUtil.stringHasValue(fileName)) {
@@ -79,13 +104,13 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 String fileNameType = "T" + introspectedTable.getTableConfiguration().getDomainObjectName();
                 Map<String, Object> map = new HashMap<>();
                 List<FieldItem> fieldsList = new ArrayList<>();
-                List<String> noRequiredFields = Arrays.asList("id","version");
+                List<String> noRequiredFields = Arrays.asList("id", "version");
                 for (FieldItem field : fields) {
                     FieldItem fieldItem = new FieldItem(field.getName(), field.getType());
                     fieldItem.setRemarks(field.getRemarks());
                     if (noRequiredFields.contains(fieldItem.getName())) {
                         fieldItem.setRequired(false);
-                    }else{
+                    } else {
                         fieldItem.setRequired(field.isRequired());
                     }
                     String type = fieldItem.getType();
@@ -114,7 +139,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             String projectModal = this.properties.getProperty("targetProject", modalPath);
             String fileNameModal = introspectedTable.getTableConfiguration().getDomainObjectName() + "Modal";
             Map<String, Object> modalMap = new HashMap<>();
-            modalMap.put("workflowEnabled", workflowInstance?1:0);
+            modalMap.put("workflowEnabled", workflowInstance ? 1 : 0);
             modalMap.put("componentName", objectName);
             modalMap.put("modelName", objectName);
             modalMap.put("tableName", introspectedTable.getTableConfiguration().getTableName());
@@ -133,7 +158,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
             answer.add(generatedVueModalFile);
 
             //生成edit组件
-            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath+ "/components").split("/"));
+            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath + "/components").split("/"));
             String projectEdit = this.properties.getProperty("targetProject", editPath);
             String fileNameEdit = introspectedTable.getTableConfiguration().getDomainObjectName() + "Edit";
             Map<String, Object> editMap = new HashMap<>();
@@ -238,7 +263,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 if (introspectedColumn.isRequired()) {
                     fieldItem.setRequired(true);
                 }
-            }else{
+            } else {
                 fieldItem.setRemarks(field.getRemark());
             }
             introspectedTable.getVoModelFields().add(fieldItem);
@@ -255,7 +280,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                 if (introspectedColumn.isRequired()) {
                     fieldItem.setRequired(true);
                 }
-            }else{
+            } else {
                 fieldItem.setRemarks(field.getRemark());
             }
             introspectedTable.getVoModelFields().add(fieldItem);
