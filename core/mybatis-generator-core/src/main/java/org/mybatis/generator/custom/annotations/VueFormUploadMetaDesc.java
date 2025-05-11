@@ -56,7 +56,7 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("limit = {0}", this.getLimit()));
         }
         this.tips = configuration.getTips();
-        if (!"".equals(this.getTips())) {
+        if (VStringUtil.stringHasValue(this.getTips())) {
             this.items.add(VStringUtil.format("tips = \"{0}\"", this.getTips()));
         }
         this.label = configuration.getLabel();
@@ -64,11 +64,11 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("label = \"{0}\"", this.getLabel()));
         }
         this.restBasePath = configuration.getRestBasePath();
-        if (!"".equals(this.getRestBasePath())) {
+        if (VStringUtil.stringHasValue(this.getRestBasePath())) {
             this.items.add(VStringUtil.format("restBasePath = \"{0}\"", this.getRestBasePath()));
         }
         this.afterColumn = configuration.getAfterColumn();
-        if (!"".equals(this.getAfterColumn())) {
+        if (VStringUtil.stringHasValue(this.getAfterColumn())) {
             this.items.add(VStringUtil.format("afterColumn = \"{0}\"", this.getAfterColumn()));
         }
         if (this.getSpan() != 24) {

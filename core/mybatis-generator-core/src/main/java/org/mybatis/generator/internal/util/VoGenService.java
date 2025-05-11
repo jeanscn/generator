@@ -1,16 +1,15 @@
 package org.mybatis.generator.internal.util;
 
 import cn.hutool.core.collection.CollectionUtil;
-
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.html.Attribute;
-import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator;
+import org.mybatis.generator.codegen.mybatis3.vo.CreateMappingsInterface;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.annotations.*;
@@ -345,5 +344,12 @@ public class VoGenService {
                         topLevelClass.addImportedType(s);
                     });
         }
+    }
+
+    public FullyQualifiedJavaType getMappingType(IntrospectedTable introspectedTable) {
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        String baseTargetPackage = StringUtility.substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVOGenerator.subPackagePojo;
+        String type = String.join(".", baseTargetPackage, CreateMappingsInterface.subPackageMaps, entityType.getShortName() + "Mappings");
+        return new FullyQualifiedJavaType(type);
     }
 }

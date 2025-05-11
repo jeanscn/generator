@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.db.util.JDBCUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
@@ -9,6 +8,7 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ModelClassTypeEnum;
 import org.mybatis.generator.custom.RelationTypeEnum;
@@ -18,9 +18,13 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.I_PERSISTENCE_BASIC;
+import static org.mybatis.generator.custom.ConstantsUtil.PARAM_NAME_PERSISTENCE_STATUS;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -124,8 +128,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 }
             }
         }
-
-
 
         addOrgUserOverrideMethod(topLevelClass, introspectedTable);
 
@@ -231,11 +233,40 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             }
         });
 
+        // 重写转换vo对象的方法：VO getViewObject();
+        addGetViewObject(topLevelClass,introspectedTable);
 
         if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
         }
         return answer;
+    }
+
+    private void addGetViewObject(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
+        boolean assignableCurrent = isAssignableCurrent("com.vgosoft.workflow.adapter.IWorkflowBusinessEntity", topLevelClass, introspectedTable);
+        if (!assignableCurrent) {
+            return;
+        }
+        VoGenService voGenService = new VoGenService(introspectedTable);
+        Method method = new Method("getViewObject");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.addAnnotation("@Override");
+        method.addJavaDocLine("/**");
+        method.addJavaDocLine(" * 重写返回ViewObject对象");
+        method.addJavaDocLine(" * @return ViewObject对象");
+        method.addJavaDocLine(" */");
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            TableConfiguration tc = introspectedTable.getTableConfiguration();
+            FullyQualifiedJavaType voType = tc.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType();
+            method.setReturnType(voType);
+            method.addBodyLine("return {0}Mappings.INSTANCE.to{0}VO(this);",introspectedTable.getTableConfiguration().getDomainObjectName());
+            topLevelClass.addImportedType(voType);
+            topLevelClass.addImportedType(voGenService.getMappingType(introspectedTable));
+        } else {
+            method.setReturnType(topLevelClass.getType());
+            method.addBodyLine("return this;");
+        }
+        topLevelClass.addMethod(method);
     }
 
     /**

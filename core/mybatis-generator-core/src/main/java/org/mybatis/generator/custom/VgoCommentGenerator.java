@@ -12,7 +12,6 @@ import org.mybatis.generator.internal.DefaultCommentGenerator;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -62,6 +61,10 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         if ("ignoreDeleteFlag".equals(field.getName())) {
             field.addJavaDocLine("/**");
             field.addJavaDocLine(" * 是否忽略删除标记");
+            field.addJavaDocLine(" */");
+        } else if ("ignorePermissionAnnotation".equals(field.getName())) {
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine(" * 是否忽略权限注解 包括：@TableDataScope等");
             field.addJavaDocLine(" */");
         } else if ("distinct".equals(field.getName())) {
             field.addJavaDocLine("/**");

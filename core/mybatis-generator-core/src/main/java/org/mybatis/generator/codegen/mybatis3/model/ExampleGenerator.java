@@ -47,11 +47,11 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         commentGenerator.addGeneralMethodComment(method, introspectedTable);
         topLevelClass.addMethod(method);
 
-        // add field, getter, setter for orderby clause
-        Field field = new Field("orderByClause", FullyQualifiedJavaType.getStringInstance()); //$NON-NLS-1$
-        field.setVisibility(JavaVisibility.PROTECTED);
-        commentGenerator.addFieldComment(field, introspectedTable);
-        topLevelClass.addField(field);
+        // add field, getter, setter for orderByClause
+        Field orderByClause = new Field("orderByClause", FullyQualifiedJavaType.getStringInstance()); //$NON-NLS-1$
+        orderByClause.setVisibility(JavaVisibility.PROTECTED);
+        commentGenerator.addFieldComment(orderByClause, introspectedTable);
+        topLevelClass.addField(orderByClause);
 
         method = new Method("setOrderByClause"); //$NON-NLS-1$
         method.setVisibility(JavaVisibility.PUBLIC);
@@ -68,10 +68,10 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         topLevelClass.addMethod(method);
 
         // add field, getter, setter for distinct
-        field = new Field("distinct", FullyQualifiedJavaType.getBooleanPrimitiveInstance()); //$NON-NLS-1$
-        field.setVisibility(JavaVisibility.PROTECTED);
-        commentGenerator.addFieldComment(field, introspectedTable);
-        topLevelClass.addField(field);
+        Field distinct = new Field("distinct", FullyQualifiedJavaType.getBooleanPrimitiveInstance()); //$NON-NLS-1$
+        distinct.setVisibility(JavaVisibility.PROTECTED);
+        commentGenerator.addFieldComment(distinct, introspectedTable);
+        topLevelClass.addField(distinct);
 
         method = new Method("setDistinct"); //$NON-NLS-1$
         method.setVisibility(JavaVisibility.PUBLIC);
@@ -88,12 +88,14 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         commentGenerator.addGeneralMethodComment(method, introspectedTable);
         topLevelClass.addMethod(method);
 
-        // add field, getter, setter for ignoreDeleteFlag
-        // protected boolean ignoreDeleteFlag;
-        field = new Field("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance()); //$NON-NLS-1$
-        field.setVisibility(JavaVisibility.PROTECTED);
-        commentGenerator.addFieldComment(field, introspectedTable);
-        topLevelClass.addField(field);
+        /*
+         * add field, getter, setter for ignoreDeleteFlag
+         * protected boolean ignoreDeleteFlag;
+         */
+        Field ignoreDeleteFlag = new Field("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance()); //$NON-NLS-1$
+        ignoreDeleteFlag.setVisibility(JavaVisibility.PROTECTED);
+        commentGenerator.addFieldComment(ignoreDeleteFlag, introspectedTable);
+        topLevelClass.addField(ignoreDeleteFlag);
         method = new Method("setIgnoreDeleteFlag"); //$NON-NLS-1$
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "ignoreDeleteFlag")); //$NON-NLS-1$
@@ -107,13 +109,34 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         commentGenerator.addGeneralMethodComment(method, introspectedTable);
         topLevelClass.addMethod(method);
 
+        /*
+         * add field, getter, setter for ignorePermissionAnnotation
+         * protected boolean ignorePermissionAnnotation;
+         */
+        Field ignorePermissionAnnotation = new Field("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance()); //$NON-NLS-1$
+        ignorePermissionAnnotation.setVisibility(JavaVisibility.PROTECTED);
+        commentGenerator.addFieldComment(ignorePermissionAnnotation, introspectedTable);
+        topLevelClass.addField(ignorePermissionAnnotation);
+        method = new Method("setIgnorePermissionAnnotation"); //$NON-NLS-1$
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "ignorePermissionAnnotation")); //$NON-NLS-1$
+        method.addBodyLine("this.ignorePermissionAnnotation = ignorePermissionAnnotation;"); //$NON-NLS-1$
+        commentGenerator.addMethodJavaDocLine(method,"ignorePermissionAnnotation的getter方法");
+        topLevelClass.addMethod(method);
+        method = new Method("isIgnorePermissionAnnotation"); //$NON-NLS-1$
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+        method.addBodyLine("return ignorePermissionAnnotation;"); //$NON-NLS-1$
+        commentGenerator.addMethodJavaDocLine(method,"ignorePermissionAnnotation的setter方法");
+        topLevelClass.addMethod(method);
+
         // add field and methods for the list of ored criteria
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType("java.util.List<Criteria>"); //$NON-NLS-1$
-        field = new Field("oredCriteria", fqjt); //$NON-NLS-1$
-        field.setVisibility(JavaVisibility.PROTECTED);
+        Field oredCriteria = new Field("oredCriteria", fqjt); //$NON-NLS-1$
+        oredCriteria.setVisibility(JavaVisibility.PROTECTED);
 
-        commentGenerator.addFieldComment(field, introspectedTable);
-        topLevelClass.addField(field);
+        commentGenerator.addFieldComment(oredCriteria, introspectedTable);
+        topLevelClass.addField(oredCriteria);
 
         method = new Method("getOredCriteria"); //$NON-NLS-1$
         method.setVisibility(JavaVisibility.PUBLIC);
@@ -872,7 +895,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         method.setReturnType(FullyQualifiedJavaType.getCriteriaInstance());
 
         sb.setLength(0);
-        sb.append(initializeAddLine(introspectedColumn,"AnyCondition")); // addCriterion("tetd.id_
+        sb.append(initializeAddLine(introspectedColumn,"AnyCondition"));
         sb.append(' ');
         sb.append("\"+expression);");
         method.addBodyLine(sb.toString());

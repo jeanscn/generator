@@ -893,8 +893,8 @@
             5、title 超级链接的title，默认为元素简单注释
             6、method 超级链接的回调方法，默认为href,例如：method="javascript:showDetail()"。需要在js中定义showDetail方法。
             7、keySelector 超级链接的回调方法的参数选择器，默认为id，例如：keySelector="#id"。
-            8、hideExpression 隐藏表达式，用于指定隐藏超级链接的条件，如：$.state == 1 and $.parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
-            9、disabledExpression 禁用表达式，用于指定禁用超级链接的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
+            8、hideExpression 隐藏表达式，用于指定隐藏超级链接的条件，如：state == 1 and parentId == $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
+            9、disabledExpression 禁用表达式，用于指定禁用超级链接的条件，如：state = 1 and parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
             说明：
               1、hideExpression表达式中的，
                  1）可以通过$.属性名的方式引用当前表单数据的属性；
