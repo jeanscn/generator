@@ -283,6 +283,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
                 buildExample.addBodyLine("if ({0}.isIgnoreDeleteFlag()) example.setIgnoreDeleteFlag(true);", paramType.getShortNameFirstLowCase());
             });
+            buildExample.addBodyLine("if ({0}.isIgnorePermissionAnnotation()) example.setIgnorePermissionAnnotation(true);", paramType.getShortNameFirstLowCase());
             if (introspectedTable.getRules().isGenerateHideListBin()) {
                 buildExample.addBodyLine("if ({0}.isHideIds()) '{'", paramType.getShortNameFirstLowCase());
                 buildExample.addBodyLine("List<String> filterIds = sysPerFilterOutBinImpl.getCurrentUserFilterOutBinIds(\"{0}\");",entityType.getShortName().toLowerCase());

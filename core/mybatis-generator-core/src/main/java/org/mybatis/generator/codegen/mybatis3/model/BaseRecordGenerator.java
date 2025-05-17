@@ -156,6 +156,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
             addActionType(topLevelClass,introspectedTable);
             addIgnoreDeleteFlag(topLevelClass,introspectedTable);
+            addIgnorePermissionAnnotation(topLevelClass,introspectedTable);
             //增加ignoreIdList属性
             addIgnoreIdList(topLevelClass, introspectedTable);
             addIsHideIds(topLevelClass, introspectedTable);

@@ -130,6 +130,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         if (!introspectedTable.getRules().isGenerateRequestVO()) {
             addActionType(voClass,introspectedTable);
             addIgnoreDeleteFlag(voClass,introspectedTable);
+            addIgnorePermissionAnnotation(voClass,introspectedTable);
             //增加ignoreIdList属性
             addIgnoreIdList(voClass, introspectedTable);
             addIsHideIds(voClass, introspectedTable);

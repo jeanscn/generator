@@ -59,6 +59,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         addCountChildren(requestVoClass);
         //增加ignoreDeleteFlag开关
         addIgnoreDeleteFlag(requestVoClass,introspectedTable);
+        addIgnorePermissionAnnotation(requestVoClass,introspectedTable);
         //增加ignoreIdList属性
         addIgnoreIdList(requestVoClass, introspectedTable);
         addIsHideIds(requestVoClass, introspectedTable);

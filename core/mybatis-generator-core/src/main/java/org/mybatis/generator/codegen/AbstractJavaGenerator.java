@@ -266,15 +266,34 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         }
     }
 
+    protected void addIgnorePermissionAnnotation(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        Field ignorePermissionAnnotation = new Field("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
+        ignorePermissionAnnotation.setVisibility(JavaVisibility.PRIVATE);
+        ignorePermissionAnnotation.setRemark("是否忽略权限注解");
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            ignorePermissionAnnotation.addAnnotation("@TableField(exist = false)");
+        }
+        new ApiModelPropertyDesc(ignorePermissionAnnotation.getRemark(), "false").addAnnotationToField(ignorePermissionAnnotation, topLevelClass);
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignorePermissionAnnotation")).findFirst();
+        if (!optionalField.isPresent()) {
+            topLevelClass.addField(ignorePermissionAnnotation);
+            topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
+            if (introspectedTable.getRules().isGenerateVoModel()) {
+                FieldItem fieldItem = new FieldItem(ignorePermissionAnnotation);
+                introspectedTable.getVoModelFields().add(fieldItem);
+            }
+        }
+    }
+
     /**
      * 增加ignoreIdList属性
      * @param topLevelClass 类
      * @param introspectedTable  表对象
      */
     protected void addIgnoreIdList(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType type = FullyQualifiedJavaType.getNewListInstance();
-        type.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
-        Field ignoreIdList = new Field("ignoreIdList", type);
+        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+        listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        Field ignoreIdList = new Field("ignoreIdList", listType);
         ignoreIdList.setVisibility(JavaVisibility.PRIVATE);
         ignoreIdList.setRemark("查询忽略id列表");
         if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
@@ -285,6 +304,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         if (!optionalField.isPresent()) {
             topLevelClass.addField(ignoreIdList);
             topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
+            topLevelClass.addImportedType(listType);
             if (introspectedTable.getRules().isGenerateVoModel()) {
                 FieldItem fieldItem = new FieldItem(ignoreIdList);
                 introspectedTable.getVoModelFields().add(fieldItem);
