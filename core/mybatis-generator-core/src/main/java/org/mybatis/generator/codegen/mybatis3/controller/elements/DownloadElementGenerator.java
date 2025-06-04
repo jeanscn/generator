@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -42,16 +43,25 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addAnnotation(new SystemLogDesc("下载（预览）",introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethodEnum.GET);
         method.addAnnotation(requestMappingDesc,parentElement);
-        addSecurityPreAuthorize(method,methodPrefix,"下载");
         method.addAnnotation(new ApiOperationDesc("单个文件下载（预览）", "单个文件下载(预览)接口"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "单个文件下载(预览)接口");
-
+        method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine(format("{0} {1} = serviceResult.getResult();", entityType.getShortName(),entityType.getShortNameFirstLowCase()));
-        method.addBodyLine("byte[] bytes = {0}.getBytes();", entityType.getShortNameFirstLowCase());
-        method.addBodyLine(format("HttpHeaders headers = getHeaders({0}, Boolean.parseBoolean(type));", entityType.getShortNameFirstLowCase()));
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent()  && introspectedTable.hasBLOBColumns()) {
+            method.addBodyLine("byte[] bytes = {0}.getBytes();", entityType.getShortNameFirstLowCase());
+        } else {
+            method.addBodyLine("File file = new File({0}.getFullPath());", entityType.getShortNameFirstLowCase());
+            method.addBodyLine("if (!file.exists()) {");
+            method.addBodyLine("return new ResponseEntity<>(HttpStatus.NOT_FOUND);");
+            method.addBodyLine("}");
+            method.addBodyLine("byte[] bytes = FileUtils.readFileToByteArray(file);");
+            parentElement.addImportedType("java.io.File");
+            parentElement.addImportedType("org.apache.commons.io.FileUtils");
+        }
+        method.addBodyLine(format("HttpHeaders headers = getHeaders({0}, Boolean.parseBoolean(type),bytes);", entityType.getShortNameFirstLowCase()));
         method.addBodyLine("return new ResponseEntity<>(bytes, headers, HttpStatus.OK);");
         method.addBodyLine("} else {");
         method.addBodyLine("return new ResponseEntity<>(HttpStatus.NOT_FOUND);");
@@ -61,6 +71,5 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType("org.springframework.http.ResponseEntity");
         parentElement.addImportedType("javax.annotation.security.PermitAll");
-
     }
 }

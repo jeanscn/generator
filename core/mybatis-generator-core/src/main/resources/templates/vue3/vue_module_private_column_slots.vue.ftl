@@ -1,7 +1,7 @@
-/**
+<!--
 * @description ${ tableRemark }列表列插槽渲染
 * @version: slots template version 1.0.3
-*/
+-->
 <template #[slotName]="scope">
     <el-tag v-if="slotName === 'state'"
             :type="stateText === '启用' ? 'primary' : stateText === '停用' ? 'warning' : 'info'">
@@ -23,12 +23,12 @@
     import { computed, PropType, ref } from 'vue'
     import textMaps from '@/framework/utils/maps'
     import { EMPTY_OBJECT } from '@/framework/utils/constant'
-    import { ICustomColumnProps } from '@/framework/components/vgoTable/types'
+    import { TColumn } from '@/framework/components/vgoTable/types'
 
     const props = defineProps({
         slotName: { type: String as PropType<string>, default: '' },
         scope: { type: Object, default: EMPTY_OBJECT },
-        column: { type: Object as PropType<ICustomColumnProps>, default: EMPTY_OBJECT },
+        column: { type: Object as PropType<TColumn>, default: EMPTY_OBJECT },
     })
 
     const rowData = ref(props.scope.row)

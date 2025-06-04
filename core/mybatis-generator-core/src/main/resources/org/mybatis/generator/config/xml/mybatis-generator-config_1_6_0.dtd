@@ -424,6 +424,13 @@
           3、returnType 返回泛型参数类型（可选，primaryKey或model,默认model）
           4、parameterType single-传入的参数（列值）为单值，list-传入的参数（列值）为多值
           5、enableDelete 是否同是生成一个基于该（多）列的删除方法。
+          6、genControllerMethod 是否生成controller方法，默认false
+          说明：
+          1、genControllerMethod为true时，会生成一个controller方法，方法名为selectByColumnXXXX'
+                对于单个字段的接口地址为：restBasePath+/select-by-column-xxx（s）,如：select-by-column-record-id
+                对于多个字段的接口地址为：restBasePath+/by-column-xxx（s）-xxx（s）-xxx（s）如：select-by-column-record-id-and-record-name-and-record-type
+                parameterType为single时xxx，parameterType为list时xxxs，如：select-by-column-record-ids-and-record-name-and-record-types
+                parameterType为single时生产get方法，parameterType为list时生成post方法
         -->
         <!ELEMENT selectByColumn EMPTY>
         <!ATTLIST selectByColumn
@@ -431,7 +438,8 @@
                 orderByClause CDATA #IMPLIED
                 returnType (model|primaryKey) #IMPLIED
                 parameterType (single|list) #IMPLIED
-                enableDelete (false|true) #IMPLIED>
+                enableDelete (false|true) #IMPLIED
+                genControllerMethod (false|true) #IMPLIED>
 
         <!--
                   基于SQL函数的查询方法 （也是配合javaModelCollection Properties实现查询方法）
@@ -1122,8 +1130,12 @@
             5、targetProject 项目路径默认与model一一致，一般为当前模块的src/main/java，
             也可以指定绝对路径如：d:/project/vgosoft-abc/src/main/java。由此可以把生成的元素放在位置。
             6、targetPackage 包路径。也可以有model的基础路径+targetSubPackage构成
+            7、enableSelectByPrimaryKeys 是否启用通过主键集合批量查询接口SelectByPrimaryKeys，true-启用，false-不启用。缺省为true启用。
             property配置：
-            1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用是同时增加@Transactional注解
+            1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用会同时增加@Transactional注解
+            说明：
+                1、enableSelectByIds属性用于控制是否生成批量查询接口SelectByPrimaryKeys，默认启用。
+                  enableSelectByIds启用时，会创建一个SelectByColumn主键的配置项目，同时会生成一个DeleteByColumn主键的配置项。如果单独配置了SelectByColumn主键，则以SelectByColumn主键为准。
         -->
         <!ELEMENT generateController (property*, generateTreeViewCate*,generateOptions*)>
         <!ATTLIST generateController
@@ -1132,7 +1144,8 @@
                 noSwaggerAnnotation (false|true) #IMPLIED
                 targetSubPackage CDATA #IMPLIED
                 targetProject CDATA #IMPLIED
-                targetPackage CDATA #IMPLIED>
+                targetPackage CDATA #IMPLIED
+                enableSelectByPrimaryKeys (true|false) #IMPLIED>
 
         <!--
            列表分类树接口生成描述
@@ -1215,8 +1228,9 @@
             所有VO类的父级配置，用于配置vo的通用属性
             属性信息：
             1、generate 是否生成,true生成,false忽略。缺省值true，当设置为false时，所有vo类的generate会继承该属性值。
-            2、excludeColumns，指定排除的列。如果不指定该属性抽象类的排除列使用父类默认的忽略列。否则使用该属性指定的列
-            3、equalsAndHashCodeColumns，可选 指定生成equals和HashCode方法的列名。此处指定后，所有子vo对象将使用该配置，除非子对象中配置了该属性。
+            2、excludeColumns，指定要排除的列。如果不指定该属性，使用指定父类抽象类的默认的忽略列。否则使用该属性指定的列。
+            3、validateIgnoreColumns，指定忽略验证的列。用于表单验证时忽略的列。
+            4、equalsAndHashCodeColumns，可选 指定生成equals和HashCode方法的列名。此处指定后，所有子vo对象将使用该配置，除非子对象中配置了该属性。
         -->
         <!ELEMENT generateVO (property*,mapstructMapping*,overridePropertyValue*,additionalProperty*,modelVO?,createVO?,updateVO?,viewVO?,excelVO?,requestVO?)>
         <!ATTLIST generateVO

@@ -1,15 +1,21 @@
-/**
+<!--
 * @description ${ tableRemark }显示详情
 * @version: detail template version 1.0.7
-*/
+-->
 <template>
-    <vgoForm v-if="formConfigReady" v-model="_formData" ref="vgoFormRef" :formConfig="_formConfig"
-        :viewStatus="viewStatus" :hideRequiredAsterisk="true" labelSuffix=":"
+    <vgoForm v-if="formConfigReady" v-model="_formData" ref="vgoFormRef"
+             :formConfig="_formConfig"
+             :showBlankRow="showBlankRow"
+             :viewStatus="viewStatus"
+             :hideRequiredAsterisk="true"
+             labelSuffix=":"
         <#if hasInnerList>
         @inner-list-data-all-ready="innerListDataAllReady"
         @vxe-button-click="defaultInnerListButtonActionHandler"
         </#if>
-    ></vgoForm>
+    >
+        <template #default = "{ data }"><slot :data = data></slot></template>
+    </vgoForm>
 </template>
 
 <script lang="ts" setup name="${ modelName }Detail">
@@ -35,6 +41,7 @@
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },       //允许父级组件缓存formConfig
         viewStatus: { type: Number as PropType<number>, default: 1 },                       //是否为查看状态
         dataId: { type: String as PropType<string>, default: null },                       //数据id
+        showBlankRow: { type: Boolean as PropType<boolean>, default: false },
     })
 
     <#if hasInnerList>

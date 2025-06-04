@@ -74,13 +74,9 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         //是否增加是否选择性更新的属性
         if (voUpdateGeneratorConfiguration.isEnableSelective()) {
             Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-            selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
             selectiveUpdate.setRemark("更新时选择性插入");
-            ApiModelPropertyDesc apiModelProperty = new ApiModelPropertyDesc(selectiveUpdate.getRemark());
-            apiModelProperty.setExample("true");
-            selectiveUpdate.addAnnotation(apiModelProperty.toAnnotation());
-            updateVoClass.addImportedTypes(apiModelProperty.getImportedTypes());
-            updateVoClass.addField(selectiveUpdate);
+            commentGenerator.addFieldComment(selectiveUpdate, "插入时是否检查记录是否存在，进行选择性更新");
+            addProperty(updateVoClass, selectiveUpdate, "true", introspectedTable);
         }
 
         //是否有启用update的JavaCollectionRelation

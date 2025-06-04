@@ -1,7 +1,7 @@
-/**
+<!--
 * @description ${ tableRemark }编辑组件
 * @version: edit template version 1.0.7
-*/
+-->
 <template>
     <vgoForm
             v-if="formConfigReady"
@@ -9,6 +9,7 @@
             ref="vgoFormRef"
             :formConfig="_formConfig"
             :viewStatus="viewStatus"
+            :showBlankRow="showBlankRow"
             @form-submit="onSubmit"
             @item-call-back="callHookByName"
             <#if hasInnerList>
@@ -16,7 +17,9 @@
             @inner-list-data-all-ready="innerListDataAllReady"
             @vxe-button-click="defaultInnerListButtonActionHandler"
             </#if>
-    ></vgoForm>
+    >
+        <template #default = "{ data }"><slot :data = data></slot></template>
+    </vgoForm>
 </template>
 
 <script lang="ts" setup name="${ modelName }Edit">
@@ -46,6 +49,7 @@
         modelValue: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },       //允许父级组件缓存formConfig
         viewStatus: { type: Number as PropType<number>, default: 1 },                       //是否为查看状态
+        showBlankRow: { type: Boolean as PropType<boolean>, default: false },
     })
 
     const emit = defineEmits([

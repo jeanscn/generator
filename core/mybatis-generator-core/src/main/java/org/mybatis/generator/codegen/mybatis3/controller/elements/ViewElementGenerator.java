@@ -46,12 +46,10 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         //添加注解
-        parentElement.addImportedType("javax.annotation.security.PermitAll");
         method.addAnnotation("@PermitAll");
         parentElement.addImportedType("javax.annotation.security.PermitAll");
         method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("view", RequestMethodEnum.GET), parentElement);
-        addSecurityPreAuthorize(method, methodPrefix, "查看");
         method.addAnnotation(new ApiOperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                 "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图"), parentElement);
         //添加注释

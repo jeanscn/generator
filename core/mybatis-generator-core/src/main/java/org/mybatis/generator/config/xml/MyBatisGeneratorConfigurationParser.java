@@ -867,6 +867,8 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String enableDelete = attributes.getProperty("enableDelete", "false");
         selectByColumnGeneratorConfiguration.setEnableDelete(Boolean.parseBoolean(enableDelete));
+        String genControllerMethod = attributes.getProperty("genControllerMethod", "false");
+        selectByColumnGeneratorConfiguration.setGenControllerMethod(Boolean.parseBoolean(genControllerMethod));
         tc.addSelectByColumnGeneratorConfiguration(selectByColumnGeneratorConfiguration);
     }
 
@@ -1897,6 +1899,13 @@ public class MyBatisGeneratorConfigurationParser {
             javaControllerGeneratorConfiguration.setGenerateUnitTest(Boolean.parseBoolean(generateUnitTest));
         } else {
             javaControllerGeneratorConfiguration.setGenerateUnitTest(true);
+        }
+
+        String enableSelectByPrimaryKeys = attributes.getProperty("enableSelectByPrimaryKeys");
+        if (stringHasValue(enableSelectByPrimaryKeys)) {
+            javaControllerGeneratorConfiguration.setEnableSelectByPrimaryKeys(Boolean.parseBoolean(enableSelectByPrimaryKeys));
+        } else {
+            javaControllerGeneratorConfiguration.setEnableSelectByPrimaryKeys(true);
         }
 
         String noSwaggerAnnotation = attributes.getProperty(PropertyRegistry.ANY_NO_SWAGGER_ANNOTATION);

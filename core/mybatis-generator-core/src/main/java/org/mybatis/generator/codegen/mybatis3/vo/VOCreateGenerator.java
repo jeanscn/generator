@@ -54,14 +54,15 @@ public class VOCreateGenerator extends AbstractVOGenerator{
         //增加是否选择性更新
         if (introspectedTable.getRules().createEnableSelective()) {
             Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-            selectiveUpdate.setVisibility(JavaVisibility.PRIVATE);
             selectiveUpdate.setRemark("插入时选择性更新");
-            ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(selectiveUpdate.getRemark());
-            apiModelPropertyDesc.setExample("true");
-            selectiveUpdate.addAnnotation(apiModelPropertyDesc.toAnnotation());
-            createVoClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
-            createVoClass.addField(selectiveUpdate);
+            commentGenerator.addFieldComment(selectiveUpdate, "插入时是否检查记录是否存在，进行选择性更新");
+            addProperty(createVoClass, selectiveUpdate,"true",introspectedTable);
         }
+
+        Field modelTempId = new Field("modelTempId", FullyQualifiedJavaType.getStringInstance());
+        modelTempId.setRemark("临时数据标识");
+        commentGenerator.addFieldComment(modelTempId, "临时数据标识,用于创建新记录时就指定id的场景");
+        addProperty(createVoClass, modelTempId, "''", introspectedTable);
 
         //重写父类getter方法
         for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {

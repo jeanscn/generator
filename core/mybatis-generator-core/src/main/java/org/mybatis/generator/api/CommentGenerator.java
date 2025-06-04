@@ -48,6 +48,8 @@ public interface CommentGenerator {
             IntrospectedTable introspectedTable,
             IntrospectedColumn introspectedColumn) {}
 
+    default void addFieldComment(Field field, String...comments) {}
+
     /**
      * Adds the field comment.
      *

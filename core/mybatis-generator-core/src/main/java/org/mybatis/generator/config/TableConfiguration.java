@@ -1290,8 +1290,9 @@ public class TableConfiguration extends PropertyHolder {
                 introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
                     SelectByColumnGeneratorConfiguration selectByParentId = new SelectByColumnGeneratorConfiguration(column.getActualColumnName());
                     selectByParentId.addColumn(column);
-                    selectByParentId.setMethodName(JavaBeansUtil.byColumnMethodName(selectByParentId.getColumns()));
-                    selectByParentId.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(selectByParentId.getColumns()));
+                    selectByParentId.setParameterList(false);
+                    selectByParentId.setMethodName(JavaBeansUtil.byColumnMethodName(selectByParentId.getColumns(),false));
+                    selectByParentId.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(selectByParentId.getColumns(),false));
                     this.addSelectByColumnGeneratorConfiguration(selectByParentId);
                     warnings.add("table:" + this.tableName + " 自动添加" + selectByParentId.getMethodName() + " 方法.");
                 });
@@ -1344,7 +1345,7 @@ public class TableConfiguration extends PropertyHolder {
                     sb.setLength(0);
                     sb.append(this.getJavaClientGeneratorConfiguration().getTargetPackage()).append(".");
                     sb.append(this.getDomainObjectName()).append("Mapper").append(".");
-                    sb.append(JavaBeansUtil.byColumnMethodName(Collections.singletonList(column)));
+                    sb.append(JavaBeansUtil.byColumnMethodName(Collections.singletonList(column),false));
                     relationGeneratorConfiguration.setSelect(sb.toString());
                     relationGeneratorConfiguration.setType(RelationTypeEnum.collection);
                     relationGeneratorConfiguration.setInitializationString("new ArrayList<>()");
@@ -1392,11 +1393,13 @@ public class TableConfiguration extends PropertyHolder {
         if (!this.getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration configuration : this.getSelectByColumnGeneratorConfigurations()) {
                 configuration.getColumnNames().forEach(n -> introspectedTable.getColumn(n).ifPresent(configuration::addColumn));
-                configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
-                configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns()) + (configuration.getParameterList() ? "s" : ""));
+                configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns(),configuration.getParameterList()));
+                configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns(),configuration.getParameterList()));
             }
         }
-        List<SelectByColumnGeneratorConfiguration> collect1 = this.getSelectByColumnGeneratorConfigurations().stream().distinct().collect(Collectors.toList());
+        List<SelectByColumnGeneratorConfiguration> collect1 = this.getSelectByColumnGeneratorConfigurations().stream()
+                .filter(config->!config.getColumns().isEmpty() && config.getColumnNames().size()== config.getColumns().size())
+                .distinct().collect(Collectors.toList());
         this.setSelectByColumnGeneratorConfigurations(collect1);
     }
 
@@ -1411,10 +1414,29 @@ public class TableConfiguration extends PropertyHolder {
                     if (selectByColumnGeneratorConfiguration.addColumnName(column.getActualColumnName()))
                         selectByColumnGeneratorConfiguration.addColumn(column);
                 }
+                selectByColumnGeneratorConfiguration.setParameterList(false);
                 selectByColumnGeneratorConfiguration.setMethodName(methodName);
                 selectByColumnGeneratorConfiguration.setEnableDelete(false);
                 selectByColumnGeneratorConfiguration.setReturnType(1);
                 this.getSelectByColumnGeneratorConfigurations().add(selectByColumnGeneratorConfiguration);
+            }
+        }
+        if (this.getJavaControllerGeneratorConfiguration().generate && this.getJavaControllerGeneratorConfiguration().isEnableSelectByPrimaryKeys()) {
+            if (!introspectedTable.getPrimaryKeyColumns().isEmpty()) {
+                String methodName = JavaBeansUtil.byColumnMethodName(introspectedTable.getPrimaryKeyColumns(),true);
+                if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(t -> methodName.equals(t.getMethodName()))) {
+                    SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();
+                    for (IntrospectedColumn column : introspectedTable.getPrimaryKeyColumns()) {
+                        if (selectByColumnGeneratorConfiguration.addColumnName(column.getActualColumnName()))
+                            selectByColumnGeneratorConfiguration.addColumn(column);
+                    }
+                    selectByColumnGeneratorConfiguration.setMethodName(methodName);
+                    selectByColumnGeneratorConfiguration.setEnableDelete(false);
+                    selectByColumnGeneratorConfiguration.setReturnType(0);
+                    selectByColumnGeneratorConfiguration.setParameterList(true);
+                    selectByColumnGeneratorConfiguration.setGenControllerMethod(true);
+                    this.getSelectByColumnGeneratorConfigurations().add(selectByColumnGeneratorConfiguration);
+                }
             }
         }
     }

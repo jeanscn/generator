@@ -14,6 +14,8 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     private boolean generateUnitTest;
 
+    private boolean enableSelectByPrimaryKeys = true;
+
     private String springBootApplicationClass;
 
     private final TableConfiguration tableConfiguration;
@@ -86,6 +88,14 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
 
     public void setGenerateUnitTest(boolean generateUnitTest) {
         this.generateUnitTest = generateUnitTest;
+    }
+
+    public boolean isEnableSelectByPrimaryKeys() {
+        return enableSelectByPrimaryKeys;
+    }
+
+    public void setEnableSelectByPrimaryKeys(boolean enableSelectByPrimaryKeys) {
+        this.enableSelectByPrimaryKeys = enableSelectByPrimaryKeys;
     }
 
     public String getSpringBootApplicationClass() {

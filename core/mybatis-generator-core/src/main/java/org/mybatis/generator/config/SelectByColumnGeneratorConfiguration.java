@@ -17,6 +17,8 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
     private boolean enableDelete;
 
     private Boolean parameterList;
+
+    private Boolean genControllerMethod = false;
     /**
      * 返回类型，默认0-返回list，1-返回model
      * 主要为了标识selectBaseByPrimaryKey方法，返回model
@@ -131,6 +133,14 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
 
     public void setDeleteMethodName(String deleteMethodName) {
         this.deleteMethodName = deleteMethodName;
+    }
+
+    public Boolean getGenControllerMethod() {
+        return genControllerMethod;
+    }
+
+    public void setGenControllerMethod(Boolean genControllerMethod) {
+        this.genControllerMethod = genControllerMethod;
     }
 
     @Override

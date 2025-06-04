@@ -111,23 +111,32 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
     }
 
     private void resultPartBodyLines(TopLevelClass parentElement, Method method) {
+        boolean pageParam = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam();
         method.addBodyLine("if (result.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel() && introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addBodyLine("if (page!=null) {");
-            method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()),page);", entityVoType.getShortName());
-            method.addBodyLine("} else {");
-            method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
-            method.addBodyLine("}");
+            if (pageParam) {
+                method.addBodyLine("if (page!=null) {");
+                method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()),page);", entityVoType.getShortName());
+                method.addBodyLine("} else {");
+                method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
+                method.addBodyLine("}");
+            } else {
+                method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
+            }
             parentElement.addImportedType(responsePagehelperResult);
         } else if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
             parentElement.addImportedType(responseResult);
         } else if (introspectedTable.getRules().isGenerateRequestVO()) {
-            method.addBodyLine("if (page!=null) {");
-            method.addBodyLine("return ResponsePagehelperResult.success(result.getResult(),page);");
-            method.addBodyLine("} else {");
-            method.addBodyLine("return ResponseResult.success(result.getResult());");
-            method.addBodyLine("}");
+            if (pageParam) {
+                method.addBodyLine("if (page!=null) {");
+                method.addBodyLine("return ResponsePagehelperResult.success(result.getResult(),page);");
+                method.addBodyLine("} else {");
+                method.addBodyLine("return ResponseResult.success(result.getResult());");
+                method.addBodyLine("}");
+            } else {
+                method.addBodyLine("return ResponseResult.success(result.getResult());");
+            }
             parentElement.addImportedType(responsePagehelperResult);
         } else {
             method.addBodyLine("return ResponseResult.success(result.getResult());");
@@ -141,8 +150,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
     private void _selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
         String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("ServiceResult<List<{0}>> result;", entityType.getShortName());
-        if (introspectedTable.getRules().isGenerateRequestVO()
-                && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
+        if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
             method.addBodyLine("Page<{0}> page = null;", entityType.getShortName());
             method.addBodyLine("if ({0}.getPageNo() == 0 || {0}.getPageSize() == 0) '{'", requestVOVar);
             method.addBodyLine("PageHelper.clearPage();");

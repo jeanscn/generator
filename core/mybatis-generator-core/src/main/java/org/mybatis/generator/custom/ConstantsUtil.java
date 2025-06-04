@@ -25,7 +25,7 @@ public class ConstantsUtil {
     public static final String I_PERSISTENCE_BASIC = "com.vgosoft.core.entity.IPersistenceBasic";
     public static final String I_SORTABLE_ENTITY = "com.vgosoft.core.entity.ISortableEntity";
     public static final String I_WORK_FLOW_BASE_ENTITY = "com.vgosoft.core.entity.IWorkflowBaseEntity";
-    public static final String I_PERSISTENCE_BLOB = "com.vgosoft.core.entity.IPersistenceBlob";
+    public static final String I_PERSISTENCE_BLOB = "com.vgosoft.core.entity.upload.IPersistenceBlob";
     public static final String I_BUSINESS_ENTITY = "com.vgosoft.core.entity.IBusinessEntity";
 
     //mapper接口

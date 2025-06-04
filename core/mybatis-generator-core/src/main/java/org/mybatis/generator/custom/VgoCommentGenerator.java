@@ -55,6 +55,19 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         field.addJavaDocLine(" */");
     }
 
+    public void addFieldComment(Field field, String...comments) {
+        if (comments.length == 0) {
+            return;
+        }
+        field.addJavaDocLine("/**");
+        for (String comment : comments) {
+            if (StringUtility.stringHasValue(comment)) {
+                field.addJavaDocLine(" * " + comment);
+            }
+        }
+        field.addJavaDocLine(" */");
+    }
+
     //给model以外字段添加注释，如example类
     @Override
     public void addFieldComment(Field field, IntrospectedTable introspectedTable) {

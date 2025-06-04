@@ -405,22 +405,22 @@ public class JavaBeansUtil {
         return false;
     }
 
-    public static String byColumnMethodName(List<IntrospectedColumn> columns) {
+    public static String byColumnMethodName(List<IntrospectedColumn> columns,boolean isList) {
         String names = columns.stream()
                 .map(IntrospectedColumn::getJavaProperty)
                 .map(p -> {
-                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p);
-                    return p;
+                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p)+(isList?"s":"");
+                    return p+(isList?"s":"");
                 }).collect(Collectors.joining("And"));
         return "selectByColumn" + getFirstCharacterUppercase(names);
     }
 
-    public static String deleteByColumnMethodName(List<IntrospectedColumn> columns) {
+    public static String deleteByColumnMethodName(List<IntrospectedColumn> columns,boolean isList) {
         String names = columns.stream()
                 .map(IntrospectedColumn::getJavaProperty)
                 .map(p -> {
-                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p);
-                    return p;
+                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p) + (isList ? "s" : "");
+                    return p + (isList ? "s" : "");
                 }).collect(Collectors.joining("And"));
         return "deleteByColumn" + getFirstCharacterUppercase(names);
     }

@@ -230,7 +230,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     projectHooks,
                     "",
                     introspectedTable,
-                    "vue_module_private_form_hooks.vue.ftl", privateUseFormHooksMap);
+                    "vue_module_private_form_hooks.ts.ftl", privateUseFormHooksMap);
             generatedVuePrivateUseFormHooksFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
             answer.add(generatedVuePrivateUseFormHooksFile);
 

@@ -165,4 +165,17 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         requestVoClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
         requestVoClass.addField(filterMap);
     }
+
+    protected void addProperty(TopLevelClass topLevelClass,Field field, String strExample,IntrospectedTable introspectedTable) {
+        field.setVisibility(JavaVisibility.PRIVATE);
+        ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(field.getRemark());
+        apiModelPropertyDesc.setExample(strExample);
+        field.addAnnotation(apiModelPropertyDesc.toAnnotation());
+        topLevelClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
+        if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+            field.addAnnotation("@TableField(exist = false)");
+            topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
+        }
+        topLevelClass.addField(field);
+    }
 }

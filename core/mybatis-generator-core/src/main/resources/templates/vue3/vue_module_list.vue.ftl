@@ -1,7 +1,7 @@
-/**
+<!--
 * @description ${ tableRemark }列表组件
 * @version: list template version 1.0.19
-*/
+-->
 <template>
     <el-container>
         <el-aside width="220px" v-if="showTreePanel">

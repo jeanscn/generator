@@ -1,7 +1,7 @@
-/**
+<!--
 * @description DialogForm component for ${ componentName } module
 * @version: modal template version 1.0.10
-*/
+-->
 <template>
     <div class="form-modal-container">
         <VgoDialog :modelValue="showDialog && dialogType === 'dialog'"

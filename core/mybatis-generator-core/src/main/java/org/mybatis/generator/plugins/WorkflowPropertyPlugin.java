@@ -46,6 +46,7 @@ public class WorkflowPropertyPlugin extends PluginAdapter{
         ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("是否工作流应用", "0");
         field.addAnnotation(apiModelPropertyDesc.toAnnotation());
         topLevelClass.addField(field);
+        topLevelClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
@@ -124,10 +123,10 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             addGetDefaultViewConfigElement(conTopClazz);
             addGetDefaultViewElement(conTopClazz);
         }
-        if (introspectedTable.hasBLOBColumns()) {
-            addUploadElement(conTopClazz);
-            addDownloadElement(conTopClazz);
-        }
+
+        addUploadElement(conTopClazz);
+        addDownloadElement(conTopClazz);
+
         if (introspectedTable.getRules().isGenerateExcelVO()) {
             addTemplateElement(conTopClazz);
             addImportElement(conTopClazz);
@@ -138,6 +137,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             addOptionElement(conTopClazz);
         }
         addGetDictElement(conTopClazz);
+        addSelectByColumnElement(conTopClazz);
         addSelectByTableElement(conTopClazz);
         addDeleteByTableElement(conTopClazz);
         addInsertByTableElement(conTopClazz);
@@ -286,7 +286,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             buildExample.addBodyLine("if ({0}.isIgnorePermissionAnnotation()) example.setIgnorePermissionAnnotation(true);", paramType.getShortNameFirstLowCase());
             if (introspectedTable.getRules().isGenerateHideListBin()) {
                 buildExample.addBodyLine("if ({0}.isHideIds()) '{'", paramType.getShortNameFirstLowCase());
-                buildExample.addBodyLine("List<String> filterIds = sysPerFilterOutBinImpl.getCurrentUserFilterOutBinIds(\"{0}\");",entityType.getShortName().toLowerCase());
+                buildExample.addBodyLine("List<String> filterIds = sysPerFilterOutBinImpl.getCurrentUserFilterOutBinIds(\"{0}\");", entityType.getShortName().toLowerCase());
                 buildExample.addBodyLine("if (!filterIds.isEmpty()) {");
                 buildExample.addBodyLine("criteria.andIdNotIn(filterIds);");
                 buildExample.addBodyLine("}");
@@ -465,8 +465,10 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     }
 
     private void addNewInstanceElement(TopLevelClass conTopClazz) {
-        AbstractControllerElementGenerator elementGenerator = new NewInstanceElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, conTopClazz);
+        if (introspectedTable.getRules().isGenerateCreateVO()) {
+            AbstractControllerElementGenerator elementGenerator = new NewInstanceElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, conTopClazz);
+        }
     }
 
     private void addGetLayuiTableElement(TopLevelClass conTopClazz) {
@@ -530,20 +532,39 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     }
 
     private void addListElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new ListElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateRequestVO()) {
+            AbstractControllerElementGenerator elementGenerator = new ListElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addCreateElement(TopLevelClass parentElement) {
-        AbstractControllerElementGenerator elementGenerator = new CreateElementGenerator();
-        initializeAndExecuteGenerator(elementGenerator, parentElement);
+        if (introspectedTable.getRules().isGenerateCreateVO()) {
+            AbstractControllerElementGenerator elementGenerator = new CreateElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
     }
 
     private void addCreateBatchElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().generateInsertBatch()) {
+        if (introspectedTable.getRules().generateInsertBatch() && introspectedTable.getRules().isGenerateCreateVO()) {
             AbstractControllerElementGenerator elementGenerator = new CreateBatchElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
+    }
+
+    private void addSelectByColumnElement(TopLevelClass parentElement) {
+        List<SelectByColumnGeneratorConfiguration> columnGeneratorConfigurations = introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations();
+        columnGeneratorConfigurations.stream()
+                .filter(SelectByColumnGeneratorConfiguration::getGenControllerMethod)
+                .forEach(c -> {
+                            AbstractControllerElementGenerator elementGenerator = new SelectByColumnGenerator(c);
+                            initializeAndExecuteGenerator(elementGenerator, parentElement);
+                            if (c.isEnableDelete()) {
+                                AbstractControllerElementGenerator deleteGenerator = new DeleteByColumnGenerator(c);
+                                initializeAndExecuteGenerator(deleteGenerator, parentElement);
+                            }
+                        }
+                );
     }
 
     private void addUpdateElement(TopLevelClass parentElement) {

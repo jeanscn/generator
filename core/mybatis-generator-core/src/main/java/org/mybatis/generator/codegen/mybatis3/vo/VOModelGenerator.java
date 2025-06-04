@@ -113,18 +113,11 @@ public class VOModelGenerator extends AbstractVOGenerator {
             field.setRemark(relationProperty.getRemark());
             relationProperty.getInitializationString().ifPresent(field::setInitializationString);
             relationProperty.getImportTypes().forEach(voClass::addImportedType);
-//            new ApiModelPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0))
-//                    .addAnnotationToField(field, voClass);
             if (plugins.voModelFieldGenerated(field, voClass, null, introspectedTable)) {
                 voClass.addField(field, null, true);
                 voClass.addImportedType(fullyQualifiedJavaType);
             }
         });
-
-        //临时id的属性，pTempId
-//        Field pTempId = new Field("pTempId", FullyQualifiedJavaType.getStringInstance());
-//        pTempId.setVisibility(JavaVisibility.PRIVATE);
-//        voClass.addField(pTempId);
 
         //增加actionType属性
         if (!introspectedTable.getRules().isGenerateRequestVO()) {
@@ -134,15 +127,6 @@ public class VOModelGenerator extends AbstractVOGenerator {
             //增加ignoreIdList属性
             addIgnoreIdList(voClass, introspectedTable);
             addIsHideIds(voClass, introspectedTable);
-        }
-        //添加静态代码块
-        //获取vo中的含父类和子类的所有字段
-        List<IntrospectedColumn> columns = VCollectionUtil.addAllIfNotContains(voGenService.getAbstractVOColumns(), introspectedColumns);
-        InitializationBlock initializationBlock = new InitializationBlock(false);
-        //在静态代码块中添加默认值
-        addInitialization(columns,initializationBlock, voClass);
-        if (!initializationBlock.getBodyLines().isEmpty()) {
-            voClass.addInitializationBlock(initializationBlock);
         }
 
         //增加转换方法
