@@ -75,15 +75,18 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         }
         if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent() && introspectedTable.hasBLOBColumns()) {
             method.addBodyLine(format("initBlobEntityFromMultipartFile({0},file);", entityType.getShortNameFirstLowCase()));
+            method.addBodyLine(format("ServiceResult<{0}> serviceResult;", entityType.getShortName()));
+            method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));
+            method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKeyWithBLOBs({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));
         } else {
             method.addBodyLine("String uuid = StringUtils.defaultIfEmpty({0}.getId(), StringUtils.defaultIfEmpty({0}.getModelTempId(), UUID.nextUUID()));",entityType.getShortNameFirstLowCase());
             method.addBodyLine(format("initDiskFileEntityFromMultipartFile({0},file,uuid);", entityType.getShortNameFirstLowCase()));
             method.addBodyLine("{0}.setModelTempId(uuid);", entityType.getShortNameFirstLowCase());
             parentElement.addImportedType("com.vgosoft.core.util.UUID");
+            method.addBodyLine(format("ServiceResult<{0}> serviceResult;", entityType.getShortName()));
+            method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));
+            method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKey({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));
         }
-        method.addBodyLine(format("ServiceResult<{0}> serviceResult;", entityType.getShortName()));
-        method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));
-        method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKey({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));
         method.addBodyLine("} else {");
         method.addBodyLine(format("serviceResult = {0}.insert({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));
         method.addBodyLine("}");
