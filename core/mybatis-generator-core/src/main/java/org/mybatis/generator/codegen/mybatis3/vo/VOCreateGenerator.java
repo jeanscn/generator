@@ -61,6 +61,8 @@ public class VOCreateGenerator extends AbstractVOGenerator{
 
         Field modelTempId = new Field("modelTempId", FullyQualifiedJavaType.getStringInstance());
         modelTempId.setRemark("临时数据标识");
+        modelTempId.setInitializationString("UUID.nextUUID()");
+        createVoClass.addImportedType("com.vgosoft.core.util.UUID");
         commentGenerator.addFieldComment(modelTempId, "临时数据标识,用于创建新记录时就指定id的场景");
         addProperty(createVoClass, modelTempId, "''", introspectedTable);
 

@@ -129,6 +129,11 @@ public class VOModelGenerator extends AbstractVOGenerator {
             addIsHideIds(voClass, introspectedTable);
         }
 
+        Field modelTempId = new Field("modelTempId", FullyQualifiedJavaType.getStringInstance());
+        modelTempId.setRemark("临时数据标识");
+        commentGenerator.addFieldComment(modelTempId, "临时数据标识,用于创建新记录时就指定id的场景");
+        addProperty(voClass, modelTempId, "''", introspectedTable);
+
         //增加转换方法
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(voClass.getType().getFullyQualifiedName()));
         mappingsInterface.addMethod(addMappingMethod(voClass.getType(), entityType, false));
