@@ -65,7 +65,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
     protected XmlElement getExampleIncludeElement() {
         XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "_parameter != null")); //$NON-NLS-1$ //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0")); //$NON-NLS-1$ //$NON-NLS-2$
 
         XmlElement includeElement = new XmlElement("include"); //$NON-NLS-1$
         includeElement.addAttribute(new Attribute("refid", introspectedTable.getExampleWhereClauseId())); //$NON-NLS-1$
@@ -76,13 +76,12 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
     protected XmlElement getUpdateByExampleIncludeElement() {
         XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "example != null")); //$NON-NLS-1$ //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0")); //$NON-NLS-1$ //$NON-NLS-2$
 
         XmlElement includeElement = new XmlElement("include"); //$NON-NLS-1$
         includeElement.addAttribute(new Attribute("refid", //$NON-NLS-1$
                 introspectedTable.getMyBatis3UpdateByExampleWhereClauseId()));
         ifElement.addElement(includeElement);
-
         return ifElement;
     }
 
