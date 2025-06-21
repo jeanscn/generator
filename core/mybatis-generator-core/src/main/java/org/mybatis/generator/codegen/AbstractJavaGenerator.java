@@ -11,7 +11,6 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.*;
 

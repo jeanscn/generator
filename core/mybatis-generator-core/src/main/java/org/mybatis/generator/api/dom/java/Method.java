@@ -63,6 +63,8 @@ public class Method extends JavaElement {
         this.isDefault = original.isDefault;
         this.isAbstract = original.isAbstract;
         this.isFinal = original.isFinal;
+        this.returnRemark = original.returnRemark;
+        this.exceptionRemark = original.exceptionRemark;
     }
 
     public void addBodyLine(String line) {
