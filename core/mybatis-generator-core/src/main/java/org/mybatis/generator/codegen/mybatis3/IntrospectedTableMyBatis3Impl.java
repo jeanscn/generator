@@ -375,7 +375,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             if (StringUtility.stringHasValue(sqlSchemaGeneratorConfiguration.getFilePrefix())) {
                 fileName = sqlSchemaGeneratorConfiguration.getFilePrefix() + fileName;
             }
-            List<String> dbType = Arrays.asList("h2", "mysql");
+            List<String> dbType = Arrays.asList("h2", this.getDbType());
             for (String type : dbType) {
                 GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName + ".sql",
                         type,

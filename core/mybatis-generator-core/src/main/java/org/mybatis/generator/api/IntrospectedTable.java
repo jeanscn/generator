@@ -1,5 +1,7 @@
 package org.mybatis.generator.api;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
@@ -28,6 +30,8 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  *
  * @author Jeff Butler
  */
+@Getter
+@Setter
 public abstract class IntrospectedTable {
 
 
@@ -89,6 +93,8 @@ public abstract class IntrospectedTable {
 
     protected FullyQualifiedTable fullyQualifiedTable;
 
+    protected String dbType;
+
     protected Context context;
 
     protected BaseRules rules;
@@ -102,6 +108,8 @@ public abstract class IntrospectedTable {
     protected final List<IntrospectedColumn> blobColumns = new ArrayList<>();
 
     protected final List<IndexInfo> indexes = new ArrayList<>();
+
+    protected Map<String, List<ForeignKeyInfo>> foreignKeys = new HashMap<>();
 
     protected Map<String, String> permissionDataScriptLines = new HashMap<>();
 
@@ -138,10 +146,6 @@ public abstract class IntrospectedTable {
 
     protected IntrospectedTable(TargetRuntime targetRuntime) {
         this.targetRuntime = targetRuntime;
-    }
-
-    public FullyQualifiedTable getFullyQualifiedTable() {
-        return fullyQualifiedTable;
     }
 
     public String getSelectByExampleQueryId() {
@@ -195,31 +199,8 @@ public abstract class IntrospectedTable {
                 .anyMatch(IntrospectedColumn::isJDBCTimeColumn);
     }
 
-    /**
-     * Returns the columns in the primary key. If the generatePrimaryKeyClass()
-     * method returns false, then these columns will be iterated as the
-     * parameters of the selectByPrimaryKay and deleteByPrimaryKey methods
-     *
-     * @return a List of ColumnDefinition objects for columns in the primary key
-     */
-    public List<IntrospectedColumn> getPrimaryKeyColumns() {
-        return primaryKeyColumns;
-    }
-
     public boolean hasPrimaryKeyColumns() {
         return !primaryKeyColumns.isEmpty();
-    }
-
-    public List<IntrospectedColumn> getBaseColumns() {
-        return baseColumns;
-    }
-
-    public List<FieldItem> getVoModelFields() {
-        return voModelFields;
-    }
-
-    public void setVoModelFields(List<FieldItem> voModelFields) {
-        this.voModelFields = voModelFields;
     }
 
     /**
@@ -265,10 +246,6 @@ public abstract class IntrospectedTable {
 
     public boolean hasBaseColumns() {
         return !baseColumns.isEmpty();
-    }
-
-    public BaseRules getRules() {
-        return rules;
     }
 
     public String getTableConfigurationProperty(String property) {
@@ -329,18 +306,6 @@ public abstract class IntrospectedTable {
 
     public boolean hasAnyColumns() {
         return hasPrimaryKeyColumns() || hasBaseColumns() || hasBLOBColumns();
-    }
-
-    public void setTableConfiguration(TableConfiguration tableConfiguration) {
-        this.tableConfiguration = tableConfiguration;
-    }
-
-    public void setFullyQualifiedTable(FullyQualifiedTable fullyQualifiedTable) {
-        this.fullyQualifiedTable = fullyQualifiedTable;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
     }
 
     public void addColumn(IntrospectedColumn introspectedColumn) {
@@ -734,12 +699,12 @@ public abstract class IntrospectedTable {
         return isTrue(propertyHolder.getProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES));
     }
 
-    public List<IndexInfo> getIndexes() {
-        return indexes;
-    }
-
     public void addIndex(IndexInfo indexInfo) {
         indexes.add(indexInfo);
+    }
+
+    public void addForeignKey(String name, List<ForeignKeyInfo> fkInfo) {
+        foreignKeys.put(name, fkInfo);
     }
 
     protected String calculateJavaClientInterfacePackage() {
@@ -1011,24 +976,11 @@ public abstract class IntrospectedTable {
 
     /**
      * This method should return the number of progress messages that will be
-     * send during the generation phase.
+     * sent during the generation phase.
      *
      * @return the number of progress messages
      */
     public abstract int getGenerationSteps();
-
-    /**
-     * This method exists to give plugins the opportunity to replace the calculated rules if necessary.
-     *
-     * @param rules the new rules
-     */
-    public void setRules(BaseRules rules) {
-        this.rules = rules;
-    }
-
-    public TableConfiguration getTableConfiguration() {
-        return tableConfiguration;
-    }
 
     public void setPrimaryKeyType(String primaryKeyType) {
         internalAttributes.put(InternalAttribute.ATTR_PRIMARY_KEY_TYPE,
@@ -1128,10 +1080,6 @@ public abstract class IntrospectedTable {
         internalAttributes.put(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE, s);
     }
 
-    public TargetRuntime getTargetRuntime() {
-        return targetRuntime;
-    }
-
     public boolean isImmutable() {
         Properties properties;
 
@@ -1169,10 +1117,6 @@ public abstract class IntrospectedTable {
      */
     public abstract boolean requiresXMLGenerator();
 
-    public Context getContext() {
-        return context;
-    }
-
     /**
      * 获得表注释
      *
@@ -1182,18 +1126,6 @@ public abstract class IntrospectedTable {
      */
     public String getRemarks(boolean simple) {
         return simple ? StringUtility.remarkLeft(remarks) : remarks;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public String getTableType() {
-        return tableType;
-    }
-
-    public void setTableType(String tableType) {
-        this.tableType = tableType;
     }
 
     /**
@@ -1231,24 +1163,12 @@ public abstract class IntrospectedTable {
         return getConfigPropertyValue(propertyRegistry, PropertyScope.any, propertyRegistryDefaultValue(propertyRegistry));
     }
 
-    public Map<String, String> getPermissionDataScriptLines() {
-        return permissionDataScriptLines;
-    }
-
     public void addPermissionDataScriptLines(String id, String permissionDataScriptLines) {
         this.permissionDataScriptLines.put(id, permissionDataScriptLines);
     }
 
-    public Map<String, String> getPermissionActionDataScriptLines() {
-        return permissionActionDataScriptLines;
-    }
-
     public void addPermissionActionDataScriptLines(String id, String permissionActionDataScriptLine) {
         this.permissionActionDataScriptLines.put(id, permissionActionDataScriptLine);
-    }
-
-    public Map<String, List<String>> getTopLevelClassExampleFields() {
-        return topLevelClassExampleFields;
     }
 
     private String propertyRegistryDefaultValue(String propertyRegistry) {
@@ -1264,21 +1184,4 @@ public abstract class IntrospectedTable {
                 return null;
         }
     }
-
-    public FullyQualifiedJavaType getVoModelType() {
-        return voModelType;
-    }
-
-    public void setVoModelType(FullyQualifiedJavaType voModelType) {
-        this.voModelType = voModelType;
-    }
-
-    public FullyQualifiedJavaType getVoCreateType() {
-        return voCreateType;
-    }
-
-    public void setVoCreateType(FullyQualifiedJavaType voCreateType) {
-        this.voCreateType = voCreateType;
-    }
-
 }

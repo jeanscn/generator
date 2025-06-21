@@ -1,6 +1,10 @@
 package org.mybatis.generator.api;
 
+import com.vgosoft.core.constant.enums.db.DDLDefaultValueEnum;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
+import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.TableConfiguration;
@@ -17,6 +21,8 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  *
  * @author Jeff Butler
  */
+@Getter
+@Setter
 public class IntrospectedColumn {
 
     protected String actualColumnName;
@@ -104,38 +110,6 @@ public class IntrospectedColumn {
         properties = new Properties();
     }
 
-    public int getJdbcType() {
-        return jdbcType;
-    }
-
-    public void setJdbcType(int jdbcType) {
-        this.jdbcType = jdbcType;
-    }
-
-    public int getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
-    }
-
-    public int getScale() {
-        return scale;
-    }
-
-    public void setScale(int scale) {
-        this.scale = scale;
-    }
-
     /*
      * This method is primarily used for debugging, so we don't externalize the
      * strings
@@ -162,14 +136,6 @@ public class IntrospectedColumn {
                 .stringContainsSpace(actualColumnName);
     }
 
-    public boolean isIdentity() {
-        return identity;
-    }
-
-    public void setIdentity(boolean identity) {
-        this.identity = identity;
-    }
-
     public boolean isBLOBColumn() {
         String typeName = getJdbcTypeName();
 
@@ -177,9 +143,9 @@ public class IntrospectedColumn {
                 || "LONGVARBINARY".equals(typeName) || "NCLOB".equals(typeName) || "VARBINARY".equals(typeName);
     }
 
-    public boolean isLongVarchar(){
+    public boolean isLongVarchar() {
         //-1:LONGVARCHAR, -16:LONGNVARCHAR
-        return this.getJdbcType()==-1 || this.getJdbcType()==-16;
+        return this.getJdbcType() == -1 || this.getJdbcType() == -16;
     }
 
     public boolean isStringColumn() {
@@ -215,15 +181,15 @@ public class IntrospectedColumn {
                 || jdbcType == Types.LONGVARBINARY;
     }
 
-    public boolean isNumericColumn(){
+    public boolean isNumericColumn() {
         return jdbcType == Types.BIGINT || jdbcType == Types.DECIMAL
                 || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
                 || jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC
                 || jdbcType == Types.REAL || jdbcType == Types.SMALLINT
-                || jdbcType == Types.TINYINT ;
+                || jdbcType == Types.TINYINT;
     }
 
-    public boolean isBooleanColumn(){
+    public boolean isBooleanColumn() {
         return jdbcType == Types.BIT || jdbcType == Types.BOOLEAN;
     }
 
@@ -237,10 +203,6 @@ public class IntrospectedColumn {
         }
 
         return prefix + javaProperty;
-    }
-
-    public void setJavaProperty(String javaProperty) {
-        this.javaProperty = javaProperty;
     }
 
     public boolean isJDBCDateColumn() {
@@ -276,18 +238,6 @@ public class IntrospectedColumn {
                 || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalTime"));
     }
 
-    public String getTypeHandler() {
-        return typeHandler;
-    }
-
-    public void setTypeHandler(String typeHandler) {
-        this.typeHandler = typeHandler;
-    }
-
-    public String getActualColumnName() {
-        return actualColumnName;
-    }
-
     public void setColumnNameDelimited(boolean isColumnNameDelimited) {
         this.isColumnNameDelimited = isColumnNameDelimited;
     }
@@ -304,49 +254,17 @@ public class IntrospectedColumn {
         return jdbcTypeName;
     }
 
-    public void setJdbcTypeName(String jdbcTypeName) {
-        this.jdbcTypeName = jdbcTypeName;
-    }
-
-    public FullyQualifiedJavaType getFullyQualifiedJavaType() {
-        return fullyQualifiedJavaType;
-    }
-
-    public void setFullyQualifiedJavaType(
-            FullyQualifiedJavaType fullyQualifiedJavaType) {
-        this.fullyQualifiedJavaType = fullyQualifiedJavaType;
-    }
-
-    public String getTableAlias() {
-        return tableAlias;
-    }
-
-    public void setTableAlias(String tableAlias) {
-        this.tableAlias = tableAlias;
-    }
-
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    public IntrospectedTable getIntrospectedTable() {
-        return introspectedTable;
-    }
-
-    public void setIntrospectedTable(IntrospectedTable introspectedTable) {
-        this.introspectedTable = introspectedTable;
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
     public void setProperties(Properties properties) {
         this.properties.putAll(properties);
+    }
+
+
+    public void addProperty(String key, String value) {
+        if (stringHasValue(value)) {
+            this.properties.setProperty(key, value);
+        } else {
+            this.properties.remove(key);
+        }
     }
 
     /**
@@ -358,18 +276,6 @@ public class IntrospectedColumn {
      */
     public String getRemarks(boolean simple) {
         return simple ? StringUtility.remarkLeft(remarks) : remarks;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
     }
 
     public boolean isSequenceColumn() {
@@ -411,21 +317,6 @@ public class IntrospectedColumn {
      *
      * @return the platform specific type name as reported by the JDBC driver
      */
-    public String getActualTypeName() {
-        return actualTypeName;
-    }
-
-    public void setActualTypeName(String actualTypeName) {
-        this.actualTypeName = actualTypeName;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
 
     public String getDatePattern() {
         switch (this.fullyQualifiedJavaType.getShortName()) {
@@ -446,16 +337,8 @@ public class IntrospectedColumn {
         }
     }
 
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
     public String getSqlFragmentLength() {
-        if(this.getActualTypeName().toUpperCase().contains("UNSIGNED")){
+        if (this.getActualTypeName().toUpperCase().contains("UNSIGNED")) {
             return "";
         }
         StringBuilder sb_length = new StringBuilder();
@@ -476,33 +359,50 @@ public class IntrospectedColumn {
         StringBuilder not_null = new StringBuilder();
         if (!this.isNullable()) {
             not_null.append("NOT NULL ");
-            JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
-            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                not_null.append(" DEFAULT '").append(this.defaultValue).append("' ");
-            } else {
-                not_null.append(" DEFAULT ").append(this.defaultValue).append(" ");
-            }
-        }else{
+        } else {
             not_null.append("NULL ");
         }
+        JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
+        not_null.append(getDefaultValueString(jdbcTypeType, this.defaultValue));
         return not_null.toString();
     }
 
-    public int getMinLength() {
-        return minLength;
+    private String getDefaultValueString(JDBCTypeTypeEnum jdbcTypeType, String defaultValue) {
+        if (VStringUtil.stringHasValue(defaultValue)) {
+            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
+                if (defaultValue.startsWith("'") && defaultValue.endsWith("'")) {
+                    return " DEFAULT " + defaultValue + " ";
+                } else {
+                    return " DEFAULT '" + defaultValue + "' ";
+                }
+            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
+                if (defaultValue.startsWith("CURRENT_")) {
+                    return " DEFAULT (" + defaultValue + ") ";
+                } else if (defaultValue.startsWith("'now")) {
+                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_DATETIME_EXPR.code() +" ";
+                } else if (defaultValue.startsWith("'curdate")) {
+                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_DATE_EXPR.code() +" ";
+                } else if (defaultValue.startsWith("'curtime")) {
+                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_TIME_EXPR.code() +" ";
+                } else {
+                    return " DEFAULT '" + defaultValue + "' ";
+                }
+            } else {
+                return " DEFAULT " + defaultValue + " ";
+            }
+        } else {
+            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
+                return " DEFAULT '' ";
+            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
+                return " DEFAULT " + DDLDefaultValueEnum.CURRENT_DATETIME_EXPR.code() + " ";
+            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.NUMERIC)) {
+                return " DEFAULT 0 ";
+            } else {
+                return " ";
+            }
+        }
     }
 
-    public void setMinLength(int minLength) {
-        this.minLength = minLength;
-    }
-
-    public boolean isBeValidated() {
-        return beValidated;
-    }
-
-    public void setBeValidated(boolean beValidated) {
-        this.beValidated = beValidated;
-    }
 
     public boolean isForeignKey() {
         return isForeignKey;
@@ -522,13 +422,5 @@ public class IntrospectedColumn {
 
     public void setPrimaryKey(boolean primaryKey) {
         isPrimaryKey = primaryKey;
-    }
-
-    public String getSubRemarks() {
-        return subRemarks;
-    }
-
-    public void setSubRemarks(String subRemarks) {
-        this.subRemarks = subRemarks;
     }
 }
