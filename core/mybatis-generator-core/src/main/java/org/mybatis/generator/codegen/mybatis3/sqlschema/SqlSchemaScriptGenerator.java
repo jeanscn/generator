@@ -4,16 +4,17 @@ import com.vgosoft.core.constant.Empty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.mybatis.generator.api.ForeignKeyInfo;
 import org.mybatis.generator.api.IndexInfo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.codegen.mybatis3.sqlschema.AbstractSqlScriptGenerator;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * sql脚本生成器
@@ -73,12 +74,26 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         //生成添加索引的sql
         if (!introspectedTable.getIndexes().isEmpty()) {
             for (IndexInfo index : introspectedTable.getIndexes()) {
-                String indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING BTREE", index.getName(), StringUtils.join(index.getColumnNames(), "`,`"));
+                String indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING {2}", index.getName(), StringUtils.join(index.getColumnNames(), "`,`"),VStringUtil.stringHasValue(index.getType())?index.getType() : "BTREE");
                 if (VStringUtil.stringHasValue(index.getComments())) {
-                    indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING BTREE COMMENT '{2}'", index.getName(), StringUtils.join(index.getColumnNames(), "`,`"), index.getComments());
+                    indexSql = VStringUtil.format("{0} COMMENT {1}", indexSql, "'"+index.getComments()+"'" );
                 }
                 columnSql.add(indexSql);
             }
+        }
+        // 生成外键的sql：CONSTRAINT `fk_role_id` FOREIGN KEY (`role_id`) REFERENCES `org_role` (`id_`) ON DELETE CASCADE ON UPDATE RESTRICT
+        if (!introspectedTable.getForeignKeys().isEmpty()) {
+            String formatSql = "    CONSTRAINT `{0}` FOREIGN KEY (`{1}`) REFERENCES `{2}` (`{3}`) ON DELETE {4} ON UPDATE {5}";
+            introspectedTable.getForeignKeys().forEach((foreignKeyName, foreignKeyInfos) -> {
+                String foreignKeySql = VStringUtil.format(formatSql,
+                        foreignKeyName,
+                        foreignKeyInfos.stream().map(ForeignKeyInfo::getFkColumnName).collect(Collectors.joining("`,`")),
+                        foreignKeyInfos.get(0).getPkTableName(),
+                        foreignKeyInfos.stream().map(ForeignKeyInfo::getPkColumnName).collect(Collectors.joining("`,`")),
+                        foreignKeyInfos.get(0).getDeleteRule().codeName(),
+                        foreignKeyInfos.get(0).getUpdateRule().codeName());
+                columnSql.add(foreignKeySql);
+            });
         }
         ret.add(String.join(",\n", columnSql));
         if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL)) {

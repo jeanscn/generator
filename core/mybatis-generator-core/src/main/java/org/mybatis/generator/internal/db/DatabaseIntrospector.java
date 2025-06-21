@@ -1,5 +1,7 @@
 package org.mybatis.generator.internal.db;
 
+import org.mybatis.generator.DBStrategy.DatabaseIntrospectorFactory;
+import org.mybatis.generator.DBStrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;
@@ -29,22 +31,27 @@ public class DatabaseIntrospector {
 
     private final Log logger;
 
+    private final Connection connection;
+
+    private final DatabaseIntrospectorStrategy strategy;
+
     public DatabaseIntrospector(Context context,
                                 DatabaseMetaData databaseMetaData,
                                 JavaTypeResolver javaTypeResolver,
-                                List<String> warnings) {
+                                List<String> warnings) throws SQLException {
         super();
         this.context = context;
         this.databaseMetaData = databaseMetaData;
         this.javaTypeResolver = javaTypeResolver;
         this.warnings = warnings;
         logger = LogFactory.getLog(getClass());
+        this.connection = databaseMetaData.getConnection();
+        this.strategy = DatabaseIntrospectorFactory.createIntrospectorStrategy(this.connection);
     }
 
     private void calculatePrimaryKey(FullyQualifiedTable table,
-            IntrospectedTable introspectedTable) {
+                                     IntrospectedTable introspectedTable) {
         ResultSet rs;
-
         try {
             rs = databaseMetaData.getPrimaryKeys(
                     table.getIntrospectedCatalog(), table
@@ -76,7 +83,6 @@ public class DatabaseIntrospector {
 
     private void calculateIndex(FullyQualifiedTable table, IntrospectedTable introspectedTable) {
         ResultSet rs = null;
-
         try {
             rs = databaseMetaData.getIndexInfo(
                     table.getIntrospectedCatalog(),
@@ -84,30 +90,38 @@ public class DatabaseIntrospector {
                     table.getIntrospectedTableName(),
                     false, // unique=false获取所有索引(包括非唯一索引)
                     true); // approximate
-
             // 使用Map存储索引信息，以索引名为键
             Map<String, IndexInfo> indexInfoMap = new HashMap<>();
-
+            Map<String, String> indexTypes = new HashMap<>();
+            Map<String, String> indexComments = strategy.getIndexComments(this.connection,table);
+            strategy.getIndexDetails(this.connection, table, indexComments, indexTypes);
             while (rs.next()) {
                 String indexName = rs.getString("INDEX_NAME");
-
                 // 过滤掉主键索引和空索引名
                 if (indexName == null || "PRIMARY".equals(indexName)) {
                     continue;
                 }
-
                 // 获取索引信息
                 boolean nonUnique = rs.getBoolean("NON_UNIQUE");
                 short ordinalPosition = rs.getShort("ORDINAL_POSITION");
                 String columnName = rs.getString("COLUMN_NAME");
                 String ascOrDesc = rs.getString("ASC_OR_DESC"); // 可能为null
-                // 索引注释
-                // 索引注释 - 安全获取，REMARKS列在标准JDBC中不存在
-                String indexComment = null;
 
+                // 获取索引类型
+                short type = rs.getShort("TYPE");
+                String indexType = strategy.getIndexTypeString(type);
+                if (indexTypes.containsKey(indexName)) {
+                    indexType = indexTypes.get(indexName);
+                }
+                // 索引注释
+                String indexComment = "Index on " + columnName;
+                if (indexComments.containsKey(indexName)) {
+                    indexComment = indexComments.get(indexName);
+                }
                 // 获取或创建索引信息对象
                 IndexInfo indexInfo = indexInfoMap.computeIfAbsent(indexName, k ->
-                    new IndexInfo(indexName, !nonUnique));
+                        new IndexInfo(indexName, !nonUnique));
+                indexInfo.setType(indexType);
                 indexInfo.setComments(indexComment);
                 // 添加列信息
                 indexInfo.addColumn(columnName, ordinalPosition, ascOrDesc);
@@ -120,6 +134,49 @@ public class DatabaseIntrospector {
 
         } catch (SQLException e) {
             warnings.add(getString("Warning.27", e.getMessage()));
+        } finally {
+            closeResultSet(rs);
+        }
+    }
+
+    private void calculateForeignKeys(FullyQualifiedTable table, IntrospectedTable introspectedTable) {
+        ResultSet rs = null;
+        try {
+            rs = databaseMetaData.getImportedKeys(
+                    table.getIntrospectedCatalog(),
+                    table.getIntrospectedSchema(),
+                    table.getIntrospectedTableName());
+            // Use a Map to group FK columns by FK name
+            Map<String, List<ForeignKeyInfo>> foreignKeys = new HashMap<>();
+
+            while (rs.next()) {
+                String fkName = rs.getString("FK_NAME");
+                String pkTableName = rs.getString("PKTABLE_NAME");
+                String pkColumnName = rs.getString("PKCOLUMN_NAME");
+                String fkColumnName = rs.getString("FKCOLUMN_NAME");
+                short keySeq = rs.getShort("KEY_SEQ");
+                short updateRule = rs.getShort("UPDATE_RULE");
+                short deleteRule = rs.getShort("DELETE_RULE");
+                ForeignKeyInfo fkInfo = new ForeignKeyInfo(
+                        fkName, pkTableName, pkColumnName, fkColumnName, updateRule, deleteRule, keySeq);
+                foreignKeys.computeIfAbsent(fkName, k -> new ArrayList<>()).add(fkInfo);
+                // Mark the column as foreign key column
+                introspectedTable.getColumn(fkColumnName).ifPresent(column -> {
+                    column.setForeignKey(true);
+                    column.addProperty("FK_NAME", fkName);
+                    column.addProperty("PK_TABLE_NAME", pkTableName);
+                    column.addProperty("PK_COLUMN_NAME", pkColumnName);
+                });
+            }
+            // Add the foreign key information to the introspected table
+            foreignKeys.forEach((fkName, fkInfos) -> {
+                // Sort by key sequence
+                fkInfos.sort(Comparator.comparing(ForeignKeyInfo::getKeySeq));
+                introspectedTable.addForeignKey(fkName, fkInfos);
+            });
+
+        } catch (SQLException e) {
+            warnings.add(getString("Warning.16", e.getMessage()));
         } finally {
             closeResultSet(rs);
         }
@@ -178,11 +235,9 @@ public class DatabaseIntrospector {
     /**
      * Returns a List of IntrospectedTable elements that matches the specified table configuration.
      *
-     * @param tc
-     *            the table configuration
+     * @param tc the table configuration
      * @return a list of introspected tables
-     * @throws SQLException
-     *             if any errors in introspection
+     * @throws SQLException if any errors in introspection
      */
     public List<IntrospectedTable> introspectTables(TableConfiguration tc)
             throws SQLException {
@@ -463,27 +518,19 @@ public class DatabaseIntrospector {
         Map<ActualTableName, List<IntrospectedColumn>> answer = new HashMap<>();
 
         if (logger.isDebugEnabled()) {
-            String fullTableName = composeFullyQualifiedTableName(localCatalog, localSchema,localTableName, '.');
+            String fullTableName = composeFullyQualifiedTableName(localCatalog, localSchema, localTableName, '.');
             logger.debug(getString("Tracing.1", fullTableName)); //$NON-NLS-1$
         }
 
         Set<String> fkColumnNames = new HashSet<>();
         ResultSet importedKeys = databaseMetaData.getImportedKeys(localCatalog, localSchema, localTableName);
         if (importedKeys.next()) {
-            String pkTableName = importedKeys.getString("PKTABLE_NAME"); //$NON-NLS-1$
-            String pkColumnName = importedKeys.getString("PKCOLUMN_NAME"); //$NON-NLS-1$
-            String fkTableName = importedKeys.getString("FKTABLE_NAME"); //$NON-NLS-1$
-            String fkColumnName = importedKeys.getString("FKCOLUMN_NAME"); //$NON-NLS-1$
-            String fkName = importedKeys.getString("FK_NAME"); //$NON-NLS-1$
-            String pkName = importedKeys.getString("PK_NAME");//$NON-NLS-1$
-            short keySeq = importedKeys.getShort("KEY_SEQ");//$NON-NLS-1$
-            short updateRule = importedKeys.getShort("UPDATE_RULE");//$NON-NLS-1$
-            short deleteRule = importedKeys.getShort("DELETE_RULE");//$NON-NLS-1$
+            String fkColumnName = importedKeys.getString("FKCOLUMN_NAME");
             fkColumnNames.add(fkColumnName);
         }
         closeResultSet(importedKeys);
 
-        ResultSet rs = databaseMetaData.getColumns(localCatalog, localSchema,localTableName, "%"); //$NON-NLS-1$
+        ResultSet rs = databaseMetaData.getColumns(localCatalog, localSchema, localTableName, "%"); //$NON-NLS-1$
 
         boolean supportsIsAutoIncrement = false;
         boolean supportsIsGeneratedColumn = false;
@@ -498,7 +545,7 @@ public class DatabaseIntrospector {
             }
         }
 
-        Map<String, String> remarks = getSqlServerRemarks(localTableName);
+        Map<String, String> remarks = strategy.getColumnRemarks(connection,localTableName);
         int order = 10;
         while (rs.next()) {
             IntrospectedColumn introspectedColumn = ObjectFactory.createIntrospectedColumn(context);
@@ -597,7 +644,7 @@ public class DatabaseIntrospector {
         return sb.toString();
     }
 
-    private List<IntrospectedTable> calculateIntrospectedTables(TableConfiguration tc,Map<ActualTableName, List<IntrospectedColumn>> columns) {
+    private List<IntrospectedTable> calculateIntrospectedTables(TableConfiguration tc, Map<ActualTableName, List<IntrospectedColumn>> columns) throws SQLException {
         boolean delimitIdentifiers = tc.isDelimitIdentifiers()
                 || stringContainsSpace(tc.getCatalog())
                 || stringContainsSpace(tc.getSchema())
@@ -614,7 +661,7 @@ public class DatabaseIntrospector {
             // from the DB for these fields, but nothing was specified on the
             // table
             // configuration, then some sort of DB default is being returned
-            // and we don't want that in our SQL
+            // we don't want that in our SQL
             FullyQualifiedTable table = new FullyQualifiedTable(
                     stringHasValue(tc.getCatalog()) ? atn.getCatalog() : null,
                     stringHasValue(tc.getSchema()) ? atn.getSchema() : null,
@@ -631,6 +678,9 @@ public class DatabaseIntrospector {
 
             IntrospectedTable introspectedTable = ObjectFactory.createIntrospectedTable(tc, table, context);
 
+            String dbType = this.databaseMetaData.getDatabaseProductName().toLowerCase();
+            introspectedTable.setDbType(dbType);
+
             for (IntrospectedColumn introspectedColumn : entry.getValue()) {
                 introspectedTable.addColumn(introspectedColumn);
             }
@@ -639,40 +689,22 @@ public class DatabaseIntrospector {
 
             calculateIndex(table, introspectedTable);
 
+            calculateForeignKeys(table, introspectedTable);
+
             enhanceIntrospectedTable(introspectedTable);
 
 
             //针对Sql Server更新remark
             try {
-                updateTableRemark(introspectedTable);
+                strategy.updateTableRemark(introspectedTable,connection);
             } catch (SQLException e) {
-                warnings.add("waring 0030 "+e.getMessage());
+                warnings.add("waring 0030 " + e.getMessage());
             }
 
             answer.add(introspectedTable);
         }
 
         return answer;
-    }
-
-    private void updateTableRemark(IntrospectedTable introspectedTable) throws SQLException {
-        Connection connection = this.databaseMetaData.getConnection();
-        if (context.isSqlServe()) {
-            ResultSet sqlServerResultSet = null;
-            /*String sql = "SELECT b.value from sysobjects a\n" +
-                    "left join sys.extended_properties b on a.id=b.major_id and b.minor_id=0\n" +
-                    "WHERE a.name = ? ";*/
-            String sql = "";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, introspectedTable.getTableConfiguration().getTableName());
-            sqlServerResultSet = ps.executeQuery();
-            while (sqlServerResultSet.next()) {
-                String remark = sqlServerResultSet.getString(1);
-                introspectedTable.setRemarks(remark);
-            }
-            sqlServerResultSet.close();
-        }
-
     }
 
     /**
@@ -699,27 +731,5 @@ public class DatabaseIntrospector {
         } catch (SQLException e) {
             warnings.add(getString("Warning.27", e.getMessage())); //$NON-NLS-1$
         }
-    }
-
-    private Map<String, String> getSqlServerRemarks(String localTableName) throws SQLException {
-        Connection connection = this.databaseMetaData.getConnection();
-        Map<String, String> remarks = new HashMap<>();
-        if (context.isSqlServe()) {
-            ResultSet sqlServerResultSet = null;
-            StringBuilder sb = new StringBuilder("SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS ");
-            sb.append("FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id ");
-            sb.append("LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id ");
-            sb.append("WHERE A.name = ? ");
-            PreparedStatement ps = connection.prepareStatement(sb.toString());
-            ps.setString(1, localTableName);
-            sqlServerResultSet = ps.executeQuery();
-            while (sqlServerResultSet.next()) {
-                String col_Name = sqlServerResultSet.getString(1);
-                String col_Remark = sqlServerResultSet.getString(2);
-                remarks.put(col_Name, col_Remark);
-            }
-            sqlServerResultSet.close();
-        }
-        return remarks;
     }
 }
