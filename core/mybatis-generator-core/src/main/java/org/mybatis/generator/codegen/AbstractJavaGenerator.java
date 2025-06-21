@@ -1,20 +1,24 @@
 package org.mybatis.generator.codegen;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.*;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
 
+@Getter
 public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
     public abstract List<CompilationUnit> getCompilationUnits();
@@ -24,10 +28,6 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected AbstractJavaGenerator(String project) {
         super();
         this.project = project;
-    }
-
-    public String getProject() {
-        return project;
     }
 
     public static Method getGetter(Field field) {
@@ -125,7 +125,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     }
 
     protected Set<String> addInitialization(List<IntrospectedColumn> columns, InitializationBlock initializationBlock, TopLevelClass topLevelClass) {
-        Set<String>  columnNames = new HashSet<>();
+        Set<String> columnNames = new HashSet<>();
         //在静态代码块中添加默认值
         final List<String> defaultFields = new ArrayList<>();
         topLevelClass.getSuperClass().ifPresent(s -> {
@@ -137,9 +137,31 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         columns.forEach(c -> {
             if (c.getDefaultValue() != null && !c.getDefaultValue().equalsIgnoreCase("null") && !defaultFields.contains(c.getJavaProperty())) {
                 columnNames.add(c.getActualColumnName());
-                if (c.getDefaultValue().equals("CURRENT_TIMESTAMP")) {
+                if (c.getDefaultValue().equals("CURRENT_TIMESTAMP") || c.getDefaultValue().startsWith("now(") || c.getDefaultValue().startsWith("'now(")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
+                } else if (c.getDefaultValue().startsWith("'curdate(") || c.getDefaultValue().startsWith("curdate(")) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDate();", c.getJavaProperty()));
+                    topLevelClass.addImportedType(V_DATE_UTILS);
+                } else if (c.getDefaultValue().startsWith("'curtime(") || c.getDefaultValue().startsWith("curtime(")) {
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentTime();", c.getJavaProperty()));
+                    topLevelClass.addImportedType(V_DATE_UTILS);
+                } else if (DbFiledDefaultValueEnum.ofCode(c.getDefaultValue())!=null) {
+                    // 这里需要重写getter，依赖ioc，只能进行懒加载
+                    DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(c.getDefaultValue());
+                    // c.getDefaultValue()的getter方法
+                    String getterMethodName = getGetterMethodName(c.getJavaProperty(), c.getFullyQualifiedJavaType());
+                    Method getterMethod = new Method(getterMethodName);
+                    getterMethod.setVisibility(JavaVisibility.PUBLIC);
+                    getterMethod.setReturnType(c.getFullyQualifiedJavaType());
+                    getterMethod.addBodyLine("if ({0} == null) '{'",c.getJavaProperty());
+                    getterMethod.addBodyLine(VStringUtil.format("return {0};", defaultValueEnum.codeName()));
+                    getterMethod.addBodyLine("}");
+                    getterMethod.addBodyLine(VStringUtil.format("return {0};", c.getJavaProperty()));
+                    if (VStringUtil.stringHasValue(defaultValueEnum.imports())) {
+                        topLevelClass.addMultipleImports(defaultValueEnum.imports().split(","));
+                    }
+                    topLevelClass.addMethod(getterMethod);
                 } else if (c.isJdbcCharacterColumn()) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), c.getDefaultValue()));
                 } else if (c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")) {
@@ -221,16 +243,11 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     /**
      * 增加actionType属性
      *
-     * @param topLevelClass 类
+     * @param topLevelClass     类
      * @param introspectedTable 表对象
      */
-    protected void addActionType(TopLevelClass topLevelClass,IntrospectedTable introspectedTable) {
-        Field addActionType = new Field("actionType", FullyQualifiedJavaType.getStringInstance());
-        addActionType.setVisibility(JavaVisibility.PRIVATE);
-        addActionType.setRemark("查询应用场景的类型标识");
-        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
-            addActionType.addAnnotation("@TableField(exist = false)");
-        }
+    protected void addActionType(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        Field addActionType = getField("actionType", FullyQualifiedJavaType.getStringInstance(), "查询应用场景的类型标识", introspectedTable);
         new ApiModelPropertyDesc(addActionType.getRemark(), "selector").addAnnotationToField(addActionType, topLevelClass);
         Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> f.getName().equals("actionType")).findFirst();
         if (!actionType.isPresent()) {
@@ -244,16 +261,12 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
     /**
      * 增加ignoreDeleteFlag属性
-     * @param topLevelClass 类
-     * @param introspectedTable  表对象
+     *
+     * @param topLevelClass     类
+     * @param introspectedTable 表对象
      */
     protected void addIgnoreDeleteFlag(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        Field ignoreDeleteFlag = new Field("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-        ignoreDeleteFlag.setVisibility(JavaVisibility.PRIVATE);
-        ignoreDeleteFlag.setRemark("是否忽略删除标记");
-        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
-            ignoreDeleteFlag.addAnnotation("@TableField(exist = false)");
-        }
+        Field ignoreDeleteFlag = getField("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略删除标记", introspectedTable);
         new ApiModelPropertyDesc(ignoreDeleteFlag.getRemark(), "false").addAnnotationToField(ignoreDeleteFlag, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignoreDeleteFlag")).findFirst();
         if (!optionalField.isPresent()) {
@@ -267,12 +280,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     }
 
     protected void addIgnorePermissionAnnotation(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        Field ignorePermissionAnnotation = new Field("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-        ignorePermissionAnnotation.setVisibility(JavaVisibility.PRIVATE);
-        ignorePermissionAnnotation.setRemark("是否忽略权限注解");
-        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
-            ignorePermissionAnnotation.addAnnotation("@TableField(exist = false)");
-        }
+        Field ignorePermissionAnnotation = getField("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略权限注解", introspectedTable);
         new ApiModelPropertyDesc(ignorePermissionAnnotation.getRemark(), "false").addAnnotationToField(ignorePermissionAnnotation, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignorePermissionAnnotation")).findFirst();
         if (!optionalField.isPresent()) {
@@ -285,20 +293,26 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         }
     }
 
+    private static Field getField(String ignorePermissionAnnotation, FullyQualifiedJavaType BooleanPrimitiveInstance, String remark, IntrospectedTable introspectedTable) {
+        Field field = new Field(ignorePermissionAnnotation, BooleanPrimitiveInstance);
+        field.setVisibility(JavaVisibility.PRIVATE);
+        field.setRemark(remark);
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+            field.addAnnotation("@TableField(exist = false)");
+        }
+        return field;
+    }
+
     /**
      * 增加ignoreIdList属性
-     * @param topLevelClass 类
-     * @param introspectedTable  表对象
+     *
+     * @param topLevelClass     类
+     * @param introspectedTable 表对象
      */
     protected void addIgnoreIdList(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
-        Field ignoreIdList = new Field("ignoreIdList", listType);
-        ignoreIdList.setVisibility(JavaVisibility.PRIVATE);
-        ignoreIdList.setRemark("查询忽略id列表");
-        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
-            ignoreIdList.addAnnotation("@TableField(exist = false)");
-        }
+        Field ignoreIdList = getField("ignoreIdList", listType, "查询忽略id列表", introspectedTable);
         new ApiModelPropertyDesc(ignoreIdList.getRemark(), "[]").addAnnotationToField(ignoreIdList, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignoreIdList")).findFirst();
         if (!optionalField.isPresent()) {
@@ -314,16 +328,12 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
     /**
      * 增加isIgnoreIds属性
-     * @param topLevelClass 类
-     * @param introspectedTable  表对象
+     *
+     * @param topLevelClass     类
+     * @param introspectedTable 表对象
      */
     protected void addIsHideIds(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        Field isHideIds = new Field("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-        isHideIds.setVisibility(JavaVisibility.PRIVATE);
-        isHideIds.setRemark("是否忽略隐藏id列表");
-        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
-            isHideIds.addAnnotation("@TableField(exist = false)");
-        }
+        Field isHideIds = getField("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable);
         new ApiModelPropertyDesc(isHideIds.getRemark(), "false").addAnnotationToField(isHideIds, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("isHideIds")).findFirst();
         if (!optionalField.isPresent()) {

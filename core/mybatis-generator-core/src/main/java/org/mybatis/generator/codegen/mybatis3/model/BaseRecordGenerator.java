@@ -185,6 +185,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         InitializationBlock initializationBlock = new InitializationBlock(false);
         //在静态代码块中添加默认值
         addInitialization(introspectedColumns, initializationBlock, topLevelClass);
+
         String beanName = introspectedTable.getControllerBeanName();
         if (!StringUtility.isEmpty(beanName) && assignable1) {
             initializationBlock.addBodyLine(VStringUtil.format("this.persistenceBeanName = \"{0}\";", introspectedTable.getControllerBeanName()));

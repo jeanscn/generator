@@ -1,10 +1,14 @@
 package org.mybatis.generator.api.dom.java;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.annotations.IAnnotation;
 
 import java.text.MessageFormat;
 import java.util.*;
 
+@Getter
+@Setter
 public class Method extends JavaElement {
 
     private final List<String> bodyLines = new ArrayList<>();
@@ -61,10 +65,6 @@ public class Method extends JavaElement {
         this.isFinal = original.isFinal;
     }
 
-    public List<String> getBodyLines() {
-        return bodyLines;
-    }
-
     public void addBodyLine(String line) {
         bodyLines.add(line);
     }
@@ -85,36 +85,12 @@ public class Method extends JavaElement {
         bodyLines.addAll(index, lines);
     }
 
-    public boolean isConstructor() {
-        return constructor;
-    }
-
-    public void setConstructor(boolean constructor) {
-        this.constructor = constructor;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<TypeParameter> getTypeParameters() {
-        return typeParameters;
-    }
-
     public void addTypeParameter(TypeParameter typeParameter) {
         typeParameters.add(typeParameter);
     }
 
     public void addTypeParameter(int index, TypeParameter typeParameter) {
         typeParameters.add(index, typeParameter);
-    }
-
-    public List<Parameter> getParameters() {
-        return parameters;
     }
 
     public void addParameter(Parameter parameter) {
@@ -127,14 +103,6 @@ public class Method extends JavaElement {
 
     public Optional<FullyQualifiedJavaType> getReturnType() {
         return Optional.ofNullable(returnType);
-    }
-
-    public void setReturnType(FullyQualifiedJavaType returnType) {
-        this.returnType = returnType;
-    }
-
-    public List<FullyQualifiedJavaType> getExceptions() {
-        return exceptions;
     }
 
     public void addException(FullyQualifiedJavaType exception) {
@@ -181,20 +149,8 @@ public class Method extends JavaElement {
         this.isFinal = isFinal;
     }
 
-    public String getReturnRemark() {
-        return returnRemark;
-    }
-
-    public void setReturnRemark(String returnRemark) {
-        this.returnRemark = returnRemark;
-    }
-
     public Optional<String> getExceptionRemark() {
         return Optional.ofNullable(exceptionRemark);
-    }
-
-    public void setExceptionRemark(String exceptionRemark) {
-        this.exceptionRemark = exceptionRemark;
     }
 
     public void addAnnotation(IAnnotation annotation, TopLevelClass parent){
