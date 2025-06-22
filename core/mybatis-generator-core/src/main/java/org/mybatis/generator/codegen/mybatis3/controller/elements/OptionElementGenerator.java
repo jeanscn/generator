@@ -45,7 +45,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "option" + methodKey;
         Method method = createMethod(methodPrefix);
-        MethodParameterDescript mpd = new MethodParameterDescript(parentElement,"get");
+        MethodParameterDescriptor mpd = new MethodParameterDescriptor(parentElement,"get");
         Parameter parameter = buildMethodParameter(mpd);
         parameter.setRemark("用于接收属性同名参数");
         method.addParameter(parameter);

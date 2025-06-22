@@ -33,10 +33,10 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "update";
         Method method = createMethod(methodPrefix);
 
-        MethodParameterDescript descript = new MethodParameterDescript(parentElement, "put");
-        descript.setValid(true);
-        descript.setRequestBody(true);
-        Parameter parameter = buildMethodParameter(descript);
+        MethodParameterDescriptor descriptor = new MethodParameterDescriptor(parentElement, "put");
+        descriptor.setValid(true);
+        descriptor.setRequestBody(true);
+        Parameter parameter = buildMethodParameter(descriptor);
         parameter.setRemark("待更新的数据对象");
         method.addParameter(parameter);
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,

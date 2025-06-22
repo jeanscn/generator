@@ -5,6 +5,7 @@ import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
@@ -27,12 +28,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(RESPONSE_RESULT);
 
-        List<IntrospectedColumn> initialColumns = getIocInitialColumn();
-
         boolean createdEvent = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getEntityEvent().contains(EntityEventEnum.CREATED.name());
-        if (createdEvent || !initialColumns.isEmpty()) {
-            parentElement.addImportedType(new FullyQualifiedJavaType("javax.annotation.Resource"));
-        }
 
         //为类添加属性protected EntityEventPublisher publisher;
         if (createdEvent) {
@@ -42,7 +38,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
             parentElement.addField(field);
             parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.event.entity.EntityEventPublisher"));
             parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.constant.enums.core.EntityEventEnum"));
-
+            parentElement.addImportedType(new FullyQualifiedJavaType("javax.annotation.Resource"));
         }
 
         FullyQualifiedJavaType type;
@@ -74,7 +70,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "实例化一个空对象，供前端使用.允许提供一些初始化值");
         if (introspectedTable.getRules().isGenerateCreateVO() && introspectedTable.getRules().isGenerateVoModel()) {
-            addIocInitialDefaultValue(initialColumns, method, parentElement, type);
+            addIocInitialDefaultValue(introspectedTable, method, parentElement, type);
             method.addBodyLine("{0} {1} = mappings.from{2}({3});", entityType.getShortName(), entityType.getShortNameFirstLowCase(), type.getShortName(), type.getShortNameFirstLowCase());
             if (createdEvent) {
                 method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.CREATED);", entityType.getShortNameFirstLowCase());
@@ -82,29 +78,9 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
             method.addBodyLine("{0} object = mappings.to{0}({1});", entityVoType.getShortName(), entityType.getShortNameFirstLowCase());
             method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue(object));");
         } else {
-            addIocInitialDefaultValue(initialColumns, method, parentElement, type);
+            addIocInitialDefaultValue(introspectedTable, method, parentElement, type);
             method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue({0}));", type.getShortNameFirstLowCase());
         }
         parentElement.addMethod(method);
-    }
-
-    private static void addIocInitialDefaultValue(List<IntrospectedColumn> initialColumns, Method method, TopLevelClass parentElement, FullyQualifiedJavaType type) {
-        if (!initialColumns.isEmpty()) {
-            for (IntrospectedColumn initialColumn : initialColumns) {
-                String propertyName = initialColumn.getJavaProperty();
-                DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(initialColumn.getDefaultValue());
-                if (defaultValueEnum != null) {
-                    method.addBodyLine("{0}.{1}({0}.{2}());", type.getShortNameFirstLowCase()
-                            , JavaBeansUtil.getSetterMethodName(propertyName)
-                            , JavaBeansUtil.getGetterMethodName(propertyName, initialColumn.getFullyQualifiedJavaType()));
-                }
-            }
-        }
-    }
-
-    private List<IntrospectedColumn> getIocInitialColumn() {
-        return introspectedTable.getAllColumns().stream()
-                .filter(column -> VStringUtil.stringHasValue(column.getDefaultValue()) && DbFiledDefaultValueEnum.ofCode(column.getDefaultValue()) != null)
-                .collect(Collectors.toList());
     }
 }

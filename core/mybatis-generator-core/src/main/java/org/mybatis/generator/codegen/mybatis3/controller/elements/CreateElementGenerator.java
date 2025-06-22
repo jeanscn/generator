@@ -32,10 +32,10 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "create";
         Method method = createMethod(methodPrefix);
 
-        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"post");
-        descript.setValid(true);
-        descript.setRequestBody(true);
-        Parameter parameter = buildMethodParameter(descript);
+        MethodParameterDescriptor descriptor = new MethodParameterDescriptor(parentElement,"post");
+        descriptor.setValid(true);
+        descriptor.setRequestBody(true);
+        Parameter parameter = buildMethodParameter(descriptor);
         parameter.setRemark("接收请求待持久化的数据（对象）");
         method.addParameter(parameter);
 

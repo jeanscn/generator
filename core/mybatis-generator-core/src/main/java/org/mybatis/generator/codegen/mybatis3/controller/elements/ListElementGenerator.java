@@ -11,8 +11,6 @@ import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
-import java.util.Map;
-
 public class ListElementGenerator extends AbstractControllerElementGenerator {
 
     public ListElementGenerator() {
@@ -32,7 +30,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
 
         final String methodPrefix = "list";
         Method method = createMethod(methodPrefix);
-        MethodParameterDescript descriptor = new MethodParameterDescript(parentElement, "get");
+        MethodParameterDescriptor descriptor = new MethodParameterDescriptor(parentElement, "get");
         descriptor.setValid(true);
         // @Validated(value= ValidateQuery.class)  VO vo
         Parameter parameter = buildMethodParameter(descriptor);
@@ -68,7 +66,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
 
         //生成post方法
         Method postMethod = createMethod(methodPrefix + "Post");
-        MethodParameterDescript postDescription = new MethodParameterDescript(parentElement, "list");
+        MethodParameterDescriptor postDescription = new MethodParameterDescriptor(parentElement, "list");
         postDescription.setValid(true);
         postDescription.setRequestBody(true);
         Parameter postParameter = buildMethodParameter(postDescription);

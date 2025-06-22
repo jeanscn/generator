@@ -32,7 +32,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         Parameter parameter = new Parameter(response, "response");
         parameter.setRemark("http响应");
         method.addParameter(parameter);
-        MethodParameterDescript descript = new MethodParameterDescript(parentElement,"get");
+        MethodParameterDescriptor descriptor = new MethodParameterDescriptor(parentElement,"get");
         FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
         listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         Parameter idsParam = new Parameter(listInstance, "ids");

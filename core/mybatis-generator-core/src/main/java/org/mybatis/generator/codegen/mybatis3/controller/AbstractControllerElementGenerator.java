@@ -1,8 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
+import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.CommentGenerator;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -16,11 +21,15 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+@Setter
+@Getter
 public abstract class AbstractControllerElementGenerator extends AbstractGenerator {
 
     protected FullyQualifiedJavaType entityType;
@@ -72,7 +81,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         commentGenerator = context.getCommentGenerator();
         serviceBeanName = introspectedTable.getControllerBeanName();
         entityNameKey = GenerateUtils.isWorkflowInstance(introspectedTable) ? "business" : "entity";
-        if (introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().size() > 0) {
+        if (!introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().isEmpty()) {
             htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
         }
         responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
@@ -125,42 +134,42 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         return responseResult;
     }
 
-    protected Parameter buildMethodParameter(MethodParameterDescript descript) {
-        if (descript.returnFqt == null) {
-            descript.returnFqt = getMethodParameterVOType(descript.methodType);
+    protected Parameter buildMethodParameter(MethodParameterDescriptor descriptor) {
+        if (descriptor.returnFqt == null) {
+            descriptor.returnFqt = getMethodParameterVOType(descriptor.methodType);
         }
         Parameter parameter;
-        if (descript.isList) {
+        if (descriptor.isList) {
             FullyQualifiedJavaType listInstance;
-            if ("put".equalsIgnoreCase(descript.methodType) || "post".equalsIgnoreCase(descript.methodType)) {
+            if ("put".equalsIgnoreCase(descriptor.methodType) || "post".equalsIgnoreCase(descriptor.methodType)) {
                 listInstance = new FullyQualifiedJavaType("com.vgosoft.tool.ValidList");
             } else {
                 listInstance = FullyQualifiedJavaType.getNewListInstance();
             }
-            listInstance.addTypeArgument(descript.returnFqt);
-            parameter = new Parameter(listInstance, descript.returnFqt.getShortNameFirstLowCase() + "s");
-            descript.parentElement.addImportedType(descript.returnFqt);
-            descript.parentElement.addImportedType(listInstance);
+            listInstance.addTypeArgument(descriptor.returnFqt);
+            parameter = new Parameter(listInstance, descriptor.returnFqt.getShortNameFirstLowCase() + "s");
+            descriptor.parentElement.addImportedType(descriptor.returnFqt);
+            descriptor.parentElement.addImportedType(listInstance);
         } else {
-            parameter = new Parameter(descript.returnFqt, descript.returnFqt.getShortNameFirstLowCase());
-            descript.parentElement.addImportedType(descript.returnFqt);
+            parameter = new Parameter(descriptor.returnFqt, descriptor.returnFqt.getShortNameFirstLowCase());
+            descriptor.parentElement.addImportedType(descriptor.returnFqt);
         }
-        if (descript.isValid) {
-            descript.parentElement.addImportedType("org.springframework.validation.annotation.Validated");
-            switch (descript.methodType.toLowerCase()) {
+        if (descriptor.isValid) {
+            descriptor.parentElement.addImportedType("org.springframework.validation.annotation.Validated");
+            switch (descriptor.methodType.toLowerCase()) {
                 case "put":
                     parameter.addAnnotation("@Validated(value= ValidateUpdate.class)");
-                    descript.parentElement.addImportedType("com.vgosoft.core.valid.ValidateUpdate");
+                    descriptor.parentElement.addImportedType("com.vgosoft.core.valid.ValidateUpdate");
                     break;
                 case "post":
                     parameter.addAnnotation("@Validated(value= ValidateInsert.class)");
-                    descript.parentElement.addImportedType("com.vgosoft.core.valid.ValidateInsert");
+                    descriptor.parentElement.addImportedType("com.vgosoft.core.valid.ValidateInsert");
                     break;
             }
         }
-        if (descript.isRequestBody) {
+        if (descriptor.isRequestBody) {
             parameter.addAnnotation("@RequestBody");
-            descript.parentElement.addImportedType("org.springframework.web.bind.annotation.RequestBody");
+            descriptor.parentElement.addImportedType("org.springframework.web.bind.annotation.RequestBody");
         }
         return parameter;
     }
@@ -292,6 +301,23 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         }
     }
 
+    protected static void addIocInitialDefaultValue(IntrospectedTable introspectedTable, Method method, TopLevelClass parentElement, FullyQualifiedJavaType type) {
+        List<IntrospectedColumn> initialColumns = introspectedTable.getAllColumns().stream()
+                .filter(column -> VStringUtil.stringHasValue(column.getDefaultValue()) && DbFiledDefaultValueEnum.ofCode(column.getDefaultValue()) != null)
+                .collect(Collectors.toList());
+        if (!initialColumns.isEmpty()) {
+            for (IntrospectedColumn initialColumn : initialColumns) {
+                String propertyName = initialColumn.getJavaProperty();
+                DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(initialColumn.getDefaultValue());
+                if (defaultValueEnum != null) {
+                    method.addBodyLine("{0}.{1}({0}.{2}());", type.getShortNameFirstLowCase()
+                            , JavaBeansUtil.getSetterMethodName(propertyName)
+                            , JavaBeansUtil.getGetterMethodName(propertyName, initialColumn.getFullyQualifiedJavaType()));
+                }
+            }
+        }
+    }
+
     /**
      * 方法参数构造内部方法的描述
      * isValid 是否需要增加@Valid验证注解
@@ -301,15 +327,15 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
      * returnFqt 返回的类型或泛型类型。如果null是按照方法类型进行计算vo对象
      * parentElement 父级方法的父类
      */
-    public static class MethodParameterDescript {
+    public static class MethodParameterDescriptor {
         private boolean isValid = false;
         private boolean isRequestBody = false;
         private boolean isList = false;
-        private String methodType;
+        private final String methodType;
         private FullyQualifiedJavaType returnFqt;
-        private TopLevelClass parentElement;
+        private final TopLevelClass parentElement;
 
-        public MethodParameterDescript(TopLevelClass parentElement, String methodType) {
+        public MethodParameterDescriptor(TopLevelClass parentElement, String methodType) {
             this.parentElement = parentElement;
             this.methodType = methodType;
         }
@@ -336,30 +362,6 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
 
         public void setList(boolean list) {
             isList = list;
-        }
-
-        public String getMethodType() {
-            return methodType;
-        }
-
-        public void setMethodType(String methodType) {
-            this.methodType = methodType;
-        }
-
-        public FullyQualifiedJavaType getReturnFqt() {
-            return returnFqt;
-        }
-
-        public void setReturnFqt(FullyQualifiedJavaType returnFqt) {
-            this.returnFqt = returnFqt;
-        }
-
-        public TopLevelClass getParentElement() {
-            return parentElement;
-        }
-
-        public void setParentElement(TopLevelClass parentElement) {
-            this.parentElement = parentElement;
         }
     }
 }

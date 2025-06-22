@@ -30,11 +30,11 @@ public class SelectBySqlMethodElementGenerator extends AbstractControllerElement
         final String methodPrefix = "get";
         Method method = createMethod(methodPrefix);
 
-        MethodParameterDescript descript = new MethodParameterDescript(parentElement, "put");
-        descript.setValid(true);
-        descript.setRequestBody(true);
-        descript.setList(true);
-        method.addParameter(buildMethodParameter(descript));
+        MethodParameterDescriptor descriptor = new MethodParameterDescriptor(parentElement, "put");
+        descriptor.setValid(true);
+        descriptor.setRequestBody(true);
+        descriptor.setList(true);
+        method.addParameter(buildMethodParameter(descriptor));
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
                 getMethodParameterVOType(""),
                 parentElement));

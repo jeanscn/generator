@@ -43,12 +43,8 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         parameter.setRemark("待创建的数据对象列表");
         method.addParameter(parameter);
         commentGenerator.addMethodJavaDocLine(method, "批量设置列表中选择的数据为隐藏");
-
-        method.addBodyLine("IUser currentUser = organizationMgr.getCurrentUser();");
         method.addBodyLine("List<SysPerFilterOutBin> sysPerFilterOutBins = mappings.toSysPerFilterOutBins(mappings.from{0}s({1}));",entityVoType.getShortName(),entityVoVar + "s");
-        method.addBodyLine("for (SysPerFilterOutBin sysPerFilterOutBin : sysPerFilterOutBins) {");
-        method.addBodyLine("sysPerFilterOutBin.setOperateUserId(currentUser.getId());");
-        method.addBodyLine("}");
+        method.addBodyLine("sysPerFilterOutBins.forEach(sysPerFilterOutBin -> sysPerFilterOutBin.setOperateUserId(sysPerFilterOutBin.getOperateUserId()));");
         method.addBodyLine("ServiceResult<List<SysPerFilterOutBin>> listServiceResult = sysPerFilterOutBinImpl.insertBatch(sysPerFilterOutBins);");
         method.addBodyLine("if (listServiceResult.hasResult()) {");
         method.addBodyLine("return success(SysPerFilterOutBinMappings.INSTANCE.toSysPerFilterOutBinVOs(sysPerFilterOutBins));");
