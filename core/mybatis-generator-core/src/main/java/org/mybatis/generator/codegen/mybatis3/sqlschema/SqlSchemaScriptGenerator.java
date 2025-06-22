@@ -8,7 +8,6 @@ import org.mybatis.generator.api.ForeignKeyInfo;
 import org.mybatis.generator.api.IndexInfo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.util.SqlScriptUtil;
 
