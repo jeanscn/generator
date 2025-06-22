@@ -1,16 +1,11 @@
 package org.mybatis.generator.api;
 
-import com.vgosoft.core.constant.enums.db.DDLDefaultValueEnum;
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
-import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.sql.JDBCType;
 import java.sql.Types;
 import java.util.Properties;
 
@@ -354,55 +349,6 @@ public class IntrospectedColumn {
         }
         return sb_length.toString();
     }
-
-    public String getSqlFragmentNotNull() {
-        StringBuilder not_null = new StringBuilder();
-        if (!this.isNullable()) {
-            not_null.append("NOT NULL ");
-        } else {
-            not_null.append("NULL ");
-        }
-        JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(this.jdbcType));
-        not_null.append(getDefaultValueString(jdbcTypeType, this.defaultValue));
-        return not_null.toString();
-    }
-
-    private String getDefaultValueString(JDBCTypeTypeEnum jdbcTypeType, String defaultValue) {
-        if (VStringUtil.stringHasValue(defaultValue)) {
-            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                if (defaultValue.startsWith("'") && defaultValue.endsWith("'")) {
-                    return " DEFAULT " + defaultValue + " ";
-                } else {
-                    return " DEFAULT '" + defaultValue + "' ";
-                }
-            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
-                if (defaultValue.startsWith("CURRENT_")) {
-                    return " DEFAULT (" + defaultValue + ") ";
-                } else if (defaultValue.startsWith("'now")) {
-                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_DATETIME_EXPR.code() +" ";
-                } else if (defaultValue.startsWith("'curdate")) {
-                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_DATE_EXPR.code() +" ";
-                } else if (defaultValue.startsWith("'curtime")) {
-                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_TIME_EXPR.code() +" ";
-                } else {
-                    return " DEFAULT '" + defaultValue + "' ";
-                }
-            } else {
-                return " DEFAULT " + defaultValue + " ";
-            }
-        } else {
-            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                return " DEFAULT '' ";
-            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
-                return " DEFAULT " + DDLDefaultValueEnum.CURRENT_DATETIME_EXPR.code() + " ";
-            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.NUMERIC)) {
-                return " DEFAULT 0 ";
-            } else {
-                return " ";
-            }
-        }
-    }
-
 
     public boolean isForeignKey() {
         return isForeignKey;

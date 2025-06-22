@@ -1,7 +1,6 @@
 package org.mybatis.generator.custom.db;
 
 import com.vgosoft.core.annotation.ColumnMeta;
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.core.db.types.JavaTypeResolver;
 import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
@@ -13,6 +12,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.util.SqlScriptUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.lang.reflect.Field;
@@ -69,7 +69,7 @@ public class ValidateDatabaseTable {
                 //成功后更新List<IntrospectedTable>
                 updateTableIntrospectedTables();
             } catch (SQLException e) {
-                warnings.add("更新数据库时发生错误：" + e.getMessage());
+                warnings.add("更新数据库时发生错误：(" + e.getMessage()+") " + sql);
             }
         }
     }
@@ -159,8 +159,8 @@ public class ValidateDatabaseTable {
                             || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
-                            || (!columnMeta.nullable() && !columnMeta.pkid()
-                            && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
+                            || (!columnMeta.nullable() && !columnMeta.pkid() && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
+                            || VStringUtil.stringHasValue(columnMeta.defaultValue()) && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue())
                     ) {
                         IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
                         newColumn.setIntrospectedTable(introspectedTable);
@@ -198,8 +198,7 @@ public class ValidateDatabaseTable {
         introspectedColumn.setScale(columnMeta.scale());
         String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();
         introspectedColumn.setRemarks(remark);
-        String defaultValue = columnMeta.nullable() ? null : columnMeta.defaultValue();
-        introspectedColumn.setDefaultValue(defaultValue);
+        introspectedColumn.setDefaultValue(columnMeta.defaultValue());
         introspectedColumn.setNullable(columnMeta.nullable());
         introspectedColumn.setJdbcTypeName(columnMeta.type().getName());
         introspectedColumn.setPrimaryKey(columnMeta.pkid());
@@ -229,7 +228,7 @@ public class ValidateDatabaseTable {
                 List<IntrospectedColumn> introspectedColumns = addMap.get(tc.getTableName());
                 String collect = introspectedColumns.stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
                 warnings.add(VStringUtil.format("需要添加的字段：{0}->{1}", tc.getTableName(), collect));
-                sb.append(getColumnSql(introspectedColumns, "ADD"));
+                sb.append(SqlScriptUtil.getColumnSql(introspectedColumns, "ADD", this.databaseProductName));
             }
             if (updMap.containsKey(tc.getTableName())) {
                 List<IntrospectedColumn> introspectedColumns = updMap.get(tc.getTableName());
@@ -238,7 +237,7 @@ public class ValidateDatabaseTable {
                 if (sb.length() > 0) {
                     sb.append(",\n");
                 }
-                sb.append(getColumnSql(updMap.get(tc.getTableName()), "MODIFY"));
+                sb.append(SqlScriptUtil.getColumnSql(updMap.get(tc.getTableName()), "MODIFY", this.databaseProductName));
             }
             //增加主键
             List<String> affectPKs = Stream.of(addColumns.stream(), updateColumns.stream())
@@ -274,34 +273,6 @@ public class ValidateDatabaseTable {
             ret.append(";");
         }
         return ret.toString();
-    }
-
-    private String getColumnSql(List<IntrospectedColumn> columns, String actionKey) {
-        StringBuilder sb = new StringBuilder();
-        for (IntrospectedColumn col : columns) {
-            /*
-             * sql模板
-             * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `parent_id`;
-             * */
-            DatabaseDDLDialects databaseDialect = DatabaseDDLDialects.getDatabaseDialect(this.databaseProductName);
-            String COLUMN_STATEMENT = databaseDialect.getColumnModifyStatement();
-            String character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
-            String position = stringHasValue(col.getPosition()) ? " " + col.getPosition() : "";
-            String onAddRow = VStringUtil.format(COLUMN_STATEMENT,
-                    actionKey,
-                    col.getActualColumnName(),
-                    col.getActualTypeName(),
-                    col.getSqlFragmentLength(),
-                    character,
-                    col.getSqlFragmentNotNull(),
-                    col.getRemarks(false),
-                    position);
-            if (sb.length() > 0) {
-                sb.append(",").append("\n");
-            }
-            sb.append(onAddRow);
-        }
-        return sb.toString();
     }
 
     /**

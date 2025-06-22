@@ -10,6 +10,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
+import org.mybatis.generator.internal.util.SqlScriptUtil;
 
 import java.sql.JDBCType;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                     VStringUtil.toCamelCase(col.getActualTypeName()),
                     col.getSqlFragmentLength(),
                     character,
-                    col.getSqlFragmentNotNull(),
+                    SqlScriptUtil.getSqlFragmentNotNull(col),
                     col.getRemarks(false));
             columnSql.add(rowSql);
         }

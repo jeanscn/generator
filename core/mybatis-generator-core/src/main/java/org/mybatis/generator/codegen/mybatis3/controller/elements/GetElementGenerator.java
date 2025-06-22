@@ -59,8 +59,8 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine("return success({0});",
                 introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName()+"(serviceResult.getResult())":"serviceResult.getResult()");
-        method.addBodyLine("}else{");
-        method.addBodyLine("return failure(ApiCodeEnum.FAIL_NOT_FOUND,\"{0}\");",introspectedTable.getRemarks(true)+"数据记录");
+        method.addBodyLine("} else {");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_NOT_FOUND, \"{0}\");",introspectedTable.getRemarks(true)+"数据记录");
         method.addBodyLine("}");
         parentElement.addMethod(method);
     }

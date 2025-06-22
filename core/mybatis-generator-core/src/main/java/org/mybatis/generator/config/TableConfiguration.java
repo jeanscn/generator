@@ -6,6 +6,8 @@ import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static org.mybatis.generator.internal.util.StringUtility.*;
 
+@Setter
+@Getter
 public class TableConfiguration extends PropertyHolder {
 
     private boolean insertStatementEnabled;
@@ -167,46 +171,6 @@ public class TableConfiguration extends PropertyHolder {
 
     }
 
-    public boolean isDeleteByPrimaryKeyStatementEnabled() {
-        return deleteByPrimaryKeyStatementEnabled;
-    }
-
-    public void setDeleteByPrimaryKeyStatementEnabled(boolean deleteByPrimaryKeyStatementEnabled) {
-        this.deleteByPrimaryKeyStatementEnabled = deleteByPrimaryKeyStatementEnabled;
-    }
-
-    public boolean isInsertStatementEnabled() {
-        return insertStatementEnabled;
-    }
-
-    public void setInsertStatementEnabled(boolean insertStatementEnabled) {
-        this.insertStatementEnabled = insertStatementEnabled;
-    }
-
-    public boolean isInsertBatchStatementEnabled() {
-        return insertBatchStatementEnabled;
-    }
-
-    public void setInsertBatchStatementEnabled(boolean insertBatchStatementEnabled) {
-        this.insertBatchStatementEnabled = insertBatchStatementEnabled;
-    }
-
-    public boolean isSelectByPrimaryKeyStatementEnabled() {
-        return selectByPrimaryKeyStatementEnabled;
-    }
-
-    public void setSelectByPrimaryKeyStatementEnabled(boolean selectByPrimaryKeyStatementEnabled) {
-        this.selectByPrimaryKeyStatementEnabled = selectByPrimaryKeyStatementEnabled;
-    }
-
-    public boolean isUpdateByPrimaryKeyStatementEnabled() {
-        return updateByPrimaryKeyStatementEnabled;
-    }
-
-    public void setUpdateByPrimaryKeyStatementEnabled(boolean updateByPrimaryKeyStatementEnabled) {
-        this.updateByPrimaryKeyStatementEnabled = updateByPrimaryKeyStatementEnabled;
-    }
-
     public boolean isColumnIgnored(String columnName) {
         for (Map.Entry<IgnoredColumn, Boolean> entry : ignoredColumns.entrySet()) {
             if (entry.getKey().matches(columnName)) {
@@ -256,14 +220,6 @@ public class TableConfiguration extends PropertyHolder {
         return Objects.hash(catalog, schema, tableName);
     }
 
-    public boolean isSelectByExampleStatementEnabled() {
-        return selectByExampleStatementEnabled;
-    }
-
-    public void setSelectByExampleStatementEnabled(boolean selectByExampleStatementEnabled) {
-        this.selectByExampleStatementEnabled = selectByExampleStatementEnabled;
-    }
-
     /**
      * May return null if the column has not been overridden.
      *
@@ -290,60 +246,8 @@ public class TableConfiguration extends PropertyHolder {
         return Optional.ofNullable(generatedKey);
     }
 
-    public String getSelectByExampleQueryId() {
-        return selectByExampleQueryId;
-    }
-
-    public void setSelectByExampleQueryId(String selectByExampleQueryId) {
-        this.selectByExampleQueryId = selectByExampleQueryId;
-    }
-
-    public String getSelectByPrimaryKeyQueryId() {
-        return selectByPrimaryKeyQueryId;
-    }
-
-    public void setSelectByPrimaryKeyQueryId(String selectByPrimaryKeyQueryId) {
-        this.selectByPrimaryKeyQueryId = selectByPrimaryKeyQueryId;
-    }
-
-    public boolean isDeleteByExampleStatementEnabled() {
-        return deleteByExampleStatementEnabled;
-    }
-
-    public void setDeleteByExampleStatementEnabled(boolean deleteByExampleStatementEnabled) {
-        this.deleteByExampleStatementEnabled = deleteByExampleStatementEnabled;
-    }
-
     public boolean areAnyStatementsEnabled() {
         return selectByExampleStatementEnabled || selectByPrimaryKeyStatementEnabled || insertStatementEnabled || updateByPrimaryKeyStatementEnabled || deleteByExampleStatementEnabled || deleteByPrimaryKeyStatementEnabled || countByExampleStatementEnabled || updateByExampleStatementEnabled;
-    }
-
-    public void setGeneratedKey(GeneratedKey generatedKey) {
-        this.generatedKey = generatedKey;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    public String getCatalog() {
-        return catalog;
-    }
-
-    public void setCatalog(String catalog) {
-        this.catalog = catalog;
-    }
-
-    public String getDomainObjectName() {
-        return domainObjectName;
-    }
-
-    public void setDomainObjectName(String domainObjectName) {
-        this.domainObjectName = domainObjectName;
     }
 
     public boolean isModules() {
@@ -352,42 +256,6 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setModules(boolean modules) {
         isModules = modules;
-    }
-
-    public String getSchema() {
-        return schema;
-    }
-
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getTableType() {
-        return tableType;
-    }
-
-    public void setTableType(String tableType) {
-        this.tableType = tableType;
-    }
-
-    public List<ColumnOverride> getColumnOverrides() {
-        return columnOverrides;
-    }
-
-    public Set<String> getValidateIgnoreColumns() {
-        return validateIgnoreColumns;
-    }
-
-    public void setValidateIgnoreColumns(Set<String> validateIgnoreColumns) {
-        this.validateIgnoreColumns = validateIgnoreColumns;
     }
 
     /**
@@ -410,73 +278,13 @@ public class TableConfiguration extends PropertyHolder {
         return answer;
     }
 
-    public ModelType getModelType() {
-        return modelType;
-    }
-
     public void setConfiguredModelType(String configuredModelType) {
         this.modelType = ModelType.getModelType(configuredModelType);
-    }
-
-    public boolean isWildcardEscapingEnabled() {
-        return wildcardEscapingEnabled;
-    }
-
-    public void setWildcardEscapingEnabled(boolean wildcardEscapingEnabled) {
-        this.wildcardEscapingEnabled = wildcardEscapingEnabled;
     }
 
     @Override
     public String toString() {
         return composeFullyQualifiedTableName(catalog, schema, tableName, '.');
-    }
-
-    public boolean isDelimitIdentifiers() {
-        return delimitIdentifiers;
-    }
-
-    public void setDelimitIdentifiers(boolean delimitIdentifiers) {
-        this.delimitIdentifiers = delimitIdentifiers;
-    }
-
-    public boolean isCountByExampleStatementEnabled() {
-        return countByExampleStatementEnabled;
-    }
-
-    public void setCountByExampleStatementEnabled(boolean countByExampleStatementEnabled) {
-        this.countByExampleStatementEnabled = countByExampleStatementEnabled;
-    }
-
-    public boolean isUpdateByExampleStatementEnabled() {
-        return updateByExampleStatementEnabled;
-    }
-
-    public void setUpdateByExampleStatementEnabled(boolean updateByExampleStatementEnabled) {
-        this.updateByExampleStatementEnabled = updateByExampleStatementEnabled;
-    }
-
-    public boolean isUpdateBatchStatementEnabled() {
-        return updateBatchStatementEnabled;
-    }
-
-    public void setUpdateBatchStatementEnabled(boolean updateBatchStatementEnabled) {
-        this.updateBatchStatementEnabled = updateBatchStatementEnabled;
-    }
-
-    public boolean isInsertOrUpdateStatementEnabled() {
-        return insertOrUpdateStatementEnabled;
-    }
-
-    public void setInsertOrUpdateStatementEnabled(boolean insertOrUpdateStatementEnabled) {
-        this.insertOrUpdateStatementEnabled = insertOrUpdateStatementEnabled;
-    }
-
-    public boolean isFileUploadStatementEnabled() {
-        return fileUploadStatementEnabled;
-    }
-
-    public void setFileUploadStatementEnabled(boolean fileUploadStatementEnabled) {
-        this.fileUploadStatementEnabled = fileUploadStatementEnabled;
     }
 
     public void validate(List<String> errors, int listPosition) {
@@ -523,44 +331,12 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
-    public DomainObjectRenamingRule getDomainObjectRenamingRule() {
-        return domainObjectRenamingRule;
-    }
-
-    public void setDomainObjectRenamingRule(DomainObjectRenamingRule domainObjectRenamingRule) {
-        this.domainObjectRenamingRule = domainObjectRenamingRule;
-    }
-
-    public ColumnRenamingRule getColumnRenamingRule() {
-        return columnRenamingRule;
-    }
-
-    public void setColumnRenamingRule(ColumnRenamingRule columnRenamingRule) {
-        this.columnRenamingRule = columnRenamingRule;
-    }
-
     public boolean isAllColumnDelimitingEnabled() {
         return isAllColumnDelimitingEnabled;
     }
 
     public void setAllColumnDelimitingEnabled(boolean isAllColumnDelimitingEnabled) {
         this.isAllColumnDelimitingEnabled = isAllColumnDelimitingEnabled;
-    }
-
-    public String getMapperName() {
-        return mapperName;
-    }
-
-    public void setMapperName(String mapperName) {
-        this.mapperName = mapperName;
-    }
-
-    public String getSqlProviderName() {
-        return sqlProviderName;
-    }
-
-    public void setSqlProviderName(String sqlProviderName) {
-        this.sqlProviderName = sqlProviderName;
     }
 
     public String getDynamicSqlSupportClassName() {
@@ -579,32 +355,12 @@ public class TableConfiguration extends PropertyHolder {
         this.selectByTableGeneratorConfigurations.add(selectByTableGeneratorConfiguration);
     }
 
-    public List<SelectByColumnGeneratorConfiguration> getSelectByColumnGeneratorConfigurations() {
-        return selectByColumnGeneratorConfigurations;
-    }
-
     public void addSelectByColumnGeneratorConfiguration(SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration) {
         this.selectByColumnGeneratorConfigurations.add(selectByColumnGeneratorConfiguration);
     }
 
-    public void setSelectByColumnGeneratorConfigurations(List<SelectByColumnGeneratorConfiguration> selectByColumnGeneratorConfigurations) {
-        this.selectByColumnGeneratorConfigurations = selectByColumnGeneratorConfigurations;
-    }
-
-    public List<SelectBySqlMethodGeneratorConfiguration> getSelectBySqlMethodGeneratorConfigurations() {
-        return selectBySqlMethodGeneratorConfigurations;
-    }
-
     public void addSelectBySqlMethodGeneratorConfiguration(SelectBySqlMethodGeneratorConfiguration selectBySqlMethodGeneratorConfiguration) {
         this.selectBySqlMethodGeneratorConfigurations.add(selectBySqlMethodGeneratorConfiguration);
-    }
-
-    public void setSelectBySqlMethodGeneratorConfigurations(List<SelectBySqlMethodGeneratorConfiguration> selectBySqlMethodGeneratorConfigurations) {
-        this.selectBySqlMethodGeneratorConfigurations = selectBySqlMethodGeneratorConfigurations;
-    }
-
-    public TreeSet<RelationGeneratorConfiguration> getRelationGeneratorConfigurations() {
-        return relationGeneratorConfigurations;
     }
 
     public void addRelationGeneratorConfiguration(RelationGeneratorConfiguration relationGeneratorConfiguration) {
@@ -617,123 +373,6 @@ public class TableConfiguration extends PropertyHolder {
 
     public void addHtmlMapGeneratorConfigurations(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.htmlGeneratorConfigurations.add(htmlGeneratorConfiguration);
-    }
-
-    public JavaServiceGeneratorConfiguration getJavaServiceGeneratorConfiguration() {
-        return javaServiceGeneratorConfiguration;
-    }
-
-    public void setJavaServiceGeneratorConfiguration(JavaServiceGeneratorConfiguration javaServiceGeneratorConfiguration) {
-        this.javaServiceGeneratorConfiguration = javaServiceGeneratorConfiguration;
-    }
-
-    public JavaServiceImplGeneratorConfiguration getJavaServiceImplGeneratorConfiguration() {
-        return javaServiceImplGeneratorConfiguration;
-    }
-
-    public void setJavaServiceImplGeneratorConfiguration(JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration) {
-        this.javaServiceImplGeneratorConfiguration = javaServiceImplGeneratorConfiguration;
-    }
-
-    public JavaControllerGeneratorConfiguration getJavaControllerGeneratorConfiguration() {
-        return javaControllerGeneratorConfiguration;
-    }
-
-    public void setJavaControllerGeneratorConfiguration(JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration) {
-        this.javaControllerGeneratorConfiguration = javaControllerGeneratorConfiguration;
-    }
-
-    public JavaModelGeneratorConfiguration getJavaModelGeneratorConfiguration() {
-        return javaModelGeneratorConfiguration;
-    }
-
-    public void setJavaModelGeneratorConfiguration(JavaModelGeneratorConfiguration javaModelGeneratorConfiguration) {
-        this.javaModelGeneratorConfiguration = javaModelGeneratorConfiguration;
-    }
-
-    public SqlMapGeneratorConfiguration getSqlMapGeneratorConfiguration() {
-        return sqlMapGeneratorConfiguration;
-    }
-
-    public void setSqlMapGeneratorConfiguration(SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration) {
-        this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
-    }
-
-    public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
-        return javaClientGeneratorConfiguration;
-    }
-
-    public void setJavaClientGeneratorConfiguration(JavaClientGeneratorConfiguration javaClientGeneratorConfiguration) {
-        this.javaClientGeneratorConfiguration = javaClientGeneratorConfiguration;
-    }
-
-    public SqlSchemaGeneratorConfiguration getSqlSchemaGeneratorConfiguration() {
-        return sqlSchemaGeneratorConfiguration;
-    }
-
-    public void setSqlSchemaGeneratorConfiguration(SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration) {
-        this.sqlSchemaGeneratorConfiguration = sqlSchemaGeneratorConfiguration;
-    }
-
-    public VOGeneratorConfiguration getVoGeneratorConfiguration() {
-        return voGeneratorConfiguration;
-    }
-
-    public void setVoGeneratorConfiguration(VOGeneratorConfiguration voGeneratorConfiguration) {
-        this.voGeneratorConfiguration = voGeneratorConfiguration;
-    }
-
-    public VOCacheGeneratorConfiguration getVoCacheGeneratorConfiguration() {
-        return voCacheGeneratorConfiguration;
-    }
-
-    public void setVoCacheGeneratorConfiguration(VOCacheGeneratorConfiguration voCacheGeneratorConfiguration) {
-        this.voCacheGeneratorConfiguration = voCacheGeneratorConfiguration;
-    }
-
-    public boolean isIgnore() {
-        return ignore;
-    }
-
-    public void setIgnore(boolean ignore) {
-        this.ignore = ignore;
-    }
-
-    public String getServiceApiBasePath() {
-        return serviceApiBasePath;
-    }
-
-    public void setServiceApiBasePath(String serviceApiBasePath) {
-        this.serviceApiBasePath = serviceApiBasePath;
-    }
-
-    public String getHtmlBasePath() {
-        return htmlBasePath;
-    }
-
-    public void setHtmlBasePath(String htmlBasePath) {
-        this.htmlBasePath = htmlBasePath;
-    }
-
-
-    public Set<String> getColumnNames() {
-        return columnNames;
-    }
-
-    public Set<String> getFieldNames() {
-        return fieldNames;
-    }
-
-    public Set<String> getHtmlHiddenFields() {
-        return htmlHiddenFields;
-    }
-
-    public Set<String> getHtmlReadonlyFields() {
-        return htmlReadonlyFields;
-    }
-
-    public Set<String> getHtmlDisplayOnlyFields() {
-        return htmlDisplayOnlyFields;
     }
 
     public void reprocessConfiguration(List<String> warnings, IntrospectedTable introspectedTable, Context context) {
@@ -779,10 +418,10 @@ public class TableConfiguration extends PropertyHolder {
         //计算selectBySql配置
         calculateSelectBySqlMethodProperty(introspectedTable);
         //计算附件属性，把全局配置分配到model和vo的配置上。
-        calculateAdditionalProperty(introspectedTable);
+        calculateAdditionalProperty();
     }
 
-    private void calculateAdditionalProperty(IntrospectedTable introspectedTable) {
+    private void calculateAdditionalProperty() {
         this.getAdditionalPropertyConfigurations().forEach(additionalPropertyConfiguration -> {
             VCollectionUtil.addIfNotContains(this.getJavaModelGeneratorConfiguration().getAdditionalPropertyConfigurations(), additionalPropertyConfiguration);
             if (this.getVoGeneratorConfiguration().getVoModelConfiguration() != null) {
@@ -802,9 +441,7 @@ public class TableConfiguration extends PropertyHolder {
 
         //viewVo中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
         List<QueryColumnConfiguration> queryColumnConfigurations = getViewQueryColumnConfigurations();
-        queryColumnConfigurations.forEach(queryColumnConfiguration -> {
-            queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null));
-        });
+        queryColumnConfigurations.forEach(queryColumnConfiguration -> queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null)));
         queryColumnConfigurations.removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
 
         //innerList中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
@@ -813,9 +450,7 @@ public class TableConfiguration extends PropertyHolder {
                 .flatMap(voViewConfiguration -> Optional.ofNullable(voViewConfiguration.getInnerListViewConfigurations()))
                 .orElse(new ArrayList<>());
         innerListViewConfigurations.forEach(innerListViewConfiguration -> {
-            innerListViewConfiguration.getQueryColumnConfigurations().forEach(queryColumnConfiguration -> {
-                queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null));
-            });
+            innerListViewConfiguration.getQueryColumnConfigurations().forEach(queryColumnConfiguration -> queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null)));
             innerListViewConfiguration.getQueryColumnConfigurations().removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
         });
 
@@ -860,7 +495,7 @@ public class TableConfiguration extends PropertyHolder {
         }
         List<VoColumnRenderFunGeneratorConfiguration> funGeneratorConfigurationList = this.getVoGeneratorConfiguration().getVoViewConfiguration().getVoColumnRenderFunGeneratorConfigurations();
         //获得funGeneratorConfigurationList中所有的fieldNames
-        Set<String> fileds = funGeneratorConfigurationList
+        Set<String> fields = funGeneratorConfigurationList
                 .stream()
                 .map(VoColumnRenderFunGeneratorConfiguration::getFieldNames)
                 .flatMap(Collection::stream)
@@ -868,7 +503,7 @@ public class TableConfiguration extends PropertyHolder {
         //获得DefaultColumnNameEnum枚举的所有常量
         this.fieldNames
                 .forEach(columnName -> {
-                    if (!fileds.contains(columnName)) {
+                    if (!fields.contains(columnName)) {
                         DefaultColumnNameEnum.ofFieldName(columnName)
                                 .ifPresent(defaultColumnNameEnum -> {
                                     if (VStringUtil.stringHasValue(defaultColumnNameEnum.columnRender())) {
@@ -1050,11 +685,6 @@ public class TableConfiguration extends PropertyHolder {
      */
     private void calculateHiddenReadDisplayOnlyColumns(IntrospectedTable introspectedTable) {
         Set<String> hiddenColumnNames = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_HIDDEN_FIELDS);
-//        Set<IntrospectedColumn> columnSet = hiddenColumnNames.parallelStream().map(columnName -> {
-//            Optional<IntrospectedColumn> column = introspectedTable.getColumn(columnName);
-//            return column.orElse(null);
-//        }).filter(Objects::nonNull).collect(Collectors.toSet());
-//        this.getHtmlHiddenFields().addAll(columnSet.stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toSet()));
         this.getHtmlHiddenFields().addAll(hiddenColumnNames);
         //html的隐藏列
         this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenFieldNames().addAll(this.getHtmlHiddenFields()));
@@ -1111,7 +741,7 @@ public class TableConfiguration extends PropertyHolder {
          * parent_id列名，自动添加页面select（父级）元素
          * 注释中包含“是否”，自动添加页面switch（是/否）元素
          */
-        introspectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenFields().contains(column))
+        introspectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenFields().contains(column.getJavaProperty()))
                 .forEach(column -> this.getHtmlMapGeneratorConfigurations()
                         .forEach(htmlConfiguration -> {
                             if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
@@ -1471,16 +1101,8 @@ public class TableConfiguration extends PropertyHolder {
         });
     }
 
-    public List<OverridePropertyValueGeneratorConfiguration> getOverridePropertyConfigurations() {
-        return overridePropertyConfigurations;
-    }
-
     public void addOverridePropertyConfigurations(OverridePropertyValueGeneratorConfiguration overridePropertyConfiguration) {
         this.getOverridePropertyConfigurations().add(overridePropertyConfiguration);
-    }
-
-    public List<VoAdditionalPropertyGeneratorConfiguration> getAdditionalPropertyConfigurations() {
-        return additionalPropertyConfigurations;
     }
 
     public void addAdditionalPropertyConfigurations(VoAdditionalPropertyGeneratorConfiguration additionalPropertyConfiguration) {
@@ -1490,21 +1112,5 @@ public class TableConfiguration extends PropertyHolder {
             }
         }
         this.getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
-    }
-
-    public Set<String> getEnableDropTables() {
-        return enableDropTables;
-    }
-
-    public void setEnableDropTables(Set<String> enableDropTables) {
-        this.enableDropTables = enableDropTables;
-    }
-
-    public boolean isCleanAllGeneratedElements() {
-        return cleanAllGeneratedElements;
-    }
-
-    public void setCleanAllGeneratedElements(boolean cleanAllGeneratedElements) {
-        this.cleanAllGeneratedElements = cleanAllGeneratedElements;
     }
 }

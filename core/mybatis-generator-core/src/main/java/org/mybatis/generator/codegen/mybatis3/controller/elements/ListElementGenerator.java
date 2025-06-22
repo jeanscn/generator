@@ -115,8 +115,8 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (result.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel() && introspectedTable.getRules().isGenerateRequestVO()) {
             if (pageParam) {
-                method.addBodyLine("if (page!=null) {");
-                method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()),page);", entityVoType.getShortName());
+                method.addBodyLine("if (page != null) {");
+                method.addBodyLine("return ResponsePagehelperResult.success(mappings.to{0}s(result.getResult()), page);", entityVoType.getShortName());
                 method.addBodyLine("} else {");
                 method.addBodyLine("return ResponseResult.success(mappings.to{0}s(result.getResult()));", entityVoType.getShortName());
                 method.addBodyLine("}");
@@ -142,7 +142,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine("return ResponseResult.success(result.getResult());");
             parentElement.addImportedType(responseResult);
         }
-        method.addBodyLine("}else{");
+        method.addBodyLine("} else {");
         method.addBodyLine("return ResponseResult.success(new ArrayList<>());");
         method.addBodyLine("}");
     }
