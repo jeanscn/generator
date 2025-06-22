@@ -37,8 +37,6 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
     @Override
     public String getSqlScript() {
         List<String> ret = new ArrayList<>();
-
-        SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration = this.introspectedTable.getTableConfiguration().getSqlSchemaGeneratorConfiguration();
         String tableName = introspectedTable.getTableConfiguration().getTableName();
         String COLUMN_STATEMENT = databaseDDLDialects.getCreateStatement();
 

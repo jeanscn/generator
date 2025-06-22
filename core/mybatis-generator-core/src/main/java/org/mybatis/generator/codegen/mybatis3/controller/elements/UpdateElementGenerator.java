@@ -22,7 +22,6 @@ public class UpdateElementGenerator extends AbstractControllerElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        JavaControllerGeneratorConfiguration configuration = this.introspectedTable.getTableConfiguration().getJavaControllerGeneratorConfiguration();
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
         if (introspectedTable.getRules().isGenerateVoModel()) {

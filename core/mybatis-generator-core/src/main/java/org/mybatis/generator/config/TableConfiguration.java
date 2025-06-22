@@ -714,8 +714,6 @@ public class TableConfiguration extends PropertyHolder {
                 .forEach(htmlGeneratorConfiguration -> {
                     if (column.isRequired()) {
                         htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
-                    } else {
-
                     }
                 }));
 

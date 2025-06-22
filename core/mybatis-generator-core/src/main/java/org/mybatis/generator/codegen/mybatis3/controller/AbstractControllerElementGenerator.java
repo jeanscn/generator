@@ -301,7 +301,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         }
     }
 
-    protected static void addIocInitialDefaultValue(IntrospectedTable introspectedTable, Method method, TopLevelClass parentElement, FullyQualifiedJavaType type) {
+    protected static void addIocInitialDefaultValue(IntrospectedTable introspectedTable, Method method, FullyQualifiedJavaType type) {
         List<IntrospectedColumn> initialColumns = introspectedTable.getAllColumns().stream()
                 .filter(column -> VStringUtil.stringHasValue(column.getDefaultValue()) && DbFiledDefaultValueEnum.ofCode(column.getDefaultValue()) != null)
                 .collect(Collectors.toList());

@@ -83,7 +83,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         IntrospectedColumn idColumn = introspectedTable.getColumn(formOptionGeneratorConfiguration.getIdColumn()).orElse(null);
         String idGetterName = idColumn!=null?JavaBeansUtil.getGetterMethodName(idColumn.getJavaProperty(), idColumn.getFullyQualifiedJavaType()):"getId";
         if (formOptionGeneratorConfiguration.getDataType() == 0) {  //0-flat，1-tree
-            String idGetter = "";
+            String idGetter;
             if (idColumn != null && idColumn.isStringColumn()) {
                 idGetter = "t."+idGetterName+"()";
             }else if (idColumn != null && idColumn.isBigDecimalColumn()) {

@@ -32,7 +32,6 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         Parameter parameter = new Parameter(response, "response");
         parameter.setRemark("http响应");
         method.addParameter(parameter);
-        MethodParameterDescriptor descriptor = new MethodParameterDescriptor(parentElement,"get");
         FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
         listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         Parameter idsParam = new Parameter(listInstance, "ids");
@@ -51,7 +50,6 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导出");
 
-        String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
         method.addBodyLine("ServiceResult<List<{0}>> result = {1}.selectByExample(example);",

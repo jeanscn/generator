@@ -5,8 +5,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
-import org.mybatis.generator.custom.annotations.SystemLogDesc;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
