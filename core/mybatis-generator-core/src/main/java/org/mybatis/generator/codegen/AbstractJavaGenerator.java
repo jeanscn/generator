@@ -134,21 +134,28 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             }
         });
         columns.forEach(c -> {
-            if (c.getDefaultValue() != null && !c.getDefaultValue().equalsIgnoreCase("null") && !defaultFields.contains(c.getJavaProperty())) {
-                columnNames.add(c.getActualColumnName());
-                if (c.getDefaultValue().equals("CURRENT_TIMESTAMP") || c.getDefaultValue().startsWith("now(") || c.getDefaultValue().startsWith("'now(")) {
+            if (c.isGeneratedAlways() || c.isAutoIncrement()) {
+                // 如果是自动生成的主键或自增列，则不进行初始化
+                return;
+            }
+            String defaultValue = c.getDefaultValue();
+            if (defaultValue != null && !defaultValue.equalsIgnoreCase("null")) {
+                if (!defaultFields.contains(c.getJavaProperty())) {
+                    columnNames.add(c.getActualColumnName());
+                }
+                if (defaultValue.equals("CURRENT_TIMESTAMP") || defaultValue.startsWith("now(") || defaultValue.startsWith("'now(")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
-                } else if (c.getDefaultValue().startsWith("'curdate(") || c.getDefaultValue().startsWith("curdate(")) {
+                } else if (defaultValue.startsWith("'curdate(") || defaultValue.startsWith("curdate(")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDate();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
-                } else if (c.getDefaultValue().startsWith("'curtime(") || c.getDefaultValue().startsWith("curtime(")) {
+                } else if (defaultValue.startsWith("'curtime(") || defaultValue.startsWith("curtime(")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentTime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
-                } else if (DbFiledDefaultValueEnum.ofCode(c.getDefaultValue())!=null) {
+                } else if (DbFiledDefaultValueEnum.ofCode(defaultValue)!=null) {
                     // 这里需要重写getter，依赖ioc，只能进行懒加载
-                    DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(c.getDefaultValue());
-                    // c.getDefaultValue()的getter方法
+                    DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(defaultValue);
+                    // defaultValue的getter方法
                     String getterMethodName = getGetterMethodName(c.getJavaProperty(), c.getFullyQualifiedJavaType());
                     Method getterMethod = new Method(getterMethodName);
                     getterMethod.setVisibility(JavaVisibility.PUBLIC);
@@ -162,12 +169,12 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                     }
                     topLevelClass.addMethod(getterMethod);
                 } else if (c.isJdbcCharacterColumn()) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), c.getDefaultValue()));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), defaultValue));
                 } else if (c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), defaultValue));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.math.BigDecimal"));
                 } else if (c.getFullyQualifiedJavaType().getShortName().equals("Boolean")) {
-                    switch (c.getDefaultValue().toLowerCase()) {
+                    switch (defaultValue.toLowerCase()) {
                         case "true":
                         case "1":
                         case "b'1'":
@@ -179,23 +186,23 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                             initializationBlock.addBodyLine(VStringUtil.format("this.{0} = false;", c.getJavaProperty()));
                             break;
                         default:
-                            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = Boolean.valueOf(\"{1}\");", c.getJavaProperty(), c.getDefaultValue()));
+                            initializationBlock.addBodyLine(VStringUtil.format("this.{0} = Boolean.valueOf(\"{1}\");", c.getJavaProperty(), defaultValue));
                             break;
                     }
                 } else if (c.isJavaLocalDateColumn()) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalDate.parse(\"{1}\", DateTimeFormatter.ofPattern(\"yyyy-MM-dd\"));", c.getJavaProperty(), c.getDefaultValue()));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalDate.parse(\"{1}\", DateTimeFormatter.ofPattern(\"yyyy-MM-dd\"));", c.getJavaProperty(), defaultValue));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalDate"));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
                 } else if (c.isJavaLocalDateTimeColumn()) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalDateTime.parse(\"{1}\", DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\"));", c.getJavaProperty(), c.getDefaultValue()));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalDateTime.parse(\"{1}\", DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\"));", c.getJavaProperty(), defaultValue));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalDateTime"));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
                 } else if (c.isJavaLocalTimeColumn()) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalTime.parse(\"{1}\", DateTimeFormatter.ofPattern(\"HH:mm:ss\"));", c.getJavaProperty(), c.getDefaultValue()));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = LocalTime.parse(\"{1}\", DateTimeFormatter.ofPattern(\"HH:mm:ss\"));", c.getJavaProperty(), defaultValue));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalTime"));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
                 } else {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), c.getDefaultValue()));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), defaultValue));
                 }
             }
         });

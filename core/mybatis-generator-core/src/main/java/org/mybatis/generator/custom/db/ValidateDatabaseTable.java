@@ -63,6 +63,7 @@ public class ValidateDatabaseTable {
         checkTable();
         String sql = getSql();
         if (stringHasValue(sql)) {
+            warnings.add("更新数据库Sql：" + sql);
             try {
                 Statement statement = connection.createStatement();
                 statement.execute(sql);
@@ -159,10 +160,9 @@ public class ValidateDatabaseTable {
                             || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
-                            || (!columnMeta.nullable() && !columnMeta.pkid() && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue()))
-                            || VStringUtil.stringHasValue(columnMeta.defaultValue()) && !columnMeta.defaultValue().equals(introspectedColumn.getDefaultValue())
+                            || (!columnMeta.pkid() && VStringUtil.stringHasValue(columnMeta.defaultValue()) && (!columnMeta.defaultValue().equalsIgnoreCase(introspectedColumn.getDefaultValue()) && !columnMeta.defaultValue().replace("'", "").equalsIgnoreCase(introspectedColumn.getDefaultValue())))//默认值
                     ) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,introspectedColumn);
                         newColumn.setIntrospectedTable(introspectedTable);
                         updateColumns.add(newColumn);
                     }
@@ -172,14 +172,14 @@ public class ValidateDatabaseTable {
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
                     ) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,introspectedColumn);
                         newColumn.setIntrospectedTable(introspectedTable);
                         updateColumns.add(newColumn);
                     }
                 }
             } else {
                 //需要创建的列
-                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable);
+                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,null);
                 introspectedColumn.setIntrospectedTable(introspectedTable);
                 addColumns.add(introspectedColumn);
             }
@@ -187,7 +187,7 @@ public class ValidateDatabaseTable {
 
     }
 
-    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, IntrospectedTable table) {
+    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, IntrospectedTable table,IntrospectedColumn originalColumn) {
         JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
         jdbcTypeInformation.setColumnLength(columnMeta.size());
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();
@@ -202,17 +202,30 @@ public class ValidateDatabaseTable {
         introspectedColumn.setNullable(columnMeta.nullable());
         introspectedColumn.setJdbcTypeName(columnMeta.type().getName());
         introspectedColumn.setPrimaryKey(columnMeta.pkid());
+        introspectedColumn.setPosition(columnMeta.position());
+
         introspectedColumn.setJavaProperty(declaredField.getName());
         introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType(declaredField.getType().getCanonicalName()));
         introspectedColumn.setTableAlias(table.getTableConfiguration().getAlias());
         introspectedColumn.setContext(table.getContext());
-        introspectedColumn.setTypeHandler(null);
-        introspectedColumn.setSequenceColumn(false);
-        introspectedColumn.setColumnNameDelimited(false);
-        introspectedColumn.setAutoIncrement(false);
-        introspectedColumn.setGeneratedColumn(false);
-        introspectedColumn.setGeneratedAlways(false);
-        introspectedColumn.setPosition(columnMeta.position());
+        introspectedColumn.setIntrospectedTable(table);
+        if (originalColumn != null) {
+            introspectedColumn.setTypeHandler(originalColumn.getTypeHandler());
+            introspectedColumn.setSequenceColumn(originalColumn.isSequenceColumn());
+            introspectedColumn.setColumnNameDelimited(originalColumn.isColumnNameDelimited());
+            introspectedColumn.setAutoIncrement(originalColumn.isAutoIncrement());
+            introspectedColumn.setGeneratedColumn(originalColumn.isGeneratedColumn());
+            introspectedColumn.setGeneratedAlways(originalColumn.isGeneratedAlways());
+            introspectedColumn.setIdentity(originalColumn.isIdentity());
+        } else {
+            introspectedColumn.setTypeHandler(null);
+            introspectedColumn.setSequenceColumn(false);
+            introspectedColumn.setColumnNameDelimited(false);
+            introspectedColumn.setAutoIncrement(false);
+            introspectedColumn.setGeneratedColumn(false);
+            introspectedColumn.setGeneratedAlways(false);
+            introspectedColumn.setIdentity(false);
+        }
         return introspectedColumn;
     }
 
