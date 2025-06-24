@@ -6,8 +6,11 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+import lombok.Getter;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 
+@Data
 public class Configuration {
 
     private final List<Context> contexts;
@@ -22,10 +25,6 @@ public class Configuration {
 
     public void addClasspathEntry(String entry) {
         classPathEntries.add(entry);
-    }
-
-    public List<String> getClassPathEntries() {
-        return classPathEntries;
     }
 
     /**
@@ -58,10 +57,6 @@ public class Configuration {
         if (!errors.isEmpty()) {
             throw new InvalidConfigurationException(errors);
         }
-    }
-
-    public List<Context> getContexts() {
-        return contexts;
     }
 
     public void addContext(Context context) {

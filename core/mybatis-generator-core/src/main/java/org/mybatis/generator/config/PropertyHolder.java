@@ -1,7 +1,10 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+
 import java.util.Properties;
 
+@Getter
 public abstract class PropertyHolder {
     private final Properties properties;
 
@@ -18,7 +21,4 @@ public abstract class PropertyHolder {
         return properties.getProperty(name);
     }
 
-    public Properties getProperties() {
-        return properties;
-    }
 }

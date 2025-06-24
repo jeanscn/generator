@@ -1,10 +1,15 @@
 package org.mybatis.generator.config;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.List;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+@EqualsAndHashCode(callSuper = true)
+@Data
 public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolder{
 
     protected boolean generate;
@@ -26,54 +31,6 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
         this.context = context;
     }
 
-    public String getTargetPackage() {
-        return targetPackage;
-    }
-
-    public void setTargetPackage(String targetPackage) {
-        this.targetPackage = targetPackage;
-    }
-
-    public String getTargetProject() {
-        return targetProject;
-    }
-
-    public void setTargetProject(String targetProject) {
-        this.targetProject = targetProject;
-    }
-
-    public boolean isGenerate() {
-        return generate;
-    }
-
-    public void setGenerate(boolean generate) {
-        this.generate = generate;
-    }
-
-    public String getSubTargetPackage() {
-        return subTargetPackage;
-    }
-
-    public void setSubTargetPackage(String subTargetPackage) {
-        this.subTargetPackage = subTargetPackage;
-    }
-
-    public String getBaseTargetPackage() {
-        return baseTargetPackage;
-    }
-
-    public void setBaseTargetPackage(String baseTargetPackage) {
-        this.baseTargetPackage = baseTargetPackage;
-    }
-
-    public String getTargetPackageGen() {
-        return targetPackageGen;
-    }
-
-    public void setTargetPackageGen(String targetPackageGen) {
-        this.targetPackageGen = targetPackageGen;
-    }
-
     public void validate(List<String> errors, String contextId, String funcKey){
         if (!stringHasValue(targetProject)) {
             errors.add(getString("ValidationError.0", contextId));
@@ -85,11 +42,4 @@ public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolde
 
     abstract void validate(List<String> errors, String contextId);
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 }

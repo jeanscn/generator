@@ -1,5 +1,9 @@
 package org.mybatis.generator.config;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
 
 import java.util.ArrayList;
@@ -7,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private HtmlDocumentTypeEnum type;
@@ -33,11 +39,15 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean overWriteVueDetail = true;
 
-    private final Set<String> hiddenFieldsNames = new HashSet<>();
+    private final Set<String> hiddenColumnNames = new HashSet<>();
+
+    private final Set<String> hiddenFieldNames = new HashSet<>();
 
     private final Set<String> readonlyFields = new HashSet<>();
 
     private final Set<String> displayOnlyFields = new HashSet<>();
+
+    private final Set<String> hiddenFields = new HashSet<>();
 
     //指定页面表单不允许为空的字段
     private final Set<String> elementRequired = new HashSet<>();
@@ -71,169 +81,13 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
         super.validate(errors, contextId, "HtmlMapGeneratorConfiguration");
     }
 
-    public HtmlDocumentTypeEnum getType() {
-        return type;
-    }
-
-    public void setType(HtmlDocumentTypeEnum type) {
-        this.type = type;
-    }
-
-    public String getViewPath() {
-        return viewPath;
-    }
-
-    public void setViewPath(String viewPath) {
-        this.viewPath = viewPath;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getHtmlFileName() {
-        return htmlFileName;
-    }
-
-    public void setHtmlFileName(String htmlFileName) {
-        this.htmlFileName = htmlFileName;
-    }
-
-    public boolean isOverWriteHtmlFile() {
-        return overWriteHtmlFile;
-    }
-
-    public void setOverWriteHtmlFile(boolean overWriteHtmlFile) {
-        this.overWriteHtmlFile = overWriteHtmlFile;
-    }
-
-    public boolean isOverWriteCssFile() {
-        return overWriteCssFile;
-    }
-
-    public void setOverWriteCssFile(boolean overWriteCssFile) {
-        this.overWriteCssFile = overWriteCssFile;
-    }
-
-    public boolean isOverWriteJsFile() {
-        return overWriteJsFile;
-    }
-
-    public void setOverWriteJsFile(boolean overWriteJsFile) {
-        this.overWriteJsFile = overWriteJsFile;
-    }
-
-    public Set<String> getHiddenFieldNames() {
-        return hiddenFieldsNames;
-    }
-
-    public Set<String> getElementRequired() {
-        return elementRequired;
-    }
-
-
-    public Set<String> getDisplayOnlyFields() {
-        return displayOnlyFields;
-    }
-
-    public List<HtmlElementDescriptor> getElementDescriptors() {
-        return elementDescriptors;
-    }
-
-    public HtmlLayoutDescriptor getLayoutDescriptor() {
-        return layoutDescriptor;
-    }
-
-    public void setLayoutDescriptor(HtmlLayoutDescriptor layoutDescriptor) {
-        this.layoutDescriptor = layoutDescriptor;
-    }
-
-    public boolean isDefaultConfig() {
-        return defaultConfig;
-    }
-
-    public void setDefaultConfig(boolean defaultConfig) {
-        this.defaultConfig = defaultConfig;
-    }
-
     public List<HtmlElementDescriptor> addElementDescriptors(HtmlElementDescriptor htmlElementDescriptor) {
         this.elementDescriptors.add(htmlElementDescriptor);
         return this.elementDescriptors;
-    }
-
-    public String getSimpleViewPath() {
-        return simpleViewPath;
-    }
-
-    public void setSimpleViewPath(String simpleViewPath) {
-        this.simpleViewPath = simpleViewPath;
-    }
-
-    public String getHtmlBaseTargetPackage() {
-        return htmlBaseTargetPackage;
-    }
-
-    public void setHtmlBaseTargetPackage(String htmlBaseTargetPackage) {
-        this.htmlBaseTargetPackage = htmlBaseTargetPackage;
-    }
-
-    public List<HtmlElementInnerListConfiguration> getHtmlElementInnerListConfiguration() {
-        return htmlElementInnerListConfiguration;
-    }
-
-    public void setHtmlElementInnerListConfiguration(List<HtmlElementInnerListConfiguration> htmlElementInnerListConfiguration) {
-        this.htmlElementInnerListConfiguration = htmlElementInnerListConfiguration;
-    }
-
-    public List<HtmlFileAttachmentConfiguration> getHtmlFileAttachmentConfiguration() {
-        return htmlFileAttachmentConfiguration;
-    }
-
-    public void setHtmlFileAttachmentConfiguration(List<HtmlFileAttachmentConfiguration> htmlFileAttachmentConfiguration) {
-        this.htmlFileAttachmentConfiguration = htmlFileAttachmentConfiguration;
-    }
-
-    public List<HtmlApprovalCommentConfiguration> getHtmlApprovalCommentConfigurations() {
-        return htmlApprovalCommentConfigurations;
     }
 
     public void addHtmlApprovalCommentConfiguration(HtmlApprovalCommentConfiguration htmlApprovalCommentConfiguration) {
         this.htmlApprovalCommentConfigurations.add(htmlApprovalCommentConfiguration);
     }
 
-    public Set<String> getReadonlyFields() {
-        return readonlyFields;
-    }
-
-    public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
-        return htmlButtons;
-    }
-
-    public boolean isOverWriteVueView() {
-        return overWriteVueView;
-    }
-
-    public void setOverWriteVueView(boolean overWriteVueView) {
-        this.overWriteVueView = overWriteVueView;
-    }
-
-    public boolean isOverWriteVueEdit() {
-        return overWriteVueEdit;
-    }
-
-    public void setOverWriteVueEdit(boolean overWriteVueEdit) {
-        this.overWriteVueEdit = overWriteVueEdit;
-    }
-
-    public boolean isOverWriteVueDetail() {
-        return overWriteVueDetail;
-    }
-
-    public void setOverWriteVueDetail(boolean overWriteVueDetail) {
-        this.overWriteVueDetail = overWriteVueDetail;
-    }
 }

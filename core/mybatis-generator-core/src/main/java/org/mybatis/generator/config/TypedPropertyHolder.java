@@ -1,15 +1,16 @@
 package org.mybatis.generator.config;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public abstract class TypedPropertyHolder extends PropertyHolder {
 
     private String configurationType;
 
     protected TypedPropertyHolder() {
         super();
-    }
-
-    public String getConfigurationType() {
-        return configurationType;
     }
 
     /**

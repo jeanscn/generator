@@ -1,9 +1,11 @@
 package org.mybatis.generator.config;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
+import lombok.Data;
 
 import java.util.List;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * This class is used to specify a renaming rule for columns in a table. This
@@ -14,7 +16,7 @@ import java.util.List;
  * <p>For example, if columns in a table are named:
  *
  * <ul>
- * <li>CUST_NAME</li>
+ * <li> CUST_NAME </li>
  * <li>CUST_ADDRESS</li>
  * <li>CUST_CITY</li>
  * <li>CUST_STATE</li>
@@ -36,25 +38,10 @@ import java.util.List;
  * @author Jeff Butler
  *
  */
+@Data
 public class ColumnRenamingRule {
     private String searchString;
     private String replaceString;
-
-    public String getReplaceString() {
-        return replaceString;
-    }
-
-    public void setReplaceString(String replaceString) {
-        this.replaceString = replaceString;
-    }
-
-    public String getSearchString() {
-        return searchString;
-    }
-
-    public void setSearchString(String searchString) {
-        this.searchString = searchString;
-    }
 
     public void validate(List<String> errors, String tableName) {
         if (!stringHasValue(searchString)) {
