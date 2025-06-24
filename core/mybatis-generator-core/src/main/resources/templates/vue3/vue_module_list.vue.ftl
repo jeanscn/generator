@@ -1,9 +1,9 @@
 <!--
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.19
+* @version: list template version 1.0.21
 -->
 <template>
-    <el-container>
+    <el-container class="main-view-container">
         <el-aside width="220px" v-if="showTreePanel">
             <TreePanel :treeDataUrl="categoryTreeUrl" :treePanelProps="sideTreePanelProps"
                        @node-click="navTreeItemClick"></TreePanel>
@@ -382,6 +382,10 @@
 </script>
 
 <style lang="scss" scoped>
+    .el-container {
+        margin: 0 !important;
+    }
+
     :deep(.table-cell-link) {
         display: contents;
         width: 100%;
@@ -389,6 +393,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
     :deep(.table-cell-link-text) {
         display: block;
         width: 100%;
@@ -396,7 +401,50 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
     :deep(.el-link__inner) {
         display: flex;
+    }
+
+    // 屏幕宽度小于 768px 时隐藏
+    @media (max-width: 768px) {
+        :deep(.el-aside) {
+            display: none;
+        }
+        .main-view-container {
+            display: flex;
+            flex-direction: row !important;
+            height: calc(100vh - 60px); /* 减去banner高度60px */
+        }
+    }
+
+
+    // 在中等屏幕尺寸上调整侧边栏宽度
+    @media (min-width: 768px) and (max-width: 992px) {
+        .main-view-container > .el-aside {
+            width: 180px !important;
+        }
+    // 修复布局问题，确保顶层和子元素都有正确的方向
+    .main-view-container {
+        display: flex;
+        flex-direction: row !important;
+        height: calc(100vh - 60px); /* 减去banner高度60px */
+    }
+
+    // 对TreePanel内部的容器特别处理，避免影响其内部布局
+    :deep(.el-aside > .el-container) {
+        flex-direction: column !important;
+    }
+
+    // 对表格容器进行特别处理
+    .main-view-container > .el-container {
+        display: flex;
+        flex-direction: column !important;
+
+        > .el-main {
+            display: flex;
+            flex-direction: column;
+        }
+    }
     }
 </style>

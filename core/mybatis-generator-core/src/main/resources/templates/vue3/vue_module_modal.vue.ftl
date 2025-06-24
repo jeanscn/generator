@@ -1,6 +1,6 @@
 <!--
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.10
+* @version: modal template version 1.0.12
 -->
 <template>
     <div class="form-modal-container">
@@ -113,7 +113,7 @@
         closeOnPressEscape: false,
         closeOnClickModal: false,
     };
-    const _elDialogProps = ref<TElDialogProps>(_.merge(defaultElDialogProps,
+    const _elDialogProps = ref<TElDialogProps>(_.merge({},defaultElDialogProps,
         props.elDialogProps,
         {
             title: props.pageTitle,
@@ -128,7 +128,7 @@
         closeOnClickModal: true,
         size: '70%',
     };
-    const _elDrawerProps = ref<TElDrawerProps>(_.merge(defaultElDrawerProps,
+    const _elDrawerProps = ref<TElDrawerProps>(_.merge({},defaultElDrawerProps,
         props.elDrawerProps,
         {
             title: props.pageTitle,
