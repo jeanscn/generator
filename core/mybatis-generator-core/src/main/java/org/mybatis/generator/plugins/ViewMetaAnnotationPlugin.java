@@ -211,9 +211,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //导入类型
             viewVOClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
         }
+
         //filters
         if (!voViewGeneratorConfiguration.getFilterColumns().isEmpty()) {
-            //按列名分组
+            // viewVo中定义的filterColumn配置按列名分组
             Map<String, List<FilterColumnConfiguration>> listMap = voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().collect(Collectors.groupingBy(FilterColumnConfiguration::getColumn));
             //去重,转换为CompositeQueryDesc
             List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
@@ -245,6 +246,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //导入类型
             viewVOClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
         }
+
+
         //columns
         if (!voViewGeneratorConfiguration.getIncludeColumns().isEmpty()) {
             String[] strings = voViewGeneratorConfiguration.getIncludeColumns().stream()
@@ -258,6 +261,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (stringHasValue(voViewGeneratorConfiguration.getCategoryTreeUrl())) {
             viewTableMetaDesc.setCategoryTreeUrl(voViewGeneratorConfiguration.getCategoryTreeUrl());
         }
+
+
         //ignoreFields
         if (!voViewGeneratorConfiguration.getExcludeColumns().isEmpty()) {
             String[] columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()
@@ -268,10 +273,13 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
                     .toArray(String[]::new);
             viewTableMetaDesc.setIgnoreFields(columns2);
         }
+
         //className
         viewTableMetaDesc.setClassName(viewVOClass.getType().getFullyQualifiedName());
+
         //restBasePath
         viewTableMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+
         //构造ViewTableMeta
         viewVOClass.addAnnotation(viewTableMetaDesc.toAnnotation());
         viewVOClass.addImportedTypes(viewTableMetaDesc.getImportedTypes());
