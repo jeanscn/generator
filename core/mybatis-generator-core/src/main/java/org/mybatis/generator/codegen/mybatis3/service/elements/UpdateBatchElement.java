@@ -38,6 +38,7 @@ public class UpdateBatchElement extends AbstractServiceElementGenerator {
         method.addAnnotation("@Override");
         if (containsPreUpdateEvent || containsUpdatedEvent) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
+            parentElement.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
         if (introspectedTable.getRules().isGenerateCachePO()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());

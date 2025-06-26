@@ -9,6 +9,7 @@ import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGene
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,10 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         parentElement.addImportedType(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType());
 
         VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
+
+        String cacheMappingsFullName = voCacheGeneratorConfiguration.getBaseTargetPackage() + ".maps." + entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY + "Mappings";
+        FullyQualifiedJavaType typeCacheMappingType = new FullyQualifiedJavaType(cacheMappingsFullName);
+
         Method selectByKeysDictMethod = serviceMethods.getSelectByKeysDictMethod(parentElement,
                 voCacheGeneratorConfiguration,
                 false, true);
@@ -48,7 +53,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.getResult()==null || #result.getResult().isEmpty()");
         selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
         //方法体
-        selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
+        //selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
         selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
         String keyColumn = voCacheGeneratorConfiguration.getKeyColumn();
         IntrospectedColumn column = introspectedTable.getColumn(keyColumn).orElse(null);
@@ -66,13 +71,13 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
                 , entityType.getShortName()
                 , introspectedTable.getSelectByKeysDictStatementId());
         selectByKeysDictMethod.addBodyLine("if (!result.isEmpty()) {");
-        selectByKeysDictMethod.addBodyLine("return ServiceResult.success(mappings.to{0}CachePOs(result));"
-                , entityType.getShortName());
+        selectByKeysDictMethod.addBodyLine("return ServiceResult.success({0}.to{1}CachePOs(result));"
+                ,typeCacheMappingType.getShortNameFirstLowCase()+"Impl", entityType.getShortName());
         selectByKeysDictMethod.addBodyLine("}else{");
         selectByKeysDictMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"未查询到数据\");");
         selectByKeysDictMethod.addBodyLine("}");
         parentElement.addMethod(selectByKeysDictMethod);
-
-        parentElement.addImportedType(voCacheGeneratorConfiguration.getBaseTargetPackage() + ".maps." + entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY + "Mappings");
+        Mb3GenUtil.injectionMappingsInstance(parentElement,typeCacheMappingType);
+        parentElement.addImportedType(typeCacheMappingType);
     }
 }

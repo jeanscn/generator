@@ -44,6 +44,7 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         insertSelectiveMethod.addAnnotation("@Override");
         if (containsPreInsertEvent || containsInsertedEvent) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,insertSelectiveMethod,"READ_COMMITTED");
+            parentElement.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
         List<RelationGeneratorConfiguration> configs1 = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableInsert)

@@ -80,7 +80,6 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
             Field mapperProperty = getMapperProperty();
             bizGenClazzImpl.addField(mapperProperty);
             bizGenClazzImpl.addImportedType(mapperProperty.getType());
-            bizGenClazzImpl.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
 
         //注入publisher
