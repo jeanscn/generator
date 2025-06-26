@@ -2,6 +2,7 @@
 * @description ${ tableRemark }列表组件
 * @version: list template version 1.0.21
 -->
+<#-- language=Vue3 -->
 <template>
     <el-container class="main-view-container">
         <el-aside width="220px" v-if="showTreePanel">
@@ -79,6 +80,8 @@
     </el-container>
 
 </template>
+
+<#-- language=TypeScript -->
 <script lang="ts" setup name="${ componentName }">
 
     import { Ref, watch, onMounted, ref, inject, provide, nextTick } from 'vue';
@@ -380,7 +383,7 @@
         loadModalsProps.dataLoaded = false;
     };
 </script>
-
+<#-- language=SCSS -->
 <style lang="scss" scoped>
     .el-container {
         margin: 0 !important;
