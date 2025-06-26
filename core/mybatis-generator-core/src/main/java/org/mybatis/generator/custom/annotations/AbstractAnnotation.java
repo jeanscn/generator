@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 
@@ -14,23 +16,14 @@ import java.util.TreeSet;
  * 2022-10-03 16:54
  * @version 3.0
  */
+@Data
+@NoArgsConstructor
 public abstract class AbstractAnnotation implements IAnnotation{
 
     protected Set<String> imports = new TreeSet<>();
 
     protected List<String> items = new ArrayList<>();
 
-    public AbstractAnnotation() {
-
-    }
-
-    public Set<String> getImports() {
-        return imports;
-    }
-
-    public void setImports(Set<String> imports) {
-        this.imports = imports;
-    }
 
     public void addImports(String imports) {
         this.imports.add(imports);

@@ -2,6 +2,10 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.codegen.mybatis3.vue.FormItemRule;
 
@@ -10,6 +14,8 @@ import org.mybatis.generator.codegen.mybatis3.vue.FormItemRule;
  *
  * @version 6.0
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class VueFormItemRuleDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@" + VueFormItemRule.class.getSimpleName();
@@ -60,6 +66,9 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
         if (VStringUtil.stringHasValue(formItemRule.getPattern())) {
             this.setPattern(formItemRule.getPattern());
         }
+        if (VStringUtil.stringHasValue(formItemRule.getType())) {
+            this.setType(formItemRule.getType());
+        }
 
     }
 
@@ -93,78 +102,6 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("pattern = \"{0}\"", this.getPattern()));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Boolean getRequired() {
-        return required;
-    }
-
-    public void setRequired(Boolean required) {
-        this.required = required;
-    }
-
-    public Boolean getWitespace() {
-        return witespace;
-    }
-
-    public void setWitespace(Boolean witespace) {
-        this.witespace = witespace;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getTrigger() {
-        return trigger;
-    }
-
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
-    }
-
-    public Integer getMin() {
-        return min;
-    }
-
-    public void setMin(Integer min) {
-        this.min = min;
-    }
-
-    public Integer getMax() {
-        return max;
-    }
-
-    public void setMax(Integer max) {
-        this.max = max;
-    }
-
-    public Integer getLen() {
-        return len;
-    }
-
-    public void setLen(Integer len) {
-        this.len = len;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
     }
 
 }

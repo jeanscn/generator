@@ -12,17 +12,13 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.html.Attribute;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 
 import javax.annotation.Nullable;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -136,15 +132,13 @@ public class Mb3GenUtil {
                     case "年周":
                         dateType = "week";
                         break;
-                    case "日期":
-                        dateType = "date";
-                        break;
                     case "日期时间":
                         dateType = "datetime";
                         break;
                     case "时间":
                         dateType = "time";
                         break;
+                    case "日期":
                     default:
                         dateType = "date";
                         break;
@@ -224,12 +218,8 @@ public class Mb3GenUtil {
         Map<String, String> columnRenderFunMap = new HashMap<>();
         if (introspectedTable.getRules().isGenerateViewVO()) {
             VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-            viewConfiguration.getVoColumnRenderFunGeneratorConfigurations().forEach(config -> {
-                config.getFieldNames().forEach(fieldName -> {
-                    columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun());
-                });
-            });
-        }
+            viewConfiguration.getVoColumnRenderFunGeneratorConfigurations()
+                    .forEach(config -> config.getFieldNames().forEach(fieldName -> columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun())));        }
         return columnRenderFunMap;
     }
 
@@ -381,5 +371,22 @@ public class Mb3GenUtil {
             leafAdditionalPropertyConfiguration.setAnnotations(annotations);
         }
         return leafAdditionalPropertyConfiguration;
+    }
+
+    public static void injectionMappingsInstance(TopLevelClass parentElement, FullyQualifiedJavaType mappingsInterface) {
+        if (mappingsInterface!=null) {
+            String fieldName = mappingsInterface.getShortNameFirstLowCase() + "Impl";
+            if (parentElement.isNotContainField(fieldName)) {
+                Field mappings = new Field(fieldName, mappingsInterface);
+                mappings.setVisibility(JavaVisibility.PROTECTED);
+                mappings.addAnnotation("@Resource");
+                parentElement.addImportedType(mappingsInterface);
+                parentElement.addImportedType("javax.annotation.Resource");
+                mappings.addJavaDocLine("/**");
+                mappings.addJavaDocLine(" * 注入" + mappingsInterface.getShortName() + " 实例");
+                mappings.addJavaDocLine(" */");
+                parentElement.addField(mappings);
+            }
+        }
     }
 }

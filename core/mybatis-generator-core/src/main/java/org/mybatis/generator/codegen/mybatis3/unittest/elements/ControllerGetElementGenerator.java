@@ -48,11 +48,10 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
                 entityType.getShortName(),
                 entityInstanceVar);
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0} {1} = {3}Mappings.INSTANCE.to{0}({2});",
+            method.addBodyLine("{0} {1} = mappings.to{0}({2});",
                     entityType.getShortName() + "VO",
                     entityType.getShortNameFirstLowCase() + "VO",
-                    entityType.getShortNameFirstLowCase(),
-                    entityType.getShortName());
+                    entityType.getShortNameFirstLowCase());
         }else{
             method.addBodyLine("{0} {1} = serviceResult.getResult();"
                     ,returnEntityType.getShortName(),returnEntityType.getShortNameFirstLowCase());

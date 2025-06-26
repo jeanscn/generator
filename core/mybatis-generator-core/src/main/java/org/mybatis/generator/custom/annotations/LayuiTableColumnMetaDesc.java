@@ -3,6 +3,8 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.LayuiTableColumnMeta;
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -14,6 +16,10 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2023-06-02 20:08
  * @version 4.0
  */
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+
 public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         public static final String ANNOTATION_NAME = "@LayuiTableColumnMeta";
@@ -42,6 +48,8 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
         private String align;
 
         private String label;
+
+        private String tsType;
 
         public LayuiTableColumnMetaDesc() {
             super();
@@ -102,142 +110,9 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
             if (stringHasValue(align)) {
                 items.add(format("align = \"{0}\"", align));
             }
+            if (stringHasValue(tsType) && !tsType.equals("string")) {
+                items.add(format("tsType = \"{0}\"", tsType));
+            }
             return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
         }
-
-    public String getWidth() {
-        return width;
-    }
-
-    public void setWidth(String width) {
-        this.width = width;
-    }
-
-    public int getMinWidth() {
-        return minWidth;
-    }
-
-    public void setMinWidth(int minWidth) {
-        this.minWidth = minWidth;
-    }
-
-    public String getFixed() {
-        return fixed;
-    }
-
-    public void setFixed(String fixed) {
-        this.fixed = fixed;
-    }
-
-    public String getTemplet() {
-        return templet;
-    }
-
-    public void setTemplet(String templet) {
-        this.templet = templet;
-    }
-
-    public boolean isTotalRow() {
-        return totalRow;
-    }
-
-    public void setTotalRow(boolean totalRow) {
-        this.totalRow = totalRow;
-    }
-
-    public boolean isEdit() {
-        return edit;
-    }
-
-    public void setEdit(boolean edit) {
-        this.edit = edit;
-    }
-
-    public boolean isHide() {
-        return hide;
-    }
-
-    public void setHide(boolean hide) {
-        this.hide = hide;
-    }
-
-    public boolean isSort() {
-        return sort;
-    }
-
-    public void setSort(boolean sort) {
-        this.sort = sort;
-    }
-
-    public int getColspan() {
-        return colspan;
-    }
-
-    public void setColspan(int colspan) {
-        this.colspan = colspan;
-    }
-
-    public int getRowspan() {
-        return rowspan;
-    }
-
-    public void setRowspan(int rowspan) {
-        this.rowspan = rowspan;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public String getEditor() {
-        return editor;
-    }
-
-    public void setEditor(String editor) {
-        this.editor = editor;
-    }
-
-    public String getScope() {
-        return scope;
-    }
-
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
-
-    public String getAlign() {
-        return align;
-    }
-
-    public void setAlign(String align) {
-        this.align = align;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getRules() {
-        return rules;
-    }
-
-    public void setRules(String rules) {
-        this.rules = rules;
-    }
 }

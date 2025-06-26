@@ -6,6 +6,7 @@ import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import javax.annotation.Nullable;
@@ -138,5 +139,9 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         } else {
             return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
         }
+    }
+
+    protected void injectionMappingsInstance(TopLevelClass parentElement) {
+        Mb3GenUtil.injectionMappingsInstance(parentElement, entityMappings);
     }
 }

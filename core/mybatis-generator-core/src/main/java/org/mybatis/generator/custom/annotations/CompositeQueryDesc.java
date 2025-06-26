@@ -5,6 +5,9 @@ import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.AbstractFilterConditionConfiguration;
@@ -18,6 +21,8 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2022-10-07 06:58
  * @version 3.0
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class CompositeQueryDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@CompositeQuery";
@@ -54,8 +59,11 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                 abstractFilterConditionConfiguration.setDataSource(HtmlElementDataSourceEnum.DICT_ENUM);
             }
         }
-        if (abstractFilterConditionConfiguration.getTagName()!=null && abstractFilterConditionConfiguration.getTagName().equals(HtmlElementTagTypeEnum.INPUT)) {
-            compositeQueryDesc.setQueryMode(QueryModesEnum.LIKE);
+        if (abstractFilterConditionConfiguration.getTagName()!=null) {
+            if (abstractFilterConditionConfiguration.getTagName().equals(HtmlElementTagTypeEnum.INPUT)) {
+                compositeQueryDesc.setQueryMode(QueryModesEnum.LIKE);
+            }
+            compositeQueryDesc.setTagName(abstractFilterConditionConfiguration.getTagName());
         }
         if (abstractFilterConditionConfiguration.getDataSource() != null) {
             switch (abstractFilterConditionConfiguration.getDataSource()) {
@@ -179,7 +187,7 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         } else {
             this.items.add(VStringUtil.format("remark = \"{0}\"", this.introspectedColumn.getRemarks(true)));
         }
-        if (this.tagName!=null && !this.tagName.equals(HtmlElementTagTypeEnum.INPUT)) {
+        if (this.tagName!=null && !this.tagName.equals(HtmlElementTagTypeEnum.UNKNOWN)) {
             this.items.add(VStringUtil.format("tagName = HtmlElementTagTypeEnum.{0}", this.tagName.name()));
             this.addImports("com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum");
         }
@@ -221,129 +229,5 @@ public class CompositeQueryDesc extends AbstractAnnotation {
             this.items.add("range = true");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-    }
-
-    public String getColumn() {
-        return column;
-    }
-
-    public void setColumn(String column) {
-        this.column = column;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public HtmlElementTagTypeEnum getTagName() {
-        return tagName;
-    }
-
-    public void setTagName(HtmlElementTagTypeEnum tagName) {
-        this.tagName = tagName;
-    }
-
-    public QueryModesEnum getQueryMode() {
-        return queryMode;
-    }
-
-    public void setQueryMode(QueryModesEnum queryMode) {
-        this.queryMode = queryMode;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public FieldTypeEnum getFieldType() {
-        return fieldType;
-    }
-
-    public void setFieldType(FieldTypeEnum fieldType) {
-        this.fieldType = fieldType;
-    }
-
-    public String getDataUrl() {
-        return dataUrl;
-    }
-
-    public void setDataUrl(String dataUrl) {
-        this.dataUrl = dataUrl;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
-
-    public IntrospectedColumn getIntrospectedColumn() {
-        return introspectedColumn;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getTableAlias() {
-        return tableAlias;
-    }
-
-    public void setTableAlias(String tableAlias) {
-        this.tableAlias = tableAlias;
-    }
-
-    public String getListKey() {
-        return listKey;
-    }
-
-    public void setListKey(String listKey) {
-        this.listKey = listKey;
-    }
-
-    public boolean isRepeat() {
-        return repeat;
-    }
-
-    public void setRepeat(boolean repeat) {
-        this.repeat = repeat;
-    }
-
-    public String getOperators() {
-        return operators;
-    }
-
-    public void setOperators(String operators) {
-        this.operators = operators;
-    }
-
-    public boolean isMultiple() {
-        return multiple;
-    }
-
-    public void setMultiple(boolean multiple) {
-        this.multiple = multiple;
-    }
-
-    public boolean isRange() {
-        return range;
-    }
-
-    public void setRange(boolean range) {
-        this.range = range;
     }
 }

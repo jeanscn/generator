@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
@@ -41,11 +42,12 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         parameter.setRemark("待创建的数据对象列表");
         method.addParameter(parameter);
         commentGenerator.addMethodJavaDocLine(method, "批量设置列表中选择的数据为隐藏");
+        FullyQualifiedJavaType binMappingsType = new FullyQualifiedJavaType("com.vgosoft.system.pojo.maps.SysPerFilterOutBinMappings");
         method.addBodyLine("List<SysPerFilterOutBin> sysPerFilterOutBins = mappings.toSysPerFilterOutBins(mappings.from{0}s({1}));",entityVoType.getShortName(),entityVoVar + "s");
         method.addBodyLine("sysPerFilterOutBins.forEach(sysPerFilterOutBin -> sysPerFilterOutBin.setOperateUserId(sysPerFilterOutBin.getOperateUserId()));");
         method.addBodyLine("ServiceResult<List<SysPerFilterOutBin>> listServiceResult = sysPerFilterOutBinImpl.insertBatch(sysPerFilterOutBins);");
         method.addBodyLine("if (listServiceResult.hasResult()) {");
-        method.addBodyLine("return success(SysPerFilterOutBinMappings.INSTANCE.toSysPerFilterOutBinVOs(sysPerFilterOutBins));");
+        method.addBodyLine("return success({0}.toSysPerFilterOutBinVOs(sysPerFilterOutBins));",binMappingsType.getShortNameFirstLowCase()+"Impl");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_CUSTOM,listServiceResult.getMessage());");
         method.addBodyLine("}");
@@ -64,5 +66,6 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         sysPerFilterOutBinImpl.setVisibility(JavaVisibility.PROTECTED);
         parentElement.addField(sysPerFilterOutBinImpl);
         parentElement.addImportedType(iSysPerFilterOutBin);
+        Mb3GenUtil.injectionMappingsInstance(parentElement,binMappingsType);
     }
 }

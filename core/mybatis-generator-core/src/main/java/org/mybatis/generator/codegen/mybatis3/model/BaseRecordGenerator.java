@@ -15,6 +15,7 @@ import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
 
@@ -258,12 +259,16 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         method.addJavaDocLine(" * @return ViewObject对象");
         method.addJavaDocLine(" */");
         if (introspectedTable.getRules().isGenerateVoModel()) {
+            FullyQualifiedJavaType mappingType = voGenService.getMappingType(introspectedTable);
             TableConfiguration tc = introspectedTable.getTableConfiguration();
             FullyQualifiedJavaType voType = tc.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType();
             method.setReturnType(voType);
-            method.addBodyLine("return {0}Mappings.INSTANCE.to{0}VO(this);",introspectedTable.getTableConfiguration().getDomainObjectName());
+            method.addBodyLine("{0} mappings = SpringContextHolder.getBean({0}.class);",mappingType.getShortName());
+            method.addBodyLine("return mappings.to{0}(this);",voType.getShortName());
             topLevelClass.addImportedType(voType);
-            topLevelClass.addImportedType(voGenService.getMappingType(introspectedTable));
+            topLevelClass.addImportedType(mappingType);
+            topLevelClass.addImportedType("com.vgosoft.tool.core.SpringContextHolder");
+            Mb3GenUtil.injectionMappingsInstance(topLevelClass,mappingType);
         } else {
             method.setReturnType(topLevelClass.getType());
             method.addBodyLine("return this;");
