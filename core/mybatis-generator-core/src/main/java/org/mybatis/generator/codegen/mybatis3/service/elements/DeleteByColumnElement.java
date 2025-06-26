@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class DeleteByColumnElement extends AbstractServiceElementGenerator {
 
-    private SelectByColumnGeneratorConfiguration configuration;
+    private final SelectByColumnGeneratorConfiguration configuration;
 
     public DeleteByColumnElement(SelectByColumnGeneratorConfiguration configuration) {
         super();

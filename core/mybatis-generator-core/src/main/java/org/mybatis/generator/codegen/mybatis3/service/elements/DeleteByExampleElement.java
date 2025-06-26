@@ -5,14 +5,12 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
 
 /**
  * selectByExampleWithRelation实现方法

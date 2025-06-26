@@ -12,7 +12,6 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 
 /**

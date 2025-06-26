@@ -12,7 +12,6 @@ import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 
