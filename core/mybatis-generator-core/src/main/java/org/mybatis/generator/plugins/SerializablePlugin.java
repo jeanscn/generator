@@ -97,8 +97,6 @@ public class SerializablePlugin extends PluginAdapter {
 
             if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
                 context.getCommentGenerator().addFieldAnnotation(field, introspectedTable,topLevelClass.getImportedTypes());
-            } else {
-                context.getCommentGenerator().addFieldComment(field, introspectedTable);
             }
             boolean exist = false;
             for (Field topLevelClassField : topLevelClass.getFields()) {
