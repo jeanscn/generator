@@ -9,17 +9,11 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.service.elements.*;
-import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ScalableElementEnum;
-import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;

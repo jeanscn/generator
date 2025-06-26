@@ -7,11 +7,9 @@ import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.AbstractFilterConditionConfiguration;
-import org.mybatis.generator.config.QueryColumnConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;

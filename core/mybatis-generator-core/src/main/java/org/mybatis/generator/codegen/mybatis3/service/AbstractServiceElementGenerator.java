@@ -1,19 +1,23 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import org.mybatis.generator.api.CommentGenerator;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.AbstractGenerator;
-import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
+import org.mybatis.generator.config.RelationGeneratorConfiguration;
+import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.List;
 
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
 public abstract class AbstractServiceElementGenerator extends AbstractGenerator {
 

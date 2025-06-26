@@ -1,6 +1,5 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.tool.core.VStringUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mybatis.generator.api.dom.java.Field;

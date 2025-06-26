@@ -2,7 +2,6 @@ package org.mybatis.generator.config;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.mybatis.generator.api.IntrospectedColumn;
 
 import java.util.ArrayList;
 import java.util.List;

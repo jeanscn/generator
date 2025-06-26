@@ -1,15 +1,12 @@
 package org.mybatis.generator.codegen;
 
-import java.util.List;
-
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.internal.util.StringUtility;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor

@@ -4,8 +4,6 @@ import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.codegen.mybatis3.vue.FormItemRule;
 
