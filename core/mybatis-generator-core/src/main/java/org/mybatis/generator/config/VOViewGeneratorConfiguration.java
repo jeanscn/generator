@@ -1,11 +1,18 @@
 package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.custom.ViewVoUiFrameEnum;
 
 import java.util.*;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
@@ -45,10 +52,6 @@ public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfigu
         this.indexColumnFixed = "left";
     }
 
-    public VOViewGeneratorConfiguration() {
-        super();
-    }
-
     public VOViewGeneratorConfiguration(Context context) {
         super(context);
     }
@@ -65,67 +68,13 @@ public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfigu
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "VOViewGeneratorConfiguration");
     }
-    public List<String> getIncludeColumns() {
-        return includeColumns;
-    }
-
-    public void setIncludeColumns(List<String> includeColumns) {
-        this.includeColumns = includeColumns;
-    }
-
-    public String getViewMenuIcon() {
-        return viewMenuIcon;
-    }
-
-    public void setViewMenuIcon(String viewMenuIcon) {
-        this.viewMenuIcon = viewMenuIcon;
-    }
-
-    public List<InnerListViewConfiguration> getInnerListViewConfigurations() {
-        return innerListViewConfigurations;
-    }
-
-    public void setInnerListViewConfigurations(List<InnerListViewConfiguration> innerListViewConfigurations) {
-        this.innerListViewConfigurations = innerListViewConfigurations;
-    }
-    public Set<HtmlButtonGeneratorConfiguration> getHtmlButtons() {
-        return htmlButtons;
-    }
-
-    public void setHtmlButtons(Set<HtmlButtonGeneratorConfiguration> htmlButtons) {
-        this.htmlButtons = htmlButtons;
-    }
-
-    public List<QueryColumnConfiguration> getQueryColumnConfigurations() {
-        return queryColumnConfigurations;
-    }
 
     public void addQueryColumnConfigurations(QueryColumnConfiguration queryColumnConfiguration) {
         this.queryColumnConfigurations.add(queryColumnConfiguration);
     }
 
-    public List<ViewFieldOverrideConfiguration> getViewFieldOverrideConfigurations() {
-        return viewFieldOverrideConfigurations;
-    }
-
-    public void setViewFieldOverrideConfigurations(List<ViewFieldOverrideConfiguration> viewFieldOverrideConfigurations) {
-        this.viewFieldOverrideConfigurations = viewFieldOverrideConfigurations;
-    }
-
     public void addViewFieldOverrideConfiguration(ViewFieldOverrideConfiguration viewFieldOverrideConfiguration) {
         this.viewFieldOverrideConfigurations.add(viewFieldOverrideConfiguration);
-    }
-
-    public TableConfiguration getTableConfiguration() {
-        return tableConfiguration;
-    }
-
-    public void setTableConfiguration(TableConfiguration tableConfiguration) {
-        this.tableConfiguration = tableConfiguration;
-    }
-
-    public List<FilterColumnConfiguration> getFilterColumnsConfigurations() {
-        return filterColumnsConfigurations;
     }
 
     public void addFilterColumnsConfigurations(FilterColumnConfiguration filterColumnConfiguration) {
