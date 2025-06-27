@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.enums;
 
 import com.vgosoft.core.constant.enums.IBaseEnum;
 

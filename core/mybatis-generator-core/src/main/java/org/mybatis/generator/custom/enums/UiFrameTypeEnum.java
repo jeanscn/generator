@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.enums;
 
 public enum UiFrameTypeEnum {
     EL_PLUS("elPlus", "elPlus"),

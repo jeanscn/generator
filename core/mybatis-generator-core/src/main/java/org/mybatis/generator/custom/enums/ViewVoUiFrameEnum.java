@@ -1,5 +1,8 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ViewVoUiFrameEnum {
 
     DATATABLES("dataTables", "dataTables"),
@@ -15,14 +18,6 @@ public enum ViewVoUiFrameEnum {
     ViewVoUiFrameEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDesc() {
-        return desc;
     }
 
     public static ViewVoUiFrameEnum getEnum(String code) {

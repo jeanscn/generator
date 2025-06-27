@@ -1,4 +1,4 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.enums;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

@@ -1,4 +1,6 @@
-package org.mybatis.generator.custom;
+package org.mybatis.generator.custom.enums;
+
+import lombok.Getter;
 
 /**
  * html页面应用类型
@@ -7,6 +9,7 @@ package org.mybatis.generator.custom;
  * 2023-08-11 17:25
  * @version 4.0
  */
+@Getter
 public enum HtmlDocumentTypeEnum {
 
     EDITABLE("editable", "可编辑页面"),
@@ -20,14 +23,6 @@ public enum HtmlDocumentTypeEnum {
     HtmlDocumentTypeEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDesc() {
-        return desc;
     }
 
     public static HtmlDocumentTypeEnum getEnum(String code) {
