@@ -3,7 +3,11 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.ViewFuzzyColumnMeta;
 import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class ViewFuzzyColumnMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ViewFuzzyColumnMeta";
@@ -34,38 +38,6 @@ public class ViewFuzzyColumnMetaDesc extends AbstractAnnotation {
             addImports(QueryModesEnum.class.getCanonicalName());
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public String getComparator() {
-        return comparator;
-    }
-
-    public void setComparator(String comparator) {
-        this.comparator = comparator;
     }
 
 }

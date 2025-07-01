@@ -3223,7 +3223,7 @@ public class MyBatisGeneratorConfigurationParser {
             modelConfiguration.setEqualsAndHashCodeColumns(splitToList(ehAttr));
         }
         //判断enableChildren
-        modelConfiguration.setGenerateChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
+        modelConfiguration.setEnableChildren(Boolean.parseBoolean(attributes.getProperty("enableChildren")));
 
         String ignoreTenant = attributes.getProperty("ignoreTenant");
         if (stringHasValue(ignoreTenant)) {

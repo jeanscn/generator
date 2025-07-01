@@ -71,7 +71,7 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
             xmlElement.addAttribute(new Attribute("test", "principals != null and principals.size &gt;0"));
             sb.setLength(0);
 
-            if (introspectedTable.getPrimaryKeyColumns().size() > 0) {
+            if (!introspectedTable.getPrimaryKeyColumns().isEmpty()) {
                 IntrospectedColumn introspectedColumn = introspectedTable.getPrimaryKeyColumns().get(0);
                 String actualColumnName = introspectedColumn.getActualColumnName();
                 if (!StringUtility.isEmpty(actualColumnName)) {

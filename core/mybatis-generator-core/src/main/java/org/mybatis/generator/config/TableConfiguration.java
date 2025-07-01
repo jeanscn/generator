@@ -912,7 +912,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private void calculateSelectByParentIdConfig(List<String> warnings, IntrospectedTable introspectedTable) {
         String parentIdColumnName = DefaultColumnNameEnum.PARENT_ID.columnName();
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren() && this.getColumnNames().contains(parentIdColumnName)) {
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren() && this.getColumnNames().contains(parentIdColumnName)) {
             //如果存在parent_id字段，则自动添加selectByParentId方法
             if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(c -> c.getColumns().stream().anyMatch(column -> parentIdColumnName.equalsIgnoreCase(column.getActualColumnName())))) {
                 introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
@@ -952,7 +952,7 @@ public class TableConfiguration extends PropertyHolder {
                 this.addAdditionalPropertyConfigurations(disabledAdditionalPropertyConfiguration);
             }
 
-            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
                 if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.CHILDREN.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
                     RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
                     relationGeneratorConfiguration.setRemark("子集合");

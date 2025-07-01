@@ -1,5 +1,6 @@
 package org.mybatis.generator.api.dom.java;
 
+import lombok.Getter;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
@@ -34,16 +35,21 @@ public class FullyQualifiedJavaType implements
     /** The fully qualified name without any generic arguments. */
     private String baseQualifiedName;
 
+    @Getter
     private boolean explicitlyImported;
 
+    @Getter
     private String packageName;
 
+    @Getter
     private boolean primitive;
 
     private boolean isArray;
 
+    @Getter
     private PrimitiveTypeWrapper primitiveTypeWrapper;
 
+    @Getter
     private final List<FullyQualifiedJavaType> typeArguments;
 
     // the following three values are used for dealing with wildcard types
@@ -63,10 +69,6 @@ public class FullyQualifiedJavaType implements
         super();
         typeArguments = new ArrayList<>();
         parse(fullTypeSpecification);
-    }
-
-    public boolean isExplicitlyImported() {
-        return explicitlyImported;
     }
 
     /**
@@ -151,10 +153,6 @@ public class FullyQualifiedJavaType implements
         return answer;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
     public String getShortName() {
         StringBuilder sb = new StringBuilder();
         if (wildcardType) {
@@ -221,14 +219,6 @@ public class FullyQualifiedJavaType implements
     @Override
     public String toString() {
         return getFullyQualifiedName();
-    }
-
-    public boolean isPrimitive() {
-        return primitive;
-    }
-
-    public PrimitiveTypeWrapper getPrimitiveTypeWrapper() {
-        return primitiveTypeWrapper;
     }
 
     public static FullyQualifiedJavaType getIntInstance() {
@@ -492,9 +482,5 @@ public class FullyQualifiedJavaType implements
 
     public boolean isArray() {
         return isArray;
-    }
-
-    public List<FullyQualifiedJavaType> getTypeArguments() {
-        return typeArguments;
     }
 }

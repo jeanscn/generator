@@ -1,5 +1,10 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class VoNameFragmentGeneratorConfiguration extends TypedPropertyHolder {
 
     private final TableConfiguration tc;
@@ -17,27 +22,4 @@ public class VoNameFragmentGeneratorConfiguration extends TypedPropertyHolder {
         this.tc = tc;
     }
 
-    public TableConfiguration getTc() {
-        return tc;
-    }
-
-    public Context getContext() {
-        return context;
-    }
-
-    public String getColumn() {
-        return column;
-    }
-
-    public void setColumn(String column) {
-        this.column = column;
-    }
-
-    public String getFragment() {
-        return fragment;
-    }
-
-    public void setFragment(String fragment) {
-        this.fragment = fragment;
-    }
 }

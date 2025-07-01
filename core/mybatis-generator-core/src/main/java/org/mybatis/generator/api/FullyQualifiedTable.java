@@ -7,20 +7,26 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.DomainObjectRenamingRule;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 public class FullyQualifiedTable {
 
+    @Getter
     private final String introspectedCatalog;
+    @Getter
     private final String introspectedSchema;
+    @Getter
     private final String introspectedTableName;
     private final String runtimeCatalog;
     private final String runtimeSchema;
     private final String runtimeTableName;
     private String domainObjectName;
+    @Getter
     private String domainObjectSubPackage;
+    @Getter
     private final String alias;
     private final boolean ignoreQualifiersAtRuntime;
     private final String beginningDelimiter;
@@ -109,18 +115,6 @@ public class FullyQualifiedTable {
                 .getBeginningDelimiter() : ""; //$NON-NLS-1$
         endingDelimiter = delimitIdentifiers ? context.getEndingDelimiter()
                 : ""; //$NON-NLS-1$
-    }
-
-    public String getIntrospectedCatalog() {
-        return introspectedCatalog;
-    }
-
-    public String getIntrospectedSchema() {
-        return introspectedSchema;
-    }
-
-    public String getIntrospectedTableName() {
-        return introspectedTableName;
     }
 
     public String getFullyQualifiedTableNameAtRuntime() {
@@ -225,10 +219,6 @@ public class FullyQualifiedTable {
                 '.');
     }
 
-    public String getAlias() {
-        return alias;
-    }
-
     /**
      * Calculates a Java package fragment based on the table catalog and schema.
      * If qualifiers are ignored, then this method will return an empty string.
@@ -297,9 +287,5 @@ public class FullyQualifiedTable {
         if (stringHasValue(endingDelimiter)) {
             sb.append(endingDelimiter);
         }
-    }
-
-    public String getDomainObjectSubPackage() {
-        return domainObjectSubPackage;
     }
 }

@@ -36,13 +36,9 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         XmlElement choose = new XmlElement("choose");
         trim.addElement(choose);
         if (stringHasValue(config.getKeyColumn()) && introspectedTable.getColumn(config.getKeyColumn()).isPresent()) {
-            introspectedTable.getColumn(config.getKeyColumn()).ifPresent(introspectedColumn -> {
-                choose.addElement(getWhenMultiKeyInElement(introspectedColumn, "keys"));
-            });
+            introspectedTable.getColumn(config.getKeyColumn()).ifPresent(introspectedColumn -> choose.addElement(getWhenMultiKeyInElement(introspectedColumn, "keys")));
         }else{
-            introspectedTable.getPrimaryKeyColumns().forEach(introspectedColumn -> {
-                choose.addElement(getWhenMultiKeyInElement(introspectedColumn, "keys"));
-            });
+            introspectedTable.getPrimaryKeyColumns().forEach(introspectedColumn -> choose.addElement(getWhenMultiKeyInElement(introspectedColumn, "keys")));
         }
         introspectedTable.getColumn(config.getTypeColumn()).ifPresent(introspectedColumn -> {
             XmlElement choose1 = new XmlElement("choose");

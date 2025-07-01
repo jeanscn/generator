@@ -193,14 +193,7 @@ public class JavaBeansUtil {
                 .getFullyQualifiedJavaType();
         String property = introspectedColumn.getJavaProperty();
 
-        Method method = new Method(getGetterMethodName(property, fqjt));
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setReturnType(fqjt);
-
-        String s = "return " + property + ';'; //$NON-NLS-1$
-        method.addBodyLine(s);
-
-        return method;
+        return getBasicJavaBeansGetter(property, fqjt);
     }
 
     private static void addGeneratedGetterJavaDoc(Method method, IntrospectedColumn introspectedColumn,

@@ -54,9 +54,7 @@ public class MybatisPlusAnnotationPlugin extends PluginAdapter {
         introspectedTable.getAllColumns().stream()
                 .filter(c->c.getJavaProperty().equals(field.getName()))
                 .findFirst()
-                .ifPresent(c->{
-                    tableField.setValue(c.getActualColumnName());
-                });
+                .ifPresent(c-> tableField.setValue(c.getActualColumnName()));
         if (tableField.getValue() == null) {
             tableField.setExist(false);
         }

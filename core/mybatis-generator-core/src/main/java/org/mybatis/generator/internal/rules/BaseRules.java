@@ -688,7 +688,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isModelEnableChildren() {
-        if (tc.getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+        if (tc.getJavaModelGeneratorConfiguration().isEnableChildren()) {
             return tc.getFieldNames().contains(DefaultColumnNameEnum.PARENT_ID.fieldName());
         }
         return false;

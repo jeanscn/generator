@@ -1,12 +1,16 @@
 package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2022-08-16 14:16
  * @version 3.0
  */
+@Setter
+@Getter
 public class FormOptionGeneratorConfiguration  extends PropertyHolder {
 
     private String idColumn;
@@ -22,27 +26,4 @@ public class FormOptionGeneratorConfiguration  extends PropertyHolder {
         dataType = 0;
     }
 
-    public String getNameColumn() {
-        return nameColumn;
-    }
-
-    public void setNameColumn(String nameColumn) {
-        this.nameColumn = nameColumn;
-    }
-
-    public void setIdColumn(String idColumn) {
-        this.idColumn = idColumn;
-    }
-
-    public String getIdColumn() {
-        return idColumn;
-    }
-
-    public int getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(int dataType) {
-        this.dataType = dataType;
-    }
 }

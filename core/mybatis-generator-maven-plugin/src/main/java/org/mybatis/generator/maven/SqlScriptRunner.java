@@ -32,10 +32,10 @@ import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
  */
 public class SqlScriptRunner {
     private String driver;
-    private String url;
-    private String userid;
+    private final String url;
+    private final String userid;
     private String password;
-    private String sourceFile;
+    private final String sourceFile;
     private Log log;
 
     public SqlScriptRunner(String sourceFile, String driver, String url,
@@ -172,11 +172,11 @@ public class SqlScriptRunner {
 
         String s = sb.toString().trim();
 
-        if (s.length() > 0) {
+        if (!s.isEmpty()) {
             log.debug(Messages.getString("Progress.13", s)); //$NON-NLS-1$
         }
 
-        return s.length() > 0 ? s : null;
+        return !s.isEmpty() ? s : null;
     }
 
     public void setLog(Log log) {

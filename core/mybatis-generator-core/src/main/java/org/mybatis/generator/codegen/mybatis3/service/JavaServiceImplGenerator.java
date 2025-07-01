@@ -219,7 +219,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addSelectByExampleWithChildrenCountElement(TopLevelClass bizGenClazzImpl) {
         if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
-            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
                 AbstractServiceElementGenerator elementGenerator = new SelectByExampleWithChildrenCountElement();
                 initializeAndExecuteGenerator(elementGenerator, bizGenClazzImpl);
             }

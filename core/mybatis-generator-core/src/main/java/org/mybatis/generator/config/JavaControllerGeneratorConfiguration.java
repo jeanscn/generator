@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
@@ -7,6 +9,8 @@ import java.util.List;
 
 import static com.vgosoft.tool.core.VStringUtil.*;
 
+@Getter
+@Setter
 public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private boolean noSwaggerAnnotation;
@@ -73,56 +77,8 @@ public class JavaControllerGeneratorConfiguration extends AbstractGeneratorConfi
         }
     }
 
-    public boolean isNoSwaggerAnnotation() {
-        return noSwaggerAnnotation;
-    }
-
-    public void setNoSwaggerAnnotation(boolean noSwaggerAnnotation) {
-        this.noSwaggerAnnotation = noSwaggerAnnotation;
-    }
-
-    public boolean isGenerateUnitTest() {
-        return generateUnitTest;
-    }
-
-    public void setGenerateUnitTest(boolean generateUnitTest) {
-        this.generateUnitTest = generateUnitTest;
-    }
-
-    public boolean isEnableSelectByPrimaryKeys() {
-        return enableSelectByPrimaryKeys;
-    }
-
-    public void setEnableSelectByPrimaryKeys(boolean enableSelectByPrimaryKeys) {
-        this.enableSelectByPrimaryKeys = enableSelectByPrimaryKeys;
-    }
-
-    public String getSpringBootApplicationClass() {
-        return springBootApplicationClass;
-    }
-
-    public void setSpringBootApplicationClass(String springBootApplicationClass) {
-        this.springBootApplicationClass = springBootApplicationClass;
-    }
-
-    public List<FormOptionGeneratorConfiguration> getFormOptionGeneratorConfigurations() {
-        return formOptionGeneratorConfigurations;
-    }
-
     public void addFormOptionGeneratorConfigurations(FormOptionGeneratorConfiguration formOptionGeneratorConfigurations) {
         this.formOptionGeneratorConfigurations.add(formOptionGeneratorConfigurations);
-    }
-
-    public List<TreeViewCateGeneratorConfiguration> getTreeViewCateGeneratorConfigurations() {
-        return treeViewCateGeneratorConfigurations;
-    }
-
-    public void setTreeViewCateGeneratorConfigurations(List<TreeViewCateGeneratorConfiguration> treeViewCateGeneratorConfigurations) {
-        this.treeViewCateGeneratorConfigurations = treeViewCateGeneratorConfigurations;
-    }
-
-    public TableConfiguration getTableConfiguration() {
-        return tableConfiguration;
     }
 
     @Override

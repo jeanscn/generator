@@ -3,6 +3,8 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 
 /**
@@ -12,27 +14,44 @@ import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
  * 2023-08-23 22:27
  * @version 4.0
  */
+@Getter
+@Setter
 public class HtmlButtonDesc  extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@HtmlButton";
 
     private String value;
+
     private String id;
+
     private boolean text;
+
     private String title;
+
     private String label;
+
     private String icon;
+
     private String elIcon;
+
     private String classes;
+
     private String handler;
+
     private String type;
+
     private boolean isLink;
+
     private boolean  isRound;
+
     private boolean  isCircle;
 
     private boolean isPlain;
+
     private String css;
+
     private String showCondition;
+
     private String disabledCondition;
 
     private boolean configurable;
@@ -161,165 +180,5 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
             items.add("componentType = \""+this.componentType+"\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public void setClasses(String classes) {
-        this.classes = classes;
-    }
-
-    public void setHandler(String handler) {
-        this.handler = handler;
-    }
-
-    public boolean isLink() {
-        return isLink;
-    }
-
-    public void setLink(boolean link) {
-        isLink = link;
-    }
-
-    public boolean isRound() {
-        return isRound;
-    }
-
-    public void setRound(boolean round) {
-        isRound = round;
-    }
-
-    public boolean isCircle() {
-        return isCircle;
-    }
-
-    public void setCircle(boolean circle) {
-        isCircle = circle;
-    }
-
-    public boolean isPlain() {
-        return isPlain;
-    }
-
-    public void setPlain(boolean plain) {
-        isPlain = plain;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setCss(String css) {
-        this.css = css;
-    }
-
-    public void setShowCondition(String showCondition) {
-        this.showCondition = showCondition;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public boolean isText() {
-        return text;
-    }
-
-    public void setText(boolean text) {
-        this.text = text;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public String getClasses() {
-        return classes;
-    }
-
-    public String getHandler() {
-        return handler;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getCss() {
-        return css;
-    }
-
-    public String getShowCondition() {
-        return showCondition;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public boolean isConfigurable() {
-        return configurable;
-    }
-
-    public void setConfigurable(boolean configurable) {
-        this.configurable = configurable;
-    }
-
-    public String getElIcon() {
-        return elIcon;
-    }
-
-    public void setElIcon(String elIcon) {
-        this.elIcon = elIcon;
-    }
-
-    public String getDisabledCondition() {
-        return disabledCondition;
-    }
-
-    public void setDisabledCondition(String disabledCondition) {
-        this.disabledCondition = disabledCondition;
-    }
-
-    public String getLocaleKey() {
-        return localeKey;
-    }
-
-    public void setLocaleKey(String localeKey) {
-        this.localeKey = localeKey;
-    }
-
-    public String getComponentType() {
-        return componentType;
-    }
-
-    public void setComponentType(String componentType) {
-        this.componentType = componentType;
     }
 }

@@ -1,11 +1,15 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     private String tableName;
@@ -43,89 +47,9 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
         enableUnion = true;
     }
 
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getPrimaryKeyColumn() {
-        return primaryKeyColumn;
-    }
-
-    public void setPrimaryKeyColumn(String primaryKeyColumn) {
-        this.primaryKeyColumn = primaryKeyColumn;
-    }
-
-    public String getOtherPrimaryKeyColumn() {
-        return otherPrimaryKeyColumn;
-    }
-
-    public void setOtherPrimaryKeyColumn(String otherPrimaryKeyColumn) {
-        this.otherPrimaryKeyColumn = otherPrimaryKeyColumn;
-    }
-
-    public String getOrderByClause() {
-        return orderByClause;
-    }
-
-    public void setOrderByClause(String orderByClause) {
-        this.orderByClause = orderByClause;
-    }
-
-    public String getAdditionCondition() {
-        return additionCondition;
-    }
-
-    public void setAdditionCondition(String additionCondition) {
-        this.additionCondition = additionCondition;
-    }
-
-    public String getReturnTypeParam() {
-        return returnTypeParam;
-    }
-
-    public void setReturnTypeParam(String returnTypeParam) {
-        this.returnTypeParam = returnTypeParam;
-    }
-
     public boolean isReturnPrimaryKey() {
         return this.getReturnTypeParam().equals("primaryKey")
                 ||this.getReturnTypeParam().equals("list_primaryKey");
-    }
-
-    public boolean isEnableSplit() {
-        return enableSplit;
-    }
-
-    public void setEnableSplit(boolean enableSplit) {
-        this.enableSplit = enableSplit;
-    }
-
-    public boolean isEnableUnion() {
-        return enableUnion;
-    }
-
-    public void setEnableUnion(boolean enableUnion) {
-        this.enableUnion = enableUnion;
-    }
-
-    public String getMethodSuffix() {
-        return methodSuffix;
-    }
-
-    public void setMethodSuffix(String methodSuffix) {
-        this.methodSuffix = methodSuffix;
     }
 
     public String getMethodName() {
@@ -144,31 +68,4 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
         return "selectByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
     }
 
-    public IntrospectedColumn getThisColumn() {
-        return thisColumn;
-    }
-
-    public void setThisColumn(IntrospectedColumn thisColumn) {
-        this.thisColumn = thisColumn;
-    }
-
-    public IntrospectedColumn getOtherColumn() {
-        return otherColumn;
-    }
-
-    public void setOtherColumn(IntrospectedColumn otherColumn) {
-        this.otherColumn = otherColumn;
-    }
-
-    public String getParameterType() {
-        return parameterType;
-    }
-
-    public void setParameterType(String parameterType) {
-        this.parameterType = parameterType;
-    }
-
-    public List<EnableCacheConfiguration> getCacheConfigurationList() {
-        return cacheConfigurationList;
-    }
 }

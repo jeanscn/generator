@@ -200,7 +200,7 @@ public class XmlFileMergerJaxp {
 
         if (node != null && node.getNodeType() == Node.TEXT_NODE) {
             Text tn = (Text) node;
-            if (tn.getData().trim().length() == 0) {
+            if (tn.getData().trim().isEmpty()) {
                 rc = true;
             }
         }

@@ -87,12 +87,8 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
             return;
         }
         TableMetaDesc tableMetaDesc = new TableMetaDesc(introspectedTable);
-        topLevelClass.getSuperClass().ifPresent(superClass -> {
-            tableMetaDesc.setSuperClass(superClass.getShortNameWithoutTypeArguments()+".class");
-        });
-        topLevelClass.getSuperInterfaceTypes().forEach(superInterface -> {
-            tableMetaDesc.addSuperInterface(superInterface.getShortNameWithoutTypeArguments()+".class");
-        });
+        topLevelClass.getSuperClass().ifPresent(superClass -> tableMetaDesc.setSuperClass(superClass.getShortNameWithoutTypeArguments()+".class"));
+        topLevelClass.getSuperInterfaceTypes().forEach(superInterface -> tableMetaDesc.addSuperInterface(superInterface.getShortNameWithoutTypeArguments()+".class"));
         topLevelClass.addAnnotation(tableMetaDesc.toAnnotation());
         topLevelClass.addImportedTypes(tableMetaDesc.getImportedTypes());
     }

@@ -1,5 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.freeMaker.css;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -9,6 +11,8 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
  * 2023-04-06 16:11
  * @version 3.0
  */
+@Setter
+@Getter
 public class GeneratedStyleFile extends AbstractGeneratedFile {
     private final IntrospectedTable introspectedTable;
 
@@ -30,13 +34,5 @@ public class GeneratedStyleFile extends AbstractGeneratedFile {
     public String getFormattedContent() {
         StyleFreemarkerGenerator freemarkerGenerator = new StyleFreemarkerGenerator(this.targetProject, this.introspectedTable,this.htmlGeneratorConfiguration);
         return freemarkerGenerator.generate(templateName);
-    }
-
-    public HtmlGeneratorConfiguration getHtmlGeneratorConfiguration() {
-        return htmlGeneratorConfiguration;
-    }
-
-    public void setHtmlGeneratorConfiguration(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
 }

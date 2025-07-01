@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Configuration;
@@ -52,10 +53,35 @@ public class MyBatisGenerator {
 
     private final ShellCallback shellCallback;
 
+    /**
+     * -- GETTER --
+     *  Returns the list of generated Java files after a call to one of the generate methods.
+     *  This is useful if you prefer to process the generated files yourself and do not want
+     *  the generator to write them to disk.
+     *  return the list of generated Java files
+     */
+    @Getter
     private final List<GeneratedJavaFile> generatedJavaFiles = new ArrayList<>();
 
+    /**
+     * -- GETTER --
+     *  Returns the list of generated XML files after a call to one of the generate methods.
+     *  This is useful if you prefer to process the generated files yourself and do not want
+     *  the generator to write them to disk.
+     * return the list of generated XML files
+     */
+    @Getter
     private final List<GeneratedXmlFile> generatedXmlFiles = new ArrayList<>();
 
+    /**
+     * -- GETTER --
+     *  Returns the list of generated Kotlin files after a call to one of the generate methods.
+     *  This is useful if you prefer to process the generated files yourself and do not want
+     *  the generator to write them to disk.
+     *
+     * @return the list of generated Kotlin files
+     */
+    @Getter
     private final List<GeneratedKotlinFile> generatedKotlinFiles = new ArrayList<>();
 
     /**
@@ -63,7 +89,8 @@ public class MyBatisGenerator {
      */
     private final List<GeneratedFile> otherGeneratedFiles = new ArrayList<>();
 
-    private List<GeneratedHtmlFile> generatedHtmlFiles = new ArrayList<>();
+    @Getter
+    private final List<GeneratedHtmlFile> generatedHtmlFiles = new ArrayList<>();
 
     private final List<String> warnings;
 
@@ -488,42 +515,5 @@ public class MyBatisGenerator {
         }
 
         return answer;
-    }
-
-    /**
-     * Returns the list of generated Java files after a call to one of the generate methods.
-     * This is useful if you prefer to process the generated files yourself and do not want
-     * the generator to write them to disk.
-     *
-     * @return the list of generated Java files
-     */
-    public List<GeneratedJavaFile> getGeneratedJavaFiles() {
-        return generatedJavaFiles;
-    }
-
-    /**
-     * Returns the list of generated Kotlin files after a call to one of the generate methods.
-     * This is useful if you prefer to process the generated files yourself and do not want
-     * the generator to write them to disk.
-     *
-     * @return the list of generated Kotlin files
-     */
-    public List<GeneratedKotlinFile> getGeneratedKotlinFiles() {
-        return generatedKotlinFiles;
-    }
-
-    /**
-     * Returns the list of generated XML files after a call to one of the generate methods.
-     * This is useful if you prefer to process the generated files yourself and do not want
-     * the generator to write them to disk.
-     *
-     * @return the list of generated XML files
-     */
-    public List<GeneratedXmlFile> getGeneratedXmlFiles() {
-        return generatedXmlFiles;
-    }
-
-    public List<GeneratedHtmlFile> getGeneratedHtmlFiles() {
-        return generatedHtmlFiles;
     }
 }

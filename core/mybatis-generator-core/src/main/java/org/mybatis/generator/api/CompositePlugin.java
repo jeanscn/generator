@@ -162,30 +162,6 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientBasicCountMethodGenerated(Method method, Interface interfaze,
-                                                   IntrospectedTable introspectedTable) {
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                   IntrospectedTable introspectedTable) {
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicDeleteMethodGenerated(Method method, Interface interfaze,
-                                                    IntrospectedTable introspectedTable) {
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                    IntrospectedTable introspectedTable) {
-        return true;
-    }
-
-    @Override
     public boolean clientBasicInsertMethodGenerated(Method method, Interface interfaze,
                                                     IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
@@ -230,19 +206,6 @@ public abstract class CompositePlugin implements Plugin {
             }
         }
 
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicInsertMultipleHelperMethodGenerated(Method method, Interface interfaze,
-                                                                  IntrospectedTable introspectedTable) {
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicInsertMultipleHelperMethodGenerated(KotlinFunction kotlinFunction, KotlinFile
-            kotlinFile,
-                                                                  IntrospectedTable introspectedTable) {
         return true;
     }
 
@@ -296,18 +259,6 @@ public abstract class CompositePlugin implements Plugin {
 
         return true;
 
-    }
-
-    @Override
-    public boolean clientBasicUpdateMethodGenerated(Method method, Interface interfaze,
-                                                    IntrospectedTable introspectedTable) {
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                    IntrospectedTable introspectedTable) {
-        return true;
     }
 
     @Override

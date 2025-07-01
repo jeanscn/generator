@@ -90,7 +90,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         //增加selectByExampleWithChildrenCount接口方法
         if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
-            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
                 bizINF.addMethod(serviceMethods.getSelectWithChildrenCountMethod(bizINF, true,true));
             }
             bizINF.addMethod(serviceMethods.getSelectByKeysWithAllParentMethod(bizINF, true, true));

@@ -3,6 +3,8 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
@@ -17,6 +19,8 @@ import java.util.Set;
  * 2022-10-06 23:42
  * @version 3.0
  */
+@Setter
+@Getter
 public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ViewColumnMeta";
@@ -38,7 +42,6 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     private boolean edit = false;
 
     private boolean hide = false;
-
 
     private String defaultContent;
 
@@ -227,162 +230,10 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getWidth() {
-        return width;
-    }
-
-    public void setWidth(String width) {
-        this.width = width;
-    }
-
-    public String getDefaultContent() {
-        return defaultContent;
-    }
-
-    public void setDefaultContent(String defaultContent) {
-        this.defaultContent = defaultContent;
-    }
-
-    public String getSearchable() {
-        return searchable;
-    }
-
-    public void setSearchable(String searchable) {
-        this.searchable = searchable;
-    }
-
-    public String getOrderable() {
-        return orderable;
-    }
-
-    public void setOrderable(String orderable) {
-        this.orderable = orderable;
-    }
-
-    public String getRender() {
-        return render;
-    }
-
-    public void setRender(String render) {
-        this.render = render;
-    }
-
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
-    public String getDataFormat() {
-        return dataFormat;
-    }
-
-    public void setDataFormat(String dataFormat) {
-        this.dataFormat = dataFormat;
-    }
-
-    public boolean isIgnore() {
-        return ignore;
-    }
-
-    public void setIgnore(boolean ignore) {
-        this.ignore = ignore;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public boolean isDefaultDisplay() {
-        return defaultDisplay;
-    }
-
-    public void setDefaultDisplay(boolean defaultDisplay) {
-        this.defaultDisplay = defaultDisplay;
-    }
-
-    public String getHeaderAlign() {
-        return headerAlign;
-    }
-
-    public void setHeaderAlign(String headerAlign) {
-        this.headerAlign = headerAlign;
-    }
-
-    public String getAlign() {
-        return align;
-    }
-
-    public void setAlign(String align) {
-        this.align = align;
-    }
-
-    public String getFixed() {
-        return fixed;
-    }
-
-    public void setFixed(String fixed) {
-        this.fixed = fixed;
-    }
-
-    public boolean isEdit() {
-        return edit;
-    }
-
-    public void setEdit(boolean edit) {
-        this.edit = edit;
-    }
-
-    public boolean isHide() {
-        return hide;
-    }
-
-    public void setHide(boolean hide) {
-        this.hide = hide;
-    }
-
     public Set<String> getHiddenProperties() {
         if (hiddenProperties != null) {
             return hiddenProperties;
         }
         return this.introspectedTable.getTableConfiguration().getHtmlHiddenFields();
-    }
-
-    public String getMinWidth() {
-        return minWidth;
-    }
-
-    public void setMinWidth(String minWidth) {
-        this.minWidth = minWidth;
-    }
-
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
     }
 }

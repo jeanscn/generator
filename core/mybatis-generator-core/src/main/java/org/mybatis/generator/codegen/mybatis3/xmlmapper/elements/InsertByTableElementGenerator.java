@@ -32,7 +32,7 @@ public class InsertByTableElementGenerator extends
             context.getCommentGenerator().addComment(answer);
             answer.addElement(new TextElement("insert ignore into " + configuration.getTableName()));
             StringBuilder sb = new StringBuilder("(");
-            sb.append(DefaultColumnNameEnum.ID.columnName()+",").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
+            sb.append(DefaultColumnNameEnum.ID.columnName()).append(",").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
             sb.append(")");
             answer.addElement(new TextElement(sb.toString()));
             answer.addElement(new TextElement("values"));

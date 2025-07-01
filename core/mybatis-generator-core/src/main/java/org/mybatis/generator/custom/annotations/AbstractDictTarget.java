@@ -1,5 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import static com.vgosoft.tool.core.VStringUtil.*;
 
 /**
@@ -7,6 +10,8 @@ import static com.vgosoft.tool.core.VStringUtil.*;
  * 2022-10-10 14:34
  * @version 3.0
  */
+@Setter
+@Getter
 public abstract class AbstractDictTarget<T> extends AbstractAnnotation{
 
     private final Class<T> clazz;
@@ -31,21 +36,5 @@ public abstract class AbstractDictTarget<T> extends AbstractAnnotation{
         }
         if (!this.items.isEmpty()) return "@"+clazz.getSimpleName()+"("+ String.join(", ",items.toArray(new String[0])) +")";
         else return "@"+clazz.getSimpleName()+"()";
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
     }
 }

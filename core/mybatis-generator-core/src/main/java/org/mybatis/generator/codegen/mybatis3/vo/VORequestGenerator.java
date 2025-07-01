@@ -44,9 +44,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, null, voRequestGeneratorConfiguration.getExcludeColumns());
         introspectedColumns.stream()
                 .filter(introspectedColumn -> !isAbstractVOColumn(introspectedColumn) && !excludeColumns.contains(introspectedColumn.getActualColumnName()))
-                .forEach(introspectedColumn -> {
-                    addRequestField(requestVoClass, introspectedColumn);
-                });
+                .forEach(introspectedColumn -> addRequestField(requestVoClass, introspectedColumn));
         //分页属性
         addPageProperty(voRequestGeneratorConfiguration, requestVoClass);
         //排序属性

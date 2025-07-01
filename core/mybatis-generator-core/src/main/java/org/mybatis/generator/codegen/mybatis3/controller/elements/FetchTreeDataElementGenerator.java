@@ -150,7 +150,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         aMethod.addBodyLine(" if (keys.equals(\"0\")) {");
         aMethod.addBodyLine("example.or(example.createCriteria().andParentIdIsNull());");
         aMethod.addBodyLine("}");
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isGenerateChildren()) {
+        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
             aMethod.addBodyLine("ServiceResult<List<{0}>> serviceResult = {1}.selectByExampleWithChildrenCount(example);",entityType.getShortName(),serviceBeanName);
             aMethod.addBodyLine("if (!serviceResult.hasResult() || serviceResult.getResult().isEmpty()) {");
             aMethod.addBodyLine("return ResponseResult.success(new ArrayList<>());");
