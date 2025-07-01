@@ -8,11 +8,11 @@
         <outputRelativeToContentRoot value="true" />
         <module name="mybatis-generator-core" />
         <module name="mybatis-generator-maven-plugin" />
-        <module name="mybatis-generator-systests-domtests" />
-        <module name="mybatis-generator-systests-common" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="mybatis-generator-systests-common" target="1.8" />
+      <module name="mybatis-generator-systests-domtests" target="1.8" />
       <module name="mybatis-generator-systests-kotlin" target="1.8" />
       <module name="mybatis-generator-systests-mybatis3" target="1.8" />
       <module name="mybatis-generator-systests-mybatis3 (1)" target="1.8" />
