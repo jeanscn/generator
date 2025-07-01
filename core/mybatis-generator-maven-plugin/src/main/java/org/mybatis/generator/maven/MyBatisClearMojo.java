@@ -34,7 +34,7 @@ import java.util.*;
         requiresDependencyResolution = ResolutionScope.TEST)
 public class MyBatisClearMojo extends AbstractMojo {
 
-    private ThreadLocal<ClassLoader> savedClassloader = new ThreadLocal<>();
+    private final ThreadLocal<ClassLoader> savedClassloader = new ThreadLocal<>();
 
     /**
      * Maven Project.

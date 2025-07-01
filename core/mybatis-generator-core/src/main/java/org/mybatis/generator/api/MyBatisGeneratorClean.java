@@ -115,7 +115,7 @@ public class MyBatisGeneratorClean {
         callback.done();
     }
 
-    private void cleanFiles(Context context, ProgressCallback callback) throws SQLException, IOException, InterruptedException, ShellException {
+    private void cleanFiles(Context context, ProgressCallback callback) throws ShellException {
         // 清理文件
         for (TableConfiguration tc : context.getTableConfigurations()) {
             this.warnings.add(getString("Warning.100", tc.getTableName())); //$NON-NLS-1$

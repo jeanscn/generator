@@ -3,8 +3,6 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.LayuiTableColumnMeta;
 import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 

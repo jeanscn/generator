@@ -68,9 +68,7 @@ public class SelectByColumnGenerator extends AbstractControllerElementGenerator 
             method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getMethodName()), RequestMethodEnum.GET),parentElement);
             method.addAnnotation(new ApiOperationDesc("根据指定列获取匹配的记录集合", "根据指定列获取匹配的记录集合接口"),parentElement);
             commentGenerator.addMethodJavaDocLine(method, "根据指定字段获取匹配的记录结合");
-            config.getColumns().forEach(column -> {
-                method.addBodyLine("Assert.notNull({0}, \"参数{0}非法！\");", column.getJavaProperty());
-            });
+            config.getColumns().forEach(column -> method.addBodyLine("Assert.notNull({0}, \"参数{0}非法！\");", column.getJavaProperty()));
             parentElement.addImportedType("org.springframework.util.Assert");
         }
         method.setReturnRemark("返回符合条件的记录集合");

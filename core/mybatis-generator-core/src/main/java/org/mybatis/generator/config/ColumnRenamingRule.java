@@ -1,6 +1,5 @@
 package org.mybatis.generator.config;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

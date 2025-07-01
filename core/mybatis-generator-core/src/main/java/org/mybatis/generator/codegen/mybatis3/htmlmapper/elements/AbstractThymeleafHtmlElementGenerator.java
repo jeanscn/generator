@@ -1,5 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
@@ -9,12 +11,13 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
+@Setter
+@Getter
 public abstract class AbstractThymeleafHtmlElementGenerator extends AbstractThymeleafHtmlGenerator implements HtmlConstant {
 
     protected HtmlElementDescriptor htmlElementDescriptor;
 
-    protected IntrospectedColumn introspectedColumn;
-
+    protected final IntrospectedColumn introspectedColumn;
 
     protected AbstractThymeleafHtmlElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(generatorInitialParameters.getContext(), generatorInitialParameters.getIntrospectedTable(), generatorInitialParameters.getWarnings(), generatorInitialParameters.getProgressCallback(),htmlGeneratorConfiguration);
@@ -25,14 +28,6 @@ public abstract class AbstractThymeleafHtmlElementGenerator extends AbstractThym
 
     protected HtmlElement generateHtmlInput(boolean isHidden, boolean isTextArea) {
         return super.generateHtmlInput(this.introspectedColumn.getJavaProperty(), isHidden, isTextArea, true, true);
-    }
-
-    public HtmlElementDescriptor getHtmlElementDescriptor() {
-        return htmlElementDescriptor;
-    }
-
-    public void setHtmlElementDescriptor(HtmlElementDescriptor htmlElementDescriptor) {
-        this.htmlElementDescriptor = htmlElementDescriptor;
     }
 
     public HtmlGeneratorConfiguration getHtmlGeneratorConfiguration() {

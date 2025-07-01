@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui;
 
 import com.vgosoft.core.constant.enums.IBaseEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
@@ -18,7 +19,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * 2023-04-13 14:49
  * @version 3.0
  */
-
+@Slf4j
 public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementGenerator {
     public SwitchThymeleafHtmlGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(generatorInitialParameters,introspectedColumn,htmlGeneratorConfiguration);
@@ -100,7 +101,7 @@ public class SwitchThymeleafHtmlGenerator extends AbstractThymeleafLayuiElementG
                     }
                 }
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage());
             }
             if (str == null && htmlElementDescriptor.getDataFormat()!=null) {
                 str = "} eq 1 ? '是':'否'";

@@ -1,6 +1,5 @@
 package org.mybatis.generator.custom.annotations;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

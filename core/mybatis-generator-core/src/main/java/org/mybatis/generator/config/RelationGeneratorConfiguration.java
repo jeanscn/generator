@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -7,6 +9,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+@Getter
+@Setter
 public class RelationGeneratorConfiguration extends PropertyHolder {
 
     /**
@@ -60,6 +64,7 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
      */
     private boolean enableUpdate;
 
+
     private boolean enableInsertOrUpdate;
 
     /**
@@ -89,7 +94,7 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
 
     private String initializationString;
 
-    private Set<String> importTypes = new HashSet<>();
+    private final Set<String> importTypes = new HashSet<>();
 
     public RelationGeneratorConfiguration() {
         super();
@@ -100,148 +105,18 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
         this.relationPropertyIsBoolean = false;
     }
 
-    public String getColumnRemark() {
-        return columnRemark;
-    }
-
-    public void setColumnRemark(String columnRemark) {
-        this.columnRemark = columnRemark;
-    }
-
-    public RelationTypeEnum getType() {
-        return type;
-    }
-
-    public void setType(RelationTypeEnum type) {
-        this.type = type;
-    };
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-    }
-
-    public String getColumn() {
-        return column;
-    }
-
-    public void setColumn(String column) {
-        this.column = column;
-    }
-
-    public String getSelect() {
-        return select;
-    }
-
-    public void setSelect(String select) {
-        this.select = select;
-    }
+    ;
 
     public boolean isSubSelected(){
         return StringUtility.stringHasValue(select) && StringUtility.stringHasValue(column);
-    }
-
-    public String getModelTye() {
-        return modelTye;
-    }
-
-    public void setModelTye(String modelTye) {
-        this.modelTye = modelTye;
     }
 
     public String getVoModelTye() {
         return voModelTye==null?this.modelTye:voModelTye;
     }
 
-    public void setVoModelTye(String voModelTye) {
-        this.voModelTye = voModelTye;
-    }
-
-    public boolean isEnableInsert() {
-        return enableInsert;
-    }
-
-    public void setEnableInsert(boolean enableInsert) {
-        this.enableInsert = enableInsert;
-    }
-
-    public boolean isEnableUpdate() {
-        return enableUpdate;
-    }
-
-    public void setEnableUpdate(boolean enableUpdate) {
-        this.enableUpdate = enableUpdate;
-    }
-
-    public boolean isEnableDelete() {
-        return enableDelete;
-    }
-
-    public void setEnableDelete(boolean enableDelete) {
-        this.enableDelete = enableDelete;
-    }
-
-    public String getBeanClassFullName() {
-        return beanClassFullName;
-    }
-
-    public void setBeanClassFullName(String beanClassFullName) {
-        this.beanClassFullName = beanClassFullName;
-    }
-
-    public String getRelationProperty() {
-        return relationProperty;
-    }
-
-    public void setRelationProperty(String relationProperty) {
-        this.relationProperty = relationProperty;
-    }
-
-    public boolean isRelationPropertyIsBoolean() {
-        return relationPropertyIsBoolean;
-    }
-
-    public void setRelationPropertyIsBoolean(boolean relationPropertyIsBoolean) {
-        this.relationPropertyIsBoolean = relationPropertyIsBoolean;
-    }
-
-    public String getJavaType() {
-        return javaType;
-    }
-
-    public void setJavaType(String javaType) {
-        this.javaType = javaType;
-    }
-
-    public boolean isEnableInsertOrUpdate() {
-        return enableInsertOrUpdate;
-    }
-
-    public void setEnableInsertOrUpdate(boolean enableInsertOrUpdate) {
-        this.enableInsertOrUpdate = enableInsertOrUpdate;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
     public Optional<String> getInitializationString() {
         return Optional.ofNullable(initializationString);
-    }
-
-    public void setInitializationString(String initializationString) {
-        this.initializationString = initializationString;
-    }
-
-    public Set<String> getImportTypes() {
-        return importTypes;
     }
 
     public void addImportTypes(String importType) {

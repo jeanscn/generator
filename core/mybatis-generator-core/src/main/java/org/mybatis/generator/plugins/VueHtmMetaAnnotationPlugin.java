@@ -49,9 +49,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
 
             //附件注解
             if (!htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isEmpty()) {
-                htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().forEach(e -> {
-                    vueFormMetaDesc.getUploadMeta().add(new VueFormUploadMetaDesc(e));
-                });
+                htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().forEach(e -> vueFormMetaDesc.getUploadMeta().add(new VueFormUploadMetaDesc(e)));
             }
 
             //内置列表注解
@@ -83,9 +81,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 VueFormContainerMetaDesc vueFormContainerMetaDesc = new VueFormContainerMetaDesc(e);
                 vueFormContainerMetaDesc.setParentElementKey("");
                 vueFormMetaDesc.getContainerMeta().add(vueFormContainerMetaDesc);
-                e.getGroupContainerConfigurations().forEach(groupContainer -> {
-                    getGroupContainerMetaDesc(groupContainer, vueFormContainerMetaDesc,vueFormMetaDesc);
-                });
+                e.getGroupContainerConfigurations().forEach(groupContainer -> getGroupContainerMetaDesc(groupContainer, vueFormContainerMetaDesc,vueFormMetaDesc));
             });
             topLevelClass.addImportedType("com.vgosoft.core.annotation.*");
             vueFormMetaDesc.addAnnotationToTopLevelClass(topLevelClass);
@@ -97,9 +93,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
         VueFormContainerMetaDesc vueFormContainerMetaDesc = new VueFormContainerMetaDesc(e);
         vueFormContainerMetaDesc.setParentElementKey(parent.getValue());
         vueFormMetaDesc.getContainerMeta().add(vueFormContainerMetaDesc);
-        e.getGroupContainerConfigurations().forEach(groupContainer -> {
-            getGroupContainerMetaDesc(groupContainer, vueFormContainerMetaDesc,vueFormMetaDesc);
-        });
+        e.getGroupContainerConfigurations().forEach(groupContainer -> getGroupContainerMetaDesc(groupContainer, vueFormContainerMetaDesc,vueFormMetaDesc));
     }
 
 

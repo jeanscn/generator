@@ -2,7 +2,6 @@ package org.mybatis.generator.custom.enums;
 
 import com.vgosoft.core.constant.enums.IBaseEnum;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.util.EnumSet;
 

@@ -4,8 +4,6 @@ import com.vgosoft.core.annotation.CompositeQuery;
 import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.annotation.LayuiTableMeta;
 import com.vgosoft.tool.core.VStringUtil;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.custom.enums.ViewVoUiFrameEnum;

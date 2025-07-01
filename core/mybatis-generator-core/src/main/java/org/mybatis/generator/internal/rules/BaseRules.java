@@ -3,6 +3,7 @@ package org.mybatis.generator.internal.rules;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -38,10 +39,13 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean generateDao;
 
+    @Getter
     protected final boolean noMetaAnnotation;
 
+    @Getter
     protected final boolean noSwaggerAnnotation;
 
+    @Getter
     protected final boolean noServiceAnnotation;
 
     protected final boolean integrateMybatisPlus;
@@ -99,18 +103,6 @@ public abstract class BaseRules implements Rules {
             return false;
         }
         return generateService;
-    }
-
-    public boolean isNoMetaAnnotation() {
-        return noMetaAnnotation;
-    }
-
-    public boolean isNoSwaggerAnnotation() {
-        return noSwaggerAnnotation;
-    }
-
-    public boolean isNoServiceAnnotation() {
-        return noServiceAnnotation;
     }
 
     /**
@@ -558,12 +550,8 @@ public abstract class BaseRules implements Rules {
         boolean forceUpdateScalableElement = introspectedTable.getContext().isForceUpdateScalableElement();
         String property = introspectedTable.getContext().getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_ELEMENT_LIST);
         if (StringUtility.stringHasValue(property)) {
-            if (forceUpdateScalableElement && Arrays.stream(property.split(","))
-                    .anyMatch(e -> e.equalsIgnoreCase(element))) {
-                return true;
-            } else {
-                return false;
-            }
+            return forceUpdateScalableElement && Arrays.stream(property.split(","))
+                    .anyMatch(e -> e.equalsIgnoreCase(element));
         } else {
             return forceUpdateScalableElement;
         }

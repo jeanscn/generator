@@ -1,7 +1,5 @@
 package org.mybatis.generator.config;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;

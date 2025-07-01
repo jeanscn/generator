@@ -1,8 +1,6 @@
 package org.mybatis.generator.config;
 
 import com.vgosoft.tool.core.VCollectionUtil;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
