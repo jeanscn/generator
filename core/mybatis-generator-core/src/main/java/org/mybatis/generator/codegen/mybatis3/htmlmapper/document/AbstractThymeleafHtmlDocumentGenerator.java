@@ -14,7 +14,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 
 import java.util.*;
 

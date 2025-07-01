@@ -1,12 +1,19 @@
 package org.mybatis.generator.custom.annotations.validate;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
 /**
- * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
- * 2023-05-03 02:59
- * @version 3.0
+ * 注解:Size
+ * 适用类型：String, Collection, Map, Array
+ * 验证内容：长度/大小
+ * 典型场景：字符串长度、集合大小
+ *
  */
+
+@Setter
+@Getter
 public class ValidateSize extends AbstractAnnotation {
 
     private String min;
@@ -49,35 +56,4 @@ public class ValidateSize extends AbstractAnnotation {
         else return "@Size";
     }
 
-    public String getMin() {
-        return min;
-    }
-
-    public void setMin(String min) {
-        this.min = min;
-    }
-
-    public String getMax() {
-        return max;
-    }
-
-    public void setMax(String max) {
-        this.max = max;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String[] getGroups() {
-        return groups;
-    }
-
-    public void setGroups(String[] groups) {
-        this.groups = groups;
-    }
 }

@@ -6,7 +6,7 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;

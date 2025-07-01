@@ -2,8 +2,8 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 

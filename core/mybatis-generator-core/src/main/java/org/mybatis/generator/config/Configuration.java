@@ -1,16 +1,17 @@
 package org.mybatis.generator.config;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
+import lombok.Getter;
+import lombok.Setter;
+import org.mybatis.generator.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-import lombok.Getter;
-import org.mybatis.generator.exception.InvalidConfigurationException;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-@Data
+@Getter
+@Setter
 public class Configuration {
 
     private final List<Context> contexts;

@@ -1,10 +1,10 @@
 package org.mybatis.generator.config;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@EqualsAndHashCode(callSuper = true)
+@Setter
 public abstract class TypedPropertyHolder extends PropertyHolder {
 
     private String configurationType;

@@ -1,10 +1,14 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.ConstantsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public class HtmlLayoutDescriptor   extends TypedPropertyHolder{
 
     //指定页面打开方式：pop-小弹窗，inner-页面嵌入，full-全屏弹窗，默认full
@@ -40,107 +44,4 @@ public class HtmlLayoutDescriptor   extends TypedPropertyHolder{
         this.borderWidth = ConstantsUtil.HTML_BORDER_WIDTH;
     }
 
-    public String getLoadingFrameType() {
-        return loadingFrameType;
-    }
-
-    public void setLoadingFrameType(String loadingFrameType) {
-        this.loadingFrameType = loadingFrameType;
-    }
-
-    public int getPageColumnsNum() {
-        return pageColumnsNum;
-    }
-
-    public void setPageColumnsNum(int pageColumnsNum) {
-        this.pageColumnsNum = pageColumnsNum;
-    }
-
-    public String getBarPosition() {
-        return barPosition;
-    }
-
-    public void setBarPosition(String barPosition) {
-        this.barPosition = barPosition;
-    }
-
-    public String getUiFrameType() {
-        return uiFrameType;
-    }
-
-    public void setUiFrameType(String uiFrameType) {
-        this.uiFrameType = uiFrameType;
-    }
-
-    public List<String> getExclusiveColumns() {
-        return exclusiveColumns;
-    }
-
-    public void setExclusiveColumns(List<String> exclusiveColumns) {
-        this.exclusiveColumns = exclusiveColumns;
-    }
-
-    public int getBorderWidth() {
-        return borderWidth;
-    }
-
-    public void setBorderWidth(int borderWidth) {
-        this.borderWidth = borderWidth;
-    }
-
-    public String getBorderColor() {
-        return borderColor;
-    }
-
-    public void setBorderColor(String borderColor) {
-        this.borderColor = borderColor;
-    }
-
-    public String getLabelWidth() {
-        return labelWidth;
-    }
-
-    public void setLabelWidth(String labelWidth) {
-        this.labelWidth = labelWidth;
-    }
-
-    public String getLabelPosition() {
-        return labelPosition;
-    }
-
-    public void setLabelPosition(String labelPosition) {
-        this.labelPosition = labelPosition;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String getPopSize() {
-        return popSize;
-    }
-
-    public void setPopSize(String popSize) {
-        this.popSize = popSize;
-    }
-
-    public List<HtmlGroupContainerConfiguration> getGroupContainerConfigurations() {
-        return groupContainerConfigurations;
-    }
-
-    public void setGroupContainerConfigurations(List<HtmlGroupContainerConfiguration> groupContainerConfigurations) {
-        this.groupContainerConfigurations = groupContainerConfigurations;
-    }
-
-    public boolean isPopDraggable() {
-        return popDraggable;
-    }
-
-    public void setPopDraggable(boolean popDraggable) {
-        this.popDraggable = popDraggable;
-    }
 }

@@ -13,7 +13,7 @@ import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.custom.annotations.IAnnotation;
 import org.mybatis.generator.internal.util.JavaBeansUtil;

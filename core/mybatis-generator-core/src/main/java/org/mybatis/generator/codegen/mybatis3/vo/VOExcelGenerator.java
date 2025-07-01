@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -10,7 +9,7 @@ import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.ModelClassTypeEnum;
+import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
 
 import java.util.*;
 import java.util.stream.Collectors;

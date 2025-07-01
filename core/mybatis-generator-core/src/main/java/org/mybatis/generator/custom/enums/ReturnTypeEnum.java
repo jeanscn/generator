@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.enums;
 
 import com.vgosoft.core.constant.enums.IBaseEnum;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.EnumSet;
 
@@ -9,6 +11,7 @@ import java.util.EnumSet;
  * 2022-09-12 20:32
  * @version 3.0
  */
+@AllArgsConstructor
 public enum ReturnTypeEnum implements IBaseEnum<String>{
 
     LIST("l","列表"),
@@ -19,11 +22,6 @@ public enum ReturnTypeEnum implements IBaseEnum<String>{
     RESPONSE_RESULT_LIST("rl","WEB返回列表"),
     VOID("v","无返回值"),
     UNKNOWN("unknown","未知类型");
-
-    ReturnTypeEnum(String code,String codeName){
-        this.code = code;
-        this.codeName = codeName;
-    }
 
     private final String code;
     private final String codeName;

@@ -10,7 +10,7 @@ import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.document.*;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;

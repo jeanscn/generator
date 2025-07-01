@@ -1,11 +1,13 @@
 package org.mybatis.generator.api.dom.java;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public abstract class JavaElement {
 
     private final List<String> javaDocLines = new ArrayList<>();

@@ -7,6 +7,8 @@ import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.AbstractFilterConditionConfiguration;
@@ -19,8 +21,8 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2022-10-07 06:58
  * @version 3.0
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class CompositeQueryDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@CompositeQuery";

@@ -1,5 +1,8 @@
 package org.mybatis.generator.custom.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UiFrameTypeEnum {
     EL_PLUS("elPlus", "elPlus"),
     LAYUI("layui", "layui"),
@@ -13,14 +16,6 @@ public enum UiFrameTypeEnum {
     UiFrameTypeEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDesc() {
-        return desc;
     }
 
     public UiFrameTypeEnum getEnu(String code) {

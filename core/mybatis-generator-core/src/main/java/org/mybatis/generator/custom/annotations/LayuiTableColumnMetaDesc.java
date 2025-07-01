@@ -5,6 +5,8 @@ import com.vgosoft.core.annotation.VueFormItemRule;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
@@ -17,9 +19,8 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * @version 4.0
  */
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-
+@Getter
+@Setter
 public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
 
         public static final String ANNOTATION_NAME = "@LayuiTableColumnMeta";
@@ -107,7 +108,7 @@ public class LayuiTableColumnMetaDesc extends AbstractAnnotation{
             if (stringHasValue(label)) {
                 items.add(format("label = \"{0}\"", label));
             }
-            if (stringHasValue(align)) {
+            if (stringHasValue(align) && !this.getAlign().equals("center")) {
                 items.add(format("align = \"{0}\"", align));
             }
             if (stringHasValue(tsType) && !tsType.equals("string")) {

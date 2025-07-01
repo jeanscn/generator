@@ -1,25 +1,20 @@
 package org.mybatis.generator.api;
 
-import org.mybatis.generator.codegen.RootClassInfo;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
-import org.mybatis.generator.internal.HtmlFileMergerJaxp;
 import org.mybatis.generator.internal.ObjectFactory;
-import org.mybatis.generator.internal.XmlFileMergerJaxp;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;

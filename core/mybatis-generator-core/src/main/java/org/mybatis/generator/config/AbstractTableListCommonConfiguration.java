@@ -1,16 +1,16 @@
 package org.mybatis.generator.config;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.mybatis.generator.custom.ViewVoUiFrameEnum;
+import lombok.Getter;
+import lombok.Setter;
+import org.mybatis.generator.custom.enums.ViewVoUiFrameEnum;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class AbstractTableListCommonConfiguration extends AbstractModelGeneratorConfiguration{
 
     protected String title;

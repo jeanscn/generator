@@ -7,13 +7,15 @@ import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataFormat;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.tool.core.VBigDecimalUtil;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
-import org.mybatis.generator.custom.RelationTypeEnum;
-import org.mybatis.generator.custom.ViewVoUiFrameEnum;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.ViewVoUiFrameEnum;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -36,11 +38,13 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  *
  * @author Jeff Butler
  */
+@Slf4j
 public class MyBatisGeneratorConfigurationParser {
     private final Properties extraProperties;
     private final Properties configurationProperties;
+    private final List<String> warnings;
 
-    public MyBatisGeneratorConfigurationParser(Properties extraProperties) {
+    public MyBatisGeneratorConfigurationParser(Properties extraProperties,List<String> warnings) {
         super();
         if (extraProperties == null) {
             this.extraProperties = new Properties();
@@ -48,6 +52,7 @@ public class MyBatisGeneratorConfigurationParser {
             this.extraProperties = extraProperties;
         }
         configurationProperties = new Properties();
+        this.warnings = warnings;
     }
 
     public Configuration parseConfiguration(Element rootNode)
@@ -1744,9 +1749,91 @@ public class MyBatisGeneratorConfigurationParser {
                     HtmlButtonGeneratorConfiguration htmlButton = parseHtmlButton(childNode);
                     htmlElementDescriptor.getHtmlButtons().add(htmlButton);
                     break;
+                case "validator":
+                    HtmlValidatorElementConfiguration htmlValidator = parseHtmlValidatorElementConfiguration(childNode);
+                    htmlValidator.setColumn(column);
+                    htmlElementDescriptor.getHtmlValidatorElementConfigurations().add(htmlValidator);
+                    break;
             }
         }
         return htmlElementDescriptor;
+    }
+
+    private HtmlValidatorElementConfiguration parseHtmlValidatorElementConfiguration(Node node) {
+        Properties attributes = parseAttributes(node);
+        HtmlValidatorElementConfiguration htmlValidatorElementConfiguration = new HtmlValidatorElementConfiguration();
+        String type = attributes.getProperty("type");
+        if (stringHasValue(type)) {
+            htmlValidatorElementConfiguration.setType(type);
+        }
+        String required = attributes.getProperty("required");
+        if (stringHasValue(required)) {
+            htmlValidatorElementConfiguration.setRequired(Boolean.parseBoolean(required));
+        }
+        String message = attributes.getProperty("message");
+        if (stringHasValue(message)) {
+            htmlValidatorElementConfiguration.setMessage(message);
+        }
+        String trigger = attributes.getProperty("trigger");
+        if (stringHasValue(trigger)) {
+            htmlValidatorElementConfiguration.setTrigger(trigger);
+        }
+        String min = attributes.getProperty("min");
+        if (stringHasValue(min)) {
+            if (VBigDecimalUtil.isBigDecimal(min)) {
+                htmlValidatorElementConfiguration.setMin(min);
+            } else {
+                warnings.add("min 值不合法");
+            }
+        }
+        String max = attributes.getProperty("max");
+        if (stringHasValue(max)) {
+            if (VBigDecimalUtil.isBigDecimal(max)) {
+                htmlValidatorElementConfiguration.setMax(min);
+            } else {
+                warnings.add("max 值不合法");
+            }
+        }
+        String len = attributes.getProperty("len");
+        if (stringHasValue(len)) {
+            htmlValidatorElementConfiguration.setLen(Integer.parseInt(len));
+        }
+        String pattern = attributes.getProperty("pattern");
+        if (stringHasValue(pattern)) {
+            htmlValidatorElementConfiguration.setPattern(pattern);
+        }
+        String whitespace = attributes.getProperty("whitespace");
+        if (stringHasValue(whitespace)) {
+            htmlValidatorElementConfiguration.setWhitespace(Boolean.parseBoolean(whitespace));
+        }
+        String enumList = attributes.getProperty("enum");
+        if (stringHasValue(enumList)) {
+            htmlValidatorElementConfiguration.setEnumList(enumList);
+        }
+        String transform = attributes.getProperty("transform");
+        if (stringHasValue(transform)) {
+            htmlValidatorElementConfiguration.setTransform(transform);
+        }
+        String validator = attributes.getProperty("validator");
+        if (stringHasValue(validator)) {
+            htmlValidatorElementConfiguration.setValidator(validator);
+        }
+        String scope = attributes.getProperty("scope");
+        if (stringHasValue(scope)) {
+            htmlValidatorElementConfiguration.setScope(Integer.parseInt(scope));
+        }
+        //计算属性及子元素
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            if (childNode.getNodeName().equals("property")) {
+                parseProperty(htmlValidatorElementConfiguration, childNode);
+            }
+        }
+        return htmlValidatorElementConfiguration;
     }
 
     private HtmlHrefElementConfiguration parseHtmlHrefElementConfiguration(Node node) {

@@ -5,9 +5,8 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
+import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;

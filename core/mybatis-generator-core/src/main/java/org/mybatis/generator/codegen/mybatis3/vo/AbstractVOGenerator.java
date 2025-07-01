@@ -6,7 +6,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelDesc;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;

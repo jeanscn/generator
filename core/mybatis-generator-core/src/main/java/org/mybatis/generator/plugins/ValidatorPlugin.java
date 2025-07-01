@@ -268,6 +268,14 @@ public class ValidatorPlugin extends PluginAdapter {
         topLevelClass.addImportedTypes(getImportedTypes(validateGroups));
     }
 
+    private void addDecimalMax(JavaElement element,
+                               TopLevelClass topLevelClass,
+                               IntrospectedColumn introspectedColumn,
+                               String[] validateGroups,
+                               IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns){
+        String shortName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
+    }
+
     private Set<FullyQualifiedJavaType> getImportedTypes(String[] validateGroups) {
         Set<FullyQualifiedJavaType> importedTypes = new HashSet<>();
         for (String validateGroup : validateGroups) {

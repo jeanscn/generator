@@ -3,6 +3,8 @@ package org.mybatis.generator.config;
 import com.vgosoft.tool.core.VCollectionUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -11,8 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public abstract class AbstractModelGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     protected Set<String> excludeColumns = new HashSet<>();

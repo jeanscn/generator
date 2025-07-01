@@ -1,7 +1,9 @@
 package org.mybatis.generator.custom.annotations;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 
@@ -15,7 +17,8 @@ import java.util.TreeSet;
  * 2022-10-03 16:54
  * @version 3.0
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public abstract class AbstractAnnotation implements IAnnotation{
 

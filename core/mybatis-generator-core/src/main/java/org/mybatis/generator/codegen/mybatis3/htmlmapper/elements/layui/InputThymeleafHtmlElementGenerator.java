@@ -5,7 +5,7 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
+import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

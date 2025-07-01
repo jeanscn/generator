@@ -2,14 +2,16 @@ package org.mybatis.generator.config;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-07-06 09:58
  * @version 4.0
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class HtmlApprovalCommentConfiguration extends PropertyHolder{
 
     private boolean generate;

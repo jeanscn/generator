@@ -2,14 +2,16 @@ package org.mybatis.generator.config;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolder{
 
     protected boolean generate;

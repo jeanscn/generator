@@ -12,7 +12,7 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 

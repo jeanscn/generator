@@ -2,13 +2,15 @@ package org.mybatis.generator.config;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 附近上传页面组件配置
  *
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class HtmlFileAttachmentConfiguration extends PropertyHolder{
 
     private String elementKey;

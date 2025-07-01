@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.tool.TypeConverterTsUtil;
+import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
 import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -17,7 +17,6 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -166,7 +165,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             VueFormGenerateUtil.setComponentName(vueFormItemMetaDesc,elementDescriptor, introspectedColumn);
 
             //设置前端支持的类型
-            vueFormItemMetaDesc.setTsType(TypeConverterTsUtil.convertToTsType(field.getType().getShortName()));
+            vueFormItemMetaDesc.setTsType(JavaTypeMapEnum.ofJava(field.getType().getShortName()).tsType());
             //设置日期时间属性
             VueFormGenerateUtil.setDateTimeTypFormat(vueFormItemMetaDesc, elementDescriptor, introspectedColumn);
             //设置隐藏状态
@@ -290,7 +289,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 vueFormItemMetaDesc.setOtherFieldName(introspectedColumn.getJavaProperty());
             }
             //设置rules
-            String rules = VueFormGenerateUtil.getRules(vueFormItemMetaDesc, introspectedColumn, elementDescriptor,htmlGeneratorConfiguration);
+            String rules = VueFormGenerateUtil.getRules(introspectedColumn, elementDescriptor,htmlGeneratorConfiguration,1);
             if (stringHasValue(rules)) {
                 vueFormItemMetaDesc.addImports("com.vgosoft.core.annotation.VueFormItemRule");
                 vueFormItemMetaDesc.setRules(rules);

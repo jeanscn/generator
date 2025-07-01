@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom.annotations.validate;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
 /**
@@ -7,6 +9,9 @@ import org.mybatis.generator.custom.annotations.AbstractAnnotation;
  * 2023-05-03 18:56
  * @version 3.0
  */
+
+@Setter
+@Getter
 public class ValidateDigits extends AbstractAnnotation {
 
     private String integer;
@@ -45,39 +50,8 @@ public class ValidateDigits extends AbstractAnnotation {
         if (groups!=null && groups.length>0) {
             this.items.add("groups = {"+String.join(", ",groups)+"}");
         }
-        if (this.items.size()>0) return "@Digits("+ String.join(", ",items.toArray(new String[0])) +")";
+        if (!this.items.isEmpty()) return "@Digits("+ String.join(", ",items.toArray(new String[0])) +")";
         else return "@Digits";
     }
 
-    public String getInteger() {
-        return integer;
-    }
-
-    public void setInteger(String integer) {
-        this.integer = integer;
-    }
-
-    public String getFraction() {
-        return fraction;
-    }
-
-    public void setFraction(String fraction) {
-        this.fraction = fraction;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String[] getGroups() {
-        return groups;
-    }
-
-    public void setGroups(String[] groups) {
-        this.groups = groups;
-    }
 }

@@ -1,7 +1,6 @@
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.config.PropertyHolder;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.HashSet;

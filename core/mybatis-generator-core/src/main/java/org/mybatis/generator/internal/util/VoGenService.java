@@ -11,7 +11,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.CreateMappingsInterface;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ModelClassTypeEnum;
+import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
 import org.mybatis.generator.custom.annotations.*;
 import org.mybatis.generator.internal.rules.BaseRules;
 

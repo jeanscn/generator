@@ -9,7 +9,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
 
 import java.util.stream.Collectors;
 

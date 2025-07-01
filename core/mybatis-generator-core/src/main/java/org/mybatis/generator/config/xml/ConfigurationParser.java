@@ -17,7 +17,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,26 +35,16 @@ public class ConfigurationParser {
     public ConfigurationParser(List<String> warnings) {
         this(null, warnings);
     }
-
-    /**
-     * This constructor accepts a properties object which may be used to specify
-     * an additional property set.  Typically this property set will be Ant or Maven properties
-     * specified in the build.xml file or the POM.
-     *
-     * <p>If there are name collisions between the different property sets, they will be
-     * resolved in this order:
-     *
-     * <ol>
-     *   <li>System properties take highest precedence</li>
-     *   <li>Properties specified in the &lt;properties&gt; configuration
-     *       element are next</li>
-     *   <li>Properties specified in this "extra" property set are
-     *       lowest precedence.</li>
-     * </ol>
-     *
-     * @param extraProperties an (optional) set of properties used to resolve property
-     *     references in the configuration file
-     * @param warnings any warnings are added to this array
+    /*
+      此构造函数接受一个 properties 对象，该对象可用于指定其他属性集。
+      通常，此属性集将在 build.xml 文件或 POM 中指定的 Ant 或 Maven 属性。<p>如果不同属性集之间存在名称冲突，则按以下顺序解决它们：
+      <ol>
+          <li>系统属性具有最高优先级<li>
+          <li>&lt;properties&gt;配置元素中指定的属性是下一个<li>
+          <li>此“extra”属性集中指定的属性是最低优先级。<li>
+      <ol>
+      @param extraProperties 的一组（可选）属性，用于解析配置文件中的属性引用
+     * @param warnings，任何警告都会添加到此数组中
      */
     public ConfigurationParser(Properties extraProperties, List<String> warnings) {
         super();
@@ -70,9 +59,7 @@ public class ConfigurationParser {
         parseErrors = new ArrayList<>();
     }
 
-    public Configuration parseConfiguration(File inputFile) throws IOException,
-            XMLParserException {
-
+    public Configuration parseConfiguration(File inputFile) throws IOException,XMLParserException {
         //FileReader fr = new FileReader(inputFile);
         Reader fr = new InputStreamReader(Files.newInputStream(inputFile.toPath()), DEFAULT_CHARSET);
         return parseConfiguration(fr);
@@ -88,9 +75,7 @@ public class ConfigurationParser {
 
     public Configuration parseConfiguration(InputStream inputStream)
             throws IOException, XMLParserException {
-
         InputSource is = new InputSource(inputStream);
-
         return parseConfiguration(is);
     }
 
@@ -133,7 +118,7 @@ public class ConfigurationParser {
             DocumentType docType = document.getDoctype();
             if (rootNode.getNodeType() == Node.ELEMENT_NODE
                     && docType.getPublicId().equals(
-                            XmlConstants.MYBATIS_GENERATOR_CONFIG_PUBLIC_ID)) {
+                    XmlConstants.MYBATIS_GENERATOR_CONFIG_PUBLIC_ID)) {
                 config = parseMyBatisGeneratorConfiguration(rootNode);
             } else {
                 throw new XMLParserException(getString("RuntimeError.5")); //$NON-NLS-1$
@@ -152,11 +137,11 @@ public class ConfigurationParser {
 
     private Configuration parseMyBatisGeneratorConfiguration(Element rootNode)
             throws XMLParserException {
-        MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(extraProperties);
+        MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(extraProperties,warnings);
         return parser.parseConfiguration(rootNode);
     }
 
-    public void customConfig(Configuration config){
+    public void customConfig(Configuration config) {
         List<Context> contexts = config.getContexts();
         for (Context context : contexts) {
             context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
@@ -181,7 +166,7 @@ public class ConfigurationParser {
             equalsAndHashCode.setConfigurationType("org.mybatis.generator.plugins.EqualsHashCodePlugin");
             context.addPluginConfiguration(equalsAndHashCode);
             //属性 - 附加的
-            PluginConfiguration generateAdditionalFilesPlugin  = new PluginConfiguration();
+            PluginConfiguration generateAdditionalFilesPlugin = new PluginConfiguration();
             generateAdditionalFilesPlugin.setConfigurationType("org.mybatis.generator.plugins.GenerateAdditionalFilesPlugin");
             context.addPluginConfiguration(generateAdditionalFilesPlugin);
             //属性 - 工作流相关
@@ -189,7 +174,7 @@ public class ConfigurationParser {
             workflowPropertyPlugin.setConfigurationType("org.mybatis.generator.plugins.WorkflowPropertyPlugin");
             context.addPluginConfiguration(workflowPropertyPlugin);
             //属性 - web相关
-            PluginConfiguration modelWebPropertiesPlugin  = new PluginConfiguration();
+            PluginConfiguration modelWebPropertiesPlugin = new PluginConfiguration();
             modelWebPropertiesPlugin.setConfigurationType("org.mybatis.generator.plugins.ModelWebPropertiesPlugin");
             context.addPluginConfiguration(modelWebPropertiesPlugin);
 
@@ -202,7 +187,7 @@ public class ConfigurationParser {
             mybatisPlusAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.MybatisPlusAnnotationPlugin");
             context.addPluginConfiguration(mybatisPlusAnnotationPlugin);
             //注解 - hibernate validator
-            PluginConfiguration validatorPlugin  = new PluginConfiguration();
+            PluginConfiguration validatorPlugin = new PluginConfiguration();
             validatorPlugin.setConfigurationType("org.mybatis.generator.plugins.ValidatorPlugin");
             context.addPluginConfiguration(validatorPlugin);
             //注解 - JsonFormat
@@ -210,15 +195,15 @@ public class ConfigurationParser {
             fieldJsonFormatPlugin.setConfigurationType("org.mybatis.generator.plugins.FieldJsonFormatPlugin");
             context.addPluginConfiguration(fieldJsonFormatPlugin);
             //注解 - ViewMeta
-            PluginConfiguration viewMetaAnnotationPlugin  = new PluginConfiguration();
+            PluginConfiguration viewMetaAnnotationPlugin = new PluginConfiguration();
             viewMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.ViewMetaAnnotationPlugin");
             context.addPluginConfiguration(viewMetaAnnotationPlugin);
             //注解 - LayuiTableMeta、LayuiTableColumnMeta
-            PluginConfiguration layuiTableMetaAnnotationPlugin  = new PluginConfiguration();
+            PluginConfiguration layuiTableMetaAnnotationPlugin = new PluginConfiguration();
             layuiTableMetaAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.LayuiTableMetaAnnotationPlugin");
             context.addPluginConfiguration(layuiTableMetaAnnotationPlugin);
             //注解 - EasyExcel
-            PluginConfiguration easyExcelAnnotationPlugin  = new PluginConfiguration();
+            PluginConfiguration easyExcelAnnotationPlugin = new PluginConfiguration();
             easyExcelAnnotationPlugin.setConfigurationType("org.mybatis.generator.plugins.EasyExcelAnnotationPlugin");
             context.addPluginConfiguration(easyExcelAnnotationPlugin);
             //注解 - Swagger
@@ -288,8 +273,8 @@ public class ConfigurationParser {
             String targetPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
             if (!properties.containsKey(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE)) {
                 properties.put(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + ".example");
-            }else{
-                properties.put(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + "."+properties.get(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE));
+            } else {
+                properties.put(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + "." + properties.get(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE));
             }
             context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
         }

@@ -10,9 +10,9 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlHrefElementConfiguration;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
-import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
+import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
 import javax.annotation.Nullable;
 import java.util.List;

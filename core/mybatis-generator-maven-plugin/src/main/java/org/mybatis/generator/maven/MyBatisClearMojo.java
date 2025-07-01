@@ -9,7 +9,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.MyBatisGeneratorClean;
 import org.mybatis.generator.api.ShellCallback;
 import org.mybatis.generator.config.Configuration;
@@ -27,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Goal which generates MyBatis artifacts.
@@ -106,7 +104,7 @@ public class MyBatisClearMojo extends AbstractMojo {
     private String jdbcPassword;
 
     /**
-     * Comma delimited list of table names to generate.
+     * Comma-delimited list of table names to generate.
      */
     @Parameter(property = "mybatis.generator.tableNames")
     private String tableNames;
@@ -119,7 +117,7 @@ public class MyBatisClearMojo extends AbstractMojo {
     private String cleanModelNames;
 
     /**
-     * Comma delimited list of contexts to generate.
+     * Comma-delimited list of contexts to generate.
      */
     @Parameter(property = "mybatis.generator.contexts")
     private String contexts;
@@ -219,9 +217,7 @@ public class MyBatisClearMojo extends AbstractMojo {
             throw new MojoExecutionException(e.getMessage());
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage());
-        } catch (InvalidConfigurationException | SQLException | InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ShellException e) {
+        } catch (InvalidConfigurationException | SQLException | InterruptedException | ShellException e) {
             throw new RuntimeException(e);
         }
 

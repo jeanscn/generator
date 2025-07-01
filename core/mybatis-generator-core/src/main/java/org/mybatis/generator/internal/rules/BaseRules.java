@@ -9,7 +9,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.TableTypeEnum;
+import org.mybatis.generator.custom.enums.TableTypeEnum;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 

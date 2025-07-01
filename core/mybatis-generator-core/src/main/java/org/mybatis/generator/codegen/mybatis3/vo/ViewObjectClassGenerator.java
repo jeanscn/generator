@@ -1,20 +1,16 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import cn.hutool.core.collection.ListUtil;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
-import com.vgosoft.tool.core.VBeanUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOGeneratorConfiguration;
 import org.mybatis.generator.config.VOViewGeneratorConfiguration;
-import org.mybatis.generator.custom.ScalableElementEnum;
-import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;

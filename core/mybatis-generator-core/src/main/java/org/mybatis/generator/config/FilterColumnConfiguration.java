@@ -1,13 +1,13 @@
 package org.mybatis.generator.config;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class FilterColumnConfiguration extends AbstractFilterConditionConfiguration {
     private boolean repeat = false;
     private List<String> operators = new ArrayList<>();

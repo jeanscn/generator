@@ -1,6 +1,6 @@
 package org.mybatis.generator.custom;
 
-import com.vgosoft.core.constant.GlobalConstant;
+import org.mybatis.generator.custom.enums.TestClassMapEnum;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

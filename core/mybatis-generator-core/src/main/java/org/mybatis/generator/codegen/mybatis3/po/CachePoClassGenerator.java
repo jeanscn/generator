@@ -1,31 +1,16 @@
 package org.mybatis.generator.codegen.mybatis3.po;
 
-import com.vgosoft.core.constant.GlobalConstant;
-import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
-import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
-import com.vgosoft.tool.core.VMD5Util;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.*;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
-import org.mybatis.generator.config.VOGeneratorConfiguration;
-import org.mybatis.generator.custom.ScalableElementEnum;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
+import org.mybatis.generator.custom.enums.ScalableElementEnum;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator.subPackagePojo;
 import static org.mybatis.generator.codegen.mybatis3.vo.CreateMappingsInterface.subPackageMaps;
-import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**

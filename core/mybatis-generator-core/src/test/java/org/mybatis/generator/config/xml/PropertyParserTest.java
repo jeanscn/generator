@@ -3,6 +3,7 @@ package org.mybatis.generator.config.xml;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -17,7 +18,7 @@ class PropertyParserTest {
     @ParameterizedTest(name = "{index} => properties:''{0}'', token:''{1}'', expected:''{2}''")
     @MethodSource("parsePropertyTokensTestSource")
     void parsePropertyTokensTest(Properties prop, String token, String expected){
-        MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(prop);
+        MyBatisGeneratorConfigurationParser parser = new MyBatisGeneratorConfigurationParser(prop,new ArrayList<>());
         String result = parser.parsePropertyTokens(token);
         assertThat(result).isEqualTo(expected);
     }

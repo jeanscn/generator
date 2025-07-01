@@ -1,6 +1,8 @@
 package org.mybatis.generator.config;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -38,7 +40,8 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  * @author Jeff Butler
  *
  */
-@Data
+@Getter
+@Setter
 public class ColumnRenamingRule {
     private String searchString;
     private String replaceString;

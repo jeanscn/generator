@@ -6,8 +6,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.HtmlDocumentTypeEnum;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -15,7 +15,7 @@ import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.SimpleXMLMapperGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.ScalableElementEnum;
+import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;

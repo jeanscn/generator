@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom.annotations.validate;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
 /**
@@ -7,6 +9,9 @@ import org.mybatis.generator.custom.annotations.AbstractAnnotation;
  * 2023-05-03 04:49
  * @version 3.0
  */
+
+@Setter
+@Getter
 public class NotNull extends AbstractAnnotation {
 
     private String message;
@@ -36,23 +41,8 @@ public class NotNull extends AbstractAnnotation {
         if (groups!=null && groups.length>0) {
             this.items.add("groups = {"+String.join(", ",groups)+"}");
         }
-        if (this.items.size()>0) return "@NotNull("+ String.join(", ",items.toArray(new String[0])) +")";
+        if (!this.items.isEmpty()) return "@NotNull("+ String.join(", ",items.toArray(new String[0])) +")";
         else return "@NotNull";
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String[] getGroups() {
-        return groups;
-    }
-
-    public void setGroups(String[] groups) {
-        this.groups = groups;
-    }
 }

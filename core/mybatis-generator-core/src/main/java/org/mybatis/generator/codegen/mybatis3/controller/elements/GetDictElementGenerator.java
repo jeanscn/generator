@@ -9,7 +9,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
-import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;

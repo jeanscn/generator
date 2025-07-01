@@ -5,11 +5,13 @@ import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataFormat;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class AbstractFilterConditionConfiguration extends TypedPropertyHolder {
     private IntrospectedColumn introspectedColumn;

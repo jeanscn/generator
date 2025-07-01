@@ -9,8 +9,8 @@ import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VOModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.FieldItem;
-import org.mybatis.generator.custom.ModelClassTypeEnum;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;

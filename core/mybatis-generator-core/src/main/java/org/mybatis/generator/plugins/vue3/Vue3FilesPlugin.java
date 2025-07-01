@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins.vue3;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
-import com.vgosoft.tool.TypeConverterTsUtil;
+import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.GeneratedFile;
@@ -113,9 +113,23 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     } else {
                         fieldItem.setRequired(field.isRequired());
                     }
-                    String type = fieldItem.getType();
-                    String tsType = TypeConverterTsUtil.convertToTsType(type);
-                    fieldItem.setType(tsType);
+
+                   // 处理带泛型的类型field.getType()，如：List<String>转为String[]
+                    if (fieldItem.getType().contains("<") && fieldItem.getType().contains(">")) {
+                        String type = fieldItem.getType();
+                        int startIndex = type.indexOf("<");
+                        int endIndex = type.lastIndexOf(">");
+                        String genericType = type.substring(startIndex + 1, endIndex);
+                        if (type.startsWith("List")) {
+                            String tsType = JavaTypeMapEnum.ofJava(genericType).tsType();
+                            fieldItem.setType((VStringUtil.stringHasValue(tsType)?tsType:"any") + "[]");
+                        } else {
+                            fieldItem.setType("any");
+                        }
+                    }else{
+                        String tsType = JavaTypeMapEnum.ofJava(fieldItem.getType()).tsType();
+                        fieldItem.setType(VStringUtil.stringHasValue(tsType)?tsType:"any");
+                    }
                     fieldsList.add(fieldItem);
                 }
                 map.put("fields", fieldsList);

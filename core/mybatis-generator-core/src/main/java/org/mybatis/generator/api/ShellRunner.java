@@ -69,7 +69,7 @@ public class ShellRunner {
             StringTokenizer st = new StringTokenizer(arguments.get(TABLES), ","); //$NON-NLS-1$
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
-                if (s.length() > 0) {
+                if (!s.isEmpty()) {
                     fullyqualifiedTables.add(s);
                 }
             }
@@ -81,7 +81,7 @@ public class ShellRunner {
                     arguments.get(CONTEXT_IDS), ","); //$NON-NLS-1$
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
-                if (s.length() > 0) {
+                if (!s.isEmpty()) {
                     contexts.add(s);
                 }
             }

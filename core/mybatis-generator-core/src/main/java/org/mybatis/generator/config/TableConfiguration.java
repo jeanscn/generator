@@ -12,7 +12,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.factory.*;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.messages.Messages;

@@ -1,5 +1,6 @@
 package org.mybatis.generator.api;
 
+import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -270,7 +271,8 @@ public class IntrospectedColumn {
      *               true-格式为短标签。
      */
     public String getRemarks(boolean simple) {
-        return simple ? StringUtility.remarkLeft(remarks) : remarks;
+        String remarks = simple ? StringUtility.remarkLeft(this.remarks) : this.remarks;
+        return VStringUtil.stringHasValue(remarks) ? remarks : "--";
     }
 
     public boolean isSequenceColumn() {

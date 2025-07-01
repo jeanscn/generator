@@ -1,14 +1,16 @@
 package org.mybatis.generator.config;
 
 import com.vgosoft.tool.core.VStringUtil;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class HtmlElementDescriptor  extends AbstractHtmlElementDescriptor{
 
@@ -85,6 +87,8 @@ public class HtmlElementDescriptor  extends AbstractHtmlElementDescriptor{
     private String tips;
 
     private final List<HtmlHrefElementConfiguration> htmlHrefElementConfigurations = new ArrayList<>();
+
+    private final List<HtmlValidatorElementConfiguration> htmlValidatorElementConfigurations = new ArrayList<>();
 
     public HtmlElementDescriptor(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;

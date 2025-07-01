@@ -9,7 +9,7 @@ import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.custom.RelationTypeEnum;
+import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;

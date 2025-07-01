@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.vue;
 
 import com.vgosoft.core.constant.enums.core.DictTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.core.constant.enums.view.ValidatorRuleTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
@@ -219,111 +220,59 @@ public class VueFormGenerateUtil {
         }
     }
 
-    public static String getRules(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public static String getRules(IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor, HtmlGeneratorConfiguration htmlGeneratorConfiguration,int scope) {
         if (introspectedColumn == null) {
             return null;
         }
-        List<FormItemRule> formItemRules = new ArrayList<>();
-        if (elementDescriptor != null) {
-            if (!elementDescriptor.getVerify().isEmpty()) {
-                for (String verify : elementDescriptor.getVerify()) {
-                    if ("required".equals(verify)) {
-                        FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                        formItemRule.setRequired(true);
-                        formItemRule.setMin(1);
-                        formItemRule.setMessage(introspectedColumn.getRemarks(true) + "不能为空");
-                        formItemRules.add(formItemRule);
-                    } else if ("date".equals(verify)) {
-                        FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                        formItemRule.setType("date");
-                        formItemRule.setMessage(introspectedColumn.getRemarks(true) + "必须为日期");
-                        formItemRules.add(formItemRule);
-                    } else if ("limit".equals(verify)) {
-                        FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                        formItemRule.setMax(introspectedColumn.getLength());
-                        formItemRule.setMessage(introspectedColumn.getRemarks(true) + "最大长度为" + introspectedColumn.getLength());
-                        formItemRules.add(formItemRule);
-                    }
-                }
-            }
-        } else {
-            //根据introspectedColumn的类型生成rules
-            if (!introspectedColumn.isNullable()
-                    || introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()
-                    || introspectedColumn.isJdbcCharacterColumn()) {
-                if (!introspectedColumn.isNullable()) {
-                    FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                    formItemRule.setRequired(true);
-                    formItemRule.setMessage(introspectedColumn.getRemarks(true) + "不能为空");
-                    formItemRules.add(formItemRule);
-                }
-                if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()) {
-                    FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                    formItemRule.setType("date");
-                    formItemRule.setMessage(introspectedColumn.getRemarks(true) + "必须为日期");
-                    formItemRules.add(formItemRule);
-                }
-                if (introspectedColumn.isStringColumn() && introspectedColumn.getLength() > 0 && introspectedColumn.getLength() < 5000) {
-                    FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                    formItemRule.setMax(introspectedColumn.getLength());
-                    formItemRule.setMessage(introspectedColumn.getRemarks(true) + "最大长度为" + introspectedColumn.getLength());
-                    formItemRules.add(formItemRule);
-                }
-            }
+        //生成vueFormItemMetaDesc,顺序为transform、required、type、 length、minMax、pattern、enum
+        List<String> vueFormItemRuleDecList = new ArrayList<>();
+        String tranForm = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.TRANS_FORM, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (tranForm != null) {
+            vueFormItemRuleDecList.add(tranForm);
         }
-
-        //是否为requiredColumns的中的字段
-        //如果formItemRules中没有required的规则，且htmlGeneratorConfiguration中配置了该字段为必填，则生成required的规则
-        if (formItemRules.stream().noneMatch(r -> r.getVueFormItemMetaDesc().getFieldName().equalsIgnoreCase(introspectedColumn.getJavaProperty()) && r.isRequired())) {
-            if (htmlGeneratorConfiguration.getElementRequired().contains(introspectedColumn.getActualColumnName())) {
-                FormItemRule formItemRule = new FormItemRule(vueFormItemMetaDesc);
-                formItemRule.setRequired(true);
-                formItemRule.setMin(1);
-                formItemRule.setMessage(introspectedColumn.getRemarks(true) + "不能为空");
-                formItemRules.add(formItemRule);
-            }
+        String required = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.REQUIRED, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (required != null) {
+            vueFormItemRuleDecList.add(required);
         }
-
-        //生成rules注解
-        return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).collect(Collectors.joining("\n                    , "));
+        String type = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.TYPE, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (type != null) {
+            vueFormItemRuleDecList.add(type);
+        }
+        String length = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.LENGTH, scope,introspectedColumn, elementDescriptor,htmlGeneratorConfiguration).toAnnotation();
+        if (length != null) {
+            vueFormItemRuleDecList.add(length);
+        }
+        String mimMax = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.MIN_MAX, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (mimMax != null) {
+            vueFormItemRuleDecList.add(mimMax);
+        }
+        String pattern = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.PATTERN, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (pattern != null) {
+            vueFormItemRuleDecList.add(pattern);
+        }
+        String enumList = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.ENUM, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (enumList != null) {
+            vueFormItemRuleDecList.add(enumList);
+        }
+        String validator = new VueFormItemRuleDesc(ValidatorRuleTypeEnum.VALIDATOR, scope,introspectedColumn, elementDescriptor, htmlGeneratorConfiguration).toAnnotation();
+        if (validator != null) {
+            vueFormItemRuleDecList.add(validator);
+        }
+        //如果vueFormItemRuleDecList为空，则返回null
+        if (vueFormItemRuleDecList.isEmpty()) {
+            return null;
+        }
+        //如果vueFormItemRuleDecList不为空，则返回rules注解
+        return String.join("\n                    , ", vueFormItemRuleDecList);
     }
 
     public static String innerListItemRules(InnerListViewConfiguration listViewConfiguration, IntrospectedColumn introspectedColumn) {
         if (introspectedColumn == null) {
             return null;
         }
-        //根据introspectedColumn的类型生成rules
-        Set<FormItemRule> formItemRules = new HashSet<>();
-        if (!introspectedColumn.isNullable()
-                || introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()
-                || introspectedColumn.isJdbcCharacterColumn()) {
-            if (!introspectedColumn.isNullable()) {
-                FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "不能为空");
-                formItemRule.setRequired(true);
-                formItemRules.add(formItemRule);
-            }
-            if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJava8TimeColumn() || introspectedColumn.isJDBCTimeColumn()) {
-                FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "必须为日期");
-                formItemRule.setType("date");
-                formItemRules.add(formItemRule);
-            }
-            if (introspectedColumn.isStringColumn() && introspectedColumn.getLength() > 0 && introspectedColumn.getLength() < 5000) {
-                FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "最大长度为" + introspectedColumn.getLength());
-                formItemRule.setMax(introspectedColumn.getLength());
-                formItemRules.add(formItemRule);
-            }
-        }
-
-        //是否为requiredColumns的中的字段
-        if (introspectedColumn.isNullable() && listViewConfiguration.getRequiredColumns().contains(introspectedColumn.getActualColumnName())) {
-            FormItemRule formItemRule = new FormItemRule(introspectedColumn.getRemarks(true) + "不能为空");
-            formItemRule.setRequired(true);
-            formItemRule.setMin(1);
-            formItemRules.add(formItemRule);
-        }
-
-        //生成rules注解
-        return formItemRules.stream().map(r -> new VueFormItemRuleDesc(r).toAnnotation()).sorted().collect(Collectors.joining("\n                    , "));
+        HtmlGeneratorConfiguration htmlGeneratorConfiguration = listViewConfiguration.getHtmlGeneratorConfiguration();
+        HtmlElementDescriptor htmlElementDescriptor = listViewConfiguration.getElementDescriptorMap().get(introspectedColumn.getJavaProperty());
+        return getRules(introspectedColumn, htmlElementDescriptor, htmlGeneratorConfiguration,2);
     }
 
     public static void setRemoteValueType(VueFormItemMetaDesc vueFormItemMetaDesc, IntrospectedColumn introspectedColumn, HtmlElementDescriptor elementDescriptor) {

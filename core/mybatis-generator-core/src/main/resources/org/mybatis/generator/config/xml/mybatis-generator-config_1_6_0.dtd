@@ -11,6 +11,7 @@
         <!ENTITY % queryExpression "(EqualTo|NotEqualTo|GreaterThan|LessThan|GreaterThanOrEqualTo|LessThanOrEqualTo|Like|NotLike|NotLikeAny|LikeAny|LikeRight|LikeLeft|Between|In|NotIn)" >
         <!ENTITY % indexColumnType "(NONE|CHECKBOX|RADIO|ROW_INDEX|EXPAND)" >
         <!ENTITY % tableUiType "(dataTables|layTable|elPlusTable|vxeTable)" >
+        <!ENTITY % validatorType "(string|number|boolean|method|regexp|integer|float|array|object|enum|date|url|hex|email)" >
         <!--
           The generatorConfiguration element is the root element for configurations.
         -->
@@ -723,7 +724,7 @@
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
         -->
-        <!ELEMENT htmlElementDescriptor (property*,htmlButton*,hrefElement?)>
+        <!ELEMENT htmlElementDescriptor (property*,validator*,htmlButton*,hrefElement?)>
         <!ATTLIST htmlElementDescriptor
                 column CDATA #REQUIRED
                 tagType %tagType; #REQUIRED
@@ -763,6 +764,46 @@
                 tips CDATA #IMPLIED>
 
         <!--
+         表单验证器配置
+            属性信息：
+            1、transform 转换函数，如：transform="function(value){return value.toUpperCase();}"，将值转换为大写。
+            2、required 是否必填，默认根据字段是否为空决定
+            3、whitespace 是否允许空格，默认false-允许仅包含空格。true-如果字段仅包含空格则视为错误
+            4、type 验证类型：none-不验证，required-必填，number-数字，date-日期，time-时间，datetime-日期时间，limit-长度限制，phone-手机号，email-邮箱，url-网址，identity-身份证
+                    verify为多值时，使用管道分隔”|“，如：verify="required|number"
+                    * none|required|number|date|time|datetime|limit|phone|email|url|identity|amount|其他自定义验证规则名称
+            5、min 最小值，适用于string-最小字符数，number-最小值、date-（min:new Data()）早于今天等类型
+            6、max 最大值，适用于string-最大字符数，number-最大值、date-（max:new Date()）晚于今天等类型
+            7、len 长度，适用于string-字符数，array-数组长度（数组元素个数）
+            8、pattern 正则表达式，适用于string-正则表达式验证
+            9、enum 枚举值，适用于string、number的枚举值验证，多个枚举值使用逗号分隔，如：enum="1,2,3"。
+            10、validator 自定义验证函数。
+            11、message 验证失败提示信息，使用{0}占位字段的注释名称，如:{0}不能为空。实际显示可能是：用户名不能为空。
+            12、trigger 验证触发方式，默认blur,change，支持blur|change|submit|blurChange
+            13、scope 验证范围，默认为0-全局，支持el-plus和vxe-table。可选值为1|2； 1-elPlus，2-vxeTable
+            说明：
+            1、validator自定义验证函数，
+                对于el-plus：(rule: any, value: any, callback: any)=> { ... };
+                               (rule: any, value: any, callback: any) => { if (value === &apos;&apos;) {callback(new Error(&apos;请输入密码&apos;))} else { callback() } }
+                对于vxe-table:  ({ cellValue, rule, rules, row, rowIndex，column, columnIndex }) => Error | Promise
+                               ({ cellValue }) => {if (cellValue &amp;&amp; (cellValue &lt; 3 )) {return new Error(&apos;数量不能少于3&apos;)}}
+         -->
+        <!ELEMENT validator (property*)>
+        <!ATTLIST validator
+                transform CDATA #IMPLIED
+                required (true|false) #IMPLIED
+                whitespace (false|true) #IMPLIED
+                type %validatorType; #IMPLIED
+                min CDATA #IMPLIED
+                max CDATA #IMPLIED
+                len CDATA #IMPLIED
+                pattern CDATA #IMPLIED
+                enum CDATA #IMPLIED
+                validator CDATA #IMPLIED
+                message CDATA #IMPLIED
+                trigger (blur|change|submit|blurChange) #IMPLIED
+                scope (1|2) #IMPLIED>
+        <!--
             页面元素内部列表描述
             属性信息：
             1、column 数据库字段名
@@ -797,7 +838,7 @@
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
         -->
-        <!ELEMENT htmlSwitchDescriptor (property*)>
+        <!ELEMENT htmlSwitchDescriptor (property*,validator*)>
         <!ATTLIST htmlSwitchDescriptor
                 column CDATA #REQUIRED
                 dataUrl CDATA #IMPLIED
@@ -868,7 +909,7 @@
             1、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
          -->
-        <!ELEMENT htmlTableSelectDescriptor (property*)>
+        <!ELEMENT htmlTableSelectDescriptor (property*,validator*)>
         <!ATTLIST htmlTableSelectDescriptor
                 column CDATA #REQUIRED
                 tagType (tableselect|tableSelectPop) #IMPLIED
@@ -937,6 +978,7 @@
             10、afterColumn 在指定列的后面添加附件上传组件,如果未指定或指定的字段不存在。则放置在最后一行。
             11、exclusive 是否独占一行，默认为true
             12、order 当同时村做个附件上传、内置列表时，order用来调整它们之间的顺序，默认为10
+            13、verify 附件上传组件的验证方式，默认为none-不验证，required-必填 （暂时无用）
             说明：
             1、当location为table或local时需要指定一个restBasePath，用于指定附件上传的基础路径，既一个存储表的基础访问路径或者本地存储的完整请求路径。
             2、hideExpression表达式中的变量为当前表单数据的属性名，可以通过$.属性名的方式引用。也可以使用viewStatus属性引用页面编辑状态状态：viewStatus == 0，表示查看状态，viewStatus == 1表示编辑状态。
@@ -956,7 +998,8 @@
                 afterColumn CDATA #IMPLIED
                 exclusive (true|false) #IMPLIED
                 order CDATA #IMPLIED
-                hideExpression CDATA #IMPLIED>
+                hideExpression CDATA #IMPLIED
+                verify (none|required) #IMPLIED>
 
         <!--
             为页面添加一个审批意见组件
@@ -969,6 +1012,7 @@
             6、locationTag 审批意见组件的位置标签，默认为“审批意见”
             7、rows 审批意见组件的行数，默认为3
             8、tips 审批意见组件的提示信息
+            9、verify 审批意见组件的验证方式，默认为none-不验证，required-必填（暂时无用）
             说明：
               1、hideExpression表达式中的，
                  1）可以通过$.属性名的方式引用当前表单数据的属性；
@@ -985,7 +1029,8 @@
                 locationTag CDATA #IMPLIED
                 hideExpression CDATA #IMPLIED
                 rows CDATA #IMPLIED
-                tips CDATA #IMPLIED>
+                tips CDATA #IMPLIED
+                verify (none|required) #IMPLIED>
 
         <!--
             用来描述页面列表元素的配置

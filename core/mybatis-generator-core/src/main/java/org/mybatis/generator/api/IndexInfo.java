@@ -1,10 +1,12 @@
 package org.mybatis.generator.api;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
-@Data
+@Getter
+@Setter
 public class IndexInfo {
     private final String name;
     private final boolean unique;

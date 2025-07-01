@@ -4,25 +4,21 @@ import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
-import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ScalableElementEnum;
+import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;

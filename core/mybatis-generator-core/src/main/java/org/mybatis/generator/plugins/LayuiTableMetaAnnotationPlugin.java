@@ -1,8 +1,8 @@
 package org.mybatis.generator.plugins;
 
+import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VBeanUtil;
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -257,6 +257,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = new LayuiTableColumnMetaDesc();
         layuiTableColumnMetaDesc.setValue(listViewConfiguration.getListKey());
         layuiTableColumnMetaDesc.setHide(defaultHidden);
+        layuiTableColumnMetaDesc.setTsType(JavaTypeMapEnum.ofJava(field.getType().getShortName()).tsType());
         //如果指定了显示范围则更新序号
         if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
             layuiTableColumnMetaDesc.setOrder(getOrder(field, listViewConfiguration, introspectedTable));

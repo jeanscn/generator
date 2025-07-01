@@ -8,7 +8,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 

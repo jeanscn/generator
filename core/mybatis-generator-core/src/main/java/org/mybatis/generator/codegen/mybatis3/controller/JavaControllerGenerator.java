@@ -8,7 +8,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ScalableElementEnum;
+import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;

@@ -10,7 +10,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ScalableElementEnum;
+import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,15 +1,13 @@
 package org.mybatis.generator.config;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * button生成配置类
  *
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
 

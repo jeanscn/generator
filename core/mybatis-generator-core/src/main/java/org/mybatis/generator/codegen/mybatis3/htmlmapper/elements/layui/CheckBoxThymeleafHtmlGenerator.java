@@ -7,9 +7,7 @@ import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.ThymeleafValueScopeEnum;
-
-import javax.annotation.Nullable;
+import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 

@@ -4,7 +4,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.ReturnTypeEnum;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.*;

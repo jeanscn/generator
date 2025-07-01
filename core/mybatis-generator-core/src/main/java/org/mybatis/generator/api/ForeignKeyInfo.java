@@ -1,11 +1,11 @@
 package org.mybatis.generator.api;
 
 import com.vgosoft.core.constant.enums.db.ForeignKeyRuleType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 public class ForeignKeyInfo {
         private String name;
         private String pkTableName;
