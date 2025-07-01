@@ -1,11 +1,11 @@
 package org.mybatis.generator.config.xml;
 
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXParseException;
 
 import java.util.List;
 
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 public class ParserErrorHandler implements ErrorHandler {
 
