@@ -35,8 +35,7 @@ public class HtmlFileMergerJaxp {
          * it can cause problems on systems that aren't Internet connected.
          */
         @Override
-        public InputSource resolveEntity(String publicId, String systemId)
-                throws SAXException, IOException {
+        public InputSource resolveEntity(String publicId, String systemId) {
 
             StringReader sr = new StringReader(""); //$NON-NLS-1$
 
