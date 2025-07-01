@@ -1,5 +1,22 @@
 package org.mybatis.generator.api;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
+import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Configuration;
@@ -12,21 +29,6 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 import org.mybatis.generator.internal.HtmlFileMergerJaxp;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.XmlFileMergerJaxp;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
-import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * This class is the main interface to MyBatis generator. A typical execution of the tool involves these steps:

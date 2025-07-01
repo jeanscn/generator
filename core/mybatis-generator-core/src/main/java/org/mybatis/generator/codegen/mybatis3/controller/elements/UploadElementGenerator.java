@@ -1,8 +1,10 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
-import org.mybatis.generator.api.IntrospectedColumn;
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.MULTIPART_FILE;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -12,8 +14,8 @@ import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 
-import static com.vgosoft.tool.core.VStringUtil.format;
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 
 public class UploadElementGenerator extends AbstractControllerElementGenerator {
 

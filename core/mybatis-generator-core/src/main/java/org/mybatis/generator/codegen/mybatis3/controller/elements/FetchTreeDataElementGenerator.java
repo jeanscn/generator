@@ -1,23 +1,26 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
-import com.vgosoft.tool.core.VStringUtil;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.Z_TREE_DATA_SIMPLE;
+import static org.mybatis.generator.custom.ConstantsUtil.Z_TREE_DATA_SIMPLE_CATE;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 
 public class FetchTreeDataElementGenerator extends AbstractControllerElementGenerator {
 
@@ -182,9 +185,5 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parentElement.addImportedType("java.util.stream.Collectors");
         parentElement.addImportedType("java.util.ArrayList");
         parentElement.addImportedType("java.util.List");
-    }
-
-    private void addExcludeIdsData() {
-
     }
 }

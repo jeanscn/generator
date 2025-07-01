@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -13,7 +12,6 @@ import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

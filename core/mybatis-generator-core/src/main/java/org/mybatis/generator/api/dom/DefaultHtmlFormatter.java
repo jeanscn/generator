@@ -1,7 +1,6 @@
 package org.mybatis.generator.api.dom;
 
 import org.mybatis.generator.api.HtmlFormatter;
-import org.mybatis.generator.api.XmlFormatter;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.api.dom.html.render.DocumentRenderer;
 import org.mybatis.generator.config.Context;

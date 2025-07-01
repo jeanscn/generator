@@ -1,8 +1,17 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
-import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
-import com.vgosoft.tool.core.VBeanUtil;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -11,19 +20,19 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
 import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
-import org.mybatis.generator.config.*;
+import org.mybatis.generator.config.HtmlElementDescriptor;
+import org.mybatis.generator.config.InnerListViewConfiguration;
+import org.mybatis.generator.config.ListColumnConfiguration;
+import org.mybatis.generator.config.QueryColumnConfiguration;
+import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableMetaDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
+import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.tool.core.VBeanUtil;
 
 /**
  * 添加ViewMetaAnnotation
@@ -339,6 +348,8 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
                         innerListEditTemplate.setDateType(dateType);
                         String dateFormat = Mb3GenUtil.getDateFormat(htmlElementDescriptor, htmlElementDescriptor.getColumn());
                         innerListEditTemplate.setDateFormat(dateFormat);
+                        break;
+                    default:
                         break;
                 }
             }

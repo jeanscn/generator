@@ -1,8 +1,5 @@
 package org.mybatis.generator.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class VoNameFragmentGeneratorConfiguration extends TypedPropertyHolder {
 
     private final TableConfiguration tc;

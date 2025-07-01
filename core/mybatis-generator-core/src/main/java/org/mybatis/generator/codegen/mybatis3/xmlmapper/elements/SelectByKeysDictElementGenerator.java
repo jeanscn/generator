@@ -1,22 +1,9 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import io.swagger.models.Xml;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
-import org.mybatis.generator.internal.util.StringUtility;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerator {

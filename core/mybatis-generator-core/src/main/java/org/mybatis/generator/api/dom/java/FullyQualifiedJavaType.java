@@ -1,7 +1,6 @@
 package org.mybatis.generator.api.dom.java;
 
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;

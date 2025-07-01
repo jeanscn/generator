@@ -1,6 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
-import cn.hutool.core.util.ObjectUtil;
+import static org.mybatis.generator.custom.ConstantsUtil.I_BUSINESS_ENTITY;
+import static org.mybatis.generator.custom.ConstantsUtil.I_PERSISTENCE_BLOB;
+import static org.mybatis.generator.custom.ConstantsUtil.I_WORK_FLOW_BASE_ENTITY;
+
+import java.util.Set;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -8,10 +13,7 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.ObjectFactory;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.mybatis.generator.custom.ConstantsUtil.*;
+import cn.hutool.core.util.ObjectUtil;
 
 /**
  * 工具类

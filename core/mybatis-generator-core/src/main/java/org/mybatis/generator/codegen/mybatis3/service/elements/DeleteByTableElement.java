@@ -11,7 +11,6 @@ import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * selectByExampleWithRelation实现方法

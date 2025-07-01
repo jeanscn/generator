@@ -11,12 +11,6 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.DomainObjectRenamingRule;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
 public class FullyQualifiedTable {
 
     private final String introspectedCatalog;

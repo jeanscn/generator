@@ -1,19 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.annotation.ViewFuzzyColumnMeta;
-import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
-import org.mybatis.generator.internal.util.StringUtility;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ViewFuzzyColumnMetaDesc extends AbstractAnnotation {
 

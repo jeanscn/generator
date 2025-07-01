@@ -9,7 +9,6 @@ import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;

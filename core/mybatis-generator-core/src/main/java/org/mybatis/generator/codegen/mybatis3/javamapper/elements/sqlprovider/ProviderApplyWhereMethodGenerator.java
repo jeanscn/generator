@@ -1,10 +1,11 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper.elements.sqlprovider;
 
+import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +16,6 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-
-import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 
 public class ProviderApplyWhereMethodGenerator extends AbstractJavaProviderMethodGenerator {
 

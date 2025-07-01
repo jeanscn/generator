@@ -7,8 +7,6 @@ import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
-
 import java.util.*;
 
 /**

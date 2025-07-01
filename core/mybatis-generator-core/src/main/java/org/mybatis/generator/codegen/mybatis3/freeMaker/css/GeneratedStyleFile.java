@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3.freeMaker.css;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.JQueryFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 /**

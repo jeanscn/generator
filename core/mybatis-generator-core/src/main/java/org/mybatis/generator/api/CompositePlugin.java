@@ -1,5 +1,10 @@
 package org.mybatis.generator.api;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
@@ -10,15 +15,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * This class implements a composite plugin. It contains a list of plugins for the
@@ -165,48 +164,24 @@ public abstract class CompositePlugin implements Plugin {
     @Override
     public boolean clientBasicCountMethodGenerated(Method method, Interface interfaze,
                                                    IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicCountMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
     @Override
     public boolean clientBasicCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                    IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicCountMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
     @Override
     public boolean clientBasicDeleteMethodGenerated(Method method, Interface interfaze,
                                                     IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicDeleteMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
     @Override
     public boolean clientBasicDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                     IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicDeleteMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
@@ -261,12 +236,6 @@ public abstract class CompositePlugin implements Plugin {
     @Override
     public boolean clientBasicInsertMultipleHelperMethodGenerated(Method method, Interface interfaze,
                                                                   IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMultipleHelperMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
@@ -274,12 +243,6 @@ public abstract class CompositePlugin implements Plugin {
     public boolean clientBasicInsertMultipleHelperMethodGenerated(KotlinFunction kotlinFunction, KotlinFile
             kotlinFile,
                                                                   IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMultipleHelperMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
@@ -338,24 +301,12 @@ public abstract class CompositePlugin implements Plugin {
     @Override
     public boolean clientBasicUpdateMethodGenerated(Method method, Interface interfaze,
                                                     IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicUpdateMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
     @Override
     public boolean clientBasicUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                     IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicUpdateMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
         return true;
     }
 

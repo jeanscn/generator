@@ -6,8 +6,6 @@ import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGene
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
-
 /**
  * selectByExampleWithRelation实现方法
  *

@@ -1,10 +1,9 @@
 package org.mybatis.generator.api.dom.java;
 
-import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+
+import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 
 /**
  * This interface describes methods common to all Java compilation units (Java

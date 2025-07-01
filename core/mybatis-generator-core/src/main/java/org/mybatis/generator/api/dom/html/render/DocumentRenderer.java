@@ -1,11 +1,11 @@
 package org.mybatis.generator.api.dom.html.render;
 
-import org.mybatis.generator.api.dom.html.DocType;
-import org.mybatis.generator.api.dom.html.Document;
-
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.mybatis.generator.api.dom.html.DocType;
+import org.mybatis.generator.api.dom.html.Document;
 
 public class DocumentRenderer {
 

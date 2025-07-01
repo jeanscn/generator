@@ -1,14 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.freeMaker.css;
 
-import freemarker.template.Template;
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 
-import java.io.StringWriter;
-import java.util.List;
+import freemarker.template.Template;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

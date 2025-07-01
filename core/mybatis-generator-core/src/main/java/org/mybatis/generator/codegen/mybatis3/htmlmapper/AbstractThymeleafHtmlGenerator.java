@@ -171,6 +171,10 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
                         cRead.addAttribute(new Attribute(HTML_ATTRIBUTE_APPLY_PROPERTY, htmlElementDescriptor.getApplyProperty()));
                     }
                     break;
+                default:
+                    // Handle all other enum constants with default behavior
+                    cRead.addAttribute(new Attribute("th:text", thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READ, htmlElementDescriptor)));
+                    break;
             }
         } else {
             if (GenerateUtils.isDateType(introspectedColumn)) {

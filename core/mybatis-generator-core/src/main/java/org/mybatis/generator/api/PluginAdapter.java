@@ -3,7 +3,6 @@ package org.mybatis.generator.api;
 import java.util.Properties;
 
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.PropertyHolder;
 
 /**
  * This class is a convenient base class for implementing plugins.

@@ -11,7 +11,6 @@ import org.mybatis.generator.config.VOViewGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

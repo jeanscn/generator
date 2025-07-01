@@ -1,16 +1,16 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
-import com.vgosoft.tool.core.VStringUtil;
+import java.util.Collections;
+import java.util.List;
+
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.EnableCacheConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
-import org.springframework.cache.annotation.CacheEvict;
 
-import java.util.Collections;
-import java.util.List;
+import com.vgosoft.tool.core.VStringUtil;
 
 /**
  * selectByExampleWithRelation实现方法

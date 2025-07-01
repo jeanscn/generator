@@ -5,8 +5,6 @@ import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 
-import java.util.List;
-
 /**
  * 按钮注解描述类
  *

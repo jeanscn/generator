@@ -4,7 +4,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 /**
  * selectByExampleWithRelation实现方法

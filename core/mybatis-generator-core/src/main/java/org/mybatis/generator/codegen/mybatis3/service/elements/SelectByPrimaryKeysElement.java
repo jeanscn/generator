@@ -1,15 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.service.elements;
 
-import org.mybatis.generator.api.IntrospectedColumn;
+import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_NULLABLE;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
+
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

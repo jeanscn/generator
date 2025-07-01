@@ -3,7 +3,6 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.internal.util.StringUtility;
 
 public class DeleteByExampleElementGenerator extends AbstractXmlElementGenerator {
 

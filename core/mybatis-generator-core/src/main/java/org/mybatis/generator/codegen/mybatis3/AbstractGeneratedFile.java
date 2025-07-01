@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3;
 
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.codegen.AbstractGenerator;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

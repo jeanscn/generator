@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.internal.util.StringUtility;
 
 public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenerator {
 

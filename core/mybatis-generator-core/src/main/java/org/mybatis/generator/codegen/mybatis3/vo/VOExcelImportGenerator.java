@@ -1,17 +1,22 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.vgosoft.tool.core.VCollectionUtil;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
-import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.InitializationBlock;
+import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.vgosoft.tool.core.VCollectionUtil;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

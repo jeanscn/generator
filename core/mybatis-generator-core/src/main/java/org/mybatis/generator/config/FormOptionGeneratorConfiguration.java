@@ -1,8 +1,6 @@
 package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
-import org.mybatis.generator.config.PropertyHolder;
-import org.mybatis.generator.config.PropertyRegistry;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>

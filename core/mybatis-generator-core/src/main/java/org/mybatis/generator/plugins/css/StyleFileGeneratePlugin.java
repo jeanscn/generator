@@ -5,7 +5,6 @@ import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freeMaker.css.GeneratedStyleFile;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 

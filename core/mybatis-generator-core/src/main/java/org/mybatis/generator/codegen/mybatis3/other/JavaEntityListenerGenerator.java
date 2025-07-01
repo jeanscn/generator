@@ -8,8 +8,6 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.mybatis.generator.internal.util.Mb3GenUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

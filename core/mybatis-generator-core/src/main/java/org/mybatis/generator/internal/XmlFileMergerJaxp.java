@@ -4,11 +4,9 @@ import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;

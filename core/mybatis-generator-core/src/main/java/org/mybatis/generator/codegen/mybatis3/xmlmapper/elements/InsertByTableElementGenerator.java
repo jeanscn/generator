@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.List;

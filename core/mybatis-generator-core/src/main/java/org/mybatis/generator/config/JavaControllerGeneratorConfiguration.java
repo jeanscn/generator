@@ -1,6 +1,5 @@
 package org.mybatis.generator.config;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;

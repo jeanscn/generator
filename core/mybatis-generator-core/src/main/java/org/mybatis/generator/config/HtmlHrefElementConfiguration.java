@@ -1,10 +1,5 @@
 package org.mybatis.generator.config;
 
-import org.mybatis.generator.custom.ConstantsUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class HtmlHrefElementConfiguration {
     private String href;
 

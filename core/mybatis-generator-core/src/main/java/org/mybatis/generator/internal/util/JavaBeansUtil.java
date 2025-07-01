@@ -1,10 +1,6 @@
 package org.mybatis.generator.internal.util;
 
 import com.vgosoft.core.db.util.JDBCUtil;
-import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
-import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
-import com.vgosoft.tool.core.VMD5Util;
-import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -12,8 +8,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import java.io.File;

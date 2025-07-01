@@ -1,7 +1,5 @@
 package org.mybatis.generator.custom.annotations;
 
-import com.vgosoft.tool.core.VStringUtil;
-
 import static com.vgosoft.tool.core.VStringUtil.*;
 
 /**
