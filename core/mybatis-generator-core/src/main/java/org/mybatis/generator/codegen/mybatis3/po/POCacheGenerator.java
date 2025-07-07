@@ -51,6 +51,9 @@ public class POCacheGenerator extends AbstractVOGenerator {
         List<IntrospectedColumn> includeColumns = introspectedTable.getBaseColumns().stream()
                 .filter(c -> config.getIncludeColumns().contains(c.getActualColumnName()))
                 .collect(Collectors.toList());
+        if (includeColumns.isEmpty()) {
+            includeColumns = introspectedTable.getBaseColumns();
+        }
         List<IntrospectedColumn> allColumns = Stream.of(pkColumns.stream(), oColumns.stream(), includeColumns.stream())
                 .flatMap(Function.identity())
                 .distinct()
@@ -87,6 +90,7 @@ public class POCacheGenerator extends AbstractVOGenerator {
             cachePoClass.addMethod(compareMethod);
         }
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(cachePoType));
+        mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
         Method method = addMappingMethod(entityType, cachePoClass.getType(), false);
         String valueColumnM = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration().getValueColumn();
         if (valueColumnM != null) {
@@ -95,11 +99,22 @@ public class POCacheGenerator extends AbstractVOGenerator {
                 String a = VStringUtil.format("@Mapping(source = \"{0}\",target = \""+ GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT +"\")"
                         , column.getJavaProperty());
                 method.addAnnotation(a);
-                mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
             }
         }
         mappingsInterface.addMethod(method);
         mappingsInterface.addMethod(addMappingMethod(entityType, cachePoClass.getType(), true));
+
+        // 增加Po到do的转换方法
+        mappingsInterface.addMethod(addMappingMethod(cachePoClass.getType(),entityType,  false));
+        mappingsInterface.addMethod(addMappingMethod(cachePoClass.getType(),entityType,  true));
+
+        // 增加Po到vo的转换方法
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            FullyQualifiedJavaType voType = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType();
+            mappingsInterface.addMethod(addMappingMethod(cachePoClass.getType(),voType,  false));
+            mappingsInterface.addMethod(addMappingMethod(cachePoClass.getType(),voType,  true));
+            cachePoClass.addImportedType(voType);
+        }
 
         return cachePoClass;
     }
