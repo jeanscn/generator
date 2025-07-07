@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -81,23 +82,27 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conTopClazz.addField(field);
         //构造器
         Method method = new Method(controllerName);
-        method.addParameter(new Parameter(bizInfType, introspectedTable.getControllerBeanName()));
+        Parameter parameterBean = new Parameter(bizInfType, introspectedTable.getControllerBeanName());
+        method.addParameter(parameterBean);
         method.setConstructor(true);
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addBodyLine("this.{0} = {0};", introspectedTable.getControllerBeanName());
         //增加Mappings属性
         FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(
-                String.join(".",
-                        voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
+                String.join(".",voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
         if (introspectedTable.getRules().isGenerateAnyVO()) {
+            // 如果生成了任意VO，则需要增加Mappings属性
             Field mappings = new Field("mappings", entityMappings);
             mappings.setFinal(true);
             mappings.setVisibility(JavaVisibility.PRIVATE);
             conTopClazz.addField(mappings);
             conTopClazz.addImportedType(entityMappings);
-            method.addParameter(new Parameter(entityMappings, "mappings"));
+            // 构造器中增加Mappings参数
+            Parameter parameter = new Parameter(entityMappings, "mappings");
+            method.addParameter(parameter);
             method.addBodyLine("this.mappings = mappings;");
         }
+        //增加构造器注释
         conTopClazz.addMethod(method);
         tc.getHtmlMapGeneratorConfigurations().stream()
                 .filter(hc -> stringHasValue(hc.getViewPath()))
@@ -430,18 +435,26 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addAnnotation(new RequestMappingDesc(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)).toAnnotation());
         //构造器
         Method conMethod = new Method(subControllerName);
-        conMethod.addParameter(new Parameter(bizInfType, introspectedTable.getControllerBeanName()));
-        conSubTopClazz.addImportedType(bizInfType);
         conMethod.setConstructor(true);
         conMethod.setVisibility(JavaVisibility.PUBLIC);
 
+        Parameter parameterSubBean = new Parameter(bizInfType, introspectedTable.getControllerBeanName());
+        parameterSubBean.setRemark("业务服务类，提供对PO的操作");
+        conMethod.addParameter(parameterSubBean);
+        conSubTopClazz.addImportedType(bizInfType);
+
         if (introspectedTable.getRules().isGenerateAnyVO()) {
             conSubTopClazz.addImportedType(entityMappings);
-            conMethod.addParameter(new Parameter(entityMappings, "mappings"));
+            Parameter parameterMappings = new Parameter(entityMappings, "mappings");
+            parameterMappings.addAnnotation(VStringUtil.format("@Qualifier(\"{0}\")",entityMappings.getShortNameFirstLowCase()+"Impl"));
+            parameterMappings.setRemark("VO的映射类，提供VO与PO之间的转换");
+            conSubTopClazz.addImportedType("org.springframework.beans.factory.annotation.Qualifier");
+            conMethod.addParameter(parameterMappings);
             conMethod.addBodyLine("super({0}, mappings);", introspectedTable.getControllerBeanName());
         } else {
             conMethod.addBodyLine("super({0});", introspectedTable.getControllerBeanName());
         }
+        commentGenerator.addMethodJavaDocLine(conMethod);
         conSubTopClazz.addMethod(conMethod);
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName);
         if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.controller.name()) || fileNotExist) {
