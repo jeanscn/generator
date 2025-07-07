@@ -1,10 +1,15 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Getter
+@Setter
 public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private VOModelGeneratorConfiguration voModelConfiguration;
@@ -21,7 +26,7 @@ public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguratio
 
     private VOCacheGeneratorConfiguration voCacheConfiguration;
 
-    private List<MapstructMappingConfiguration> mappingConfigurations = new ArrayList<>();
+    private final List<MapstructMappingConfiguration> mappingConfigurations = new ArrayList<>();
 
     private Set<String> validateIgnoreColumns = new HashSet<>();
 
@@ -35,75 +40,8 @@ public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguratio
         super.validate(errors, contextId, "VOGeneratorConfiguration");
     }
 
-    public VOModelGeneratorConfiguration getVoModelConfiguration() {
-        return voModelConfiguration;
-    }
-
-    public void setVoModelConfiguration(VOModelGeneratorConfiguration voModelConfiguration) {
-        this.voModelConfiguration = voModelConfiguration;
-    }
-
-    public VOCreateGeneratorConfiguration getVoCreateConfiguration() {
-        return voCreateConfiguration;
-    }
-
-    public void setVoCreateConfiguration(VOCreateGeneratorConfiguration voCreateConfiguration) {
-        this.voCreateConfiguration = voCreateConfiguration;
-    }
-
-    public VOUpdateGeneratorConfiguration getVoUpdateConfiguration() {
-        return voUpdateConfiguration;
-    }
-
-    public void setVoUpdateConfiguration(VOUpdateGeneratorConfiguration voUpdateConfiguration) {
-        this.voUpdateConfiguration = voUpdateConfiguration;
-    }
-
-    public VOViewGeneratorConfiguration getVoViewConfiguration() {
-        return voViewConfiguration;
-    }
-
-    public void setVoViewConfiguration(VOViewGeneratorConfiguration voViewConfiguration) {
-        this.voViewConfiguration = voViewConfiguration;
-    }
-
-    public VOExcelGeneratorConfiguration getVoExcelConfiguration() {
-        return voExcelConfiguration;
-    }
-
-    public void setVoExcelConfiguration(VOExcelGeneratorConfiguration voExcelConfiguration) {
-        this.voExcelConfiguration = voExcelConfiguration;
-    }
-
-    public VORequestGeneratorConfiguration getVoRequestConfiguration() {
-        return voRequestConfiguration;
-    }
-
-    public void setVoRequestConfiguration(VORequestGeneratorConfiguration voRequestConfiguration) {
-        this.voRequestConfiguration = voRequestConfiguration;
-    }
-
-    public VOCacheGeneratorConfiguration getVoCacheConfiguration() {
-        return voCacheConfiguration;
-    }
-
-    public void setVoCacheConfiguration(VOCacheGeneratorConfiguration voCacheConfiguration) {
-        this.voCacheConfiguration = voCacheConfiguration;
-    }
-
-    public List<MapstructMappingConfiguration> getMappingConfigurations() {
-        return mappingConfigurations;
-    }
-
     public void addMappingConfigurations(MapstructMappingConfiguration mappingConfiguration) {
         this.mappingConfigurations.add(mappingConfiguration);
     }
 
-    public Set<String> getValidateIgnoreColumns() {
-        return validateIgnoreColumns;
-    }
-
-    public void setValidateIgnoreColumns(Set<String> validateIgnoreColumns) {
-        this.validateIgnoreColumns = validateIgnoreColumns;
-    }
 }
