@@ -39,7 +39,7 @@ public class ConfigUtil {
         if (elementDescriptor != null) {
             if (stringHasValue(elementDescriptor.getOtherFieldName())) {
                 return elementDescriptor.getOtherFieldName();
-            }else if(elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()) || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE_TIME.codeName())){
+            }else if(sameFieldName(elementDescriptor)){
                 return propertyName;
             }
         }
@@ -48,6 +48,16 @@ public class ConfigUtil {
         } else {
             return propertyName + "Text";
         }
+    }
+
+    private static boolean sameFieldName(HtmlElementDescriptor elementDescriptor) {
+        return elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.INPUT.codeName())
+                || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName())
+                || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.TIME.codeName())
+                || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE_TIME.codeName())
+                || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.TITLE.codeName())
+                || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.NUMBER.codeName())
+                || elementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.COLOR.codeName());
     }
 
     // 通过HtmlElementDescriptor配置，创建转换属性配置

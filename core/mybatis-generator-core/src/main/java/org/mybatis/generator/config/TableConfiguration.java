@@ -863,11 +863,7 @@ public class TableConfiguration extends PropertyHolder {
                 introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(elementDescriptor::setColumn);
             }
             if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
-                if (HtmlElementTagTypeEnum.INPUT.codeName().equals(elementDescriptor.getTagType())) {
-                    introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(c.getJavaProperty()));
-                } else {
-                    introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty(),elementDescriptor)));
-                }
+                introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty(),elementDescriptor)));
             }
             //当DataSource值分别为DictSys、DictData、DictUser，且没有配置dataUrl，且指定了DictCode，则分别自动配置dataUrl
             if (stringHasValue(elementDescriptor.getDataSource()) && !stringHasValue(elementDescriptor.getDataUrl())) {
