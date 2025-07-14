@@ -43,8 +43,8 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
                 parentElement));
         method.setReturnRemark("layui table配置对象");
         method.addAnnotation(new RequestMappingDesc("lay-table-config", RequestMethodEnum.GET),parentElement);
-        method.addAnnotation(new ApiOperationDesc("获得layui table配置对象", "根据ViewVO获得layui table配置对象"),parentElement);
-        commentGenerator.addMethodJavaDocLine(method, "根据ViewVO获得layui table配置对象");
+        method.addAnnotation(new ApiOperationDesc("获得layui table配置对象", "根据ViewVo获得layui table配置对象"),parentElement);
+        commentGenerator.addMethodJavaDocLine(method, "根据ViewVo获得layui table配置对象");
         //函数体
         method.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
         method.addBodyLine("Layuitable layuitable = LayuiTableUtil.getLayuiTable({0}.class,edit,listKey,null);",
@@ -76,8 +76,8 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
                 parentElement));
         vexMethod.setReturnRemark("Vxe table配置对象");
         vexMethod.addAnnotation(new RequestMappingDesc("vxe-table-config", RequestMethodEnum.GET),parentElement);
-        vexMethod.addAnnotation(new ApiOperationDesc("获得vxe table配置对象", "根据ViewVO获得vxe table配置对象"),parentElement);
-        commentGenerator.addMethodJavaDocLine(vexMethod, "根据ViewVO获得vxe table配置对象");
+        vexMethod.addAnnotation(new ApiOperationDesc("获得vxe table配置对象", "根据ViewVo获得vxe table配置对象"),parentElement);
+        commentGenerator.addMethodJavaDocLine(vexMethod, "根据ViewVo获得vxe table配置对象");
         //函数体
         vexMethod.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
         vexMethod.addBodyLine("Layuitable layuitable = VexTableUtil.getLayuiTable({0}.class,edit,listKey,null,indextype,showRowNumber,columnActionsNum);",

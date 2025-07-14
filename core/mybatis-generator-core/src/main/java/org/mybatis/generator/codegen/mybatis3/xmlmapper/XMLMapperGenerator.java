@@ -105,7 +105,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByKeysDictElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             AbstractXmlElementGenerator elementGenerator = new SelectByKeysDictElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

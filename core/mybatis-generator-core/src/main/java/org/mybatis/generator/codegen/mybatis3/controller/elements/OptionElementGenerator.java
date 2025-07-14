@@ -113,7 +113,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
             pMethod.addBodyLine("return formSelectTreeOption;");
         }
         method.addBodyLine("        .distinct().collect(Collectors.toList());");
-        if (introspectedTable.getRules().isGenerateRequestVO()) {
+        if (introspectedTable.getRules().isGenerateRequestVo()) {
             method.addBodyLine("if (page!=null) {");
             method.addBodyLine("return ResponsePagehelperResult.success(options,page);");
             method.addBodyLine("} else {");

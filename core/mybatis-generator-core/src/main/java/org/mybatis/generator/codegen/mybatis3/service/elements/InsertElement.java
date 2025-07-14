@@ -34,8 +34,8 @@ public class InsertElement extends AbstractServiceElementGenerator {
         boolean containsInsertedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name());
 
         Method insertMethod = serviceMethods.getInsertMethod(parentElement, false, false,true);
-        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
+            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             insertMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         insertMethod.addAnnotation("@Override");

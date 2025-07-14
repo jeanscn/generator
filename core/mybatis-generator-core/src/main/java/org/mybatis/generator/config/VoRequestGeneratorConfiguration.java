@@ -4,20 +4,20 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.List;
 
-public class VORequestGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
+public class VoRequestGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private boolean includePageParam = true;
 
-    public VORequestGeneratorConfiguration(Context context,TableConfiguration tc) {
+    public VoRequestGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
         this.generate = true;
         targetPackage = String.join(".", baseTargetPackage,"vo");
-        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"RequestVO"));
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"RequestVo"));
     }
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VORequestGeneratorConfiguration");
+        super.validate(errors, contextId, "VoRequestGeneratorConfiguration");
     }
 
     public boolean isIncludePageParam() {

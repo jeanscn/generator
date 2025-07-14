@@ -6,7 +6,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
-import org.mybatis.generator.config.VOModelGeneratorConfiguration;
+import org.mybatis.generator.config.VoModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
@@ -20,22 +20,23 @@ import java.util.List;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansField;
 
 /**
- * 生成VOModel
+ * 生成VoModel
  *
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-03-29 11:23
  * @version 3.0
  */
-public class VOModelGenerator extends AbstractVOGenerator {
+public class VoModelGenerator extends AbstractVoGenerator {
 
-    public VOModelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public VoModelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
+    @Override
     public TopLevelClass generate() {
-        VOModelGeneratorConfiguration voModelGeneratorConfiguration = voGeneratorConfiguration.getVoModelConfiguration();
+        VoModelGeneratorConfiguration voModelGeneratorConfiguration = voGeneratorConfiguration.getVoModelConfiguration();
         String voType = voModelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
-        TopLevelClass voClass = createTopLevelClass(voType, getAbstractVOType().getFullyQualifiedName());
+        TopLevelClass voClass = createTopLevelClass(voType, getAbstractVoType().getFullyQualifiedName());
         voClass.addMultipleImports("lombok");
         voClass.addAnnotation("@NoArgsConstructor");
         addApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
@@ -46,7 +47,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         List<String> fields = new ArrayList<>(Arrays.asList("id", "version"));
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(fields, voModelGeneratorConfiguration.getIncludeColumns(), voModelGeneratorConfiguration.getExcludeColumns());
         for (IntrospectedColumn introspectedColumn : introspectedColumns) {
-            if (!isAbstractVOColumn(introspectedColumn)) {
+            if (!isAbstractVoColumn(introspectedColumn)) {
                 Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);
                 if (plugins.voModelFieldGenerated(field, voClass, introspectedColumn, introspectedTable)) {
                     voClass.addField(field);
@@ -54,7 +55,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
                 }
             }
         }
-        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
+        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVoColumns()) {
             if (introspectedColumn.isBeValidated()) {
                 this.getOverrideGetter(introspectedColumn).ifPresent(m -> {
                     if (plugins.voModelGetterMethodGenerated(m, voClass, introspectedColumn, introspectedTable)) {
@@ -84,14 +85,14 @@ public class VOModelGenerator extends AbstractVOGenerator {
             }
         });
 
-        if (!introspectedTable.getRules().isGenerateRequestVO()) {
+        if (!introspectedTable.getRules().isGenerateRequestVo()) {
             //增加任意过滤条件接收
             addWhereConditionResult(voClass);
             //增加前端过滤器属性
             addFilterMap(voClass);
         }
 
-        voClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
+        voClass.addImportedType(getAbstractVoType().getFullyQualifiedName());
         //persistenceBeanName属性
         addPersistenceBeanNameProperty(voClass, introspectedTable);
 
@@ -119,7 +120,7 @@ public class VOModelGenerator extends AbstractVOGenerator {
         });
 
         //增加actionType属性
-        if (!introspectedTable.getRules().isGenerateRequestVO()) {
+        if (!introspectedTable.getRules().isGenerateRequestVo()) {
             addActionType(voClass,introspectedTable);
             addIgnoreDeleteFlag(voClass,introspectedTable);
             addIgnorePermissionAnnotation(voClass,introspectedTable);

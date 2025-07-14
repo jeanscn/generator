@@ -238,7 +238,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         return div;
     }
 
-    protected boolean isIgnore(IntrospectedColumn introspectedColumn, VOModelGeneratorConfiguration configuration) {
+    protected boolean isIgnore(IntrospectedColumn introspectedColumn, VoModelGeneratorConfiguration configuration) {
         List<String> allFields = new ArrayList<>(EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields());
         String property = configuration.getProperty(PropertyRegistry.ELEMENT_IGNORE_COLUMNS);
         boolean ret = false;

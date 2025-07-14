@@ -22,7 +22,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
-        if (introspectedTable.getRules().isGenerateCreateVO()) {
+        if (introspectedTable.getRules().isGenerateCreateVo()) {
             parentElement.addImportedType(entityCreateVoType);
             parentElement.addImportedType(entityMappings);
         } else if (introspectedTable.getRules().isGenerateVoModel()) {
@@ -52,20 +52,20 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         commentGenerator.addMethodJavaDocLine(method, "新增一条记录");
 
         method.addBodyLine("ServiceResult<{0}> serviceResult;", entityType.getShortName());
-        if (introspectedTable.getRules().isGenerateCreateVO()) {
+        if (introspectedTable.getRules().isGenerateCreateVo()) {
             if (introspectedTable.getRules().createEnableSelective()) {
-                method.addBodyLine("if ({0}CreateVO.isSelectiveUpdate() && VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("if ({0}CreateVo.isSelectiveUpdate() && VStringUtil.isNotBlank({0}CreateVo.getId())) '{'", entityType.getShortNameFirstLowCase());
                 method.addBodyLine("serviceResult = {0}.updateByPrimaryKeySelective({1});"
                         , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
-                method.addBodyLine("'}' else if ({0}CreateVO.isSelectiveUpdate()) '{'", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("'}' else if ({0}CreateVo.isSelectiveUpdate()) '{'", entityType.getShortNameFirstLowCase());
                 method.addBodyLine("serviceResult = {0}.insertSelective({1});"
                         , serviceBeanName, getServiceMethodEntityParameter(false, "create"));
-                method.addBodyLine("'}' else if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("'}' else if (VStringUtil.isNotBlank({0}CreateVo.getId())) '{'", entityType.getShortNameFirstLowCase());
             }else{
-                method.addBodyLine("if (VStringUtil.isNotBlank({0}CreateVO.getId())) '{'", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("if (VStringUtil.isNotBlank({0}CreateVo.getId())) '{'", entityType.getShortNameFirstLowCase());
             }
         }else if(introspectedTable.getRules().isGenerateVoModel()){
-            method.addBodyLine("if (VStringUtil.isNotBlank({0}VO.getId())) '{'", entityType.getShortNameFirstLowCase());
+            method.addBodyLine("if (VStringUtil.isNotBlank({0}Vo.getId())) '{'", entityType.getShortNameFirstLowCase());
         }else{
             method.addBodyLine("if (VStringUtil.isNotBlank({0}.getId())) '{'", entityType.getShortNameFirstLowCase());
         }

@@ -98,7 +98,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
 
 
     /**
-     * VO抽象父类的ColumnMetaAnnotation
+     * Vo抽象父类的ColumnMetaAnnotation
      */
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
@@ -302,7 +302,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
         }
     }
 
-    private boolean isIgnore(IntrospectedColumn introspectedColumn, VOModelGeneratorConfiguration configuration) {
+    private boolean isIgnore(IntrospectedColumn introspectedColumn, VoModelGeneratorConfiguration configuration) {
         List<String> allFields = new ArrayList<>(EntityAbstractParentEnum.ABSTRACT_PERSISTENCE_LOCK_ENTITY.fields());
         String property = configuration.getProperty(PropertyRegistry.ELEMENT_IGNORE_COLUMNS);
         boolean ret = false;

@@ -38,7 +38,7 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         method.setExceptionRemark("异常");
         parentElement.addImportedType(exceptionType);
 
-        // 判断是否有VO对象
+        // 判断是否有Vo对象
         String entityVar = entityType.getShortNameFirstLowCase();
         String entityVoVar = entityVoType.getShortNameFirstLowCase();
         boolean generateVoModel = introspectedTable.getRules().isGenerateVoModel();

@@ -135,13 +135,13 @@ public class MyBatisGeneratorClean {
             //清理codegen下的文件
             String codegenPath = baseTargetPackage + ".codegen";
             File allCodegenControllerFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), codegenPath + ".controller");
-            files = allCodegenControllerFiles.listFiles((dir, name) -> name.equals("Gen" + tc.getDomainObjectName() + "Controller.java"));
+            files = allCodegenControllerFiles.listFiles((dir, name) -> name.equals("Abstract" + tc.getDomainObjectName() + "Controller.java"));
             deleteFiles(files);
             File allCodegenServiceFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), codegenPath + ".service");
             files = allCodegenServiceFiles.listFiles((dir, name) -> name.equals("IGen" + tc.getDomainObjectName() + ".java"));
             deleteFiles(files);
             File allCodegenServiceImplFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), codegenPath + ".service.impl");
-            files = allCodegenServiceImplFiles.listFiles((dir, name) -> name.equals("Gen" + tc.getDomainObjectName() + "Impl.java"));
+            files = allCodegenServiceImplFiles.listFiles((dir, name) -> name.equals("Abstract" + tc.getDomainObjectName() + "Impl.java"));
             deleteFiles(files);
             File allCodegenMapperFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), codegenPath + ".dao");
             files = allCodegenMapperFiles.listFiles((dir, name) -> name.equals("Gen" + tc.getDomainObjectName() + "Mapper.java"));
@@ -149,24 +149,24 @@ public class MyBatisGeneratorClean {
 
             //清理pojo下的文件
             File allVoFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), baseTargetPackage + ".pojo.vo");
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "CreateVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "CreateVo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "UpdateVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "UpdateVo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "VO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "Vo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ExcelImportVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ExcelImportVo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ExcelVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ExcelVo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "RequestVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "RequestVo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "RequestVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "RequestVo.java"));
             deleteFiles(files);
-            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ViewVO.java"));
+            files = allVoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "ViewVo.java"));
             deleteFiles(files);
             File allPoFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), baseTargetPackage + ".pojo.po");
-            files = allPoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "CachePO.java"));
+            files = allPoFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "CachePo.java"));
             deleteFiles(files);
             File allMapsFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), baseTargetPackage + ".pojo.maps");
             files = allMapsFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "Mappings.java"));
@@ -174,7 +174,7 @@ public class MyBatisGeneratorClean {
             files = allMapsFiles.listFiles((dir, name) -> name.equals(tc.getDomainObjectName() + "CachePoMappings.java"));
             deleteFiles(files);
             File allAbsVoFiles = this.shellCallback.getDirectory(modelConfig.getTargetProject(), baseTargetPackage + ".pojo.abs");
-            files = allAbsVoFiles.listFiles((dir, name) -> name.equals("Abstract" + tc.getDomainObjectName() + "VO.java"));
+            files = allAbsVoFiles.listFiles((dir, name) -> name.equals("Abstract" + tc.getDomainObjectName() + "Vo.java"));
             deleteFiles(files);
 
             //清理controller

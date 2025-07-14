@@ -26,7 +26,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
 
         parentElement.addImportedType(entityType);
 
-        if (isGenerateVOModel) {
+        if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }
@@ -36,7 +36,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
         String methodName = "view" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "显示或创建一条记录-服务层返回逾期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法有返回值");
+        addMethodComment(method, "被调用的service.selectByPrimaryKey()方法有返回值");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});",
                 entityType.getShortName(),
                 entityInstanceVar);
@@ -55,7 +55,7 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
         methodName = "view" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, parentElement, "显示或创建一条记录-服务层返回失败结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法返回失败");
+        addMethodComment(method, "被调用的service.selectByPrimaryKey()方法返回失败");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,new Exception(\"err message\"));",
                 entityType.getShortName());
         method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",

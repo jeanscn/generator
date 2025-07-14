@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
-import com.vgosoft.core.constant.Empty;
+import com.vgosoft.core.constant.BaseEmpty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +37,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
     public String getSqlScript() {
         List<String> ret = new ArrayList<>();
         String tableName = introspectedTable.getTableConfiguration().getTableName();
-        String COLUMN_STATEMENT = databaseDDLDialects.getCreateStatement();
+        String createStatement = databaseDDLDialects.getCreateStatement();
 
         List<String> columnSql = new ArrayList<>();
         ret.add("-- ----------------------------");
@@ -48,12 +48,12 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
         for (IntrospectedColumn col : this.introspectedTable.getAllColumns()) {
 
-            String character = Empty.EMPTY_STRING;
+            String character = BaseEmpty.EMPTY_STRING;
             if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL) && !VStringUtil.toCamelCase(col.getActualTypeName()).equals("JSON")) {
                 character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
             }
 
-            String rowSql = VStringUtil.format(COLUMN_STATEMENT,
+            String rowSql = VStringUtil.format(createStatement,
                     col.getActualColumnName(),
                     VStringUtil.toCamelCase(col.getActualTypeName()),
                     col.getSqlFragmentLength(),

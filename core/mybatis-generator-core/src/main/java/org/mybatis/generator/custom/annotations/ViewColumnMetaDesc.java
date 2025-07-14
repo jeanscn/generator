@@ -9,7 +9,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Set;
@@ -67,7 +67,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     private IntrospectedColumn introspectedColumn;
 
-    private final VOViewGeneratorConfiguration configuration;
+    private final VoViewGeneratorConfiguration configuration;
 
     Set<String> hiddenProperties;
 

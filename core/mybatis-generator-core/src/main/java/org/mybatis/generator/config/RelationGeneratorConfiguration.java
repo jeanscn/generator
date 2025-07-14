@@ -6,9 +6,13 @@ import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public class RelationGeneratorConfiguration extends PropertyHolder {
@@ -34,12 +38,12 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
     private String select;
 
     /**
-     * 属性类型的泛型（PO类中使用）
+     * 属性类型的泛型（Po类中使用）
      */
     private String modelTye;
 
     /**
-     * VO属性类型的泛型（VO类中使用）
+     * Vo属性类型的泛型（Vo类中使用）
      */
     private String voModelTye;
 
@@ -104,9 +108,6 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
         this.enableInsertOrUpdate = false;
         this.relationPropertyIsBoolean = false;
     }
-
-    ;
-
     public boolean isSubSelected(){
         return StringUtility.stringHasValue(select) && StringUtility.stringHasValue(column);
     }
@@ -121,5 +122,17 @@ public class RelationGeneratorConfiguration extends PropertyHolder {
 
     public void addImportTypes(String importType) {
         this.importTypes.add(importType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) { return false; }
+        RelationGeneratorConfiguration that = (RelationGeneratorConfiguration) o;
+        return Objects.equals(column, that.column);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(column);
     }
 }

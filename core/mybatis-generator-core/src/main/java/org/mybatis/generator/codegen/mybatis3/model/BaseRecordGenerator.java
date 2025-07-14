@@ -154,7 +154,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         });
 
         //增加actionType属性
-        if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+        if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVo()) {
             addActionType(topLevelClass,introspectedTable);
             addIgnoreDeleteFlag(topLevelClass,introspectedTable);
             addIgnorePermissionAnnotation(topLevelClass,introspectedTable);
@@ -236,7 +236,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
             }
         });
 
-        // 重写转换vo对象的方法：VO getViewObject();
+        // 重写转换vo对象的方法：Vo getViewObject();
         addGetViewObject(topLevelClass,introspectedTable);
 
         if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
@@ -363,16 +363,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         cascade.setRemark("任意过滤条件");
         new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, topLevelClass);
         topLevelClass.addField(cascade);
-    }
-
-    //增加查询过滤器的filterMap属性
-    protected void addFilterMap(TopLevelClass topLevelClass) {
-        Field filterMap = new Field("filterParam", new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
-        filterMap.setVisibility(JavaVisibility.PRIVATE);
-        filterMap.setRemark("前端过滤器及类似查询过滤条件");
-        new ApiModelPropertyDesc(filterMap.getRemark(), "filterParam = ‘{}’").addAnnotationToField(filterMap, topLevelClass);
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
-        topLevelClass.addField(filterMap);
     }
 
     private void addOrgUserOverrideMethod(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {

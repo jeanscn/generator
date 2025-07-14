@@ -7,7 +7,7 @@ import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenera
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.InnerListViewConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +122,7 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
     }
 
     private Map<String, HtmlButtonGeneratorConfiguration> getHtmlButtonGeneratorConfigurationMap() {
-        VOViewGeneratorConfiguration voViewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        VoViewGeneratorConfiguration voViewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         return Stream.of(innerListViewConfiguration.getHtmlButtons().stream(),voViewConfiguration.getHtmlButtons().stream()).flatMap(s -> s)
                 .collect(Collectors.toMap(HtmlButtonGeneratorConfiguration::getId, htmlButtonGeneratorConfiguration -> htmlButtonGeneratorConfiguration));
     }

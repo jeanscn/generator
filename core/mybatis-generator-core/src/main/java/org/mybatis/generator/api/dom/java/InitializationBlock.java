@@ -1,12 +1,21 @@
 package org.mybatis.generator.api.dom.java;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
+@Getter
 public class InitializationBlock {
 
+    @Setter
     private boolean isStatic;
+
     private final List<String> bodyLines = new ArrayList<>();
     private final List<String> javaDocLines = new ArrayList<>();
 
@@ -16,18 +25,6 @@ public class InitializationBlock {
 
     public InitializationBlock(boolean isStatic) {
         this.isStatic = isStatic;
-    }
-
-    public boolean isStatic() {
-        return isStatic;
-    }
-
-    public void setStatic(boolean isStatic) {
-        this.isStatic = isStatic;
-    }
-
-    public List<String> getBodyLines() {
-        return bodyLines;
     }
 
     public void addBodyLine(String line) {
@@ -44,10 +41,6 @@ public class InitializationBlock {
 
     public void addBodyLines(int index, Collection<String> lines) {
         bodyLines.addAll(index, lines);
-    }
-
-    public List<String> getJavaDocLines() {
-        return javaDocLines;
     }
 
     public void addJavaDocLine(String javaDocLine) {

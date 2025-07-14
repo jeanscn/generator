@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfiguration {
+public class VoViewGeneratorConfiguration extends AbstractTableListCommonConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
@@ -54,21 +54,21 @@ public class VOViewGeneratorConfiguration extends AbstractTableListCommonConfigu
         this.indexColumnFixed = "left";
     }
 
-    public VOViewGeneratorConfiguration(Context context) {
+    public VoViewGeneratorConfiguration(Context context) {
         super(context);
     }
 
-    public VOViewGeneratorConfiguration(Context context, TableConfiguration tc) {
+    public VoViewGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
         this.generate = false;
         targetPackage = String.join(".", baseTargetPackage, "vo");
-        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".", targetPackage, tc.getDomainObjectName() + "ViewVO"));
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".", targetPackage, tc.getDomainObjectName() + "ViewVo"));
         this.tableConfiguration = tc;
     }
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOViewGeneratorConfiguration");
+        super.validate(errors, contextId, "VoViewGeneratorConfiguration");
     }
 
     public void addQueryColumnConfigurations(QueryColumnConfiguration queryColumnConfiguration) {

@@ -81,7 +81,7 @@
         type: { type: String as PropType<'drawer' | 'dialog'>, default: 'dialog' },
         viewStatus: { type: Number as PropType<number>, default: 1 },
         moduleId: { type: String as PropType<string>, default: '${ moduleId }' },
-        applyWorkflow: { type: Number as PropType<number>, default: ${workflowEnabled } },
+        applyWorkflow: { type: Number as PropType<number>, default: <#if workflowEnabled>1<#else>0</#if> },
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },
         formData: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
         pageTitle: { type: String as PropType<string>, default: undefined },

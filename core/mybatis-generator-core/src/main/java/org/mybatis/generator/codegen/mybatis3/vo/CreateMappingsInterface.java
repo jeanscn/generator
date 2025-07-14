@@ -23,7 +23,7 @@ import static org.mybatis.generator.custom.ConstantsUtil.*;
  */
 public class CreateMappingsInterface extends AbstractJavaGenerator {
 
-    public static final String subPackageMaps = "maps";
+    public static final String SUB_PACKAGE_MAPS = "maps";
     public final String methodKey;
 
     public CreateMappingsInterface(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings,String methodKey) {
@@ -37,8 +37,8 @@ public class CreateMappingsInterface extends AbstractJavaGenerator {
 
     public Interface generate() {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+AbstractVOGenerator.subPackagePojo;
-        Interface mappingsInterface = new Interface(String.join(".", baseTargetPackage, subPackageMaps, entityType.getShortName() + JavaBeansUtil.getFirstCharacterUppercase(methodKey)+"Mappings"));
+        String baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVoGenerator.SUB_PACKAGE_POJO;
+        Interface mappingsInterface = new Interface(String.join(".", baseTargetPackage, SUB_PACKAGE_MAPS, entityType.getShortName() + JavaBeansUtil.getFirstCharacterUppercase(methodKey)+"Mappings"));
         mappingsInterface.setVisibility(PUBLIC);
         context.getCommentGenerator().addJavaFileComment(mappingsInterface);
         mappingsInterface.addImportedType(entityType);

@@ -1,6 +1,6 @@
 <!--
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.21
+* @version: list template version 1.0.24
 -->
 <#-- language=Vue3 -->
 <template>
@@ -25,7 +25,7 @@
                                     type="primary"
                                     class="table-cell-link"
                                     @click="openSelectedHrefModal(column, scope.row)"
-                                    :underline="false"
+                                    underline="never"
                             >
 								<span class="table-cell-link-text">
 									<PrivateTableColumnSlots v-memo="[scope.row[column.prop], column.prop]"
@@ -39,7 +39,7 @@
 						</span>
                     </template>
                 </vgo-table>
-                <LoadModals v-if="loadModalsProps.dataLoaded"
+                <LoadModals v-if="loadModalsProps.dataLoaded && loadModalsProps.key === '${ componentName }-list'"
                             v-model="loadModalsProps.modelValue"
                             :type="loadModalsProps.type"
                             :viewStatus="loadModalsProps.viewStatus"
@@ -192,7 +192,7 @@
                 },
             },
         } as TVgoTreeProps,
-        treePanelWidth: '400px',
+        treePanelWidth: '30%',
     });
     const viewStatus = ref<number>(1);
     const applyWorkflow = ref<number>(0);

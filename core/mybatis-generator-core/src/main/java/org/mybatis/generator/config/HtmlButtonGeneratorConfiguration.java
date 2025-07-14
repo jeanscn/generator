@@ -2,9 +2,12 @@ package org.mybatis.generator.config;
 
 import lombok.*;
 
+import java.util.Objects;
+
 /**
  * button生成配置类
  *
+ * @author cen_c
  */
 @Getter
 @Setter
@@ -30,10 +33,25 @@ public class HtmlButtonGeneratorConfiguration extends TypedPropertyHolder{
     private String disabledCondition = "false";
     private boolean configurable = false;
     private String localeKey;
-    private String componentType = "button"; // 组件类型
+    /**
+     * 组件类型
+     */
+    private String componentType = "button";
 
     public HtmlButtonGeneratorConfiguration(String id) {
        super();
        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) { return false; }
+        HtmlButtonGeneratorConfiguration that = (HtmlButtonGeneratorConfiguration) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

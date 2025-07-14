@@ -22,14 +22,14 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         method.setVisibility(JavaVisibility.PUBLIC);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);
         FullyQualifiedJavaType retType = FullyQualifiedJavaType.getNewListInstance();
-        retType.addTypeArgument(new FullyQualifiedJavaType("com.vgosoft.system.pojo.vo.SysPerFilterOutBinVO"));
+        retType.addTypeArgument(new FullyQualifiedJavaType("com.vgosoft.system.pojo.vo.SysPerFilterOutBinVo"));
         response.addTypeArgument(retType);
         method.setReturnType(response);
-        method.setReturnRemark("创建的隐藏数据列表VO的响应对象");
+        method.setReturnRemark("创建的隐藏数据列表Vo的响应对象");
         method.addAnnotation(new RequestMappingDesc("hide", RequestMethodEnum.POST),parentElement);
         method.addAnnotation(new ApiOperationDesc("批量隐藏", "批量设置列表中选择的数据为隐藏"),parentElement);
 
-        // 判断是否有VO对象
+        // 判断是否有Vo对象
         String entityVar = entityType.getShortNameFirstLowCase();
         String entityVoVar = entityVoType.getShortNameFirstLowCase();
         boolean generateVoModel = introspectedTable.getRules().isGenerateVoModel();
@@ -47,7 +47,7 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         method.addBodyLine("sysPerFilterOutBins.forEach(sysPerFilterOutBin -> sysPerFilterOutBin.setOperateUserId(sysPerFilterOutBin.getOperateUserId()));");
         method.addBodyLine("ServiceResult<List<SysPerFilterOutBin>> listServiceResult = sysPerFilterOutBinImpl.insertBatch(sysPerFilterOutBins);");
         method.addBodyLine("if (listServiceResult.hasResult()) {");
-        method.addBodyLine("return success({0}.toSysPerFilterOutBinVOs(sysPerFilterOutBins));",binMappingsType.getShortNameFirstLowCase()+"Impl");
+        method.addBodyLine("return success({0}.toSysPerFilterOutBinVos(sysPerFilterOutBins));",binMappingsType.getShortNameFirstLowCase()+"Impl");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_CUSTOM,listServiceResult.getMessage());");
         method.addBodyLine("}");
@@ -55,7 +55,7 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
 
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addImportedType(entityType);
-        parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.pojo.vo.SysPerFilterOutBinVO"));
+        parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.pojo.vo.SysPerFilterOutBinVo"));
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.entity.SysPerFilterOutBin"));
         parentElement.addImportedType(entityVoType);
         parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.system.pojo.maps.SysPerFilterOutBinMappings"));

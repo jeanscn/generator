@@ -122,7 +122,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         });
 
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0} = mappings.to{1}VO(serviceResult.getResult());", entityVar, entityType.getShortName());
+            method.addBodyLine("{0} = mappings.to{1}Vo(serviceResult.getResult());", entityVar, entityType.getShortName());
         } else {
             method.addBodyLine("{0} = serviceResult.getResult();", entityVar);
         }

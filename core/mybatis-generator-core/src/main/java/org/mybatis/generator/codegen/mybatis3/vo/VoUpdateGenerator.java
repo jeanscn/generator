@@ -5,32 +5,32 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.VOUpdateGeneratorConfiguration;
+import org.mybatis.generator.config.VoUpdateGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import java.util.*;
 
 /**
- * updateVO生成器
+ * updateVo生成器
  *
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-03-29 15:57
  * @version 3.0
  */
-public class VOUpdateGenerator extends AbstractVOGenerator{
+public class VoUpdateGenerator extends AbstractVoGenerator {
 
-    public VOUpdateGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public VoUpdateGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
     }
 
     @Override
     public TopLevelClass generate() {
-        VOUpdateGeneratorConfiguration voUpdateGeneratorConfiguration = voGeneratorConfiguration.getVoUpdateConfiguration();
+        VoUpdateGeneratorConfiguration voUpdateGeneratorConfiguration = voGeneratorConfiguration.getVoUpdateConfiguration();
         String updateVoType = voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
-        TopLevelClass updateVoClass = createTopLevelClass(updateVoType, getAbstractVOType().getFullyQualifiedName());
+        TopLevelClass updateVoClass = createTopLevelClass(updateVoType, getAbstractVoType().getFullyQualifiedName());
         voGenService.addConfigurationSuperInterface(updateVoClass, voUpdateGeneratorConfiguration);
         updateVoClass.addMultipleImports("lombok");
         addApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
-        updateVoClass.addImportedType(getAbstractVOType().getFullyQualifiedName());
+        updateVoClass.addImportedType(getAbstractVoType().getFullyQualifiedName());
         updateVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         //添加id属性
@@ -38,7 +38,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(fields, voUpdateGeneratorConfiguration.getIncludeColumns(), voUpdateGeneratorConfiguration.getExcludeColumns());
 
         for (IntrospectedColumn voColumn : introspectedColumns) {
-            if (!(isAbstractVOColumn(voColumn) || voUpdateGeneratorConfiguration.getExcludeColumns().contains(voColumn.getActualColumnName()))) {
+            if (!(isAbstractVoColumn(voColumn) || voUpdateGeneratorConfiguration.getExcludeColumns().contains(voColumn.getActualColumnName()))) {
                 Field field = new Field(voColumn.getJavaProperty(), voColumn.getFullyQualifiedJavaType());
                 field.setVisibility(JavaVisibility.PRIVATE);
                 field.setRemark(voColumn.getRemarks(true));
@@ -48,7 +48,7 @@ public class VOUpdateGenerator extends AbstractVOGenerator{
                 }
             }
         }
-        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
+        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVoColumns()) {
             if (!(introspectedColumn.isNullable() || introspectedTable.getTableConfiguration().getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
                 this.getOverrideGetter(introspectedColumn).ifPresent(javaBeansGetter -> {
                     if (plugins.voUpdateGetterMethodGenerated(javaBeansGetter, updateVoClass, introspectedColumn, introspectedTable)) {

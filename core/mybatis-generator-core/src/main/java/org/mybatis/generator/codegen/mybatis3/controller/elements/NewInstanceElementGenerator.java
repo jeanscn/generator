@@ -35,7 +35,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
 
         FullyQualifiedJavaType type;
         FullyQualifiedJavaType returnType;
-        if (introspectedTable.getRules().isGenerateCreateVO()) {
+        if (introspectedTable.getRules().isGenerateCreateVo()) {
             parentElement.addImportedType(entityCreateVoType);
             type = entityCreateVoType;
             returnType = new FullyQualifiedJavaType("ResponseResult<" + entityVoType.getShortName() + ">");
@@ -61,7 +61,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         method.addAnnotation(requestMappingDesc, parentElement);
         method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "实例化一个空对象，供前端使用.允许提供一些初始化值");
-        if (introspectedTable.getRules().isGenerateCreateVO() && introspectedTable.getRules().isGenerateVoModel()) {
+        if (introspectedTable.getRules().isGenerateCreateVo() && introspectedTable.getRules().isGenerateVoModel()) {
             addIocInitialDefaultValue(introspectedTable, method, type);
             method.addBodyLine("{0} {1} = mappings.from{2}({3});", entityType.getShortName(), entityType.getShortNameFirstLowCase(), type.getShortName(), type.getShortNameFirstLowCase());
             if (createdEvent) {

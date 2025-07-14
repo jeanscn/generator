@@ -8,7 +8,7 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
-import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
@@ -31,7 +31,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
         parentElement.addImportedType(entityCachePoType);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
         parentElement.addImportedType(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType());
-        VOCacheGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
+        VoCacheGeneratorConfiguration configuration = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
         final String methodPrefix = "getDict";
         Method method = createMethod(methodPrefix);
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,

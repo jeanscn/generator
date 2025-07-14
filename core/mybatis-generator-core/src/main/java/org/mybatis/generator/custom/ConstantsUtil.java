@@ -60,7 +60,7 @@ public class ConstantsUtil {
     public static final String MODEL_AND_VIEW = "org.springframework.web.servlet.ModelAndView";
     public static final String VIEW_DT_TABLE = "com.vgosoft.web.entity.ViewDtTable";
 
-    public static final String VIEW_DT_TABLE_VO = "com.vgosoft.web.pojo.vo.ViewDtTableVO";
+    public static final String VIEW_DT_TABLE_VO = "com.vgosoft.web.pojo.vo.ViewDtTableVo";
     public static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
     public static final String SPRING_CONTEXT_HOLDER = "com.vgosoft.tool.core.SpringContextHolder";
 

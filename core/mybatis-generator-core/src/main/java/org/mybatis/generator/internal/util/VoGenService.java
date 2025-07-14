@@ -8,7 +8,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator;
+import org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.CreateMappingsInterface;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 public class VoGenService {
 
     private final IntrospectedTable introspectedTable;
-    private final VOGeneratorConfiguration voGeneratorConfiguration;
+    private final VoGeneratorConfiguration voGeneratorConfiguration;
 
-    private List<IntrospectedColumn> abstractVOColumns = new ArrayList<>();
-    private List<String> abstractVOColumnNames = new ArrayList<>();
+    private List<IntrospectedColumn> abstractVoColumns = new ArrayList<>();
+    private List<String> abstractVoColumnNames = new ArrayList<>();
 
     public VoGenService(IntrospectedTable introspectedTable) {
         this.introspectedTable = introspectedTable;
@@ -37,32 +37,30 @@ public class VoGenService {
     }
 
     /**
-     * 获取vo类的内省列对象列表，返回不包含abstractVO中的列、VO全局排除的列和指定排除的列名列表
+     * 获取vo类的内省列对象列表，返回不包含abstractVo中的列、Vo全局排除的列和指定排除的列名列表
      *
-     * @param abstractVOColumnNames abstractVO对象的数据库列名列表
+     * @param abstractVoColumnNames abstractVo对象的数据库列名列表
      * @param includeColumns        要包含的数据库列名列表
      * @param excludeColumns        要排除的数据库列名列表
      * @return 内省列对象列表
      */
-    public List<IntrospectedColumn> getVOColumns(List<String> abstractVOColumnNames, List<String> includeColumns, Set<String> excludeColumns) {
+    public List<IntrospectedColumn> getVoColumns(List<String> abstractVoColumnNames, List<String> includeColumns, Set<String> excludeColumns) {
         List<IntrospectedColumn> ret = new ArrayList<>();
 
-        //在给定的排除列列表中附加全局VO标签的排除列
+        //在给定的排除列列表中附加全局Vo标签的排除列
         excludeColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getExcludeColumns());
-        //将排除列追加到abstractVO列表中，整体排除
-        abstractVOColumnNames.addAll(excludeColumns);
+        //将排除列追加到abstractVo列表中，整体排除
+        abstractVoColumnNames.addAll(excludeColumns);
         if (includeColumns != null && !includeColumns.isEmpty()) {
             for (String includeColumn : includeColumns) {
-                if (!abstractVOColumnNames.contains(includeColumn)) {
+                if (!abstractVoColumnNames.contains(includeColumn)) {
                     Optional<IntrospectedColumn> column = introspectedTable.getColumn(includeColumn);
                     column.ifPresent(ret::add);
                 }
             }
-//            List<String> includes = CollectionUtil.subtractToList(includeColumns, abstractVOColumnNames);
-//            return getIntrospectedColumns(includes, false);
             return ret;
         } else {
-            return getIntrospectedColumns(abstractVOColumnNames, true);
+            return getIntrospectedColumns(abstractVoColumnNames, true);
         }
     }
 
@@ -72,10 +70,12 @@ public class VoGenService {
      * @param fields         额外的需要增加的属性名
      * @param includeColumns 要包含的
      * @param excludeColumns 要排除的
-     * @return 所有列-VO抽象父类的列-当前vo配置排除+vo全局排除的
+     * @return 所有列-Vo抽象父类的列-当前vo配置排除+vo全局排除的
      */
     public List<IntrospectedColumn> getAllVoColumns(List<String> fields, List<String> includeColumns, Set<String> excludeColumns) {
-        List<IntrospectedColumn> voColumns = getVOColumns(this.getAbstractVOColumnNames(), includeColumns, excludeColumns); //排除abstractVO、指定排除、VO全局排除的列名
+
+        //排除abstractVo、指定排除、Vo全局排除的列名
+        List<IntrospectedColumn> voColumns = getVoColumns(this.getAbstractVoColumnNames(), includeColumns, excludeColumns);
         if (fields == null || fields.isEmpty()) {
             return voColumns;
         } else {
@@ -100,26 +100,26 @@ public class VoGenService {
         return exclude;
     }
 
-    public List<String> getAbstractVOColumnNames() {
-        if (this.abstractVOColumnNames.isEmpty()) {
-            this.abstractVOColumnNames = this.getAbstractVOColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toList());
+    public List<String> getAbstractVoColumnNames() {
+        if (this.abstractVoColumnNames.isEmpty()) {
+            this.abstractVoColumnNames = this.getAbstractVoColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.toList());
         }
-        return this.abstractVOColumnNames;
+        return this.abstractVoColumnNames;
     }
 
-    public List<IntrospectedColumn> getAbstractVOColumns() {
-        if (abstractVOColumns.isEmpty()) {
-            this.abstractVOColumns = getAbsVOColumns();
+    public List<IntrospectedColumn> getAbstractVoColumns() {
+        if (abstractVoColumns.isEmpty()) {
+            this.abstractVoColumns = getAbsVoColumns();
         }
-        return abstractVOColumns;
+        return abstractVoColumns;
     }
 
-    private List<IntrospectedColumn> getAbsVOColumns() {
+    private List<IntrospectedColumn> getAbsVoColumns() {
         BaseRules rules = introspectedTable.getRules();
         List<String> include = new ArrayList<>();
         List<String> exclude = new ArrayList<>();
         if (rules.isGenerateVoModel()) {
-            VOModelGeneratorConfiguration cfg = voGeneratorConfiguration.getVoModelConfiguration();
+            VoModelGeneratorConfiguration cfg = voGeneratorConfiguration.getVoModelConfiguration();
             if (!cfg.getIncludeColumns().isEmpty()) {
                 include.addAll(cfg.getIncludeColumns());
             }
@@ -127,8 +127,8 @@ public class VoGenService {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
-        if (rules.isGenerateViewVO()) {
-            VOViewGeneratorConfiguration cfg = voGeneratorConfiguration.getVoViewConfiguration();
+        if (rules.isGenerateViewVo()) {
+            VoViewGeneratorConfiguration cfg = voGeneratorConfiguration.getVoViewConfiguration();
             if (!cfg.getIncludeColumns().isEmpty()) {
                 include.retainAll(cfg.getIncludeColumns());
             }
@@ -136,15 +136,15 @@ public class VoGenService {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
-        if (rules.isGenerateRequestVO()) {
-            VORequestGeneratorConfiguration cfg = voGeneratorConfiguration.getVoRequestConfiguration();
+        if (rules.isGenerateRequestVo()) {
+            VoRequestGeneratorConfiguration cfg = voGeneratorConfiguration.getVoRequestConfiguration();
             if (!cfg.getExcludeColumns().isEmpty()) {
                 exclude.addAll(cfg.getExcludeColumns());
             }
         }
 
-        if (rules.isGenerateCreateVO()) {
-            VOCreateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoCreateConfiguration();
+        if (rules.isGenerateCreateVo()) {
+            VoCreateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoCreateConfiguration();
             if (!cfg.getIncludeColumns().isEmpty()) {
                 include.addAll(cfg.getIncludeColumns());
             }
@@ -153,8 +153,8 @@ public class VoGenService {
             }
         }
 
-        if (rules.isGenerateUpdateVO()) {
-            VOUpdateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoUpdateConfiguration();
+        if (rules.isGenerateUpdateVo()) {
+            VoUpdateGeneratorConfiguration cfg = voGeneratorConfiguration.getVoUpdateConfiguration();
             if (!cfg.getIncludeColumns().isEmpty()) {
                 include.addAll(cfg.getIncludeColumns());
             }
@@ -234,9 +234,7 @@ public class VoGenService {
                 field.setInitializationString(overrideConfiguration.getInitializationString().get());
                 overrideConfiguration.getImportTypes().forEach(topLevelClass::addImportedType);
             }
-            if (overrideConfiguration.getAnnotationType() == null) {
-                //do nothing
-            } else {
+            if (overrideConfiguration.getAnnotationType() != null) {
                 switch (overrideConfiguration.getAnnotationType()) {
                     case "DictUser":
                         DictUserDesc dictUserDesc = new DictUserDesc();
@@ -348,8 +346,8 @@ public class VoGenService {
 
     public FullyQualifiedJavaType getMappingType(IntrospectedTable introspectedTable) {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String baseTargetPackage = StringUtility.substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVOGenerator.subPackagePojo;
-        String type = String.join(".", baseTargetPackage, CreateMappingsInterface.subPackageMaps, entityType.getShortName() + "Mappings");
+        String baseTargetPackage = StringUtility.substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVoGenerator.SUB_PACKAGE_POJO;
+        String type = String.join(".", baseTargetPackage, CreateMappingsInterface.SUB_PACKAGE_MAPS, entityType.getShortName() + "Mappings");
         return new FullyQualifiedJavaType(type);
     }
 }

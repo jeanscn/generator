@@ -16,6 +16,8 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Arrays;
 
+import static org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum.*;
+
 /**
  * This class centralizes all the rules related to code generation - including
  * the methods and objects to create, and certain attributes related to those
@@ -580,14 +582,38 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateAnyVO() {
-        return isGenerateCreateVO() || isGenerateUpdateVO()
-                || isGenerateVoModel() || isGenerateExcelVO()
-                || isGenerateRequestVO() || isGenerateViewVO();
+    public boolean isGenerateEditHtml() {
+        if (isModelOnly) {
+            return false;
+        }
+        return tc.getHtmlMapGeneratorConfigurations().stream().anyMatch(html->html.isGenerate() && html.getType().equals(EDITABLE));
     }
 
     @Override
-    public boolean isGenerateVO() {
+    public boolean isGeneratePrintHtml() {
+        if (isModelOnly) {
+            return false;
+        }
+        return tc.getHtmlMapGeneratorConfigurations().stream().anyMatch(html->html.isGenerate() && html.getType().equals(PRINT));
+    }
+
+    @Override
+    public boolean isGenerateViewOnlyHtml() {
+        if (isModelOnly) {
+            return false;
+        }
+        return tc.getHtmlMapGeneratorConfigurations().stream().anyMatch(html->html.isGenerate() && html.getType().equals(VIEWONLY));
+    }
+
+    @Override
+    public boolean isGenerateAnyVo() {
+        return isGenerateCreateVo() || isGenerateUpdateVo()
+                || isGenerateVoModel() || isGenerateExcelVo()
+                || isGenerateRequestVo() || isGenerateViewVo();
+    }
+
+    @Override
+    public boolean isGenerateVo() {
         return tc.getVoGeneratorConfiguration() != null && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getTableType().equals(TableTypeEnum.DATA_TABLE.code());
     }
@@ -601,7 +627,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateCreateVO() {
+    public boolean isGenerateCreateVo() {
         return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoCreateConfiguration() != null
@@ -609,7 +635,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateUpdateVO() {
+    public boolean isGenerateUpdateVo() {
         return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoUpdateConfiguration() != null
@@ -617,7 +643,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateExcelVO() {
+    public boolean isGenerateExcelVo() {
         return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoExcelConfiguration() != null
@@ -625,7 +651,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateRequestVO() {
+    public boolean isGenerateRequestVo() {
         return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoRequestConfiguration() != null
@@ -633,7 +659,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateViewVO() {
+    public boolean isGenerateViewVo() {
         return tc.getVoGeneratorConfiguration() != null
                 && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoViewConfiguration() != null
@@ -642,13 +668,13 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isGenerateRecycleBin() {
-        return isGenerateViewVO()
+        return isGenerateViewVo()
                 && tc.getVoGeneratorConfiguration().getVoViewConfiguration().getToolbar().contains(ViewDefaultToolBarsEnum.RECYCLE.code());
     }
 
     @Override
     public boolean isGenerateHideListBin() {
-        return isGenerateViewVO()
+        return isGenerateViewVo()
                 && tc.getVoGeneratorConfiguration().getVoViewConfiguration().getToolbar().contains(ViewDefaultToolBarsEnum.HIDE.code());
     }
 
@@ -667,7 +693,7 @@ public abstract class BaseRules implements Rules {
 
     @Override
     public boolean isGenerateInnerTable() {
-        return isGenerateViewVO() && !tc.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty();
+        return isGenerateViewVo() && !tc.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty();
     }
 
     @Override
@@ -681,8 +707,8 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateCachePO() {
-        VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
+    public boolean isGenerateCachePo() {
+        VoCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
         return voCacheGeneratorConfiguration != null && voCacheGeneratorConfiguration.isGenerate();
     }
 
@@ -695,8 +721,8 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean isGenerateCachePOWithMultiKey() {
-        VOCacheGeneratorConfiguration config = tc.getVoCacheGeneratorConfiguration();
+    public boolean isGenerateCachePoWithMultiKey() {
+        VoCacheGeneratorConfiguration config = tc.getVoCacheGeneratorConfiguration();
         return config != null && config.isGenerate() && (config.getTypeColumn() != null || config.getKeyColumn() != null);
     }
 

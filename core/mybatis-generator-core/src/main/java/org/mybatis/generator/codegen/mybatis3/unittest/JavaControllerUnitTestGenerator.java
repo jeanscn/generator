@@ -66,7 +66,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         addField(WEB_APPLICATION_CONTEXT,
                 "org.springframework.web.context.WebApplicationContext",
                 "@Autowired", testClazz);
-        if (introspectedTable.getRules().isGenerateVO()) {
+        if (introspectedTable.getRules().isGenerateVo()) {
             String voTargetPackage = tc.getJavaModelGeneratorConfiguration().getBaseTargetPackage()+".pojo";
             FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
             addField("mappings",

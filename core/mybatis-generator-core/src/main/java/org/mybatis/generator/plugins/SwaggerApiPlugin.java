@@ -91,7 +91,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     /**
-     * ViewVO属性注解@ApiModelProperty
+     * ViewVo属性注解@ApiModelProperty
      */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {

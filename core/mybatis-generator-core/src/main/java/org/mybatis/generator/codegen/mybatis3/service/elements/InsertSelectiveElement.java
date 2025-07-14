@@ -35,8 +35,8 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
 
         Method insertSelectiveMethod = serviceMethods.getInsertMethod(parentElement, false, true,true);
 
-        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
+            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             insertSelectiveMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
 

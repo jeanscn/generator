@@ -35,7 +35,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
         Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByPrimaryKeySelective,"READ_COMMITTED");
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             updateByPrimaryKeySelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
@@ -65,7 +65,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false, true);
         updateByPrimaryKey.addAnnotation("@Override");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             cacheAnnotationDesc.setKey("#record.id");
             updateByPrimaryKey.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }

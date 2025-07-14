@@ -39,10 +39,10 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
 
         commentGenerator.addMethodJavaDocLine(method, "查看表默认视图配置");
 
-        method.addBodyLine("Optional<ViewDtTableVO> result = DataTablesUtil");
+        method.addBodyLine("Optional<ViewDtTableVo> result = DataTablesUtil");
         method.addBodyLine("        .getSingleViewDtTableByAnnotation(DataTablesUtil.getDefaultViewId(\"{0}\"), true);"
                 ,introspectedTable.getControllerBeanName());
-        method.addBodyLine("return result.map(viewDtTableVO -> success(DataTablesMappings.INSTANCE.fromViewDtTableVO(viewDtTableVO)))\n" +
+        method.addBodyLine("return result.map(viewDtTableVo -> success(DataTablesMappings.INSTANCE.fromViewDtTableVo(viewDtTableVo)))\n" +
                 "                .orElseGet(() -> failure(ApiCodeEnum.FAIL_NOT_FOUND,\"默认列表配置\"));");
         parentElement.addMethod(method);
         parentElement.addImportedType("java.util.Optional");

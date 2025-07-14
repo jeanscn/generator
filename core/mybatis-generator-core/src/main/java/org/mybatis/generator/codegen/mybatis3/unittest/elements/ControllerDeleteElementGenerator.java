@@ -29,7 +29,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         String methodName = "delete" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "删除一条记录-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.deleteByPrimaryKey(id)方法有返回值");
+        addMethodComment(method, "被调用的service.deleteByPrimaryKey(id)方法有返回值");
         method.addBodyLine("int exceptResult = 2;\n" +
                         "        when({0}.deleteByPrimaryKey(id)).thenReturn(ServiceResult.success(exceptResult));\n" +
                         "        mockMvc.perform({1}\n" +
@@ -45,7 +45,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         methodName = "deleteBatch" + entityType.getShortName();
         method = createMethod(methodName, parentElement, "批量删除数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.deleteByExample()方法有返回值");
+        addMethodComment(method, "被调用的service.deleteByExample()方法有返回值");
         if (context.getJdkVersion()>8) {
             method.addBodyLine("String ids = JSONObject.toJSONString(List.of(id));");
         }else{

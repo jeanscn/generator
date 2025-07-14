@@ -6,7 +6,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -36,7 +36,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         parentElement.addImportedType(new FullyQualifiedJavaType(SERVICE_CODE_ENUM));
         parentElement.addImportedType(FullyQualifiedJavaType.getOptionalFullyQualifiedJavaType());
 
-        VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
+        VoCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
 
         String cacheMappingsFullName = voCacheGeneratorConfiguration.getBaseTargetPackage() + ".maps." + entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY + "Mappings";
         FullyQualifiedJavaType typeCacheMappingType = new FullyQualifiedJavaType(cacheMappingsFullName);
@@ -70,7 +70,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
                 , entityType.getShortName()
                 , introspectedTable.getSelectByKeysDictStatementId());
         selectByKeysDictMethod.addBodyLine("if (!result.isEmpty()) {");
-        selectByKeysDictMethod.addBodyLine("return ServiceResult.success({0}.to{1}CachePOs(result));"
+        selectByKeysDictMethod.addBodyLine("return ServiceResult.success({0}.to{1}CachePos(result));"
                 ,typeCacheMappingType.getShortNameFirstLowCase()+"Impl", entityType.getShortName());
         selectByKeysDictMethod.addBodyLine("}else{");
         selectByKeysDictMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"未查询到数据\");");

@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
-import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerator {
@@ -27,7 +27,7 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
                 introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         answer.addElement(new TextElement(sb));
 
-        VOCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
+        VoCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
         XmlElement where = new XmlElement("where");
         answer.addElement(where);
         XmlElement trim = createBracketTrim();

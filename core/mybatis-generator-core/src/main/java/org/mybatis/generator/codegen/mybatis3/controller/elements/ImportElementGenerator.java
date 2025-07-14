@@ -60,9 +60,9 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("DefaultReadListener<{0}> readListener = getImportReadListener(param);",entityExcelImportVoType.getShortName());
         method.addBodyLine("try (InputStream inputStream = file.getInputStream()) {");
         method.addBodyLine("saveMultipartFileToLocal(\"upload\",file);");
-        method.addBodyLine("List<{0}> excelVOS = VgoEasyExcel.read(inputStream, {0}.class, readListener);",entityExcelImportVoType.getShortName());
+        method.addBodyLine("List<{0}> excelVos = VgoEasyExcel.read(inputStream, {0}.class, readListener);",entityExcelImportVoType.getShortName());
         method.addBodyLine("if (!readListener.isSaved()) {");
-        method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVOS);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());
+        method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVos);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());
         method.addBodyLine("for ({0} {1} : {1}s) '{'",entityType.getShortName(),entityType.getShortNameFirstLowCase());
         method.addBodyLine("ServiceResult<{0}> insert = {1}Impl.insertOrUpdate({1});",entityType.getShortName(),entityType.getShortNameFirstLowCase());
         method.addBodyLine("if (insert.isSuccess()) {");

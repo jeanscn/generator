@@ -303,7 +303,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         Field field = new Field(ignorePermissionAnnotation, BooleanPrimitiveInstance);
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setRemark(remark);
-        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVO()) {
+        if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVo()) {
             field.addAnnotation("@TableField(exist = false)");
         }
         return field;
@@ -350,5 +350,14 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 introspectedTable.getVoModelFields().add(fieldItem);
             }
         }
+    }
+
+    protected void addFilterMap(TopLevelClass topLevelClass) {
+        Field filterMap = new Field("filterParam", new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
+        filterMap.setVisibility(JavaVisibility.PRIVATE);
+        filterMap.setRemark("前端过滤器及类似查询过滤条件");
+        new ApiModelPropertyDesc(filterMap.getRemark(), "filterParam = ‘{}’").addAnnotationToField(filterMap, topLevelClass);
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
+        topLevelClass.addField(filterMap);
     }
 }

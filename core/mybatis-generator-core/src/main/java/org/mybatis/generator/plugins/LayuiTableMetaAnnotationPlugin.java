@@ -24,7 +24,7 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.InnerListViewConfiguration;
 import org.mybatis.generator.config.ListColumnConfiguration;
 import org.mybatis.generator.config.QueryColumnConfiguration;
-import org.mybatis.generator.config.VOViewGeneratorConfiguration;
+import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CompositeQueryDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableColumnMetaDesc;
 import org.mybatis.generator.custom.annotations.LayuiTableMetaDesc;
@@ -48,7 +48,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         if (!introspectedTable.getRules().isGenerateInnerTable()) return true;
 
-        VOViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        VoViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         //增加InnerTableMetaAnnotation
         voViewGeneratorConfiguration.getInnerListViewConfigurations().forEach(listViewConfiguration -> {
             LayuiTableMetaDesc layuiTableMetaDesc = getLayuiTableMetaDesc(introspectedTable, listViewConfiguration, topLevelClass);
@@ -62,7 +62,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     /**
-     * VO抽象父类的ColumnMetaAnnotation
+     * Vo抽象父类的ColumnMetaAnnotation
      */
     @Override
     public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
@@ -72,7 +72,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     /**
-     * viewVO类的ViewMetaAnnotation
+     * viewVo类的ViewMetaAnnotation
      */
     @Override
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {

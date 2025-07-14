@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_PAGEHELPER_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 @Setter
 @Getter
 public abstract class AbstractControllerElementGenerator extends AbstractGenerator {
@@ -68,6 +71,10 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
 
     protected TableConfiguration tc;
 
+    /**
+     * 抽象方法：把方法添加到父类元素中
+     * @param parentElement 父类元素
+     */
     public abstract void addElements(TopLevelClass parentElement);
 
     public AbstractControllerElementGenerator() {
@@ -88,14 +95,14 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         responsePagehelperResult = new FullyQualifiedJavaType(RESPONSE_PAGEHELPER_RESULT);
         String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo";
         entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
-        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
-        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ViewVO"));
-        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
-        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "CreateVO"));
-        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "UpdateVO"));
-        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVO"));
-        entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelImportVO"));
-        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePO"));
+        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "Vo"));
+        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ViewVo"));
+        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVo"));
+        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "CreateVo"));
+        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "UpdateVo"));
+        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVo"));
+        entityExcelImportVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelImportVo"));
+        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePo"));
     }
 
     protected Method createMethod(String methodPrefix) {
@@ -136,7 +143,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
 
     protected Parameter buildMethodParameter(MethodParameterDescriptor descriptor) {
         if (descriptor.returnFqt == null) {
-            descriptor.returnFqt = getMethodParameterVOType(descriptor.methodType);
+            descriptor.returnFqt = getMethodParameterVoType(descriptor.methodType);
         }
         Parameter parameter;
         if (descriptor.isList) {
@@ -165,6 +172,8 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
                     parameter.addAnnotation("@Validated(value= ValidateInsert.class)");
                     descriptor.parentElement.addImportedType("com.vgosoft.core.valid.ValidateInsert");
                     break;
+                default:
+                    break;
             }
         }
         if (descriptor.isRequestBody) {
@@ -179,26 +188,28 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
      *
      * @param methodType 方法的类型，get、put（update）、post（create）、delete等
      */
-    protected FullyQualifiedJavaType getMethodParameterVOType(String methodType) {
+    protected FullyQualifiedJavaType getMethodParameterVoType(String methodType) {
         FullyQualifiedJavaType type = null;
         switch (methodType.toLowerCase()) {
             case "post":
             case "create":
-                if (introspectedTable.getRules().isGenerateCreateVO()) {
+                if (introspectedTable.getRules().isGenerateCreateVo()) {
                     type = entityCreateVoType;
                 }
                 break;
             case "put":
             case "update":
-                if (introspectedTable.getRules().isGenerateUpdateVO()) {
+                if (introspectedTable.getRules().isGenerateUpdateVo()) {
                     type = entityUpdateVoType;
                 }
                 break;
             case "get":
             case "list":
-                if (introspectedTable.getRules().isGenerateRequestVO()) {
+                if (introspectedTable.getRules().isGenerateRequestVo()) {
                     type = entityRequestVoType;
                 }
+                break;
+            default:
                 break;
         }
         if (type == null) {
@@ -213,39 +224,43 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
 
     protected void selectByExampleWithPagehelper(TopLevelClass parentElement, Method method) {
         //String listEntityVar = entityType.getShortNameFirstLowCase() + "s";
-        String requestVOVar = entityRequestVoType.getShortNameFirstLowCase();
-        method.addBodyLine("if (actionType != null) {0}.setActionType(actionType);", introspectedTable.getRules().isGenerateRequestVO() ? entityRequestVoType.getShortNameFirstLowCase() :
+        String requestVoVar = entityRequestVoType.getShortNameFirstLowCase();
+        method.addBodyLine("if (actionType != null) {0}.setActionType(actionType);", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
         method.addBodyLine("{0} example = buildExample({1});",
                 exampleType.getShortName(),
-                introspectedTable.getRules().isGenerateRequestVO() ? requestVOVar :
+                introspectedTable.getRules().isGenerateRequestVo() ? requestVoVar :
                         introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
+        addSelectByExampleWithPagehelper(parentElement, method, requestVoVar);
+    }
+
+    public void addSelectByExampleWithPagehelper(TopLevelClass parentElement, Method method, String requestVoVar) {
         method.addBodyLine("ServiceResult<List<{0}>> result;", entityType.getShortName());
-        if (introspectedTable.getRules().isGenerateRequestVO()
-                && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
+        if (introspectedTable.getRules().isGenerateRequestVo() && introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam()) {
             method.addBodyLine("Page<{0}> page = null;", entityType.getShortName());
-            method.addBodyLine("if ({0}.getPageNo() == 0 || {0}.getPageSize() == 0) '{'", requestVOVar);
+            method.addBodyLine("if ({0}.getPageNo() == 0 || {0}.getPageSize() == 0) '{'", requestVoVar);
             method.addBodyLine("PageHelper.clearPage();");
-            addSelectByExample(method, requestVOVar);
+            addSelectByExample(method, requestVoVar);
             method.addBodyLine("} else {");
-            method.addBodyLine("PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());", requestVOVar);
-            addSelectByExample(method, requestVOVar);
+            method.addBodyLine("PageHelper.startPage({0}.getPageNo(), {0}.getPageSize());", requestVoVar);
+            addSelectByExample(method, requestVoVar);
             method.addBodyLine("page = (Page<{0}>) result.getResult();", entityType.getShortName());
             method.addBodyLine("}");
+
             parentElement.addImportedType("com.github.pagehelper.Page");
             parentElement.addImportedType("com.github.pagehelper.PageHelper");
         } else {
-            addSelectByExample(method, requestVOVar);
+            addSelectByExample(method, requestVoVar);
         }
     }
 
-    public void addSelectByExample(Method method, String requestVOVar) {
-        if (introspectedTable.getRules().isGenerateRequestVO() && introspectedTable.getRules().generateRelationWithSubSelected()) {
-            method.addBodyLine("if ({0}.isCascadeResult()) '{'", requestVOVar);
+    public void addSelectByExample(Method method, String requestVoVar) {
+        if (introspectedTable.getRules().isGenerateRequestVo() && introspectedTable.getRules().generateRelationWithSubSelected()) {
+            method.addBodyLine("if ({0}.isCascadeResult()) '{'", requestVoVar);
             method.addBodyLine("result = ServiceResult.success({0}.selectByExampleWithRelation(example));", serviceBeanName);
             if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
-                method.addBodyLine("'}' else if ({0}.isCountChildren())'{'",requestVOVar);
-                method.addBodyLine("result = {0}.selectByExampleWithChildrenCount(example);",serviceBeanName);
+                method.addBodyLine("'}' else if ({0}.isCountChildren())'{'", requestVoVar);
+                method.addBodyLine("result = {0}.selectByExampleWithChildrenCount(example);", serviceBeanName);
             }
             method.addBodyLine("} else {");
             method.addBodyLine("result = {0}.selectByExample(example);", serviceBeanName);
@@ -280,7 +295,7 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
     }
 
     protected void addCacheEvictAnnotation(Method method, TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
@@ -289,13 +304,13 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
     }
 
     protected String getServiceMethodEntityParameter(boolean isMulti, String methodType) {
-        if ("create".equals(methodType) && introspectedTable.getRules().isGenerateCreateVO()) {
-            return VStringUtil.format("mappings.from{0}CreateVO{2}({1}CreateVO{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
+        if ("create".equals(methodType) && introspectedTable.getRules().isGenerateCreateVo()) {
+            return VStringUtil.format("mappings.from{0}CreateVo{2}({1}CreateVo{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
         }
-        if ("update".equals(methodType) && introspectedTable.getRules().isGenerateUpdateVO()) {
-            return VStringUtil.format("mappings.from{0}UpdateVO{2}({1}UpdateVO{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
+        if ("update".equals(methodType) && introspectedTable.getRules().isGenerateUpdateVo()) {
+            return VStringUtil.format("mappings.from{0}UpdateVo{2}({1}UpdateVo{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
         } else if (introspectedTable.getRules().isGenerateVoModel()) {
-            return VStringUtil.format("mappings.from{0}VO{2}({1}VO{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
+            return VStringUtil.format("mappings.from{0}Vo{2}({1}Vo{2})", entityType.getShortName(), entityType.getShortNameFirstLowCase(), isMulti ? "s" : "");
         } else {
             return entityType.getShortNameFirstLowCase() + (isMulti ? "s" : "");
         }
@@ -346,10 +361,6 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
 
         public void setValid(boolean valid) {
             isValid = valid;
-        }
-
-        public boolean isRequestBody() {
-            return isRequestBody;
         }
 
         public void setRequestBody(boolean requestBody) {

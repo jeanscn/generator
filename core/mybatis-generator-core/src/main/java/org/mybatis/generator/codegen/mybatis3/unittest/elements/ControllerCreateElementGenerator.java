@@ -26,7 +26,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType(SERVICE_CODE_ENUM);
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
         parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
-        if (isGenerateVOModel) {
+        if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }else{
@@ -38,7 +38,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         String methodName = "create" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "添加数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.insert()方法有返回值");
+        addMethodComment(method, "被调用的service.insert()方法有返回值");
 
         if (introspectedTable.getRules().generateInsertOrUpdate()) {
             method.addBodyLine("ServiceResult<{0}> serviceResult;",entityType.getShortName());
@@ -59,7 +59,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
                     entityType.getShortName(),
                     entityInstanceVar, mockServiceImpl);
         }
-        if (isGenerateVOModel) {
+        if (isGenerateVoModel) {
             method.addBodyLine("{0} {1} = mappings.to{0}({2});", entityVoType.getShortName(), entityVoInstanceVar, entityInstanceVar);
         }
         method.addBodyLine("mockMvc.perform({0}\n" +
@@ -67,15 +67,15 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
                 "                        .accept(MediaType.APPLICATION_JSON))", requestUri);
         method.addBodyLine(".andExpect(responseBody()\n" +
                         "                        .containsObjectAsJson({0}, {1}.class, ResponseResult.class));",
-                isGenerateVOModel ? entityVoInstanceVar : entityInstanceVar,
-                isGenerateVOModel ? entityVoType.getShortName() : entityType.getShortName());
+                isGenerateVoModel ? entityVoInstanceVar : entityInstanceVar,
+                isGenerateVoModel ? entityVoType.getShortName() : entityType.getShortName());
         parentElement.addMethod(method);
 
         //createXXX，服务返回失败的测试方法
         methodName = "create" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, parentElement, "添加数据-服务层返回失败结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.insert()方法返回失败");
+        addMethodComment(method, "被调用的service.insert()方法返回失败");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,\n" +
                         "                \"error message\");",
                 entityType.getShortName());

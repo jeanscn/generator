@@ -29,7 +29,7 @@ public class ControllerListElementGenerator extends AbstractUnitTestElementGener
         String methodName = "list" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "获取列表-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByExample()方法有返回值");
+        addMethodComment(method, "被调用的service.selectByExample()方法有返回值");
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
             method.addBodyLine("when({0}.selectByExampleWithRelation(any({1}.class)))\n" +
                             "                .thenReturn(Collections.emptyList());",

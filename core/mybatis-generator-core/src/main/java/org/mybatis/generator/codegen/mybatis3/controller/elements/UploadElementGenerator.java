@@ -36,7 +36,6 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         }
         parentElement.addImportedType(multipartFile);
         parentElement.addImportedType("org.springframework.util.Assert");
-        parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
 
         final String methodPrefix = "upload";
         Method method = createMethod(methodPrefix);
@@ -47,7 +46,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         multipartFileParameter.setRemark("文件上传对象");
         method.addParameter(multipartFileParameter);
         Parameter parameter;
-        if (introspectedTable.getRules().isGenerateCreateVO()) {
+        if (introspectedTable.getRules().isGenerateCreateVo()) {
             parameter = new Parameter(entityCreateVoType, entityCreateVoType.getShortNameFirstLowCase());
         } else if (introspectedTable.getRules().isGenerateVoModel()) {
             parameter = new Parameter(entityVoType, entityVoType.getShortNameFirstLowCase());
@@ -72,7 +71,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(new ApiOperationDesc("单个文件上传", "单个文件上传接口"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "单个文件上传");
         method.addBodyLine("if (file.isEmpty()) return ResponseResult.failure(ApiCodeEnum.FAIL_CUSTOM, \"上传文件为空\");");
-        if (introspectedTable.getRules().isGenerateVoModel() || introspectedTable.getRules().isGenerateCreateVO()) {
+        if (introspectedTable.getRules().isGenerateVoModel() || introspectedTable.getRules().isGenerateCreateVo()) {
             method.addBodyLine(format("{0} {1} = mappings.from{2}({3});", entityType.getShortName(),entityType.getShortNameFirstLowCase(),parameter.getType().getShortName(),parameter.getType().getShortNameFirstLowCase()));
         }
         if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent() && introspectedTable.hasBLOBColumns()) {
@@ -88,6 +87,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine(format("ServiceResult<{0}> serviceResult;", entityType.getShortName()));
             method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));
             method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKey({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));
+            parentElement.addImportedType("org.apache.commons.lang3.StringUtils");
         }
         method.addBodyLine("} else {");
         method.addBodyLine(format("serviceResult = {0}.insert({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));

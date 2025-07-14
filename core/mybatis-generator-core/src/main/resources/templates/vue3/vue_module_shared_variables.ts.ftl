@@ -18,4 +18,5 @@ export const loadModalsProps = reactive<TLoadModalProps>({
     tableRef: undefined,
     requestResult: null,
     loadModalProvideData: null,
+    key: '${ componentName }-list',
 });

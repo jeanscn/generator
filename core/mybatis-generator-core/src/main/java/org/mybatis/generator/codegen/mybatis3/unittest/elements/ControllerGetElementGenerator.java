@@ -24,7 +24,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
-        if (isGenerateVOModel) {
+        if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
         }else{
@@ -43,14 +43,14 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         String methodName = "get" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "获取记录-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法有返回值");
+        addMethodComment(method, "被调用的service.selectByPrimaryKey()方法有返回值");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.success({1});",
                 entityType.getShortName(),
                 entityInstanceVar);
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("{0} {1} = mappings.to{0}({2});",
-                    entityType.getShortName() + "VO",
-                    entityType.getShortNameFirstLowCase() + "VO",
+                    entityType.getShortName() + "Vo",
+                    entityType.getShortNameFirstLowCase() + "Vo",
                     entityType.getShortNameFirstLowCase());
         }else{
             method.addBodyLine("{0} {1} = serviceResult.getResult();"
@@ -69,7 +69,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         methodName = "get" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, parentElement, "获取记录-服务层返回失败结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
-        addMethodComment(method, true, "被调用的service.selectByPrimaryKey()方法返回失败");
+        addMethodComment(method, "被调用的service.selectByPrimaryKey()方法返回失败");
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,new Exception(\"err message\"));",
                 entityType.getShortName());
         method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",

@@ -15,9 +15,9 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
  * 2023-03-29 17:17
  * @version 3.0
  */
-public class VOAbstractGenerator extends AbstractVOGenerator {
+public class VoAbstractGenerator extends AbstractVoGenerator {
 
-    public VOAbstractGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public VoAbstractGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
@@ -27,8 +27,8 @@ public class VOAbstractGenerator extends AbstractVOGenerator {
          * 生成AbstractVo
          * */
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String abstractName = "Abstract" + entityType.getShortName() + "VO";
-        String abstractVoType = String.join(".", baseTargetPackage, subPackageAbs, abstractName);
+        String abstractName = "Abstract" + entityType.getShortName() + "Vo";
+        String abstractVoType = String.join(".", baseTargetPackage, SUB_PACKAGE_ABS, abstractName);
         TopLevelClass abstractVo = new TopLevelClass(abstractVoType);
         abstractVo.setAbstract(true);
         abstractVo.setVisibility(JavaVisibility.PUBLIC);
@@ -38,14 +38,14 @@ public class VOAbstractGenerator extends AbstractVOGenerator {
         commentGenerator.addModelClassComment(abstractVo, introspectedTable);
         abstractVo.addAnnotation("@Data");
         abstractVo.addAnnotation("@NoArgsConstructor");
-        if (!voGenService.getAbstractVOColumns().isEmpty()) {
+        if (!voGenService.getAbstractVoColumns().isEmpty()) {
             abstractVo.addAnnotation("@AllArgsConstructor");
         }
         abstractVo.addImportedType("lombok.*");
         abstractVo.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         //添加属性
-        List<IntrospectedColumn> abstractVOColumns = voGenService.getAbstractVOColumns();
-        for (IntrospectedColumn introspectedColumn : abstractVOColumns) {
+        List<IntrospectedColumn> abstractVoColumns = voGenService.getAbstractVoColumns();
+        for (IntrospectedColumn introspectedColumn : abstractVoColumns) {
             Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);
             field.setVisibility(JavaVisibility.PROTECTED);
             if (plugins.voAbstractFieldGenerated(field, abstractVo, introspectedColumn, introspectedTable)) {

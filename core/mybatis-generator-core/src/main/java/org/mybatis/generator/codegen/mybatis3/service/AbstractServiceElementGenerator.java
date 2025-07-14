@@ -69,13 +69,13 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
         serviceResult = new FullyQualifiedJavaType(SERVICE_RESULT);
         String voTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo";
         entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
-        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "VO"));
-        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ViewVO"));
-        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePO"));
-        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVO"));
-        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVO"));
-        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "CreateVO"));
-        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "UpdateVO"));
+        entityVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "Vo"));
+        entityViewVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ViewVo"));
+        entityCachePoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "po", entityType.getShortName() + "CachePo"));
+        entityExcelVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "ExcelVo"));
+        entityRequestVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "RequestVo"));
+        entityCreateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "CreateVo"));
+        entityUpdateVoType = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "vo", entityType.getShortName() + "UpdateVo"));
         serviceMethods = new ServiceMethods(context, introspectedTable);
     }
 

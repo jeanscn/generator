@@ -4,17 +4,17 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.vo.*;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.enums.ScalableElementEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mybatis.generator.codegen.mybatis3.vo.CreateMappingsInterface.subPackageMaps;
+import static org.mybatis.generator.codegen.mybatis3.vo.CreateMappingsInterface.SUB_PACKAGE_MAPS;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
- * 生成VO抽象父类
+ * 生成Vo抽象父类
  *
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2022-07-05 03:29
@@ -36,7 +36,7 @@ public class CachePoClassGenerator extends AbstractJavaGenerator {
         List<CompilationUnit> answer = new ArrayList<>();
         progressCallback.startTask(getString("Progress.79", introspectedTable.getFullyQualifiedTable().toString()));
         tc = introspectedTable.getTableConfiguration();
-        VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
+        VoCacheGeneratorConfiguration voCacheGeneratorConfiguration = tc.getVoCacheGeneratorConfiguration();
         if (voCacheGeneratorConfiguration == null || !voCacheGeneratorConfiguration.isGenerate()) {
             return answer;
         }
@@ -51,7 +51,7 @@ public class CachePoClassGenerator extends AbstractJavaGenerator {
         /*
          *  生成cachePo类
          *  */
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             String targetProject = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().getTargetProject();
             TopLevelClass cachePoClass = new POCacheGenerator(introspectedTable, targetProject, progressCallback, warnings,mappingsInterface).generate();
             if (context.getPlugins().voModelCacheClassGenerated(cachePoClass, introspectedTable)) {
@@ -63,7 +63,7 @@ public class CachePoClassGenerator extends AbstractJavaGenerator {
         //生成mapstruct接口
         if (generated) {
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.maps.name())
-                    || VOGeneratorUtil.fileNotExist(subPackageMaps, mappingsInterface.getType().getShortName(),getProject(),context)) {
+                    || VoGeneratorUtil.fileNotExist(SUB_PACKAGE_MAPS, mappingsInterface.getType().getShortName(),getProject(),context)) {
                 answer.add(mappingsInterface);
             }
         }

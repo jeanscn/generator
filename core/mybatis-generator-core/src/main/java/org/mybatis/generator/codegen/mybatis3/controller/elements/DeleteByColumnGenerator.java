@@ -47,7 +47,7 @@ public class DeleteByColumnGenerator extends AbstractControllerElementGenerator 
             parameter.addAnnotation("@RequestBody");
             parameter.setRemark("id列表 Map<columnProperty , List<String>>");
             method.addParameter(parameter);
-            method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getMethodName()), RequestMethodEnum.POST),parentElement);
+            method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getDeleteMethodName()), RequestMethodEnum.POST),parentElement);
             method.addAnnotation(new ApiOperationDesc("根据指定列（多值）获取匹配的记录集合", "根据指定列（多值）获取匹配的记录集合接口"),parentElement);
             commentGenerator.addMethodJavaDocLine(method, "根据指定字段的集合获取匹配的记录结合");
             config.getColumns().forEach(column -> {

@@ -34,7 +34,7 @@ public interface CommentGenerator {
      * This method should add a Javadoc comment to the specified field. The field is related to the
      * specified table and is used to hold the value of the specified column.
      *
-     * <p><b>Important:</b> This method should add a the nonstandard JavaDoc tag "@mbg.generated" to
+     * <p><b>Important:</b> This method should add a nonstandard JavaDoc tag "@mbg.generated" to
      * the comment. Without this tag, the Eclipse based Java merge feature will fail.
      *
      * @param field
@@ -48,6 +48,11 @@ public interface CommentGenerator {
             IntrospectedTable introspectedTable,
             IntrospectedColumn introspectedColumn) {}
 
+    /**
+     * Adds the field comment.
+     * @param field 属性
+     * @param comments 注释内容
+     */
     default void addFieldComment(Field field, String...comments) {}
 
     /**
@@ -77,6 +82,15 @@ public interface CommentGenerator {
      */
     default void addModelClassComment(TopLevelClass topLevelClass,
             IntrospectedTable introspectedTable) {}
+
+    /**
+     * Adds a comment for a model class.  The Java code merger should
+     * @param topLevelClass the top level class or inner class
+     * @param mainComment the main comment to be added
+     * @param warn if true, a warning comment will be added
+     * @param comments the comments to be added
+     */
+    default void addModelClassComment(CompilationUnit topLevelClass, String mainComment, boolean warn, String... comments){}
 
     /**
      * Adds a comment for a model class.
@@ -198,6 +212,10 @@ public interface CommentGenerator {
      */
     default void addRootComment(XmlElement rootElement) {}
 
+    /**
+     * This method is called to add a comment as the first child of the root element. This method
+     * @param rootElement the root element
+     */
     void addRootComment(HtmlElement rootElement);
 
     /**
@@ -279,9 +297,20 @@ public interface CommentGenerator {
     default void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable,
             Set<FullyQualifiedJavaType> imports) {}
 
-    default void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){};
+    /**
+     * Adds a @Generated annotation to a class.
+     * @param method the method
+     * @param singleLine if true, the comments will be added in a single line format
+     * @param comments the comments to be added
+     */
+    default void addMethodJavaDocLine(Method method,boolean singleLine,String...comments){}
 
-    default void addMethodJavaDocLine(Method method,String...comments){};
+    /**
+     * Adds a @Generated annotation to a method.
+     * @param method the method
+     * @param comments the comments to be added
+     */
+    default void addMethodJavaDocLine(Method method,String...comments){}
 
     /**
      * This method is called to add a file level comment to a generated Kotlin file. This method
@@ -294,9 +323,21 @@ public interface CommentGenerator {
      */
     default void addFileComment(KotlinFile kotlinFile) {}
 
+    /**
+     * Adds a comment to a general Kotlin function.
+     * @param kf the Kotlin function
+     * @param introspectedTable the introspected table
+     * @param imports the set of imports that the comment generator may add to
+     */
     default void addGeneralFunctionComment(KotlinFunction kf, IntrospectedTable introspectedTable,
             Set<String> imports) {}
 
+    /**
+     * Adds a comment to a general Kotlin property.
+     * @param property the Kotlin property
+     * @param introspectedTable the introspected table
+     * @param imports the set of imports that the comment generator may add to
+     */
     default void addGeneralPropertyComment(KotlinProperty property, IntrospectedTable introspectedTable,
             Set<String> imports) {}
 }

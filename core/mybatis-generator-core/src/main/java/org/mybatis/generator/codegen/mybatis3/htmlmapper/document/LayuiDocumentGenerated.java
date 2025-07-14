@@ -141,9 +141,9 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         List<IntrospectedColumn> formColumns;
         List<String> fields = new ArrayList<>(Arrays.asList("id", "version"));
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            VOModelGeneratorConfiguration voModelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration();
+            VoModelGeneratorConfiguration voModelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration();
             formColumns = voGenService.getAllVoColumns(fields, voModelConfiguration.getIncludeColumns(), voModelConfiguration.getExcludeColumns());
-            VCollectionUtil.addAllIfNotContains(formColumns, voGenService.getAbstractVOColumns());
+            VCollectionUtil.addAllIfNotContains(formColumns, voGenService.getAbstractVoColumns());
         } else {
             formColumns = introspectedTable.getNonBLOBColumns();
         }

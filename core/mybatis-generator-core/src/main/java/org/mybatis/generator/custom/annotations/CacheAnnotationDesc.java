@@ -1,5 +1,7 @@
 package org.mybatis.generator.custom.annotations;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.dom.java.Parameter;
 
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2022-09-16 03:33
  * @version 3.0
  */
+@Setter
+@Getter
 public class CacheAnnotationDesc {
 
     private List<String> cacheNames = new ArrayList<>();
@@ -25,6 +29,8 @@ public class CacheAnnotationDesc {
     private String serviceKey;
 
     private String key;
+
+    private String otherKey;
 
     public CacheAnnotationDesc() {
     }
@@ -38,48 +44,8 @@ public class CacheAnnotationDesc {
         this.serviceKey = serviceKey;
     }
 
-    public List<String> getCacheNames() {
-        return cacheNames;
-    }
-
     public void addCacheNames(String cacheNames) {
         this.cacheNames.add(cacheNames);
-    }
-
-    public String getUnless() {
-        return unless;
-    }
-
-    public void setUnless(String unless) {
-        this.unless = unless;
-    }
-
-    public List<Parameter> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(List<Parameter> parameters) {
-        this.parameters = parameters;
-    }
-
-    public String getServiceKey() {
-        return serviceKey;
-    }
-
-    public void setServiceKey(String serviceKey) {
-        this.serviceKey = serviceKey;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public void setCacheNames(List<String> cacheNames) {
-        this.cacheNames = cacheNames;
     }
 
     public String toCacheableAnnotation() {
@@ -118,12 +84,17 @@ public class CacheAnnotationDesc {
     }
 
     private String formatKey() {
-        if (parameters.isEmpty() && !stringHasValue(key)) {
+        if (parameters.isEmpty() && !stringHasValue(key) && !stringHasValue(serviceKey) && !stringHasValue(otherKey)) {
             return "";
         }
         StringBuilder sb = new StringBuilder("key = \"'");
         sb.append(serviceKey==null? String.join("", cacheNames):serviceKey);
-        sb.append(":'");
+        sb.append(":");
+        if (stringHasValue(otherKey)) {
+            sb.append(otherKey).append(":'");
+        } else {
+            sb.append("'");
+        }
         sb.append(".concat(T(com.vgosoft.security.utils.SecurityUtils).getCurrentTenantId())");
         if (stringHasValue(key)) {
             sb.append(format(".concat({0})", key));

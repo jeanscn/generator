@@ -242,12 +242,12 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean isGenerateVO() {
+    public boolean isGenerateVo() {
         return false;
     }
 
     @Override
-    public boolean isGenerateViewVO() {
+    public boolean isGenerateViewVo() {
         return false;
     }
 
@@ -287,17 +287,17 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean isGenerateExcelVO() {
+    public boolean isGenerateExcelVo() {
         return false;
     }
 
     @Override
-    public boolean isGenerateRequestVO() {
+    public boolean isGenerateRequestVo() {
         return false;
     }
 
     @Override
-    public boolean isGenerateCachePO() {
+    public boolean isGenerateCachePo() {
         return false;
     }
 
@@ -307,7 +307,7 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean isGenerateCachePOWithMultiKey() {
+    public boolean isGenerateCachePoWithMultiKey() {
         return false;
     }
 
@@ -321,11 +321,26 @@ public class RulesDelegate implements Rules {
         return false;
     }
 
+    @Override
+    public boolean isGenerateEditHtml() {
+        return false;
+    }
+
+    @Override
+    public boolean isGeneratePrintHtml() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateViewOnlyHtml() {
+        return false;
+    }
+
     /**
-     * 是生成VO对象
+     * 是生成Vo对象
      */
     @Override
-    public boolean isGenerateAnyVO() {
+    public boolean isGenerateAnyVo() {
         return false;
     }
 
@@ -335,12 +350,12 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean isGenerateCreateVO() {
+    public boolean isGenerateCreateVo() {
         return false;
     }
 
     @Override
-    public boolean isGenerateUpdateVO() {
+    public boolean isGenerateUpdateVo() {
         return false;
     }
 

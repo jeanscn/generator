@@ -20,10 +20,10 @@ public class UpdateDeleteFlagElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
         Method updateDeleteFlagMethod = serviceMethods.getUpdateDeleteFlagMethod(parentElement, false, true);
         updateDeleteFlagMethod.addAnnotation("@Override");
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
+            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             updateDeleteFlagMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         updateDeleteFlagMethod.addBodyLine("{0}.setDeleteFlag(deleteFlag);", entityType.getShortNameFirstLowCase());

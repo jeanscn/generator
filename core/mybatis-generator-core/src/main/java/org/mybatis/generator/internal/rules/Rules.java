@@ -183,12 +183,41 @@ public interface Rules {
      */
     boolean generateExampleClass();
 
+    /**
+     * Implements the rule for generating a count by example SQL Map element and
+     * DAO method. If the countByExample statement is allowed, then generate the
+     * element and method.
+     *
+     * @return true if the element and method should be generated
+     */
     boolean generateCountByExample();
 
+    /**
+     * Implements the rule for generating an update by example selective SQL Map
+     * element and DAO method. If the updateByExampleSelective statement is
+     * allowed, then generate the element and method.
+     *
+     * @return true if the element and method should be generated
+     */
     boolean generateUpdateByExampleSelective();
 
+    /**
+     * Implements the rule for generating an update by example without BLOBs
+     * SQL Map element and DAO method. If the updateByExampleWithoutBLOBs
+     * statement is allowed, then generate the element and method.
+     *
+     * @return true if the element and method should be generated
+     */
     boolean generateUpdateByExampleWithoutBLOBs();
 
+    /**
+     * Implements the rule for generating an update by example with BLOBs SQL
+     * Map element and DAO method. If the table has BLOB columns and the
+     * updateByExampleWithBLOBs statement is allowed, then generate the element
+     * and method.
+     *
+     * @return true if the element and method should be generated
+     */
     boolean generateUpdateByExampleWithBLOBs();
 
     /**
@@ -227,82 +256,227 @@ public interface Rules {
      */
     boolean generateJavaClient();
 
+    /**
+     * Returns the introspected table for which these rules apply.
+     * @return the introspected table
+     */
     IntrospectedTable getIntrospectedTable();
 
-    boolean generateRelationWithSubSelected();
+    /**
+     * 是否生成Mapper接口
+     *  @return true if the Mapper interface should be generated
+     */
+     boolean generateRelationWithSubSelected();
 
     /**
      * 是否集成MybatisPlus
+     * @return true if MybatisPlus is integrated
      * */
     boolean isIntegrateMybatisPlus();
     /**
      * 是否集成spring security。默认为true
+     * @return true if Spring Security is integrated
      * */
     boolean isIntegrateSpringSecurity();
 
+    /**
+     * 是否集成spring security。默认为true
+     * @return true if Spring Security is integrated
+     */
     boolean isGenerateServiceUnitTest();
 
+    /**
+     * 是否生成Controller单元测试
+     * @return true if the Controller unit test should be generated
+     */
     boolean isGenerateControllerUnitTest();
 
+    /**
+     * 是否生成Service单元测试
+     * @param element the element to check
+     * @return true if the Service unit test should be generated
+     */
     boolean isForceGenerateScalableElement(String element);
 
+    /**
+     * 是否需要生成前端的元素
+     * @return true if the element should be force generated
+     */
     boolean isGenerateVueEnd();
 
     /**
-     * 是生成VO对象
-     * */
-    boolean isGenerateAnyVO();
-    boolean isGenerateVoModel();
-
-    boolean isGenerateCreateVO();
-
-    boolean isGenerateUpdateVO();
-
-    boolean isGenerateViewVO();
-
-    boolean isGenerateRecycleBin();
-
-    boolean isGenerateHideListBin();
-
-    boolean isGenerateEventListener();
-
-    boolean isGenerateWfEventListener();
-
-    boolean isGenerateInnerTable();
-
-    boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
-
-    boolean isGenerateApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
-
-    boolean isGenerateExcelVO();
-
-    boolean isGenerateRequestVO();
-
-    boolean isGenerateVO();
-
-    boolean isGenerateCachePO();
-
-    boolean isModelEnableChildren();
-
-    boolean isGenerateCachePOWithMultiKey();
+     * 是否生成前端的页面
+     * @return true if the Vue end should be generated
+     */
+    boolean isGenerateEditHtml();
 
     /**
-     * * 生成方法
-     * * */
+     * 是否生成前端的打印页面
+     * @return true if the HTML should be generated
+     */
+    boolean isGeneratePrintHtml();
 
+    /**
+     * 是否生成前端的查看页面
+     * @return true if the view HTML should be generated
+     */
+    boolean isGenerateViewOnlyHtml();
+
+    /**
+     * 是生成Vo对象
+     * @return true if the Vo object should be generated
+     */
+    boolean isGenerateAnyVo();
+
+    /**
+     * 是否生成Vo对象
+     * @return true if the Vo model should be generated
+     */
+    boolean isGenerateVoModel();
+
+    /**
+     * 是否生成CreateVo对象
+     * @return true if the CreateVo object should be generated
+     */
+    boolean isGenerateCreateVo();
+
+    /**
+     * 是否生成UpdateVo对象
+     * @return true if the UpdateVo object should be generated
+     */
+    boolean isGenerateUpdateVo();
+
+    /**
+     * 是否生成ViewVo对象
+     * @return true if the ViewVo object should be generated
+     */
+    boolean isGenerateViewVo();
+
+    /**
+     * 是否生成ListVo对象
+     * @return true if the ListVo object should be generated
+     */
+    boolean isGenerateRecycleBin();
+
+    /**
+     * 是否生成显示隐藏功能
+     * @return true if the RecycleBin Vo object should be generated
+     */
+    boolean isGenerateHideListBin();
+
+    /**
+     * 是否生成EventListener
+     * @return true if the EventListener should be generated
+     */
+    boolean isGenerateEventListener();
+
+    /**
+     * 是否生成工作流内部实体声明周期事件监听器
+     * @return true if the workflow event listener should be generated
+     */
+    boolean isGenerateWfEventListener();
+
+    /**
+     * 是否生成内部（子表）列表
+     * @return true if the inner table should be generated
+     */
+    boolean isGenerateInnerTable();
+
+    /**
+     * 是否生成AdditionInnerList
+     * @param htmlGeneratorConfiguration the HTML generator configuration
+     * @return true if the inner list should be generated
+     */
+    boolean isAdditionInnerList(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
+
+    /**
+     * 是否生成审批意见组件
+     * @param htmlGeneratorConfiguration the HTML generator configuration
+     * @return true if the approval comment should be generated
+     */
+    boolean isGenerateApprovalComment(HtmlGeneratorConfiguration htmlGeneratorConfiguration);
+
+    /**
+     * 是否生成Excel导出Vo
+     * @return true if the Excel Vo should be generated
+     */
+    boolean isGenerateExcelVo();
+
+    /**
+     * 是否生成RequestVo
+     * @return true if the Request Vo should be generated
+     */
+    boolean isGenerateRequestVo();
+
+    /**
+     * 是否生成Vo
+     * @return true if the Vo should be generated
+     */
+    boolean isGenerateVo();
+
+    /**
+     * 是否生成缓存实体对象及缓存相关的代码
+     * @return true if the Vo should be generated
+     */
+    boolean isGenerateCachePo();
+
+    /**
+     * 是否允许实体内部子数据关联的生成
+     * @return true if the cache PO should be generated
+     */
+    boolean isModelEnableChildren();
+
+    /**
+     * 是否生成多键缓存PO
+     * @return true if the multi-key cache PO should be generated
+     */
+    boolean isGenerateCachePoWithMultiKey();
+
+    /**
+     * 是否生成InsertBatch
+     * @return true if the method should be generated
+     */
     boolean generateInsertBatch();
 
+    /**
+     * 是否生成UpdateBatch
+     * @return true if the method should be generated
+     */
     boolean generateUpdateBatch();
 
+    /**
+     * 是否生成InsertOrUpdate
+     * @return true if the method should be generated
+     */
     boolean generateInsertOrUpdate();
 
+    /**
+     * 是否生创建新对象时，使用Selective选择性插入
+     * @return true if the method should be generated
+     */
     boolean createEnableSelective();
 
+    /**
+     * 是否更新时，使用Selective选择性更新
+     * @return true if the method should be generated
+     */
     boolean updateEnableSelective();
 
+    /**
+     * 是否生成基于列的查询方法及相关
+     * @return true if the method should be generated
+     */
     boolean generateSelectByColumn();
 
+    /**
+     * 是否生成基于表的查询方法及相关
+     * @return true if the method should be generated
+     */
     boolean generateSelectByTable();
 
+    /**
+     * 是否生成文件上传及相关
+     * @return true if the method should be generated
+     */
     boolean generateFileUpload();
 }

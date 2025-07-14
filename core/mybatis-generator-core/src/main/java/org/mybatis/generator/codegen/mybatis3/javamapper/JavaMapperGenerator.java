@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -30,6 +31,9 @@ import static org.mybatis.generator.custom.ConstantsUtil.MBG_MAPPER_INTERFACE;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     protected FullyQualifiedJavaType entityType;
@@ -40,8 +44,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         this(project, true);
     }
 
-    public JavaMapperGenerator(String project, boolean requiresMatchedXMLGenerator) {
-        super(project, requiresMatchedXMLGenerator);
+    public JavaMapperGenerator(String project, boolean requiresMatchedXmlGenerator) {
+        super(project, requiresMatchedXmlGenerator);
     }
 
     @Override
@@ -55,9 +59,10 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                 || !introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().isGenerate()) {
             return answer;
         }
-        progressCallback.startTask(getString("Progress.17", //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.17",
                 introspectedTable.getFullyQualifiedTable().toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
+        List<String> classComments = new ArrayList<>();
         String targetPackageGen = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().getTargetPackageGen();
         String mapperFullName = String.join(".", targetPackageGen, "Gen" + introspectedTable.getTableConfiguration().getDomainObjectName() + "Mapper");
 
@@ -65,24 +70,24 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(interfaze);
-
-
         String rootInterface = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         if (!stringHasValue(rootInterface)) {
             rootInterface = context.getJavaClientGeneratorConfiguration().getProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         }
-
         if (stringHasValue(rootInterface)) {
             FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(rootInterface);
             interfaze.addSuperInterface(fqjt);
             interfaze.addImportedType(fqjt);
+            classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",fqjt.getShortNameWithoutTypeArguments()));
         } else {
             FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
             infSuperType.addTypeArgument(entityType);
             infSuperType.addTypeArgument(exampleType);
             interfaze.addSuperInterface(infSuperType);
             interfaze.addImportedType(infSuperType);
+            classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",infSuperType.getShortNameWithoutTypeArguments()));
         }
+
         //如果集成了mybatis-plus的Mapper，则需要导入Mapper
         if (introspectedTable.getContext().isIntegrateMybatisPlus()) {
             FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType("com.baomidou.mybatisplus.core.mapper.Mapper");
@@ -90,20 +95,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             interfaze.addSuperInterface(fqjt);
             interfaze.addImportedType(fqjt);
         }
-//        addCountByExampleMethod(interfaze);
-//        addDeleteByExampleMethod(interfaze);
-//        addDeleteByPrimaryKeyMethod(interfaze);
-//        addInsertMethod(interfaze);
-//        addInsertSelectiveMethod(interfaze);
-//        addSelectByPrimaryKeyMethod(interfaze);
-//        addUpdateByExampleSelectiveMethod(interfaze);
-//        addUpdateByPrimaryKeySelectiveMethod(interfaze);
-//        addUpdateByExampleWithBLOBsMethod(interfaze);
-//        addSelectByExampleWithBLOBsMethod(interfaze);
-//        addSelectByExampleWithoutBLOBsMethod(interfaze);
-//        addUpdateByPrimaryKeyWithBLOBsMethod(interfaze);
-//        addUpdateByExampleWithoutBLOBsMethod(interfaze);
-//        addUpdateByPrimaryKeyWithoutBLOBsMethod(interfaze);
 
         addInsertBatchMethod(interfaze);
         addInsertOrUpdateMethod(interfaze);
@@ -118,6 +109,12 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addDeleteByTableMethod(interfaze);
         addInsertByTableMethod(interfaze);
         addSelectByKeysWithAllParentAndChildrenMethod(interfaze);
+
+        // 增加类的javaDoc注释
+        commentGenerator.addModelClassComment(interfaze,
+                VStringUtil.format("{0} mapper接口，该接口提供了{0}的基本CRUD数据库及相关处理。",introspectedTable.getRemarks(true)),
+                true,
+                classComments.toArray(new String[0]));
 
         if (context.getPlugins().clientGenerated(interfaze, introspectedTable)) {
             answer.add(interfaze);
@@ -158,6 +155,14 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
         boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
         boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
+
+        // 增加类的javaDoc注释
+        commentGenerator.addModelClassComment(subInterface,
+                VStringUtil.format("{0} mapper接口，该接口提供了{0}的基本CRUD数据库及相关处理。",introspectedTable.getRemarks(true)),
+                false,
+                VStringUtil.format("该类继承自'{'@link {0}'}'，",interfaze.getType().getShortNameWithoutTypeArguments()),
+                VStringUtil.format("用于扩展或重写{0}。",interfaze.getType().getShortNameWithoutTypeArguments()));
+
         if (forceGenerateScalableElement || fileNotExist) {
             if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)) {
                 answer.add(subInterface);
@@ -193,7 +198,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     protected void addSelectByKeysDictMethod(Interface interfaze) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByKeysDictMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -213,11 +218,13 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
     }
 
-    //增加relation方法
+    /**
+     * 增加relation方法
+     * @param interfaze mapper接口
+     */
     protected void addSelectByExampleWithRelationMethod(Interface interfaze) {
         if (introspectedTable.getRules().generateRelationWithSubSelected()) {
             Method method = serviceMethods.getSelectWithRelationMethod(interfaze, true);
-            context.getCommentGenerator().addMethodJavaDocLine(method, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
             interfaze.addMethod(method);
             interfaze.addImportedType(exampleType);
         }

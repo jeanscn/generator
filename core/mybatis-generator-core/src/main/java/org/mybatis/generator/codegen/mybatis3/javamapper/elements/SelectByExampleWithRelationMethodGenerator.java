@@ -34,7 +34,7 @@ public class SelectByExampleWithRelationMethodGenerator extends
         } else if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             listType = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
-            throw new RuntimeException(getString("RuntimeError.12","SelectByExampleWithRelation")); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.12","SelectByExampleWithRelation"));
         }
 
         importedTypes.add(listType);
@@ -43,10 +43,9 @@ public class SelectByExampleWithRelationMethodGenerator extends
 
         Parameter parameter = new Parameter(type, "example");
         parameter.setRemark("查询条件example对象");
-        method.addParameter(parameter); //$NON-NLS-1$
+        method.addParameter(parameter);
 
-        context.getCommentGenerator().addGeneralMethodComment(method,
-                introspectedTable);
+        context.getCommentGenerator().addGeneralMethodComment(method,introspectedTable);
 
         addMapperAnnotations(interfaze, method);
 

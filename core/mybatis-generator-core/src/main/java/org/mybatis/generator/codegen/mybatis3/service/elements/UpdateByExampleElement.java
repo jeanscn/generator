@@ -25,7 +25,7 @@ public class UpdateByExampleElement extends AbstractServiceElementGenerator {
         Method updateByExampleSelective = serviceMethods.getUpdateByExample(parentElement, false, true);
         updateByExampleSelective.addAnnotation("@Override");
         Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByExampleSelective,"READ_COMMITTED");
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             updateByExampleSelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         updateByExampleSelective.addBodyLine("return super.{0}(record, example);", introspectedTable.getUpdateByExampleSelectiveStatementId());
@@ -33,7 +33,7 @@ public class UpdateByExampleElement extends AbstractServiceElementGenerator {
 
         Method updateByExample = serviceMethods.getUpdateByExample(parentElement, false, false);
         updateByExample.addAnnotation("@Override");
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             updateByExample.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }
         updateByExample.addBodyLine("return super.{0}(record, example);", introspectedTable.getUpdateByExampleStatementId());

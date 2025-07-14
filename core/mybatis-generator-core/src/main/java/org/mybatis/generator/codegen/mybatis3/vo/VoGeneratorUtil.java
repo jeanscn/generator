@@ -9,7 +9,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.io.File;
 
-import static org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator.subPackagePojo;
+import static org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator.SUB_PACKAGE_POJO;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
 
 /**
@@ -17,7 +17,7 @@ import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
  * 2023-03-29 18:39
  * @version 3.0
  */
-public class VOGeneratorUtil {
+public class VoGeneratorUtil {
 
     public static Method addMappingMethod(FullyQualifiedJavaType fromType, FullyQualifiedJavaType toType, boolean isList, IntrospectedTable introspectedTable) {
         String methodName;
@@ -53,7 +53,7 @@ public class VOGeneratorUtil {
         if (!project.isDirectory()) {
             return true;
         }
-        String baseTargetPackage = context.getJavaModelGeneratorConfiguration().getBaseTargetPackage() + "."+subPackagePojo;
+        String baseTargetPackage = context.getJavaModelGeneratorConfiguration().getBaseTargetPackage() + "."+ SUB_PACKAGE_POJO;
         File directory = new File(project, packageToDir(String.join(".", baseTargetPackage, subPackage)));
         if (!directory.isDirectory()) {
             return true;

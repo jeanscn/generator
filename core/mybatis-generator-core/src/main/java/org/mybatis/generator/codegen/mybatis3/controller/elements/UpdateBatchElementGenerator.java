@@ -39,7 +39,7 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
         parameter.setRemark("待更新的数据对象列表");
         method.addParameter(parameter);
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
-                getMethodParameterVOType(""),
+                getMethodParameterVoType(""),
                 parentElement));
         method.setReturnRemark("更新后的数据对象列表");
 
@@ -57,7 +57,7 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
                 , getServiceMethodEntityParameter(true, "update"));
         method.addBodyLine("if (result.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("return success(mappings.to{0}VOs(result.getResult()),result.getAffectedRows());"
+            method.addBodyLine("return success(mappings.to{0}Vos(result.getResult()),result.getAffectedRows());"
                     , entityType.getShortName());
         } else {
             method.addBodyLine("return success(result.getResult(),result.getAffectedRows());");

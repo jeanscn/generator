@@ -22,7 +22,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
-        if (introspectedTable.getRules().isGenerateCreateVO()) {
+        if (introspectedTable.getRules().isGenerateCreateVo()) {
             parentElement.addImportedType(entityCreateVoType);
             parentElement.addImportedType(entityMappings);
         } else if (introspectedTable.getRules().isGenerateVoModel()) {
@@ -40,7 +40,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
         Parameter parameter = buildMethodParameter(descriptor);
         parameter.setRemark("接收请求待持久化的数据（对象）列表");
         method.addParameter(parameter);
-        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST, getMethodParameterVOType(""), parentElement));
+        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST, getMethodParameterVoType(""), parentElement));
         method.setReturnRemark("更新后的数据（对象）列表");
 
         method.addAnnotation(new SystemLogDesc("添加了多条记录",introspectedTable),parentElement);
@@ -57,7 +57,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
                 , getServiceMethodEntityParameter(true, "create"));
         method.addBodyLine("if (serviceResult.hasResult()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("return success(mappings.to{0}VOs(serviceResult.getResult()),serviceResult.getAffectedRows());",
+            method.addBodyLine("return success(mappings.to{0}Vos(serviceResult.getResult()),serviceResult.getAffectedRows());",
                     entityType.getShortName());
         } else {
             method.addBodyLine("return success(serviceResult.getResult(),serviceResult.getAffectedRows());");

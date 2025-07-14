@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3;
 
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
-import com.vgosoft.tool.core.VMD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
@@ -11,7 +10,6 @@ import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.*;
 import org.mybatis.generator.codegen.mybatis3.controller.JavaControllerGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateHtmlFiles;
-import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.AnnotatedClientGenerator;
@@ -231,7 +229,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 javaGenerators.add(javaServiceUnitTestGenerator);
             }
         }
-        if (getRules().isGenerateVO()) {
+        if (getRules().isGenerateVo()) {
             ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
             initializeAbstractGenerator(viewObjectClassGenerator, warnings, progressCallback);
             javaGenerators.add(viewObjectClassGenerator);
@@ -258,7 +256,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             }
         }
 
-        if (getRules().isGenerateCachePO()) {
+        if (getRules().isGenerateCachePo()) {
             CachePoClassGenerator cachePoClassGenerator = new CachePoClassGenerator(getModelProject());
             initializeAbstractGenerator(cachePoClassGenerator, warnings, progressCallback);
             javaGenerators.add(cachePoClassGenerator);

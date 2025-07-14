@@ -10,34 +10,34 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class VOGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
+public class VoGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    private VOModelGeneratorConfiguration voModelConfiguration;
+    private VoModelGeneratorConfiguration voModelConfiguration;
 
-    private VOCreateGeneratorConfiguration voCreateConfiguration;
+    private VoCreateGeneratorConfiguration voCreateConfiguration;
 
-    private VOUpdateGeneratorConfiguration voUpdateConfiguration;
+    private VoUpdateGeneratorConfiguration voUpdateConfiguration;
 
-    private VOViewGeneratorConfiguration voViewConfiguration;
+    private VoViewGeneratorConfiguration voViewConfiguration;
 
-    private VOExcelGeneratorConfiguration voExcelConfiguration;
+    private VoExcelGeneratorConfiguration voExcelConfiguration;
 
-    private VORequestGeneratorConfiguration voRequestConfiguration;
+    private VoRequestGeneratorConfiguration voRequestConfiguration;
 
-    private VOCacheGeneratorConfiguration voCacheConfiguration;
+    private VoCacheGeneratorConfiguration voCacheConfiguration;
 
     private final List<MapstructMappingConfiguration> mappingConfigurations = new ArrayList<>();
 
     private Set<String> validateIgnoreColumns = new HashSet<>();
 
-    public VOGeneratorConfiguration(Context context,TableConfiguration tc) {
+    public VoGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
         targetPackage = String.join(".", baseTargetPackage,"vo");
     }
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOGeneratorConfiguration");
+        super.validate(errors, contextId, "VoGeneratorConfiguration");
     }
 
     public void addMappingConfigurations(MapstructMappingConfiguration mappingConfiguration) {

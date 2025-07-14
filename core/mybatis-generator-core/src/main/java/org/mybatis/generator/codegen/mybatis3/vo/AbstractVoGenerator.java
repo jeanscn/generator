@@ -5,7 +5,7 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.config.VOGeneratorConfiguration;
+import org.mybatis.generator.config.VoGeneratorConfiguration;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiModelDesc;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
@@ -20,21 +20,21 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 
 /**
- * VO生成抽象类
+ * Vo生成抽象类
  *
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-03-29 11:27
  * @version 3.0
  */
-public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
+public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
 
-    public static final String subPackageVo = "vo";
-    public static final String subPackageAbs = "abs";
-    public static final String subPackagePojo = "pojo";
+    public static final String SUB_PACKAGE_VO = "vo";
+    public static final String SUB_PACKAGE_ABS = "abs";
+    public static final String SUB_PACKAGE_POJO = "pojo";
 
     protected final VoGenService voGenService;
 
-    protected final VOGeneratorConfiguration voGeneratorConfiguration;
+    protected final VoGeneratorConfiguration voGeneratorConfiguration;
 
     protected final CommentGenerator commentGenerator;
 
@@ -46,7 +46,7 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
 
     protected final FullyQualifiedJavaType entityType;
 
-    public AbstractVOGenerator(IntrospectedTable introspectedTable, String project,ProgressCallback progressCallback, List<String> warnings,Interface mappingsInterface) {
+    public AbstractVoGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(project);
         this.context = introspectedTable.getContext();
         this.commentGenerator = context.getCommentGenerator();
@@ -54,13 +54,17 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         this.progressCallback = progressCallback;
         this.warnings = warnings;
         this.voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
-        this.baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+subPackagePojo;
+        this.baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ SUB_PACKAGE_POJO;
         this.voGenService = new VoGenService(introspectedTable);
         this.plugins = context.getPlugins();
         this.mappingsInterface = mappingsInterface;
         this.entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
     }
 
+    /**
+     * 生成方法 抽象方法
+     * @return TopLevelClass
+     */
     protected abstract TopLevelClass generate();
 
     @Override
@@ -81,32 +85,35 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         return topLevelClass;
     }
 
-    //获取AbstractVO类的类信息
-    protected FullyQualifiedJavaType getAbstractVOType() {
+    /**
+     * 获取AbstractVo类的类信息
+     * @return FullyQualifiedJavaType
+     */
+    protected FullyQualifiedJavaType getAbstractVoType() {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String abstractName = "Abstract" + entityType.getShortName() + "VO";
-        return new FullyQualifiedJavaType(baseTargetPackage + "." + subPackageAbs + "." + abstractName);
+        String abstractName = "Abstract" + entityType.getShortName() + "Vo";
+        return new FullyQualifiedJavaType(baseTargetPackage + "." + SUB_PACKAGE_ABS + "." + abstractName);
     }
 
     protected ApiModelDesc addApiModel(String voModelName) {
         ApiModelDesc apiModelDesc = ApiModelDesc.create(voModelName);
-        apiModelDesc.setParent(getAbstractVOType().getShortName() + ".class");
+        apiModelDesc.setParent(getAbstractVoType().getShortName() + ".class");
         apiModelDesc.setDescription(introspectedTable.getRemarks(true));
         return apiModelDesc;
     }
 
-    protected boolean isAbstractVOColumn(IntrospectedColumn introspectedColumn) {
-        return voGenService.getAbstractVOColumns()
+    protected boolean isAbstractVoColumn(IntrospectedColumn introspectedColumn) {
+        return voGenService.getAbstractVoColumns()
                 .stream()
                 .map(IntrospectedColumn::getActualColumnName)
                 .anyMatch(t -> t.equalsIgnoreCase(introspectedColumn.getActualColumnName()));
     }
 
     protected Optional<Method> getOverrideGetter(IntrospectedColumn introspectedColumn) {
-        if (!voGenService.getAbstractVOColumns().contains(introspectedColumn)) {
+        if (!voGenService.getAbstractVoColumns().contains(introspectedColumn)) {
             //重写getter，添加validate
             Method javaBeansGetter = JavaBeansUtil.getJavaBeansGetter(introspectedColumn, context, introspectedTable);
-            if (isAbstractVOColumn(introspectedColumn)) {
+            if (isAbstractVoColumn(introspectedColumn)) {
                 javaBeansGetter.addAnnotation("@Override");
             }
             return Optional.of(javaBeansGetter);
@@ -115,7 +122,7 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
     }
 
     public Method addMappingMethod(FullyQualifiedJavaType fromType, FullyQualifiedJavaType toType, boolean isList) {
-       return VOGeneratorUtil.addMappingMethod(fromType, toType, isList, introspectedTable);
+       return VoGeneratorUtil.addMappingMethod(fromType, toType, isList, introspectedTable);
     }
 
     protected void addJavaCollectionRelation(TopLevelClass topLevelClass,String type) {
@@ -154,16 +161,6 @@ public abstract class AbstractVOGenerator extends AbstractJavaGenerator {
         cascade.setRemark("任意过滤条件");
         new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, requestVoClass);
         requestVoClass.addField(cascade);
-    }
-
-    //增加查询过滤器的filterMap属性
-    protected void addFilterMap(TopLevelClass requestVoClass) {
-        Field filterMap = new Field("filterParam", new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
-        filterMap.setVisibility(JavaVisibility.PRIVATE);
-        filterMap.setRemark("前端过滤器及类似查询过滤条件");
-        new ApiModelPropertyDesc(filterMap.getRemark(), "filterParam = ‘{}’").addAnnotationToField(filterMap, requestVoClass);
-        requestVoClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
-        requestVoClass.addField(filterMap);
     }
 
     protected void addProperty(TopLevelClass topLevelClass,Field field, String strExample,IntrospectedTable introspectedTable) {

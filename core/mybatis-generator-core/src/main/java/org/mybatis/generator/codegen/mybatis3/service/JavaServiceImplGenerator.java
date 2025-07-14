@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -44,6 +45,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.38", table.toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
+        List<String> classComments = new ArrayList<>();
         Plugin plugins = context.getPlugins();
 
         relationConfigurations = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations();
@@ -53,24 +55,25 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         FullyQualifiedJavaType importAnnotation = new FullyQualifiedJavaType(ANNOTATION_SERVICE);
         FullyQualifiedJavaType implSuperType = getServiceSupperType(mapperType, entityType, exampleType, introspectedTable);
+        classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",implSuperType.getShortNameWithoutTypeArguments()));
         String interfaceClassShortName = getGenInterfaceClassShortName(tc.getJavaServiceGeneratorConfiguration().getTargetPackageGen(), entityType.getShortName());
 
-        Interface bizINF = new Interface(interfaceClassShortName);
-        String implGenClazzName = JavaBeansUtil.getFirstCharacterUppercase("Gen" + tc.getDomainObjectName() + "Impl");
+        Interface bizInf = new Interface(interfaceClassShortName);
+        String implGenClazzName = JavaBeansUtil.getFirstCharacterUppercase("Abstract" + tc.getDomainObjectName() + "Impl");
         FullyQualifiedJavaType bizGenClazzImplType = new FullyQualifiedJavaType(javaServiceImplGeneratorConfiguration.getTargetPackageGen() + "." + implGenClazzName);
         TopLevelClass bizGenClazzImpl = new TopLevelClass(bizGenClazzImplType);
         bizGenClazzImpl.setVisibility(JavaVisibility.PUBLIC);
         bizGenClazzImpl.setAbstract(true);
         commentGenerator.addJavaFileComment(bizGenClazzImpl);
         bizGenClazzImpl.setSuperClass(implSuperType);
-        bizGenClazzImpl.addSuperInterface(bizINF.getType());
+        bizGenClazzImpl.addSuperInterface(bizInf.getType());
         bizGenClazzImpl.addImportedType(entityType);
         bizGenClazzImpl.addImportedType(exampleType);
         bizGenClazzImpl.addImportedType(mapperType);
         bizGenClazzImpl.addImportedType(implSuperType);
-        bizGenClazzImpl.addImportedType(bizINF.getType());
+        bizGenClazzImpl.addImportedType(bizInf.getType());
 
-        if (bizGenClazzImpl.getFields().stream().noneMatch(f -> f.getName().equalsIgnoreCase("mapper"))) {
+        if (bizGenClazzImpl.getFields().stream().noneMatch(f -> "mapper".equalsIgnoreCase(f.getName()))) {
             Field mapperProperty = getMapperProperty();
             bizGenClazzImpl.addField(mapperProperty);
             bizGenClazzImpl.addImportedType(mapperProperty.getType());
@@ -157,6 +160,12 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         addCleanupInvalidRecordsMethod(bizGenClazzImpl);
 
+        // 增加类的javaDoc注释
+        commentGenerator.addModelClassComment(bizGenClazzImpl,
+                VStringUtil.format("{0} 服务实现抽象类，该类提供了{0}的基本业务逻辑方法的实现。",introspectedTable.getRemarks(true)),
+                true,
+                classComments.toArray(new String[0]));
+
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable)) {
             answer.add(bizGenClazzImpl);
@@ -164,19 +173,19 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         //生成子类
         String interfaceSubShortName = getInterfaceClassShortName(tc.getJavaServiceGeneratorConfiguration().getTargetPackage(), entityType.getShortName());
-        Interface superINF = new Interface(interfaceSubShortName);
+        Interface superInf = new Interface(interfaceSubShortName);
         String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
         FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(javaServiceImplGeneratorConfiguration.getTargetPackage() + "." + implClazzName);
         TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
         commentGenerator.addJavaFileComment(bizClazzImpl);
         bizClazzImpl.addImportedType(bizGenClazzImpl.getType());
-        bizClazzImpl.addImportedType(superINF.getType());
+        bizClazzImpl.addImportedType(superInf.getType());
         bizClazzImpl.addImportedType(mapperType);
         bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
         bizClazzImpl.setSuperClass(bizGenClazzImpl.getType());
-        bizClazzImpl.addSuperInterface(superINF.getType());
+        bizClazzImpl.addSuperInterface(superInf.getType());
         boolean match = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(c -> !c.getCacheConfigurationList().isEmpty());
-        if (introspectedTable.getRules().isGenerateCachePO() || match) {
+        if (introspectedTable.getRules().isGenerateCachePo() || match) {
             addCacheConfig(bizClazzImpl);
         }
         StringBuilder sb = new StringBuilder();
@@ -314,11 +323,11 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         }
     }
 
-    /*
+    /**
      *  getSelectByKeysDictMethod
      * */
     private void addSelectByKeysDictElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
             AbstractServiceElementGenerator elementGenerator = new SelectByKeysDictElement();
@@ -332,7 +341,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      */
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && (introspectedTable.getRules().isGenerateCachePO()
+                && (introspectedTable.getRules().isGenerateCachePo()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -343,7 +352,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addInsertSelectiveElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && (introspectedTable.getRules().isGenerateCachePO()
+                && (introspectedTable.getRules().isGenerateCachePo()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -354,7 +363,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addDeleteByExampleElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByExample()
-                && (introspectedTable.getRules().isGenerateCachePO()
+                && (introspectedTable.getRules().isGenerateCachePo()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name()))) {
             AbstractServiceElementGenerator elementGenerator = new DeleteByExampleElement();
@@ -364,7 +373,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addDeleteByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByPrimaryKey()
-                && (introspectedTable.getRules().isGenerateCachePO()
+                && (introspectedTable.getRules().isGenerateCachePo()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name()))) {
@@ -375,7 +384,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addUpdateByExampleElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByExampleSelective()
-                && (introspectedTable.getRules().isGenerateCachePO()
+                && (introspectedTable.getRules().isGenerateCachePo()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
             AbstractServiceElementGenerator elementGenerator = new UpdateByExampleElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
@@ -384,7 +393,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
-                && (introspectedTable.getRules().isGenerateCachePO()
+                && (introspectedTable.getRules().isGenerateCachePo()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
@@ -399,7 +408,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     }
 
     private void addUpdateBySqlElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             AbstractServiceElementGenerator elementGenerator = new UpdateBySqlElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

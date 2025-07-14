@@ -257,8 +257,7 @@ public class ServiceMethods {
         return method;
     }
 
-    public Method getSelectWithRelationMethod(CompilationUnit parentElement,
-                                                 boolean isAbstract) {
+    public Method getSelectWithRelationMethod(CompilationUnit parentElement, boolean isAbstract) {
         List<Parameter> parameters = new ArrayList<>();
         Parameter example = new Parameter(exampleType, "example");
         example.setRemark("查询条件example对象");
@@ -376,9 +375,9 @@ public class ServiceMethods {
         return method;
     }
 
-    public Method getSelectByKeysDictMethod(CompilationUnit parentElement,VOCacheGeneratorConfiguration config,
-                                               boolean isAbstract,boolean isService) {
-        boolean isCache = introspectedTable.getRules().isGenerateCachePO();
+    public Method getSelectByKeysDictMethod(CompilationUnit parentElement, VoCacheGeneratorConfiguration config,
+                                            boolean isAbstract, boolean isService) {
+        boolean isCache = introspectedTable.getRules().isGenerateCachePo();
         List<Parameter> parameters;
         if(isService){
             parameters = getSelectByKeysDictMethodParameters();
@@ -435,8 +434,8 @@ public class ServiceMethods {
         return method;
     }
 
-    public List<IntrospectedColumn> getSelectDictParameterColumns(VOCacheGeneratorConfiguration config, IntrospectedTable introspectedTable) {
-        if (introspectedTable.getRules().isGenerateCachePOWithMultiKey()) {
+    public List<IntrospectedColumn> getSelectDictParameterColumns(VoCacheGeneratorConfiguration config, IntrospectedTable introspectedTable) {
+        if (introspectedTable.getRules().isGenerateCachePoWithMultiKey()) {
             return Stream.of(config.getTypeColumn(), config.getKeyColumn())
                     .map(n -> introspectedTable.getColumn(n).orElse(null))
                     .filter(Objects::nonNull)
@@ -446,7 +445,7 @@ public class ServiceMethods {
         }
     }
 
-    public List<Parameter> getDictControllerMethodParameters(VOCacheGeneratorConfiguration voCacheGeneratorConfiguration) {
+    public List<Parameter> getDictControllerMethodParameters(VoCacheGeneratorConfiguration voCacheGeneratorConfiguration) {
         //方法参数
         final List<Parameter> parameters = new ArrayList<>();
         introspectedTable.getColumn(voCacheGeneratorConfiguration.getKeyColumn()).ifPresent(introspectedColumn -> {
@@ -479,7 +478,7 @@ public class ServiceMethods {
     public List<Parameter> getSelectByKeysDictMethodParameters(){
         //方法参数
         final List<Parameter> parameters = new ArrayList<>();
-        VOCacheGeneratorConfiguration voCacheGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
+        VoCacheGeneratorConfiguration voCacheGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
         Optional<IntrospectedColumn> typeColumn = introspectedTable.getColumn(voCacheGeneratorConfiguration.getTypeColumn());
         if (typeColumn.isPresent()) {
             typeColumn.ifPresent(introspectedColumn -> {

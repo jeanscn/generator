@@ -38,7 +38,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"DEFAULT");
             parentElement.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }

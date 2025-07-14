@@ -36,7 +36,7 @@ public class SelectBySqlMethodElementGenerator extends AbstractControllerElement
         descriptor.setList(true);
         method.addParameter(buildMethodParameter(descriptor));
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST,
-                getMethodParameterVOType(""),
+                getMethodParameterVoType(""),
                 parentElement));
 
         method.addAnnotation(new SystemLogDesc("获取上级或下级标识",introspectedTable),parentElement);
@@ -53,7 +53,7 @@ public class SelectBySqlMethodElementGenerator extends AbstractControllerElement
                 , getServiceMethodEntityParameter(true, "update"));
         method.addBodyLine("if (result.isSuccess()) {");
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("return success(mappings.to{0}VOs(result.getResult()),result.getAffectedRows());"
+            method.addBodyLine("return success(mappings.to{0}Vos(result.getResult()),result.getAffectedRows());"
                     , entityType.getShortName());
         } else {
             method.addBodyLine("return success(result.getResult(),result.getAffectedRows());");

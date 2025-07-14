@@ -5,6 +5,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.stream.Collectors;
@@ -45,6 +46,16 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
                 methodByColumn.addBodyLine(sb);
                 parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
             }
+
+            if (introspectedTable.getRules().isGenerateCachePo()) {
+                //添加缓存注解
+                CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+                cacheAnnotationDesc.setOtherKey(configuration.getMethodName());
+                cacheAnnotationDesc.setParameters(methodByColumn.getParameters());
+                cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
+                methodByColumn.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
+            }
+
             parentElement.addMethod(methodByColumn);
         }
     }

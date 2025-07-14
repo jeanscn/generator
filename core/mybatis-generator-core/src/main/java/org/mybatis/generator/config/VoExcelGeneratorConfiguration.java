@@ -4,7 +4,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.*;
 
-public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
+public class VoExcelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private List<String> exportIncludeFields = new ArrayList<>();
     private Set<String> exportExcludeFields = new HashSet<>();
@@ -16,12 +16,12 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
 
     private final FullyQualifiedJavaType excelImportType;
 
-    public VOExcelGeneratorConfiguration(Context context,TableConfiguration tc) {
+    public VoExcelGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
         this.generate = true;
         targetPackage = String.join(".", baseTargetPackage,"vo");
-        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ExcelVO"));
-        excelImportType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ExcelImportVO"));
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ExcelVo"));
+        excelImportType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"ExcelImportVo"));
     }
 
     public FullyQualifiedJavaType getExcelImportType() {
@@ -66,7 +66,7 @@ public class VOExcelGeneratorConfiguration extends AbstractModelGeneratorConfigu
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOExcelGeneratorConfiguration");
+        super.validate(errors, contextId, "VoExcelGeneratorConfiguration");
     }
 
     public List<String> getExportIncludeFields() {

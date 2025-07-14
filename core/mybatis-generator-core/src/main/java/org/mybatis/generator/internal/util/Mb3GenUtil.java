@@ -36,7 +36,7 @@ public class Mb3GenUtil {
     private Mb3GenUtil() {
     }
 
-    public static String getParentMenuId(IntrospectedTable introspectedTable,VOViewGeneratorConfiguration voViewGeneratorConfiguration) {
+    public static String getParentMenuId(IntrospectedTable introspectedTable, VoViewGeneratorConfiguration voViewGeneratorConfiguration) {
         String parentMenuId = voViewGeneratorConfiguration.getParentMenuId();
         String contextParentMenuId = introspectedTable.getContext().getParentMenuId();
         return VStringUtil.stringHasValue(parentMenuId)?parentMenuId:VStringUtil.stringHasValue(contextParentMenuId)?contextParentMenuId:null;
@@ -216,8 +216,8 @@ public class Mb3GenUtil {
     public static Map<String,String> getColumnRenderFunMap(IntrospectedTable introspectedTable) {
         // 列渲染
         Map<String, String> columnRenderFunMap = new HashMap<>();
-        if (introspectedTable.getRules().isGenerateViewVO()) {
-            VOViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        if (introspectedTable.getRules().isGenerateViewVo()) {
+            VoViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
             viewConfiguration.getVoColumnRenderFunGeneratorConfigurations()
                     .forEach(config -> config.getFieldNames().forEach(fieldName -> columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun())));        }
         return columnRenderFunMap;

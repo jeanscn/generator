@@ -6,7 +6,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
-import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
+import org.mybatis.generator.config.VoExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
  * 2023-03-29 16:45
  * @version 3.0
  */
-public class VOExcelGenerator extends AbstractVOGenerator {
+public class VoExcelGenerator extends AbstractVoGenerator {
 
-    public VOExcelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public VoExcelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
     public TopLevelClass generate() {
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
+        VoExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
         String excelVoType = voExcelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass excelVoClass = createTopLevelClass(excelVoType, null);
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);

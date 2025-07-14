@@ -8,7 +8,7 @@
 * remoteApiParser：是否需要解析，默认为false，如果为true，则需要指定解析器。如果为true且为指定解析的keyMap则使用默认配置，既keyMapValue为id，keyMapLabel为name。
 * keyMapLabel：指定远程数据源的label字段。不指定为默认值name。keyMapValue：指定远程数据源的value字段。不指定为默认值id。
 * 2、generateHtml新增属性：default：用于指定生成的默认页面配置，vueEndProjectPath：用于指定vue项目的根路径，overWriteVueFile：用于指定是否覆盖生成的vue文件。
-* 3、viewVO 增加 viewMenuElIcon，单独指定vue前端菜单图标
+* 3、viewVo 增加 viewMenuElIcon，单独指定vue前端菜单图标
 # 2023-9-27
 ## 一、更新说明：
 * 1、修正表单switch元素生成格式的错误。
@@ -58,7 +58,7 @@
 
 # 2023-7-11
 ## 更新说明
-* 1、viewVO增加toolbar属性，用于定制列表左上的操作按钮。可选值：CREATE、EDIT、REMOVE、SEARCH、REFRESH、EXPORT、IMPORT、PRINT、COLUMN。
+* 1、viewVo增加toolbar属性，用于定制列表左上的操作按钮。可选值：CREATE、EDIT、REMOVE、SEARCH、REFRESH、EXPORT、IMPORT、PRINT、COLUMN。
 # 2023-7-06
 ## 更新说明
 * 1、页面生成元素中添加approvalComment元素，用于生成审批意见组件。（一个页面可添加0或n个）
@@ -103,10 +103,10 @@
 ## 一、新增功能：
 * 1、增加生成Excel导入实体的功能，用于区分导出的实体属性。用于生成默认导入模板和导入数据的接收。
 ## 二、更新功能：
-* 1、更新excelVO生成配置，增加importIncludeColumns，importExcludeColumns，使用方式与includeColumns，excludeColumns相同，用于导入列的处理。
+* 1、更新excelVo生成配置，增加importIncludeColumns，importExcludeColumns，使用方式与includeColumns，excludeColumns相同，用于导入列的处理。
 * 2、基于最新vgosoft-constant包enum路径的调整，更新生成中相关enum引用的路径。
 ## 三、修正bug：
-* 1、excelVO对象增加Dict注解的属性的getter方法，可以导出转换前进行原始值赋值。
+* 1、excelVo对象增加Dict注解的属性的getter方法，可以导出转换前进行原始值赋值。
 * 2、对表名中的空格进行过滤，避免生成异常。
 # 2023-5-21
 ## 一、新增功能：

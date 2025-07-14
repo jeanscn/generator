@@ -6,8 +6,8 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.codegen.mybatis3.vo.AbstractVOGenerator;
-import org.mybatis.generator.config.VOCacheGeneratorConfiguration;
+import org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator;
+import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
  * 2023-03-29 17:08
  * @version 3.0
  */
-public class POCacheGenerator extends AbstractVOGenerator {
+public class POCacheGenerator extends AbstractVoGenerator {
 
     public POCacheGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings,Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
@@ -32,7 +32,7 @@ public class POCacheGenerator extends AbstractVOGenerator {
 
     @Override
     public TopLevelClass generate() {
-        final VOCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
+        final VoCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
         String cachePoType = config.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass cachePoClass = createTopLevelClass(cachePoType, "");
         cachePoClass.addSuperInterface(new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO));

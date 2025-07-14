@@ -4,17 +4,21 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.*;
 
-public class VOModelGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
+public class VoCreateGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
     private List<String> includeColumns = new ArrayList<>();
 
+    private Set<String> requiredColumns = new HashSet<>();
+
     private Set<String> validateIgnoreColumns = new HashSet<>();
 
-    public VOModelGeneratorConfiguration(Context context,TableConfiguration tc) {
+    private boolean isEnableSelective = true;
+
+    public VoCreateGeneratorConfiguration(Context context, TableConfiguration tc) {
         super(context);
         this.generate = true;
         targetPackage = String.join(".", baseTargetPackage,"vo");
-        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"VO"));
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"CreateVo"));
     }
 
     public List<String> getIncludeColumns() {
@@ -25,6 +29,14 @@ public class VOModelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         this.includeColumns = includeColumns;
     }
 
+    public Set<String> getRequiredColumns() {
+        return requiredColumns;
+    }
+
+    public void setRequiredColumns(Set<String> requiredColumns) {
+        this.requiredColumns = requiredColumns;
+    }
+
     public Set<String> getValidateIgnoreColumns() {
         return validateIgnoreColumns;
     }
@@ -33,8 +45,16 @@ public class VOModelGeneratorConfiguration extends AbstractModelGeneratorConfigu
         this.validateIgnoreColumns = validateIgnoreColumns;
     }
 
+    public boolean isEnableSelective() {
+        return isEnableSelective;
+    }
+
+    public void setEnableSelective(boolean enableSelective) {
+        isEnableSelective = enableSelective;
+    }
+
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOModelGeneratorConfiguration");
+        super.validate(errors, contextId, "VoCreateGeneratorConfiguration");
     }
 }

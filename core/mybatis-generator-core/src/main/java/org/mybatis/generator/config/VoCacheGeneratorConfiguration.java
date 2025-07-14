@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Setter
 @Getter
-public class VOCacheGeneratorConfiguration extends AbstractGeneratorConfiguration {
+public class VoCacheGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private Set<String> includeColumns = new HashSet<>();
 
@@ -23,17 +23,17 @@ public class VOCacheGeneratorConfiguration extends AbstractGeneratorConfiguratio
 
     private String valueColumn;
 
-    public VOCacheGeneratorConfiguration(Context context, TableConfiguration tc) {
+    public VoCacheGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
         this.generate = false;
         targetProject = context.getJavaModelGeneratorConfiguration().getTargetProject();
         baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".")+".pojo";
         targetPackage = String.join(".", baseTargetPackage,"po");
-        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"CachePO"));
+        fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"CachePo"));
     }
 
     @Override
     public void validate(List<String> errors, String contextId) {
-        super.validate(errors, contextId, "VOCacheGeneratorConfiguration");
+        super.validate(errors, contextId, "VoCacheGeneratorConfiguration");
     }
 }

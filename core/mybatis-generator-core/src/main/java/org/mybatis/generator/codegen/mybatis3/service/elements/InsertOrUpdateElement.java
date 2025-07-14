@@ -33,7 +33,7 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
         boolean containsPreUpdateEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name());
         boolean containsUpdatedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name());
         Method method = serviceMethods.getInsertOrUpdateMethod(parentElement, false,true);
-        if (introspectedTable.getRules().isGenerateCachePO()) {
+        if (introspectedTable.getRules().isGenerateCachePo()) {
             CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
             method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
         }

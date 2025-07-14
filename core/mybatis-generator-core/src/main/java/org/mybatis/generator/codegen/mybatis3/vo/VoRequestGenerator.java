@@ -6,7 +6,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.AbstractModelGeneratorConfiguration;
-import org.mybatis.generator.config.VORequestGeneratorConfiguration;
+import org.mybatis.generator.config.VoRequestGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
@@ -18,24 +18,24 @@ import java.util.Set;
  * 2023-03-29 16:50
  * @version 3.0
  */
-public class VORequestGenerator extends AbstractVOGenerator {
+public class VoRequestGenerator extends AbstractVoGenerator {
 
-    public VORequestGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public VoRequestGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
     public TopLevelClass generate() {
-        VORequestGeneratorConfiguration voRequestGeneratorConfiguration = voGeneratorConfiguration.getVoRequestConfiguration();
+        VoRequestGeneratorConfiguration voRequestGeneratorConfiguration = voGeneratorConfiguration.getVoRequestConfiguration();
         String requestVoType = voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
-        TopLevelClass requestVoClass = createTopLevelClass(requestVoType, getAbstractVOType().getFullyQualifiedName());
+        TopLevelClass requestVoClass = createTopLevelClass(requestVoType, getAbstractVoType().getFullyQualifiedName());
         requestVoClass.addMultipleImports("lombok");
         voGenService.addConfigurationSuperInterface(requestVoClass, voRequestGeneratorConfiguration);
         addApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);
         requestVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         Set<String> excludeColumns = voGenService.getDefaultExcludeColumnNames(voRequestGeneratorConfiguration.getExcludeColumns());
-        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVOColumns()) {
+        for (IntrospectedColumn introspectedColumn : voGenService.getAbstractVoColumns()) {
             if (!introspectedColumn.isNullable() && !excludeColumns.contains(introspectedColumn.getActualColumnName())) {
                 addRequestField(requestVoClass, introspectedColumn);
             }
@@ -43,7 +43,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
 
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, null, voRequestGeneratorConfiguration.getExcludeColumns());
         introspectedColumns.stream()
-                .filter(introspectedColumn -> !isAbstractVOColumn(introspectedColumn) && !excludeColumns.contains(introspectedColumn.getActualColumnName()))
+                .filter(introspectedColumn -> !isAbstractVoColumn(introspectedColumn) && !excludeColumns.contains(introspectedColumn.getActualColumnName()))
                 .forEach(introspectedColumn -> addRequestField(requestVoClass, introspectedColumn));
         //分页属性
         addPageProperty(voRequestGeneratorConfiguration, requestVoClass);
@@ -110,7 +110,7 @@ public class VORequestGenerator extends AbstractVOGenerator {
         requestVoClass.addField(orderByClause);
     }
 
-    private void addPageProperty(VORequestGeneratorConfiguration voRequestGeneratorConfiguration, TopLevelClass topLevelClass) {
+    private void addPageProperty(VoRequestGeneratorConfiguration voRequestGeneratorConfiguration, TopLevelClass topLevelClass) {
         if (voRequestGeneratorConfiguration.isIncludePageParam()) {
             FullyQualifiedJavaType pageType = new FullyQualifiedJavaType("com.vgosoft.core.pojo.IPage");
             topLevelClass.addSuperInterface(pageType);

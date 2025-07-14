@@ -12,7 +12,7 @@ import org.mybatis.generator.api.dom.java.InitializationBlock;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.VOExcelGeneratorConfiguration;
+import org.mybatis.generator.config.VoExcelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
@@ -23,15 +23,15 @@ import com.vgosoft.tool.core.VCollectionUtil;
  * 2023-03-29 16:45
  * @version 3.0
  */
-public class VOExcelImportGenerator extends AbstractVOGenerator{
+public class VoExcelImportGenerator extends AbstractVoGenerator {
 
-    public VOExcelImportGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public VoExcelImportGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
     }
 
     @Override
     public TopLevelClass generate() {
-        VOExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
+        VoExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
         FullyQualifiedJavaType excelImportVoType = voExcelGeneratorConfiguration.getExcelImportType();
         TopLevelClass excelImportVoClass = createTopLevelClass(excelImportVoType.getFullyQualifiedName(), null);
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);
@@ -45,7 +45,7 @@ public class VOExcelImportGenerator extends AbstractVOGenerator{
         excelImportVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         //添加属性
-        List<IntrospectedColumn> introspectedColumns = voGenService.getVOColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getImportIncludeColumns(), voExcelGeneratorConfiguration.getImportExcludeColumns());
+        List<IntrospectedColumn> introspectedColumns = voGenService.getVoColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getImportIncludeColumns(), voExcelGeneratorConfiguration.getImportExcludeColumns());
         if (!introspectedColumns.isEmpty()) {
             excelImportVoClass.addAnnotation("@AllArgsConstructor");
         }
