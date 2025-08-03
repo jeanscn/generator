@@ -1,5 +1,7 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.custom.db.ValidateDatabaseTable;
@@ -16,52 +18,99 @@ import java.util.*;
 import static org.mybatis.generator.internal.util.StringUtility.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * The Class Context.
+ * <p>
+ * @author ''
+ *
+ */
 public class Context extends PropertyHolder {
 
+    @Setter
+    @Getter
     private String id;
 
+    @Setter
+    @Getter
     private String appKeyword;
 
+    @Setter
+    @Getter
     private String moduleKeyword;
 
+    @Setter
+    @Getter
     private String moduleName;
 
+    @Setter
+    @Getter
     private boolean integrateMybatisPlus = true;
 
+    @Setter
+    @Getter
     private boolean integrateSpringSecurity;
 
+    @Setter
+    @Getter
     private boolean forceUpdateScalableElement;
 
+    @Setter
+    @Getter
     private List<String> forceUpdateElementList = new ArrayList<>();
 
+    @Setter
+    @Getter
     private List<String> onlyTablesGenerate = new ArrayList<>();
 
+    @Setter
+    @Getter
     private boolean updateModuleData;
 
+    @Setter
+    @Getter
     private boolean updateMenuData;
 
+    @Setter
+    @Getter
     private String vueEndProjectPath;
 
+    @Setter
+    @Getter
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
 
+    @Setter
+    @Getter
     private ConnectionFactoryConfiguration connectionFactoryConfiguration;
 
+    @Setter
+    @Getter
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
+    @Setter
+    @Getter
     private JavaTypeResolverConfiguration javaTypeResolverConfiguration;
 
+    @Setter
+    @Getter
     private JavaModelGeneratorConfiguration javaModelGeneratorConfiguration;
 
+    @Setter
+    @Getter
     private JavaClientGeneratorConfiguration javaClientGeneratorConfiguration;
 
     private final ArrayList<TableConfiguration> tableConfigurations;
 
+    @Getter
     private final ModelType defaultModelType;
 
-    private String beginningDelimiter = "\""; //$NON-NLS-1$
+    @Getter
+    private String beginningDelimiter = "\"";
 
-    private String endingDelimiter = "\""; //$NON-NLS-1$
+    @Getter
+    private String endingDelimiter = "\"";
 
+    @Setter
+    @Getter
     private CommentGeneratorConfiguration commentGeneratorConfiguration;
 
     private CommentGenerator commentGenerator;
@@ -70,8 +119,12 @@ public class Context extends PropertyHolder {
 
     private final List<PluginConfiguration> pluginConfigurations;
 
+    @Setter
+    @Getter
     private String targetRuntime;
 
+    @Setter
+    @Getter
     private String introspectedColumnImpl;
 
     private Boolean autoDelimitKeywords;
@@ -88,16 +141,24 @@ public class Context extends PropertyHolder {
 
     private boolean isSqlServe;
 
+    @Setter
+    @Getter
     private String parentMenuId;
 
+    @Setter
+    @Getter
     private int jdkVersion;
 
+    @Getter
     protected Map<String, String> sysMenuDataScriptLines = new LinkedHashMap<>();
 
+    @Getter
     protected Map<String, String> moduleCateDataScriptLines = new LinkedHashMap<>();
 
+    @Getter
     protected Map<String, String> moduleDataScriptLines = new LinkedHashMap<>();
 
+    @Getter
     protected Map<String, String> wfProcTypeDataScriptLines = new LinkedHashMap<>();
 
     public Context(ModelType defaultModelType) {
@@ -115,26 +176,6 @@ public class Context extends PropertyHolder {
         tableConfigurations.add(tc);
     }
 
-    public JDBCConnectionConfiguration getJdbcConnectionConfiguration() {
-        return jdbcConnectionConfiguration;
-    }
-
-    public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
-        return javaClientGeneratorConfiguration;
-    }
-
-    public JavaModelGeneratorConfiguration getJavaModelGeneratorConfiguration() {
-        return javaModelGeneratorConfiguration;
-    }
-
-    public JavaTypeResolverConfiguration getJavaTypeResolverConfiguration() {
-        return javaTypeResolverConfiguration;
-    }
-
-    public SqlMapGeneratorConfiguration getSqlMapGeneratorConfiguration() {
-        return sqlMapGeneratorConfiguration;
-    }
-
     public void addPluginConfiguration(PluginConfiguration pluginConfiguration) {
         pluginConfigurations.add(pluginConfiguration);
     }
@@ -147,15 +188,15 @@ public class Context extends PropertyHolder {
      */
     public void validate(List<String> errors) {
         if (!stringHasValue(id)) {
-            errors.add(getString("ValidationError.16")); //$NON-NLS-1$
+            errors.add(getString("ValidationError.16"));
         }
 
         if (jdbcConnectionConfiguration == null && connectionFactoryConfiguration == null) {
             // must specify one
-            errors.add(getString("ValidationError.10", id)); //$NON-NLS-1$
+            errors.add(getString("ValidationError.10", id));
         } else if (jdbcConnectionConfiguration != null && connectionFactoryConfiguration != null) {
             // must not specify both
-            errors.add(getString("ValidationError.10", id)); //$NON-NLS-1$
+            errors.add(getString("ValidationError.10", id));
         } else if (jdbcConnectionConfiguration != null) {
             jdbcConnectionConfiguration.validate(errors);
         } else {
@@ -163,7 +204,7 @@ public class Context extends PropertyHolder {
         }
 
         if (javaModelGeneratorConfiguration == null) {
-            errors.add(getString("ValidationError.8", id)); //$NON-NLS-1$
+            errors.add(getString("ValidationError.8", id));
         } else {
             javaModelGeneratorConfiguration.validate(errors, id);
         }
@@ -176,19 +217,19 @@ public class Context extends PropertyHolder {
         try {
             it = ObjectFactory.createIntrospectedTableForValidation(this);
         } catch (Exception e) {
-            errors.add(getString("ValidationError.25", id)); //$NON-NLS-1$
+            errors.add(getString("ValidationError.25", id));
         }
 
         if (it != null && it.requiresXMLGenerator()) {
             if (sqlMapGeneratorConfiguration == null) {
-                errors.add(getString("ValidationError.9", id)); //$NON-NLS-1$
+                errors.add(getString("ValidationError.9", id));
             } else {
                 sqlMapGeneratorConfiguration.validate(errors, id);
             }
         }
 
         if (tableConfigurations.isEmpty()) {
-            errors.add(getString("ValidationError.3", id)); //$NON-NLS-1$
+            errors.add(getString("ValidationError.3", id));
         } else {
             for (int i = 0; i < tableConfigurations.size(); i++) {
                 TableConfiguration tc = tableConfigurations.get(i);
@@ -202,53 +243,8 @@ public class Context extends PropertyHolder {
         }
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setJavaClientGeneratorConfiguration(
-            JavaClientGeneratorConfiguration javaClientGeneratorConfiguration) {
-        this.javaClientGeneratorConfiguration = javaClientGeneratorConfiguration;
-    }
-
-    public void setJavaModelGeneratorConfiguration(
-            JavaModelGeneratorConfiguration javaModelGeneratorConfiguration) {
-        this.javaModelGeneratorConfiguration = javaModelGeneratorConfiguration;
-    }
-
-    public void setJavaTypeResolverConfiguration(
-            JavaTypeResolverConfiguration javaTypeResolverConfiguration) {
-        this.javaTypeResolverConfiguration = javaTypeResolverConfiguration;
-    }
-
-    public void setJdbcConnectionConfiguration(
-            JDBCConnectionConfiguration jdbcConnectionConfiguration) {
-        this.jdbcConnectionConfiguration = jdbcConnectionConfiguration;
-    }
-
-    public void setSqlMapGeneratorConfiguration(
-            SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration) {
-        this.sqlMapGeneratorConfiguration = sqlMapGeneratorConfiguration;
-    }
-
-    public ModelType getDefaultModelType() {
-        return defaultModelType;
-    }
-
     public List<TableConfiguration> getTableConfigurations() {
         return tableConfigurations;
-    }
-
-    public String getBeginningDelimiter() {
-        return beginningDelimiter;
-    }
-
-    public String getEndingDelimiter() {
-        return endingDelimiter;
     }
 
     @Override
@@ -307,33 +303,8 @@ public class Context extends PropertyHolder {
         return htmlFormatter;
     }
 
-    public CommentGeneratorConfiguration getCommentGeneratorConfiguration() {
-        return commentGeneratorConfiguration;
-    }
-
-    public void setCommentGeneratorConfiguration(
-            CommentGeneratorConfiguration commentGeneratorConfiguration) {
-        this.commentGeneratorConfiguration = commentGeneratorConfiguration;
-    }
-
     public Plugin getPlugins() {
         return pluginAggregator;
-    }
-
-    public String getTargetRuntime() {
-        return targetRuntime;
-    }
-
-    public void setTargetRuntime(String targetRuntime) {
-        this.targetRuntime = targetRuntime;
-    }
-
-    public String getIntrospectedColumnImpl() {
-        return introspectedColumnImpl;
-    }
-
-    public void setIntrospectedColumnImpl(String introspectedColumnImpl) {
-        this.introspectedColumnImpl = introspectedColumnImpl;
     }
 
     // methods related to code generation.
@@ -346,19 +317,14 @@ public class Context extends PropertyHolder {
     // 4. generateFiles()
     //
 
-    private final List<IntrospectedTable> introspectedTables = new ArrayList<>();
-
     /**
-     * This method could be useful for users that use the library for introspection only
-     * and not for code generation.
+     * -- GETTER --
+     *  This method could be useful for users that use the library for introspection only
+     *  and not for code generation.
      *
-     * @return a list containing the results of table introspection. The list will be empty
-     * if this method is called before introspectTables(), or if no tables are found that
-     * match the configuration
      */
-    public List<IntrospectedTable> getIntrospectedTables() {
-        return introspectedTables;
-    }
+    @Getter
+    private final List<IntrospectedTable> introspectedTables = new ArrayList<>();
 
     public int getIntrospectionSteps() {
         int steps = 0;
@@ -376,7 +342,7 @@ public class Context extends PropertyHolder {
 
     /**
      * Introspect tables based on the configuration specified in the
-     * constructor. This method is long running.
+     * constructor. This method is long-running.
      *
      * @param callback                 a progress callback if progress information is desired, or
      *                                 <code>null</code>
@@ -401,7 +367,7 @@ public class Context extends PropertyHolder {
         Connection connection = null;
 
         try {
-            callback.startTask(getString("Progress.0")); //$NON-NLS-1$
+            callback.startTask(getString("Progress.0"));
             connection = getConnection();
 
             DatabaseIntrospector databaseIntrospector = new DatabaseIntrospector(
@@ -417,11 +383,11 @@ public class Context extends PropertyHolder {
                 }
 
                 if (!tc.areAnyStatementsEnabled()) {
-                    warnings.add(getString("Warning.0", tableName)); //$NON-NLS-1$
+                    warnings.add(getString("Warning.0", tableName));
                     continue;
                 }
 
-                callback.startTask(getString("Progress.1", tableName)); //$NON-NLS-1$
+                callback.startTask(getString("Progress.1", tableName));
                 List<IntrospectedTable> tables = databaseIntrospector.introspectTables(tc);
 
                 if (tables != null) {
@@ -491,9 +457,7 @@ public class Context extends PropertyHolder {
 
             generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
             generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
-            introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlMapGeneratorConfiguration -> {
-                otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(introspectedTable,htmlMapGeneratorConfiguration));
-            });
+            introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlMapGeneratorConfiguration -> otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(introspectedTable,htmlMapGeneratorConfiguration)));
 
             generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
             otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(introspectedTable));
@@ -550,28 +514,12 @@ public class Context extends PropertyHolder {
                 && autoDelimitKeywords;
     }
 
-    public ConnectionFactoryConfiguration getConnectionFactoryConfiguration() {
-        return connectionFactoryConfiguration;
-    }
-
-    public void setConnectionFactoryConfiguration(ConnectionFactoryConfiguration connectionFactoryConfiguration) {
-        this.connectionFactoryConfiguration = connectionFactoryConfiguration;
-    }
-
     public boolean isJava8Targeted() {
         return isJava8Targeted;
     }
 
     public void setJava8Targeted(boolean isJava8Targeted) {
         this.isJava8Targeted = isJava8Targeted;
-    }
-
-    public int getJdkVersion() {
-        return jdkVersion;
-    }
-
-    public void setJdkVersion(int jdkVersion) {
-        this.jdkVersion = jdkVersion;
     }
 
     public boolean isSqlServe() {
@@ -595,109 +543,21 @@ public class Context extends PropertyHolder {
         return defaultVale;
     }
 
-    public String getModuleKeyword() {
-        return moduleKeyword;
-    }
-
-    public void setModuleKeyword(String moduleKeyword) {
-        this.moduleKeyword = moduleKeyword;
-    }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public boolean isIntegrateMybatisPlus() {
-        return integrateMybatisPlus;
-    }
-
-    public void setIntegrateMybatisPlus(boolean integrateMybatisPlus) {
-        this.integrateMybatisPlus = integrateMybatisPlus;
-    }
-
-    public boolean isIntegrateSpringSecurity() {
-        return integrateSpringSecurity;
-    }
-
-    public void setIntegrateSpringSecurity(boolean integrateSpringSecurity) {
-        this.integrateSpringSecurity = integrateSpringSecurity;
-    }
-
-    public boolean isForceUpdateScalableElement() {
-        return forceUpdateScalableElement;
-    }
-
-    public void setForceUpdateScalableElement(boolean forceUpdateScalableElement) {
-        this.forceUpdateScalableElement = forceUpdateScalableElement;
-    }
-
-    public List<String> getForceUpdateElementList() {
-        return forceUpdateElementList;
-    }
-
-    public void setForceUpdateElementList(List<String> forceUpdateElementList) {
-        this.forceUpdateElementList = forceUpdateElementList;
-    }
-
-    public String getParentMenuId() {
-        return parentMenuId;
-    }
-
-    public void setParentMenuId(String parentMenuId) {
-        this.parentMenuId = parentMenuId;
-    }
-
-
-    public Map<String, String> getSysMenuDataScriptLines() {
-        return sysMenuDataScriptLines;
-    }
 
     public void addSysMenuDataScriptLines(String id, String sysMenuDataScriptLine) {
         this.sysMenuDataScriptLines.put(id, sysMenuDataScriptLine);
-    }
-
-    public Map<String, String> getModuleDataScriptLines() {
-        return moduleDataScriptLines;
     }
 
     public void addModuleDataScriptLine(String id, String moduleDataScriptLine) {
         this.moduleDataScriptLines.put(id, moduleDataScriptLine);
     }
 
-    public Map<String, String> getModuleCateDataScriptLines() {
-        return moduleCateDataScriptLines;
-    }
-
     public void addModuleCateDataScriptLine(String id, String moduleCateDataScriptLine) {
         this.moduleCateDataScriptLines.put(id, moduleCateDataScriptLine);
     }
 
-    public Map<String, String> getWfProcTypeDataScriptLines() {
-        return wfProcTypeDataScriptLines;
-    }
-
     public void addWfProcTypeDataScriptLines(String id,String wfProcTypeDataScriptLine) {
         this.wfProcTypeDataScriptLines.put(id, wfProcTypeDataScriptLine);
-    }
-
-    public List<String> getOnlyTablesGenerate() {
-        return onlyTablesGenerate;
-    }
-
-    public void setOnlyTablesGenerate(List<String> onlyTablesGenerate) {
-        this.onlyTablesGenerate = onlyTablesGenerate;
-    }
-
-    public boolean isUpdateModuleData() {
-        return updateModuleData;
-    }
-
-    public void setUpdateModuleData(boolean updateModuleData) {
-        this.updateModuleData = updateModuleData;
     }
 
     public String getModuleDataFileName() {
@@ -708,14 +568,6 @@ public class Context extends PropertyHolder {
         return new File("src/main/resources/sql/init/" + getModuleDataFileName());
     }
 
-    public boolean isUpdateMenuData() {
-        return updateMenuData;
-    }
-
-    public void setUpdateMenuData(boolean updateMenuData) {
-        this.updateMenuData = updateMenuData;
-    }
-
     public String getMenuDataFileName() {
         return "data-menu-" + this.getModuleKeyword().toLowerCase() + ".sql";
     }
@@ -724,29 +576,11 @@ public class Context extends PropertyHolder {
         return new File("src/main/resources/sql/init/" + getMenuDataFileName());
     }
 
-    public String getAppKeyword() {
-        return appKeyword;
-    }
-
-    public void setAppKeyword(String appKeyword) {
-        this.appKeyword = appKeyword;
-    }
-
-    public String getVueEndProjectPath() {
-        return vueEndProjectPath;
-    }
-
-    public void setVueEndProjectPath(String vueEndProjectPath) {
-        this.vueEndProjectPath = vueEndProjectPath;
-    }
-
     public void validateTableConfig(ProgressCallback callback, List<String> warnings, Context context) {
-        if (tableConfigurations == null || this.getIntrospectedTables().size()==0) {
+        if (tableConfigurations == null || this.getIntrospectedTables().isEmpty()) {
             return;
         }
-        this.getIntrospectedTables().forEach(introspectedTable -> {
-            introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable,context);
-        });
+        this.getIntrospectedTables().forEach(introspectedTable -> introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable,context));
     }
 
     public void initDefault() {

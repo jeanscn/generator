@@ -129,7 +129,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         setup.addBodyLine("");
         setup.addBodyLine("id = {0}.getId();", entityInstanceVar);
         setup.addBodyLine("");
-        setup.addBodyLine("requestBody = JSONObject.toJSONString({0});", JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
+        setup.addBodyLine("requestBody = JsonUtil.toJsonString({0});", JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
         setup.addBodyLine("");
         //组织机构相关mock
         /*testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IUser");
@@ -152,7 +152,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         testClazz.addStaticImport("org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*");
         testClazz.addImportedType("org.junit.jupiter.api.Test");
         testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
-        testClazz.addImportedType("com.alibaba.fastjson2.JSONObject");
+        testClazz.addImportedType("com.vgosoft.tool.core.JsonUtil");
         testClazz.addImportedType("org.springframework.http.MediaType");
 
         if (viewpath != null) {

@@ -13,6 +13,9 @@ import java.util.EnumSet;
 @AllArgsConstructor
 public enum ReturnTypeEnum implements IBaseEnum<String>{
 
+    /**
+     * 返回类型枚举
+     */
     LIST("l","列表"),
     MODEL("m","对象"),
     SERVICE_RESULT_LIST("sl","服务返回列表"),
@@ -25,10 +28,12 @@ public enum ReturnTypeEnum implements IBaseEnum<String>{
     private final String code;
     private final String codeName;
 
+    @Override
     public String code(){
         return this.code;
     }
 
+    @Override
     public String codeName(){return  this.codeName;}
 
     public static ReturnTypeEnum ofCode(String code){

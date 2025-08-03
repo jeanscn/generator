@@ -1,6 +1,6 @@
 <!--
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.24
+* @version: list template version 1.0.31
 -->
 <#-- language=Vue3 -->
 <template>
@@ -18,7 +18,7 @@
                            @view-row-button-click="defaultViewRowActionHandler"
                            @view-toolbar-button-click="defaultDtCustomButtonActionHandler"
                            row-key="id" stripe remoteSort>
-                    <template v-for="(column,index) in _tableConfigProps!.columns" :key="`column_`+index" #[column.prop]="scope">
+                    <template v-for="(column) in _tableConfigProps!.columns" :key="`column_`+ column.prop" #[column.prop]="scope">
                         <span>
 							<el-link
                                     v-if="selectedHref(column)"
@@ -70,9 +70,9 @@
                                 @form-submit="onSubmit"
                                 @close="destroyForm">
                 </${ componentName }Modal>
-                <VgoTreeDrawer v-if="showTreeDrawer" v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="pageTitle"
+                <VgoTreeDrawer v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="pageTitle"
                                :apiObj="drawerTreeApiObj" :treePanelProps="drawerTreePanelProps"
-                               :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck">
+                               :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck" @save="saveTreeDrawerData">
                 </VgoTreeDrawer>
                 <vgoFileImport v-model="showImportDialog" :service="service" @on-success="importSuccess"></vgoFileImport>
             </el-main>
@@ -91,8 +91,7 @@
     import { ServiceApi } from '@/api/service';
     import { isEmpty, isNullOrUnDef } from '@/framework/utils/is';
     import * as extMethod from '@/hooks/useCustomHandle';
-    import TreePanel from '@/framework/application/components/TreePanel.vue';
-    import { TTreeApiObj, TTreePanelButtons, TTreePanelProps} from '@/framework/application/types';
+    import TreePanel from '@/framework/components/vgoTree/TreePanel.vue';
     import { TFormConfig } from '@/framework/components/vgoForm/types';
     import { T${ componentName } } from '../${ modelPath }/types/T${ componentName }';
     import VgoTreeDrawer from '@/framework/components/vgoDrawer/VgoTreeDrawer.vue';
@@ -100,7 +99,7 @@
     import { useTableConfigStore } from '@/store/tableConfig';
     import { useFormConfigStore } from '@/store/formConfig';
     import { TDtCustomButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
-    import { TTreeCheckDataProps, TVgoTreeProps } from '@/framework/components/vgoTree/types';
+    import { TTreeApiObj, TTreeCheckDataParams, TTreePanelButtons, TTreePanelProps, TTreeSaveDataParams, TVgoTreeProps } from '@/framework/components/vgoTree/types';
     import { TApi } from '@/api/types';
     import { useI18n } from 'vue-i18n';
     import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
@@ -159,7 +158,6 @@
     const sideTreePanelProps = ref<TTreePanelProps>({
         treePanelButtons: {
             showAll: true,
-            collapseAll: true,
             expandAll: true,
             add: false,
             edit: false,
@@ -167,20 +165,24 @@
         } as TTreePanelButtons,
         vgoTreeProps: {
             showCheckbox: false,
+            checkStrictly: true,
+            defaultExpandAll: true,
         } as TVgoTreeProps,
     });
     const drawerTreePanelProps = ref<TTreePanelProps>({
         treePanelButtons: {
             showAll: false,
-            collapseAll: true,
             expandAll: true,
             add: false,
             edit: false,
             del: false,
+            save:true,
+            reset: true,
+            close: true,
         } as TTreePanelButtons,
         vgoTreeProps: {
             showCheckbox: true,
-            checkStrictly: true,
+            checkStrictly: false,
             defaultExpandAll: true,
             props: {
                 children: 'children',
@@ -356,7 +358,7 @@
         extMethod.defaultInnerListButtonActionHandler(params);
     };
 
-    const treeDrawerCheckCheck = (params: TTreeCheckDataProps) => {
+    const treeDrawerCheckCheck = (params: TTreeCheckDataParams) => {
         params = {
             moduleKey: moduleKey,
             service: service,
@@ -365,9 +367,18 @@
         extMethod.treeDrawerCheckCheck(params);
     };
 
+    const saveTreeDrawerData = (params: TTreeSaveDataParams) => {
+        const param = {
+            moduleKey: moduleKey,
+            service: service,
+            ...params,
+        };
+        extMethod.saveTreeDrawerData(param);
+    };
+
     const navTreeItemClick = (args: any) => {
-        let param = (args[0] && Object.keys(args[0]).length > 0 && args[0].searchExpr) || {};
-        tableRef.value!.reload({anyWhereCondition: param});
+        let searchExpr = args?.data?.searchExpr || {};
+        tableRef.value!.reload({anyWhereCondition: searchExpr});
     };
 
     const onSubmit = (val) => {
@@ -403,10 +414,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    :deep(.el-link__inner) {
-        display: flex;
     }
 
     // 屏幕宽度小于 768px 时隐藏

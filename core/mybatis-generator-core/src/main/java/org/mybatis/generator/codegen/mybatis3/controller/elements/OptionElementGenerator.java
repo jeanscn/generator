@@ -13,6 +13,14 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * 生成Options-XX选项列表
+ * <p>
+ * 生成的代码会在Controller中添加一个方法，返回一个FormSelectOption或FormSelectTreeOption对象列表。
+ * 该方法可以根据传入的属性同名参数、选中的值和查询场景标识来获取相应的选项列表。
+ * </p>
+ * @author vgosoft
+ */
 public class OptionElementGenerator extends AbstractControllerElementGenerator {
 
     private final FullyQualifiedJavaType optionType = new FullyQualifiedJavaType("com.vgosoft.system.web.FormSelectOption");
@@ -82,7 +90,8 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         String getterMethodName = JavaBeansUtil.getGetterMethodName(column.getJavaProperty(), FullyQualifiedJavaType.getStringInstance());
         IntrospectedColumn idColumn = introspectedTable.getColumn(formOptionGeneratorConfiguration.getIdColumn()).orElse(null);
         String idGetterName = idColumn!=null?JavaBeansUtil.getGetterMethodName(idColumn.getJavaProperty(), idColumn.getFullyQualifiedJavaType()):"getId";
-        if (formOptionGeneratorConfiguration.getDataType() == 0) {  //0-flat，1-tree
+        // 0-flat，1-tree
+        if (formOptionGeneratorConfiguration.getDataType() == 0) {
             String idGetter;
             if (idColumn != null && idColumn.isStringColumn()) {
                 idGetter = "t."+idGetterName+"()";
@@ -102,7 +111,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
             pMethod.setReturnType(optionTreeType);
             pMethod.addBodyLine("FormSelectTreeOption formSelectTreeOption = new FormSelectTreeOption({0}.{2}(), {0}.{1}(), selected);",
                     entityType.getShortNameFirstLowCase(),getterMethodName,idGetterName);
-            commentGenerator.addMethodJavaDocLine(pMethod, true, "内部方法：递归处理用");
+            commentGenerator.addMethodJavaDocLine(pMethod, false, "内部方法：递归处理用");
             pMethod.addBodyLine("if ({0}.getChildren().isEmpty()) '{'",entityType.getShortNameFirstLowCase());
             pMethod.addBodyLine("formSelectTreeOption.setParent(true);");
             pMethod.addBodyLine("List<FormSelectTreeOption> collect = {0}.getChildren().stream()",entityType.getShortNameFirstLowCase());
@@ -114,12 +123,17 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         }
         method.addBodyLine("        .distinct().collect(Collectors.toList());");
         if (introspectedTable.getRules().isGenerateRequestVo()) {
-            method.addBodyLine("if (page!=null) {");
-            method.addBodyLine("return ResponsePagehelperResult.success(options,page);");
-            method.addBodyLine("} else {");
-            method.addBodyLine("return ResponseResult.success(options);");
-            method.addBodyLine("}");
-            parentElement.addImportedType(responsePagehelperResult);
+            boolean pageParam = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration().isIncludePageParam();
+            if (pageParam) {
+                method.addBodyLine("if (page!=null) {");
+                method.addBodyLine("return ResponsePagehelperResult.success(options,page);");
+                method.addBodyLine("} else {");
+                method.addBodyLine("return ResponseResult.success(options);");
+                method.addBodyLine("}");
+                parentElement.addImportedType(responsePagehelperResult);
+            } else {
+                method.addBodyLine("return ResponseResult.success(options);");
+            }
         } else {
             method.addBodyLine("return ResponseResult.success(options);");
         }

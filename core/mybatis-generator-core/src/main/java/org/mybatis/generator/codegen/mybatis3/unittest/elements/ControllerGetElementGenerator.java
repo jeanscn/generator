@@ -22,7 +22,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
         parentElement.addImportedType("org.springframework.http.HttpStatus");
-        parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
+        parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
         if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
@@ -79,7 +79,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
                         "                .andReturn()\n" +
                         "                .getResponse();\n" +
                         "        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
-                        "        ResponseResult<?> responseSimple = JSONObject.parseObject(response.getContentAsString(StandardCharsets.UTF_8), ResponseResult.class);\n" +
+                        "        ResponseResult<?> responseSimple = JsonUtil.parseObject(response.getContentAsString(StandardCharsets.UTF_8), ResponseResult.class);\n" +
                         "        assertThat(responseSimple.getCode()).isEqualTo(ApiCodeEnum.FAIL_NOT_FOUND.code());",
                 requestUri);
         parentElement.addMethod(method);

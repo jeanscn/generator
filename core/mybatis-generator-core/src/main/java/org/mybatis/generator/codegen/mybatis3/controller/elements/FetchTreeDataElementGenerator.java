@@ -147,7 +147,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         aMethod.addBodyLine("keys = keys == null ? \"0\" : keys;");
         aMethod.addBodyLine("List<String> parentIds = splitToList(keys);");
         aMethod.addBodyLine("example.createCriteria().andParentIdIn(parentIds);");
-        aMethod.addBodyLine(" if (keys.equals(\"0\")) {");
+        aMethod.addBodyLine(" if (\"0\".equals(keys)) {");
         aMethod.addBodyLine("example.or(example.createCriteria().andParentIdIsNull());");
         aMethod.addBodyLine("}");
         if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
@@ -157,7 +157,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             aMethod.addBodyLine("}");
             aMethod.addBodyLine("List<{0}> result = serviceResult.getResult();",entityType.getShortName());
             aMethod.addBodyLine("result.forEach(record -> {");
-            aMethod.addBodyLine("if (record.getChildrenCount() == 0L) record.setLeaf(true);");
+            aMethod.addBodyLine("if (record.getChildrenCount() == 0L) { record.setLeaf(true); }");
             aMethod.addBodyLine("});");
         } else {
             aMethod.addBodyLine("List<{0}> result = {1}.selectByExample(example).getResult();",entityType.getShortName(), serviceBeanName);
@@ -185,5 +185,6 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         parentElement.addImportedType("java.util.stream.Collectors");
         parentElement.addImportedType("java.util.ArrayList");
         parentElement.addImportedType("java.util.List");
+        parentElement.addImportedType("java.util.Collections");
     }
 }

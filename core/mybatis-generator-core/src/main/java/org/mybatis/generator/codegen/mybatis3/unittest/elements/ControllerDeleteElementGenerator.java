@@ -22,7 +22,7 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType(RESPONSE_RESULT);
         parentElement.addImportedType("java.util.List");
         parentElement.addImportedType(exampleType);
-        parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
+        parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");
 
         //deleteXXX，预期返回测试方法
         String requestUri = VStringUtil.format("delete(\"/{0}/'{id}'\", id)", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
@@ -47,9 +47,9 @@ public class ControllerDeleteElementGenerator extends AbstractUnitTestElementGen
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         addMethodComment(method, "被调用的service.deleteByExample()方法有返回值");
         if (context.getJdkVersion()>8) {
-            method.addBodyLine("String ids = JSONObject.toJSONString(List.of(id));");
+            method.addBodyLine("String ids = JsonUtil.toJsonString(List.of(id));");
         }else{
-            method.addBodyLine("String ids = JSONObject.toJSONString(Collections.singleton(id));");
+            method.addBodyLine("String ids = JsonUtil.toJsonString(Collections.singleton(id));");
             parentElement.addImportedType("java.util.Collections");
         }
         method.addBodyLine("int exceptResult = 2;\n" +

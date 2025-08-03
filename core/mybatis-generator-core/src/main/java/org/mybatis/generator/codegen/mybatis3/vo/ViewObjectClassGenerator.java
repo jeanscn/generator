@@ -214,6 +214,8 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         sqlBuilder.updateStringValues("path_", "/" + String.join("/", moduleName, tableName));
                         sqlBuilder.updateStringValues("url_", "viewmgr/" + id + "/open-view");
                         sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
+                        sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+                        sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
                         introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql() + ";");
                     }
                 }

@@ -44,7 +44,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         addSecurityPreAuthorize(method, methodPrefix, "数据列表");
         method.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取条件实体对象列表");
-        method.addBodyLine("if (actionType != null) {0}.setActionType(actionType);", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
+        method.addBodyLine("if (actionType != null) '{'{0}.setActionType(actionType);'}'", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
         method.addBodyLine("{0} example = buildExample({1});",
                 exampleType.getShortName(),
@@ -72,7 +72,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         addSecurityPreAuthorize(postMethod, methodPrefix, "数据列表");
         postMethod.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
         commentGenerator.addMethodJavaDocLine(postMethod, "获取条件实体对象列表");
-        postMethod.addBodyLine("if (actionType != null) {0}.setActionType(actionType);", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
+        postMethod.addBodyLine("if (actionType != null) '{'{0}.setActionType(actionType);'}'", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
         postMethod.addBodyLine("{0} example = buildExample({1});",
                 exampleType.getShortName(),

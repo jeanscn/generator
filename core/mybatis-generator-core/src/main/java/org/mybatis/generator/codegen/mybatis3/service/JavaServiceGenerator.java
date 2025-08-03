@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
@@ -203,6 +204,10 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 sqlForModule.updateStringValues("view_path", introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath());
             }
             sqlForModule.updateStringValues("drop_tables", String.join(",", introspectedTable.getTableConfiguration().getEnableDropTables()));
+            sqlForModule.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+            sqlForModule.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+            sqlForModule.updateStringValues("tenant_id", GlobalConstant.DEFAULT_TENANT_ID);
+            sqlForModule.updateStringValues("org_id", GlobalConstant.DEFAULT_ORG_ID);
             context.addModuleDataScriptLine(mid, sqlForModule.toSql() + ";");
         }
         //生成该数据库的流程定义数据
@@ -225,6 +230,10 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                         sqlForWfProcType.updateStringValues("biz_view_path", viewPath);
                         sqlForWfProcType.updateStringValues("bean_name", introspectedTable.getControllerBeanName());
                         sqlForWfProcType.updateStringValues("fld_number_rule", introspectedTable.getRemarks(true));
+                        sqlForWfProcType.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+                        sqlForWfProcType.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+                        sqlForWfProcType.updateStringValues("tenant_id", GlobalConstant.DEFAULT_TENANT_ID);
+                        sqlForWfProcType.updateStringValues("org_id", GlobalConstant.DEFAULT_ORG_ID);
                         context.addWfProcTypeDataScriptLines(id, sqlForWfProcType.toSql() + ";");
                     });
         }

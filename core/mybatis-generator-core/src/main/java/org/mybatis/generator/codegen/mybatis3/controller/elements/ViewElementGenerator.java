@@ -64,8 +64,11 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("if (viewParam.getId() != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(viewParam.getId());", entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
-        method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-        if (GenerateUtils.isWorkflowInstance(introspectedTable)) { //如果是流程实例
+        if (introspectedTable.getRules().isGenerateVoModel()) {
+            method.addBodyLine("{0} {1} = serviceResult.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
+        }
+        //如果是流程实例
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             //为父元素添加当前方法的使用的属性
             parentElement.addImportedType("javax.annotation.Resource");
             FullyQualifiedJavaType qualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
@@ -123,6 +126,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
 
         if (introspectedTable.getRules().isGenerateVoModel()) {
             method.addBodyLine("{0} = mappings.to{1}Vo(serviceResult.getResult());", entityVar, entityType.getShortName());
+            parentElement.addImportedType(entityVoType);
         } else {
             method.addBodyLine("{0} = serviceResult.getResult();", entityVar);
         }
@@ -133,11 +137,11 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("{0} = updateNewInstanceDefaultValue(new {1}());", entityVar, entityName);
         method.addBodyLine("}");
         method.addBodyLine("if ({0} != null) '{'", entityVar);
-        method.addBodyLine("{0} {1} = JsonUtil.serializeObject({2});", entityName, entityType.getShortNameFirstLowCase(), entityVar);
+        method.addBodyLine("{0} {1}View = JsonUtil.serializeObject({2});", entityName, entityType.getShortNameFirstLowCase(), entityVar);
         method.addBodyLine("if (viewParam.getRValue() != null && viewParam.getRField() != null) {");
-        method.addBodyLine("VReflectionUtil.writeField({0}, viewParam.getRField(), viewParam.getRValue());", entityType.getShortNameFirstLowCase());
+        method.addBodyLine("VReflectionUtil.writeField({0}View, viewParam.getRField(), viewParam.getRValue());", entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
-        method.addBodyLine("mv.addObject(\"{0}\", {1});", this.entityNameKey, entityType.getShortNameFirstLowCase());
+        method.addBodyLine("mv.addObject(\"{0}\", {1}View);", this.entityNameKey, entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
         method.addBodyLine("mv.addAllObjects(getCurrentUserInfo());");
         method.addBodyLine("mv.setViewName(viewName);");
@@ -149,7 +153,6 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType("com.vgosoft.tool.core.VStringUtil");
         parentElement.addImportedType("com.vgosoft.web.pojo.ControllerViewParam");
         parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");
-        parentElement.addImportedType(entityVoType);
         parentElement.addMethod(method);
     }
 

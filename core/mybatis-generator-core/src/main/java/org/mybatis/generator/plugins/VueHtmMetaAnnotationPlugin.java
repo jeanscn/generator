@@ -22,6 +22,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * 添加VueHtmMetaAnnotationPlugin
+ * @author vgosoft
  */
 public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
 
@@ -126,7 +127,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 if (introspectedTable.getRules().isGenerateVoModel()) {
                     if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                             && !baseColumn.isPrimaryKey()
-                            && !baseColumn.getActualColumnName().equalsIgnoreCase("version_")) {
+                            && !"version_".equalsIgnoreCase(baseColumn.getActualColumnName())) {
                         continue;
                     }
                 }
@@ -166,7 +167,8 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             if (hiddenColumns.stream().anyMatch(e -> e.getActualColumnName().equals(introspectedColumn.getActualColumnName()))) {
                 vueFormItemMetaDesc.setDefaultHidden(true);
             }
-            if (elementDescriptor != null) { //存在字段配置的内容
+            //设置显示状态
+            if (elementDescriptor != null) {
                 //设置multiple
                 vueFormItemMetaDesc.setMultiple(elementDescriptor.isMultiple());
                 vueFormItemMetaDesc.setOtherFieldName(elementDescriptor.getOtherFieldName());

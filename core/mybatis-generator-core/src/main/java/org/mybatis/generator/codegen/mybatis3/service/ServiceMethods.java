@@ -389,9 +389,9 @@ public class ServiceMethods {
         }
         Method method = getMethodByType(
                 introspectedTable.getSelectByKeysDictStatementId(),
-                isCache?(isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.LIST):ReturnTypeEnum.MODEL,
+                isCache?(ReturnTypeEnum.LIST):ReturnTypeEnum.MODEL,
                 isService?config.getFullyQualifiedJavaType():entityType,
-                introspectedTable.getRemarks(true)+(isService?"缓存对象包装ServiceResult包装":"实体对象列表"),
+                introspectedTable.getRemarks(true)+(isService?"缓存对象列表":"实体对象列表"),
                 parameters,
                 isAbstract,
                 parentElement);

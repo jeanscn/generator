@@ -1,6 +1,6 @@
 <!--
 * @description ${ tableRemark }列表列插槽渲染
-* @version: slots template version 1.0.4
+* @version: slots template version 1.0.5
 -->
 <template #[slotName]="scope">
     <el-tag v-if="slotName === 'state'"
@@ -20,7 +20,7 @@
     <span v-else>{{ scope.row[slotName] }}</span>
 </template>
 <script lang="ts" setup name="PrivateTableColumnSlots">
-    import { computed, PropType, toRef } from 'vue'
+    import { computed, PropType } from 'vue'
     import textMaps from '@/framework/utils/maps'
     import { EMPTY_OBJECT } from '@/framework/utils/constant'
     import { TColumn } from '@/framework/components/vgoTable/types'
@@ -31,11 +31,10 @@
         column: { type: Object as PropType<TColumn>, default: EMPTY_OBJECT },
     })
 
-    // 使用 toRef 确保 rowData 能响应 props.scope.row 的变化
-    const rowData = toRef(() => props.scope.row)
-    const stateText = computed(() => textMaps.stateTextMap[rowData.value.state] || '--')
+    // 直接使用props.scope.row 保持响应变化
+    const stateText = computed(() => textMaps.stateTextMap[props.scope.row?.state] || '--')
     <#if workflowEnabled >
-    const urgencyText = computed(() => textMaps.urgencyTextMap[rowData.value.priority] || '--')
-    const wfStateText = computed(() => textMaps.wfStateTextMap[rowData.value.wfState] || '--')
+    const urgencyText = computed(() => textMaps.urgencyTextMap[props.scope.row?.priority] || '--')
+    const wfStateText = computed(() => textMaps.wfStateTextMap[props.scope.row?.wfState] || '--')
     </#if>
 </script>

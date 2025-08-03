@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3;
 
+import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -86,6 +87,9 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForModuleCate();
         sqlBuilder.updateStringValues("id_", id);
         sqlBuilder.updateStringValues("name_", context.getModuleName());
+        sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+        sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+        sqlBuilder.updateStringValues("tenant_id",GlobalConstant.DEFAULT_TENANT_ID);
         context.addModuleCateDataScriptLine(id, sqlBuilder.toSql() + ";");
     }
 
@@ -101,6 +105,10 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         sqlBuilder.updateValues("sort_", String.valueOf(size));
         sqlBuilder.updateValues("wf_apply", "0");
         sqlBuilder.updateStringValues("category_", id);
+        sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+        sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+        sqlBuilder.updateStringValues("tenant_id", GlobalConstant.DEFAULT_TENANT_ID);
+        sqlBuilder.updateStringValues("org_id", GlobalConstant.DEFAULT_ORG_ID);
         context.addModuleDataScriptLine(id, sqlBuilder.toSql() + ";");
     }
 

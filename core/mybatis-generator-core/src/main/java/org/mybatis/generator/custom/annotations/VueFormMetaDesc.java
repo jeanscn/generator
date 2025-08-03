@@ -2,6 +2,8 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.*;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -14,7 +16,10 @@ import java.util.stream.Collectors;
  * ElementPlus表单元数据描述注解
  *
  * @version 6.0
+ * @author vgosoft
  */
+@Getter
+@Setter
 public class VueFormMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@" + VueFormMeta.class.getSimpleName();
@@ -106,121 +111,5 @@ public class VueFormMetaDesc extends AbstractAnnotation {
             items.add(VStringUtil.format("hiddenFields = \"{0}\"", String.join(",", this.getHiddenFields())));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + "\n)";
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getLabelPosition() {
-        return labelPosition;
-    }
-
-    public void setLabelPosition(String labelPosition) {
-        this.labelPosition = labelPosition;
-    }
-
-    public String getLabelWidth() {
-        return labelWidth;
-    }
-
-    public void setLabelWidth(String labelWidth) {
-        this.labelWidth = labelWidth;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public String getAppKeyword() {
-        return appKeyword;
-    }
-
-    public String getRestBasePath() {
-        return restBasePath;
-    }
-
-    public void setRestBasePath(String restBasePath) {
-        this.restBasePath = restBasePath;
-    }
-
-    public String getPopSize() {
-        return popSize;
-    }
-
-    public void setPopSize(String popSize) {
-        this.popSize = popSize;
-    }
-
-    public List<VueFormUploadMetaDesc> getUploadMeta() {
-        return uploadMeta;
-    }
-
-    public void setUploadMeta(List<VueFormUploadMetaDesc> uploadMeta) {
-        this.uploadMeta = uploadMeta;
-    }
-
-    public List<VueFormInnerListMetaDesc> getInnerListMeta() {
-        return innerListMeta;
-    }
-
-    public void setInnerListMeta(List<VueFormInnerListMetaDesc> innerListMeta) {
-        this.innerListMeta = innerListMeta;
-    }
-
-    public List<VueFormContainerMetaDesc> getContainerMeta() {
-        return containerMeta;
-    }
-
-    public void setContainerMeta(List<VueFormContainerMetaDesc> containerMeta) {
-        this.containerMeta = containerMeta;
-    }
-
-    public boolean isPopDraggable() {
-        return popDraggable;
-    }
-
-    public void setPopDraggable(boolean popDraggable) {
-        this.popDraggable = popDraggable;
-    }
-
-    public Set<String> getReadonlyFields() {
-        return readonlyFields;
-    }
-
-    public void setReadonlyFields(Set<String> readonlyFields) {
-        this.readonlyFields = readonlyFields;
-    }
-
-    public Set<String> getDisplayOnlyFields() {
-        return displayOnlyFields;
-    }
-
-    public void setDisplayOnlyFields(Set<String> displayOnlyFields) {
-        this.displayOnlyFields = displayOnlyFields;
-    }
-
-    public Set<String> getHiddenFields() {
-        return hiddenFields;
-    }
-
-    public void setHiddenFields(Set<String> hiddenFields) {
-        this.hiddenFields = hiddenFields;
-    }
-
-    public List<VueFormApprovalMetaDesc> getApprovalMeta() {
-        return approvalMeta;
-    }
-
-    public void setApprovalMeta(List<VueFormApprovalMetaDesc> approvalMeta) {
-        this.approvalMeta = approvalMeta;
     }
 }

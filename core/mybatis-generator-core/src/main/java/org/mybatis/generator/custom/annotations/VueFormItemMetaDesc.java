@@ -14,6 +14,7 @@ import java.util.Set;
  * ElementPlus表单元数据描述注解
  *
  * @version 6.0
+ * @author Vgosoft
  */
 @Getter
 @Setter
@@ -32,26 +33,74 @@ public class VueFormItemMetaDesc extends AbstractAnnotation {
     private String rules;
     private String hideHandle;
     private String requiredHandle;
-    private Boolean defaultHidden = false; // 默认隐藏
-    // 以下为options属性
-    private String placeholder; // 提示文字
-    private String maxlength; // 最大长度
-    private String minlength; // 最小长度
-    private Boolean multiple = false; // 是否允许多选
-    // 类型,input-可能是text、password、url、textarea；date-可能是time、datetime
+    /**
+     * 默认隐藏
+     */
+    private Boolean defaultHidden = false;
+    /**
+     * 提示文字
+     */
+    private String placeholder;
+    /**
+     * 组件的最大长度和最小长度
+     */
+    private String maxlength;
+    /**
+     * 组件的最小长度
+     */
+    private String minlength;
+    /**
+     * 是否允许多选
+     */
+    private Boolean multiple = false;
+    /**
+     * 类型,input-可能是text、password、url、textarea；date-可能是time、datetime
+     */
     private String type;
-    private String valueFormat; // 日期格式化
-    private boolean dateRange = false; // 是否为日期范围
-    private boolean remoteApiParse = false; // 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
-    private boolean remoteToTree = false; // 远程数据源转树形结构
-    private String remoteValueType = "string"; // 远程数据源返回的数据中，value对应的字段类型,remoteApiParse为true时有效
-    private boolean remoteAsync = false; // 远程数据源是否异步加载
-    private boolean excludeSelf = false; // 远程数据源是否排除自身
-
-    private String keyMapLabel = "name"; // 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
-    private String keyMapValue = "id"; // 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
-    private String dataUrl = ""; // 远程数据源的URL
-    private String dataUrlParams = ""; // 数据源
+    /**
+     * 组件的值类型，默认是string
+     */
+    private String valueFormat;
+    /**
+     * 是否为日期范围
+     */
+    private boolean dateRange = false;
+    /**
+     * 是否解析远程数据源的结果，如果为true，则远程数据源返回的数据需要进行转换label和value。如果指定了keyMapLabel和keyMapValue，则按照keyMap转换，否则按照默认规则转换label-name，value-id
+     */
+    private boolean remoteApiParse = false;
+    /**
+     * 是否将远程数据源转换为树形结构
+     */
+    private boolean remoteToTree = false;
+    /**
+     * 远程数据源返回的数据中，value对应的字段类型,remoteApiParse为true时有效
+     */
+    private String remoteValueType = "string";
+    /**
+     * 远程数据源是否异步加载
+     */
+    private boolean remoteAsync = false;
+    /**
+     * 远程数据源是否排除自身
+     */
+    private boolean excludeSelf = false;
+    /**
+     * 远程数据源返回的数据中，label对应的字段名,remoteApiParse为true时有效
+     */
+    private String keyMapLabel = "name";
+    /**
+     * 远程数据源返回的数据中，value对应的字段名,remoteApiParse为true时有效
+     */
+    private String keyMapValue = "id";
+    /**
+     * 远程数据源的URL
+     */
+    private String dataUrl = "";
+    /**
+     * 远程数据源的URL参数
+     */
+    private String dataUrlParams = "";
     private String dataSource = "";
     private String beanName = "";
 

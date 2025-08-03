@@ -292,8 +292,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         if (!columns.isEmpty()) {
             buildExample.addBodyLine("{0} example = new {0}();\n" +
                     "        {0}.Criteria criteria = example.createCriteria();", exampleType.getShortName());
-            introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> buildExample.addBodyLine("if ({0}.isIgnoreDeleteFlag()) example.setIgnoreDeleteFlag(true);", paramType.getShortNameFirstLowCase()));
-            buildExample.addBodyLine("if ({0}.isIgnorePermissionAnnotation()) example.setIgnorePermissionAnnotation(true);", paramType.getShortNameFirstLowCase());
+            introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> buildExample.addBodyLine("if ({0}.isIgnoreDeleteFlag()) '{'example.setIgnoreDeleteFlag(true);'}'", paramType.getShortNameFirstLowCase()));
+            buildExample.addBodyLine("if ({0}.isIgnorePermissionAnnotation()) '{'example.setIgnorePermissionAnnotation(true);'}'", paramType.getShortNameFirstLowCase());
             if (introspectedTable.getRules().isGenerateHideListBin()) {
                 buildExample.addBodyLine("if ({0}.isHideIds()) '{'", paramType.getShortNameFirstLowCase());
                 buildExample.addBodyLine("List<String> filterIds = sysPerFilterOutBinImpl.getCurrentUserFilterOutBinIds(\"{0}\");", entityType.getShortName().toLowerCase());

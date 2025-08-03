@@ -267,6 +267,8 @@ public class Mb3GenUtil {
             }
             sqlBuilder.updateStringValues("code_", code);
             sqlBuilder.updateStringValues("name_", name);
+            sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+            sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
             introspectedTable.addPermissionDataScriptLines(id, sqlBuilder.toSql()+";");
             index++;
         }
@@ -352,6 +354,8 @@ public class Mb3GenUtil {
                 sqlBuilder.updateStringValues("parent_id", parentMenuId);
                 introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
             }
+            sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+            sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
             index++;
         }
     }

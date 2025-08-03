@@ -25,7 +25,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
-        parentElement.addImportedType("com.alibaba.fastjson2.JSONObject");
+        parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");
         if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
@@ -87,7 +87,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
                 mockServiceImpl, entityType.getShortName() + ".class", requestUri);
         method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
                 "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseResult<?> responseResult = JSONObject.parseObject(contentAsString, ResponseResult.class);\n" +
+                "        ResponseResult<?> responseResult = JsonUtil.parseObject(contentAsString, ResponseResult.class);\n" +
                 "        assertThat(responseResult.getStatus()).isEqualTo(1);");
         parentElement.addMethod(method);
     }

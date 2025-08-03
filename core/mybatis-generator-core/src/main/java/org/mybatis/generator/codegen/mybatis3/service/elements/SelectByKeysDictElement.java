@@ -49,10 +49,9 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         //添加缓存注解
         CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
         cacheAnnotationDesc.setParameters(parameters);
-        cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.getResult()==null || #result.getResult().isEmpty()");
+        cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
         selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
         //方法体
-        //selectByKeysDictMethod.addBodyLine("{0}Mappings mappings = {0}Mappings.INSTANCE;", entityType.getShortName() + ConstantsUtil.MAPPINGS_CACHE_PO_KEY);
         selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
         String keyColumn = voCacheGeneratorConfiguration.getKeyColumn();
         IntrospectedColumn column = introspectedTable.getColumn(keyColumn).orElse(null);
@@ -70,13 +69,14 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
                 , entityType.getShortName()
                 , introspectedTable.getSelectByKeysDictStatementId());
         selectByKeysDictMethod.addBodyLine("if (!result.isEmpty()) {");
-        selectByKeysDictMethod.addBodyLine("return ServiceResult.success({0}.to{1}CachePos(result));"
+        selectByKeysDictMethod.addBodyLine("return {0}.to{1}CachePos(result);"
                 ,typeCacheMappingType.getShortNameFirstLowCase()+"Impl", entityType.getShortName());
         selectByKeysDictMethod.addBodyLine("}else{");
-        selectByKeysDictMethod.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.WARN, \"未查询到数据\");");
+        selectByKeysDictMethod.addBodyLine("return new ArrayList<>();");
         selectByKeysDictMethod.addBodyLine("}");
         parentElement.addMethod(selectByKeysDictMethod);
         Mb3GenUtil.injectionMappingsInstance(parentElement,typeCacheMappingType);
         parentElement.addImportedType(typeCacheMappingType);
+        parentElement.addImportedType("java.util.ArrayList");
     }
 }

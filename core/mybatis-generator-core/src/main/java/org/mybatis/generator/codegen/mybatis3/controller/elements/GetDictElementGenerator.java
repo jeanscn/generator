@@ -49,13 +49,13 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
         List<Parameter> selectDictByKeysParameters = serviceMethods.getDictControllerMethodParameters(introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration());
         selectDictByKeysParameters.forEach(method::addParameter);
-        method.addBodyLine(VStringUtil.format("ServiceResult<List<{0}>> serviceResult = {1}.{2}({3});"
+        method.addBodyLine(VStringUtil.format("List<{0}> result = {1}.{2}({3});"
                 , entityCachePoType.getShortName()
                 , serviceBeanName
                 , introspectedTable.getSelectByKeysDictStatementId()
                 , configuration.getTypeColumn() == null ? "Optional.empty(),keys" : "Optional.of(types),keys"));
-        method.addBodyLine("if (serviceResult.hasResult()) {");
-        method.addBodyLine("return success(serviceResult.getResult());");
+        method.addBodyLine("if (!result.isEmpty()) {");
+        method.addBodyLine("return success(result);");
         method.addBodyLine("}else{");
         method.addBodyLine("return failure(ApiCodeEnum.FAIL_NOT_FOUND,\"{0}\");",introspectedTable.getRemarks(true)+"字典数据");
         method.addBodyLine("}");

@@ -72,7 +72,7 @@ public class ControllerUpdateElementGenerator extends AbstractUnitTestElementGen
                 mockServiceImpl, entityType.getShortName() + ".class", requestUri);
         method.addBodyLine("assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());\n" +
                 "        String contentAsString = response.getContentAsString(StandardCharsets.UTF_8);\n" +
-                "        ResponseResult<?> responseSimple = JSONObject.parseObject(contentAsString, ResponseResult.class);\n" +
+                "        ResponseResult<?> responseSimple = JsonUtil.parseObject(contentAsString, ResponseResult.class);\n" +
                 "        assertThat(responseSimple.getStatus()).isEqualTo(1);");
 
         parentElement.addMethod(method);
