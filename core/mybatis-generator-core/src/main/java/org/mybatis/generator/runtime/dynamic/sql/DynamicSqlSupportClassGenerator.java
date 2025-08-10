@@ -71,7 +71,7 @@ public class DynamicSqlSupportClassGenerator {
         method.setConstructor(true);
         method.addBodyLine("super(\""
                 + escapeStringForJava(introspectedTable.getFullyQualifiedTableNameAtRuntime())
-                + "\", " + fqjt.getShortName() + "::new"  
+                + "\", " + fqjt.getShortName() + "::new"
                 + ");");
         innerClass.addMethod(method);
 
@@ -142,7 +142,7 @@ public class DynamicSqlSupportClassGenerator {
     private String calculateInnerInitializationString(IntrospectedColumn column, FullyQualifiedJavaType javaType) {
         StringBuilder initializationString = new StringBuilder();
 
-        initializationString.append(String.format("column(\"%s\", JDBCType.%s",  
+        initializationString.append(String.format("column(\"%s\", JDBCType.%s",
                 escapeStringForJava(getEscapedColumnName(column)),
                 column.getJdbcTypeName()));
 

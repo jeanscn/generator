@@ -95,7 +95,7 @@ public class MapperConfigPlugin extends PluginAdapter {
         }
 
         GeneratedXmlFile gxf = new GeneratedXmlFile(document, properties
-                .getProperty("fileName", "MapperConfig.xml"),  
+                .getProperty("fileName", "MapperConfig.xml"),
                 properties.getProperty("targetPackage"),
                 properties.getProperty("targetProject"),
                 false, context.getXmlFormatter());

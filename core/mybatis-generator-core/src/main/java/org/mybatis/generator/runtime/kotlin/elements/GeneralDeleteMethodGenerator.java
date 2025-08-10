@@ -23,7 +23,7 @@ public class GeneralDeleteMethodGenerator extends AbstractKotlinFunctionGenerato
                 .withArgument(KotlinArg.newArg("completer")
                         .withDataType("DeleteCompleter")
                         .build())
-                .withCodeLine("deleteFrom(this::delete, " + tableFieldName + ", completer)")  
+                .withCodeLine("deleteFrom(this::delete, " + tableFieldName + ", completer)")
                 .build())
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.DeleteCompleter")
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.deleteFrom")

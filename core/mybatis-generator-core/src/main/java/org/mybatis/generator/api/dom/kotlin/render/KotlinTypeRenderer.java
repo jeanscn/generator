@@ -26,7 +26,7 @@ public class KotlinTypeRenderer {
                 + kotlinType.getName();
         String renderedSuperTypes = kotlinType.getSuperTypes().stream()
                 .sorted()
-                .collect(CustomCollectors.joining(", ", " : ", ""));   
+                .collect(CustomCollectors.joining(", ", " : ", ""));
 
         if (kotlinType.getNamedItems().isEmpty()) {
             if (kotlinType.getConstructorProperties().isEmpty()) {
@@ -42,7 +42,7 @@ public class KotlinTypeRenderer {
             } else {
                 answer.add(renderedModifiersAndName + "(");
                 answer.addAll(renderConstructorItems(kotlinType));
-                answer.add(")" + renderedSuperTypes + " {");  
+                answer.add(")" + renderedSuperTypes + " {");
             }
         }
 

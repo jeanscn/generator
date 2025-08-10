@@ -74,6 +74,6 @@ public class InnerEnumRenderer {
     private String renderSuperInterfaces(InnerEnum innerEnum, CompilationUnit compilationUnit) {
         return innerEnum.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " implements ", ""));   
+                .collect(CustomCollectors.joining(", ", " implements ", ""));
     }
 }

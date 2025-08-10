@@ -41,7 +41,7 @@ public class UpdateByPrimaryKeyMethodGenerator extends AbstractMethodGenerator {
         method.addBodyLine("return update(c ->");
 
         method.addBodyLines(fragmentGenerator.getSetEqualLines(introspectedTable.getNonPrimaryKeyColumns(),
-                "    c", "    ", false));  
+                "    c", "    ", false));
         method.addBodyLines(fragmentGenerator.getPrimaryKeyWhereClauseForUpdate("    "));
 
         method.addBodyLine(");");

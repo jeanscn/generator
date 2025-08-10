@@ -23,7 +23,7 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
         answer.addAttribute(new Attribute("id",
                 introspectedTable.getUpdateByExampleWithBLOBsStatementId()));
 
-        answer.addAttribute(new Attribute("parameterType", "map"));  
+        answer.addAttribute(new Attribute("parameterType", "map"));
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();

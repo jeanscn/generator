@@ -59,6 +59,6 @@ public class InnerInterfaceRenderer {
     private String renderSuperInterfaces(InnerInterface innerInterface, CompilationUnit compilationUnit) {
         return innerInterface.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " extends ", ""));   
+                .collect(CustomCollectors.joining(", ", " extends ", ""));
     }
 }

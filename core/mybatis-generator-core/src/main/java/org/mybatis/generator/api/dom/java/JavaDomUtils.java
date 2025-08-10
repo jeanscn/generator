@@ -50,7 +50,7 @@ public class JavaDomUtils {
 
         return fqjt.getTypeArguments().stream()
                 .map(t -> calculateTypeName(compilationUnit, t))
-                .collect(Collectors.joining(", ", baseTypeName + "<", ">"));   
+                .collect(Collectors.joining(", ", baseTypeName + "<", ">"));
     }
 
     private static boolean typeDoesNotRequireImport(FullyQualifiedJavaType fullyQualifiedJavaType) {

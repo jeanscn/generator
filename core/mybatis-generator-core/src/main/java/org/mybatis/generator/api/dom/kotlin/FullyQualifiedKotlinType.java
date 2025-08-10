@@ -46,7 +46,7 @@ public class FullyQualifiedKotlinType {
 
         return typeArguments.stream().map(FullyQualifiedKotlinType::getShortNameWithTypeArguments)
                 .collect(Collectors.joining(", ", shortNameWithoutTypeArguments
-                        + "<", ">"));  
+                        + "<", ">"));
     }
 
     public void addTypeArgument(FullyQualifiedKotlinType typeArgument) {

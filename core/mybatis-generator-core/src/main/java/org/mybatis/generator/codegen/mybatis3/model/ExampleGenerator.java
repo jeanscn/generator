@@ -626,67 +626,67 @@ public class ExampleGenerator extends AbstractJavaGenerator {
     }
 
     private Method getSetNullMethod(IntrospectedColumn introspectedColumn) {
-        return getNoValueMethod(introspectedColumn, "IsNull", "is null");  
+        return getNoValueMethod(introspectedColumn, "IsNull", "is null");
     }
 
     private Method getSetNotNullMethod(IntrospectedColumn introspectedColumn) {
-        return getNoValueMethod(introspectedColumn, "IsNotNull", "is not null");  
+        return getNoValueMethod(introspectedColumn, "IsNotNull", "is not null");
     }
 
     private Method getSetEqualUpperCaseMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "EqualUpperCase", "=");  
+        return getSingleValueMethod(introspectedColumn, "EqualUpperCase", "=");
     }
 
     private Method getSetNotEqualUpperCaseMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotEqualUpperCase", "<>");  
+        return getSingleValueMethod(introspectedColumn, "NotEqualUpperCase", "<>");
     }
 
     private Method getSetEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "EqualTo", "=");  
+        return getSingleValueMethod(introspectedColumn, "EqualTo", "=");
     }
 
     private Method getSetNotEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotEqualTo", "<>");  
+        return getSingleValueMethod(introspectedColumn, "NotEqualTo", "<>");
     }
 
     private Method getSetGreaterThanMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "GreaterThan", ">");  
+        return getSingleValueMethod(introspectedColumn, "GreaterThan", ">");
     }
 
     private Method getSetGreaterThenOrEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "GreaterThanOrEqualTo", ">=");  
+        return getSingleValueMethod(introspectedColumn, "GreaterThanOrEqualTo", ">=");
     }
 
     private Method getSetLessThanMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LessThan", "<");  
+        return getSingleValueMethod(introspectedColumn, "LessThan", "<");
     }
 
     private Method getSetLessThanOrEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LessThanOrEqualTo", "<=");  
+        return getSingleValueMethod(introspectedColumn, "LessThanOrEqualTo", "<=");
     }
 
     private Method getSetLikeMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "Like", "like");  
+        return getSingleValueMethod(introspectedColumn, "Like", "like");
     }
 
     private Method getSetLikeAnyMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LikeAny", "like");  
+        return getSingleValueMethod(introspectedColumn, "LikeAny", "like");
     }
 
     private Method getSetLikeLeftMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LikeLeft", "like");  
+        return getSingleValueMethod(introspectedColumn, "LikeLeft", "like");
     }
 
     private Method getSetLikeRightMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LikeRight", "like");  
+        return getSingleValueMethod(introspectedColumn, "LikeRight", "like");
     }
 
     private Method getSetNotLikeMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotLike", "not like");  
+        return getSingleValueMethod(introspectedColumn, "NotLike", "not like");
     }
 
     private Method getSetNotLikeAnyMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotLikeAny", "not like");  
+        return getSingleValueMethod(introspectedColumn, "NotLikeAny", "not like");
     }
 
     private Method getSetNotEmptyMethod(IntrospectedColumn introspectedColumn) {

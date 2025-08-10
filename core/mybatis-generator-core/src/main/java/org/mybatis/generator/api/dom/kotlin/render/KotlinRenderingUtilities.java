@@ -16,7 +16,7 @@ public class KotlinRenderingUtilities {
 
     public static String renderModifiers(List<KotlinModifier> modifiers) {
         return modifiers.stream().map(KotlinModifier::getValue)
-                .collect(CustomCollectors.joining(" ", "", " "));   
+                .collect(CustomCollectors.joining(" ", "", " "));
     }
 
     public static String kotlinIndent(String in) {

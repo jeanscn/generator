@@ -48,7 +48,7 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
         return element.getAttributes().stream()
                 .sorted(Comparator.comparing(Attribute::getName))
                 .map(attributeRenderer::render)
-                .collect(CustomCollectors.joining(" ", " ", ""));   
+                .collect(CustomCollectors.joining(" ", " ", ""));
     }
 
     private Stream<String> renderOpen(XmlElement element) {

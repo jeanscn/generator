@@ -573,11 +573,11 @@ public class DatabaseIntrospector {
             introspectedColumn.setDefaultValue(rs.getString("COLUMN_DEF"));
 
             if (supportsIsAutoIncrement) {
-                introspectedColumn.setAutoIncrement("YES".equals(rs.getString("IS_AUTOINCREMENT")));  
+                introspectedColumn.setAutoIncrement("YES".equals(rs.getString("IS_AUTOINCREMENT")));
             }
 
             if (supportsIsGeneratedColumn) {
-                introspectedColumn.setGeneratedColumn("YES".equals(rs.getString("IS_GENERATEDCOLUMN")));  
+                introspectedColumn.setGeneratedColumn("YES".equals(rs.getString("IS_GENERATEDCOLUMN")));
             }
 
             ActualTableName atn = new ActualTableName(

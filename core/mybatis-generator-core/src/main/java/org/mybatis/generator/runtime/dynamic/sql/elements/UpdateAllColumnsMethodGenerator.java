@@ -42,7 +42,7 @@ public class UpdateAllColumnsMethodGenerator extends AbstractMethodGenerator {
         method.addParameter(new Parameter(parameterAndReturnType, "dsl"));
 
         method.addBodyLines(fragmentGenerator.getSetEqualLines(introspectedTable.getAllColumns(),
-                "return dsl", "        ", true));  
+                "return dsl", "        ", true));
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)

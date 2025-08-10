@@ -22,7 +22,7 @@ public class SelectBySqlElementGenerator extends AbstractXmlElementGenerator{
         selectBySqlBuilder.addAttribute(new Attribute("resultMap", "BaseResultMap"));
         context.getCommentGenerator().addComment(selectBySqlBuilder);
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter != null"));  
+        ifElement.addAttribute(new Attribute("test", "_parameter != null"));
         ifElement.addElement(new TextElement("select"));
         ifElement.addElement(getBaseColumnListElement());
 

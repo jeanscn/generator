@@ -101,13 +101,13 @@ public class MethodRenderer {
     private String renderTypeParameters(Method method, CompilationUnit compilationUnit) {
         return method.getTypeParameters().stream()
                 .map(tp -> typeParameterRenderer.render(tp, compilationUnit))
-                .collect(CustomCollectors.joining(", ", "<", "> "));   
+                .collect(CustomCollectors.joining(", ", "<", "> "));
     }
 
     private String renderParameters(Method method, CompilationUnit compilationUnit) {
         return method.getParameters().stream()
                 .map(p -> parameterRenderer.render(p, compilationUnit))
-                .collect(Collectors.joining(", ", "(", ")"));   
+                .collect(Collectors.joining(", ", "(", ")"));
     }
 
     /**
@@ -116,6 +116,6 @@ public class MethodRenderer {
     private String renderExceptions(Method method, CompilationUnit compilationUnit) {
         return method.getExceptions().stream()
                 .map(jt -> JavaDomUtils.calculateTypeName(compilationUnit, jt))
-                .collect(CustomCollectors.joining(", ", " throws ", ""));   
+                .collect(CustomCollectors.joining(", ", " throws ", ""));
     }
 }

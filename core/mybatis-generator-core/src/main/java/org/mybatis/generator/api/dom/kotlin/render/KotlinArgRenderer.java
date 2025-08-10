@@ -10,12 +10,12 @@ public class KotlinArgRenderer {
     public String render(KotlinArg kotlinArg) {
         return renderAnnotations(kotlinArg)
                 + kotlinArg.getName()
-                + kotlinArg.getDataType().map(dt -> ": " + dt).orElse("")  
-                + kotlinArg.getInitializationString().map(s -> " = " + s).orElse("");  
+                + kotlinArg.getDataType().map(dt -> ": " + dt).orElse("")
+                + kotlinArg.getInitializationString().map(s -> " = " + s).orElse("");
     }
 
     private String renderAnnotations(KotlinArg kotlinArg) {
         return kotlinArg.getAnnotations().stream()
-                .collect(CustomCollectors.joining(" ", "", " "));   
+                .collect(CustomCollectors.joining(" ", "", " "));
     }
 }

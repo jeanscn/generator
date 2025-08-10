@@ -14,7 +14,7 @@ public class ParameterRenderer {
         return renderAnnotations(parameter)
                 + JavaDomUtils.calculateTypeName(compilationUnit, parameter.getType())
                 + " "
-                + (parameter.isVarargs() ? "... " : "")  
+                + (parameter.isVarargs() ? "... " : "")
                 + parameter.getName();
     }
 
@@ -25,6 +25,6 @@ public class ParameterRenderer {
      */
     private String renderAnnotations(Parameter parameter) {
         return parameter.getAnnotations().stream()
-                .collect(CustomCollectors.joining(" ", "", " "));   
+                .collect(CustomCollectors.joining(" ", "", " "));
     }
 }

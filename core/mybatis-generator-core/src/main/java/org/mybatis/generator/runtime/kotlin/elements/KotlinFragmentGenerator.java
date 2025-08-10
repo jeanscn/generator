@@ -98,7 +98,7 @@ public class KotlinFragmentGenerator {
         builder.withImport("org.apache.ibatis.annotations.Result");
         builder.withImport("org.apache.ibatis.annotations.Results");
 
-        builder.withAnnotation("@Results(id=\"" + resultMapId + "\", value = [");  
+        builder.withAnnotation("@Results(id=\"" + resultMapId + "\", value = [");
 
         StringBuilder sb = new StringBuilder();
 
@@ -186,7 +186,7 @@ public class KotlinFragmentGenerator {
                 sb.append("\"], keyProperty=\"row.");
                 sb.append(introspectedColumn.getJavaProperty());
                 sb.append("\", before=");
-                sb.append(gk.isIdentity() ? "false" : "true");  
+                sb.append(gk.isIdentity() ? "false" : "true");
                 sb.append(", resultType=");
                 sb.append(kt.getShortNameWithoutTypeArguments());
                 sb.append("::class)");

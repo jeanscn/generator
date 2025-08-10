@@ -12,6 +12,6 @@ public class TypeParameterRenderer {
     public String render(TypeParameter typeParameter, CompilationUnit compilationUnit) {
         return typeParameter.getName() + typeParameter.getExtendsTypes().stream()
                 .map(t -> JavaDomUtils.calculateTypeName(compilationUnit, t))
-                .collect(CustomCollectors.joining(" & ", " extends ", ""));   
+                .collect(CustomCollectors.joining(" & ", " extends ", ""));
     }
 }

@@ -54,7 +54,7 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
         return element.getAttributes().stream()
                 .sorted((a1, a2) -> a1.getName().compareTo(a2.getName()))
                 .map(attributeRenderer::render)
-                .collect(CustomCollectors.joining(" ", " ", ""));   
+                .collect(CustomCollectors.joining(" ", " ", ""));
     }
 
     private Stream<String> renderOpen(HtmlElement element) {

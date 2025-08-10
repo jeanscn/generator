@@ -83,7 +83,7 @@ public class LogFactory {
         try {
             Log log = factory.getLog(LogFactory.class);
             if (log.isDebugEnabled()) {
-                log.debug("Logging initialized using '" + factory + "' adapter.");  
+                log.debug("Logging initialized using '" + factory + "' adapter.");
             }
             theFactory = factory;
         } catch (Throwable t) {

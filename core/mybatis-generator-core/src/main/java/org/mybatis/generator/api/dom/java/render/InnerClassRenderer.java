@@ -75,6 +75,6 @@ public class InnerClassRenderer {
     private String renderSuperInterfaces(InnerClass innerClass, CompilationUnit compilationUnit) {
         return innerClass.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " implements ", ""));   
+                .collect(CustomCollectors.joining(", ", " implements ", ""));
     }
 }

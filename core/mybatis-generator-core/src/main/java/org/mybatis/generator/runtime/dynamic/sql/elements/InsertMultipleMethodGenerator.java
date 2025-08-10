@@ -51,7 +51,7 @@ public class InsertMultipleMethodGenerator extends AbstractMethodGenerator {
             methodName = "MyBatis3Utils.insertMultiple";
         }
 
-        method.addBodyLine("return " + methodName + "(this::insertMultiple, records, "  
+        method.addBodyLine("return " + methodName + "(this::insertMultiple, records, "
                 + tableFieldName
                 + ", c ->");
 

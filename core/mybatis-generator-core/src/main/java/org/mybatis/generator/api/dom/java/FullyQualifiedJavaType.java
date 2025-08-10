@@ -335,11 +335,11 @@ public class FullyQualifiedJavaType implements
             if (spec.startsWith("extends ")) {
                 boundedWildcard = true;
                 extendsBoundedWildcard = true;
-                spec = spec.substring(8);  // "extends ".length()
+                spec = spec.substring(8);
             } else if (spec.startsWith("super ")) {
                 boundedWildcard = true;
                 extendsBoundedWildcard = false;
-                spec = spec.substring(6);  // "super ".length()
+                spec = spec.substring(6);
             } else {
                 boundedWildcard = false;
             }

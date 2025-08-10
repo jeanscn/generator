@@ -28,22 +28,22 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
         answer.addElement(new TextElement(sb.toString()));
 
         XmlElement insertTrimElement = new XmlElement("trim");
-        insertTrimElement.addAttribute(new Attribute("prefix", "("));  
-        insertTrimElement.addAttribute(new Attribute("suffix", ")"));  
-        insertTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  
+        insertTrimElement.addAttribute(new Attribute("prefix", "("));
+        insertTrimElement.addAttribute(new Attribute("suffix", ")"));
+        insertTrimElement.addAttribute(new Attribute("suffixOverrides", ","));
         answer.addElement(insertTrimElement);
 
         XmlElement valuesTrimElement = new XmlElement("trim");
-        valuesTrimElement.addAttribute(new Attribute("prefix", "values ("));  
-        valuesTrimElement.addAttribute(new Attribute("suffix", ")"));  
-        valuesTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  
+        valuesTrimElement.addAttribute(new Attribute("prefix", "values ("));
+        valuesTrimElement.addAttribute(new Attribute("suffix", ")"));
+        valuesTrimElement.addAttribute(new Attribute("suffixOverrides", ","));
         answer.addElement(valuesTrimElement);
 
         answer.addElement(new TextElement("ON duplicate KEY UPDATE"));
         XmlElement updateTrimElement = new XmlElement("trim");
-        updateTrimElement.addAttribute(new Attribute("prefix", ""));  
-        updateTrimElement.addAttribute(new Attribute("suffix", ""));  
-        updateTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  
+        updateTrimElement.addAttribute(new Attribute("prefix", ""));
+        updateTrimElement.addAttribute(new Attribute("suffix", ""));
+        updateTrimElement.addAttribute(new Attribute("suffixOverrides", ","));
         answer.addElement(updateTrimElement);
 
         for (IntrospectedColumn introspectedColumn :

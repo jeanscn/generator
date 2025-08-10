@@ -27,7 +27,7 @@ public class GeneralCountMethodGenerator extends AbstractKotlinFunctionGenerator
                 .withArgument(KotlinArg.newArg("completer")
                         .withDataType("CountCompleter")
                         .build())
-                .withCodeLine("countFrom(this::count, " + tableFieldName + ", completer)")  
+                .withCodeLine("countFrom(this::count, " + tableFieldName + ", completer)")
                 .build())
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.CountCompleter")
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom")

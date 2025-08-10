@@ -42,7 +42,7 @@ public class UpdateByPrimaryKeySelectiveMethodGenerator extends AbstractMethodGe
 
         method.addBodyLines(
                 fragmentGenerator.getSetEqualWhenPresentLines(introspectedTable.getNonPrimaryKeyColumns(),
-                        "    c", "    ", false));  
+                        "    c", "    ", false));
         method.addBodyLines(fragmentGenerator.getPrimaryKeyWhereClauseForUpdate("    "));
 
         method.addBodyLine(");");

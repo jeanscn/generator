@@ -22,7 +22,7 @@ public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerato
                 .withArgument(KotlinArg.newArg("completer")
                         .withDataType("UpdateCompleter")
                         .build())
-                .withCodeLine("update(this::update, " + tableFieldName + ", completer)")  
+                .withCodeLine("update(this::update, " + tableFieldName + ", completer)")
                 .build())
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter")
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.update")

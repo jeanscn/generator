@@ -20,7 +20,7 @@ public class CountByExampleElementGenerator extends AbstractXmlElementGenerator 
         answer.addAttribute(new Attribute(
                 "id", introspectedTable.getCountByExampleStatementId()));
         answer.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
-        answer.addAttribute(new Attribute("resultType", "java.lang.Long"));  
+        answer.addAttribute(new Attribute("resultType", "java.lang.Long"));
 
         context.getCommentGenerator().addComment(answer);
 

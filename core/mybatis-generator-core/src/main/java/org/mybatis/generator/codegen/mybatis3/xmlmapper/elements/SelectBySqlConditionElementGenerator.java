@@ -38,7 +38,7 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
         selectBySqlCondition.addElement(new TextElement("select"));
         //distinct
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "distinct != null"));  
+        ifElement.addAttribute(new Attribute("test", "distinct != null"));
         ifElement.addElement(new TextElement("distinct"));
         selectBySqlCondition.addElement(ifElement);
         //include

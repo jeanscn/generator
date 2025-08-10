@@ -24,7 +24,7 @@ public class UpdateByExampleSelectiveElementGenerator extends
         answer.addAttribute(new Attribute(
                 "id", introspectedTable.getUpdateByExampleSelectiveStatementId()));
 
-        answer.addAttribute(new Attribute("parameterType", "map"));  
+        answer.addAttribute(new Attribute("parameterType", "map"));
 
         context.getCommentGenerator().addComment(answer);
 

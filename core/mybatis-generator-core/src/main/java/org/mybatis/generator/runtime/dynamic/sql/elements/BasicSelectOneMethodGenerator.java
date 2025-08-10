@@ -68,7 +68,7 @@ public class BasicSelectOneMethodGenerator extends AbstractMethodGenerator {
                 FullyQualifiedJavaType rmAnnotation =
                         new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap");
                 builder.withImport(rmAnnotation);
-                method.addAnnotation("@ResultMap(\"" + resultMapId + "\")");  
+                method.addAnnotation("@ResultMap(\"" + resultMapId + "\")");
             } else {
                 MethodParts methodParts = fragmentGenerator.getAnnotatedResults();
                 acceptParts(builder, method, methodParts);

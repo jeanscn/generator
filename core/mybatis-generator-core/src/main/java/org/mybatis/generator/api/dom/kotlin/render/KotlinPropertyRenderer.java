@@ -21,7 +21,7 @@ public class KotlinPropertyRenderer {
                 + kotlinProperty.getType().getValue()
                 + " "
                 + kotlinProperty.getName()
-                + kotlinProperty.getDataType().map(dt -> ": " + dt).orElse("")  
-                + kotlinProperty.getInitializationString().map(s -> " = " + s).orElse("");  
+                + kotlinProperty.getDataType().map(dt -> ": " + dt).orElse("")
+                + kotlinProperty.getInitializationString().map(s -> " = " + s).orElse("");
     }
 }

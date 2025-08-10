@@ -31,7 +31,7 @@ public class SelectByExampleWithRelationElementGenerator extends
 
         answer.addElement(new TextElement("select"));
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "distinct"));  
+        ifElement.addAttribute(new Attribute("test", "distinct"));
         ifElement.addElement(new TextElement("distinct"));
         answer.addElement(ifElement);
 
@@ -53,7 +53,7 @@ public class SelectByExampleWithRelationElementGenerator extends
         answer.addElement(getExampleIncludeElement());
 
         ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));  
+        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));
         ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 

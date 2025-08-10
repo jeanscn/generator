@@ -51,6 +51,6 @@ public class BodyLineRenderer {
     }
 
     private boolean isCodeBlockStartExceptSwitchStatement(String line) {
-        return line.endsWith("{") && !line.startsWith("switch");  
+        return line.endsWith("{") && !line.startsWith("switch");
     }
 }

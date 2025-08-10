@@ -52,7 +52,7 @@ public class ColumnListGenerator {
     private String getInitializationString(List<FieldNameAndImport> fieldsAndImports) {
         return fieldsAndImports.stream()
                 .map(FieldNameAndImport::fieldName)
-                .collect(Collectors.joining(", ", "listOf(", ")"));   
+                .collect(Collectors.joining(", ", "listOf(", ")"));
     }
 
     private Set<String> getImports(List<FieldNameAndImport> fieldsAndImports) {

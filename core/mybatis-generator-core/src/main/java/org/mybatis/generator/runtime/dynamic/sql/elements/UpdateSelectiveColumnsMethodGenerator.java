@@ -42,7 +42,7 @@ public class UpdateSelectiveColumnsMethodGenerator extends AbstractMethodGenerat
         method.addParameter(new Parameter(parameterAndReturnType, "dsl"));
 
         method.addBodyLines(fragmentGenerator.getSetEqualWhenPresentLines(introspectedTable.getAllColumns(),
-                "return dsl", "        ", true));  
+                "return dsl", "        ", true));
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)
