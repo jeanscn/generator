@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinNamedItem;
 
+/**
+ * @author cen_c
+ */
 public class KotlinFileRenderer {
 
     public String render(KotlinFile kotlinFile) {
@@ -23,7 +26,7 @@ public class KotlinFileRenderer {
 
         lines.addAll(0, kotlinFile.getFileCommentLines());
         return lines.stream()
-                .collect(Collectors.joining(System.getProperty("line.separator")));
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
     private List<String> prependBlankLineIfNotEmpty(int currentLength, List<String> in) {

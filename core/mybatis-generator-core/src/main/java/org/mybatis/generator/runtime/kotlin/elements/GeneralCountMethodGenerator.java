@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
+/**
+ * @author cen_c
+ */
 public class GeneralCountMethodGenerator extends AbstractKotlinFunctionGenerator {
 
     private final String mapperName;
@@ -24,7 +27,7 @@ public class GeneralCountMethodGenerator extends AbstractKotlinFunctionGenerator
                 .withArgument(KotlinArg.newArg("completer")
                         .withDataType("CountCompleter")
                         .build())
-                .withCodeLine("countFrom(this::count, " + tableFieldName + ", completer)")  //$NON-NLS-2$
+                .withCodeLine("countFrom(this::count, " + tableFieldName + ", completer)")  
                 .build())
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.CountCompleter")
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom")

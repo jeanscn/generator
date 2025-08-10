@@ -1,5 +1,7 @@
 package org.mybatis.generator.api.dom.kotlin;
 
+import lombok.Getter;
+
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
@@ -13,6 +15,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author cen_c
+ */
 public class FullyQualifiedKotlinType {
 
     private static final Set<String> AUTOMATIC_KOTLIN_PACKAGES = new HashSet<>();
@@ -22,21 +27,16 @@ public class FullyQualifiedKotlinType {
         AUTOMATIC_KOTLIN_PACKAGES.add("kotlin.collections");
     }
 
+    @Getter
     private String packageName;
+    @Getter
     private final List<FullyQualifiedKotlinType> typeArguments = new ArrayList<>();
+    @Getter
     private String shortNameWithoutTypeArguments;
     private boolean isExplicitlyImported;
 
     public FullyQualifiedKotlinType(String fullTypeSpecification) {
         parse(Objects.requireNonNull(fullTypeSpecification).trim());
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public String getShortNameWithoutTypeArguments() {
-        return shortNameWithoutTypeArguments;
     }
 
     public String getShortNameWithTypeArguments() {
@@ -46,11 +46,7 @@ public class FullyQualifiedKotlinType {
 
         return typeArguments.stream().map(FullyQualifiedKotlinType::getShortNameWithTypeArguments)
                 .collect(Collectors.joining(", ", shortNameWithoutTypeArguments
-                        + "<", ">"));  //$NON-NLS-2$
-    }
-
-    public List<FullyQualifiedKotlinType> getTypeArguments() {
-        return typeArguments;
+                        + "<", ">"));  
     }
 
     public void addTypeArgument(FullyQualifiedKotlinType typeArgument) {

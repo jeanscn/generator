@@ -6,6 +6,9 @@ import org.xml.sax.InputSource;
 
 import java.io.InputStream;
 
+/**
+ * @author cen_c
+ */
 public class ParserEntityResolver implements EntityResolver {
 
     public ParserEntityResolver() {

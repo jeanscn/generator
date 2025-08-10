@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.AbstractGenerator;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractJavaProviderMethodGenerator extends AbstractGenerator {
 
     protected static final FullyQualifiedJavaType BUILDER_IMPORT =

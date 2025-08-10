@@ -5,6 +5,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.UpdateByPrimaryKeyWithoutBLOBsMethodGenerator;
 
+/**
+ * @author cen_c
+ */
 public class AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator
         extends UpdateByPrimaryKeyWithoutBLOBsMethodGenerator {
 

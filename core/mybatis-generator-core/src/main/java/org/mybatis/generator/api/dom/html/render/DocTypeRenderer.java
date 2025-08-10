@@ -4,6 +4,9 @@ import org.mybatis.generator.api.dom.html.DocTypeVisitor;
 import org.mybatis.generator.api.dom.html.PublicDocType;
 import org.mybatis.generator.api.dom.html.SystemDocType;
 
+/**
+ * @author cen_c
+ */
 public class DocTypeRenderer implements DocTypeVisitor<String> {
 
     @Override

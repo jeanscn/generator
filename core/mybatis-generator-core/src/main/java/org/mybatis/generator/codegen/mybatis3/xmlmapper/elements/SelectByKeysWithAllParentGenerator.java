@@ -4,6 +4,9 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
+/**
+ * @author cen_c
+ */
 public class SelectByKeysWithAllParentGenerator extends AbstractXmlElementGenerator {
 
     public SelectByKeysWithAllParentGenerator() {
@@ -38,12 +41,8 @@ public class SelectByKeysWithAllParentGenerator extends AbstractXmlElementGenera
         answer.addElement(new TextElement(",depth"));
         answer.addElement(new TextElement("FROM cte "+introspectedTable.getTableConfiguration().getAlias()));
         answer.addElement(new TextElement("ORDER BY depth desc"));
-        introspectedTable.getColumn("sort_").ifPresent(introspectedColumn -> {
-            answer.addElement(new TextElement(", sort_"));
-        });
-        introspectedTable.getColumn("created_").ifPresent(introspectedColumn -> {
-            answer.addElement(new TextElement(", created_"));
-        });
+        introspectedTable.getColumn("sort_").ifPresent(introspectedColumn -> answer.addElement(new TextElement(", sort_")));
+        introspectedTable.getColumn("created_").ifPresent(introspectedColumn -> answer.addElement(new TextElement(", created_")));
         parentElement.addElement(answer);
     }
 }

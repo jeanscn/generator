@@ -626,67 +626,67 @@ public class ExampleGenerator extends AbstractJavaGenerator {
     }
 
     private Method getSetNullMethod(IntrospectedColumn introspectedColumn) {
-        return getNoValueMethod(introspectedColumn, "IsNull", "is null");  //$NON-NLS-2$
+        return getNoValueMethod(introspectedColumn, "IsNull", "is null");  
     }
 
     private Method getSetNotNullMethod(IntrospectedColumn introspectedColumn) {
-        return getNoValueMethod(introspectedColumn, "IsNotNull", "is not null");  //$NON-NLS-2$
+        return getNoValueMethod(introspectedColumn, "IsNotNull", "is not null");  
     }
 
     private Method getSetEqualUpperCaseMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "EqualUpperCase", "=");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "EqualUpperCase", "=");  
     }
 
     private Method getSetNotEqualUpperCaseMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotEqualUpperCase", "<>");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "NotEqualUpperCase", "<>");  
     }
 
     private Method getSetEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "EqualTo", "=");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "EqualTo", "=");  
     }
 
     private Method getSetNotEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotEqualTo", "<>");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "NotEqualTo", "<>");  
     }
 
     private Method getSetGreaterThanMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "GreaterThan", ">");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "GreaterThan", ">");  
     }
 
     private Method getSetGreaterThenOrEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "GreaterThanOrEqualTo", ">=");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "GreaterThanOrEqualTo", ">=");  
     }
 
     private Method getSetLessThanMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LessThan", "<");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "LessThan", "<");  
     }
 
     private Method getSetLessThanOrEqualMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LessThanOrEqualTo", "<=");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "LessThanOrEqualTo", "<=");  
     }
 
     private Method getSetLikeMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "Like", "like");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "Like", "like");  
     }
 
     private Method getSetLikeAnyMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LikeAny", "like");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "LikeAny", "like");  
     }
 
     private Method getSetLikeLeftMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LikeLeft", "like");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "LikeLeft", "like");  
     }
 
     private Method getSetLikeRightMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "LikeRight", "like");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "LikeRight", "like");  
     }
 
     private Method getSetNotLikeMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotLike", "not like");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "NotLike", "not like");  
     }
 
     private Method getSetNotLikeAnyMethod(IntrospectedColumn introspectedColumn) {
-        return getSingleValueMethod(introspectedColumn, "NotLikeAny", "not like");  //$NON-NLS-2$
+        return getSingleValueMethod(introspectedColumn, "NotLikeAny", "not like");  
     }
 
     private Method getSetNotEmptyMethod(IntrospectedColumn introspectedColumn) {

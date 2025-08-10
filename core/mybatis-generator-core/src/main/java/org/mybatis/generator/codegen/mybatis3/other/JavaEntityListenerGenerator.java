@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * 生成实体监听器类
+ * @author cen_c
  */
 public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
 

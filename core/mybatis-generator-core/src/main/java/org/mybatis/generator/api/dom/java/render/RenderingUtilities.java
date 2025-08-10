@@ -38,7 +38,7 @@ public class RenderingUtilities {
     public static String renderTypeParameters(List<TypeParameter> typeParameters, CompilationUnit compilationUnit) {
         return typeParameters.stream()
                 .map(tp -> typeParameterRenderer.render(tp, compilationUnit))
-                .collect(CustomCollectors.joining(", ", "<", "> "));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", "<", "> "));   
     }
 
     public static List<String> renderFields(List<Field> fields, CompilationUnit compilationUnit) {
@@ -137,7 +137,7 @@ public class RenderingUtilities {
 
         String pack = compilationUnit.getType().getPackageName();
         if (stringHasValue(pack)) {
-            answer.add("package " + pack + ";");  //$NON-NLS-2$
+            answer.add("package " + pack + ";");  
             answer.add("");
         }
         return answer;
@@ -149,7 +149,7 @@ public class RenderingUtilities {
         }
 
         return addEmptyLine(compilationUnit.getStaticImports().stream()
-                .map(s -> "import static " + s + ";"))  //$NON-NLS-2$
+                .map(s -> "import static " + s + ";"))  
                 .collect(Collectors.toList());
     }
 
@@ -172,7 +172,7 @@ public class RenderingUtilities {
     }
 
     private static String toFullImport(String s) {
-        return "import " + s + ";";  //$NON-NLS-2$
+        return "import " + s + ";";  
     }
 
 

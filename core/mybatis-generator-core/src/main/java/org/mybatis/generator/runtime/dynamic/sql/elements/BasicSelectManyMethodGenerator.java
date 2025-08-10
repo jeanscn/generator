@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+/**
+ * @author cen_c
+ */
 public class BasicSelectManyMethodGenerator extends AbstractMethodGenerator {
     private final FullyQualifiedJavaType recordType;
     private final FragmentGenerator fragmentGenerator;

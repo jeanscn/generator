@@ -1,5 +1,11 @@
 package org.mybatis.generator.api.dom.java;
 
+import lombok.Getter;
+
+/**
+ * @author cen_c
+ */
+@Getter
 public class PrimitiveTypeWrapper extends FullyQualifiedJavaType {
     private static PrimitiveTypeWrapper booleanInstance;
     private static PrimitiveTypeWrapper byteInstance;
@@ -27,10 +33,6 @@ public class PrimitiveTypeWrapper extends FullyQualifiedJavaType {
         this.toPrimitiveMethod = toPrimitiveMethod;
     }
 
-    public String getToPrimitiveMethod() {
-        return toPrimitiveMethod;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -48,7 +50,7 @@ public class PrimitiveTypeWrapper extends FullyQualifiedJavaType {
 
     @Override
     public int hashCode() {
-        return getFullyQualifiedName().hashCode();
+        return super.hashCode();
     }
 
     public static PrimitiveTypeWrapper getBooleanInstance() {

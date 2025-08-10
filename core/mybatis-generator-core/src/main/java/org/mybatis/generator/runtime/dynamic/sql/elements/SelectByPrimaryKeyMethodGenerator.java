@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 
+/**
+ * @author cen_c
+ */
 public class SelectByPrimaryKeyMethodGenerator extends AbstractMethodGenerator {
     private final FullyQualifiedJavaType recordType;
     private final FragmentGenerator fragmentGenerator;

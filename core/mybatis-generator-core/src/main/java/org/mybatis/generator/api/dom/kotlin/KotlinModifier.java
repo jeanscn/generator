@@ -1,7 +1,17 @@
 package org.mybatis.generator.api.dom.kotlin;
 
+import lombok.Getter;
+
+/**
+ * @author cen_c
+ */
+
+@Getter
 public enum KotlinModifier {
 
+    /**
+     * Kotlin modifiers
+     */
     PUBLIC("public"),
     PRIVATE("private"),
     DATA("data"),
@@ -13,7 +23,4 @@ public enum KotlinModifier {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
 }

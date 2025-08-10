@@ -2,6 +2,9 @@ package org.mybatis.generator.api.dom.java;
 
 import java.util.stream.Collectors;
 
+/**
+ * @author cen_c
+ */
 public class JavaDomUtils {
     private JavaDomUtils() {}
 
@@ -47,7 +50,7 @@ public class JavaDomUtils {
 
         return fqjt.getTypeArguments().stream()
                 .map(t -> calculateTypeName(compilationUnit, t))
-                .collect(Collectors.joining(", ", baseTypeName + "<", ">"));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(Collectors.joining(", ", baseTypeName + "<", ">"));   
     }
 
     private static boolean typeDoesNotRequireImport(FullyQualifiedJavaType fullyQualifiedJavaType) {

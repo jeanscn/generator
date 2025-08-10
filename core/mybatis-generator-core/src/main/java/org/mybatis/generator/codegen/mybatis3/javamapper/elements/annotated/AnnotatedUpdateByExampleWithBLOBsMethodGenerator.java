@@ -5,6 +5,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.UpdateByExampleWithBLOBsMethodGenerator;
 
+/**
+ * @author cen_c
+ */
 public class AnnotatedUpdateByExampleWithBLOBsMethodGenerator extends UpdateByExampleWithBLOBsMethodGenerator {
 
     public AnnotatedUpdateByExampleWithBLOBsMethodGenerator() {

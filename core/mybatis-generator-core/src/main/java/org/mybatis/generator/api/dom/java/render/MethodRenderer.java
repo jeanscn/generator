@@ -10,6 +10,9 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class MethodRenderer {
     private final TypeParameterRenderer typeParameterRenderer = new TypeParameterRenderer();
     private final ParameterRenderer parameterRenderer = new ParameterRenderer();
@@ -92,23 +95,27 @@ public class MethodRenderer {
         return method.getVisibility().getValue();
     }
 
-    // should return an empty string if no type parameters
+    /**
+     * should return an empty string if no type parameters
+     */
     private String renderTypeParameters(Method method, CompilationUnit compilationUnit) {
         return method.getTypeParameters().stream()
                 .map(tp -> typeParameterRenderer.render(tp, compilationUnit))
-                .collect(CustomCollectors.joining(", ", "<", "> "));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", "<", "> "));   
     }
 
     private String renderParameters(Method method, CompilationUnit compilationUnit) {
         return method.getParameters().stream()
                 .map(p -> parameterRenderer.render(p, compilationUnit))
-                .collect(Collectors.joining(", ", "(", ")"));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(Collectors.joining(", ", "(", ")"));   
     }
 
-    // should return an empty string if no exceptions
+    /**
+     * should return an empty string if no exceptions
+     */
     private String renderExceptions(Method method, CompilationUnit compilationUnit) {
         return method.getExceptions().stream()
                 .map(jt -> JavaDomUtils.calculateTypeName(compilationUnit, jt))
-                .collect(CustomCollectors.joining(", ", " throws ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " throws ", ""));   
     }
 }

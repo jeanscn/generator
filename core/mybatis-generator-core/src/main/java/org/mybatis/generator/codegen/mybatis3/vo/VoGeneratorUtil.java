@@ -8,8 +8,6 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator.SUB_PACKAGE_POJO;
 import static org.mybatis.generator.internal.util.StringUtility.packageToDir;

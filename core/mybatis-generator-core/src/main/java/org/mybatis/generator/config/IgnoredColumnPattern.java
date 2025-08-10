@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * @author cen_c
+ */
 public class IgnoredColumnPattern {
 
     private final String patternRegex;

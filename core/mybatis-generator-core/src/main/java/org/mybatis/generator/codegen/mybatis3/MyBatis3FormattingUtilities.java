@@ -5,6 +5,9 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import static org.mybatis.generator.internal.util.StringUtility.escapeStringForJava;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
+/**
+ * @author cen_c
+ */
 public class MyBatis3FormattingUtilities {
 
     private MyBatis3FormattingUtilities() {

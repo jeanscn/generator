@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
  * @author Jeff Butler
  */
 public class MavenCleanCallback extends DefaultShellCallback {
-    private MyBatisClearMojo mybatisGeneratorMojo;
+    private final MyBatisClearMojo mybatisGeneratorMojo;
 
     public MavenCleanCallback(MyBatisClearMojo mybatisGeneratorMojo, boolean overwrite) {
         super(overwrite);

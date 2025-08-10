@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+/**
+ * @author cen_c
+ */
 public class UpdateByPrimaryKeySelectiveMethodGenerator extends AbstractMethodGenerator {
     private final FullyQualifiedJavaType recordType;
     private final FragmentGenerator fragmentGenerator;
@@ -39,7 +42,7 @@ public class UpdateByPrimaryKeySelectiveMethodGenerator extends AbstractMethodGe
 
         method.addBodyLines(
                 fragmentGenerator.getSetEqualWhenPresentLines(introspectedTable.getNonPrimaryKeyColumns(),
-                        "    c", "    ", false));  //$NON-NLS-2$
+                        "    c", "    ", false));  
         method.addBodyLines(fragmentGenerator.getPrimaryKeyWhereClauseForUpdate("    "));
 
         method.addBodyLine(");");

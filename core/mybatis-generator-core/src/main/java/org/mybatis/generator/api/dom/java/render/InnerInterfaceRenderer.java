@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.InnerInterface;
 import org.mybatis.generator.api.dom.java.JavaDomUtils;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class InnerInterfaceRenderer {
 
     public List<String> render(InnerInterface innerInterface, CompilationUnit compilationUnit) {
@@ -47,10 +50,15 @@ public class InnerInterfaceRenderer {
         return sb.toString();
     }
 
-    // should return an empty string if no super interfaces
+    /**
+     * Renders the super interfaces of the inner interface.
+     * @param innerInterface 内部接口
+     * @param compilationUnit 编译单元
+     * @return 字符串表示的超接口
+     */
     private String renderSuperInterfaces(InnerInterface innerInterface, CompilationUnit compilationUnit) {
         return innerInterface.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " extends ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " extends ", ""));   
     }
 }

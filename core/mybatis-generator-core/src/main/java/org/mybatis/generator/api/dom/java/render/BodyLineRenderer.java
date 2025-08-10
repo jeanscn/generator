@@ -6,6 +6,9 @@ import java.util.ListIterator;
 
 import org.mybatis.generator.api.dom.OutputUtilities;
 
+/**
+ * @author cen_c
+ */
 public class BodyLineRenderer {
 
     public List<String> render(List<String> bodyLines) {
@@ -48,6 +51,6 @@ public class BodyLineRenderer {
     }
 
     private boolean isCodeBlockStartExceptSwitchStatement(String line) {
-        return line.endsWith("{") && !line.startsWith("switch");  //$NON-NLS-2$
+        return line.endsWith("{") && !line.startsWith("switch");  
     }
 }

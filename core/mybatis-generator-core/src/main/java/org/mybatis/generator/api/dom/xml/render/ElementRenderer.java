@@ -11,6 +11,9 @@ import org.mybatis.generator.api.dom.xml.VisitableElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class ElementRenderer implements ElementVisitor<Stream<String>> {
 
     private final AttributeRenderer attributeRenderer = new AttributeRenderer();
@@ -45,7 +48,7 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
         return element.getAttributes().stream()
                 .sorted(Comparator.comparing(Attribute::getName))
                 .map(attributeRenderer::render)
-                .collect(CustomCollectors.joining(" ", " ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(" ", " ", ""));   
     }
 
     private Stream<String> renderOpen(XmlElement element) {

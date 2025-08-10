@@ -9,6 +9,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
+/**
+ * @author cen_c
+ */
 public class UpdateByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGenerator {
     private final FullyQualifiedKotlinType recordType;
     private final KotlinFragmentGenerator fragmentGenerator;

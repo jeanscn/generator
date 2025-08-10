@@ -13,7 +13,7 @@ import org.mybatis.generator.internal.util.messages.Messages;
  * @author Jeff Butler
  */
 public class MavenShellCallback extends DefaultShellCallback {
-    private MyBatisGeneratorMojo mybatisGeneratorMojo;
+    private final MyBatisGeneratorMojo mybatisGeneratorMojo;
 
     public MavenShellCallback(MyBatisGeneratorMojo mybatisGeneratorMojo, boolean overwrite) {
         super(overwrite);

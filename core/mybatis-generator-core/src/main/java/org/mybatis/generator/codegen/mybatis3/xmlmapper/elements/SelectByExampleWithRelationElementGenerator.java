@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
+/**
+ * @author cen_c
+ */
 public class SelectByExampleWithRelationElementGenerator extends
         AbstractXmlElementGenerator {
 
@@ -28,7 +31,7 @@ public class SelectByExampleWithRelationElementGenerator extends
 
         answer.addElement(new TextElement("select"));
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "distinct"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "distinct"));  
         ifElement.addElement(new TextElement("distinct"));
         answer.addElement(ifElement);
 
@@ -50,7 +53,7 @@ public class SelectByExampleWithRelationElementGenerator extends
         answer.addElement(getExampleIncludeElement());
 
         ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));  
         ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 

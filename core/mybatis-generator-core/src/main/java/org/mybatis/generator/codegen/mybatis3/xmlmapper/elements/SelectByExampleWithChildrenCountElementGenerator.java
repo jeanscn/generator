@@ -5,6 +5,9 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
+/**
+ * @author cen_c
+ */
 public class SelectByExampleWithChildrenCountElementGenerator extends
         AbstractXmlElementGenerator {
 
@@ -24,7 +27,7 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
 
         answer.addElement(new TextElement("select"));
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "distinct"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "distinct"));  
         ifElement.addElement(new TextElement("distinct"));
         answer.addElement(ifElement);
         answer.addElement(getBaseColumnListElement());
@@ -45,7 +48,7 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
         answer.addElement(getExampleIncludeElement());
 
         ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));  
         ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 

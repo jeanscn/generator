@@ -137,7 +137,7 @@ public class FragmentGenerator {
         builder.withImport(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Result"));
         builder.withImport(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Results"));
 
-        builder.withAnnotation("@Results(id=\"" + resultMapId + "\", value = {");  //$NON-NLS-2$
+        builder.withAnnotation("@Results(id=\"" + resultMapId + "\", value = {");  
 
         StringBuilder sb = new StringBuilder();
 
@@ -240,7 +240,7 @@ public class FragmentGenerator {
                 sb.append("\", keyProperty=\"row.");
                 sb.append(introspectedColumn.getJavaProperty());
                 sb.append("\", before=");
-                sb.append(gk.isIdentity() ? "false" : "true");  //$NON-NLS-2$
+                sb.append(gk.isIdentity() ? "false" : "true");  
                 sb.append(", resultType=");
                 sb.append(fqjt.getShortName());
                 sb.append(".class)");

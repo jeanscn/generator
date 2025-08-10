@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
+/**
+ * @author cen_c
+ */
 public class UpdateByExampleSelectiveElementGenerator extends
         AbstractXmlElementGenerator {
 
@@ -21,7 +24,7 @@ public class UpdateByExampleSelectiveElementGenerator extends
         answer.addAttribute(new Attribute(
                 "id", introspectedTable.getUpdateByExampleSelectiveStatementId()));
 
-        answer.addAttribute(new Attribute("parameterType", "map"));  //$NON-NLS-2$
+        answer.addAttribute(new Attribute("parameterType", "map"));  
 
         context.getCommentGenerator().addComment(answer);
 

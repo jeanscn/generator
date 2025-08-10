@@ -5,6 +5,9 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 public class IgnoredColumnException extends IgnoredColumn {
 
     public IgnoredColumnException(String columnName) {

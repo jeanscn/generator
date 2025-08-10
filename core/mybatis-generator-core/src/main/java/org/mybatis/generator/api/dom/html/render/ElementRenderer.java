@@ -9,9 +9,15 @@ import org.mybatis.generator.internal.util.CustomCollectors;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+/**
+ * @author cen_c
+ */
 public class ElementRenderer implements ElementVisitor<Stream<String>> {
 
-    private AttributeRenderer attributeRenderer = new AttributeRenderer();
+    /**
+     * 用于渲染属性
+     */
+    private final AttributeRenderer attributeRenderer = new AttributeRenderer();
 
     @Override
     public Stream<String> visit(TextElement element) {
@@ -48,7 +54,7 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
         return element.getAttributes().stream()
                 .sorted((a1, a2) -> a1.getName().compareTo(a2.getName()))
                 .map(attributeRenderer::render)
-                .collect(CustomCollectors.joining(" ", " ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(" ", " ", ""));   
     }
 
     private Stream<String> renderOpen(HtmlElement element) {

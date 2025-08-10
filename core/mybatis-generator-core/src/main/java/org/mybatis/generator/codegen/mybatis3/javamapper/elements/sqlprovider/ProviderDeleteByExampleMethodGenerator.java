@@ -10,6 +10,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 
+/**
+ * @author cen_c
+ */
 public class ProviderDeleteByExampleMethodGenerator extends AbstractJavaProviderMethodGenerator {
 
     @Override

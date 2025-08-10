@@ -65,7 +65,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
     protected XmlElement getExampleIncludeElement() {
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0"));  
 
         XmlElement includeElement = new XmlElement("include");
         includeElement.addAttribute(new Attribute("refid", introspectedTable.getExampleWhereClauseId()));
@@ -76,7 +76,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
     protected XmlElement getUpdateByExampleIncludeElement() {
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0"));  
 
         XmlElement includeElement = new XmlElement("include");
         includeElement.addAttribute(new Attribute("refid",
@@ -169,7 +169,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
                     // if the column is null, then it's a configuration error. The
                     // warning has already been reported
                     if (gk.isJdbcStandard()) {
-                        answer.addAttribute(new Attribute("useGeneratedKeys", "true"));  //$NON-NLS-2$
+                        answer.addAttribute(new Attribute("useGeneratedKeys", "true"));  
                         answer.addAttribute(
                                 new Attribute("keyProperty", introspectedColumn.getJavaProperty()));
                         answer.addAttribute(
@@ -283,7 +283,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
         answer.addAttribute(new Attribute("id", statementId));
 
-        answer.addAttribute(new Attribute("parameterType", "map"));  //$NON-NLS-2$
+        answer.addAttribute(new Attribute("parameterType", "map"));  
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();

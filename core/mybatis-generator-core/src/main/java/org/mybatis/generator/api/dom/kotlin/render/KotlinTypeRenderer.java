@@ -11,6 +11,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class KotlinTypeRenderer {
 
     public List<String> render(KotlinType kotlinType) {
@@ -23,7 +26,7 @@ public class KotlinTypeRenderer {
                 + kotlinType.getName();
         String renderedSuperTypes = kotlinType.getSuperTypes().stream()
                 .sorted()
-                .collect(CustomCollectors.joining(", ", " : ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " : ", ""));   
 
         if (kotlinType.getNamedItems().isEmpty()) {
             if (kotlinType.getConstructorProperties().isEmpty()) {
@@ -39,7 +42,7 @@ public class KotlinTypeRenderer {
             } else {
                 answer.add(renderedModifiersAndName + "(");
                 answer.addAll(renderConstructorItems(kotlinType));
-                answer.add(")" + renderedSuperTypes + " {");  //$NON-NLS-2$
+                answer.add(")" + renderedSuperTypes + " {");  
             }
         }
 

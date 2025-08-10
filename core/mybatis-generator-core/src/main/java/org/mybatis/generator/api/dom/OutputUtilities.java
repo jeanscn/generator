@@ -1,5 +1,8 @@
 package org.mybatis.generator.api.dom;
 
+/**
+ * @author cen_c
+ */
 public class OutputUtilities {
 
     /**

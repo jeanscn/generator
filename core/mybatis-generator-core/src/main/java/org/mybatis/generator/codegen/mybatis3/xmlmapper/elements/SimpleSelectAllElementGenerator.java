@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.StringUtility;
 
+/**
+ * @author cen_c
+ */
 public class SimpleSelectAllElementGenerator extends AbstractXmlElementGenerator {
 
     public SimpleSelectAllElementGenerator() {

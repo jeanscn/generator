@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.config.Context;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractKotlinFunctionGenerator {
     protected final Context context;
     protected final IntrospectedTable introspectedTable;
@@ -77,6 +80,10 @@ public abstract class AbstractKotlinFunctionGenerator {
         }
     }
 
+    /**
+     * 生成方法和导入
+     * @return KotlinFunctionAndImports 对象，包含生成的方法和需要导入的包
+     */
     public abstract KotlinFunctionAndImports generateMethodAndImports();
 
     public abstract boolean callPlugins(KotlinFunction method, KotlinFile kotlinFile);
@@ -101,6 +108,10 @@ public abstract class AbstractKotlinFunctionGenerator {
             return getThis();
         }
 
+        /**
+         * 返回当前构建器的实例
+         * @return 当前构建器的实例
+         */
         public abstract T getThis();
     }
 }

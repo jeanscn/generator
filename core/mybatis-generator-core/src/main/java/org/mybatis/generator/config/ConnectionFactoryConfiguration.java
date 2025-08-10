@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.mybatis.generator.internal.util.StringUtility;
 
+/**
+ * @author cen_c
+ */
 public class ConnectionFactoryConfiguration extends TypedPropertyHolder {
 
     public ConnectionFactoryConfiguration() {

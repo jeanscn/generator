@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
+/**
+ * @author cen_c
+ */
 public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenerator {
 
     private final boolean isForUpdateByExample;
@@ -36,23 +39,23 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         XmlElement outerForEachElement = new XmlElement("foreach");
         if (isForUpdateByExample) {
             outerForEachElement.addAttribute(new Attribute(
-                    "collection", "example.oredCriteria"));  //$NON-NLS-2$
+                    "collection", "example.oredCriteria"));  
         } else {
             outerForEachElement.addAttribute(new Attribute(
-                    "collection", "oredCriteria"));  //$NON-NLS-2$
+                    "collection", "oredCriteria"));  
         }
-        outerForEachElement.addAttribute(new Attribute("item", "criteria"));  //$NON-NLS-2$
-        outerForEachElement.addAttribute(new Attribute("separator", "or"));  //$NON-NLS-2$
+        outerForEachElement.addAttribute(new Attribute("item", "criteria"));  
+        outerForEachElement.addAttribute(new Attribute("separator", "or"));  
         whereElement.addElement(outerForEachElement);
 
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "criteria.valid"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "criteria.valid"));  
         outerForEachElement.addElement(ifElement);
 
         XmlElement trimElement = new XmlElement("trim");
-        trimElement.addAttribute(new Attribute("prefix", "("));  //$NON-NLS-2$
-        trimElement.addAttribute(new Attribute("suffix", ")"));  //$NON-NLS-2$
-        trimElement.addAttribute(new Attribute("prefixOverrides", "and"));  //$NON-NLS-2$
+        trimElement.addAttribute(new Attribute("prefix", "("));  
+        trimElement.addAttribute(new Attribute("suffix", ")"));  
+        trimElement.addAttribute(new Attribute("prefixOverrides", "and"));  
 
         ifElement.addElement(trimElement);
 
@@ -96,18 +99,18 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         XmlElement middleForEachElement = new XmlElement("foreach");
         middleForEachElement.addAttribute(new Attribute(
                 "collection", criteriaAttribute));
-        middleForEachElement.addAttribute(new Attribute("item", "criterion"));  //$NON-NLS-2$
+        middleForEachElement.addAttribute(new Attribute("item", "criterion"));  
 
         XmlElement chooseElement = new XmlElement("choose");
         middleForEachElement.addElement(chooseElement);
 
         XmlElement when = new XmlElement("when");
-        when.addAttribute(new Attribute("test", "criterion.noValue"));  //$NON-NLS-2$
+        when.addAttribute(new Attribute("test", "criterion.noValue"));  
         when.addElement(new TextElement("and ${criterion.condition}"));
         chooseElement.addElement(when);
 
         when = new XmlElement("when");
-        when.addAttribute(new Attribute("test", "criterion.singleValue"));  //$NON-NLS-2$
+        when.addAttribute(new Attribute("test", "criterion.singleValue"));  
         sb.setLength(0);
         sb.append("and ${criterion.condition} #{criterion.value");
         if (typeHandled) {
@@ -118,7 +121,7 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         chooseElement.addElement(when);
 
         when = new XmlElement("when");
-        when.addAttribute(new Attribute("test", "criterion.betweenValue"));  //$NON-NLS-2$
+        when.addAttribute(new Attribute("test", "criterion.betweenValue"));  
         sb.setLength(0);
         sb.append("and ${criterion.condition} #{criterion.value");
         if (typeHandled) {
@@ -133,14 +136,14 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
         chooseElement.addElement(when);
 
         when = new XmlElement("when");
-        when.addAttribute(new Attribute("test", "criterion.listValue"));  //$NON-NLS-2$
+        when.addAttribute(new Attribute("test", "criterion.listValue"));  
         when.addElement(new TextElement("and ${criterion.condition}"));
         XmlElement innerForEach = new XmlElement("foreach");
-        innerForEach.addAttribute(new Attribute("collection", "criterion.value"));  //$NON-NLS-2$
-        innerForEach.addAttribute(new Attribute("item", "listItem"));  //$NON-NLS-2$
-        innerForEach.addAttribute(new Attribute("open", "("));  //$NON-NLS-2$
-        innerForEach.addAttribute(new Attribute("close", ")"));  //$NON-NLS-2$
-        innerForEach.addAttribute(new Attribute("separator", ","));  //$NON-NLS-2$
+        innerForEach.addAttribute(new Attribute("collection", "criterion.value"));  
+        innerForEach.addAttribute(new Attribute("item", "listItem"));  
+        innerForEach.addAttribute(new Attribute("open", "("));  
+        innerForEach.addAttribute(new Attribute("close", ")"));  
+        innerForEach.addAttribute(new Attribute("separator", ","));  
         sb.setLength(0);
         sb.append("#{listItem");
         if (typeHandled) {

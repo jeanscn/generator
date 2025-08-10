@@ -1,18 +1,28 @@
 package org.mybatis.generator.api.dom.kotlin;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * @author cen_c
+ */
+@Getter
 public class KotlinType extends KotlinNamedItemContainer {
 
     private final List<KotlinProperty> constructorProperties = new ArrayList<>();
     private final Type type;
     private final Set<String> superTypes = new HashSet<>();
 
+    @Getter
     public enum Type {
+        /**
+         * Kotlin type can be a class, interface, or object.
+         */
         CLASS("class"),
         INTERFACE("interface"),
         OBJECT("object");
@@ -23,9 +33,6 @@ public class KotlinType extends KotlinNamedItemContainer {
             this.value = value;
         }
 
-        public String getValue() {
-            return value;
-        }
     }
 
     private KotlinType(Builder builder) {
@@ -33,18 +40,6 @@ public class KotlinType extends KotlinNamedItemContainer {
         this.type = Objects.requireNonNull(builder.type);
         constructorProperties.addAll(builder.constructorProperties);
         superTypes.addAll(builder.superTypes);
-    }
-
-    public List<KotlinProperty> getConstructorProperties() {
-        return constructorProperties;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public Set<String> getSuperTypes() {
-        return superTypes;
     }
 
     public void addConstructorProperty(KotlinProperty property) {
@@ -92,6 +87,7 @@ public class KotlinType extends KotlinNamedItemContainer {
             return this;
         }
 
+        @Override
         public Builder getThis() {
             return this;
         }

@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
+/**
+ * @author cen_c
+ */
 public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerator {
 
     public SelectByKeysDictElementGenerator() {

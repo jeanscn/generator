@@ -2,6 +2,9 @@ package org.mybatis.generator.api;
 
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 
+/**
+ * @author cen_c
+ */
 public class GeneratedKotlinFile extends GeneratedFile {
 
     private final KotlinFile kotlinFile;

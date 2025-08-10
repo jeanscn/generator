@@ -8,6 +8,9 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
  * @author Jeff Butler
  */
 public enum ModelType {
+    /**
+     * Hierarchical model type, where each record can have a parent-child relationship.
+     */
     HIERARCHICAL("hierarchical"),
     FLAT("flat"),
     CONDITIONAL("conditional");

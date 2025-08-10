@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.config.Context;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractMethodGenerator {
     protected final Context context;
     protected final IntrospectedTable introspectedTable;
@@ -44,6 +47,10 @@ public abstract class AbstractMethodGenerator {
         builder.withImports(methodParts.getImports());
     }
 
+    /**
+     * 生成方法和所需的import
+     * @return MethodAndImports
+     */
     public abstract MethodAndImports generateMethodAndImports();
 
     public abstract boolean callPlugins(Method method, Interface interfaze);
@@ -68,6 +75,10 @@ public abstract class AbstractMethodGenerator {
             return getThis();
         }
 
+        /**
+         * 子类返回自己
+         * @return 子类实例
+         */
         public abstract T getThis();
     }
 }

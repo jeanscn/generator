@@ -7,6 +7,9 @@ import java.util.stream.Stream;
 import org.mybatis.generator.api.dom.xml.DocType;
 import org.mybatis.generator.api.dom.xml.Document;
 
+/**
+ * @author cen_c
+ */
 public class DocumentRenderer {
 
     public String render(Document document) {
@@ -14,7 +17,7 @@ public class DocumentRenderer {
                 renderDocType(document),
                 renderRootElement(document))
                 .flatMap(Function.identity())
-                .collect(Collectors.joining(System.getProperty("line.separator")));
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
     private Stream<String> renderXmlHeader() {

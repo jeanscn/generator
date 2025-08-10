@@ -21,48 +21,48 @@ public class JavaToKotlinTypeConverter {
 
     static {
         // string
-        typeMap.put("java.lang.String", "kotlin.String");  //$NON-NLS-2$
-        typeMap.put("java.lang.String[]", "kotlin.Array<kotlin.String>");  //$NON-NLS-2$
+        typeMap.put("java.lang.String", "kotlin.String");  
+        typeMap.put("java.lang.String[]", "kotlin.Array<kotlin.String>");  
 
         // primitives
-        typeMap.put("byte", "kotlin.Byte");  //$NON-NLS-2$
-        typeMap.put("char", "kotlin.Char");  //$NON-NLS-2$
-        typeMap.put("short", "kotlin.Short");  //$NON-NLS-2$
-        typeMap.put("int", "kotlin.Int");  //$NON-NLS-2$
-        typeMap.put("long", "kotlin.Long");  //$NON-NLS-2$
-        typeMap.put("float", "kotlin.Float");  //$NON-NLS-2$
-        typeMap.put("double", "kotlin.Double");  //$NON-NLS-2$
-        typeMap.put("boolean", "kotlin.Boolean");  //$NON-NLS-2$
+        typeMap.put("byte", "kotlin.Byte");  
+        typeMap.put("char", "kotlin.Char");  
+        typeMap.put("short", "kotlin.Short");  
+        typeMap.put("int", "kotlin.Int");  
+        typeMap.put("long", "kotlin.Long");  
+        typeMap.put("float", "kotlin.Float");  
+        typeMap.put("double", "kotlin.Double");  
+        typeMap.put("boolean", "kotlin.Boolean");  
 
         // primitive arrays
-        typeMap.put("byte[]", "kotlin.ByteArray");  //$NON-NLS-2$
-        typeMap.put("char[]", "kotlin.CharArray");  //$NON-NLS-2$
-        typeMap.put("short[]", "kotlin.ShortArray");  //$NON-NLS-2$
-        typeMap.put("int[]", "kotlin.IntArray");  //$NON-NLS-2$
-        typeMap.put("long[]", "kotlin.LongArray");  //$NON-NLS-2$
-        typeMap.put("float[]", "kotlin.FloatArray");  //$NON-NLS-2$
-        typeMap.put("double[]", "kotlin.DoubleArray");  //$NON-NLS-2$
-        typeMap.put("boolean[]", "kotlin.BooleanArray");  //$NON-NLS-2$
+        typeMap.put("byte[]", "kotlin.ByteArray");  
+        typeMap.put("char[]", "kotlin.CharArray");  
+        typeMap.put("short[]", "kotlin.ShortArray");  
+        typeMap.put("int[]", "kotlin.IntArray");  
+        typeMap.put("long[]", "kotlin.LongArray");  
+        typeMap.put("float[]", "kotlin.FloatArray");  
+        typeMap.put("double[]", "kotlin.DoubleArray");  
+        typeMap.put("boolean[]", "kotlin.BooleanArray");  
 
         // primitive wrappers
-        typeMap.put("java.lang.Byte", "kotlin.Byte");  //$NON-NLS-2$
-        typeMap.put("java.lang.Character", "kotlin.Char");  //$NON-NLS-2$
-        typeMap.put("java.lang.Short", "kotlin.Short");  //$NON-NLS-2$
-        typeMap.put("java.lang.Integer", "kotlin.Int");  //$NON-NLS-2$
-        typeMap.put("java.lang.Long", "kotlin.Long");  //$NON-NLS-2$
-        typeMap.put("java.lang.Float", "kotlin.Float");  //$NON-NLS-2$
-        typeMap.put("java.lang.Double", "kotlin.Double");  //$NON-NLS-2$
-        typeMap.put("java.lang.Boolean", "kotlin.Boolean");  //$NON-NLS-2$
+        typeMap.put("java.lang.Byte", "kotlin.Byte");  
+        typeMap.put("java.lang.Character", "kotlin.Char");  
+        typeMap.put("java.lang.Short", "kotlin.Short");  
+        typeMap.put("java.lang.Integer", "kotlin.Int");  
+        typeMap.put("java.lang.Long", "kotlin.Long");  
+        typeMap.put("java.lang.Float", "kotlin.Float");  
+        typeMap.put("java.lang.Double", "kotlin.Double");  
+        typeMap.put("java.lang.Boolean", "kotlin.Boolean");  
 
         // primitive wrapper arrays
-        typeMap.put("java.lang.Byte[]", "kotlin.Array<kotlin.Byte>");  //$NON-NLS-2$
-        typeMap.put("java.lang.Character[]", "kotlin.Array<kotlin.Char>");  //$NON-NLS-2$
-        typeMap.put("java.lang.Short[]", "kotlin.Array<kotlin.Short>");  //$NON-NLS-2$
-        typeMap.put("java.lang.Integer[]", "kotlin.Array<kotlin.Int>");  //$NON-NLS-2$
-        typeMap.put("java.lang.Long[]", "kotlin.Array<kotlin.Long>");  //$NON-NLS-2$
-        typeMap.put("java.lang.Float[]", "kotlin.Array<kotlin.Float.");  //$NON-NLS-2$
-        typeMap.put("java.lang.Double[]", "kotlin.Array<kotlin.Double>");  //$NON-NLS-2$
-        typeMap.put("java.lang.Boolean[]", "kotlin.Array<kotlin.Boolean>");  //$NON-NLS-2$
+        typeMap.put("java.lang.Byte[]", "kotlin.Array<kotlin.Byte>");  
+        typeMap.put("java.lang.Character[]", "kotlin.Array<kotlin.Char>");  
+        typeMap.put("java.lang.Short[]", "kotlin.Array<kotlin.Short>");  
+        typeMap.put("java.lang.Integer[]", "kotlin.Array<kotlin.Int>");  
+        typeMap.put("java.lang.Long[]", "kotlin.Array<kotlin.Long>");  
+        typeMap.put("java.lang.Float[]", "kotlin.Array<kotlin.Float.");  
+        typeMap.put("java.lang.Double[]", "kotlin.Array<kotlin.Double>");  
+        typeMap.put("java.lang.Boolean[]", "kotlin.Array<kotlin.Boolean>");  
     }
 
     public static FullyQualifiedKotlinType convert(FullyQualifiedJavaType javaType) {

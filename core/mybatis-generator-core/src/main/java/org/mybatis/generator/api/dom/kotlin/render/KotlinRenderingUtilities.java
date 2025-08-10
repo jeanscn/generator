@@ -5,6 +5,9 @@ import java.util.List;
 import org.mybatis.generator.api.dom.kotlin.KotlinModifier;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class KotlinRenderingUtilities {
 
     private KotlinRenderingUtilities() {}
@@ -13,12 +16,12 @@ public class KotlinRenderingUtilities {
 
     public static String renderModifiers(List<KotlinModifier> modifiers) {
         return modifiers.stream().map(KotlinModifier::getValue)
-                .collect(CustomCollectors.joining(" ", "", " "));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(" ", "", " "));   
     }
 
     public static String kotlinIndent(String in) {
         if (in.isEmpty()) {
-            return in; // don't indent empty lines
+            return in;
         }
 
         return KOTLIN_INDENT + in;

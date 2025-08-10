@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/**
+ * @author cen_c
+ */
 public class FullyQualifiedJavaType implements
         Comparable<FullyQualifiedJavaType> {
 
@@ -52,7 +55,9 @@ public class FullyQualifiedJavaType implements
     @Getter
     private final List<FullyQualifiedJavaType> typeArguments;
 
-    // the following three values are used for dealing with wildcard types
+    /**
+     * the following three values are used for dealing with wildcard types
+     */
     private boolean wildcardType;
 
     private boolean boundedWildcard;

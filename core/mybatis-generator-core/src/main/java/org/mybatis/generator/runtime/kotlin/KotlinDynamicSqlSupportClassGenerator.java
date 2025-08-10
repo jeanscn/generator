@@ -81,7 +81,7 @@ public class KotlinDynamicSqlSupportClassGenerator {
     }
 
     public String getSupportObjectImport() {
-        return kotlinFile.getPackage().map(s -> s + ".").orElse("")  //$NON-NLS-2$
+        return kotlinFile.getPackage().map(s -> s + ".").orElse("")  
                 + outerObject.getName();
     }
 
@@ -109,7 +109,7 @@ public class KotlinDynamicSqlSupportClassGenerator {
         String domainObjectName = introspectedTable.getMyBatisDynamicSQLTableObjectName();
 
         return KotlinType.newClass(domainObjectName)
-                .withSuperType("AliasableSqlTable<" + domainObjectName + ">(\""  //$NON-NLS-2$
+                .withSuperType("AliasableSqlTable<" + domainObjectName + ">(\""  
                         + escapeStringForKotlin(introspectedTable.getFullyQualifiedTableNameAtRuntime())
                         + "\", ::" + domainObjectName
                         + ")")

@@ -3,6 +3,9 @@ package org.mybatis.generator.internal.util;
 import java.io.File;
 import java.util.*;
 
+/**
+ * @author cen_c
+ */
 public class StringUtility {
 
     /**
@@ -13,7 +16,7 @@ public class StringUtility {
     }
 
     public static boolean stringHasValue(String s) {
-        return s != null && s.length() > 0;
+        return s != null && !s.isEmpty();
     }
 
     public static String composeFullyQualifiedTableName(String catalog,
@@ -208,9 +211,7 @@ public class StringUtility {
         List<String> ret = new ArrayList<>();
         if (stringHasValue(str)) {
             String[] split = removeSpaces(str).split("[|,;，；、]");
-            for (String s : split) {
-                ret.add(s);
-            }
+            Collections.addAll(ret, split);
         }
         return ret;
     }
@@ -228,9 +229,7 @@ public class StringUtility {
         TreeSet<String> ret = new TreeSet<>();
         if (stringHasValue(str)) {
             String[] split = removeSpaces(str).split("[|,;，；、]");
-            for (String s : split) {
-                ret.add(s);
-            }
+            Collections.addAll(ret, split);
         }
         return ret;
     }

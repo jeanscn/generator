@@ -73,8 +73,8 @@ public class ToStringPlugin extends PluginAdapter {
         for (Field field : topLevelClass.getFields()) {
             String property = field.getName();
             sb.setLength(0);
-            sb.append("sb.append(\"").append(", ").append(property)  //$NON-NLS-2$
-                    .append("=\")").append(".append(").append(property)  //$NON-NLS-2$
+            sb.append("sb.append(\"").append(", ").append(property)  
+                    .append("=\")").append(".append(").append(property)  
                     .append(");");
             method.addBodyLine(sb.toString());
         }

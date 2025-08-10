@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
+/**
+ * @author cen_c
+ */
 public class UpdateAllColumnsMethodGenerator extends AbstractKotlinFunctionGenerator {
     private final FullyQualifiedKotlinType recordType;
     private final KotlinFragmentGenerator fragmentGenerator;

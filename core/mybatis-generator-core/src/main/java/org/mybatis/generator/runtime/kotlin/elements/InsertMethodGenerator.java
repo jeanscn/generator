@@ -9,6 +9,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 
+/**
+ * @author cen_c
+ */
 public class InsertMethodGenerator extends AbstractKotlinFunctionGenerator {
     private final FullyQualifiedKotlinType recordType;
     private final String mapperName;

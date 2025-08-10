@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.mybatis.generator.api.dom.java.InitializationBlock;
 
+/**
+ * @author cen_c
+ */
 public class InitializationBlockRenderer {
 
     private final BodyLineRenderer bodyLineRenderer = new BodyLineRenderer();

@@ -9,6 +9,9 @@ import org.mybatis.generator.api.dom.java.InnerEnum;
 import org.mybatis.generator.api.dom.java.JavaDomUtils;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class InnerEnumRenderer {
 
     public List<String> render(InnerEnum innerEnum, CompilationUnit compilationUnit) {
@@ -71,6 +74,6 @@ public class InnerEnumRenderer {
     private String renderSuperInterfaces(InnerEnum innerEnum, CompilationUnit compilationUnit) {
         return innerEnum.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " implements ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " implements ", ""));   
     }
 }

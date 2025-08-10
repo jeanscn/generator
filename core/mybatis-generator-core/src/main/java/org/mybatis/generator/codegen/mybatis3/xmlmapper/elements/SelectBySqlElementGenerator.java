@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
+/**
+ * @author cen_c
+ */
 public class SelectBySqlElementGenerator extends AbstractXmlElementGenerator{
     public SelectBySqlElementGenerator() {
         super();
@@ -19,7 +22,7 @@ public class SelectBySqlElementGenerator extends AbstractXmlElementGenerator{
         selectBySqlBuilder.addAttribute(new Attribute("resultMap", "BaseResultMap"));
         context.getCommentGenerator().addComment(selectBySqlBuilder);
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter != null"));  //$NON-NLS-2$
+        ifElement.addAttribute(new Attribute("test", "_parameter != null"));  
         ifElement.addElement(new TextElement("select"));
         ifElement.addElement(getBaseColumnListElement());
 

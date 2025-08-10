@@ -10,6 +10,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
+/**
+ * @author cen_c
+ */
 public class CountByExampleMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     public CountByExampleMethodGenerator() {

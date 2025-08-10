@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
+/**
+ * @author cen_c
+ */
 public class InsertSelectiveElementGenerator extends AbstractXmlElementGenerator {
 
     public InsertSelectiveElementGenerator() {
@@ -25,15 +28,15 @@ public class InsertSelectiveElementGenerator extends AbstractXmlElementGenerator
         answer.addElement(new TextElement(sb.toString()));
 
         XmlElement insertTrimElement = new XmlElement("trim");
-        insertTrimElement.addAttribute(new Attribute("prefix", "("));  //$NON-NLS-2$
-        insertTrimElement.addAttribute(new Attribute("suffix", ")"));  //$NON-NLS-2$
-        insertTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  //$NON-NLS-2$
+        insertTrimElement.addAttribute(new Attribute("prefix", "("));  
+        insertTrimElement.addAttribute(new Attribute("suffix", ")"));  
+        insertTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  
         answer.addElement(insertTrimElement);
 
         XmlElement valuesTrimElement = new XmlElement("trim");
-        valuesTrimElement.addAttribute(new Attribute("prefix", "values ("));  //$NON-NLS-2$
-        valuesTrimElement.addAttribute(new Attribute("suffix", ")"));  //$NON-NLS-2$
-        valuesTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  //$NON-NLS-2$
+        valuesTrimElement.addAttribute(new Attribute("prefix", "values ("));  
+        valuesTrimElement.addAttribute(new Attribute("suffix", ")"));  
+        valuesTrimElement.addAttribute(new Attribute("suffixOverrides", ","));  
         answer.addElement(valuesTrimElement);
 
         for (IntrospectedColumn introspectedColumn :

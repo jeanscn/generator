@@ -3,6 +3,9 @@ package org.mybatis.generator.internal.util;
 import java.util.StringJoiner;
 import java.util.stream.Collector;
 
+/**
+ * @author cen_c
+ */
 public interface CustomCollectors {
 
     /**

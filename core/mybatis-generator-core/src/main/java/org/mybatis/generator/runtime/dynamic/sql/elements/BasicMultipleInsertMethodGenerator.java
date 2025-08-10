@@ -9,6 +9,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.config.GeneratedKey;
 
+/**
+ * @author cen_c
+ */
 public class BasicMultipleInsertMethodGenerator extends AbstractMethodGenerator {
 
     private final FullyQualifiedJavaType recordType;

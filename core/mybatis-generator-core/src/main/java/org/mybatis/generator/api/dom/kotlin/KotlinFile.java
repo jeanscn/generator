@@ -1,5 +1,7 @@
 package org.mybatis.generator.api.dom.kotlin;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -8,11 +10,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * @author cen_c
+ */
 public class KotlinFile {
+    @Getter
     private final String fileName;
+    @Getter
     private final List<String> fileCommentLines = new ArrayList<>();
+    @Getter
     private final Set<String> imports = new TreeSet<>();
     private String packageDefinition;
+    @Getter
     private final List<KotlinNamedItem> namedItems = new ArrayList<>();
 
     public KotlinFile(String fileName) {
@@ -25,20 +34,8 @@ public class KotlinFile {
         }
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public List<String> getFileCommentLines() {
-        return fileCommentLines;
-    }
-
     public void addFileCommentLine(String fileComentLine) {
         fileCommentLines.add(fileComentLine);
-    }
-
-    public Set<String> getImports() {
-        return imports;
     }
 
     public void addImport(String i) {
@@ -61,7 +58,4 @@ public class KotlinFile {
         namedItems.add(namedItem);
     }
 
-    public List<KotlinNamedItem> getNamedItems() {
-        return namedItems;
-    }
 }

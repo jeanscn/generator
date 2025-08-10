@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+/**
+ * @author cen_c
+ */
 public class BasicSelectOneMethodGenerator extends AbstractMethodGenerator {
 
     private final FullyQualifiedJavaType recordType;
@@ -65,7 +68,7 @@ public class BasicSelectOneMethodGenerator extends AbstractMethodGenerator {
                 FullyQualifiedJavaType rmAnnotation =
                         new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap");
                 builder.withImport(rmAnnotation);
-                method.addAnnotation("@ResultMap(\"" + resultMapId + "\")");  //$NON-NLS-2$
+                method.addAnnotation("@ResultMap(\"" + resultMapId + "\")");  
             } else {
                 MethodParts methodParts = fragmentGenerator.getAnnotatedResults();
                 acceptParts(builder, method, methodParts);

@@ -5,6 +5,9 @@ import org.mybatis.generator.api.dom.java.*;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * @author cen_c
+ */
 public class SelectByExampleWithBLOBsMethodGenerator extends
         AbstractJavaMapperMethodGenerator {
 

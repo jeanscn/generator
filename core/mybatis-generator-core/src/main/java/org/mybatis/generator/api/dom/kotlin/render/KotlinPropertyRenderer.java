@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 
+/**
+ * @author cen_c
+ */
 public class KotlinPropertyRenderer {
 
     public List<String> render(KotlinProperty kotlinProperty) {
@@ -18,7 +21,7 @@ public class KotlinPropertyRenderer {
                 + kotlinProperty.getType().getValue()
                 + " "
                 + kotlinProperty.getName()
-                + kotlinProperty.getDataType().map(dt -> ": " + dt).orElse("")  //$NON-NLS-2$
-                + kotlinProperty.getInitializationString().map(s -> " = " + s).orElse("");  //$NON-NLS-2$
+                + kotlinProperty.getDataType().map(dt -> ": " + dt).orElse("")  
+                + kotlinProperty.getInitializationString().map(s -> " = " + s).orElse("");  
     }
 }

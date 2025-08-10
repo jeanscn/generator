@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+/**
+ * @author cen_c
+ */
 public class GeneralCountMethodGenerator extends AbstractMethodGenerator {
 
     private GeneralCountMethodGenerator(Builder builder) {

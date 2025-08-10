@@ -4,6 +4,9 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
+/**
+ * @author cen_c
+ */
 public class CountByExampleElementGenerator extends AbstractXmlElementGenerator {
 
     public CountByExampleElementGenerator() {
@@ -17,7 +20,7 @@ public class CountByExampleElementGenerator extends AbstractXmlElementGenerator 
         answer.addAttribute(new Attribute(
                 "id", introspectedTable.getCountByExampleStatementId()));
         answer.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
-        answer.addAttribute(new Attribute("resultType", "java.lang.Long"));  //$NON-NLS-2$
+        answer.addAttribute(new Attribute("resultType", "java.lang.Long"));  
 
         context.getCommentGenerator().addComment(answer);
 

@@ -1,15 +1,24 @@
 package org.mybatis.generator.api.dom.kotlin;
 
+import lombok.Getter;
+
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * @author cen_c
+ */
 public class KotlinProperty extends KotlinNamedItem {
 
     private final String dataType;
     private final String initializationString;
+    @Getter
     private final Type type;
 
     public enum Type {
+        /**
+         * Represents a read-only property in Kotlin, similar to a final field in Java.
+         */
         VAL("val"),
         VAR("var");
 
@@ -37,10 +46,6 @@ public class KotlinProperty extends KotlinNamedItem {
 
     public Optional<String> getDataType() {
         return Optional.ofNullable(dataType);
-    }
-
-    public Type getType() {
-        return type;
     }
 
     @Override
@@ -76,6 +81,7 @@ public class KotlinProperty extends KotlinNamedItem {
             return this;
         }
 
+        @Override
         public Builder getThis() {
             return this;
         }

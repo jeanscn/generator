@@ -33,11 +33,11 @@ import org.mybatis.generator.internal.util.StringUtility;
  */
 public class CachePlugin extends PluginAdapter {
     public enum CacheProperty {
-        EVICTION("cache_eviction", "eviction"),  //$NON-NLS-2$
-        FLUSH_INTERVAL("cache_flushInterval", "flushInterval"),  //$NON-NLS-2$
-        READ_ONLY("cache_readOnly", "readOnly"),  //$NON-NLS-2$
-        SIZE("cache_size", "size"),  //$NON-NLS-2$
-        TYPE("cache_type", "type");  //$NON-NLS-2$
+        EVICTION("cache_eviction", "eviction"),  
+        FLUSH_INTERVAL("cache_flushInterval", "flushInterval"),  
+        READ_ONLY("cache_readOnly", "readOnly"),  
+        SIZE("cache_size", "size"),  
+        TYPE("cache_type", "type");  
 
         private final String propertyName;
         private final String attributeName;

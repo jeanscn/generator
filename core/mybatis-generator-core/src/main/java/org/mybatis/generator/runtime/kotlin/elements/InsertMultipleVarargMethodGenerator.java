@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
+/**
+ * @author cen_c
+ */
 public class InsertMultipleVarargMethodGenerator extends AbstractKotlinFunctionGenerator {
     private final FullyQualifiedKotlinType recordType;
     private final String mapperName;
@@ -25,7 +28,7 @@ public class InsertMultipleVarargMethodGenerator extends AbstractKotlinFunctionG
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
                 KotlinFunction.newOneLineFunction(mapperName + ".insertMultiple")
                 .withArgument(KotlinArg.newArg("vararg records")
-                        .withDataType(recordType.getShortNameWithTypeArguments())  //$NON-NLS-2$
+                        .withDataType(recordType.getShortNameWithTypeArguments())  
                         .build())
                 .withCodeLine("insertMultiple(records.toList())")
                 .build())

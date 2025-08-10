@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
+/**
+ * @author cen_c
+ */
 public class KotlinFunctionRenderer {
     public List<String> render(KotlinFunction function) {
 

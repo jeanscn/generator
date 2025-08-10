@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+/**
+ * @author cen_c
+ */
 public class UpdateAllColumnsMethodGenerator extends AbstractMethodGenerator {
     private final FullyQualifiedJavaType recordType;
     private final FragmentGenerator fragmentGenerator;
@@ -39,7 +42,7 @@ public class UpdateAllColumnsMethodGenerator extends AbstractMethodGenerator {
         method.addParameter(new Parameter(parameterAndReturnType, "dsl"));
 
         method.addBodyLines(fragmentGenerator.getSetEqualLines(introspectedTable.getAllColumns(),
-                "return dsl", "        ", true));  //$NON-NLS-2$
+                "return dsl", "        ", true));  
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)

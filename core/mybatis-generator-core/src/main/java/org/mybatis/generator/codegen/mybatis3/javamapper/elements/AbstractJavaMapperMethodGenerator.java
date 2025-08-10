@@ -90,7 +90,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
             sb.append("\", keyProperty=\"");
             sb.append(introspectedColumn.getJavaProperty());
             sb.append("\", before=");
-            sb.append(gk.isIdentity() ? "false" : "true");  //$NON-NLS-2$
+            sb.append(gk.isIdentity() ? "false" : "true");  
             sb.append(", resultType=");
             sb.append(introspectedColumn.getFullyQualifiedJavaType().getShortName());
             sb.append(".class)");
@@ -297,12 +297,12 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         method.setAbstract(true);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
 
-        method.addParameter(new Parameter(parameterType, "row", "@Param(\"row\")"));  //$NON-NLS-2$
+        method.addParameter(new Parameter(parameterType, "row", "@Param(\"row\")"));  
 
         importedTypes.add(parameterType);
 
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-        method.addParameter(new Parameter(exampleType,"example", "@Param(\"example\")"));  //$NON-NLS-2$
+        method.addParameter(new Parameter(exampleType,"example", "@Param(\"example\")"));  
         importedTypes.add(exampleType);
 
         importedTypes.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));

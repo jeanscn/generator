@@ -2,6 +2,9 @@ package org.mybatis.generator.api;
 
 import org.mybatis.generator.api.dom.xml.Document;
 
+/**
+ * @author cen_c
+ */
 public class GeneratedXmlFile extends GeneratedFile {
 
     private final Document document;

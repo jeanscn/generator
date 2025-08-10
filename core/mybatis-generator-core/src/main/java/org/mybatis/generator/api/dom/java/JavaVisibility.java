@@ -1,5 +1,7 @@
 package org.mybatis.generator.api.dom.java;
 
+import lombok.Getter;
+
 import java.util.EnumSet;
 
 /**
@@ -7,7 +9,11 @@ import java.util.EnumSet;
  *
  * @author Jeff Butler
  */
+@Getter
 public enum JavaVisibility {
+    /**
+     * The public visibility modifier.
+     */
     PUBLIC("public "),
     PRIVATE("private "),
     PROTECTED("protected "),
@@ -17,10 +23,6 @@ public enum JavaVisibility {
 
     JavaVisibility(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public static JavaVisibility ofCode(final String value){

@@ -1,13 +1,19 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+
 import static org.mybatis.generator.internal.util.StringUtility.stringContainsSpace;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 public class IgnoredColumn {
 
+    @Getter
     protected final String columnName;
 
     private boolean isColumnNameDelimited;
@@ -16,10 +22,6 @@ public class IgnoredColumn {
         super();
         this.columnName = columnName;
         isColumnNameDelimited = stringContainsSpace(columnName);
-    }
-
-    public String getColumnName() {
-        return columnName;
     }
 
     public void setColumnNameDelimited(boolean isColumnNameDelimited) {

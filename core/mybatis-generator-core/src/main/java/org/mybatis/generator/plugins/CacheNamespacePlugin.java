@@ -44,12 +44,12 @@ import org.mybatis.generator.internal.util.StringUtility;
 public class CacheNamespacePlugin extends PluginAdapter {
 
     public enum CacheProperty {
-        BLOCKING("cache_blocking", "blocking", false),  //$NON-NLS-2$
-        FLUSH_INTERVAL("cache_flushInterval", "flushInterval", false),  //$NON-NLS-2$
-        READ_WRITE("cache_readWrite", "readWrite", false),  //$NON-NLS-2$
-        SIZE("cache_size", "size", false),  //$NON-NLS-2$
-        IMPLEMENTATION("cache_implementation", "implementation", true),  //$NON-NLS-2$
-        EVICTION("cache_eviction", "eviction", true);  //$NON-NLS-2$
+        BLOCKING("cache_blocking", "blocking", false),  
+        FLUSH_INTERVAL("cache_flushInterval", "flushInterval", false),  
+        READ_WRITE("cache_readWrite", "readWrite", false),  
+        SIZE("cache_size", "size", false),  
+        IMPLEMENTATION("cache_implementation", "implementation", true),  
+        EVICTION("cache_eviction", "eviction", true);  
 
         private final String propertyName;
         private final String attributeName;
@@ -131,7 +131,7 @@ public class CacheNamespacePlugin extends PluginAdapter {
                 .collect(Collectors.joining(", "));
 
         if (StringUtility.stringHasValue(attributes)) {
-            return "@CacheNamespace(" + attributes + ")";  //$NON-NLS-2$
+            return "@CacheNamespace(" + attributes + ")";  
         } else {
             return "@CacheNamespace";
         }

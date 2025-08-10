@@ -1,11 +1,19 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import static org.mybatis.generator.internal.util.StringUtility.stringContainsSpace;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
+@Setter
+@Getter
 public class ColumnOverride extends PropertyHolder {
 
     private final String columnName;
@@ -33,6 +41,7 @@ public class ColumnOverride extends PropertyHolder {
     private boolean required;
 
     private Integer maxLength;
+
     private Integer minLength;
 
     private Integer scale;
@@ -43,45 +52,8 @@ public class ColumnOverride extends PropertyHolder {
 
     public ColumnOverride(String columnName) {
         super();
-
         this.columnName = columnName;
         isColumnNameDelimited = stringContainsSpace(columnName);
-    }
-
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public String getJavaProperty() {
-        return javaProperty;
-    }
-
-    public void setJavaProperty(String javaProperty) {
-        this.javaProperty = javaProperty;
-    }
-
-    public String getJavaType() {
-        return javaType;
-    }
-
-    public void setJavaType(String javaType) {
-        this.javaType = javaType;
-    }
-
-    public String getJdbcType() {
-        return jdbcType;
-    }
-
-    public void setJdbcType(String jdbcType) {
-        this.jdbcType = jdbcType;
-    }
-
-    public String getTypeHandler() {
-        return typeHandler;
-    }
-
-    public void setTypeHandler(String typeHandler) {
-        this.typeHandler = typeHandler;
     }
 
     public boolean isColumnNameDelimited() {
@@ -107,67 +79,4 @@ public class ColumnOverride extends PropertyHolder {
         this.isGeneratedAlways = isGeneratedAlways;
     }
 
-    public Integer getMaxLength() {
-        return maxLength;
-    }
-
-    public void setMaxLength(Integer maxLength) {
-        this.maxLength = maxLength;
-    }
-
-    public Integer getMinLength() {
-        return minLength;
-    }
-
-    public void setMinLength(Integer minLength) {
-        this.minLength = minLength;
-    }
-
-    public Integer getScale() {
-        return scale;
-    }
-
-    public void setScale(Integer scale) {
-        this.scale = scale;
-    }
-
-    public String getColumnComment() {
-        return columnComment;
-    }
-
-    public void setColumnComment(String columnComment) {
-        this.columnComment = columnComment;
-    }
-
-    public String getColumnSubComment() {
-        return columnSubComment;
-    }
-
-    public void setColumnSubComment(String columnSubComment) {
-        this.columnSubComment = columnSubComment;
-    }
-
-    public String getHeaderAlign() {
-        return headerAlign;
-    }
-
-    public void setHeaderAlign(String headerAlign) {
-        this.headerAlign = headerAlign;
-    }
-
-    public String getAlign() {
-        return align;
-    }
-
-    public void setAlign(String align) {
-        this.align = align;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
 }

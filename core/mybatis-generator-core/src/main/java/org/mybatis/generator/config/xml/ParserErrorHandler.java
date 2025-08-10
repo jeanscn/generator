@@ -7,6 +7,9 @@ import java.util.List;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class ParserErrorHandler implements ErrorHandler {
 
     private final List<String> warnings;

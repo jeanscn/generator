@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.InnerClass;
 import org.mybatis.generator.api.dom.java.JavaDomUtils;
 import org.mybatis.generator.internal.util.CustomCollectors;
 
+/**
+ * @author cen_c
+ */
 public class InnerClassRenderer {
 
     public List<String> render(InnerClass innerClass, CompilationUnit compilationUnit) {
@@ -63,10 +66,15 @@ public class InnerClassRenderer {
                 .orElse("");
     }
 
-    // should return an empty string if no super interfaces
+    /**
+     * Render the super interfaces of the inner class.
+     * @param innerClass the inner class to render
+     * @param compilationUnit the compilation unit to which the inner class belongs
+     * @return a string representing the super interfaces, or an empty string if there are none
+     */
     private String renderSuperInterfaces(InnerClass innerClass, CompilationUnit compilationUnit) {
         return innerClass.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " implements ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " implements ", ""));   
     }
 }

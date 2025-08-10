@@ -11,6 +11,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 
+/**
+ * @author cen_c
+ */
 public class InsertMultipleMethodGenerator extends AbstractMethodGenerator {
     private final FullyQualifiedJavaType recordType;
 
@@ -48,7 +51,7 @@ public class InsertMultipleMethodGenerator extends AbstractMethodGenerator {
             methodName = "MyBatis3Utils.insertMultiple";
         }
 
-        method.addBodyLine("return " + methodName + "(this::insertMultiple, records, "  //$NON-NLS-2$
+        method.addBodyLine("return " + methodName + "(this::insertMultiple, records, "  
                 + tableFieldName
                 + ", c ->");
 

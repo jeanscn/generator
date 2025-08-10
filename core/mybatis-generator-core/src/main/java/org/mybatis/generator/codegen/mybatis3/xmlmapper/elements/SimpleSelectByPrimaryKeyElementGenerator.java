@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
+/**
+ * @author cen_c
+ */
 public class SimpleSelectByPrimaryKeyElementGenerator extends AbstractXmlElementGenerator {
 
     public SimpleSelectByPrimaryKeyElementGenerator() {

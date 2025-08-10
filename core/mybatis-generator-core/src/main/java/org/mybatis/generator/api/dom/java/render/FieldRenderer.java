@@ -7,6 +7,9 @@ import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.JavaDomUtils;
 
+/**
+ * @author cen_c
+ */
 public class FieldRenderer {
 
     public List<String> render(Field field, CompilationUnit compilationUnit) {

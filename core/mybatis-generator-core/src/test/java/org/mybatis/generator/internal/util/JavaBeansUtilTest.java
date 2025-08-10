@@ -16,40 +16,40 @@ class JavaBeansUtilTest {
 
     @Test
     void testGetValidPropertyName() {
-        assertEquals("eMail", getValidPropertyName("eMail"));  //$NON-NLS-2$
-        assertEquals("firstName", getValidPropertyName("firstName"));  //$NON-NLS-2$
-        assertEquals("URL", getValidPropertyName("URL"));  //$NON-NLS-2$
-        assertEquals("XAxis", getValidPropertyName("XAxis"));  //$NON-NLS-2$
-        assertEquals("a", getValidPropertyName("a"));  //$NON-NLS-2$
-        assertEquals("b", getValidPropertyName("B"));  //$NON-NLS-2$
-        assertEquals("yaxis", getValidPropertyName("Yaxis"));  //$NON-NLS-2$
-        assertEquals("i_PARAM_INT_1", getValidPropertyName("I_PARAM_INT_1"));  //$NON-NLS-2$
-        assertEquals("_fred", getValidPropertyName("_fred"));  //$NON-NLS-2$
-        assertEquals("accountType", getValidPropertyName("AccountType"));  //$NON-NLS-2$
+        assertEquals("eMail", getValidPropertyName("eMail"));  
+        assertEquals("firstName", getValidPropertyName("firstName"));  
+        assertEquals("URL", getValidPropertyName("URL"));  
+        assertEquals("XAxis", getValidPropertyName("XAxis"));  
+        assertEquals("a", getValidPropertyName("a"));  
+        assertEquals("b", getValidPropertyName("B"));  
+        assertEquals("yaxis", getValidPropertyName("Yaxis"));  
+        assertEquals("i_PARAM_INT_1", getValidPropertyName("I_PARAM_INT_1"));  
+        assertEquals("_fred", getValidPropertyName("_fred"));  
+        assertEquals("accountType", getValidPropertyName("AccountType"));  
     }
 
     @Test
     void testGetGetterMethodName() {
-        assertEquals("geteMail", getGetterMethodName("eMail", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("getFirstName", getGetterMethodName("firstName", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("getURL", getGetterMethodName("URL", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("getXAxis", getGetterMethodName("XAxis", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("getA", getGetterMethodName("a", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("isActive", getGetterMethodName("active", FullyQualifiedJavaType.getBooleanPrimitiveInstance()));  //$NON-NLS-2$
-        assertEquals("getI_PARAM_INT_1", getGetterMethodName("i_PARAM_INT_1", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("get_fred", getGetterMethodName("_fred", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
-        assertEquals("getAccountType", getGetterMethodName("AccountType", FullyQualifiedJavaType.getStringInstance()));  //$NON-NLS-2$
+        assertEquals("geteMail", getGetterMethodName("eMail", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("getFirstName", getGetterMethodName("firstName", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("getURL", getGetterMethodName("URL", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("getXAxis", getGetterMethodName("XAxis", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("getA", getGetterMethodName("a", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("isActive", getGetterMethodName("active", FullyQualifiedJavaType.getBooleanPrimitiveInstance()));  
+        assertEquals("getI_PARAM_INT_1", getGetterMethodName("i_PARAM_INT_1", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("get_fred", getGetterMethodName("_fred", FullyQualifiedJavaType.getStringInstance()));  
+        assertEquals("getAccountType", getGetterMethodName("AccountType", FullyQualifiedJavaType.getStringInstance()));  
     }
 
     @Test
     void testGetSetterMethodName() {
-        assertEquals("seteMail", getSetterMethodName("eMail"));  //$NON-NLS-2$
-        assertEquals("setFirstName", getSetterMethodName("firstName"));  //$NON-NLS-2$
-        assertEquals("setURL", getSetterMethodName("URL"));  //$NON-NLS-2$
-        assertEquals("setXAxis", getSetterMethodName("XAxis"));  //$NON-NLS-2$
-        assertEquals("setA", getSetterMethodName("a"));  //$NON-NLS-2$
-        assertEquals("setI_PARAM_INT_1", getSetterMethodName("i_PARAM_INT_1"));  //$NON-NLS-2$
-        assertEquals("set_fred", getSetterMethodName("_fred"));  //$NON-NLS-2$
-        assertEquals("setAccountType", getSetterMethodName("AccountType"));  //$NON-NLS-2$
+        assertEquals("seteMail", getSetterMethodName("eMail"));  
+        assertEquals("setFirstName", getSetterMethodName("firstName"));  
+        assertEquals("setURL", getSetterMethodName("URL"));  
+        assertEquals("setXAxis", getSetterMethodName("XAxis"));  
+        assertEquals("setA", getSetterMethodName("a"));  
+        assertEquals("setI_PARAM_INT_1", getSetterMethodName("i_PARAM_INT_1"));  
+        assertEquals("set_fred", getSetterMethodName("_fred"));  
+        assertEquals("setAccountType", getSetterMethodName("AccountType"));  
     }
 }

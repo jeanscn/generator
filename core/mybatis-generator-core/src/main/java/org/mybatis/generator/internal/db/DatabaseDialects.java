@@ -1,12 +1,18 @@
 package org.mybatis.generator.internal.db;
 
+import lombok.Getter;
+
 /**
  * Typesafe enum of known database dialects.
  *
  * @author Jeff Butler
  */
+@Getter
 public enum DatabaseDialects {
 
+    /**
+     * DB2 database dialect.
+     */
     DB2("VALUES IDENTITY_VAL_LOCAL()"),
     MYSQL("SELECT LAST_INSERT_ID()"),
     SQLSERVER("SELECT SCOPE_IDENTITY()"),
@@ -21,10 +27,6 @@ public enum DatabaseDialects {
 
     DatabaseDialects(String identityRetrievalStatement) {
         this.identityRetrievalStatement = identityRetrievalStatement;
-    }
-
-    public String getIdentityRetrievalStatement() {
-        return identityRetrievalStatement;
     }
 
     /**

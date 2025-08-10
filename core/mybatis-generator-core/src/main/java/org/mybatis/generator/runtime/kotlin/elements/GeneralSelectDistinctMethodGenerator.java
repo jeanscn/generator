@@ -4,6 +4,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
+/**
+ * @author cen_c
+ */
 public class GeneralSelectDistinctMethodGenerator extends AbstractKotlinFunctionGenerator {
     private final String mapperName;
 

@@ -4,6 +4,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
+/**
+ * @author cen_c
+ */
 public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerator {
     private final String mapperName;
 
@@ -19,7 +22,7 @@ public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerato
                 .withArgument(KotlinArg.newArg("completer")
                         .withDataType("UpdateCompleter")
                         .build())
-                .withCodeLine("update(this::update, " + tableFieldName + ", completer)")  //$NON-NLS-2$
+                .withCodeLine("update(this::update, " + tableFieldName + ", completer)")  
                 .build())
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter")
                 .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.update")

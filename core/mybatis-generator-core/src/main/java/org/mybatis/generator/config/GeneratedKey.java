@@ -52,7 +52,7 @@ public class GeneratedKey {
     }
 
     public String getMyBatis3Order() {
-        return isIdentity ? "AFTER" : "BEFORE";  //$NON-NLS-2$
+        return isIdentity ? "AFTER" : "BEFORE";  
     }
 
     public void validate(List<String> errors, String tableName) {
@@ -63,7 +63,7 @@ public class GeneratedKey {
 
         if (stringHasValue(type)
                 && !"pre".equals(type)
-                && !"post".equals(type)) {  //$NON-NLS-2$
+                && !"post".equals(type)) {  
             errors.add(getString("ValidationError.15", tableName));
         }
 
