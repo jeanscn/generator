@@ -37,7 +37,7 @@ public class SelectByExampleWithBLOBsMethodGenerator extends
         method.setReturnType(returnType);
         Parameter parameter = new Parameter(type, "example");
         parameter.setRemark("查询条件example对象");
-        method.addParameter(parameter); //$NON-NLS-1$
+        method.addParameter(parameter);
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 

@@ -1,6 +1,7 @@
 <!--
+* ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }显示详情
-* @version: detail template version 1.0.7
+* @version: detail template version 1.0.8
 -->
 <template>
     <vgoForm v-if="formConfigReady" v-model="_formData" ref="vgoFormRef"

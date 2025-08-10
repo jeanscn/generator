@@ -1,6 +1,7 @@
 <!--
+* ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }编辑组件
-* @version: edit template version 1.0.7
+* @version: edit template version 1.0.8
 -->
 <template>
     <vgoForm

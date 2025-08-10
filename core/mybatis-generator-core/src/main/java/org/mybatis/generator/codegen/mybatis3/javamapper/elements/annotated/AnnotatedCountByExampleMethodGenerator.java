@@ -15,17 +15,17 @@ public class AnnotatedCountByExampleMethodGenerator extends CountByExampleMethod
     public void addMapperAnnotations(Method method) {
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(introspectedTable.getMyBatis3SqlProviderType());
 
-        String s = "@SelectProvider(type=" //$NON-NLS-1$
+        String s = "@SelectProvider(type="
                 + fqjt.getShortName()
-                + ".class, method=\"" //$NON-NLS-1$
+                + ".class, method=\""
                 + introspectedTable.getCountByExampleStatementId()
-                + "\")"; //$NON-NLS-1$
+                + "\")";
         method.addAnnotation(s);
     }
 
     @Override
     public void addExtraImports(Interface interfaze) {
         interfaze.addImportedType(
-                new FullyQualifiedJavaType("org.apache.ibatis.annotations.SelectProvider")); //$NON-NLS-1$
+                new FullyQualifiedJavaType("org.apache.ibatis.annotations.SelectProvider"));
     }
 }

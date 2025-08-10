@@ -76,12 +76,12 @@ public class KotlinDynamicSqlSupportClassGenerator {
 
     public String getTablePropertyImport() {
         return getSupportObjectImport()
-                + "." //$NON-NLS-1$
+                + "."
                 + tableProperty.getName();
     }
 
     public String getSupportObjectImport() {
-        return kotlinFile.getPackage().map(s -> s + ".").orElse("") //$NON-NLS-1$ //$NON-NLS-2$
+        return kotlinFile.getPackage().map(s -> s + ".").orElse("")  //$NON-NLS-2$
                 + outerObject.getName();
     }
 
@@ -97,9 +97,9 @@ public class KotlinDynamicSqlSupportClassGenerator {
         KotlinType outerObject = KotlinType.newObject(type.getShortNameWithoutTypeArguments())
                 .build();
 
-        kotlinFile.addImport("org.mybatis.dynamic.sql.AliasableSqlTable"); //$NON-NLS-1$
-        kotlinFile.addImport("org.mybatis.dynamic.sql.util.kotlin.elements.column"); //$NON-NLS-1$
-        kotlinFile.addImport("java.sql.JDBCType"); //$NON-NLS-1$
+        kotlinFile.addImport("org.mybatis.dynamic.sql.AliasableSqlTable");
+        kotlinFile.addImport("org.mybatis.dynamic.sql.util.kotlin.elements.column");
+        kotlinFile.addImport("java.sql.JDBCType");
         kotlinFile.addNamedItem(outerObject);
         return outerObject;
     }
@@ -109,10 +109,10 @@ public class KotlinDynamicSqlSupportClassGenerator {
         String domainObjectName = introspectedTable.getMyBatisDynamicSQLTableObjectName();
 
         return KotlinType.newClass(domainObjectName)
-                .withSuperType("AliasableSqlTable<" + domainObjectName + ">(\"" //$NON-NLS-1$ //$NON-NLS-2$
+                .withSuperType("AliasableSqlTable<" + domainObjectName + ">(\""  //$NON-NLS-2$
                         + escapeStringForKotlin(introspectedTable.getFullyQualifiedTableNameAtRuntime())
-                        + "\", ::" + domainObjectName //$NON-NLS-1$
-                        + ")") //$NON-NLS-1$
+                        + "\", ::" + domainObjectName
+                        + ")")
                 .build();
     }
 
@@ -122,7 +122,7 @@ public class KotlinDynamicSqlSupportClassGenerator {
                 JavaBeansUtil.getValidPropertyName(introspectedTable.getMyBatisDynamicSQLTableObjectName());
 
         return KotlinProperty.newVal(fieldName)
-                .withInitializationString(tableType + "()") //$NON-NLS-1$
+                .withInitializationString(tableType + "()")
                 .build();
     }
 
@@ -139,7 +139,7 @@ public class KotlinDynamicSqlSupportClassGenerator {
         if (fieldName.equals(tableFieldName)) {
             // name collision, skip the shortcut field
             warnings.add(
-                    Messages.getString("Warning.29", //$NON-NLS-1$
+                    Messages.getString("Warning.29",
                             fieldName, getSupportObjectImport()));
         } else {
             KotlinProperty prop = KotlinProperty.newVal(fieldName)
@@ -160,23 +160,23 @@ public class KotlinDynamicSqlSupportClassGenerator {
     private String calculateInnerInitializationString(IntrospectedColumn column, FullyQualifiedKotlinType kt) {
         StringBuilder initializationString = new StringBuilder();
 
-        initializationString.append(String.format("column<%s>(name = \"%s\", jdbcType = JDBCType.%s", //$NON-NLS-1$
+        initializationString.append(String.format("column<%s>(name = \"%s\", jdbcType = JDBCType.%s",
                 kt.getShortNameWithTypeArguments(),
                 escapeStringForKotlin(getEscapedColumnName(column)),
                 column.getJdbcTypeName()));
 
         if (StringUtility.stringHasValue(column.getTypeHandler())) {
             initializationString.append(
-                    String.format(", typeHandler = \"%s\"", column.getTypeHandler())); //$NON-NLS-1$
+                    String.format(", typeHandler = \"%s\"", column.getTypeHandler()));
         }
 
         if (StringUtility.isTrue(
                 column.getProperties().getProperty(PropertyRegistry.COLUMN_OVERRIDE_FORCE_JAVA_TYPE))) {
             initializationString.append(
-                    String.format(", javaType = %s::class", kt.getShortNameWithoutTypeArguments())); //$NON-NLS-1$
+                    String.format(", javaType = %s::class", kt.getShortNameWithoutTypeArguments()));
         }
 
-        initializationString.append(')'); //$NON-NLS-1$
+        initializationString.append(')');
 
         return initializationString.toString();
     }

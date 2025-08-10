@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.*;
 
+/**
+ * @author cen_c
+ */
 public class JavaBeansUtil {
 
     private JavaBeansUtil() {
@@ -34,9 +37,9 @@ public class JavaBeansUtil {
     public static String getGetterMethodName(String property, FullyQualifiedJavaType fullyQualifiedJavaType) {
         StringBuilder sb = new StringBuilder(getMethodName(property));
         if (fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getBooleanPrimitiveInstance())) {
-            sb.insert(0, "is"); //$NON-NLS-1$
+            sb.insert(0, "is");
         } else {
-            sb.insert(0, "get"); //$NON-NLS-1$
+            sb.insert(0, "get");
         }
         return sb.toString();
     }
@@ -59,26 +62,26 @@ public class JavaBeansUtil {
      */
     public static String getSetterMethodName(String property) {
         StringBuilder sb = new StringBuilder(getMethodName(property));
-        sb.insert(0, "set"); //$NON-NLS-1$
+        sb.insert(0, "set");
         return sb.toString();
     }
 
     public static String getFirstCharacterUppercase(String inputString) {
-        if (!stringHasValue(inputString)) return inputString;
+        if (!stringHasValue(inputString)) { return inputString; }
         StringBuilder sb = new StringBuilder(inputString);
         sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
         return sb.toString();
     }
 
     public static String getFirstCharacterLowercase(String inputString) {
-        if (!stringHasValue(inputString)) return inputString;
+        if (!stringHasValue(inputString)) { return inputString; }
         StringBuilder sb = new StringBuilder(inputString);
         sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
         return sb.toString();
     }
 
     public static String getCamelCaseString(String inputString,boolean firstCharacterUppercase) {
-        if (!stringHasValue(inputString)) return inputString;
+        if (!stringHasValue(inputString)) { return inputString; }
         StringBuilder sb = new StringBuilder();
         boolean nextUpperCase = false;
         for (int i = 0; i < inputString.length(); i++) {
@@ -144,7 +147,7 @@ public class JavaBeansUtil {
      * @return the valid property name
      */
     public static String getValidPropertyName(String inputString) {
-        if (!stringHasValue(inputString)) return inputString;
+        if (!stringHasValue(inputString)) { return inputString; }
         String answer;
        if (inputString.length() < 2) {
             answer = inputString.toLowerCase(Locale.US);
@@ -292,18 +295,18 @@ public class JavaBeansUtil {
 
         StringBuilder sb = new StringBuilder();
         if (introspectedColumn.isStringColumn() && isTrimStringsEnabled(introspectedColumn)) {
-            sb.append("this."); //$NON-NLS-1$
+            sb.append("this.");
             sb.append(property);
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(property);
-            sb.append(" == null ? null : "); //$NON-NLS-1$
+            sb.append(" == null ? null : ");
             sb.append(property);
-            sb.append(".trim();"); //$NON-NLS-1$
+            sb.append(".trim();");
             method.addBodyLine(sb.toString());
         } else {
-            sb.append("this."); //$NON-NLS-1$
+            sb.append("this.");
             sb.append(property);
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(property);
             sb.append(';');
             method.addBodyLine(sb.toString());
@@ -350,7 +353,13 @@ public class JavaBeansUtil {
         return isTrimStringsEnabled(column.getIntrospectedTable());
     }
 
-    //是否某个类的子类
+    /**
+     * 是否某个类的子类
+     * @param parentClassName 父类
+     * @param childClassName 子类
+     * @param introspectedTable 表配置
+     * @return true 是 false 否
+     */
     public static boolean isAssignable(String parentClassName, String childClassName, IntrospectedTable introspectedTable) {
         //处理生成key类未加载的问题
         Class<?> cClazz = getClass(childClassName);
@@ -396,7 +405,7 @@ public class JavaBeansUtil {
         String names = columns.stream()
                 .map(IntrospectedColumn::getJavaProperty)
                 .map(p -> {
-                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p)+(isList?"s":"");
+                    if (p.length() > 1) { return JavaBeansUtil.getFirstCharacterUppercase(p)+(isList?"s":""); }
                     return p+(isList?"s":"");
                 }).collect(Collectors.joining("And"));
         return "selectByColumn" + getFirstCharacterUppercase(names);
@@ -406,7 +415,7 @@ public class JavaBeansUtil {
         String names = columns.stream()
                 .map(IntrospectedColumn::getJavaProperty)
                 .map(p -> {
-                    if (p.length() > 1) return JavaBeansUtil.getFirstCharacterUppercase(p) + (isList ? "s" : "");
+                    if (p.length() > 1) { return JavaBeansUtil.getFirstCharacterUppercase(p) + (isList ? "s" : ""); }
                     return p + (isList ? "s" : "");
                 }).collect(Collectors.joining("And"));
         return "deleteByColumn" + getFirstCharacterUppercase(names);
@@ -431,7 +440,7 @@ public class JavaBeansUtil {
         } catch (ClassNotFoundException e) {
             defaultValue = JDBCUtil.getJDBCTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
         }
-       if (javaTypeName.equals("String")) {
+       if ("String".equals(javaTypeName)) {
             return "\"" + introspectedColumn.getJavaProperty() + "\"";
         } else {
             return defaultValue;
@@ -439,16 +448,28 @@ public class JavaBeansUtil {
     }
 
     public static boolean javaFileExist(String targetProject, String targetPackage, String fileName) {
+        File file = getJavaFile(targetProject, targetPackage, fileName);
+        if (file != null) {
+            return file.exists();
+        } else {
+            return false;
+        }
+    }
+
+   public static File getJavaFile(String targetProject, String targetPackage, String fileName) {
         File project = new File(targetProject);
         if (!project.isDirectory()) {
-            return false;
+            return null;
         }
         File directory = new File(project, packageToDir(targetPackage));
         if (!directory.isDirectory()) {
-            return false;
+            return null;
         }
         File file = new File(directory, fileName + ".java");
-        return file.exists();
+        if (file.exists()) {
+            return file;
+        }
+        return null;
     }
 
     public static boolean javaFileNotExist(String targetProject, String targetPackage, String fileName) {

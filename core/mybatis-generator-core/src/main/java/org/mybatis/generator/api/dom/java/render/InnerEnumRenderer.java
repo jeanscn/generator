@@ -27,7 +27,7 @@ public class InnerEnumRenderer {
 
         lines = RenderingUtilities.removeLastEmptyLine(lines);
 
-        lines.add("}"); //$NON-NLS-1$
+        lines.add("}");
 
         return lines;
     }
@@ -38,13 +38,13 @@ public class InnerEnumRenderer {
         sb.append(innerEnum.getVisibility().getValue());
 
         if (innerEnum.isStatic()) {
-            sb.append("static "); //$NON-NLS-1$
+            sb.append("static ");
         }
 
-        sb.append("enum "); //$NON-NLS-1$
+        sb.append("enum ");
         sb.append(innerEnum.getType().getShortName());
         sb.append(renderSuperInterfaces(innerEnum, compilationUnit));
-        sb.append(" {"); //$NON-NLS-1$
+        sb.append(" {");
 
         return sb.toString();
     }
@@ -57,13 +57,13 @@ public class InnerEnumRenderer {
             String enumConstant = iter.next();
 
             if (iter.hasNext()) {
-                answer.add(RenderingUtilities.JAVA_INDENT + enumConstant + ","); //$NON-NLS-1$
+                answer.add(RenderingUtilities.JAVA_INDENT + enumConstant + ",");
             } else {
-                answer.add(RenderingUtilities.JAVA_INDENT + enumConstant + ";"); //$NON-NLS-1$
+                answer.add(RenderingUtilities.JAVA_INDENT + enumConstant + ";");
             }
         }
 
-        answer.add(""); //$NON-NLS-1$
+        answer.add("");
         return answer;
     }
 
@@ -71,6 +71,6 @@ public class InnerEnumRenderer {
     private String renderSuperInterfaces(InnerEnum innerEnum, CompilationUnit compilationUnit) {
         return innerEnum.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " implements ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " implements ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
     }
 }

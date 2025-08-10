@@ -3,7 +3,7 @@ package org.mybatis.generator.plugins.html;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.GeneratedHtmlFragmentsFile;
+import org.mybatis.generator.codegen.mybatis3.freemaker.html.layui.GeneratedHtmlFragmentsFile;
 import org.mybatis.generator.config.InnerListViewConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import java.util.ArrayList;

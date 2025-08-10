@@ -26,11 +26,11 @@ public class SelectListGenerator {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
         FullyQualifiedJavaType fieldType =
-                new FullyQualifiedJavaType("org.mybatis.dynamic.sql.BasicColumn[]"); //$NON-NLS-1$
+                new FullyQualifiedJavaType("org.mybatis.dynamic.sql.BasicColumn[]");
         imports.add(fieldType);
-        Field field = new Field("selectList", fieldType); //$NON-NLS-1$
-        field.setInitializationString("BasicColumn.columnList(" //$NON-NLS-1$
-                + fragmentGenerator.getSelectList() + ")"); //$NON-NLS-1$
+        Field field = new Field("selectList", fieldType);
+        field.setInitializationString("BasicColumn.columnList("
+                + fragmentGenerator.getSelectList() + ")");
         context.getCommentGenerator().addFieldAnnotation(field, introspectedTable, imports);
 
         return FieldAndImports.withField(field)

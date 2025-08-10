@@ -1,5 +1,7 @@
 package org.mybatis.generator.api;
 
+import lombok.Getter;
+
 /**
  * Abstract class that holds information common to all generated files.
  *
@@ -7,6 +9,13 @@ package org.mybatis.generator.api;
  */
 public abstract class GeneratedFile {
 
+    /**
+     * -- GETTER --
+     *  Gets the target project. Clients can call this method to determine how to
+     *  save the results.
+     *
+     */
+    @Getter
     protected final String targetProject;
 
     protected boolean isOverWriteFile = true;
@@ -35,16 +44,6 @@ public abstract class GeneratedFile {
     public abstract String getFileName();
 
     /**
-     * Gets the target project. Clients can call this method to determine how to
-     * save the results.
-     *
-     * @return the target project
-     */
-    public String getTargetProject() {
-        return targetProject;
-    }
-
-    /**
      * Get the target package for the file. Clients should use this method to
      * determine how to save the results.
      *
@@ -52,7 +51,8 @@ public abstract class GeneratedFile {
      */
     public abstract String getTargetPackage();
 
-    /* (non-Javadoc)
+    /**
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
@@ -61,12 +61,18 @@ public abstract class GeneratedFile {
     }
 
     /**
-     * Checks if is mergeable.
+     * Checks if is mergeable. This method is used to determine if the file can be merged
      *
      * @return true, if is mergeable
      */
     public abstract boolean isMergeable();
 
+    /**
+     * Returns the file encoding for the generated file.
+     * This is used to determine how to write the file.
+     *
+     * @return the file encoding
+     */
     public abstract String getFileEncoding();
 
     public boolean isOverWriteFile(){

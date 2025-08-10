@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.po;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -23,9 +24,9 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
  * 2023-03-29 17:08
  * @version 3.0
  */
-public class POCacheGenerator extends AbstractVoGenerator {
+public class PoCacheGenerator extends AbstractVoGenerator {
 
-    public POCacheGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings,Interface mappingsInterface) {
+    public PoCacheGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
     }
 
@@ -35,6 +36,7 @@ public class POCacheGenerator extends AbstractVoGenerator {
         final VoCacheGeneratorConfiguration config = introspectedTable.getTableConfiguration().getVoCacheGeneratorConfiguration();
         String cachePoType = config.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass cachePoClass = createTopLevelClass(cachePoType, "");
+        commentGenerator.addModelClassComment(cachePoClass, introspectedTable);
         cachePoClass.addSuperInterface(new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO));
         cachePoClass.addImportedType(ConstantsUtil.I_BASE_DTO);
         cachePoClass.addImportedType("lombok.*");
@@ -64,31 +66,8 @@ public class POCacheGenerator extends AbstractVoGenerator {
             cachePoClass.addImportedType(field.getType());
         }
 
-        //追加dictValueText属性
-        IntrospectedColumn valueColumn = introspectedTable.getColumn(config.getValueColumn()).orElse(null);
-        long dictValueCount = cachePoClass.getFields().stream()
-                .filter(f -> f.getName().equalsIgnoreCase(GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT))
-                .count();
-        if (dictValueCount == 0 && valueColumn != null) {
-            Field field = new Field(GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT, FullyQualifiedJavaType.getStringInstance());
-            field.setVisibility(JavaVisibility.PRIVATE);
-            field.setRemark("字典应用的返回值");
-            field.addJavaDocLine("/**");
-            field.addJavaDocLine("* 字典应用的返回值");
-            field.addJavaDocLine("*/");
-            cachePoClass.addField(field);
-        }
-        //追加compare方法
-        if (cachePoClass.getFields().stream().anyMatch(f -> f.getName().equalsIgnoreCase("sort"))) {
-            Method compareMethod = new Method("compareTo");
-            compareMethod.setVisibility(JavaVisibility.PUBLIC);
-            compareMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
-            compareMethod.addParameter(new Parameter(cachePoClass.getType(), "o"));
-            compareMethod.addBodyLine("this.sort = this.sort == null ? 0 : this.sort;");
-            compareMethod.addBodyLine("o.sort = o.sort == null ? 0 : o.sort;");
-            compareMethod.addBodyLine("return this.sort - o.sort;");
-            cachePoClass.addMethod(compareMethod);
-        }
+        addDictValueTextField(config, cachePoClass);
+        addCompareMethod(cachePoClass);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(cachePoType));
         mappingsInterface.addImportedType(new FullyQualifiedJavaType("org.mapstruct.Mapping"));
         Method method = addMappingMethod(entityType, cachePoClass.getType(), false);
@@ -113,9 +92,39 @@ public class POCacheGenerator extends AbstractVoGenerator {
             FullyQualifiedJavaType voType = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType();
             mappingsInterface.addMethod(addMappingMethod(cachePoClass.getType(),voType,  false));
             mappingsInterface.addMethod(addMappingMethod(cachePoClass.getType(),voType,  true));
-            cachePoClass.addImportedType(voType);
+            mappingsInterface.addImportedType(voType);
         }
-
         return cachePoClass;
+    }
+
+    private void addDictValueTextField(VoCacheGeneratorConfiguration config, TopLevelClass cachePoClass) {
+        //追加dictValueText属性
+        IntrospectedColumn valueColumn = introspectedTable.getColumn(config.getValueColumn()).orElse(null);
+        long dictValueCount = cachePoClass.getFields().stream()
+                .filter(f -> f.getName().equalsIgnoreCase(GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT))
+                .count();
+        if (dictValueCount == 0 && valueColumn != null) {
+            Field field = new Field(GlobalConstant.CACHE_PO_DEFAULT_VALUE_TEXT, FullyQualifiedJavaType.getStringInstance());
+            field.setVisibility(JavaVisibility.PRIVATE);
+            field.setRemark("字典应用的返回值");
+            field.addJavaDocLine("/**");
+            field.addJavaDocLine("* 字典应用的返回值");
+            field.addJavaDocLine("*/");
+            cachePoClass.addField(field);
+        }
+    }
+
+    private void addCompareMethod(TopLevelClass cachePoClass) {
+        //追加compare方法
+        if (cachePoClass.getFields().stream().anyMatch(f -> f.getName().equalsIgnoreCase(DefaultColumnNameEnum.SORT.fieldName()))) {
+            Method compareMethod = new Method("compareTo");
+            compareMethod.setVisibility(JavaVisibility.PUBLIC);
+            compareMethod.setReturnType(FullyQualifiedJavaType.getIntInstance());
+            compareMethod.addParameter(new Parameter(cachePoClass.getType(), "o"));
+            compareMethod.addBodyLine("this.sort = this.sort == null ? 0 : this.sort;");
+            compareMethod.addBodyLine("o.sort = o.sort == null ? 0 : o.sort;");
+            compareMethod.addBodyLine("return this.sort - o.sort;");
+            cachePoClass.addMethod(compareMethod);
+        }
     }
 }

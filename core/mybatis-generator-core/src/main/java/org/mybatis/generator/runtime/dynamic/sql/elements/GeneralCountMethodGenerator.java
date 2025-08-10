@@ -19,19 +19,19 @@ public class GeneralCountMethodGenerator extends AbstractMethodGenerator {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.select.CountDSLCompleter"); //$NON-NLS-1$
+                "org.mybatis.dynamic.sql.select.CountDSLCompleter");
         imports.add(parameterType);
-        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils")); //$NON-NLS-1$
+        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils"));
 
-        Method method = new Method("count"); //$NON-NLS-1$
+        Method method = new Method("count");
         method.setDefault(true);
-        method.addParameter(new Parameter(parameterType, "completer")); //$NON-NLS-1$
+        method.addParameter(new Parameter(parameterType, "completer"));
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
 
-        method.setReturnType(new FullyQualifiedJavaType("long")); //$NON-NLS-1$
+        method.setReturnType(new FullyQualifiedJavaType("long"));
 
-        method.addBodyLine("return MyBatis3Utils.countFrom(this::count, " + tableFieldName //$NON-NLS-1$
-                + ", completer);"); //$NON-NLS-1$
+        method.addBodyLine("return MyBatis3Utils.countFrom(this::count, " + tableFieldName
+                + ", completer);");
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)

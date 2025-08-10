@@ -37,7 +37,7 @@ public class HtmlFileMergerJaxp {
         @Override
         public InputSource resolveEntity(String publicId, String systemId) {
 
-            StringReader sr = new StringReader(""); //$NON-NLS-1$
+            StringReader sr = new StringReader("");
 
             return new InputSource(sr);
         }
@@ -51,7 +51,7 @@ public class HtmlFileMergerJaxp {
                 new InputSource(new InputStreamReader(Files.newInputStream(existingFile.toPath()), DEFAULT_CHARSET)),
                 existingFile.getName());
         } catch (IOException | SAXException | ParserConfigurationException e) {
-            throw new ShellException(getString("Warning.13", //$NON-NLS-1$
+            throw new ShellException(getString("Warning.13",
                     existingFile.getName()), e);
         }
     }
@@ -74,7 +74,7 @@ public class HtmlFileMergerJaxp {
         DocumentType existingDocType = existingDocument.getDoctype();
 
         if (!newDocType.getName().equals(existingDocType.getName())) {
-            throw new ShellException(getString("Warning.12", //$NON-NLS-1$
+            throw new ShellException(getString("Warning.12",
                     existingFileName));
         }
 
@@ -157,7 +157,7 @@ public class HtmlFileMergerJaxp {
 
     private static boolean isOldFormatNode(Node node) {
         Element element = (Element) node;
-        String id = element.getAttribute("id"); //$NON-NLS-1$
+        String id = element.getAttribute("id");
         if (id != null) {
             return MergeConstants.idStartsWithPrefix(id);
         }

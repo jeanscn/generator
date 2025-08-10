@@ -4,7 +4,7 @@ import com.vgosoft.core.constant.GlobalConstant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
+import org.mybatis.generator.codegen.mybatis3.freemaker.html.layui.InnerListEditTemplate;
 import org.mybatis.generator.custom.enums.ViewVoUiFrameEnum;
 
 import java.util.*;

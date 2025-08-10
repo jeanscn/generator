@@ -112,17 +112,17 @@ public class IntrospectedColumn {
      */
     @Override
     public String toString() {
-        return "Actual Column Name: " //$NON-NLS-1$
+        return "Actual Column Name: "
                 + actualColumnName
-                + ", JDBC Type: " //$NON-NLS-1$
+                + ", JDBC Type: "
                 + jdbcType
-                + ", Nullable: " //$NON-NLS-1$
+                + ", Nullable: "
                 + nullable
-                + ", Length: " //$NON-NLS-1$
+                + ", Length: "
                 + length
-                + ", Scale: " //$NON-NLS-1$
+                + ", Scale: "
                 + scale
-                + ", Identity: " //$NON-NLS-1$
+                + ", Identity: "
                 + identity;
     }
 
@@ -208,12 +208,12 @@ public class IntrospectedColumn {
 
     public boolean isJDBCTimeColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
-                && "TIME".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
+                && "TIME".equalsIgnoreCase(jdbcTypeName);
     }
 
     public boolean isJDBCTimeStampColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
-                && "TIMESTAMP".equalsIgnoreCase(jdbcTypeName); //$NON-NLS-1$
+                && "TIMESTAMP".equalsIgnoreCase(jdbcTypeName);
     }
 
     public boolean isJavaLocalDateColumn() {
@@ -244,7 +244,7 @@ public class IntrospectedColumn {
 
     public String getJdbcTypeName() {
         if (jdbcTypeName == null) {
-            return "OTHER"; //$NON-NLS-1$
+            return "OTHER";
         }
 
         return jdbcTypeName;

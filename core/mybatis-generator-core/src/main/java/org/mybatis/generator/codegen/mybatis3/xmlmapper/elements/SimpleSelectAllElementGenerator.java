@@ -14,19 +14,19 @@ public class SimpleSelectAllElementGenerator extends AbstractXmlElementGenerator
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("select"); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("select");
 
         answer.addAttribute(new Attribute(
-                "id", introspectedTable.getSelectAllStatementId())); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("resultMap", //$NON-NLS-1$
+                "id", introspectedTable.getSelectAllStatementId()));
+        answer.addAttribute(new Attribute("resultMap",
                 introspectedTable.getBaseResultMapId()));
 
         context.getCommentGenerator().addComment(answer);
 
-        buildSelectList("select ", introspectedTable.getAllColumns()).forEach(answer::addElement); //$NON-NLS-1$
+        buildSelectList("select ", introspectedTable.getAllColumns()).forEach(answer::addElement);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("from "); //$NON-NLS-1$
+        sb.append("from ");
         sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
 
@@ -35,7 +35,7 @@ public class SimpleSelectAllElementGenerator extends AbstractXmlElementGenerator
         boolean hasOrderBy = StringUtility.stringHasValue(orderByClause);
         if (hasOrderBy) {
             sb.setLength(0);
-            sb.append("order by "); //$NON-NLS-1$
+            sb.append("order by ");
             sb.append(orderByClause);
             answer.addElement(new TextElement(sb.toString()));
         }

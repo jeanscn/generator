@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen;
 
+import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.tool.core.VStringUtil;
@@ -17,9 +18,16 @@ import java.util.*;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
 
+/**
+ * @author cen_c
+ */
 @Getter
 public abstract class AbstractJavaGenerator extends AbstractGenerator {
 
+    /**
+     * 生成的service基类
+     * @return service基类
+     */
     public abstract List<CompilationUnit> getCompilationUnits();
 
     protected final String project;
@@ -65,14 +73,15 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
             if (GenerateUtils.isBusinessInstance(introspectedTable)) {
                 switch (steamOutType) {
-                    case "bytes":
-                        return ABSTRACT_BLOB_BYTES_SERVICE_BUSINESS;
                     case "file":
                         return ABSTRACT_BLOB_FILE_SERVICE_BUSINESS;
                     case "string":
                         return ABSTRACT_BLOB_STRING_SERVICE_BUSINESS;
+                    case "bytes":
+                        return ABSTRACT_BLOB_BYTES_SERVICE_BUSINESS;
+                    default:
+                        return ABSTRACT_SERVICE_BUSINESS;
                 }
-                return ABSTRACT_SERVICE_BUSINESS;
             } else {
                 switch (steamOutType) {
                     case "bytes":
@@ -81,8 +90,9 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                         return ABSTRACT_MBG_BLOB_FILE_SERVICE;
                     case "string":
                         return ABSTRACT_MBG_BLOB_STRING_SERVICE;
+                    default:
+                        return ABSTRACT_MBG_BLOB_SERVICE_INTERFACE;
                 }
-                return ABSTRACT_MBG_BLOB_SERVICE_INTERFACE;
             }
         }
         return ABSTRACT_MBG_SERVICE_INTERFACE;
@@ -104,7 +114,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         Method method = new Method(topLevelClass.getType().getShortName());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setConstructor(true);
-        method.addBodyLine("super();"); //$NON-NLS-1$
+        method.addBodyLine("super();");
         return method;
     }
 
@@ -139,11 +149,11 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 return;
             }
             String defaultValue = c.getDefaultValue();
-            if (defaultValue != null && !defaultValue.equalsIgnoreCase("null")) {
+            if (defaultValue != null && !SymbolConstants.NULL.equalsIgnoreCase(defaultValue)) {
                 if (!defaultFields.contains(c.getJavaProperty())) {
                     columnNames.add(c.getActualColumnName());
                 }
-                if (defaultValue.equals("CURRENT_TIMESTAMP") || defaultValue.startsWith("now(") || defaultValue.startsWith("'now(")) {
+                if ("CURRENT_TIMESTAMP".equals(defaultValue) || defaultValue.startsWith("now(") || defaultValue.startsWith("'now(")) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
                     topLevelClass.addImportedType(V_DATE_UTILS);
                 } else if (defaultValue.startsWith("'curdate(") || defaultValue.startsWith("curdate(")) {
@@ -158,6 +168,9 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                     // defaultValue的getter方法
                     String getterMethodName = getGetterMethodName(c.getJavaProperty(), c.getFullyQualifiedJavaType());
                     Method getterMethod = new Method(getterMethodName);
+                    if (topLevelClass.getFields().stream().noneMatch(f->f.getName().equals(c.getJavaProperty()))) {
+                       getterMethod.addAnnotation("@Override");
+                    }
                     getterMethod.setVisibility(JavaVisibility.PUBLIC);
                     getterMethod.setReturnType(c.getFullyQualifiedJavaType());
                     getterMethod.addBodyLine("if ({0} == null) '{'",c.getJavaProperty());
@@ -170,10 +183,10 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                     topLevelClass.addMethod(getterMethod);
                 } else if (c.isJdbcCharacterColumn()) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), defaultValue));
-                } else if (c.getFullyQualifiedJavaType().getShortName().equals("BigDecimal")) {
+                } else if ("BigDecimal".equals(c.getFullyQualifiedJavaType().getShortName())) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), defaultValue));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.math.BigDecimal"));
-                } else if (c.getFullyQualifiedJavaType().getShortName().equals("Boolean")) {
+                } else if ("Boolean".equals(c.getFullyQualifiedJavaType().getShortName())) {
                     switch (defaultValue.toLowerCase()) {
                         case "true":
                         case "1":
@@ -215,13 +228,13 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected List<IntrospectedColumn> getColumnsInThisClass() {
         List<IntrospectedColumn> introspectedColumns;
         if (includePrimaryKeyColumns()) {
-            if (includeBLOBColumns()) {
+            if (includeBlobColumns()) {
                 introspectedColumns = introspectedTable.getAllColumns();
             } else {
                 introspectedColumns = introspectedTable.getNonBLOBColumns();
             }
         } else {
-            if (includeBLOBColumns()) {
+            if (includeBlobColumns()) {
                 introspectedColumns = introspectedTable.getNonPrimaryKeyColumns();
             } else {
                 introspectedColumns = introspectedTable.getBaseColumns();
@@ -241,7 +254,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     /**
      * 内部方法：是否包含大字段列
      */
-    protected boolean includeBLOBColumns() {
+    protected boolean includeBlobColumns() {
         return !introspectedTable.getRules().generateRecordWithBLOBsClass()
                 && introspectedTable.hasBLOBColumns();
     }
@@ -255,7 +268,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected void addActionType(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         Field addActionType = getField("actionType", FullyQualifiedJavaType.getStringInstance(), "查询应用场景的类型标识", introspectedTable);
         new ApiModelPropertyDesc(addActionType.getRemark(), "selector").addAnnotationToField(addActionType, topLevelClass);
-        Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> f.getName().equals("actionType")).findFirst();
+        Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> "actionType".equals(f.getName())).findFirst();
         if (!actionType.isPresent()) {
             topLevelClass.addField(addActionType);
             if (introspectedTable.getRules().isGenerateVoModel()) {
@@ -274,7 +287,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected void addIgnoreDeleteFlag(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         Field ignoreDeleteFlag = getField("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略删除标记", introspectedTable);
         new ApiModelPropertyDesc(ignoreDeleteFlag.getRemark(), "false").addAnnotationToField(ignoreDeleteFlag, topLevelClass);
-        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignoreDeleteFlag")).findFirst();
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignoreDeleteFlag".equals(f.getName())).findFirst();
         if (!optionalField.isPresent()) {
             topLevelClass.addField(ignoreDeleteFlag);
             topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
@@ -288,7 +301,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected void addIgnorePermissionAnnotation(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         Field ignorePermissionAnnotation = getField("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略权限注解", introspectedTable);
         new ApiModelPropertyDesc(ignorePermissionAnnotation.getRemark(), "false").addAnnotationToField(ignorePermissionAnnotation, topLevelClass);
-        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignorePermissionAnnotation")).findFirst();
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignorePermissionAnnotation".equals(f.getName())).findFirst();
         if (!optionalField.isPresent()) {
             topLevelClass.addField(ignorePermissionAnnotation);
             topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
@@ -299,8 +312,8 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         }
     }
 
-    private static Field getField(String ignorePermissionAnnotation, FullyQualifiedJavaType BooleanPrimitiveInstance, String remark, IntrospectedTable introspectedTable) {
-        Field field = new Field(ignorePermissionAnnotation, BooleanPrimitiveInstance);
+    private static Field getField(String ignorePermissionAnnotation, FullyQualifiedJavaType booleanPrimitiveInstance, String remark, IntrospectedTable introspectedTable) {
+        Field field = new Field(ignorePermissionAnnotation, booleanPrimitiveInstance);
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setRemark(remark);
         if (introspectedTable.getContext().isIntegrateMybatisPlus() && !introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVo()) {
@@ -320,7 +333,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         Field ignoreIdList = getField("ignoreIdList", listType, "查询忽略id列表", introspectedTable);
         new ApiModelPropertyDesc(ignoreIdList.getRemark(), "[]").addAnnotationToField(ignoreIdList, topLevelClass);
-        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("ignoreIdList")).findFirst();
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignoreIdList".equals(f.getName())).findFirst();
         if (!optionalField.isPresent()) {
             topLevelClass.addField(ignoreIdList);
             topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));
@@ -341,7 +354,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
     protected void addIsHideIds(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         Field isHideIds = getField("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable);
         new ApiModelPropertyDesc(isHideIds.getRemark(), "false").addAnnotationToField(isHideIds, topLevelClass);
-        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> f.getName().equals("isHideIds")).findFirst();
+        Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "isHideIds".equals(f.getName())).findFirst();
         if (!optionalField.isPresent()) {
             topLevelClass.addField(isHideIds);
             topLevelClass.addImportedType(new FullyQualifiedJavaType("com.baomidou.mybatisplus.annotation.TableField"));

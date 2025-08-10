@@ -18,7 +18,12 @@ public class ConstantsUtil {
     public static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     public static final String GENERATED_FLAG = "@VCF.generated";
-    //实体接口
+
+    public static final String OVERRIDABLE_FLAG = "@VCF.overridable";
+
+    /**
+     * 实体接口常量
+     */
     public static final String I_BASE_DTO = "com.vgosoft.core.pojo.IBaseDTO";
     public static final String I_SHOW_IN_VIEW = "com.vgosoft.core.entity.IShowInView";
     public static final String I_SIMPLE_KVP = "com.vgosoft.core.pojo.ISimpleKVP";
@@ -28,19 +33,24 @@ public class ConstantsUtil {
     public static final String I_PERSISTENCE_BLOB = "com.vgosoft.core.entity.upload.IPersistenceBlob";
     public static final String I_BUSINESS_ENTITY = "com.vgosoft.core.entity.IBusinessEntity";
 
-    //mapper接口
+    /**
+     * 常用mapper接口类路径常量
+     */
     public static final String MBG_MAPPER_INTERFACE = "com.vgosoft.mybatis.inf.MBGMapperInterface";
     public static final String MBG_MAPPER_BLOB_INTERFACE = "com.vgosoft.mybatis.inf.MBGMapperBlobInterface";
 
-    //service接口父类
+    /**
+     * Mybatis Generator生成的Service接口类路径常量
+     */
     public static final String MBG_SERVICE_INTERFACE = "com.vgosoft.mybatis.inf.IMybatisBGService";
     public static final String MBG_BLOB_SERVICE_INTERFACE = "com.vgosoft.mybatis.inf.IMybatisBGBlobService";
     public static final String MBG_BLOB_FILE_SERVICE = "com.vgosoft.mybatis.inf.IMybatisBGBlobFileService";
     public static final String MBG_BLOB_BYTES_SERVICE = "com.vgosoft.mybatis.inf.IMybatisBGBlobBytesService";
     public static final String MBG_BLOB_STRING_SERVICE = "com.vgosoft.mybatis.inf.IMybatisBGBlobStringService";
 
-
-    //service实现抽象父类
+    /**
+     * Mybatis Generator生成的Service实现类路径常量
+     */
     public static final String ABSTRACT_MBG_SERVICE_INTERFACE = "com.vgosoft.mybatis.abs.AbstractMybatisBGService";
     public static final String ABSTRACT_MBG_BLOB_SERVICE_INTERFACE = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobBaseService";
     public static final String ABSTRACT_MBG_BLOB_FILE_SERVICE = "com.vgosoft.mybatis.abs.AbstractMybatisBGBlobFileService";
@@ -51,7 +61,9 @@ public class ConstantsUtil {
     public static final String ABSTRACT_BLOB_BYTES_SERVICE_BUSINESS = "com.vgosoft.mybatis.abs.AbstractBlobBytesServiceBusiness";
     public static final String ABSTRACT_BLOB_STRING_SERVICE_BUSINESS = "com.vgosoft.mybatis.abs.AbstractBlobStringServiceBusiness";
 
-    //对象类
+    /**
+     * 常用类路径常量
+     */
     public static final String RESPONSE_SIMPLE = "com.vgosoft.core.adapter.web.respone.ResponseSimple";
     public static final String DATATABLES_CONFIG = "com.vgosoft.web.plugins.datatables.DataTablesConfig";
     public final static String SERVICE_RESULT = "com.vgosoft.core.adapter.ServiceResult";
@@ -67,34 +79,46 @@ public class ConstantsUtil {
     public static final String Z_TREE_DATA_SIMPLE = "com.vgosoft.core.pojo.ztree.ZtreeDataSimple";
     public static final String Z_TREE_DATA_SIMPLE_CATE = "com.vgosoft.core.pojo.ztree.ZtreeDataViewCate";
 
-    //工具类
+    /**
+     * DataTables工具类
+     */
     public static final String DATATABLES_UTIL = "com.vgosoft.web.plugins.datatables.util.DataTablesUtil";
 
-    //枚举
+    /**
+     * 枚举类常量
+     */
     public static final String SERVICE_CODE_ENUM = "com.vgosoft.core.constant.enums.core.ServiceCodeEnum";
     public static final String API_CODE_ENUM = "com.vgosoft.core.constant.enums.core.ApiCodeEnum";
     public static final String ACTION_CATE_ENUM = "com.vgosoft.core.constant.enums.core.ActionCateEnum";
     public static final String LOG_TYPES_ENUM = "com.vgosoft.core.constant.enums.log.LogTypesEnum";
     public static final String LOG_TARGET_TABLE_ENUM = "com.vgosoft.core.constant.enums.log.LogTargetTableEnum";
 
-    //annotation
-    //public static final String ANNOTATION_SYSTEM_LOG = "com.vgosoft.core.annotation.SystemLog";
-    //public static final String ANNOTATION_TABLE_META = "com.vgosoft.core.annotation.TableMeta";
-    //public static final String ANNOTATION_COLUMN_META = "com.vgosoft.core.annotation.ColumnMeta";
+    /**
+     * 注解常量
+     */
+    public static final String ANNOTATION_SYSTEM_LOG = "com.vgosoft.core.annotation.SystemLog";
+    public static final String ANNOTATION_TABLE_META = "com.vgosoft.core.annotation.TableMeta";
+    public static final String ANNOTATION_COLUMN_META = "com.vgosoft.core.annotation.ColumnMeta";
     public static final String ANNOTATION_REQUEST_PARAM_SPLIT = "com.vgosoft.web.resolver.annotation.RequestParamSplit";
 
-    //其他
+    /**
+     * 常用类路径常量
+     */
     public static final String ABSTRACT_BASE_CONTROLLER = "com.vgosoft.web.controller.abs.AbstractBaseController";
     public static final String V_STRING_UTIL = "com.vgosoft.tool.core.VStringUtil";
     public static final String V_DATE_UTILS = "com.vgosoft.tool.core.VDateUtils";
     public static final String COM_SEL_SQL_PARAMETER = "com.vgosoft.core.entity.ComSelSqlParameter";
 
-    //spring
+    /**
+     * Spring注解常量
+     */
     public static final String ANNOTATION_REPOSITORY = "org.springframework.stereotype.Repository";
     public static final String ANNOTATION_SERVICE = "org.springframework.stereotype.Service";
     public static final String ANNOTATION_TRANSACTIONAL = "org.springframework.transaction.annotation.Transactional";
 
-    //属性名
+    /**
+     * 属性名常量
+     */
     public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
     public static final String PROP_NAME_VIEW_PATH = "viewPath";
 

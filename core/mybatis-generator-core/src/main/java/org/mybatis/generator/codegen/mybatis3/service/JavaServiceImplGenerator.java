@@ -13,6 +13,7 @@ import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         TopLevelClass bizGenClazzImpl = new TopLevelClass(bizGenClazzImplType);
         bizGenClazzImpl.setVisibility(JavaVisibility.PUBLIC);
         bizGenClazzImpl.setAbstract(true);
-        commentGenerator.addJavaFileComment(bizGenClazzImpl);
+        commentGenerator.addJavaFileComment(bizGenClazzImpl,false);
         bizGenClazzImpl.setSuperClass(implSuperType);
         bizGenClazzImpl.addSuperInterface(bizInf.getType());
         bizGenClazzImpl.addImportedType(entityType);
@@ -177,7 +178,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         String implClazzName = JavaBeansUtil.getFirstCharacterUppercase(introspectedTable.getControllerBeanName());
         FullyQualifiedJavaType bizClazzImplType = new FullyQualifiedJavaType(javaServiceImplGeneratorConfiguration.getTargetPackage() + "." + implClazzName);
         TopLevelClass bizClazzImpl = new TopLevelClass(bizClazzImplType);
-        commentGenerator.addJavaFileComment(bizClazzImpl);
+        commentGenerator.addJavaFileComment(bizClazzImpl,true);
+        // 增加类的javaDoc注释
+        commentGenerator.addModelClassComment(bizClazzImpl,
+                VStringUtil.format("可重写的{0}的服务实现。",introspectedTable.getRemarks(true)),
+                false,
+                VStringUtil.format("该类继承自 '{'@link {0}'}'，",bizGenClazzImpl.getType().getShortNameWithoutTypeArguments()),
+                VStringUtil.format("用于扩展或重写 {0}。",bizGenClazzImpl.getType().getShortNameWithoutTypeArguments()));
         bizClazzImpl.addImportedType(bizGenClazzImpl.getType());
         bizClazzImpl.addImportedType(superInf.getType());
         bizClazzImpl.addImportedType(mapperType);
@@ -207,10 +214,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         conMethod.setVisibility(JavaVisibility.PUBLIC);
         conMethod.addBodyLine("super(mapper);");
         bizClazzImpl.addMethod(conMethod);
-
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaServiceImplGeneratorConfiguration.getTargetProject(), javaServiceImplGeneratorConfiguration.getTargetPackage(), implClazzName);
-        if (forceGenerateScalableElement || fileNotExist) {
+        boolean overridable = Mb3GenUtil.fileOverridable(javaServiceImplGeneratorConfiguration.getTargetProject(), javaServiceImplGeneratorConfiguration.getTargetPackage(), implClazzName+".java");
+        if (overridable) {
             if (plugins.subServiceImplGenerated(bizGenClazzImpl, introspectedTable)) {
                 answer.add(bizClazzImpl);
             }

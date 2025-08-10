@@ -17,6 +17,7 @@ import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +39,7 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
-        progressCallback.startTask(getString("Progress.17", //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.17",
                 introspectedTable.getFullyQualifiedTable().toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
@@ -48,7 +49,7 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(interfaze);
+        commentGenerator.addJavaFileComment(interfaze,false);
 
         String rootInterface = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         if (!stringHasValue(rootInterface)) {
@@ -91,9 +92,9 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.TableDataScope"));
         }
 
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
-        if (forceGenerateScalableElement || fileNotExist) {
+        //boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
+        boolean overridable = Mb3GenUtil.fileOverridable(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName+ ".java");
+        if (overridable) {
             if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)){
                 answer.add(subInterface);
             }

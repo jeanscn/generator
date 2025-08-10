@@ -21,6 +21,11 @@ public abstract class AbstractGeneratedFile extends GeneratedFile {
         this.introspectedTable = introspectedTable;
     }
 
+    /**
+     * 获取文件内容
+     * @return 文件内容
+     */
+    @Override
     public abstract String getFormattedContent();
 
     @Override

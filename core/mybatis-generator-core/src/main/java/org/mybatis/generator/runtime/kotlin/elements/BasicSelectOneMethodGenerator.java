@@ -23,27 +23,27 @@ public class BasicSelectOneMethodGenerator extends AbstractKotlinFunctionGenerat
     @Override
     public KotlinFunctionAndImports generateMethodAndImports() {
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports
-                .withFunction(KotlinFunction.newOneLineFunction("selectOne") //$NON-NLS-1$
-                        .withExplicitReturnType(recordType.getShortNameWithTypeArguments() + "?") //$NON-NLS-1$
-                        .withArgument(KotlinArg.newArg("selectStatement") //$NON-NLS-1$
-                                .withDataType("SelectStatementProvider") //$NON-NLS-1$
+                .withFunction(KotlinFunction.newOneLineFunction("selectOne")
+                        .withExplicitReturnType(recordType.getShortNameWithTypeArguments() + "?")
+                        .withArgument(KotlinArg.newArg("selectStatement")
+                                .withDataType("SelectStatementProvider")
                                 .build())
-                        .withAnnotation("@SelectProvider(type=SqlProviderAdapter::class," //$NON-NLS-1$
-                                + " method=\"select\")") //$NON-NLS-1$
+                        .withAnnotation("@SelectProvider(type=SqlProviderAdapter::class,"
+                                + " method=\"select\")")
                         .build())
-                .withImport("org.mybatis.dynamic.sql.select.render.SelectStatementProvider") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter") //$NON-NLS-1$
-                .withImport("org.apache.ibatis.annotations.SelectProvider") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.select.render.SelectStatementProvider")
+                .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter")
+                .withImport("org.apache.ibatis.annotations.SelectProvider")
                 .withImports(recordType.getImportList())
                 .build();
 
         addFunctionComment(functionAndImports);
 
         if (reuseResultMap) {
-            functionAndImports.getImports().add("org.apache.ibatis.annotations.ResultMap"); //$NON-NLS-1$
-            functionAndImports.getFunction().addAnnotation("@ResultMap(\"" //$NON-NLS-1$
+            functionAndImports.getImports().add("org.apache.ibatis.annotations.ResultMap");
+            functionAndImports.getFunction().addAnnotation("@ResultMap(\""
                     + resultMapId
-                    + "\")"); //$NON-NLS-1$
+                    + "\")");
         } else {
             KotlinFunctionParts functionParts = fragmentGenerator.getAnnotatedResults();
             acceptParts(functionAndImports, functionParts);

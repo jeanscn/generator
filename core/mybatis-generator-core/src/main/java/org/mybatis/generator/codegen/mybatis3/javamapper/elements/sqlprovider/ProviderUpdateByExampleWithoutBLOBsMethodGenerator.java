@@ -23,37 +23,37 @@ public class ProviderUpdateByExampleWithoutBLOBsMethodGenerator extends Abstract
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addParameter(new Parameter(
-                new FullyQualifiedJavaType("java.util.Map<java.lang.String, java.lang.Object>"), //$NON-NLS-1$
-                "parameter")); //$NON-NLS-1$
+                new FullyQualifiedJavaType("java.util.Map<java.lang.String, java.lang.Object>"),
+                "parameter"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
+        method.addBodyLine("SQL sql = new SQL();");
 
-        method.addBodyLine(String.format("sql.UPDATE(\"%s\");", //$NON-NLS-1$
+        method.addBodyLine(String.format("sql.UPDATE(\"%s\");",
                 escapeStringForJava(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime())));
-        method.addBodyLine(""); //$NON-NLS-1$
+        method.addBodyLine("");
 
         for (IntrospectedColumn introspectedColumn : ListUtilities.removeGeneratedAlwaysColumns(getColumns())) {
             StringBuilder sb = new StringBuilder();
             sb.append(getParameterClause(introspectedColumn));
-            sb.insert(2, "row."); //$NON-NLS-1$
+            sb.insert(2, "row.");
 
-            method.addBodyLine(String.format("sql.SET(\"%s = %s\");", //$NON-NLS-1$
+            method.addBodyLine(String.format("sql.SET(\"%s = %s\");",
                     escapeStringForJava(getAliasedEscapedColumnName(introspectedColumn)),
                     sb));
         }
 
-        method.addBodyLine(""); //$NON-NLS-1$
+        method.addBodyLine("");
 
-        Set<FullyQualifiedJavaType> importedTypes = initializeImportedTypes("java.util.Map"); //$NON-NLS-1$
+        Set<FullyQualifiedJavaType> importedTypes = initializeImportedTypes("java.util.Map");
         FullyQualifiedJavaType example = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         importedTypes.add(example);
-        method.addBodyLine(String.format("%s example = (%s) parameter.get(\"example\");", //$NON-NLS-1$
+        method.addBodyLine(String.format("%s example = (%s) parameter.get(\"example\");",
                 example.getShortName(), example.getShortName()));
 
-        method.addBodyLine("applyWhere(sql, example, true);"); //$NON-NLS-1$
-        method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
+        method.addBodyLine("applyWhere(sql, example, true);");
+        method.addBodyLine("return sql.toString();");
 
         if (callPlugins(method, topLevelClass)) {
             topLevelClass.addImportedTypes(importedTypes);

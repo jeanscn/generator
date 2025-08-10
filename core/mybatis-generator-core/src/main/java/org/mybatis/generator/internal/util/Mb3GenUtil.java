@@ -1,6 +1,7 @@
 package org.mybatis.generator.internal.util;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.IBaseEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
@@ -13,18 +14,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
 import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
+import org.mybatis.generator.exception.ShellException;
+import org.mybatis.generator.internal.DefaultShellCallback;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_TRANSACTIONAL;
+import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -61,7 +71,7 @@ public class Mb3GenUtil {
     }
 
     public static String getModelKey(IntrospectedTable introspectedTable) {
-        return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + "_" + introspectedTable.getTableConfiguration().getDomainObjectName());
+        return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + SymbolConstants.UNDERLINE + introspectedTable.getTableConfiguration().getDomainObjectName());
     }
 
     public static String getModelId(IntrospectedTable introspectedTable) {
@@ -90,7 +100,9 @@ public class Mb3GenUtil {
     public static boolean isInDefaultFields(IntrospectedTable introspectedTable, String fieldName) {
         if (GenerateUtils.isWorkflowInstance(introspectedTable) && ConstantsUtil.DEFAULT_WORKFLOW_FIELDS.contains(fieldName)) {
             return true;
-        } else return ConstantsUtil.DEFAULT_CORE_FIELDS.contains(fieldName);
+        } else {
+            return ConstantsUtil.DEFAULT_CORE_FIELDS.contains(fieldName);
+        }
     }
 
     public static String getInnerListFragmentFileName(@Nullable HtmlElementInnerListConfiguration listConfiguration, IntrospectedTable introspectedTable) {
@@ -195,7 +207,11 @@ public class Mb3GenUtil {
         }
     }
 
-    //获得switch的lay-text属性值
+    /**
+     * 根据dataFormat获取switch的lay-text属性值
+     * @param dataFormat 数据格式
+     * @return switch的lay-text属性值
+     */
     public static String getSwitchTextByDataFmt(String dataFormat) {
         return getSwitchTextByEnumClassName(getEnumClassNameByDataFmt(dataFormat));
     }
@@ -392,5 +408,61 @@ public class Mb3GenUtil {
                 parentElement.addField(mappings);
             }
         }
+    }
+
+    public static boolean fileOverridable(String targetProject, String targetPackage, String fileName){
+        File file = getFile(targetProject, targetPackage, fileName);
+        if (file != null && file.exists()) {
+            return isContainOverridableMarker(targetProject, targetPackage, fileName);
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean fileOverridable(AbstractGeneratedFile generatedFile) {
+        return fileOverridable(generatedFile.getTargetProject(), generatedFile.getTargetPackage(), generatedFile.getFileName());
+    }
+
+    public static File getFile(String targetProject, String targetPackage, String fileName) {
+        File project = new File(targetProject);
+        if (!project.isDirectory()) {
+            return null;
+        }
+        File directory = new File(project, packageToDir(targetPackage));
+        if (!directory.isDirectory()) {
+            return null;
+        }
+        File file = new File(directory, fileName);
+        if (file.exists()) {
+            return file;
+        }
+        return null;
+    }
+
+    public static boolean isContainOverridableMarker(String targetProject,String targetPackage,String fileName) {
+        boolean hasPath = stringHasValue(targetProject) || stringHasValue(targetPackage);
+        if (!(hasPath && stringHasValue(fileName))) {
+            return false;
+        }
+        try {
+            DefaultShellCallback defaultShellCallback = new DefaultShellCallback(false);
+            File directory = defaultShellCallback.getDirectory(targetProject, targetPackage);
+            if (!directory.exists() && !directory.mkdirs()) {
+                return false;
+            }
+            File file = new File(directory, fileName);
+            if (file.exists()) {
+                try (Stream<String> lines = Files.lines(file.toPath())) {
+                    return lines.limit(10).anyMatch(line -> line.contains(ConstantsUtil.OVERRIDABLE_FLAG));
+                }
+            }
+            return false;
+        }  catch (IOException | ShellException e) {
+            return false;
+        }
+    }
+
+    public static boolean isContainOverridableMarker(AbstractGeneratedFile generatedFile) {
+        return isContainOverridableMarker(generatedFile.getTargetProject(), generatedFile.getTargetPackage(), generatedFile.getFileName());
     }
 }

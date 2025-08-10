@@ -121,7 +121,7 @@ public class ConfigurationParser {
                     XmlConstants.MYBATIS_GENERATOR_CONFIG_PUBLIC_ID)) {
                 config = parseMyBatisGeneratorConfiguration(rootNode);
             } else {
-                throw new XMLParserException(getString("RuntimeError.5")); //$NON-NLS-1$
+                throw new XMLParserException(getString("RuntimeError.5"));
             }
 
             if (!parseErrors.isEmpty()) {

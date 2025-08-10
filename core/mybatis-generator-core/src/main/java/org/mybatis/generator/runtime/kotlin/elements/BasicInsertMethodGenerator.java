@@ -20,21 +20,21 @@ public class BasicInsertMethodGenerator extends AbstractKotlinFunctionGenerator 
 
     @Override
     public KotlinFunctionAndImports generateMethodAndImports() {
-        String parameterType = "InsertStatementProvider<" //$NON-NLS-1$
+        String parameterType = "InsertStatementProvider<"
                 + recordType.getShortNameWithTypeArguments()
-                + ">"; //$NON-NLS-1$
+                + ">";
 
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction("insert") //$NON-NLS-1$
-                .withExplicitReturnType("Int") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("insertStatement") //$NON-NLS-1$
+                KotlinFunction.newOneLineFunction("insert")
+                .withExplicitReturnType("Int")
+                .withArgument(KotlinArg.newArg("insertStatement")
                         .withDataType(parameterType)
                         .build())
-                .withAnnotation("@InsertProvider(type=SqlProviderAdapter::class, method=\"insert\")") //$NON-NLS-1$
+                .withAnnotation("@InsertProvider(type=SqlProviderAdapter::class, method=\"insert\")")
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter") //$NON-NLS-1$
-                .withImport("org.apache.ibatis.annotations.InsertProvider") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.insert.render.InsertStatementProvider") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter")
+                .withImport("org.apache.ibatis.annotations.InsertProvider")
+                .withImport("org.mybatis.dynamic.sql.insert.render.InsertStatementProvider")
                 .withImports(recordType.getImportList())
                 .build();
 

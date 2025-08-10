@@ -25,37 +25,37 @@ public class ProviderInsertSelectiveMethodGenerator extends AbstractJavaProvider
         Method method = new Method(introspectedTable.getInsertSelectiveStatementId());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
-        method.addParameter(new Parameter(fqjt, "row")); //$NON-NLS-1$
+        method.addParameter(new Parameter(fqjt, "row"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
+        method.addBodyLine("SQL sql = new SQL();");
 
-        method.addBodyLine(String.format("sql.INSERT_INTO(\"%s\");", //$NON-NLS-1$
+        method.addBodyLine(String.format("sql.INSERT_INTO(\"%s\");",
                 escapeStringForJava(introspectedTable.getFullyQualifiedTableNameAtRuntime())));
 
         for (IntrospectedColumn introspectedColumn :
                 ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns())) {
 
-            method.addBodyLine(""); //$NON-NLS-1$
+            method.addBodyLine("");
             if (!introspectedColumn.getFullyQualifiedJavaType().isPrimitive()
                     && !introspectedColumn.isSequenceColumn()) {
-                method.addBodyLine(String.format("if (row.%s() != null) {", //$NON-NLS-1$
+                method.addBodyLine(String.format("if (row.%s() != null) {",
                         getGetterMethodName(introspectedColumn.getJavaProperty(),
                                 introspectedColumn.getFullyQualifiedJavaType())));
             }
-            method.addBodyLine(String.format("sql.VALUES(\"%s\", \"%s\");", //$NON-NLS-1$
+            method.addBodyLine(String.format("sql.VALUES(\"%s\", \"%s\");",
                     escapeStringForJava(getEscapedColumnName(introspectedColumn)),
                     getParameterClause(introspectedColumn)));
 
             if (!introspectedColumn.getFullyQualifiedJavaType().isPrimitive()
                     && !introspectedColumn.isSequenceColumn()) {
-                method.addBodyLine("}"); //$NON-NLS-1$
+                method.addBodyLine("}");
             }
         }
 
-        method.addBodyLine(""); //$NON-NLS-1$
-        method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
+        method.addBodyLine("");
+        method.addBodyLine("return sql.toString();");
 
         if (context.getPlugins().providerInsertSelectiveMethodGenerated(method, topLevelClass, introspectedTable)) {
             topLevelClass.addImportedTypes(importedTypes);

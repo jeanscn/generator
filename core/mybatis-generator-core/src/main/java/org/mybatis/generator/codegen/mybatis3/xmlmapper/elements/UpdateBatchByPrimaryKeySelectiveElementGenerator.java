@@ -15,8 +15,8 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("update"); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("id", introspectedTable.getUpdateBatchStatementId())); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("update");
+        answer.addAttribute(new Attribute("id", introspectedTable.getUpdateBatchStatementId()));
 
         String parameterType;
         if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
@@ -24,11 +24,11 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
         } else {
             parameterType = introspectedTable.getBaseRecordType();
         }
-        answer.addAttribute(new Attribute("parameterType", parameterType)); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("parameterType", parameterType));
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("update "); //$NON-NLS-1$
+        sb.append("update ");
         sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
 

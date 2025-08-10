@@ -44,12 +44,12 @@ import org.mybatis.generator.internal.util.StringUtility;
 public class CacheNamespacePlugin extends PluginAdapter {
 
     public enum CacheProperty {
-        BLOCKING("cache_blocking", "blocking", false), //$NON-NLS-1$ //$NON-NLS-2$
-        FLUSH_INTERVAL("cache_flushInterval", "flushInterval", false), //$NON-NLS-1$ //$NON-NLS-2$
-        READ_WRITE("cache_readWrite", "readWrite", false), //$NON-NLS-1$ //$NON-NLS-2$
-        SIZE("cache_size", "size", false), //$NON-NLS-1$ //$NON-NLS-2$
-        IMPLEMENTATION("cache_implementation", "implementation", true), //$NON-NLS-1$ //$NON-NLS-2$
-        EVICTION("cache_eviction", "eviction", true); //$NON-NLS-1$ //$NON-NLS-2$
+        BLOCKING("cache_blocking", "blocking", false),  //$NON-NLS-2$
+        FLUSH_INTERVAL("cache_flushInterval", "flushInterval", false),  //$NON-NLS-2$
+        READ_WRITE("cache_readWrite", "readWrite", false),  //$NON-NLS-2$
+        SIZE("cache_size", "size", false),  //$NON-NLS-2$
+        IMPLEMENTATION("cache_implementation", "implementation", true),  //$NON-NLS-2$
+        EVICTION("cache_eviction", "eviction", true);  //$NON-NLS-2$
 
         private final String propertyName;
         private final String attributeName;
@@ -83,7 +83,7 @@ public class CacheNamespacePlugin extends PluginAdapter {
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         if (!skip(introspectedTable)) {
             interfaze.addImportedType(
-                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.CacheNamespace")); //$NON-NLS-1$
+                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.CacheNamespace"));
 
             Arrays.stream(CacheProperty.values())
                     .filter(CacheProperty::isClassName)
@@ -93,7 +93,7 @@ public class CacheNamespacePlugin extends PluginAdapter {
                     .map(FullyQualifiedJavaType::new)
                     .forEach(interfaze::addImportedType);
 
-            interfaze.addAnnotation(calculateAnnotation(introspectedTable, ".class")); //$NON-NLS-1$
+            interfaze.addAnnotation(calculateAnnotation(introspectedTable, ".class"));
         }
 
         return true;
@@ -102,7 +102,7 @@ public class CacheNamespacePlugin extends PluginAdapter {
     @Override
     public boolean mapperGenerated(KotlinFile mapperFile, KotlinType mapper, IntrospectedTable introspectedTable) {
         if (!skip(introspectedTable)) {
-            mapperFile.addImport("org.apache.ibatis.annotations.CacheNamespace"); //$NON-NLS-1$
+            mapperFile.addImport("org.apache.ibatis.annotations.CacheNamespace");
 
             Arrays.stream(CacheProperty.values())
                     .filter(CacheProperty::isClassName)
@@ -111,15 +111,15 @@ public class CacheNamespacePlugin extends PluginAdapter {
                     .map(Optional::get)
                     .forEach(mapperFile::addImport);
 
-            mapper.addAnnotation(calculateAnnotation(introspectedTable, "::class")); //$NON-NLS-1$
+            mapper.addAnnotation(calculateAnnotation(introspectedTable, "::class"));
         }
 
         return true;
     }
 
     private boolean skip(IntrospectedTable introspectedTable) {
-        return getRawPropertyValue(introspectedTable, "cache_skip") //$NON-NLS-1$
-                .map("true"::equalsIgnoreCase) //$NON-NLS-1$
+        return getRawPropertyValue(introspectedTable, "cache_skip")
+                .map("true"::equalsIgnoreCase)
                 .orElse(false);
     }
 
@@ -128,12 +128,12 @@ public class CacheNamespacePlugin extends PluginAdapter {
                 .map(cp -> calculateAttribute(introspectedTable, cp, classAccessor))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.joining(", ")); //$NON-NLS-1$
+                .collect(Collectors.joining(", "));
 
         if (StringUtility.stringHasValue(attributes)) {
-            return "@CacheNamespace(" + attributes + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+            return "@CacheNamespace(" + attributes + ")";  //$NON-NLS-2$
         } else {
-            return "@CacheNamespace"; //$NON-NLS-1$
+            return "@CacheNamespace";
         }
     }
 
@@ -141,7 +141,7 @@ public class CacheNamespacePlugin extends PluginAdapter {
                                                 CacheProperty cacheProperty,
                                                 String classAccessor) {
         return getPropertyValueForAttribute(introspectedTable, cacheProperty, classAccessor)
-                .map(v -> String.format("%s = %s", cacheProperty.getAttributeName(), v)); //$NON-NLS-1$
+                .map(v -> String.format("%s = %s", cacheProperty.getAttributeName(), v));
     }
 
     private Optional<String> getPropertyValueForAttribute(IntrospectedTable introspectedTable,

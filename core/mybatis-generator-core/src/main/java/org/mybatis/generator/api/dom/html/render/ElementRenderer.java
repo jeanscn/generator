@@ -36,7 +36,7 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
         }else{
             sb.append("></" + element.getName() + ">");
         }
-        return Stream.of(sb.toString()); //$NON-NLS-1$
+        return Stream.of(sb.toString());
     }
 
     public Stream<String> renderWithChildren(HtmlElement element) {
@@ -48,14 +48,14 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
         return element.getAttributes().stream()
                 .sorted((a1, a2) -> a1.getName().compareTo(a2.getName()))
                 .map(attributeRenderer::render)
-                .collect(CustomCollectors.joining(" ", " ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(" ", " ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     private Stream<String> renderOpen(HtmlElement element) {
-        return Stream.of("<" //$NON-NLS-1$
+        return Stream.of("<"
                 + element.getName()
                 + renderAttributes(element)
-                + ">"); //$NON-NLS-1$
+                + ">");
     }
 
     private Stream<String> renderChildren(HtmlElement element) {
@@ -69,13 +69,13 @@ public class ElementRenderer implements ElementVisitor<Stream<String>> {
     }
 
     private String indent(String s) {
-        return "  " + s; //$NON-NLS-1$
+        return "  " + s;
     }
 
     private Stream<String> renderClose(HtmlElement element) {
-        return Stream.of("</" //$NON-NLS-1$
+        return Stream.of("</"
                 + element.getName()
-                + ">"); //$NON-NLS-1$
+                + ">");
     }
     private boolean isAllowSelfColse(String elementName){
         return  Arrays.asList(new String[]{"br","hr","area","base","img",

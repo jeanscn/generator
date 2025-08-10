@@ -79,7 +79,6 @@ public class MyBatisGenerator {
      *  This is useful if you prefer to process the generated files yourself and do not want
      *  the generator to write them to disk.
      *
-     * @return the list of generated Kotlin files
      */
     @Getter
     private final List<GeneratedKotlinFile> generatedKotlinFiles = new ArrayList<>();
@@ -115,7 +114,7 @@ public class MyBatisGenerator {
                             List<String> warnings) throws InvalidConfigurationException {
         super();
         if (configuration == null) {
-            throw new IllegalArgumentException(getString("RuntimeError.2")); //$NON-NLS-1$
+            throw new IllegalArgumentException(getString("RuntimeError.2"));
         } else {
             this.configuration = configuration;
         }
@@ -136,7 +135,7 @@ public class MyBatisGenerator {
     }
 
     /**
-     * This is the main method for generating code. This method is long running, but progress can be provided and the
+     * This is the main method for generating code. This method is long-running, but progress can be provided and the
      * method can be canceled through the ProgressCallback interface. This version of the method runs all configured
      * contexts.
      *
@@ -152,13 +151,13 @@ public class MyBatisGenerator {
     }
 
     /**
-     * This is the main method for generating code. This method is long running, but progress can be provided and the
+     * This is the main method for generating code. This method is long-running, but progress can be provided and the
      * method can be canceled through the ProgressCallback interface.
      *
      * @param callback   an instance of the ProgressCallback interface, or <code>null</code> if you do not require progress
      *                   information
      * @param contextIds a set of Strings containing context ids to run. Only the contexts with an id specified in this list
-     *                   will be run. If the list is null or empty, than all contexts are run.
+     *                   will be run. If the list is null or empty, then all contexts are run.
      * @throws SQLException         the SQL exception
      * @throws IOException          Signals that an I/O exception has occurred.
      * @throws InterruptedException if the method is canceled through the ProgressCallback
@@ -169,13 +168,13 @@ public class MyBatisGenerator {
     }
 
     /**
-     * This is the main method for generating code. This method is long running, but progress can be provided and the
+     * This is the main method for generating code. This method is long-running, but progress can be provided and the
      * method can be cancelled through the ProgressCallback interface.
      *
      * @param callback                 an instance of the ProgressCallback interface, or <code>null</code> if you do not require progress
      *                                 information
      * @param contextIds               a set of Strings containing context ids to run. Only the contexts with an id specified in this list
-     *                                 will be run. If the list is null or empty, than all contexts are run.
+     *                                 will be run. If the list is null or empty, then all contexts are run.
      * @param fullyQualifiedTableNames a set of table names to generate. The elements of the set must be Strings that exactly match what's
      *                                 specified in the configuration. For example, if table name = "foo" and schema = "bar", then the fully
      *                                 qualified table name is "foo.bar". If the Set is null or empty, then all tables in the configuration
@@ -191,13 +190,13 @@ public class MyBatisGenerator {
     }
 
     /**
-     * This is the main method for generating code. This method is long running, but progress can be provided and the
+     * This is the main method for generating code. This method is long-running, but progress can be provided and the
      * method can be cancelled through the ProgressCallback interface.
      *
      * @param callback                 an instance of the ProgressCallback interface, or <code>null</code> if you do not require progress
      *                                 information
      * @param contextIds               a set of Strings containing context ids to run. Only the contexts with an id specified in this list
-     *                                 will be run. If the list is null or empty, than all contexts are run.
+     *                                 will be run. If the list is null or empty, then all contexts are run.
      * @param fullyQualifiedTableNames a set of table names to generate. The elements of the set must be Strings that exactly match what's
      *                                 specified in the configuration. For example, if table name = "foo" and schema = "bar", then the fully
      *                                 qualified table name is "foo.bar". If the Set is null or empty, then all tables in the configuration
@@ -276,7 +275,6 @@ public class MyBatisGenerator {
         callback.generationStarted(totalSteps);
 
         for (Context context : contextsToRun) {
-            //TODO其他类型与html类型
             context.generateFiles(callback, generatedJavaFiles, generatedXmlFiles, generatedHtmlFiles, generatedKotlinFiles, otherGeneratedFiles, warnings);
         }
 
@@ -316,8 +314,7 @@ public class MyBatisGenerator {
         callback.done();
     }
 
-    private void writeGeneratedJavaFile(GeneratedJavaFile gjf, ProgressCallback callback)
-            throws InterruptedException, IOException {
+    private void writeGeneratedJavaFile(GeneratedJavaFile gjf, ProgressCallback callback) throws InterruptedException, IOException {
         File targetFile;
         String source;
         try {
@@ -332,15 +329,14 @@ public class MyBatisGenerator {
                 } else {
                     source = gjf.getFormattedContent();
                     targetFile = getUniqueFileName(directory, gjf.getFileName());
-                    warnings.add(getString("Warning.2", targetFile.getAbsolutePath())); //$NON-NLS-1$
+                    warnings.add(getString("Warning.2", targetFile.getAbsolutePath()));
                 }
             } else {
                 source = gjf.getFormattedContent();
             }
 
             callback.checkCancel();
-            callback.startTask(getString(
-                    "Progress.15", targetFile.getName())); //$NON-NLS-1$
+            callback.startTask(getString("Progress.15", targetFile.getName()));
             writeFile(targetFile, source, gjf.getFileEncoding());
         } catch (ShellException e) {
             warnings.add(e.getMessage());
@@ -358,23 +354,21 @@ public class MyBatisGenerator {
             if (targetFile.exists()) {
                 if (shellCallback.isOverwriteEnabled()) {
                     source = gf.getFormattedContent();
-                    warnings.add(getString("Warning.11", //$NON-NLS-1$
+                    warnings.add(getString("Warning.11",
                             targetFile.getAbsolutePath()));
                 } else {
                     source = gf.getFormattedContent();
                     targetFile = getUniqueFileName(directory, gf
                             .getFileName());
                     warnings.add(getString(
-                            "Warning.2", targetFile.getAbsolutePath())); //$NON-NLS-1$
+                            "Warning.2", targetFile.getAbsolutePath()));
                 }
             } else {
                 source = gf.getFormattedContent();
             }
-
             callback.checkCancel();
             if (!targetFile.exists() || gf.isOverWriteFile()) {
-                callback.startTask(getString(
-                        "Progress.15", targetFile.getName())); //$NON-NLS-1$
+                callback.startTask(getString("Progress.15", targetFile.getName()));
                 writeFile(targetFile, source, gf.getFileEncoding());
             }
         } catch (ShellException e) {
@@ -406,14 +400,14 @@ public class MyBatisGenerator {
                             targetFile);
                 } else if (shellCallback.isOverwriteEnabled()) {
                     source = gxf.getFormattedContent();
-                    warnings.add(getString("Warning.11", //$NON-NLS-1$
+                    warnings.add(getString("Warning.11",
                             targetFile.getAbsolutePath()));
                 } else {
                     source = gxf.getFormattedContent();
                     targetFile = getUniqueFileName(directory, gxf
                             .getFileName());
                     warnings.add(getString(
-                            "Warning.2", targetFile.getAbsolutePath())); //$NON-NLS-1$
+                            "Warning.2", targetFile.getAbsolutePath()));
                 }
             } else {
                 source = gxf.getFormattedContent();
@@ -421,8 +415,8 @@ public class MyBatisGenerator {
 
             callback.checkCancel();
             callback.startTask(getString(
-                    "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, gxf.getFileEncoding()); //$NON-NLS-1$
+                    "Progress.15", targetFile.getName()));
+            writeFile(targetFile, source, gxf.getFileEncoding());
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         }
@@ -511,7 +505,7 @@ public class MyBatisGenerator {
 
         if (answer == null) {
             throw new RuntimeException(getString(
-                    "RuntimeError.3", directory.getAbsolutePath())); //$NON-NLS-1$
+                    "RuntimeError.3", directory.getAbsolutePath()));
         }
 
         return answer;

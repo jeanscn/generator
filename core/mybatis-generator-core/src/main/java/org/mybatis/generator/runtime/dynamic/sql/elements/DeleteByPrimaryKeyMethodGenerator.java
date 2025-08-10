@@ -26,14 +26,14 @@ public class DeleteByPrimaryKeyMethodGenerator extends AbstractMethodGenerator {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
         Set<String> staticImports = new HashSet<>();
 
-        staticImports.add("org.mybatis.dynamic.sql.SqlBuilder.isEqualTo"); //$NON-NLS-1$
+        staticImports.add("org.mybatis.dynamic.sql.SqlBuilder.isEqualTo");
 
-        Method method = new Method("deleteByPrimaryKey"); //$NON-NLS-1$
+        Method method = new Method("deleteByPrimaryKey");
         method.setDefault(true);
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
 
-        method.addBodyLine("return delete(c -> "); //$NON-NLS-1$
+        method.addBodyLine("return delete(c -> ");
 
         MethodParts methodParts = fragmentGenerator.getPrimaryKeyWhereClauseAndParameters();
         for (Parameter parameter : methodParts.getParameters()) {

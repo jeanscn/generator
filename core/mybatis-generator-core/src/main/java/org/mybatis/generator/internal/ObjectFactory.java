@@ -105,7 +105,7 @@ public class ObjectFactory {
             answer = clazz.getConstructor().newInstance();
         } catch (Exception e) {
             throw new RuntimeException(getString(
-                    "RuntimeError.6", type), e); //$NON-NLS-1$
+                    "RuntimeError.6", type), e);
         }
 
         return answer;
@@ -157,7 +157,7 @@ public class ObjectFactory {
 
             answer = clazz.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(getString("RuntimeError.6", type), e); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.6", type), e);
         }
 
         return answer;
@@ -171,7 +171,7 @@ public class ObjectFactory {
 
         if (config != null && config.getConfigurationType() != null) {
             type = config.getConfigurationType();
-            if ("DEFAULT".equalsIgnoreCase(type)) { //$NON-NLS-1$
+            if ("DEFAULT".equalsIgnoreCase(type)) {
                 type = JavaTypeResolverDefaultImpl.class.getName();
             }
         } else {
@@ -317,13 +317,13 @@ public class ObjectFactory {
         String type = context.getTargetRuntime();
         if (!stringHasValue(type)) {
             type = IntrospectedTableMyBatis3DynamicSqlImpl.class.getName();
-        } else if ("MyBatis3".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("MyBatis3".equalsIgnoreCase(type)) {
             type = IntrospectedTableMyBatis3Impl.class.getName();
-        } else if ("MyBatis3Simple".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("MyBatis3Simple".equalsIgnoreCase(type)) {
             type = IntrospectedTableMyBatis3SimpleImpl.class.getName();
-        } else if ("MyBatis3DynamicSql".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("MyBatis3DynamicSql".equalsIgnoreCase(type)) {
             type = IntrospectedTableMyBatis3DynamicSqlImpl.class.getName();
-        } else if ("MyBatis3Kotlin".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("MyBatis3Kotlin".equalsIgnoreCase(type)) {
             type = IntrospectedTableKotlinImpl.class.getName();
         }
 

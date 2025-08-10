@@ -1,10 +1,10 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.css;
+package org.mybatis.generator.codegen.mybatis3.freemaker.css;
 
 import java.util.List;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
+import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import freemarker.template.Template;

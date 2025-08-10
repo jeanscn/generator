@@ -20,6 +20,7 @@ import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +70,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(interfaze);
+        commentGenerator.addJavaFileComment(interfaze,false);
         String rootInterface = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         if (!stringHasValue(rootInterface)) {
             rootInterface = context.getJavaClientGeneratorConfiguration().getProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
@@ -131,6 +132,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         String sb = javaClientGeneratorConfiguration.getTargetPackage() + "." + daoName;
         Interface subInterface = new Interface(sb);
         subInterface.setVisibility(JavaVisibility.PUBLIC);
+        commentGenerator.addJavaFileComment(subInterface,true);
         subInterface.addAnnotation("@Mapper");
         subInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         subInterface.addSuperInterface(type);
@@ -153,8 +155,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.constant.enums.core.QueryModesEnum"));
         });
 
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName);
+        //boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
+        boolean overridable = Mb3GenUtil.fileOverridable(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName+".java");
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(subInterface,
@@ -163,7 +165,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                 VStringUtil.format("该类继承自'{'@link {0}'}'，",interfaze.getType().getShortNameWithoutTypeArguments()),
                 VStringUtil.format("用于扩展或重写{0}。",interfaze.getType().getShortNameWithoutTypeArguments()));
 
-        if (forceGenerateScalableElement || fileNotExist) {
+        if (overridable) {
             if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)) {
                 answer.add(subInterface);
             }

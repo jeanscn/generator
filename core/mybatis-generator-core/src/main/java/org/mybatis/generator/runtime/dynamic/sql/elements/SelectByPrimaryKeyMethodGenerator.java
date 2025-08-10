@@ -25,19 +25,19 @@ public class SelectByPrimaryKeyMethodGenerator extends AbstractMethodGenerator {
 
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
-        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Optional"); //$NON-NLS-1$
+        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Optional");
         returnType.addTypeArgument(recordType);
         imports.add(returnType);
 
-        Method method = new Method("selectByPrimaryKey"); //$NON-NLS-1$
+        Method method = new Method("selectByPrimaryKey");
         method.setDefault(true);
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
         method.setReturnType(returnType);
 
-        method.addBodyLine("return selectOne(c ->"); //$NON-NLS-1$
+        method.addBodyLine("return selectOne(c ->");
 
         MethodAndImports.Builder builder = MethodAndImports.withMethod(method)
-                .withStaticImport("org.mybatis.dynamic.sql.SqlBuilder.isEqualTo") //$NON-NLS-1$
+                .withStaticImport("org.mybatis.dynamic.sql.SqlBuilder.isEqualTo")
                 .withImports(imports);
 
         MethodParts methodParts = fragmentGenerator.getPrimaryKeyWhereClauseAndParameters();

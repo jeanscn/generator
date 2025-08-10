@@ -16,39 +16,39 @@ public class UpdateByExampleSelectiveElementGenerator extends
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("update"); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("update");
 
         answer.addAttribute(new Attribute(
-                "id", introspectedTable.getUpdateByExampleSelectiveStatementId())); //$NON-NLS-1$
+                "id", introspectedTable.getUpdateByExampleSelectiveStatementId()));
 
-        answer.addAttribute(new Attribute("parameterType", "map")); //$NON-NLS-1$ //$NON-NLS-2$
+        answer.addAttribute(new Attribute("parameterType", "map"));  //$NON-NLS-2$
 
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("update "); //$NON-NLS-1$
+        sb.append("update ");
         //addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
         sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
 
-        XmlElement dynamicElement = new XmlElement("set"); //$NON-NLS-1$
+        XmlElement dynamicElement = new XmlElement("set");
         answer.addElement(dynamicElement);
 
         for (IntrospectedColumn introspectedColumn :
                 ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getAllColumns())) {
             sb.setLength(0);
-            sb.append(introspectedColumn.getJavaProperty("row.")); //$NON-NLS-1$
-            sb.append(" != null"); //$NON-NLS-1$
-            XmlElement isNotNullElement = new XmlElement("if"); //$NON-NLS-1$
-            isNotNullElement.addAttribute(new Attribute("test", sb.toString())); //$NON-NLS-1$
+            sb.append(introspectedColumn.getJavaProperty("row."));
+            sb.append(" != null");
+            XmlElement isNotNullElement = new XmlElement("if");
+            isNotNullElement.addAttribute(new Attribute("test", sb.toString()));
             dynamicElement.addElement(isNotNullElement);
 
             sb.setLength(0);
             //sb.append(MyBatis3FormattingUtilities
              //       .getAliasedEscapedColumnName(introspectedColumn));
             sb.append(MyBatis3FormattingUtilities.getAliasedEscapedColumnName(introspectedColumn));
-            sb.append(" = "); //$NON-NLS-1$
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, "row.")); //$NON-NLS-1$
+            sb.append(" = ");
+            sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn, "row."));
             sb.append(',');
 
             isNotNullElement.addElement(new TextElement(sb.toString()));
@@ -56,7 +56,7 @@ public class UpdateByExampleSelectiveElementGenerator extends
         //addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
         answer.addElement(getUpdateByExampleIncludeElement());
         // 增加if判断，防止传入的参数为null或空
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
+        XmlElement ifElement = new XmlElement("if");
         ifElement.addAttribute(new Attribute("test", "_parameter == null or _parameter.oredCriteria == null or _parameter.oredCriteria.size() == 0"));
         ifElement.addElement(new TextElement("-- 防止无条件删除，返回影响0行"));
         XmlElement where = new XmlElement("where");

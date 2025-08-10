@@ -34,7 +34,7 @@ public class VoAbstractGenerator extends AbstractVoGenerator {
         abstractVo.setVisibility(JavaVisibility.PUBLIC);
         abstractVo.addSuperInterface(new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO));
         abstractVo.addImportedType(ConstantsUtil.I_BASE_DTO);
-        commentGenerator.addJavaFileComment(abstractVo);
+        commentGenerator.addJavaFileComment(abstractVo,false);
         commentGenerator.addModelClassComment(abstractVo, introspectedTable);
         abstractVo.addAnnotation("@Data");
         abstractVo.addAnnotation("@NoArgsConstructor");

@@ -1,9 +1,9 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.vue3;
+package org.mybatis.generator.codegen.mybatis3.freemaker.vue3;
 
 import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
+import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
 import java.util.List;

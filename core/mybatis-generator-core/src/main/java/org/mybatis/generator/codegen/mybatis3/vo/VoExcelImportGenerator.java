@@ -34,6 +34,7 @@ public class VoExcelImportGenerator extends AbstractVoGenerator {
         VoExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
         FullyQualifiedJavaType excelImportVoType = voExcelGeneratorConfiguration.getExcelImportType();
         TopLevelClass excelImportVoClass = createTopLevelClass(excelImportVoType.getFullyQualifiedName(), null);
+        commentGenerator.addModelClassComment(excelImportVoClass, introspectedTable);
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);
         excelImportVoClass.addSuperInterface(superInterface);
         voGenService.addConfigurationSuperInterface(excelImportVoClass, voExcelGeneratorConfiguration);

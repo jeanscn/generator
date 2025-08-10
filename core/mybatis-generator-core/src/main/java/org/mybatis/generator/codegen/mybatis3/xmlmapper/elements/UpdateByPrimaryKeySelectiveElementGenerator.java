@@ -15,10 +15,10 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends AbstractXmlElem
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("update"); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("update");
 
         answer.addAttribute(new Attribute(
-                "id", introspectedTable.getUpdateByPrimaryKeySelectiveStatementId())); //$NON-NLS-1$
+                "id", introspectedTable.getUpdateByPrimaryKeySelectiveStatementId()));
 
         String parameterType;
 
@@ -28,31 +28,31 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends AbstractXmlElem
             parameterType = introspectedTable.getBaseRecordType();
         }
 
-        answer.addAttribute(new Attribute("parameterType", parameterType)); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("parameterType", parameterType));
 
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("update "); //$NON-NLS-1$
+        sb.append("update ");
         sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
 
-        XmlElement dynamicElement = new XmlElement("set"); //$NON-NLS-1$
+        XmlElement dynamicElement = new XmlElement("set");
         answer.addElement(dynamicElement);
 
         for (IntrospectedColumn introspectedColumn :
                 ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns())) {
             sb.setLength(0);
             sb.append(introspectedColumn.getJavaProperty());
-            sb.append(" != null"); //$NON-NLS-1$
-            XmlElement isNotNullElement = new XmlElement("if"); //$NON-NLS-1$
-            isNotNullElement.addAttribute(new Attribute("test", sb.toString())); //$NON-NLS-1$
+            sb.append(" != null");
+            XmlElement isNotNullElement = new XmlElement("if");
+            isNotNullElement.addAttribute(new Attribute("test", sb.toString()));
             dynamicElement.addElement(isNotNullElement);
 
             sb.setLength(0);
             sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
             sb.append(',');
 

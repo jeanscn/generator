@@ -15,14 +15,14 @@ public class GeneralUpdateMethodGenerator extends AbstractKotlinFunctionGenerato
     @Override
     public KotlinFunctionAndImports generateMethodAndImports() {
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction(mapperName + ".update") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("completer") //$NON-NLS-1$
-                        .withDataType("UpdateCompleter") //$NON-NLS-1$
+                KotlinFunction.newOneLineFunction(mapperName + ".update")
+                .withArgument(KotlinArg.newArg("completer")
+                        .withDataType("UpdateCompleter")
                         .build())
-                .withCodeLine("update(this::update, " + tableFieldName + ", completer)") //$NON-NLS-1$ //$NON-NLS-2$
+                .withCodeLine("update(this::update, " + tableFieldName + ", completer)")  //$NON-NLS-2$
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.update") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter")
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.update")
                 .build();
 
         addFunctionComment(functionAndImports);

@@ -22,13 +22,13 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
         answer.addAttribute(new Attribute("parameterType", fqjt));
         context.getCommentGenerator().addComment(answer);
 
-        answer.addElement(new TextElement("select")); //$NON-NLS-1$
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "distinct")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("distinct")); //$NON-NLS-1$
+        answer.addElement(new TextElement("select"));
+        XmlElement ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "distinct"));  //$NON-NLS-2$
+        ifElement.addElement(new TextElement("distinct"));
         answer.addElement(ifElement);
         answer.addElement(getBaseColumnListElement());
-        answer.addElement(new TextElement(",")); //$NON-NLS-1$
+        answer.addElement(new TextElement(","));
         StringBuilder sb = new StringBuilder();
         sb.append("(SELECT count(0) FROM ");
         sb.append(introspectedTable.getTableConfiguration().getTableName());
@@ -44,9 +44,9 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
         answer.addElement(new TextElement(sb.toString()));
         answer.addElement(getExampleIncludeElement());
 
-        ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "orderByClause != null")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("order by ${orderByClause}")); //$NON-NLS-1$
+        ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));  //$NON-NLS-2$
+        ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 
         parentElement.addElement(answer);

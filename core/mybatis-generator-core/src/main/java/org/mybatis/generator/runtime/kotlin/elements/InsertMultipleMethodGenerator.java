@@ -34,19 +34,19 @@ public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerat
         String functionShortName;
         if (Utils.canRetrieveMultiRowGeneratedKeys(introspectedTable)) {
             functionImport =
-                    "org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultipleWithGeneratedKeys"; //$NON-NLS-1$
-            functionShortName = "insertMultipleWithGeneratedKeys"; //$NON-NLS-1$
+                    "org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultipleWithGeneratedKeys";
+            functionShortName = "insertMultipleWithGeneratedKeys";
         } else {
-            functionImport = "org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultiple"; //$NON-NLS-1$
-            functionShortName = "insertMultiple"; //$NON-NLS-1$
+            functionImport = "org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultiple";
+            functionShortName = "insertMultiple";
         }
 
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction(mapperName + ".insertMultiple") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("records") //$NON-NLS-1$
-                        .withDataType("Collection<" //$NON-NLS-1$
+                KotlinFunction.newOneLineFunction(mapperName + ".insertMultiple")
+                .withArgument(KotlinArg.newArg("records")
+                        .withDataType("Collection<"
                                 + recordType.getShortNameWithTypeArguments()
-                                + ">") //$NON-NLS-1$
+                                + ">")
                         .build())
                 .build())
                 .withImport(functionImport)
@@ -57,9 +57,9 @@ public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerat
 
         KotlinFunction function = functionAndImports.getFunction();
 
-        function.addCodeLine(functionShortName + "(this::insertMultiple" //$NON-NLS-1$
-                + ", records, " + tableFieldName //$NON-NLS-1$
-                + ") {"); //$NON-NLS-1$
+        function.addCodeLine(functionShortName + "(this::insertMultiple"
+                + ", records, " + tableFieldName
+                + ") {");
 
         List<IntrospectedColumn> columns =
                 ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
@@ -69,12 +69,12 @@ public class InsertMultipleMethodGenerator extends AbstractKotlinFunctionGenerat
                             supportObjectImport, column);
             functionAndImports.getImports().add(fieldNameAndImport.importString());
 
-            function.addCodeLine("    map(" + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                    + ") toProperty \"" + column.getJavaProperty() //$NON-NLS-1$
-                    + "\""); //$NON-NLS-1$
+            function.addCodeLine("    map(" + fieldNameAndImport.fieldName()
+                    + ") toProperty \"" + column.getJavaProperty()
+                    + "\"");
         }
 
-        function.addCodeLine("}"); //$NON-NLS-1$
+        function.addCodeLine("}");
 
         return functionAndImports;
     }

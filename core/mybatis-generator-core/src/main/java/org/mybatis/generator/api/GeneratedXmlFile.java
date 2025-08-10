@@ -51,6 +51,6 @@ public class GeneratedXmlFile extends GeneratedFile {
 
     @Override
     public String getFileEncoding() {
-        return "UTF-8"; //$NON-NLS-1$
+        return "UTF-8";
     }
 }

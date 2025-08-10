@@ -36,7 +36,7 @@ public class MyBatisGeneratorClean {
                                  List<String> warnings) throws InvalidConfigurationException {
         super();
         if (configuration == null) {
-            throw new IllegalArgumentException(getString("RuntimeError.2")); //$NON-NLS-1$
+            throw new IllegalArgumentException(getString("RuntimeError.2"));
         } else {
             this.configuration = configuration;
         }
@@ -95,7 +95,7 @@ public class MyBatisGeneratorClean {
         }
 
         if (totalTables == 0) {
-            warnings.add(getString("Warning.103")); //$NON-NLS-1$
+            warnings.add(getString("Warning.103"));
             return;
         }
 
@@ -118,7 +118,7 @@ public class MyBatisGeneratorClean {
     private void cleanFiles(Context context, ProgressCallback callback) throws ShellException {
         // 清理文件
         for (TableConfiguration tc : context.getTableConfigurations()) {
-            this.warnings.add(getString("Warning.100", tc.getTableName())); //$NON-NLS-1$
+            this.warnings.add(getString("Warning.100", tc.getTableName()));
 
             //清理entity
             JavaModelGeneratorConfiguration modelConfig = context.getJavaModelGeneratorConfiguration();
@@ -280,16 +280,6 @@ public class MyBatisGeneratorClean {
                 } else {
                     warnings.add(getString("Warning.102", file.getAbsolutePath()));
                 }
-            }
-        }
-    }
-
-    private void checkFileDir(GeneratedFile gf) {
-        File gfDirector = new File(gf.getTargetProject() + File.separator + gf.getTargetPackage());
-        if (!gfDirector.isDirectory()) {
-            final boolean mkDirs = gfDirector.mkdirs();
-            if (!mkDirs) {
-                warnings.add(getString("Warning.10", gf.getTargetProject() + File.separator + gf.getTargetPackage()));
             }
         }
     }

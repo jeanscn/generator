@@ -18,7 +18,7 @@ public class SelectByKeysDictElementGenerator extends AbstractXmlElementGenerato
         answer.addAttribute(new Attribute("id", introspectedTable.getSelectByKeysDictStatementId()));
         answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
 
-        answer.addAttribute(new Attribute("parameterType", "com.vgosoft.core.pojo.parameter.SelDictByKeysParam")); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("parameterType", "com.vgosoft.core.pojo.parameter.SelDictByKeysParam"));
         context.getCommentGenerator().addComment(answer);
 
         answer.addElement(new TextElement("select "));

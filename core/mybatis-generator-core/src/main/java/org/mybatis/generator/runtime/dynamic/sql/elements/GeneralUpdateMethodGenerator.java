@@ -19,24 +19,24 @@ public class GeneralUpdateMethodGenerator extends AbstractMethodGenerator {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.update.UpdateDSLCompleter"); //$NON-NLS-1$
+                "org.mybatis.dynamic.sql.update.UpdateDSLCompleter");
 
         imports.add(parameterType);
-        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils")); //$NON-NLS-1$
+        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils"));
 
         FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getIntInstance();
 
         imports.add(returnType);
 
-        Method method = new Method("update"); //$NON-NLS-1$
+        Method method = new Method("update");
         method.setDefault(true);
-        method.addParameter(new Parameter(parameterType, "completer")); //$NON-NLS-1$
+        method.addParameter(new Parameter(parameterType, "completer"));
 
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
 
         method.setReturnType(returnType);
-        method.addBodyLine("return MyBatis3Utils.update(this::update, " //$NON-NLS-1$
-                + tableFieldName + ", completer);"); //$NON-NLS-1$
+        method.addBodyLine("return MyBatis3Utils.update(this::update, "
+                + tableFieldName + ", completer);");
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)

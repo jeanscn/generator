@@ -37,7 +37,7 @@ public class ClassloaderUtility {
             for (String classPathEntry : entries) {
                 file = new File(classPathEntry);
                 if (!file.exists()) {
-                    LOG.warn(getString("Warning.31", classPathEntry)); //$NON-NLS-1$
+                    LOG.warn(getString("Warning.31", classPathEntry));
                     continue;
                 }
 
@@ -46,7 +46,7 @@ public class ClassloaderUtility {
                 } catch (MalformedURLException e) {
                     // this shouldn't happen, but just in case...
                     throw new RuntimeException(getString(
-                            "RuntimeError.9", classPathEntry)); //$NON-NLS-1$
+                            "RuntimeError.9", classPathEntry));
                 }
             }
         }

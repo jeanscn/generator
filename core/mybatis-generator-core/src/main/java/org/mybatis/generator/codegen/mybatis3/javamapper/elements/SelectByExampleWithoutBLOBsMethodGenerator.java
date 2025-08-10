@@ -37,7 +37,7 @@ public class SelectByExampleWithoutBLOBsMethodGenerator extends AbstractJavaMapp
         } else if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             listType = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());
         } else {
-            throw new RuntimeException(getString("RuntimeError.12","SelectByExampleWithoutBLOBs")); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.12","SelectByExampleWithoutBLOBs"));
         }
 
         importedTypes.add(listType);
@@ -46,7 +46,7 @@ public class SelectByExampleWithoutBLOBsMethodGenerator extends AbstractJavaMapp
 
         Parameter parameter = new Parameter(type, "example");
         parameter.setRemark("查询条件example对象");
-        method.addParameter(parameter); //$NON-NLS-1$
+        method.addParameter(parameter);
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 

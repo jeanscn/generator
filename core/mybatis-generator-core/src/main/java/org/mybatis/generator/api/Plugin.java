@@ -186,6 +186,13 @@ public interface Plugin {
             IntrospectedTable introspectedTable){
         return Collections.emptyList();
     };
+
+    /**
+     * This method can be used to generate additional HTML files needed by your
+     * @param introspectedTable The class containing information about the table as
+     * @param htmlGeneratorConfiguration the configuration for HTML generation
+     * @return a List of GeneratedHtmlFiles - these files will be saved
+     */
     default List<GeneratedFile> contextGenerateAdditionalWebFiles(
             IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration){
         return Collections.emptyList();

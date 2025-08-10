@@ -152,7 +152,7 @@ public class SqlScriptRunner {
         String line;
 
         while ((line = br.readLine()) != null) {
-            if (line.startsWith("--")) { //$NON-NLS-1$
+            if (line.startsWith("--")) {
                 continue;
             }
 
@@ -160,7 +160,7 @@ public class SqlScriptRunner {
                 continue;
             }
 
-            if (line.endsWith(";")) { //$NON-NLS-1$
+            if (line.endsWith(";")) {
                 sb.append(' ');
                 sb.append(line.substring(0, line.length() - 1));
                 break;
@@ -173,7 +173,7 @@ public class SqlScriptRunner {
         String s = sb.toString().trim();
 
         if (!s.isEmpty()) {
-            log.debug(Messages.getString("Progress.13", s)); //$NON-NLS-1$
+            log.debug(Messages.getString("Progress.13", s));
         }
 
         return !s.isEmpty() ? s : null;

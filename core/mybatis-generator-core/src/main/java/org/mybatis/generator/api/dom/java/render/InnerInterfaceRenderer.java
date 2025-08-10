@@ -24,7 +24,7 @@ public class InnerInterfaceRenderer {
 
         lines = RenderingUtilities.removeLastEmptyLine(lines);
 
-        lines.add("}"); //$NON-NLS-1$
+        lines.add("}");
 
         return lines;
     }
@@ -35,14 +35,14 @@ public class InnerInterfaceRenderer {
         sb.append(innerInterface.getVisibility().getValue());
 
         if (innerInterface.isStatic()) {
-            sb.append("static "); //$NON-NLS-1$
+            sb.append("static ");
         }
 
-        sb.append("interface "); //$NON-NLS-1$
+        sb.append("interface ");
         sb.append(innerInterface.getType().getShortName());
         sb.append(RenderingUtilities.renderTypeParameters(innerInterface.getTypeParameters(), compilationUnit));
         sb.append(renderSuperInterfaces(innerInterface, compilationUnit));
-        sb.append(" {"); //$NON-NLS-1$
+        sb.append(" {");
 
         return sb.toString();
     }
@@ -51,6 +51,6 @@ public class InnerInterfaceRenderer {
     private String renderSuperInterfaces(InnerInterface innerInterface, CompilationUnit compilationUnit) {
         return innerInterface.getSuperInterfaceTypes().stream()
                 .map(tp -> JavaDomUtils.calculateTypeName(compilationUnit, tp))
-                .collect(CustomCollectors.joining(", ", " extends ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " extends ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
     }
 }

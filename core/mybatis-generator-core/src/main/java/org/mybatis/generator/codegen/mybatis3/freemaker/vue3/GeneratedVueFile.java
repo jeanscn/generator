@@ -1,5 +1,7 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.vue3;
+package org.mybatis.generator.codegen.mybatis3.freemaker.vue3;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -16,15 +18,17 @@ public class GeneratedVueFile extends AbstractGeneratedFile {
 
     public final String templateName;
 
-    private Map<String, Object> data;
+    private final Map<String, Object> data;
 
+    @Setter
+    @Getter
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
     public GeneratedVueFile(String fileName,
                             String targetProject,
                             String targetPackage,
                             IntrospectedTable introspectedTable,
-                            String templateName, Map<String,Object> data) {
+                            String templateName, Map<String, Object> data) {
         super(targetProject, targetPackage, fileName, introspectedTable);
         this.introspectedTable = introspectedTable;
         this.templateName = templateName;
@@ -33,15 +37,8 @@ public class GeneratedVueFile extends AbstractGeneratedFile {
 
     @Override
     public String getFormattedContent() {
-        VueViewFreemarkerGenerator freemarkerGenerator = new VueViewFreemarkerGenerator(this.targetProject, this.introspectedTable,this.htmlGeneratorConfiguration, this.data);
+        VueViewFreemarkerGenerator freemarkerGenerator = new VueViewFreemarkerGenerator(this.targetProject, this.introspectedTable, this.htmlGeneratorConfiguration, this.data);
         return freemarkerGenerator.generate(templateName);
     }
 
-    public HtmlGeneratorConfiguration getHtmlGeneratorConfiguration() {
-        return htmlGeneratorConfiguration;
-    }
-
-    public void setHtmlGeneratorConfiguration(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
-    }
 }

@@ -65,13 +65,9 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     }
 
     @Override
-    public void calculateGenerators(List<String> warnings,
-                                    ProgressCallback progressCallback) {
+    public void calculateGenerators(List<String> warnings, ProgressCallback progressCallback) {
         calculateJavaModelGenerators(warnings, progressCallback);
-
-        AbstractJavaClientGenerator javaClientGenerator =
-                calculateClientGenerators(warnings, progressCallback);
-
+        AbstractJavaClientGenerator javaClientGenerator = calculateClientGenerators(warnings, progressCallback);
         calculateXmlMapperGenerator(javaClientGenerator, warnings, progressCallback);
         calculateHtmlMapperGenerator(warnings, progressCallback);
 
@@ -157,6 +153,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
      * @param warnings 生成警告
      * @param callback 进度回调
      */
+    @Override
     public void calculateCustom(List<String> warnings, ProgressCallback callback) {
 
 
@@ -171,13 +168,13 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
         String type = context.getJavaClientGeneratorConfiguration().getConfigurationType();
 
         AbstractJavaClientGenerator javaGenerator;
-        if ("XMLMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        if ("XMLMAPPER".equalsIgnoreCase(type)) {
             javaGenerator = new JavaMapperGenerator(getClientProject());
-        } else if ("MIXEDMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("MIXEDMAPPER".equalsIgnoreCase(type)) {
             javaGenerator = new MixedClientGenerator(getClientProject());
-        } else if ("ANNOTATEDMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("ANNOTATEDMAPPER".equalsIgnoreCase(type)) {
             javaGenerator = new AnnotatedClientGenerator(getClientProject());
-        } else if ("MAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
+        } else if ("MAPPER".equalsIgnoreCase(type)) {
             javaGenerator = new JavaMapperGenerator(getClientProject());
         } else {
             javaGenerator = (AbstractJavaClientGenerator) ObjectFactory.createInternalObject(type);
@@ -210,6 +207,46 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             initializeAbstractGenerator(javaGenerator, warnings, progressCallback);
             javaGenerators.add(javaGenerator);
         }
+        generateServiceAbout(warnings, progressCallback);
+        if (getRules().isGenerateVo()) {
+            ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
+            initializeAbstractGenerator(viewObjectClassGenerator, warnings, progressCallback);
+            javaGenerators.add(viewObjectClassGenerator);
+        }
+        generateControllerAbout(warnings, progressCallback);
+
+        if (getRules().isGenerateCachePo()) {
+            CachePoClassGenerator cachePoClassGenerator = new CachePoClassGenerator(getModelProject());
+            initializeAbstractGenerator(cachePoClassGenerator, warnings, progressCallback);
+            javaGenerators.add(cachePoClassGenerator);
+        }
+    }
+
+    private void generateControllerAbout(List<String> warnings, ProgressCallback progressCallback) {
+        if (getRules().generateController()) {
+            JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = this.getTableConfiguration().getJavaControllerGeneratorConfiguration();
+            String project = StringUtility.stringHasValue(javaControllerGeneratorConfiguration.getTargetProject()) ?
+                    javaControllerGeneratorConfiguration.getTargetProject() : getClientProject();
+            project = StringUtility.getTargetProject(project);
+            JavaControllerGenerator javaControllerGenerator = new JavaControllerGenerator(project);
+            initializeAbstractGenerator(javaControllerGenerator, warnings, progressCallback);
+            javaGenerators.add(javaControllerGenerator);
+
+            if (getRules().isGenerateControllerUnitTest()) {
+                String targetProject = "src/test/java";
+                String property = this.getContext().getProperty(PropertyRegistry.CONTEXT_ROOT_MODULE_NAME);
+                if (StringUtility.stringHasValue(property)) {
+                    String tmpStr = StringUtility.getTargetProject("$PROJECT_DIR$\\" + property);
+                    targetProject = tmpStr + "\\" + targetProject;
+                }
+                JavaControllerUnitTestGenerator javaControllerUnitTestGenerator = new JavaControllerUnitTestGenerator(targetProject);
+                initializeAbstractGenerator(javaControllerUnitTestGenerator, warnings, progressCallback);
+                javaGenerators.add(javaControllerUnitTestGenerator);
+            }
+        }
+    }
+
+    private void generateServiceAbout(List<String> warnings, ProgressCallback progressCallback) {
         if (getRules().generateService()) {
             JavaServiceGenerator javaServiceGenerator = new JavaServiceGenerator(getServiceProject());
             initializeAbstractGenerator(javaServiceGenerator, warnings, progressCallback);
@@ -236,38 +273,6 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 initializeAbstractGenerator(javaServiceUnitTestGenerator, warnings, progressCallback);
                 javaGenerators.add(javaServiceUnitTestGenerator);
             }
-        }
-        if (getRules().isGenerateVo()) {
-            ViewObjectClassGenerator viewObjectClassGenerator = new ViewObjectClassGenerator(getModelProject());
-            initializeAbstractGenerator(viewObjectClassGenerator, warnings, progressCallback);
-            javaGenerators.add(viewObjectClassGenerator);
-        }
-        if (getRules().generateController()) {
-            JavaControllerGeneratorConfiguration javaControllerGeneratorConfiguration = this.getTableConfiguration().getJavaControllerGeneratorConfiguration();
-            String project = StringUtility.stringHasValue(javaControllerGeneratorConfiguration.getTargetProject()) ?
-                    javaControllerGeneratorConfiguration.getTargetProject() : getClientProject();
-            project = StringUtility.getTargetProject(project);
-            JavaControllerGenerator javaControllerGenerator = new JavaControllerGenerator(project);
-            initializeAbstractGenerator(javaControllerGenerator, warnings, progressCallback);
-            javaGenerators.add(javaControllerGenerator);
-
-            if (getRules().isGenerateControllerUnitTest()) {
-                String targetProject = "src/test/java";
-                String property = this.getContext().getProperty(PropertyRegistry.CONTEXT_ROOT_MODULE_NAME);
-                if (StringUtility.stringHasValue(property)) {
-                    String tmpStr = StringUtility.getTargetProject("$PROJECT_DIR$\\" + property);
-                    targetProject = tmpStr + "\\" + targetProject;
-                }
-                JavaControllerUnitTestGenerator javaControllerUnitTestGenerator = new JavaControllerUnitTestGenerator(targetProject);
-                initializeAbstractGenerator(javaControllerUnitTestGenerator, warnings, progressCallback);
-                javaGenerators.add(javaControllerUnitTestGenerator);
-            }
-        }
-
-        if (getRules().isGenerateCachePo()) {
-            CachePoClassGenerator cachePoClassGenerator = new CachePoClassGenerator(getModelProject());
-            initializeAbstractGenerator(cachePoClassGenerator, warnings, progressCallback);
-            javaGenerators.add(cachePoClassGenerator);
         }
     }
 

@@ -18,8 +18,8 @@ public class FullyQualifiedKotlinType {
     private static final Set<String> AUTOMATIC_KOTLIN_PACKAGES = new HashSet<>();
 
     static {
-        AUTOMATIC_KOTLIN_PACKAGES.add("kotlin"); //$NON-NLS-1$
-        AUTOMATIC_KOTLIN_PACKAGES.add("kotlin.collections"); //$NON-NLS-1$
+        AUTOMATIC_KOTLIN_PACKAGES.add("kotlin");
+        AUTOMATIC_KOTLIN_PACKAGES.add("kotlin.collections");
     }
 
     private String packageName;
@@ -45,8 +45,8 @@ public class FullyQualifiedKotlinType {
         }
 
         return typeArguments.stream().map(FullyQualifiedKotlinType::getShortNameWithTypeArguments)
-                .collect(Collectors.joining(", ", shortNameWithoutTypeArguments //$NON-NLS-1$
-                        + "<", ">")); //$NON-NLS-1$ //$NON-NLS-2$
+                .collect(Collectors.joining(", ", shortNameWithoutTypeArguments
+                        + "<", ">"));  //$NON-NLS-2$
     }
 
     public List<FullyQualifiedKotlinType> getTypeArguments() {
@@ -66,7 +66,7 @@ public class FullyQualifiedKotlinType {
     public Set<String> getImportList() {
         Stream<String> thisImport;
         if (isExplicitlyImported) {
-            thisImport = Stream.of(packageName + "." + shortNameWithoutTypeArguments); //$NON-NLS-1$
+            thisImport = Stream.of(packageName + "." + shortNameWithoutTypeArguments);
         } else {
             thisImport = Stream.empty();
         }
@@ -88,7 +88,7 @@ public class FullyQualifiedKotlinType {
             simpleParse(fullTypeSpecification.substring(0, index));
             int endIndex = fullTypeSpecification.lastIndexOf('>');
             if (endIndex == -1) {
-                throw new RuntimeException(getString("RuntimeError.22", fullTypeSpecification)); //$NON-NLS-1$
+                throw new RuntimeException(getString("RuntimeError.22", fullTypeSpecification));
             }
             genericParse(fullTypeSpecification.substring(index, endIndex + 1));
         }
@@ -96,14 +96,14 @@ public class FullyQualifiedKotlinType {
 
     private void simpleParse(String typeSpecification) {
         String baseQualifiedName = typeSpecification.trim();
-        if (baseQualifiedName.contains(".")) { //$NON-NLS-1$
+        if (baseQualifiedName.contains(".")) {
             packageName = getPackage(baseQualifiedName);
             shortNameWithoutTypeArguments = baseQualifiedName.substring(packageName.length() + 1);
             isExplicitlyImported = !AUTOMATIC_KOTLIN_PACKAGES.contains(packageName);
         } else {
             shortNameWithoutTypeArguments = baseQualifiedName;
             isExplicitlyImported = false;
-            packageName = ""; //$NON-NLS-1$
+            packageName = "";
         }
     }
 
@@ -111,22 +111,22 @@ public class FullyQualifiedKotlinType {
         int lastIndex = genericSpecification.lastIndexOf('>');
         if (lastIndex == -1) {
             // shouldn't happen - should be caught already, but just in case...
-            throw new RuntimeException(getString("RuntimeError.22", genericSpecification)); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.22", genericSpecification));
         }
         String argumentString = genericSpecification.substring(1, lastIndex);
         // need to find "," outside of a <> bounds
-        StringTokenizer st = new StringTokenizer(argumentString, ",<>", true); //$NON-NLS-1$
+        StringTokenizer st = new StringTokenizer(argumentString, ",<>", true);
         int openCount = 0;
         StringBuilder sb = new StringBuilder();
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
-            if ("<".equals(token)) { //$NON-NLS-1$
+            if ("<".equals(token)) {
                 sb.append(token);
                 openCount++;
-            } else if (">".equals(token)) { //$NON-NLS-1$
+            } else if (">".equals(token)) {
                 sb.append(token);
                 openCount--;
-            } else if (",".equals(token)) { //$NON-NLS-1$
+            } else if (",".equals(token)) {
                 if (openCount == 0) {
                     typeArguments.add(new FullyQualifiedKotlinType(sb.toString()));
                     sb.setLength(0);
@@ -139,7 +139,7 @@ public class FullyQualifiedKotlinType {
         }
 
         if (openCount != 0) {
-            throw new RuntimeException(getString("RuntimeError.22", genericSpecification)); //$NON-NLS-1$
+            throw new RuntimeException(getString("RuntimeError.22", genericSpecification));
         }
 
         String finalType = sb.toString();

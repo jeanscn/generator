@@ -18,7 +18,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui.InnerListEditTemplate;
+import org.mybatis.generator.codegen.mybatis3.freemaker.html.layui.InnerListEditTemplate;
 import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.InnerListViewConfiguration;

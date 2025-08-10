@@ -13,7 +13,7 @@ public class KotlinFileRenderer {
         List<String> lines = new ArrayList<>();
         KotlinNamedItemRenderer renderer = new KotlinNamedItemRenderer();
 
-        kotlinFile.getPackage().ifPresent(p -> lines.add("package " + p)); //$NON-NLS-1$
+        kotlinFile.getPackage().ifPresent(p -> lines.add("package " + p));
 
         lines.addAll(prependBlankLineIfNotEmpty(lines.size(), renderImports(kotlinFile)));
 
@@ -23,7 +23,7 @@ public class KotlinFileRenderer {
 
         lines.addAll(0, kotlinFile.getFileCommentLines());
         return lines.stream()
-                .collect(Collectors.joining(System.getProperty("line.separator"))); //$NON-NLS-1$
+                .collect(Collectors.joining(System.getProperty("line.separator")));
     }
 
     private List<String> prependBlankLineIfNotEmpty(int currentLength, List<String> in) {
@@ -31,13 +31,13 @@ public class KotlinFileRenderer {
             return in;
         }
 
-        in.add(0, ""); //$NON-NLS-1$
+        in.add(0, "");
         return in;
     }
 
     private List<String> renderImports(KotlinFile kotlinFile) {
         return kotlinFile.getImports().stream()
-                .map(s -> "import " + s) //$NON-NLS-1$
+                .map(s -> "import " + s)
                 .collect(Collectors.toList());
     }
 }

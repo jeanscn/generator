@@ -23,41 +23,41 @@ public class ProviderSelectByExampleWithoutBLOBsMethodGenerator extends Abstract
         Method method = new Method(getMethodName());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
-        method.addParameter(new Parameter(fqjt, "example")); //$NON-NLS-1$
+        method.addParameter(new Parameter(fqjt, "example"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
+        method.addBodyLine("SQL sql = new SQL();");
 
         boolean distinctCheck = true;
         for (IntrospectedColumn introspectedColumn : getColumns()) {
             if (distinctCheck) {
-                method.addBodyLine("if (example != null && example.isDistinct()) {"); //$NON-NLS-1$
-                method.addBodyLine(String.format("sql.SELECT_DISTINCT(\"%s\");", //$NON-NLS-1$
+                method.addBodyLine("if (example != null && example.isDistinct()) {");
+                method.addBodyLine(String.format("sql.SELECT_DISTINCT(\"%s\");",
                         escapeStringForJava(getSelectListPhrase(introspectedColumn))));
-                method.addBodyLine("} else {"); //$NON-NLS-1$
-                method.addBodyLine(String.format("sql.SELECT(\"%s\");", //$NON-NLS-1$
+                method.addBodyLine("} else {");
+                method.addBodyLine(String.format("sql.SELECT(\"%s\");",
                         escapeStringForJava(getSelectListPhrase(introspectedColumn))));
-                method.addBodyLine("}"); //$NON-NLS-1$
+                method.addBodyLine("}");
             } else {
-                method.addBodyLine(String.format("sql.SELECT(\"%s\");", //$NON-NLS-1$
+                method.addBodyLine(String.format("sql.SELECT(\"%s\");",
                         escapeStringForJava(getSelectListPhrase(introspectedColumn))));
             }
 
             distinctCheck = false;
         }
 
-        method.addBodyLine(String.format("sql.FROM(\"%s\");", //$NON-NLS-1$
+        method.addBodyLine(String.format("sql.FROM(\"%s\");",
                 escapeStringForJava(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime())));
-        method.addBodyLine("applyWhere(sql, example, false);"); //$NON-NLS-1$
+        method.addBodyLine("applyWhere(sql, example, false);");
 
-        method.addBodyLine(""); //$NON-NLS-1$
-        method.addBodyLine("if (example != null && example.getOrderByClause() != null) {"); //$NON-NLS-1$
-        method.addBodyLine("sql.ORDER_BY(example.getOrderByClause());"); //$NON-NLS-1$
-        method.addBodyLine("}"); //$NON-NLS-1$
+        method.addBodyLine("");
+        method.addBodyLine("if (example != null && example.getOrderByClause() != null) {");
+        method.addBodyLine("sql.ORDER_BY(example.getOrderByClause());");
+        method.addBodyLine("}");
 
-        method.addBodyLine(""); //$NON-NLS-1$
-        method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
+        method.addBodyLine("");
+        method.addBodyLine("return sql.toString();");
 
         if (callPlugins(method, topLevelClass)) {
             topLevelClass.addImportedTypes(importedTypes);

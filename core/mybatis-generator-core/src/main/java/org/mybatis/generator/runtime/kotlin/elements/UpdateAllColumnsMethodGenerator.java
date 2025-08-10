@@ -21,12 +21,12 @@ public class UpdateAllColumnsMethodGenerator extends AbstractKotlinFunctionGener
     @Override
     public KotlinFunctionAndImports generateMethodAndImports() {
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction("KotlinUpdateBuilder.updateAllColumns") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("row") //$NON-NLS-1$
+                KotlinFunction.newOneLineFunction("KotlinUpdateBuilder.updateAllColumns")
+                .withArgument(KotlinArg.newArg("row")
                         .withDataType(recordType.getShortNameWithTypeArguments())
                         .build())
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.KotlinUpdateBuilder") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.KotlinUpdateBuilder")
                 .withImports(recordType.getImportList())
                 .build();
 
@@ -34,14 +34,14 @@ public class UpdateAllColumnsMethodGenerator extends AbstractKotlinFunctionGener
 
         KotlinFunction function = functionAndImports.getFunction();
 
-        function.addCodeLine("apply {"); //$NON-NLS-1$
+        function.addCodeLine("apply {");
 
         List<IntrospectedColumn> columns = introspectedTable.getAllColumns();
         KotlinFunctionParts functionParts = fragmentGenerator.getSetEqualLines(columns);
 
         acceptParts(functionAndImports, functionParts);
 
-        function.addCodeLine("}"); //$NON-NLS-1$
+        function.addCodeLine("}");
 
         return functionAndImports;
     }

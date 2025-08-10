@@ -27,6 +27,6 @@ public class AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator
 
     @Override
     public void addExtraImports(Interface interfaze) {
-        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Update")); //$NON-NLS-1$
+        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Update"));
     }
 }

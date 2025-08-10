@@ -57,7 +57,9 @@ public class ServiceMethods {
                 Collections.singletonList(new Parameter(exampleType, "example").setRemark("检索条件对象")),
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "基于example的批量删除方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "基于example的批量删除方法");
+        }
         return method;
     }
 
@@ -70,7 +72,9 @@ public class ServiceMethods {
                 new ArrayList<>(0),
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "清理无效数据（流程状态为4）的方法","注意：如果包含关联表，如主子表数据，请重写该方法，以便于增加清理关联表的代码");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "清理无效数据（流程状态为4）的方法","注意：如果包含关联表，如主子表数据，请重写该方法，以便于增加清理关联表的代码");
+        }
         return method;
     }
 
@@ -85,7 +89,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "基于主键的删除方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "基于主键的删除方法");
+        }
         return method;
     }
 
@@ -101,7 +107,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "基于example的单组数据批量更新的方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "基于example的单组数据批量更新的方法");
+        }
         return method;
     }
 
@@ -116,7 +124,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "基于主键的更新方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "基于主键的更新方法");
+        }
         return method;
     }
 
@@ -131,7 +141,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "基于sql构造器的更新方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "基于sql构造器的更新方法");
+        }
         return method;
     }
 
@@ -146,7 +158,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "单条记录新增的方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "单条记录新增的方法");
+        }
         return method;
     }
 
@@ -164,7 +178,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "批量插入的方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "批量插入的方法");
+        }
         return method;
     }
 
@@ -183,7 +199,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "批量更新方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "批量更新方法");
+        }
         return method;
     }
 
@@ -202,7 +220,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,  "设置数据逻辑删除的状态（1-删除，0-正常）");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,  "设置数据逻辑删除的状态（1-删除，0-正常）");
+        }
         return method;
     }
 
@@ -219,7 +239,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "根据给定的id列表，获取返回全数据对象列表的方法");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "根据给定的id列表，获取返回全数据对象列表的方法");
+        }
         parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_NULLABLE));
         return method;
     }
@@ -237,7 +259,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "带子集合数量的查询方法，该查询方法将执行所有children的count方法。");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "带子集合数量的查询方法，该查询方法将执行所有children的count方法。");
+        }
         return method;
     }
 
@@ -253,7 +277,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,  "插入数据时如果主键重复则更新数据。");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,  "插入数据时如果主键重复则更新数据。");
+        }
         return method;
     }
 
@@ -269,7 +295,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "带所有子查询（集）的查询方法，该查询方法将执行所有子查询，大量数据返回时慎用。","如果无需返回子查询请使用{@link #selectByExample}方法。");
+        }
         return method;
     }
 
@@ -301,7 +329,9 @@ public class ServiceMethods {
                 isAbstract,
                 parentElement);
         String collect = config.getColumns().stream().map(column -> column.getActualColumnName() + "(" + column.getRemarks(true) + ")").collect(Collectors.joining(","));
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于["+collect+"]的查询方法。"+(config.getColumns().size()==1?"该方法常用于为其它方法提供子查询。":""));
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,"基于["+collect+"]的查询方法。"+(config.getColumns().size()==1?"该方法常用于为其它方法提供子查询。":""));
+        }
         return method;
     }
 
@@ -331,7 +361,9 @@ public class ServiceMethods {
                 isAbstract,
                 parentElement);
         String collect = config.getColumns().stream().map(column -> column.getActualColumnName() + "(" + column.getRemarks(true) + ")").collect(Collectors.joining(","));
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+collect+"的删除方法。");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,"基于"+collect+"的删除方法。");
+        }
         return method;
     }
 
@@ -353,7 +385,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于中间表（表名："+config.getTableName()+"）的查询");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,"基于中间表（表名："+config.getTableName()+"）的查询");
+        }
         return method;
     }
 
@@ -371,7 +405,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"基于sql函数["+config.getSqlMethod()+"]的查询");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,"基于sql函数["+config.getSqlMethod()+"]的查询");
+        }
         return method;
     }
 
@@ -395,8 +431,10 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回对象列表",
-                "对dao的方法参数进行对象封装，以便于处理为null参数");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回对象列表",
+                    "对dao的方法参数进行对象封装，以便于处理为null参数");
+        }
         return method;
     }
 
@@ -413,7 +451,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"获取指定ID的数据及其所有父级，递归深度限制为10，防止性能问题");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,"获取指定ID的数据及其所有父级，递归深度限制为10，防止性能问题");
+        }
         return method;
     }
 
@@ -430,7 +470,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method,"获取指定ID的数据及其所有后代，递归深度限制为10，防止性能问题");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method,"获取指定ID的数据及其所有后代，递归深度限制为10，防止性能问题");
+        }
         return method;
     }
 
@@ -519,7 +561,9 @@ public class ServiceMethods {
                 parameters,
                 isAbstract,
                 parentElement);
-        context.getCommentGenerator().addMethodJavaDocLine(method, "在关系中间表（表名："+configuration.getTableName()+"）中"+(isInsert?"添加":"删除")+"关联数据记录");
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "在关系中间表（表名："+configuration.getTableName()+"）中"+(isInsert?"添加":"删除")+"关联数据记录");
+        }
         return method;
     }
 

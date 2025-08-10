@@ -40,12 +40,12 @@ public class MavenCleanCallback extends DefaultShellCallback {
         }
 
         if (!project.isDirectory()) {
-            throw new ShellException(Messages.getString("Warning.9", //$NON-NLS-1$
+            throw new ShellException(Messages.getString("Warning.9",
                     project.getAbsolutePath()));
         }
 
         StringBuilder sb = new StringBuilder();
-        StringTokenizer st = new StringTokenizer(targetPackage, "."); //$NON-NLS-1$
+        StringTokenizer st = new StringTokenizer(targetPackage, ".");
         while (st.hasMoreTokens()) {
             sb.append(st.nextToken());
             sb.append(File.separatorChar);
@@ -55,7 +55,7 @@ public class MavenCleanCallback extends DefaultShellCallback {
         if (!directory.isDirectory()) {
             boolean rc = directory.mkdirs();
             if (!rc) {
-                throw new ShellException(Messages.getString("Warning.10", //$NON-NLS-1$
+                throw new ShellException(Messages.getString("Warning.10",
                         directory.getAbsolutePath()));
             }
         }

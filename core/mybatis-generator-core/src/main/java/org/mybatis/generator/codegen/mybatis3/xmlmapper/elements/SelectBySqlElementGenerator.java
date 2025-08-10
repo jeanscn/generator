@@ -18,9 +18,9 @@ public class SelectBySqlElementGenerator extends AbstractXmlElementGenerator{
         selectBySqlBuilder.addAttribute(new Attribute("parameterType", "java.lang.String"));
         selectBySqlBuilder.addAttribute(new Attribute("resultMap", "BaseResultMap"));
         context.getCommentGenerator().addComment(selectBySqlBuilder);
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "_parameter != null")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("select")); //$NON-NLS-1$
+        XmlElement ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "_parameter != null"));  //$NON-NLS-2$
+        ifElement.addElement(new TextElement("select"));
         ifElement.addElement(getBaseColumnListElement());
 
         XmlElement ifNotNull = new XmlElement("if");

@@ -19,19 +19,19 @@ public class GeneralDeleteMethodGenerator extends AbstractMethodGenerator {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.delete.DeleteDSLCompleter"); //$NON-NLS-1$
+                "org.mybatis.dynamic.sql.delete.DeleteDSLCompleter");
         imports.add(parameterType);
-        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils")); //$NON-NLS-1$
+        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils"));
 
-        Method method = new Method("delete"); //$NON-NLS-1$
+        Method method = new Method("delete");
         method.setDefault(true);
-        method.addParameter(new Parameter(parameterType, "completer")); //$NON-NLS-1$
+        method.addParameter(new Parameter(parameterType, "completer"));
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
 
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
         method.addBodyLine(
-                "return MyBatis3Utils.deleteFrom(this::delete, " + tableFieldName //$NON-NLS-1$
-                        + ", completer);"); //$NON-NLS-1$
+                "return MyBatis3Utils.deleteFrom(this::delete, " + tableFieldName
+                        + ", completer);");
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)

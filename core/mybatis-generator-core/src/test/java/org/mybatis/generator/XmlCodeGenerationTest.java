@@ -10,6 +10,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import lombok.Getter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,9 +46,7 @@ class XmlCodeGenerationTest {
     }
 
     static List<GeneratedXmlFile> generateXmlFiles() throws Exception {
-        List<GeneratedXmlFile> generatedFiles = new ArrayList<>();
-        generatedFiles.addAll(generateXmlFilesMybatis());
-        return generatedFiles;
+        return new ArrayList<>(generateXmlFilesMybatis());
     }
 
     static List<GeneratedXmlFile> generateXmlFilesMybatis() throws Exception {
@@ -76,6 +75,7 @@ class XmlCodeGenerationTest {
         }
     }
 
+    @Getter
     static class TestErrorHandler implements ErrorHandler {
 
         private final List<String> errors = new ArrayList<>();
@@ -96,12 +96,5 @@ class XmlCodeGenerationTest {
             errors.add(exception.getMessage());
         }
 
-        public List<String> getErrors() {
-            return errors;
-        }
-
-        public List<String> getWarnings() {
-            return warnings;
-        }
     }
 }

@@ -20,15 +20,15 @@ public class ProviderDeleteByExampleMethodGenerator extends AbstractJavaProvider
         Method method = new Method(introspectedTable.getDeleteByExampleStatementId());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
-        method.addParameter(new Parameter(fqjt, "example")); //$NON-NLS-1$
+        method.addParameter(new Parameter(fqjt, "example"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
-        method.addBodyLine(String.format("sql.DELETE_FROM(\"%s\");", //$NON-NLS-1$
+        method.addBodyLine("SQL sql = new SQL();");
+        method.addBodyLine(String.format("sql.DELETE_FROM(\"%s\");",
                 escapeStringForJava(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime())));
-        method.addBodyLine("applyWhere(sql, example, false);"); //$NON-NLS-1$
-        method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
+        method.addBodyLine("applyWhere(sql, example, false);");
+        method.addBodyLine("return sql.toString();");
 
         if (context.getPlugins().providerDeleteByExampleMethodGenerated(method, topLevelClass, introspectedTable)) {
             topLevelClass.addImportedTypes(importedTypes);

@@ -1,4 +1,4 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.css;
+package org.mybatis.generator.codegen.mybatis3.freemaker.css;
 
 import lombok.Getter;
 import lombok.Setter;

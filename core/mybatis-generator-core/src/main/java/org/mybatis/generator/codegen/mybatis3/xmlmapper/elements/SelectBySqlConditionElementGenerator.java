@@ -35,11 +35,11 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
         selectBySqlCondition.addAttribute(new Attribute("resultMap", "BaseResultMap"));
         context.getCommentGenerator().addComment(selectBySqlCondition);
         //select
-        selectBySqlCondition.addElement(new TextElement("select")); //$NON-NLS-1$
+        selectBySqlCondition.addElement(new TextElement("select"));
         //distinct
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
-        ifElement.addAttribute(new Attribute("test", "distinct != null")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("distinct")); //$NON-NLS-1$
+        XmlElement ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "distinct != null"));  //$NON-NLS-2$
+        ifElement.addElement(new TextElement("distinct"));
         selectBySqlCondition.addElement(ifElement);
         //include
         XmlElement xmlElement = new XmlElement("include");
@@ -47,7 +47,7 @@ public class SelectBySqlConditionElementGenerator extends AbstractXmlElementGene
         selectBySqlCondition.addElement(xmlElement);
         //from
         sb.setLength(0);
-        sb.append("from "); //$NON-NLS-1$
+        sb.append("from ");
         sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         selectBySqlCondition.addElement(new TextElement(sb.toString()));
         //where

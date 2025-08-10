@@ -29,6 +29,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         VoRequestGeneratorConfiguration voRequestGeneratorConfiguration = voGeneratorConfiguration.getVoRequestConfiguration();
         String requestVoType = voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass requestVoClass = createTopLevelClass(requestVoType, getAbstractVoType().getFullyQualifiedName());
+        commentGenerator.addModelClassComment(requestVoClass, introspectedTable);
         requestVoClass.addMultipleImports("lombok");
         voGenService.addConfigurationSuperInterface(requestVoClass, voRequestGeneratorConfiguration);
         addApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);

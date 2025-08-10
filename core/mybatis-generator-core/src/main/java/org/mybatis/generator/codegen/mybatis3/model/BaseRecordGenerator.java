@@ -29,6 +29,9 @@ import static org.mybatis.generator.custom.ConstantsUtil.PARAM_NAME_PERSISTENCE_
 import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class BaseRecordGenerator extends AbstractJavaGenerator {
 
     public BaseRecordGenerator(String project) {
@@ -46,7 +49,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
 
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString("Progress.8", table.toString())); //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.8", table.toString()));
         Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
@@ -55,7 +58,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         TopLevelClass topLevelClass = new TopLevelClass(type);
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         //类文件注释
-        commentGenerator.addJavaFileComment(topLevelClass);
+        commentGenerator.addJavaFileComment(topLevelClass,false);
         //是否忽略tenantId
         if (context.isIntegrateMybatisPlus() && configuration.isIgnoreTenant()) {
             topLevelClass.addAnnotation("@IgnoreTenant");
@@ -87,7 +90,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         if (introspectedTable.isConstructorBased()) {
             addParameterizedConstructor(topLevelClass, introspectedTable.getNonBLOBColumns());
 
-            if (includeBLOBColumns()) {
+            if (includeBlobColumns()) {
                 addParameterizedConstructor(topLevelClass, introspectedTable.getAllColumns());
             }
 
@@ -311,26 +314,26 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         List<String> superColumns = new LinkedList<>();
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             boolean comma = false;
-            sb.append("super("); //$NON-NLS-1$
+            sb.append("super(");
             for (IntrospectedColumn introspectedColumn : introspectedTable.getPrimaryKeyColumns()) {
                 if (comma) {
-                    sb.append(", "); //$NON-NLS-1$
+                    sb.append(", ");
                 } else {
                     comma = true;
                 }
                 sb.append(introspectedColumn.getJavaProperty());
                 superColumns.add(introspectedColumn.getActualColumnName());
             }
-            sb.append(");"); //$NON-NLS-1$
+            sb.append(");");
             method.addBodyLine(sb.toString());
         }
 
         for (IntrospectedColumn introspectedColumn : constructorColumns) {
             if (!superColumns.contains(introspectedColumn.getActualColumnName())) {
                 sb.setLength(0);
-                sb.append("this."); //$NON-NLS-1$
+                sb.append("this.");
                 sb.append(introspectedColumn.getJavaProperty());
-                sb.append(" = "); //$NON-NLS-1$
+                sb.append(" = ");
                 sb.append(introspectedColumn.getJavaProperty());
                 sb.append(';');
                 method.addBodyLine(sb.toString());
@@ -376,6 +379,17 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         getContactInfo.addBodyLine("return this.telephone != null ? this.telephone : this.mobilePhone;");
         topLevelClass.addMethod(getContactInfo);
 
+        Method getDepartmentIds = getMethod();
+        topLevelClass.addMethod(getDepartmentIds);
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.List"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Set"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashSet"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Arrays"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.ArrayList"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.tool.core.VStringUtil"));
+    }
+
+    private static Method getMethod() {
         Method getDepartmentIds = new Method("getDepartmentIds");
         getDepartmentIds.setVisibility(JavaVisibility.PUBLIC);
         getDepartmentIds.setReturnType(new FullyQualifiedJavaType("java.util.List<String>"));
@@ -386,12 +400,6 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         getDepartmentIds.addBodyLine("ids.addAll(Arrays.asList(this.otherDeptId.split(\",\")));");
         getDepartmentIds.addBodyLine("}");
         getDepartmentIds.addBodyLine("return new ArrayList<>(ids);");
-        topLevelClass.addMethod(getDepartmentIds);
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.List"));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Set"));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.HashSet"));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Arrays"));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.ArrayList"));
-        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.tool.core.VStringUtil"));
+        return getDepartmentIds;
     }
 }

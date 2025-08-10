@@ -25,44 +25,44 @@ public class ProviderUpdateByPrimaryKeySelectiveMethodGenerator extends Abstract
         Method method = new Method(introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
         method.setVisibility(JavaVisibility.PUBLIC);
-        method.addParameter(new Parameter(fqjt, "row")); //$NON-NLS-1$
+        method.addParameter(new Parameter(fqjt, "row"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        method.addBodyLine("SQL sql = new SQL();"); //$NON-NLS-1$
+        method.addBodyLine("SQL sql = new SQL();");
 
-        method.addBodyLine(String.format("sql.UPDATE(\"%s\");", //$NON-NLS-1$
+        method.addBodyLine(String.format("sql.UPDATE(\"%s\");",
                 escapeStringForJava(introspectedTable.getFullyQualifiedTableNameAtRuntime())));
-        method.addBodyLine(""); //$NON-NLS-1$
+        method.addBodyLine("");
 
         for (IntrospectedColumn introspectedColumn :
                 ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns())) {
             if (!introspectedColumn.getFullyQualifiedJavaType().isPrimitive()) {
-                method.addBodyLine(String.format("if (row.%s() != null) {", //$NON-NLS-1$
+                method.addBodyLine(String.format("if (row.%s() != null) {",
                         getGetterMethodName(introspectedColumn.getJavaProperty(),
                                 introspectedColumn.getFullyQualifiedJavaType())));
             }
 
-            method.addBodyLine(String.format("sql.SET(\"%s = %s\");", //$NON-NLS-1$
+            method.addBodyLine(String.format("sql.SET(\"%s = %s\");",
                     escapeStringForJava(getEscapedColumnName(introspectedColumn)),
                     getParameterClause(introspectedColumn)));
 
             if (!introspectedColumn.getFullyQualifiedJavaType().isPrimitive()) {
-                method.addBodyLine("}"); //$NON-NLS-1$
+                method.addBodyLine("}");
             }
 
-            method.addBodyLine(""); //$NON-NLS-1$
+            method.addBodyLine("");
         }
 
         for (IntrospectedColumn introspectedColumn : introspectedTable.getPrimaryKeyColumns()) {
-            method.addBodyLine(String.format("sql.WHERE(\"%s = %s\");", //$NON-NLS-1$
+            method.addBodyLine(String.format("sql.WHERE(\"%s = %s\");",
                     escapeStringForJava(getEscapedColumnName(introspectedColumn)),
                     getParameterClause(introspectedColumn)));
         }
 
-        method.addBodyLine(""); //$NON-NLS-1$
+        method.addBodyLine("");
 
-        method.addBodyLine("return sql.toString();"); //$NON-NLS-1$
+        method.addBodyLine("return sql.toString();");
 
         if (context.getPlugins()
                 .providerUpdateByPrimaryKeySelectiveMethodGenerated(method, topLevelClass, introspectedTable)) {

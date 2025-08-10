@@ -119,7 +119,7 @@ public class GeneratorAntTask extends Task {
     private Set<String> calculateContexts() {
         Set<String> contexts = new HashSet<>();
         if (stringHasValue(contextIds)) {
-            StringTokenizer st = new StringTokenizer(contextIds, ","); //$NON-NLS-1$
+            StringTokenizer st = new StringTokenizer(contextIds, ",");
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
                 if (s.length() > 0) {
@@ -134,7 +134,7 @@ public class GeneratorAntTask extends Task {
         Set<String> fullyqualifiedTables = new HashSet<>();
         if (stringHasValue(fullyQualifiedTableNames)) {
             StringTokenizer st = new StringTokenizer(fullyQualifiedTableNames,
-                    ","); //$NON-NLS-1$
+                    ",");
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
                 if (s.length() > 0) {
@@ -147,14 +147,14 @@ public class GeneratorAntTask extends Task {
 
     private File calculateConfigurationFile() {
         if (!stringHasValue(configfile)) {
-            throw new BuildException(getString("RuntimeError.0")); //$NON-NLS-1$
+            throw new BuildException(getString("RuntimeError.0"));
         }
 
 
         File configurationFile = new File(configfile);
         if (!configurationFile.exists()) {
             throw new BuildException(getString(
-                    "RuntimeError.1", configfile)); //$NON-NLS-1$
+                    "RuntimeError.1", configfile));
         }
         return configurationFile;
     }

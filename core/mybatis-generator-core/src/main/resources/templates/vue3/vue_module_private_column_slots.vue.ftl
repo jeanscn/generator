@@ -1,6 +1,7 @@
 <!--
+* ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }列表列插槽渲染
-* @version: slots template version 1.0.5
+* @version: slots template version 1.0.6
 -->
 <template #[slotName]="scope">
     <el-tag v-if="slotName === 'state'"

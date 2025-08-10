@@ -8,6 +8,8 @@ import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,15 +40,15 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
             return answer;
         }
         String clazzName = entityType.getShortName() + "EventListener";
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(project, targetPackage, clazzName);
-        if (!fileNotExist) {
+        boolean overridable = Mb3GenUtil.fileOverridable(project, targetPackage, clazzName+".java");
+        if (!overridable) {
             return answer;
         }
         progressCallback.startTask(VStringUtil.format("生成实体监听器类: {0}", introspectedTable.getFullyQualifiedTable().toString()));
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(targetPackage + "." + clazzName);
         TopLevelClass topClazz = new TopLevelClass(type);
         topClazz.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(topClazz);
+        commentGenerator.addJavaFileComment(topClazz,true);
 
         // 设置父类
         String supClazzName = "com.vgosoft.core.event.entity.AbstractEntityEventListener";

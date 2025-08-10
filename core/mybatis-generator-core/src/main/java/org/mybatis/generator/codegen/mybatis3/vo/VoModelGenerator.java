@@ -37,6 +37,7 @@ public class VoModelGenerator extends AbstractVoGenerator {
         VoModelGeneratorConfiguration voModelGeneratorConfiguration = voGeneratorConfiguration.getVoModelConfiguration();
         String voType = voModelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass voClass = createTopLevelClass(voType, getAbstractVoType().getFullyQualifiedName());
+        commentGenerator.addModelClassComment(voClass, introspectedTable);
         voClass.addMultipleImports("lombok");
         voClass.addAnnotation("@NoArgsConstructor");
         addApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);

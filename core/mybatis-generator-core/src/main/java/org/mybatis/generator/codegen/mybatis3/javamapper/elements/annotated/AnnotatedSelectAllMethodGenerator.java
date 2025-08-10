@@ -18,13 +18,13 @@ public class AnnotatedSelectAllMethodGenerator extends SelectAllMethodGenerator 
 
     @Override
     public void addMapperAnnotations(Interface interfaze, Method method) {
-        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select")); //$NON-NLS-1$
+        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select"));
 
         buildInitialSelectAnnotationStrings().forEach(method::addAnnotation);
 
         StringBuilder sb = new StringBuilder();
         javaIndent(sb, 1);
-        sb.append("\"from "); //$NON-NLS-1$
+        sb.append("\"from ");
         sb.append(escapeStringForJava(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime()));
         sb.append('\"');
 
@@ -39,13 +39,13 @@ public class AnnotatedSelectAllMethodGenerator extends SelectAllMethodGenerator 
         if (hasOrderBy) {
             sb.setLength(0);
             javaIndent(sb, 1);
-            sb.append("\"order by "); //$NON-NLS-1$
+            sb.append("\"order by ");
             sb.append(orderByClause);
             sb.append('\"');
             method.addAnnotation(sb.toString());
         }
 
-        method.addAnnotation("})"); //$NON-NLS-1$
+        method.addAnnotation("})");
 
         addAnnotatedResults(interfaze, method, introspectedTable.getNonPrimaryKeyColumns());
     }

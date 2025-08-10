@@ -1,9 +1,21 @@
 package org.mybatis.generator.api;
 
+import lombok.Getter;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 
+/**
+ * @author cen_c
+ */
 public class GeneratedJavaFile extends GeneratedFile {
 
+    /**
+     * -- GETTER --
+     *  This method is required by the Eclipse Java merger. If you are not
+     *  running in Eclipse, or some other system that implements the Java merge
+     *  function, you may return null from this method.
+     *
+     */
+    @Getter
     private final CompilationUnit compilationUnit;
 
     private final String fileEncoding;
@@ -33,24 +45,12 @@ public class GeneratedJavaFile extends GeneratedFile {
 
     @Override
     public String getFileName() {
-        return compilationUnit.getType().getShortNameWithoutTypeArguments() + ".java"; //$NON-NLS-1$
+        return compilationUnit.getType().getShortNameWithoutTypeArguments() + ".java";
     }
 
     @Override
     public String getTargetPackage() {
         return compilationUnit.getType().getPackageName();
-    }
-
-    /**
-     * This method is required by the Eclipse Java merger. If you are not
-     * running in Eclipse, or some other system that implements the Java merge
-     * function, you may return null from this method.
-     *
-     * @return the CompilationUnit associated with this file, or null if the
-     *         file is not mergeable.
-     */
-    public CompilationUnit getCompilationUnit() {
-        return compilationUnit;
     }
 
     /**

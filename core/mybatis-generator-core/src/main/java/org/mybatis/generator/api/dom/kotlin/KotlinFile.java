@@ -18,10 +18,10 @@ public class KotlinFile {
     public KotlinFile(String fileName) {
         Objects.requireNonNull(fileName);
 
-        if (fileName.endsWith(".kt")) { //$NON-NLS-1$
+        if (fileName.endsWith(".kt")) {
             this.fileName = fileName;
         } else {
-            this.fileName = fileName + ".kt"; //$NON-NLS-1$
+            this.fileName = fileName + ".kt";
         }
     }
 

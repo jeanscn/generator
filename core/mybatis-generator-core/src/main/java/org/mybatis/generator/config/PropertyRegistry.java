@@ -12,7 +12,7 @@ public class PropertyRegistry {
 
     private PropertyRegistry() {}
 
-    public static final String ANY_ENABLE_SUB_PACKAGES = "enableSubPackages"; //$NON-NLS-1$
+    public static final String ANY_ENABLE_SUB_PACKAGES = "enableSubPackages";
 
     /**
      * recognized by table and java model generator.
@@ -26,43 +26,43 @@ public class PropertyRegistry {
     /**
      * recognized by table and java client generator.
      */
-    public static final String ANY_ROOT_INTERFACE = "rootInterface"; //$NON-NLS-1$
+    public static final String ANY_ROOT_INTERFACE = "rootInterface";
 
-    public static final String TABLE_USE_COLUMN_INDEXES = "useColumnIndexes"; //$NON-NLS-1$
-    public static final String TABLE_USE_ACTUAL_COLUMN_NAMES = "useActualColumnNames"; //$NON-NLS-1$
-    public static final String TABLE_USE_COMPOUND_PROPERTY_NAMES = "useCompoundPropertyNames"; //$NON-NLS-1$
-    public static final String TABLE_IGNORE_QUALIFIERS_AT_RUNTIME = "ignoreQualifiersAtRuntime"; //$NON-NLS-1$
-    public static final String TABLE_RUNTIME_CATALOG = "runtimeCatalog"; //$NON-NLS-1$
-    public static final String TABLE_RUNTIME_SCHEMA = "runtimeSchema"; //$NON-NLS-1$
+    public static final String TABLE_USE_COLUMN_INDEXES = "useColumnIndexes";
+    public static final String TABLE_USE_ACTUAL_COLUMN_NAMES = "useActualColumnNames";
+    public static final String TABLE_USE_COMPOUND_PROPERTY_NAMES = "useCompoundPropertyNames";
+    public static final String TABLE_IGNORE_QUALIFIERS_AT_RUNTIME = "ignoreQualifiersAtRuntime";
+    public static final String TABLE_RUNTIME_CATALOG = "runtimeCatalog";
+    public static final String TABLE_RUNTIME_SCHEMA = "runtimeSchema";
     public static final String TABLE_IGNORE = "ignore";
-    public static final String TABLE_RUNTIME_TABLE_NAME = "runtimeTableName"; //$NON-NLS-1$
-    public static final String TABLE_MODEL_ONLY = "modelOnly"; //$NON-NLS-1$
-    public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
-    public static final String TABLE_DYNAMIC_SQL_SUPPORT_CLASS_NAME = "dynamicSqlSupportClassName"; //$NON-NLS-1$
-    public static final String TABLE_DYNAMIC_SQL_TABLE_OBJECT_NAME = "dynamicSqlTableObjectName"; //$NON-NLS-1$
-    public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$
-    public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter"; //$NON-NLS-1$
-    public static final String CONTEXT_AUTO_DELIMIT_KEYWORDS = "autoDelimitKeywords"; //$NON-NLS-1$
-    public static final String CONTEXT_JAVA_FILE_ENCODING = "javaFileEncoding"; //$NON-NLS-1$
-    public static final String CONTEXT_JAVA_FORMATTER = "javaFormatter"; //$NON-NLS-1$
-    public static final String CONTEXT_XML_FORMATTER = "xmlFormatter"; //$NON-NLS-1$
-    public static final String CONTEXT_HTML_FORMATTER = "htmlFormatter"; //$NON-NLS-1$
-    public static final String CONTEXT_TARGET_JAVA8 = "targetJava8"; //$NON-NLS-1$
-    public static final String CONTEXT_KOTLIN_FORMATTER = "kotlinFormatter"; //$NON-NLS-1$
-    public static final String CONTEXT_KOTLIN_FILE_ENCODING = "kotlinFileEncoding"; //$NON-NLS-1$
-    public static final String CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE = "dynamicSqlSupportPackage"; //$NON-NLS-1$
-    public static final String CLIENT_USE_LEGACY_BUILDER = "useLegacyBuilder"; //$NON-NLS-1$
-    public static final String TYPE_RESOLVER_FORCE_BIG_DECIMALS = "forceBigDecimals"; //$NON-NLS-1$
-    public static final String TYPE_RESOLVER_USE_JSR310_TYPES = "useJSR310Types"; //$NON-NLS-1$
-    public static final String MODEL_GENERATOR_TRIM_STRINGS = "trimStrings"; //$NON-NLS-1$
-    public static final String MODEL_GENERATOR_EXAMPLE_PACKAGE = "exampleTargetPackage"; //$NON-NLS-1$
-    public static final String MODEL_GENERATOR_EXAMPLE_PROJECT = "exampleTargetProject"; //$NON-NLS-1$
-    public static final String COMMENT_GENERATOR_SUPPRESS_DATE = "suppressDate"; //$NON-NLS-1$
-    public static final String COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS = "suppressAllComments"; //$NON-NLS-1$
-    public static final String COMMENT_GENERATOR_ADD_REMARK_COMMENTS = "addRemarkComments"; //$NON-NLS-1$
-    public static final String COMMENT_GENERATOR_DATE_FORMAT = "dateFormat"; //$NON-NLS-1$
-    public static final String COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION = "useLegacyGeneratedAnnotation"; //$NON-NLS-1$
-    public static final String COLUMN_OVERRIDE_FORCE_JAVA_TYPE = "forceJavaTypeIntoMapping"; //$NON-NLS-1$
+    public static final String TABLE_RUNTIME_TABLE_NAME = "runtimeTableName";
+    public static final String TABLE_MODEL_ONLY = "modelOnly";
+    public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause";
+    public static final String TABLE_DYNAMIC_SQL_SUPPORT_CLASS_NAME = "dynamicSqlSupportClassName";
+    public static final String TABLE_DYNAMIC_SQL_TABLE_OBJECT_NAME = "dynamicSqlTableObjectName";
+    public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter";
+    public static final String CONTEXT_ENDING_DELIMITER = "endingDelimiter";
+    public static final String CONTEXT_AUTO_DELIMIT_KEYWORDS = "autoDelimitKeywords";
+    public static final String CONTEXT_JAVA_FILE_ENCODING = "javaFileEncoding";
+    public static final String CONTEXT_JAVA_FORMATTER = "javaFormatter";
+    public static final String CONTEXT_XML_FORMATTER = "xmlFormatter";
+    public static final String CONTEXT_HTML_FORMATTER = "htmlFormatter";
+    public static final String CONTEXT_TARGET_JAVA8 = "targetJava8";
+    public static final String CONTEXT_KOTLIN_FORMATTER = "kotlinFormatter";
+    public static final String CONTEXT_KOTLIN_FILE_ENCODING = "kotlinFileEncoding";
+    public static final String CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE = "dynamicSqlSupportPackage";
+    public static final String CLIENT_USE_LEGACY_BUILDER = "useLegacyBuilder";
+    public static final String TYPE_RESOLVER_FORCE_BIG_DECIMALS = "forceBigDecimals";
+    public static final String TYPE_RESOLVER_USE_JSR310_TYPES = "useJSR310Types";
+    public static final String MODEL_GENERATOR_TRIM_STRINGS = "trimStrings";
+    public static final String MODEL_GENERATOR_EXAMPLE_PACKAGE = "exampleTargetPackage";
+    public static final String MODEL_GENERATOR_EXAMPLE_PROJECT = "exampleTargetProject";
+    public static final String COMMENT_GENERATOR_SUPPRESS_DATE = "suppressDate";
+    public static final String COMMENT_GENERATOR_SUPPRESS_ALL_COMMENTS = "suppressAllComments";
+    public static final String COMMENT_GENERATOR_ADD_REMARK_COMMENTS = "addRemarkComments";
+    public static final String COMMENT_GENERATOR_DATE_FORMAT = "dateFormat";
+    public static final String COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION = "useLegacyGeneratedAnnotation";
+    public static final String COLUMN_OVERRIDE_FORCE_JAVA_TYPE = "forceJavaTypeIntoMapping";
 
     //定制属性
     public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";

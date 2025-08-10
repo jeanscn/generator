@@ -30,6 +30,7 @@ public class VoExcelGenerator extends AbstractVoGenerator {
         VoExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
         String excelVoType = voExcelGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass excelVoClass = createTopLevelClass(excelVoType, null);
+        commentGenerator.addModelClassComment(excelVoClass, introspectedTable);
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);
         excelVoClass.addSuperInterface(superInterface);
         voGenService.addConfigurationSuperInterface(excelVoClass, voExcelGeneratorConfiguration);

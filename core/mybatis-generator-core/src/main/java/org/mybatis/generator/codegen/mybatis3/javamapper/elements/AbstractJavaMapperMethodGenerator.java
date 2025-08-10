@@ -39,15 +39,15 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         StringBuilder sb = new StringBuilder();
         if (constructorBased) {
             interfaze.addImportedType(introspectedColumn.getFullyQualifiedJavaType());
-            sb.append("@Arg(column=\""); //$NON-NLS-1$
+            sb.append("@Arg(column=\"");
             sb.append(getRenamedColumnNameForResultMap(introspectedColumn));
-            sb.append("\", javaType="); //$NON-NLS-1$
+            sb.append("\", javaType=");
             sb.append(introspectedColumn.getFullyQualifiedJavaType().getShortName());
-            sb.append(".class"); //$NON-NLS-1$
+            sb.append(".class");
         } else {
-            sb.append("@Result(column=\""); //$NON-NLS-1$
+            sb.append("@Result(column=\"");
             sb.append(getRenamedColumnNameForResultMap(introspectedColumn));
-            sb.append("\", property=\""); //$NON-NLS-1$
+            sb.append("\", property=\"");
             sb.append(introspectedColumn.getJavaProperty());
             sb.append('\"');
         }
@@ -55,15 +55,15 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         if (stringHasValue(introspectedColumn.getTypeHandler())) {
             FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(introspectedColumn.getTypeHandler());
             interfaze.addImportedType(fqjt);
-            sb.append(", typeHandler="); //$NON-NLS-1$
+            sb.append(", typeHandler=");
             sb.append(fqjt.getShortName());
-            sb.append(".class"); //$NON-NLS-1$
+            sb.append(".class");
         }
 
-        sb.append(", jdbcType=JdbcType."); //$NON-NLS-1$
+        sb.append(", jdbcType=JdbcType.");
         sb.append(introspectedColumn.getJdbcTypeName());
         if (idColumn) {
-            sb.append(", id=true"); //$NON-NLS-1$
+            sb.append(", id=true");
         }
         sb.append(')');
 
@@ -81,19 +81,19 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
     private String buildGeneratedKeyAnnotation(GeneratedKey gk, IntrospectedColumn introspectedColumn) {
         StringBuilder sb = new StringBuilder();
         if (gk.isJdbcStandard()) {
-            sb.append("@Options(useGeneratedKeys=true,keyProperty=\""); //$NON-NLS-1$
+            sb.append("@Options(useGeneratedKeys=true,keyProperty=\"");
             sb.append(introspectedColumn.getJavaProperty());
-            sb.append("\")"); //$NON-NLS-1$
+            sb.append("\")");
         } else {
-            sb.append("@SelectKey(statement=\""); //$NON-NLS-1$
+            sb.append("@SelectKey(statement=\"");
             sb.append(gk.getRuntimeSqlStatement());
-            sb.append("\", keyProperty=\""); //$NON-NLS-1$
+            sb.append("\", keyProperty=\"");
             sb.append(introspectedColumn.getJavaProperty());
-            sb.append("\", before="); //$NON-NLS-1$
-            sb.append(gk.isIdentity() ? "false" : "true"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb.append(", resultType="); //$NON-NLS-1$
+            sb.append("\", before=");
+            sb.append(gk.isIdentity() ? "false" : "true");  //$NON-NLS-2$
+            sb.append(", resultType=");
             sb.append(introspectedColumn.getFullyQualifiedJavaType().getShortName());
-            sb.append(".class)"); //$NON-NLS-1$
+            sb.append(".class)");
         }
         return sb.toString();
     }
@@ -112,9 +112,9 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
                                                                  IntrospectedColumn introspectedColumn) {
         Set<FullyQualifiedJavaType> answer = new HashSet<>();
         if (gk.isJdbcStandard()) {
-            answer.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Options")); //$NON-NLS-1$
+            answer.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Options"));
         } else {
-            answer.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.SelectKey")); //$NON-NLS-1$
+            answer.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.SelectKey"));
             answer.add(introspectedColumn.getFullyQualifiedJavaType());
         }
 
@@ -122,17 +122,17 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
     }
 
     protected void addAnnotatedSelectImports(Interface interfaze) {
-        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.type.JdbcType")); //$NON-NLS-1$
+        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.type.JdbcType"));
 
         if (introspectedTable.isConstructorBased()) {
-            interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Arg")); //$NON-NLS-1$
+            interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Arg"));
             interfaze.addImportedType(
-                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.ConstructorArgs")); //$NON-NLS-1$
+                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.ConstructorArgs"));
         } else {
             interfaze.addImportedType(
-                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.Result")); //$NON-NLS-1$
+                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.Result"));
             interfaze.addImportedType(
-                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.Results")); //$NON-NLS-1$
+                    new FullyQualifiedJavaType("org.apache.ibatis.annotations.Results"));
         }
     }
 
@@ -145,15 +145,15 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
             sb.setLength(0);
             javaIndent(sb, 1);
             if (and) {
-                sb.append("  \"and "); //$NON-NLS-1$
+                sb.append("  \"and ");
             } else {
-                sb.append("\"where "); //$NON-NLS-1$
+                sb.append("\"where ");
                 and = true;
             }
 
             IntrospectedColumn introspectedColumn = iter.next();
             sb.append(escapeStringForJava(getEscapedColumnName(introspectedColumn)));
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(getParameterClause(introspectedColumn));
             sb.append('\"');
             if (iter.hasNext()) {
@@ -167,46 +167,46 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
 
     protected List<String> buildUpdateByPrimaryKeyAnnotations(List<IntrospectedColumn> columnList) {
         List<String> answer = new ArrayList<>();
-        answer.add("@Update({"); //$NON-NLS-1$
+        answer.add("@Update({");
 
         StringBuilder sb = new StringBuilder();
         javaIndent(sb, 1);
-        sb.append("\"update "); //$NON-NLS-1$
+        sb.append("\"update ");
         sb.append(escapeStringForJava(introspectedTable.getFullyQualifiedTableNameAtRuntime()));
-        sb.append("\","); //$NON-NLS-1$
+        sb.append("\",");
         answer.add(sb.toString());
 
         // set up for first column
         sb.setLength(0);
         javaIndent(sb, 1);
-        sb.append("\"set "); //$NON-NLS-1$
+        sb.append("\"set ");
 
         Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(columnList).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
 
             sb.append(escapeStringForJava(getEscapedColumnName(introspectedColumn)));
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(getParameterClause(introspectedColumn));
 
             if (iter.hasNext()) {
                 sb.append(',');
             }
 
-            sb.append("\","); //$NON-NLS-1$
+            sb.append("\",");
             answer.add(sb.toString());
 
             // set up for the next column
             if (iter.hasNext()) {
                 sb.setLength(0);
                 javaIndent(sb, 1);
-                sb.append("  \""); //$NON-NLS-1$
+                sb.append("  \"");
             }
         }
 
         answer.addAll(buildByPrimaryKeyWhereClause());
 
-        answer.add("})"); //$NON-NLS-1$
+        answer.add("})");
         return answer;
     }
 
@@ -217,7 +217,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
             importedTypes.add(type);
             Parameter parameter = new Parameter(type, "key");
             parameter.setRemark("唯一标识");
-            method.addParameter(parameter); //$NON-NLS-1$
+            method.addParameter(parameter);
         } else {
             // no primary key class - fields are in the base class
             // if more than one PK field, then we need to annotate the
@@ -226,7 +226,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
                     .getPrimaryKeyColumns();
             boolean annotate = introspectedColumns.size() > 1;
             if (annotate) {
-                importedTypes.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param")); //$NON-NLS-1$
+                importedTypes.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
             }
             StringBuilder sb = new StringBuilder();
             for (IntrospectedColumn introspectedColumn : introspectedColumns) {
@@ -236,9 +236,9 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
                 parameter.setRemark("主键标识");
                 if (annotate) {
                     sb.setLength(0);
-                    sb.append("@Param(\""); //$NON-NLS-1$
+                    sb.append("@Param(\"");
                     sb.append(introspectedColumn.getJavaProperty());
-                    sb.append("\")"); //$NON-NLS-1$
+                    sb.append("\")");
                     parameter.addAnnotation(sb.toString());
                 }
                 method.addParameter(parameter);
@@ -250,9 +250,9 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
                                        List<IntrospectedColumn> nonPrimaryKeyColumns) {
 
         if (introspectedTable.isConstructorBased()) {
-            method.addAnnotation("@ConstructorArgs({"); //$NON-NLS-1$
+            method.addAnnotation("@ConstructorArgs({");
         } else {
-            method.addAnnotation("@Results({"); //$NON-NLS-1$
+            method.addAnnotation("@Results({");
         }
 
         StringBuilder sb = new StringBuilder();
@@ -287,7 +287,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
             method.addAnnotation(sb.toString());
         }
 
-        method.addAnnotation("})"); //$NON-NLS-1$
+        method.addAnnotation("})");
     }
 
     protected Method buildBasicUpdateByExampleMethod(String statementId, FullyQualifiedJavaType parameterType,
@@ -297,15 +297,15 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         method.setAbstract(true);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
 
-        method.addParameter(new Parameter(parameterType, "row", "@Param(\"row\")")); //$NON-NLS-1$ //$NON-NLS-2$
+        method.addParameter(new Parameter(parameterType, "row", "@Param(\"row\")"));  //$NON-NLS-2$
 
         importedTypes.add(parameterType);
 
         FullyQualifiedJavaType exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
-        method.addParameter(new Parameter(exampleType,"example", "@Param(\"example\")")); //$NON-NLS-1$ //$NON-NLS-2$
+        method.addParameter(new Parameter(exampleType,"example", "@Param(\"example\")"));  //$NON-NLS-2$
         importedTypes.add(exampleType);
 
-        importedTypes.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param")); //$NON-NLS-1$
+        importedTypes.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
@@ -317,7 +317,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setAbstract(true);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.addParameter(new Parameter(parameterType, "row")); //$NON-NLS-1$
+        method.addParameter(new Parameter(parameterType, "row"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
         return method;
@@ -342,10 +342,10 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
 
     protected List<String> buildInitialSelectAnnotationStrings() {
         List<String> answer = new ArrayList<>();
-        answer.add("@Select({"); //$NON-NLS-1$
+        answer.add("@Select({");
         StringBuilder sb = new StringBuilder();
         javaIndent(sb, 1);
-        sb.append("\"select\","); //$NON-NLS-1$
+        sb.append("\"select\",");
         answer.add(sb.toString());
 
         sb.setLength(0);
@@ -358,11 +358,11 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
             hasColumns = true;
 
             if (iter.hasNext()) {
-                sb.append(", "); //$NON-NLS-1$
+                sb.append(", ");
             }
 
             if (sb.length() > 80) {
-                sb.append("\","); //$NON-NLS-1$
+                sb.append("\",");
                 answer.add(sb.toString());
 
                 sb.setLength(0);
@@ -373,7 +373,7 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         }
 
         if (hasColumns) {
-            sb.append("\","); //$NON-NLS-1$
+            sb.append("\",");
             answer.add(sb.toString());
         }
 

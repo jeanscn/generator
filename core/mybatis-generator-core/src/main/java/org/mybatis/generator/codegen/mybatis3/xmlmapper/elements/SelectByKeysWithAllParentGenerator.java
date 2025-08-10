@@ -16,7 +16,7 @@ public class SelectByKeysWithAllParentGenerator extends AbstractXmlElementGenera
         answer.addAttribute(new Attribute("id", introspectedTable.getSelectByKeysWithAllParent()));
         answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
 
-        answer.addAttribute(new Attribute("parameterType", "java.util.List")); //$NON-NLS-1$
+        answer.addAttribute(new Attribute("parameterType", "java.util.List"));
         context.getCommentGenerator().addComment(answer);
 
         answer.addElement(new TextElement("<!-- 使用递归CTE查询指定ID的数据及其所有父级  递归深度限制为10，防止性能问题  -->"));

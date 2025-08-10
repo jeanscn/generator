@@ -47,7 +47,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         Interface bizInf = new Interface(
                 getGenInterfaceClassShortName(serviceInfConfiguration.getTargetPackageGen(), entityType.getShortName()));
-        commentGenerator.addJavaFileComment(bizInf);
+        commentGenerator.addJavaFileComment(bizInf,false);
         FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getServiceInterface(introspectedTable));
         infSuperType.addTypeArgument(entityType);
         infSuperType.addTypeArgument(exampleType);
@@ -169,14 +169,20 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         Interface bizSubInf = new Interface(
                 getInterfaceClassShortName(serviceInfConfiguration.getTargetPackage(),
                         entityType.getShortName()));
-        commentGenerator.addJavaFileComment(bizSubInf);
+        commentGenerator.addJavaFileComment(bizSubInf,true);
         bizSubInf.setVisibility(JavaVisibility.PUBLIC);
         bizSubInf.addSuperInterface(bizInf.getType());
         bizSubInf.addImportedType(bizInf.getType());
 
-        boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(serviceInfConfiguration.getTargetProject(), serviceInfConfiguration.getTargetPackage(), "I" + entityType.getShortName());
-        if (forceGenerateScalableElement || fileNotExist) {
+        // 增加类的javaDoc注释
+        commentGenerator.addModelClassComment(bizSubInf,
+                VStringUtil.format("可重写的{0}的服务接口。",introspectedTable.getRemarks(true)),
+                false,
+                VStringUtil.format("该类继承自 '{'@link {0}'}'，",bizInf.getType().getShortNameWithoutTypeArguments()),
+                VStringUtil.format("用于扩展或重写 {0}。",bizInf.getType().getShortNameWithoutTypeArguments()));
+        //boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
+        boolean overridable = Mb3GenUtil.fileOverridable(serviceInfConfiguration.getTargetProject(), serviceInfConfiguration.getTargetPackage(), "I" + entityType.getShortName()+".java");
+        if (overridable) {
             if (plugins.subServiceGenerated(bizSubInf, introspectedTable)) {
                 answer.add(bizSubInf);
             }

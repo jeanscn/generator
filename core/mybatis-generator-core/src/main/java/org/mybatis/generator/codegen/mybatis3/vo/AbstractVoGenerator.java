@@ -77,7 +77,7 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
     protected TopLevelClass createTopLevelClass(String type, String superType) {
         TopLevelClass topLevelClass = new TopLevelClass(type);
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(topLevelClass);
+        commentGenerator.addJavaFileComment(topLevelClass,false);
         if (!VStringUtil.isBlank(superType)) {
             topLevelClass.addImportedType(superType);
             topLevelClass.setSuperClass(superType);

@@ -30,13 +30,13 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString("Progress.9", table.toString())); //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.9", table.toString()));
         Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
         TopLevelClass topLevelClass = new TopLevelClass(introspectedTable.getRecordWithBLOBsType());
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(topLevelClass);
+        commentGenerator.addJavaFileComment(topLevelClass,false);
 
         String rootClass = getRootClass();
         if (introspectedTable.getRules().generateBaseRecordClass()) {
@@ -102,23 +102,23 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
 
         boolean comma = false;
         StringBuilder sb = new StringBuilder();
-        sb.append("super("); //$NON-NLS-1$
+        sb.append("super(");
         for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBLOBColumns()) {
             if (comma) {
-                sb.append(", "); //$NON-NLS-1$
+                sb.append(", ");
             } else {
                 comma = true;
             }
             sb.append(introspectedColumn.getJavaProperty());
         }
-        sb.append(");"); //$NON-NLS-1$
+        sb.append(");");
         method.addBodyLine(sb.toString());
 
         for (IntrospectedColumn introspectedColumn : introspectedTable.getBLOBColumns()) {
             sb.setLength(0);
-            sb.append("this."); //$NON-NLS-1$
+            sb.append("this.");
             sb.append(introspectedColumn.getJavaProperty());
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(introspectedColumn.getJavaProperty());
             sb.append(';');
             method.addBodyLine(sb.toString());

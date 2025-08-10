@@ -40,10 +40,9 @@ public class CreateMappingsInterface extends AbstractJavaGenerator {
         String baseTargetPackage = StringUtility.substringBeforeLast(context.getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVoGenerator.SUB_PACKAGE_POJO;
         Interface mappingsInterface = new Interface(String.join(".", baseTargetPackage, SUB_PACKAGE_MAPS, entityType.getShortName() + JavaBeansUtil.getFirstCharacterUppercase(methodKey)+"Mappings"));
         mappingsInterface.setVisibility(PUBLIC);
-        context.getCommentGenerator().addJavaFileComment(mappingsInterface);
+        context.getCommentGenerator().addJavaFileComment(mappingsInterface,true);
         mappingsInterface.addImportedType(entityType);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(MAPSTRUCT_MAPPER));
-        mappingsInterface.addImportedType(new FullyQualifiedJavaType(MAPSTRUCT_FACTORY_MAPPERS));
         mappingsInterface.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         mappingsInterface.addAnnotation("@Mapper(componentModel = \"spring\",unmappedTargetPolicy = ReportingPolicy.IGNORE)");
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(MAPSTRUCT_REPORTING_POLICY));

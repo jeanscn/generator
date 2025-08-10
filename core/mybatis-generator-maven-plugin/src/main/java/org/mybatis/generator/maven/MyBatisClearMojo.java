@@ -167,21 +167,21 @@ public class MyBatisClearMojo extends AbstractMojo {
 
         if (configurationFile == null) {
             throw new MojoExecutionException(
-                    Messages.getString("RuntimeError.0")); //$NON-NLS-1$
+                    Messages.getString("RuntimeError.0"));
         }
 
         List<String> warnings = new ArrayList<>();
 
         if (!configurationFile.exists()) {
             throw new MojoExecutionException(Messages.getString(
-                    "RuntimeError.1", configurationFile.toString())); //$NON-NLS-1$
+                    "RuntimeError.1", configurationFile.toString()));
         }
 
         runScriptIfNecessary();
 
         Set<String> fullyqualifiedTables = new HashSet<>();
         if (StringUtility.stringHasValue(tableNames)) {
-            StringTokenizer st = new StringTokenizer(tableNames, ","); //$NON-NLS-1$
+            StringTokenizer st = new StringTokenizer(tableNames, ",");
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
                 if (!s.isEmpty()) {
@@ -192,7 +192,7 @@ public class MyBatisClearMojo extends AbstractMojo {
 
         Set<String> contextsToRun = new HashSet<>();
         if (StringUtility.stringHasValue(contexts)) {
-            StringTokenizer st = new StringTokenizer(contexts, ","); //$NON-NLS-1$
+            StringTokenizer st = new StringTokenizer(contexts, ",");
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
                 if (!s.isEmpty()) {

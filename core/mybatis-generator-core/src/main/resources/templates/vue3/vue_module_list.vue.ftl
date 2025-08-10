@@ -1,6 +1,7 @@
 <!--
+* ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.31
+* @version: list template version 1.0.32
 -->
 <#-- language=Vue3 -->
 <template>

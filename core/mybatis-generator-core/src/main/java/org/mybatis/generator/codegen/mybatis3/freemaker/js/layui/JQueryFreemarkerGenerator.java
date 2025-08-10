@@ -1,4 +1,4 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui;
+package org.mybatis.generator.codegen.mybatis3.freemaker.js.layui;
 
 import com.vgosoft.tool.core.VStringUtil;
 import freemarker.template.Template;
@@ -11,7 +11,7 @@ import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
+import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;

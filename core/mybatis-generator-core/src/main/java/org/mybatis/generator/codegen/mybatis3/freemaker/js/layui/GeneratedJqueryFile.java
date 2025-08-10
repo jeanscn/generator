@@ -1,4 +1,4 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui;
+package org.mybatis.generator.codegen.mybatis3.freemaker.js.layui;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;

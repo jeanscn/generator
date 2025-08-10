@@ -1,4 +1,4 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker;
+package org.mybatis.generator.codegen.mybatis3.freemaker;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -22,6 +22,11 @@ public abstract class AbstractFreemarkerGenerator extends AbstractJavaGenerator 
         this.freeMakerContext = new HashMap<>();
     }
 
+    /**
+     * 生成代码
+     * @param templateName 模板名称
+     * @return 生成的代码内容
+     */
     public abstract String generate(String templateName);
 
     protected Template getLayuiTemplate(String name) {

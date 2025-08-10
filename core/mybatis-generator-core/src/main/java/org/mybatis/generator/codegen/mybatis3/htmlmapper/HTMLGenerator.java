@@ -21,7 +21,7 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
 
     protected HtmlElement getHtmlMapElement(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString("Progress.121", table.toString(), htmlGeneratorConfiguration.getHtmlFileName())); //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.121", table.toString(), htmlGeneratorConfiguration.getHtmlFileName()));
         HtmlElement answer = new HtmlElement("html");
         answer.addAttribute(new Attribute("lang","zh-CN"));
         answer.addAttribute(new Attribute("xmlns:th",MYBATIS3_THYMELEAF_XMLNS_TH));

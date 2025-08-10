@@ -21,25 +21,25 @@ public class GeneralSelectMethodGenerator extends AbstractMethodGenerator {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.select.SelectDSLCompleter"); //$NON-NLS-1$
+                "org.mybatis.dynamic.sql.select.SelectDSLCompleter");
 
         imports.add(parameterType);
-        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils")); //$NON-NLS-1$
+        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils"));
 
         FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
         returnType.addTypeArgument(recordType);
 
         imports.add(returnType);
 
-        Method method = new Method("select"); //$NON-NLS-1$
+        Method method = new Method("select");
         method.setDefault(true);
-        method.addParameter(new Parameter(parameterType, "completer")); //$NON-NLS-1$
+        method.addParameter(new Parameter(parameterType, "completer"));
 
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
 
         method.setReturnType(returnType);
-        method.addBodyLine("return MyBatis3Utils.selectList(this::selectMany, selectList, " //$NON-NLS-1$
-                + tableFieldName + ", completer);"); //$NON-NLS-1$
+        method.addBodyLine("return MyBatis3Utils.selectList(this::selectMany, selectList, "
+                + tableFieldName + ", completer);");
 
         return MethodAndImports.withMethod(method)
                 .withImports(imports)

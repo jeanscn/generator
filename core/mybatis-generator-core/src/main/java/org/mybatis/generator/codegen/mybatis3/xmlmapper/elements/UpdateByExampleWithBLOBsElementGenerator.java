@@ -18,16 +18,16 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("update"); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("update");
 
-        answer.addAttribute(new Attribute("id", //$NON-NLS-1$
+        answer.addAttribute(new Attribute("id",
                 introspectedTable.getUpdateByExampleWithBLOBsStatementId()));
 
-        answer.addAttribute(new Attribute("parameterType", "map")); //$NON-NLS-1$ //$NON-NLS-2$
+        answer.addAttribute(new Attribute("parameterType", "map"));  //$NON-NLS-2$
         context.getCommentGenerator().addComment(answer);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("update "); //$NON-NLS-1$
+        sb.append("update ");
         /*sb.append(introspectedTable
                 .getAliasedFullyQualifiedTableNameAtRuntime());*/
         //addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
@@ -36,7 +36,7 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
 
         // set up for first column
         sb.setLength(0);
-        sb.append("set "); //$NON-NLS-1$
+        sb.append("set ");
 
         Iterator<IntrospectedColumn> iter =
                 ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getAllColumns()).iterator();
@@ -47,9 +47,9 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
             //        .getAliasedEscapedColumnName(introspectedColumn));
             sb.append(MyBatis3FormattingUtilities
                     .getEscapedColumnName(introspectedColumn));
-            sb.append(" = "); //$NON-NLS-1$
+            sb.append(" = ");
             sb.append(MyBatis3FormattingUtilities.getParameterClause(
-                    introspectedColumn, "record.")); //$NON-NLS-1$
+                    introspectedColumn, "record."));
 
             if (iter.hasNext()) {
                 sb.append(',');
@@ -66,7 +66,7 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
         //addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
         answer.addElement(getUpdateByExampleIncludeElement());
         // 增加if判断，防止传入的参数为null或空
-        XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
+        XmlElement ifElement = new XmlElement("if");
         ifElement.addAttribute(new Attribute("test", "_parameter == null or _parameter.oredCriteria == null or _parameter.oredCriteria.size() == 0"));
         ifElement.addElement(new TextElement("-- 防止无条件删除，返回影响0行"));
         XmlElement where = new XmlElement("where");

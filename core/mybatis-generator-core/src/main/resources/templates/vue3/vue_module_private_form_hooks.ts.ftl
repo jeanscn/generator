@@ -1,6 +1,7 @@
 /**
+ * ${ OVERRIDABLE_FLAG }
  * @description ${ tableRemark }-表单钩子函数定义
- * @version: hooks template version 1.0.4
+ * @version: hooks template version 1.0.5
  * 个性化的钩子函数集合。
  * 固定的函数名称包括：
  * 1.	innerListDataAllReady - 子表数据加载完成的钩子

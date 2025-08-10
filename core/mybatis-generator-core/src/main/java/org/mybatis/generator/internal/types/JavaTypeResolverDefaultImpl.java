@@ -34,9 +34,9 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         typeMap = new HashMap<>();
         typeMap.put(Types.ARRAY, new JdbcTypeInformation("ARRAY",new FullyQualifiedJavaType(Object.class.getName())));
         typeMap.put(Types.BIGINT, new JdbcTypeInformation("BIGINT",new FullyQualifiedJavaType(Long.class.getName())));
-        typeMap.put(Types.BINARY, new JdbcTypeInformation("BINARY",new FullyQualifiedJavaType("byte[]"))); //$NON-NLS-1$
+        typeMap.put(Types.BINARY, new JdbcTypeInformation("BINARY",new FullyQualifiedJavaType("byte[]")));
         typeMap.put(Types.BIT, new JdbcTypeInformation("BIT",new FullyQualifiedJavaType(Boolean.class.getName())));
-        typeMap.put(Types.BLOB, new JdbcTypeInformation("BLOB",new FullyQualifiedJavaType("byte[]"))); //$NON-NLS-1$
+        typeMap.put(Types.BLOB, new JdbcTypeInformation("BLOB",new FullyQualifiedJavaType("byte[]")));
         typeMap.put(Types.BOOLEAN, new JdbcTypeInformation("BOOLEAN",new FullyQualifiedJavaType(Boolean.class.getName())));
         typeMap.put(Types.CHAR, new JdbcTypeInformation("CHAR",new FullyQualifiedJavaType(String.class.getName())));
         typeMap.put(Types.CLOB, new JdbcTypeInformation("CLOB",new FullyQualifiedJavaType(String.class.getName())));
@@ -49,7 +49,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         typeMap.put(Types.INTEGER, new JdbcTypeInformation("INTEGER",new FullyQualifiedJavaType(Integer.class.getName())));
         typeMap.put(Types.JAVA_OBJECT, new JdbcTypeInformation("JAVA_OBJECT",new FullyQualifiedJavaType(Object.class.getName())));
         typeMap.put(Types.LONGNVARCHAR, new JdbcTypeInformation("LONGNVARCHAR",new FullyQualifiedJavaType(String.class.getName())));
-        typeMap.put(Types.LONGVARBINARY, new JdbcTypeInformation("LONGVARBINARY",new FullyQualifiedJavaType("byte[]"))); //$NON-NLS-1$
+        typeMap.put(Types.LONGVARBINARY, new JdbcTypeInformation("LONGVARBINARY",new FullyQualifiedJavaType("byte[]")));
         typeMap.put(Types.LONGVARCHAR, new JdbcTypeInformation("LONGVARCHAR",new FullyQualifiedJavaType(String.class.getName())));
         typeMap.put(Types.NCHAR, new JdbcTypeInformation("NCHAR",new FullyQualifiedJavaType(String.class.getName())));
         typeMap.put(Types.NCLOB, new JdbcTypeInformation("NCLOB",new FullyQualifiedJavaType(String.class.getName())));
@@ -64,11 +64,11 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         typeMap.put(Types.TIME, new JdbcTypeInformation("TIME",new FullyQualifiedJavaType(Date.class.getName())));
         typeMap.put(Types.TIMESTAMP, new JdbcTypeInformation("TIMESTAMP",new FullyQualifiedJavaType(Date.class.getName())));
         typeMap.put(Types.TINYINT, new JdbcTypeInformation("TINYINT",new FullyQualifiedJavaType(Byte.class.getName())));
-        typeMap.put(Types.VARBINARY, new JdbcTypeInformation("VARBINARY",new FullyQualifiedJavaType("byte[]"))); //$NON-NLS-1$
+        typeMap.put(Types.VARBINARY, new JdbcTypeInformation("VARBINARY",new FullyQualifiedJavaType("byte[]")));
         typeMap.put(Types.VARCHAR, new JdbcTypeInformation("VARCHAR",new FullyQualifiedJavaType(String.class.getName())));
         // JDK 1.8 types
-        typeMap.put(Types.TIME_WITH_TIMEZONE, new JdbcTypeInformation("TIME_WITH_TIMEZONE",new FullyQualifiedJavaType("java.time.OffsetTime"))); //$NON-NLS-1$
-        typeMap.put(Types.TIMESTAMP_WITH_TIMEZONE, new JdbcTypeInformation("TIMESTAMP_WITH_TIMEZONE",new FullyQualifiedJavaType("java.time.OffsetDateTime"))); //$NON-NLS-1$
+        typeMap.put(Types.TIME_WITH_TIMEZONE, new JdbcTypeInformation("TIME_WITH_TIMEZONE",new FullyQualifiedJavaType("java.time.OffsetTime")));
+        typeMap.put(Types.TIMESTAMP_WITH_TIMEZONE, new JdbcTypeInformation("TIMESTAMP_WITH_TIMEZONE",new FullyQualifiedJavaType("java.time.OffsetDateTime")));
     }
 
     @Override
@@ -129,7 +129,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         FullyQualifiedJavaType answer;
 
         if (useJSR310Types) {
-            answer = new FullyQualifiedJavaType("java.time.LocalDate"); //$NON-NLS-1$
+            answer = new FullyQualifiedJavaType("java.time.LocalDate");
         } else {
             answer = defaultType;
         }
@@ -141,7 +141,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         FullyQualifiedJavaType answer;
 
         if (useJSR310Types) {
-            answer = new FullyQualifiedJavaType("java.time.LocalTime"); //$NON-NLS-1$
+            answer = new FullyQualifiedJavaType("java.time.LocalTime");
         } else {
             answer = defaultType;
         }
@@ -154,7 +154,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         FullyQualifiedJavaType answer;
 
         if (useJSR310Types) {
-            answer = new FullyQualifiedJavaType("java.time.LocalDateTime"); //$NON-NLS-1$
+            answer = new FullyQualifiedJavaType("java.time.LocalDateTime");
         } else {
             answer = defaultType;
         }
@@ -167,7 +167,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         FullyQualifiedJavaType answer;
 
         if (column.getLength() > 1) {
-            answer = new FullyQualifiedJavaType("byte[]"); //$NON-NLS-1$
+            answer = new FullyQualifiedJavaType("byte[]");
         } else {
             answer = defaultType;
         }

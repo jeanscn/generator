@@ -1,4 +1,4 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui;
+package org.mybatis.generator.codegen.mybatis3.freemaker.html.layui;
 
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;

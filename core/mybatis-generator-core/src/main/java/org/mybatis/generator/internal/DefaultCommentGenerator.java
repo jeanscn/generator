@@ -49,7 +49,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
     }
 
     @Override
-    public void addJavaFileComment(CompilationUnit compilationUnit) {
+    public void addJavaFileComment(CompilationUnit compilationUnit, boolean overrideMarker) {
         // add no file level comments by default
     }
 

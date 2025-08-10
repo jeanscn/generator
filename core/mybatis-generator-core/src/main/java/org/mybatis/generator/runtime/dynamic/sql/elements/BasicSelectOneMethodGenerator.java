@@ -29,30 +29,30 @@ public class BasicSelectOneMethodGenerator extends AbstractMethodGenerator {
 
         FullyQualifiedJavaType parameterType =
                 new FullyQualifiedJavaType(
-                        "org.mybatis.dynamic.sql.select.render.SelectStatementProvider"); //$NON-NLS-1$
+                        "org.mybatis.dynamic.sql.select.render.SelectStatementProvider");
         imports.add(parameterType);
 
         FullyQualifiedJavaType adapter =
-                new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.SqlProviderAdapter"); //$NON-NLS-1$
+                new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.SqlProviderAdapter");
         imports.add(adapter);
 
         FullyQualifiedJavaType annotation =
-                new FullyQualifiedJavaType("org.apache.ibatis.annotations.SelectProvider"); //$NON-NLS-1$
+                new FullyQualifiedJavaType("org.apache.ibatis.annotations.SelectProvider");
         imports.add(annotation);
 
-        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Optional"); //$NON-NLS-1$
+        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Optional");
         returnType.addTypeArgument(recordType);
 
         imports.add(returnType);
 
-        Method method = new Method("selectOne"); //$NON-NLS-1$
+        Method method = new Method("selectOne");
         method.setAbstract(true);
 
         imports.add(recordType);
         method.setReturnType(returnType);
-        method.addParameter(new Parameter(parameterType, "selectStatement")); //$NON-NLS-1$
+        method.addParameter(new Parameter(parameterType, "selectStatement"));
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
-        method.addAnnotation("@SelectProvider(type=SqlProviderAdapter.class, method=\"select\")"); //$NON-NLS-1$
+        method.addAnnotation("@SelectProvider(type=SqlProviderAdapter.class, method=\"select\")");
 
         MethodAndImports.Builder builder = MethodAndImports.withMethod(method)
                 .withImports(imports);
@@ -63,9 +63,9 @@ public class BasicSelectOneMethodGenerator extends AbstractMethodGenerator {
         } else {
             if (reuseResultMap) {
                 FullyQualifiedJavaType rmAnnotation =
-                        new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap"); //$NON-NLS-1$
+                        new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap");
                 builder.withImport(rmAnnotation);
-                method.addAnnotation("@ResultMap(\"" + resultMapId + "\")"); //$NON-NLS-1$ //$NON-NLS-2$
+                method.addAnnotation("@ResultMap(\"" + resultMapId + "\")");  //$NON-NLS-2$
             } else {
                 MethodParts methodParts = fragmentGenerator.getAnnotatedResults();
                 acceptParts(builder, method, methodParts);

@@ -25,7 +25,7 @@ import org.mybatis.generator.internal.util.CustomCollectors;
 public class RenderingUtilities {
     private RenderingUtilities() {}
 
-    public static final String JAVA_INDENT = "    "; //$NON-NLS-1$
+    public static final String JAVA_INDENT = "    ";
     private static final TypeParameterRenderer typeParameterRenderer = new TypeParameterRenderer();
     private static final FieldRenderer fieldRenderer = new FieldRenderer();
     private static final InitializationBlockRenderer initializationBlockRenderer = new InitializationBlockRenderer();
@@ -38,7 +38,7 @@ public class RenderingUtilities {
     public static String renderTypeParameters(List<TypeParameter> typeParameters, CompilationUnit compilationUnit) {
         return typeParameters.stream()
                 .map(tp -> typeParameterRenderer.render(tp, compilationUnit))
-                .collect(CustomCollectors.joining(", ", "<", "> ")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", "<", "> "));  //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     public static List<String> renderFields(List<Field> fields, CompilationUnit compilationUnit) {
@@ -81,7 +81,7 @@ public class RenderingUtilities {
     }
 
     private static Stream<String> addEmptyLine(Stream<String> in) {
-        return Stream.of(in, Stream.of("")) //$NON-NLS-1$
+        return Stream.of(in, Stream.of(""))
                 .flatMap(Function.identity());
     }
 
@@ -137,8 +137,8 @@ public class RenderingUtilities {
 
         String pack = compilationUnit.getType().getPackageName();
         if (stringHasValue(pack)) {
-            answer.add("package " + pack + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-            answer.add(""); //$NON-NLS-1$
+            answer.add("package " + pack + ";");  //$NON-NLS-2$
+            answer.add("");
         }
         return answer;
     }
@@ -149,7 +149,7 @@ public class RenderingUtilities {
         }
 
         return addEmptyLine(compilationUnit.getStaticImports().stream()
-                .map(s -> "import static " + s + ";")) //$NON-NLS-1$ //$NON-NLS-2$
+                .map(s -> "import static " + s + ";"))  //$NON-NLS-2$
                 .collect(Collectors.toList());
     }
 
@@ -172,7 +172,7 @@ public class RenderingUtilities {
     }
 
     private static String toFullImport(String s) {
-        return "import " + s + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+        return "import " + s + ";";  //$NON-NLS-2$
     }
 
 

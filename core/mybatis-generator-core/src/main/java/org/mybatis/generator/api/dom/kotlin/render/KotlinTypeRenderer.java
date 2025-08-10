@@ -19,40 +19,40 @@ public class KotlinTypeRenderer {
         List<String> answer = new ArrayList<>(kotlinType.getAnnotations());
 
         String renderedModifiersAndName = KotlinRenderingUtilities.renderModifiers(kotlinType.getModifiers())
-                + kotlinType.getType().getValue() + " " //$NON-NLS-1$
+                + kotlinType.getType().getValue() + " "
                 + kotlinType.getName();
         String renderedSuperTypes = kotlinType.getSuperTypes().stream()
                 .sorted()
-                .collect(CustomCollectors.joining(", ", " : ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(CustomCollectors.joining(", ", " : ", ""));  //$NON-NLS-2$ //$NON-NLS-3$
 
         if (kotlinType.getNamedItems().isEmpty()) {
             if (kotlinType.getConstructorProperties().isEmpty()) {
                 answer.add(renderedModifiersAndName + renderedSuperTypes);
             } else {
-                answer.add(renderedModifiersAndName + "("); //$NON-NLS-1$
+                answer.add(renderedModifiersAndName + "(");
                 answer.addAll(renderConstructorItems(kotlinType));
-                answer.add(")" + renderedSuperTypes); //$NON-NLS-1$
+                answer.add(")" + renderedSuperTypes);
             }
         } else {
             if (kotlinType.getConstructorProperties().isEmpty()) {
-                answer.add(renderedModifiersAndName + renderedSuperTypes + " {"); //$NON-NLS-1$
+                answer.add(renderedModifiersAndName + renderedSuperTypes + " {");
             } else {
-                answer.add(renderedModifiersAndName + "("); //$NON-NLS-1$
+                answer.add(renderedModifiersAndName + "(");
                 answer.addAll(renderConstructorItems(kotlinType));
-                answer.add(")" + renderedSuperTypes + " {"); //$NON-NLS-1$ //$NON-NLS-2$
+                answer.add(")" + renderedSuperTypes + " {");  //$NON-NLS-2$
             }
         }
 
         for (KotlinNamedItem namedItem : kotlinType.getNamedItems()) {
             answer.addAll(renderer.render(namedItem).stream().map(KotlinRenderingUtilities::kotlinIndent)
                     .collect(Collectors.toList()));
-            answer.add(""); //$NON-NLS-1$
+            answer.add("");
         }
 
         answer = RenderingUtilities.removeLastEmptyLine(answer);
 
         if (!kotlinType.getNamedItems().isEmpty()) {
-            answer.add("}"); //$NON-NLS-1$
+            answer.add("}");
         }
 
         return answer;
@@ -68,7 +68,7 @@ public class KotlinTypeRenderer {
                     .collect(Collectors.toList()));
             if (iter.hasNext()) {
                 lines.set(lines.size() - 1,
-                        lines.get(lines.size() - 1) + ","); //$NON-NLS-1$
+                        lines.get(lines.size() - 1) + ",");
             }
         }
 

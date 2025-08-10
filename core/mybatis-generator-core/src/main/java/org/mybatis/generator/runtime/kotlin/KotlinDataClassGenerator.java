@@ -25,7 +25,7 @@ public class KotlinDataClassGenerator extends AbstractKotlinGenerator {
     @Override
     public List<KotlinFile> getKotlinFiles() {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString("Progress.8", table.toString())); //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.8", table.toString()));
         CommentGenerator commentGenerator = context.getCommentGenerator();
         FullyQualifiedKotlinType type = new FullyQualifiedKotlinType(
                 introspectedTable.getKotlinRecordType());
@@ -49,8 +49,8 @@ public class KotlinDataClassGenerator extends AbstractKotlinGenerator {
                     JavaToKotlinTypeConverter.convert(introspectedColumn.getFullyQualifiedJavaType());
 
             KotlinProperty kp = KotlinProperty.newVar(introspectedColumn.getJavaProperty())
-                    .withDataType(kotlinType.getShortNameWithTypeArguments() + "?") //$NON-NLS-1$
-                    .withInitializationString("null") //$NON-NLS-1$
+                    .withDataType(kotlinType.getShortNameWithTypeArguments() + "?")
+                    .withInitializationString("null")
                     .build();
 
             dataClass.addConstructorProperty(kp);

@@ -16,9 +16,9 @@ public class KotlinPropertyRenderer {
     private String renderProperty(KotlinProperty kotlinProperty) {
         return KotlinRenderingUtilities.renderModifiers(kotlinProperty.getModifiers())
                 + kotlinProperty.getType().getValue()
-                + " " //$NON-NLS-1$
+                + " "
                 + kotlinProperty.getName()
-                + kotlinProperty.getDataType().map(dt -> ": " + dt).orElse("") //$NON-NLS-1$ //$NON-NLS-2$
-                + kotlinProperty.getInitializationString().map(s -> " = " + s).orElse(""); //$NON-NLS-1$ //$NON-NLS-2$
+                + kotlinProperty.getDataType().map(dt -> ": " + dt).orElse("")  //$NON-NLS-2$
+                + kotlinProperty.getInitializationString().map(s -> " = " + s).orElse("");  //$NON-NLS-2$
     }
 }

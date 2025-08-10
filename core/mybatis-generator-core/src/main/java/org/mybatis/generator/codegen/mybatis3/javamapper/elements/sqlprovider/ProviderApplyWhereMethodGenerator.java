@@ -23,21 +23,21 @@ public class ProviderApplyWhereMethodGenerator extends AbstractJavaProviderMetho
 
     @Override
     public void addClassElements(TopLevelClass topLevelClass) {
-        Set<FullyQualifiedJavaType> importedTypes = initializeImportedTypes("java.util.List"); //$NON-NLS-1$
+        Set<FullyQualifiedJavaType> importedTypes = initializeImportedTypes("java.util.List");
 
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(introspectedTable.getExampleType());
         importedTypes.add(fqjt);
         importedTypes.add(new FullyQualifiedJavaType(
-                String.format("%s.Criteria", fqjt.getFullyQualifiedName()))); //$NON-NLS-1$
+                String.format("%s.Criteria", fqjt.getFullyQualifiedName())));
         importedTypes.add(new FullyQualifiedJavaType(
-                String.format("%s.Criterion", fqjt.getFullyQualifiedName()))); //$NON-NLS-1$
+                String.format("%s.Criterion", fqjt.getFullyQualifiedName())));
 
-        Method method = new Method("applyWhere"); //$NON-NLS-1$
+        Method method = new Method("applyWhere");
         method.setVisibility(JavaVisibility.PROTECTED);
-        method.addParameter(new Parameter(BUILDER_IMPORT, "sql")); //$NON-NLS-1$
-        method.addParameter(new Parameter(fqjt, "example")); //$NON-NLS-1$
+        method.addParameter(new Parameter(BUILDER_IMPORT, "sql"));
+        method.addParameter(new Parameter(fqjt, "example"));
         method.addParameter(new Parameter(FullyQualifiedJavaType.getBooleanPrimitiveInstance(),
-                "includeExamplePhrase")); //$NON-NLS-1$
+                "includeExamplePhrase"));
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
@@ -53,7 +53,7 @@ public class ProviderApplyWhereMethodGenerator extends AbstractJavaProviderMetho
         List<String> answer = new ArrayList<>();
 
         InputStream is =
-                ProviderApplyWhereMethodGenerator.class.getResourceAsStream("ApplyWhereMethod.txt"); //$NON-NLS-1$
+                ProviderApplyWhereMethodGenerator.class.getResourceAsStream("ApplyWhereMethod.txt");
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is), DEFAULT_CHARSET))) {
             String line;
             boolean foundDelimiter = false;
@@ -61,11 +61,11 @@ public class ProviderApplyWhereMethodGenerator extends AbstractJavaProviderMetho
                 if (foundDelimiter) {
                     answer.add(line.trim());
                 } else {
-                    foundDelimiter = line.equals("--- method lines below ---"); //$NON-NLS-1$
+                    foundDelimiter = line.equals("--- method lines below ---");
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("IOException reading ApplyWhere method lines", e); //$NON-NLS-1$
+            throw new RuntimeException("IOException reading ApplyWhere method lines", e);
         }
 
         return answer;

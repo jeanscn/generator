@@ -53,7 +53,7 @@ public class CachePoClassGenerator extends AbstractJavaGenerator {
          *  */
         if (introspectedTable.getRules().isGenerateCachePo()) {
             String targetProject = introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().getTargetProject();
-            TopLevelClass cachePoClass = new POCacheGenerator(introspectedTable, targetProject, progressCallback, warnings,mappingsInterface).generate();
+            TopLevelClass cachePoClass = new PoCacheGenerator(introspectedTable, targetProject, progressCallback, warnings,mappingsInterface).generate();
             if (context.getPlugins().voModelCacheClassGenerated(cachePoClass, introspectedTable)) {
                 generated = true;
                 answer.add(cachePoClass);

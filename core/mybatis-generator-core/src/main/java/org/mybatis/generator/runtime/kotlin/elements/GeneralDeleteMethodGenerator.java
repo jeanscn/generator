@@ -16,14 +16,14 @@ public class GeneralDeleteMethodGenerator extends AbstractKotlinFunctionGenerato
     @Override
     public KotlinFunctionAndImports generateMethodAndImports() {
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction(mapperName + ".delete") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("completer") //$NON-NLS-1$
-                        .withDataType("DeleteCompleter") //$NON-NLS-1$
+                KotlinFunction.newOneLineFunction(mapperName + ".delete")
+                .withArgument(KotlinArg.newArg("completer")
+                        .withDataType("DeleteCompleter")
                         .build())
-                .withCodeLine("deleteFrom(this::delete, " + tableFieldName + ", completer)") //$NON-NLS-1$ //$NON-NLS-2$
+                .withCodeLine("deleteFrom(this::delete, " + tableFieldName + ", completer)")  //$NON-NLS-2$
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.DeleteCompleter") //$NON-NLS-1$
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.deleteFrom") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.DeleteCompleter")
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.deleteFrom")
                 .build();
 
         addFunctionComment(functionAndImports);

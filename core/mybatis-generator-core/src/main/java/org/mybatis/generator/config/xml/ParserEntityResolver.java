@@ -19,7 +19,7 @@ public class ParserEntityResolver implements EntityResolver {
             InputStream is = getClass()
                     .getClassLoader()
                     .getResourceAsStream(
-                            "org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd"); //$NON-NLS-1$
+                            "org/mybatis/generator/config/xml/mybatis-generator-config_1_6_0.dtd");
             return new InputSource(is);
         } else {
             return null;

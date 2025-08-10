@@ -33,12 +33,12 @@ public class InsertElementGenerator extends AbstractXmlElementGenerator {
 
         StringBuilder insertClause = new StringBuilder();
 
-        insertClause.append("insert into "); //$NON-NLS-1$
+        insertClause.append("insert into ");
         insertClause.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
-        insertClause.append(" ("); //$NON-NLS-1$
+        insertClause.append(" (");
 
         StringBuilder valuesClause = new StringBuilder();
-        valuesClause.append("values ("); //$NON-NLS-1$
+        valuesClause.append("values (");
 
         List<String> valuesClauses = new ArrayList<>();
         List<IntrospectedColumn> columns =
@@ -49,8 +49,8 @@ public class InsertElementGenerator extends AbstractXmlElementGenerator {
             insertClause.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
             valuesClause.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
             if (i + 1 < columns.size()) {
-                insertClause.append(", "); //$NON-NLS-1$
-                valuesClause.append(", "); //$NON-NLS-1$
+                insertClause.append(", ");
+                valuesClause.append(", ");
             }
 
             if (valuesClause.length() > 80) {

@@ -7,9 +7,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 import org.mybatis.generator.api.dom.kotlin.KotlinType;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementations of this interface are used to generate comments for the
@@ -187,8 +187,9 @@ public interface CommentGenerator {
      *
      * @param compilationUnit
      *            the compilation unit
+     * @param overrideMarker 文件覆盖标识
      */
-    default void addJavaFileComment(CompilationUnit compilationUnit) {}
+    default void addJavaFileComment(CompilationUnit compilationUnit, boolean overrideMarker) {}
 
     /**
      * This method should add a suitable comment as a child element of the specified xmlElement to warn users that the
@@ -311,6 +312,34 @@ public interface CommentGenerator {
      * @param comments the comments to be added
      */
     default void addMethodJavaDocLine(Method method,String...comments){}
+
+    /**
+     * Adds a mapping method JavaDoc line.
+     *
+     * @param method the method
+     * @param source the source type
+     * @param target the target type
+     */
+    default void addMappingMethodJavaDocLine(Method method, FullyQualifiedJavaType source,FullyQualifiedJavaType target) {
+        method.addJavaDocLine("/** ");
+        method.addJavaDocLine(" * 将" + source.getShortName() + "转换为" + target.getShortName());
+        for (Parameter parameter : method.getParameters()) {
+            String paramName = parameter.getName();
+            if (paramName == null || paramName.isEmpty()) {
+                paramName = JavaBeansUtil.getFirstCharacterLowercase(parameter.getType().getShortNameWithoutTypeArguments());
+            }
+            method.addJavaDocLine(" * @param " + paramName + " 待转换的源对象");
+        }
+        method.getReturnType().ifPresent(r-> {
+            if ("java.util.List".equals(r.getFullyQualifiedNameWithoutTypeParameters())) {
+                method.addJavaDocLine(" * @return " + r.getShortName() + " 转换后的目标对象集合");
+            } else {
+                method.addJavaDocLine(" * @return " + r.getShortName() + " 转换后的目标对象");
+            }
+        });
+        method.addJavaDocLine(" * 提示 - @VCF.generated");
+        method.addJavaDocLine("*/");
+    }
 
     /**
      * This method is called to add a file level comment to a generated Kotlin file. This method

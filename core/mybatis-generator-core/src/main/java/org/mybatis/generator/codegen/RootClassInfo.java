@@ -68,7 +68,7 @@ public class RootClassInfo {
             propertyDescriptors = bi.getPropertyDescriptors();
         } catch (Exception e) {
             propertyDescriptors = null;
-            warnings.add(getString("Warning.20", className)); //$NON-NLS-1$
+            warnings.add(getString("Warning.20", className));
         }
     }
 
@@ -107,11 +107,11 @@ public class RootClassInfo {
 
     private boolean isProperType(String propertyName, String propertyType, PropertyDescriptor propertyDescriptor) {
         String introspectedPropertyType = propertyDescriptor.getPropertyType().getTypeName();
-        if (genericMode && introspectedPropertyType.equals("java.lang.Object")) { //$NON-NLS-1$
+        if (genericMode && introspectedPropertyType.equals("java.lang.Object")) {
             // OK - but add a warning
-            warnings.add(getString("Warning.28", propertyName, className)); //$NON-NLS-1$
+            warnings.add(getString("Warning.28", propertyName, className));
         } else if (!introspectedPropertyType.equals(propertyType)) {
-            warnings.add(getString("Warning.21", propertyName, className, propertyType)); //$NON-NLS-1$
+            warnings.add(getString("Warning.21", propertyName, className, propertyType));
             return false;
         }
 
@@ -120,7 +120,7 @@ public class RootClassInfo {
 
     private boolean hasGetter(String propertyName, PropertyDescriptor propertyDescriptor) {
         if (propertyDescriptor.getReadMethod() == null) {
-            warnings.add(getString("Warning.22", propertyName, className)); //$NON-NLS-1$
+            warnings.add(getString("Warning.22", propertyName, className));
             return false;
         }
 
@@ -129,7 +129,7 @@ public class RootClassInfo {
 
     private boolean hasSetter(String propertyName, PropertyDescriptor propertyDescriptor) {
         if (propertyDescriptor.getWriteMethod() == null) {
-            warnings.add(getString("Warning.23", propertyName, className)); //$NON-NLS-1$
+            warnings.add(getString("Warning.23", propertyName, className));
             return false;
         }
 

@@ -56,10 +56,10 @@ public abstract class AbstractKotlinFunctionGenerator {
         answer.fieldName = column.getJavaProperty();
         if (answer.fieldName.equals(tableFieldName)) {
             // name collision, no shortcut generated
-            answer.fieldName = tableFieldName + "." + answer.fieldName; //$NON-NLS-1$
-            answer.importString = supportObjectImport + "." + tableFieldName; //$NON-NLS-1$
+            answer.fieldName = tableFieldName + "." + answer.fieldName;
+            answer.importString = supportObjectImport + "." + tableFieldName;
         } else {
-            answer.importString = supportObjectImport + "." + answer.fieldName; //$NON-NLS-1$
+            answer.importString = supportObjectImport + "." + answer.fieldName;
         }
         return answer;
     }

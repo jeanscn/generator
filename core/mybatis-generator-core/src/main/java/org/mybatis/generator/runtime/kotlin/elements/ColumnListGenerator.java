@@ -33,7 +33,7 @@ public class ColumnListGenerator {
                 .collect(Collectors.toList());
 
         KotlinPropertyAndImports propertyAndImports = KotlinPropertyAndImports.withProperty(
-                KotlinProperty.newVal("columnList") //$NON-NLS-1$
+                KotlinProperty.newVal("columnList")
                 .withModifier(KotlinModifier.PRIVATE)
                 .withInitializationString(getInitializationString(fieldsAndImports))
                 .build())
@@ -52,7 +52,7 @@ public class ColumnListGenerator {
     private String getInitializationString(List<FieldNameAndImport> fieldsAndImports) {
         return fieldsAndImports.stream()
                 .map(FieldNameAndImport::fieldName)
-                .collect(Collectors.joining(", ", "listOf(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(Collectors.joining(", ", "listOf(", ")"));  //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     private Set<String> getImports(List<FieldNameAndImport> fieldsAndImports) {

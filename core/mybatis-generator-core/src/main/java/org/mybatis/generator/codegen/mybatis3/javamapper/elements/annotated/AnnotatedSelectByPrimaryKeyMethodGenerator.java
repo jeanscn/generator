@@ -19,20 +19,20 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
     @Override
     public void addMapperAnnotations(Interface interfaze, Method method) {
-        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select")); //$NON-NLS-1$
+        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select"));
 
         buildInitialSelectAnnotationStrings().forEach(method::addAnnotation);
 
         StringBuilder sb = new StringBuilder();
         javaIndent(sb, 1);
-        sb.append("\"from "); //$NON-NLS-1$
+        sb.append("\"from ");
         sb.append(escapeStringForJava(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime()));
-        sb.append("\","); //$NON-NLS-1$
+        sb.append("\",");
         method.addAnnotation(sb.toString());
 
         buildByPrimaryKeyWhereClause().forEach(method::addAnnotation);
 
-        method.addAnnotation("})"); //$NON-NLS-1$
+        method.addAnnotation("})");
 
         if (useResultMapIfAvailable) {
             if (introspectedTable.getRules().generateBaseResultMap()
@@ -48,7 +48,7 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
     private void addResultMapAnnotation(Method method) {
 
-        String annotation = String.format("@ResultMap(\"%s.%s\")", //$NON-NLS-1$
+        String annotation = String.format("@ResultMap(\"%s.%s\")",
                 introspectedTable.getMyBatis3SqlMapNamespace(),
                 introspectedTable.getRules().generateResultMapWithBLOBs()
                     ? introspectedTable.getResultMapWithBLOBsId() : introspectedTable.getBaseResultMapId());
@@ -57,13 +57,13 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
     @Override
     public void addExtraImports(Interface interfaze) {
-        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select")); //$NON-NLS-1$
+        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Select"));
 
         if (useResultMapIfAvailable) {
             if (introspectedTable.getRules().generateBaseResultMap()
                     || introspectedTable.getRules().generateResultMapWithBLOBs()) {
                 interfaze.addImportedType(
-                        new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap")); //$NON-NLS-1$
+                        new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap"));
             } else {
                 addAnnotationImports(interfaze);
             }

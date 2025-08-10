@@ -18,6 +18,9 @@ import java.util.List;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
+/**
+ * @author cen_c
+ */
 public class VueFormGenerateUtil {
 
     /**
@@ -47,11 +50,7 @@ public class VueFormGenerateUtil {
                     return "";
             }
         } else {
-            if (introspectedColumn != null) {
-                return "请输入";
-            } else {
-                return "请输入";
-            }
+            return "请输入";
         }
     }
 
@@ -71,7 +70,7 @@ public class VueFormGenerateUtil {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.TIME.codeName());
             } else if (introspectedColumn.isLongVarchar()) {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.EDITOR.codeName());
-            } else if (introspectedColumn.getFullyQualifiedJavaType().getShortName().equalsIgnoreCase("boolean")) {
+            } else if ("boolean".equalsIgnoreCase(introspectedColumn.getFullyQualifiedJavaType().getShortName())) {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.SWITCH.codeName());
             } else {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.INPUT.codeName());

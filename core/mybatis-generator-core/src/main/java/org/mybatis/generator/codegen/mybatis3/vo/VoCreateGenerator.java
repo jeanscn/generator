@@ -33,6 +33,7 @@ public class VoCreateGenerator extends AbstractVoGenerator {
         VoCreateGeneratorConfiguration voCreateGeneratorConfiguration = voGeneratorConfiguration.getVoCreateConfiguration();
         String createVoType = voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass createVoClass = createTopLevelClass(createVoType, getAbstractVoType().getFullyQualifiedName());
+        commentGenerator.addModelClassComment(createVoClass, introspectedTable);
         createVoClass.addMultipleImports("lombok");
         addApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
         voGenService.addConfigurationSuperInterface(createVoClass, voCreateGeneratorConfiguration);
@@ -73,6 +74,7 @@ public class VoCreateGenerator extends AbstractVoGenerator {
             if (!(introspectedColumn.isNullable() || introspectedTable.getTableConfiguration().getValidateIgnoreColumns().contains(introspectedColumn.getActualColumnName()))) {
                 this.getOverrideGetter(introspectedColumn).ifPresent(javaBeansGetter -> {
                     if (plugins.voCreateGetterMethodGenerated(javaBeansGetter, createVoClass, introspectedColumn, introspectedTable)) {
+                        javaBeansGetter.addAnnotation("@Override");
                         createVoClass.addMethod(javaBeansGetter);
                     }
                 });

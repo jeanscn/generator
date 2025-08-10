@@ -4,7 +4,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.js.layui.GeneratedJqueryFile;
+import org.mybatis.generator.codegen.mybatis3.freemaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 

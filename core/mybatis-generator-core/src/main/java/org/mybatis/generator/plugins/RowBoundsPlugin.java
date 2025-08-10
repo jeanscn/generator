@@ -29,13 +29,13 @@ import org.mybatis.generator.internal.util.messages.Messages;
 public class RowBoundsPlugin extends PluginAdapter {
 
     private final FullyQualifiedJavaType rowBounds =
-            new FullyQualifiedJavaType("org.apache.ibatis.session.RowBounds"); //$NON-NLS-1$
+            new FullyQualifiedJavaType("org.apache.ibatis.session.RowBounds");
     private final Map<FullyQualifiedTable, List<XmlElement>> elementsToAdd = new HashMap<>();
 
     @Override
     public boolean validate(List<String> warnings) {
-        if ("MyBatis3DynamicSql".equalsIgnoreCase(context.getTargetRuntime())) { //$NON-NLS-1$
-            warnings.add(Messages.getString("Warning.30")); //$NON-NLS-1$
+        if ("MyBatis3DynamicSql".equalsIgnoreCase(context.getTargetRuntime())) {
+            warnings.add(Messages.getString("Warning.30"));
             return false;
         }
         return true;
@@ -104,8 +104,8 @@ public class RowBoundsPlugin extends PluginAdapter {
      */
     private void copyAndAddMethod(Method method, Interface interfaze) {
         Method newMethod = new Method(method);
-        newMethod.setName(method.getName() + "WithRowbounds"); //$NON-NLS-1$
-        newMethod.addParameter(new Parameter(rowBounds, "rowBounds")); //$NON-NLS-1$
+        newMethod.setName(method.getName() + "WithRowbounds");
+        newMethod.addParameter(new Parameter(rowBounds, "rowBounds"));
         interfaze.addMethod(newMethod);
         interfaze.addImportedType(rowBounds);
     }
@@ -123,10 +123,10 @@ public class RowBoundsPlugin extends PluginAdapter {
         Iterator<Attribute> iterator = newElement.getAttributes().iterator();
         while (iterator.hasNext()) {
             Attribute attribute = iterator.next();
-            if ("id".equals(attribute.getName())) { //$NON-NLS-1$
+            if ("id".equals(attribute.getName())) {
                 iterator.remove();
                 Attribute newAttribute =
-                        new Attribute("id", attribute.getValue() + "WithRowbounds"); //$NON-NLS-1$ //$NON-NLS-2$
+                        new Attribute("id", attribute.getValue() + "WithRowbounds");  //$NON-NLS-2$
                 newElement.addAttribute(newAttribute);
                 break;
             }

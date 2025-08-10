@@ -15,17 +15,17 @@ public class AnnotatedUpdateByExampleSelectiveMethodGenerator extends UpdateByEx
     public void addMapperAnnotations(Method method) {
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(introspectedTable.getMyBatis3SqlProviderType());
 
-        String s = "@UpdateProvider(type=" //$NON-NLS-1$
+        String s = "@UpdateProvider(type="
                 + fqjt.getShortName()
-                + ".class, method=\"" //$NON-NLS-1$
+                + ".class, method=\""
                 + introspectedTable.getUpdateByExampleSelectiveStatementId()
-                + "\")"; //$NON-NLS-1$
+                + "\")";
         method.addAnnotation(s);
     }
 
     @Override
     public void addExtraImports(Interface interfaze) {
         interfaze.addImportedType(
-                new FullyQualifiedJavaType("org.apache.ibatis.annotations.UpdateProvider")); //$NON-NLS-1$
+                new FullyQualifiedJavaType("org.apache.ibatis.annotations.UpdateProvider"));
     }
 }

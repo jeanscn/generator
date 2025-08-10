@@ -56,7 +56,7 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
     protected void preCalculate() {
         supportClassGenerator = new KotlinDynamicSqlSupportClassGenerator(context, introspectedTable, warnings);
         recordType = new FullyQualifiedKotlinType(introspectedTable.getKotlinRecordType());
-        resultMapId = recordType.getShortNameWithoutTypeArguments() + "Result"; //$NON-NLS-1$
+        resultMapId = recordType.getShortNameWithoutTypeArguments() + "Result";
         fragmentGenerator = new KotlinFragmentGenerator.Builder()
                 .withIntrospectedTable(introspectedTable)
                 .withResultMapId(resultMapId)
@@ -82,10 +82,10 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
                 introspectedTable.getMyBatis3JavaMapperType());
 
         KotlinType intf = KotlinType.newInterface(type.getShortNameWithoutTypeArguments())
-                .withAnnotation("@Mapper") //$NON-NLS-1$
+                .withAnnotation("@Mapper")
                 .build();
 
-        kotlinFile.addImport("org.apache.ibatis.annotations.Mapper"); //$NON-NLS-1$
+        kotlinFile.addImport("org.apache.ibatis.annotations.Mapper");
         kotlinFile.addNamedItem(intf);
 
         context.getCommentGenerator().addFileComment(kotlinFile);
@@ -141,7 +141,7 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
 
     @Override
     public List<KotlinFile> getKotlinFiles() {
-        progressCallback.startTask(getString("Progress.17", //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.17",
                 introspectedTable.getFullyQualifiedTable().toString()));
         preCalculate();
 
@@ -208,9 +208,9 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
     }
 
     protected void addCommonInsertInterface(KotlinFile mapperFile, KotlinType mapper) {
-        mapper.addSuperType("CommonInsertMapper<" //$NON-NLS-1$
-                + recordType.getShortNameWithTypeArguments() + ">"); //$NON-NLS-1$
-        mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper"); //$NON-NLS-1$
+        mapper.addSuperType("CommonInsertMapper<"
+                + recordType.getShortNameWithTypeArguments() + ">");
+        mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper");
         mapperFile.addImports(recordType.getImportList());
     }
 
@@ -263,8 +263,8 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
 
         if (generate(mapperFile, generator)) {
             // add common interface
-            mapper.addSuperType("CommonCountMapper"); //$NON-NLS-1$
-            mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper"); //$NON-NLS-1$
+            mapper.addSuperType("CommonCountMapper");
+            mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper");
         }
     }
 
@@ -278,8 +278,8 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
 
         if (generate(mapperFile, generator)) {
             // add common interface
-            mapper.addSuperType("CommonDeleteMapper"); //$NON-NLS-1$
-            mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper"); //$NON-NLS-1$
+            mapper.addSuperType("CommonDeleteMapper");
+            mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper");
         }
     }
 
@@ -343,8 +343,8 @@ public class KotlinMapperAndExtensionsGenerator extends AbstractKotlinGenerator 
 
         if (generate(mapperFile, generator)) {
             // add common interface
-            mapper.addSuperType("CommonUpdateMapper"); //$NON-NLS-1$
-            mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper"); //$NON-NLS-1$
+            mapper.addSuperType("CommonUpdateMapper");
+            mapperFile.addImport("org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper");
         }
     }
 

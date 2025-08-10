@@ -10,7 +10,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.mybatis3.controller.elements.*;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -57,7 +56,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         TopLevelClass conTopClazz = new TopLevelClass(conClazzType);
         conTopClazz.setVisibility(JavaVisibility.PUBLIC);
         conTopClazz.setAbstract(true);
-        commentGenerator.addJavaFileComment(conTopClazz);
+        commentGenerator.addJavaFileComment(conTopClazz,false);
         FullyQualifiedJavaType supClazzType = new FullyQualifiedJavaType(ABSTRACT_BASE_CONTROLLER);
         if (introspectedTable.getRules().isGenerateVoModel()) {
             supClazzType.addTypeArgument(entityType);
@@ -328,7 +327,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 } else {
                     if (column.isJdbcCharacterColumn()) {
                         buildExample.addBodyLine("if (VStringUtil.indexOf({0}.{1}(), '','') > -1) '{'", type.getShortNameFirstLowCase(), getterMethodName);
-                        buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replaceAll(\",\", \"|\") + \")(,|$)''\" );"
+                        buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replaceAll(SymbolConstants.COMMA, SymbolConstants.PIPE) + \")(,|$)''\" );"
                                 , initializeAndMethodName(column)
                                 , type.getShortNameFirstLowCase()
                                 , getterMethodName);
@@ -339,6 +338,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                                 , getterMethodName);
                         buildExample.addBodyLine("}");
                         conTopClazz.addImportedType(V_STRING_UTIL);
+                        conTopClazz.addImportedType("com.vgosoft.core.constant.SymbolConstants");
                     } else {
                         buildExample.addBodyLine("criteria.{0}({1}.{2}());"
                                 , methodName
@@ -377,23 +377,25 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 buildExample.addBodyLine("orderByClause = \"\";");
                 buildExample.addBodyLine("}");
                 if (introspectedTable.getColumn(DefaultColumnNameEnum.SORT.columnName()).isPresent()) {
-                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"{0}\")) '{'",DefaultColumnNameEnum.SORT.columnName());
-                    buildExample.addBodyLine("orderBy.add(\"{0} asc\");",DefaultColumnNameEnum.SORT.columnName());
+                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(DefaultColumnNameEnum.SORT.columnName())) {");
+                    buildExample.addBodyLine("orderBy.add(DefaultColumnNameEnum.SORT.columnName()+\" asc\");",DefaultColumnNameEnum.SORT.columnName());
                     buildExample.addBodyLine("}");
                 }
                 if (introspectedTable.getColumn(DefaultColumnNameEnum.CREATE_TIME.columnName()).isPresent()) {
-                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"{0}\")) '{'",DefaultColumnNameEnum.CREATE_TIME.columnName());
-                    buildExample.addBodyLine("orderBy.add(\"{0} desc\");",DefaultColumnNameEnum.CREATE_TIME.columnName());
+                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(DefaultColumnNameEnum.CREATE_TIME.columnName())) {");
+                    buildExample.addBodyLine("orderBy.add(DefaultColumnNameEnum.CREATE_TIME.columnName()+\" desc\");");
                     buildExample.addBodyLine("}");
                 } else if (introspectedTable.getColumn(DefaultColumnNameEnum.UPDATE_TIME.fieldName()).isPresent()) {
-                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(\"{0}\")) '{'",DefaultColumnNameEnum.UPDATE_TIME.fieldName());
-                    buildExample.addBodyLine("orderBy.add(\"{0} desc\");",DefaultColumnNameEnum.UPDATE_TIME.fieldName());
+                    buildExample.addBodyLine("if (!orderByClause.toLowerCase().contains(DefaultColumnNameEnum.UPDATE_TIME.fieldName())) {");
+                    buildExample.addBodyLine("orderBy.add(DefaultColumnNameEnum.UPDATE_TIME.fieldName()+\" desc\");");
                     buildExample.addBodyLine("}");
                 }
                 buildExample.addBodyLine("if (!orderBy.isEmpty()) {");
-                buildExample.addBodyLine("example.setOrderByClause(String.join(\",\", orderBy));");
+                buildExample.addBodyLine("example.setOrderByClause(String.join(SymbolConstants.COMMA, orderBy));");
                 buildExample.addBodyLine("}");
                 conTopClazz.addImportedType(V_STRING_UTIL);
+                conTopClazz.addImportedType("com.vgosoft.core.constant.SymbolConstants");
+                conTopClazz.addImportedType("com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum");
             }
             buildExample.addBodyLine("return example;");
         }
@@ -438,6 +440,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         sb.append(".").append(subControllerName);
         FullyQualifiedJavaType conSubClazzType = new FullyQualifiedJavaType(sb.toString());
         TopLevelClass conSubTopClazz = new TopLevelClass(conSubClazzType);
+        commentGenerator.addJavaFileComment(conSubTopClazz,true);
         conSubTopClazz.setVisibility(JavaVisibility.PUBLIC);
         if (introspectedTable.getRules().isGenerateCachePo()) {
             addCacheConfig(conSubTopClazz);
@@ -469,13 +472,13 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         commentGenerator.addMethodJavaDocLine(conMethod);
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(conSubTopClazz,
-                VStringUtil.format("{0} 控制器。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0}控制器。",introspectedTable.getRemarks(true)),
                 false,
                 VStringUtil.format("该类继承自'{'@link {0}'}'，",conTopClazz.getType().getShortNameWithoutTypeArguments()),
                 VStringUtil.format("用于扩展或重写{0}。",conTopClazz.getType().getShortNameWithoutTypeArguments()));
         conSubTopClazz.addMethod(conMethod);
-        boolean fileNotExist = JavaBeansUtil.javaFileNotExist(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName);
-        if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.controller.name()) || fileNotExist) {
+        boolean overridable = Mb3GenUtil.fileOverridable(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName+ ".java");
+        if (overridable) {
             if (context.getPlugins().subControllerGenerated(conSubTopClazz, introspectedTable)) {
                 answer.add(conSubTopClazz);
             }

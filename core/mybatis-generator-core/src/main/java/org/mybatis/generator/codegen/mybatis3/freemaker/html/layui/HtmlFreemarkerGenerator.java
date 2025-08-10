@@ -1,9 +1,9 @@
-package org.mybatis.generator.codegen.mybatis3.freeMaker.html.layui;
+package org.mybatis.generator.codegen.mybatis3.freemaker.html.layui;
 
 import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
-import org.mybatis.generator.codegen.mybatis3.freeMaker.AbstractFreemarkerGenerator;
+import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.InnerListViewConfiguration;

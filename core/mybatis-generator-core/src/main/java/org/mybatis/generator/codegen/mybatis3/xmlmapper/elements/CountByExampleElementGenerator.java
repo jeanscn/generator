@@ -12,16 +12,16 @@ public class CountByExampleElementGenerator extends AbstractXmlElementGenerator 
 
     @Override
     public void addElements(XmlElement parentElement) {
-        XmlElement answer = new XmlElement("select"); //$NON-NLS-1$
+        XmlElement answer = new XmlElement("select");
 
         answer.addAttribute(new Attribute(
-                "id", introspectedTable.getCountByExampleStatementId())); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType())); //$NON-NLS-1$
-        answer.addAttribute(new Attribute("resultType", "java.lang.Long")); //$NON-NLS-1$ //$NON-NLS-2$
+                "id", introspectedTable.getCountByExampleStatementId()));
+        answer.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
+        answer.addAttribute(new Attribute("resultType", "java.lang.Long"));  //$NON-NLS-2$
 
         context.getCommentGenerator().addComment(answer);
 
-        String s = "select count(*) from " //$NON-NLS-1$
+        String s = "select count(*) from "
                 + introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         answer.addElement(new TextElement(s));
         answer.addElement(getExampleIncludeElement());

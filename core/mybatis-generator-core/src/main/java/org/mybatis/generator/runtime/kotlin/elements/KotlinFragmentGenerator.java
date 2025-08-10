@@ -42,7 +42,7 @@ public class KotlinFragmentGenerator {
             AbstractKotlinFunctionGenerator.FieldNameAndImport fieldNameAndImport =
                     AbstractKotlinFunctionGenerator.calculateFieldNameAndImport(tableFieldName,
                     supportObjectImport, column);
-            String argName = column.getJavaProperty() + "_"; //$NON-NLS-1$
+            String argName = column.getJavaProperty() + "_";
 
             builder.withImport(fieldNameAndImport.importString());
             builder.withImports(kt.getImportList());
@@ -50,17 +50,17 @@ public class KotlinFragmentGenerator {
                     .withDataType(kt.getShortNameWithTypeArguments())
                     .build());
             if (first) {
-                builder.withCodeLine("    where { " + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                        + " isEqualTo " + argName //$NON-NLS-1$
-                        + " }"); //$NON-NLS-1$
+                builder.withCodeLine("    where { " + fieldNameAndImport.fieldName()
+                        + " isEqualTo " + argName
+                        + " }");
                 first = false;
             } else {
-                builder.withCodeLine("    and { " + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                        + " isEqualTo " + argName //$NON-NLS-1$
-                        + " }"); //$NON-NLS-1$
+                builder.withCodeLine("    and { " + fieldNameAndImport.fieldName()
+                        + " isEqualTo " + argName
+                        + " }");
             }
         }
-        builder.withCodeLine("}"); //$NON-NLS-1$
+        builder.withCodeLine("}");
 
         return builder.build();
     }
@@ -76,17 +76,17 @@ public class KotlinFragmentGenerator {
 
             builder.withImport(fieldNameAndImport.importString());
             if (first) {
-                builder.withCodeLine("    where { " + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                        + " isEqualTo row." + column.getJavaProperty() //$NON-NLS-1$
-                        + "!! }"); //$NON-NLS-1$
+                builder.withCodeLine("    where { " + fieldNameAndImport.fieldName()
+                        + " isEqualTo row." + column.getJavaProperty()
+                        + "!! }");
                 first = false;
             } else {
-                builder.withCodeLine("    and {" + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                        + " isEqualTo row." + column.getJavaProperty() //$NON-NLS-1$
-                        + "!! }"); //$NON-NLS-1$
+                builder.withCodeLine("    and {" + fieldNameAndImport.fieldName()
+                        + " isEqualTo row." + column.getJavaProperty()
+                        + "!! }");
             }
         }
-        builder.withCodeLine("}"); //$NON-NLS-1$
+        builder.withCodeLine("}");
 
         return builder.build();
     }
@@ -94,11 +94,11 @@ public class KotlinFragmentGenerator {
     public KotlinFunctionParts getAnnotatedResults() {
         KotlinFunctionParts.Builder builder = new KotlinFunctionParts.Builder();
 
-        builder.withImport("org.apache.ibatis.type.JdbcType"); //$NON-NLS-1$
-        builder.withImport("org.apache.ibatis.annotations.Result"); //$NON-NLS-1$
-        builder.withImport("org.apache.ibatis.annotations.Results"); //$NON-NLS-1$
+        builder.withImport("org.apache.ibatis.type.JdbcType");
+        builder.withImport("org.apache.ibatis.annotations.Result");
+        builder.withImport("org.apache.ibatis.annotations.Results");
 
-        builder.withAnnotation("@Results(id=\"" + resultMapId + "\", value = ["); //$NON-NLS-1$ //$NON-NLS-2$
+        builder.withAnnotation("@Results(id=\"" + resultMapId + "\", value = [");  //$NON-NLS-2$
 
         StringBuilder sb = new StringBuilder();
 
@@ -131,7 +131,7 @@ public class KotlinFragmentGenerator {
             builder.withAnnotation(sb.toString());
         }
 
-        builder.withAnnotation("])") //$NON-NLS-1$
+        builder.withAnnotation("])")
                 .withImports(imports);
 
         return builder.build();
@@ -140,9 +140,9 @@ public class KotlinFragmentGenerator {
     private String getResultAnnotation(Set<String> imports, IntrospectedColumn introspectedColumn,
             boolean idColumn) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Result(column=\""); //$NON-NLS-1$
+        sb.append("Result(column=\"");
         sb.append(escapeStringForKotlin(introspectedColumn.getActualColumnName()));
-        sb.append("\", property=\""); //$NON-NLS-1$
+        sb.append("\", property=\"");
         sb.append(introspectedColumn.getJavaProperty());
         sb.append('\"');
 
@@ -150,15 +150,15 @@ public class KotlinFragmentGenerator {
             FullyQualifiedKotlinType fqjt =
                     new FullyQualifiedKotlinType(introspectedColumn.getTypeHandler());
             imports.add(introspectedColumn.getTypeHandler());
-            sb.append(", typeHandler="); //$NON-NLS-1$
+            sb.append(", typeHandler=");
             sb.append(fqjt.getShortNameWithoutTypeArguments());
-            sb.append("::class"); //$NON-NLS-1$
+            sb.append("::class");
         }
 
-        sb.append(", jdbcType=JdbcType."); //$NON-NLS-1$
+        sb.append(", jdbcType=JdbcType.");
         sb.append(introspectedColumn.getJdbcTypeName());
         if (idColumn) {
-            sb.append(", id=true"); //$NON-NLS-1$
+            sb.append(", id=true");
         }
         sb.append(')');
 
@@ -171,25 +171,25 @@ public class KotlinFragmentGenerator {
         StringBuilder sb = new StringBuilder();
         introspectedTable.getColumn(gk.getColumn()).ifPresent(introspectedColumn -> {
             if (gk.isJdbcStandard()) {
-                builder.withImport("org.apache.ibatis.annotations.Options"); //$NON-NLS-1$
-                sb.append("@Options(useGeneratedKeys=true,keyProperty=\"row."); //$NON-NLS-1$
+                builder.withImport("org.apache.ibatis.annotations.Options");
+                sb.append("@Options(useGeneratedKeys=true,keyProperty=\"row.");
                 sb.append(introspectedColumn.getJavaProperty());
-                sb.append("\")"); //$NON-NLS-1$
+                sb.append("\")");
                 builder.withAnnotation(sb.toString());
             } else {
-                builder.withImport("org.apache.ibatis.annotations.SelectKey"); //$NON-NLS-1$
+                builder.withImport("org.apache.ibatis.annotations.SelectKey");
                 FullyQualifiedKotlinType kt =
                         JavaToKotlinTypeConverter.convert(introspectedColumn.getFullyQualifiedJavaType());
 
-                sb.append("@SelectKey(statement=[\""); //$NON-NLS-1$
+                sb.append("@SelectKey(statement=[\"");
                 sb.append(gk.getRuntimeSqlStatement());
-                sb.append("\"], keyProperty=\"row."); //$NON-NLS-1$
+                sb.append("\"], keyProperty=\"row.");
                 sb.append(introspectedColumn.getJavaProperty());
-                sb.append("\", before="); //$NON-NLS-1$
-                sb.append(gk.isIdentity() ? "false" : "true"); //$NON-NLS-1$ //$NON-NLS-2$
-                sb.append(", resultType="); //$NON-NLS-1$
+                sb.append("\", before=");
+                sb.append(gk.isIdentity() ? "false" : "true");  //$NON-NLS-2$
+                sb.append(", resultType=");
                 sb.append(kt.getShortNameWithoutTypeArguments());
-                sb.append("::class)"); //$NON-NLS-1$
+                sb.append("::class)");
                 builder.withAnnotation(sb.toString());
             }
         });
@@ -208,8 +208,8 @@ public class KotlinFragmentGenerator {
                             supportObjectImport, column);
             builder.withImport(fieldNameAndImport.importString());
 
-            builder.withCodeLine("    set(" + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                    + ") equalToOrNull row::" + column.getJavaProperty()); //$NON-NLS-1$
+            builder.withCodeLine("    set(" + fieldNameAndImport.fieldName()
+                    + ") equalToOrNull row::" + column.getJavaProperty());
         }
 
         return builder.build();
@@ -226,8 +226,8 @@ public class KotlinFragmentGenerator {
                             supportObjectImport, column);
             builder.withImport(fieldNameAndImport.importString());
 
-            builder.withCodeLine("    set(" + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                    + ") equalToWhenPresent row::" + column.getJavaProperty()); //$NON-NLS-1$
+            builder.withCodeLine("    set(" + fieldNameAndImport.fieldName()
+                    + ") equalToWhenPresent row::" + column.getJavaProperty());
         }
 
         return builder.build();

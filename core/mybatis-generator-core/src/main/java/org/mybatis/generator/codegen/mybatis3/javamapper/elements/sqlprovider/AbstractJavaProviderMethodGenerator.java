@@ -10,7 +10,7 @@ import org.mybatis.generator.codegen.AbstractGenerator;
 public abstract class AbstractJavaProviderMethodGenerator extends AbstractGenerator {
 
     protected static final FullyQualifiedJavaType BUILDER_IMPORT =
-            new FullyQualifiedJavaType("org.apache.ibatis.jdbc.SQL"); //$NON-NLS-1$
+            new FullyQualifiedJavaType("org.apache.ibatis.jdbc.SQL");
 
     protected AbstractJavaProviderMethodGenerator() {
         super();

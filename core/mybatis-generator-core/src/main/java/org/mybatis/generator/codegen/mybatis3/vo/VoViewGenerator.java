@@ -29,6 +29,7 @@ public class VoViewGenerator extends AbstractVoGenerator {
         VoViewGeneratorConfiguration voViewGeneratorConfiguration = voGeneratorConfiguration.getVoViewConfiguration();
         String viewVoType = voViewGeneratorConfiguration.getFullyQualifiedJavaType().getFullyQualifiedName();
         TopLevelClass viewVoClass = createTopLevelClass(viewVoType, getAbstractVoType().getFullyQualifiedName());
+        commentGenerator.addModelClassComment(viewVoClass, introspectedTable);
         viewVoClass.addMultipleImports("lombok");
         voGenService.addConfigurationSuperInterface(viewVoClass, voViewGeneratorConfiguration);
         ApiModelDesc apiModelDesc = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());

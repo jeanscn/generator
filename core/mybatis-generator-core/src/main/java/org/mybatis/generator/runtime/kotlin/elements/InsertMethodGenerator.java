@@ -24,12 +24,12 @@ public class InsertMethodGenerator extends AbstractKotlinFunctionGenerator {
     @Override
     public KotlinFunctionAndImports generateMethodAndImports() {
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction(mapperName + ".insert") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("row") //$NON-NLS-1$
+                KotlinFunction.newOneLineFunction(mapperName + ".insert")
+                .withArgument(KotlinArg.newArg("row")
                         .withDataType(recordType.getShortNameWithTypeArguments())
                         .build())
                 .build())
-                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.insert") //$NON-NLS-1$
+                .withImport("org.mybatis.dynamic.sql.util.kotlin.mybatis3.insert")
                 .withImports(recordType.getImportList())
                 .build();
 
@@ -37,8 +37,8 @@ public class InsertMethodGenerator extends AbstractKotlinFunctionGenerator {
 
         KotlinFunction function = functionAndImports.getFunction();
 
-        function.addCodeLine("insert(this::insert, row, " + tableFieldName //$NON-NLS-1$
-                + ") {"); //$NON-NLS-1$
+        function.addCodeLine("insert(this::insert, row, " + tableFieldName
+                + ") {");
 
         List<IntrospectedColumn> columns =
                 ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
@@ -48,12 +48,12 @@ public class InsertMethodGenerator extends AbstractKotlinFunctionGenerator {
                             supportObjectImport, column);
             functionAndImports.getImports().add(fieldNameAndImport.importString());
 
-            function.addCodeLine("    map(" + fieldNameAndImport.fieldName() //$NON-NLS-1$
-                    + ") toProperty \"" + column.getJavaProperty() //$NON-NLS-1$
-                    + "\""); //$NON-NLS-1$
+            function.addCodeLine("    map(" + fieldNameAndImport.fieldName()
+                    + ") toProperty \"" + column.getJavaProperty()
+                    + "\"");
         }
 
-        function.addCodeLine("}"); //$NON-NLS-1$
+        function.addCodeLine("}");
 
         return functionAndImports;
     }

@@ -63,7 +63,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
 
     @Override
     public List<CompilationUnit> getCompilationUnits() {
-        progressCallback.startTask(getString("Progress.17", //$NON-NLS-1$
+        progressCallback.startTask(getString("Progress.17",
                 introspectedTable.getFullyQualifiedTable().toString()));
         preCalculate();
 
@@ -71,7 +71,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
 
         TopLevelClass supportClass = getSupportClass();
         String staticImportString =
-                supportClass.getType().getFullyQualifiedNameWithoutTypeParameters() + ".*"; //$NON-NLS-1$
+                supportClass.getType().getFullyQualifiedNameWithoutTypeParameters() + ".*";
         interfaze.addStaticImport(staticImportString);
 
         if (hasGeneratedKeys) {
@@ -112,7 +112,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
 
     protected void preCalculate() {
         recordType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        resultMapId = recordType.getShortNameWithoutTypeArguments() + "Result"; //$NON-NLS-1$
+        resultMapId = recordType.getShortNameWithoutTypeArguments() + "Result";
         tableFieldName =
                 JavaBeansUtil.getValidPropertyName(introspectedTable.getMyBatisDynamicSQLTableObjectName());
         fragmentGenerator = new FragmentGenerator.Builder()
@@ -129,9 +129,9 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
                 introspectedTable.getMyBatis3JavaMapperType());
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
-        context.getCommentGenerator().addJavaFileComment(interfaze);
-        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper")); //$NON-NLS-1$
-        interfaze.addAnnotation("@Mapper"); //$NON-NLS-1$
+        context.getCommentGenerator().addJavaFileComment(interfaze,false);
+        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
+        interfaze.addAnnotation("@Mapper");
 
         String rootInterface = introspectedTable
                 .getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
@@ -169,8 +169,8 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
 
     protected void addCommonInsertInterface(Interface interfaze) {
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper<" //$NON-NLS-1$
-                        + recordType.getFullyQualifiedName() + ">"); //$NON-NLS-1$
+                "org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper<"
+                        + recordType.getFullyQualifiedName() + ">");
         interfaze.addSuperInterface(superInterface);
         interfaze.addImportedTypes(superInterface.getImportList().stream()
                 .map(FullyQualifiedJavaType::new)
@@ -212,7 +212,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
         if (generate(interfaze, generator)) {
             // add common interface
             FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(
-                    "org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper"); //$NON-NLS-1$
+                    "org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper");
             interfaze.addSuperInterface(superInterface);
             interfaze.addImportedType(superInterface);
         }
@@ -228,7 +228,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
         if (generate(interfaze, generator)) {
             // add common interface
             FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(
-                    "org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper"); //$NON-NLS-1$
+                    "org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper");
             interfaze.addSuperInterface(superInterface);
             interfaze.addImportedType(superInterface);
         }
@@ -293,7 +293,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
         if (generate(interfaze, generator)) {
             // add common interface
             FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(
-                    "org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper"); //$NON-NLS-1$
+                    "org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper");
             interfaze.addSuperInterface(superInterface);
             interfaze.addImportedType(superInterface);
         }
