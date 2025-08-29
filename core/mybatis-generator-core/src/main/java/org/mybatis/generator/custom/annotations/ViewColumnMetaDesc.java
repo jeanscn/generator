@@ -10,7 +10,6 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.VoViewGeneratorConfiguration;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Set;
 
@@ -109,7 +108,9 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     }
 
     private void parseDefaultFormatRender(FullyQualifiedJavaType javaType, String fieldName) {
-        //默认的render
+        /*
+         * 默认的render
+         */
         switch (javaType.getShortNameWithoutTypeArguments()) {
             case "Date":
             case "LocalDateTime":
@@ -148,8 +149,11 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
                 this.dataType = "number";
                 this.dataFormat = "0";
                 break;
+            default:
+                //nothing to do
+                break;
         }
-        if (fieldName.equals("state")) {
+        if ("state".equals(fieldName)) {
             this.render = "colDefsState";
         }
     }
@@ -157,7 +161,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
     @Override
     public String toAnnotation() {
         if (configuration.getDefaultHiddenFields().isEmpty() && configuration.getDefaultDisplayFields().isEmpty()) {
-            configuration.getDefaultHiddenFields().addAll(StringUtility.splitToSet(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS));
+            configuration.getDefaultHiddenFields().addAll(VStringUtil.splitToSet(GlobalConstant.VIEW_VO_DEFAULT_HIDDEN_FIELDS));
         }
         items.add(VStringUtil.format("value = \"{0}\"", this.value));
         items.add(VStringUtil.format("title = \"{0}\"", this.title));
@@ -172,10 +176,10 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (this.minWidth != null) {
             items.add(VStringUtil.format("minWidth = \"{0}\"", this.minWidth));
         }
-        if (this.headerAlign != null && !this.headerAlign.equals("left")) {
+        if (this.headerAlign != null && !"left".equals(this.headerAlign)) {
             items.add(VStringUtil.format("headerAlign = \"{0}\"", this.headerAlign));
         }
-        if (this.align != null && !this.align.equals("left")) {
+        if (this.align != null && !"left".equals(this.align)) {
             items.add(VStringUtil.format("align = \"{0}\"", this.align));
         }
         if (this.fixed != null && !this.fixed.isEmpty()) {

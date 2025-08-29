@@ -1,11 +1,18 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author cen_c
+ */
+@Setter
+@Getter
 public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorConfiguration {
 
     private boolean noServiceAnnotation;
@@ -13,6 +20,10 @@ public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorC
     private boolean generateUnitTest;
 
     private Set<String> entityEvent = new HashSet<>();
+
+    private Set<StatisticsDateDimGeneratorConfiguration> statisticsConfigurations = new HashSet<>();
+
+    private Set<StatisticsCustomGeneratorConfiguration> statisticsCustomConfigurations = new HashSet<>();
 
     public JavaServiceImplGeneratorConfiguration(Context context) {
         super(context);
@@ -24,28 +35,16 @@ public class JavaServiceImplGeneratorConfiguration extends JavaServiceGeneratorC
         targetPackageGen = String.join(".",baseTargetPackage,"codegen.service.impl");
     }
 
-    public boolean isNoServiceAnnotation() {
-        return noServiceAnnotation;
+    public void addStatisticsConfiguration(StatisticsDateDimGeneratorConfiguration statisticsConfiguration) {
+        if (statisticsConfiguration != null) {
+            statisticsConfigurations.add(statisticsConfiguration);
+        }
     }
 
-    public void setNoServiceAnnotation(boolean noServiceAnnotation) {
-        this.noServiceAnnotation = noServiceAnnotation;
-    }
-
-    public boolean isGenerateUnitTest() {
-        return generateUnitTest;
-    }
-
-    public void setGenerateUnitTest(boolean generateUnitTest) {
-        this.generateUnitTest = generateUnitTest;
-    }
-
-    public Set<String> getEntityEvent() {
-        return entityEvent;
-    }
-
-    public void setEntityEvent(Set<String> entityEvent) {
-        this.entityEvent = entityEvent;
+    public void addStatisticsCustomConfiguration(StatisticsCustomGeneratorConfiguration statisticsCustomConfiguration) {
+        if (statisticsCustomConfiguration != null) {
+            statisticsCustomConfigurations.add(statisticsCustomConfiguration);
+        }
     }
 
     @Override

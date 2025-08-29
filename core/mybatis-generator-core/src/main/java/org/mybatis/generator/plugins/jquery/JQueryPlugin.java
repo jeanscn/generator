@@ -1,12 +1,12 @@
 package org.mybatis.generator.plugins.jquery;
 
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freemaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,6 @@ public class JQueryPlugin extends PluginAdapter {
                         introspectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
                 generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
-                //generatedJqueryFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 answer.add(generatedJqueryFile);
 
                 //生成jquery min file
@@ -51,7 +50,6 @@ public class JQueryPlugin extends PluginAdapter {
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
-                //generatedJqueryFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 generatedJqueryFileMin.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFileMin);
             }

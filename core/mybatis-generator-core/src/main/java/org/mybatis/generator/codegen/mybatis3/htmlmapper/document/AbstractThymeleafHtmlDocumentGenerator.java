@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -14,7 +15,6 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.HtmlConstant;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 
 import java.util.*;
 
@@ -59,6 +59,10 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         return htmlGeneratorConfiguration.getLayoutDescriptor().getBarPosition();
     }
 
+    /**
+     * 是否生成html文档
+     */
+    @Override
     public abstract boolean htmlMapDocumentGenerated();
 
     protected HtmlElement generateHtmlHead() {

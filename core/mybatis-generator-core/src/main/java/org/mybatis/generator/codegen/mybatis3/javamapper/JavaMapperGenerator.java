@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper;
 
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
@@ -14,17 +15,13 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.HTMLGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.XMLMapperGenerator;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
-import org.mybatis.generator.custom.enums.ScalableElementEnum;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.MBG_MAPPER_BLOB_INTERFACE;
@@ -39,7 +36,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     protected FullyQualifiedJavaType entityType;
     protected FullyQualifiedJavaType exampleType;
-    protected  ServiceMethods serviceMethods;
+    protected ServiceMethods serviceMethods;
 
     public JavaMapperGenerator(String project) {
         this(project, true);
@@ -70,7 +67,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(interfaze,false);
+        commentGenerator.addJavaFileComment(interfaze, false);
         String rootInterface = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
         if (!stringHasValue(rootInterface)) {
             rootInterface = context.getJavaClientGeneratorConfiguration().getProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
@@ -79,14 +76,14 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
             FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(rootInterface);
             interfaze.addSuperInterface(fqjt);
             interfaze.addImportedType(fqjt);
-            classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",fqjt.getShortNameWithoutTypeArguments()));
+            classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，", fqjt.getShortNameWithoutTypeArguments()));
         } else {
             FullyQualifiedJavaType infSuperType = new FullyQualifiedJavaType(getMapperInterface(introspectedTable));
             infSuperType.addTypeArgument(entityType);
             infSuperType.addTypeArgument(exampleType);
             interfaze.addSuperInterface(infSuperType);
             interfaze.addImportedType(infSuperType);
-            classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",infSuperType.getShortNameWithoutTypeArguments()));
+            classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，", infSuperType.getShortNameWithoutTypeArguments()));
         }
 
         //如果集成了mybatis-plus的Mapper，则需要导入Mapper
@@ -110,10 +107,11 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addDeleteByTableMethod(interfaze);
         addInsertByTableMethod(interfaze);
         addSelectByKeysWithAllParentAndChildrenMethod(interfaze);
-
+        addStatisticsTotalMethods(interfaze);
+        addStatisticsCustomMethods(interfaze);
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(interfaze,
-                VStringUtil.format("{0} mapper接口，该接口提供了{0}的基本CRUD数据库及相关处理。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0} mapper接口，该接口提供了{0}的基本CRUD数据库及相关处理。", introspectedTable.getRemarks(true)),
                 true,
                 classComments.toArray(new String[0]));
 
@@ -132,7 +130,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         String sb = javaClientGeneratorConfiguration.getTargetPackage() + "." + daoName;
         Interface subInterface = new Interface(sb);
         subInterface.setVisibility(JavaVisibility.PUBLIC);
-        commentGenerator.addJavaFileComment(subInterface,true);
+        commentGenerator.addJavaFileComment(subInterface, true);
         subInterface.addAnnotation("@Mapper");
         subInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         subInterface.addSuperInterface(type);
@@ -142,28 +140,28 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             // 业务权限管理表sys_ru_authority控制
             String primaryKeys = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
-            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+alias+"\", columnName = \""+ primaryKeys +"\")");
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \"" + alias + "\", columnName = \"" + primaryKeys + "\")");
             // 添加wf_state!=4的过滤条件
-            subInterface.addAnnotation("@TableDataScope(dataScopeType = 20, tableAlias = \""+alias+"\", columnName = \"wf_state\", queryMode = QueryModesEnum.NOTEQUAL, columnValue = \"4\")");
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 20, tableAlias = \"" + alias + "\", columnName = \"wf_state\", queryMode = QueryModesEnum.NOTEQUAL, columnValue = \"4\")");
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.mybatisplus.annotation.TableDataScope"));
         }
         // 添加delete_flag!=1的过滤条件
         introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {
             String columnName = column.getActualColumnName();
-            subInterface.addAnnotation("@TableDataScope(dataScopeType = 20, tableAlias = \""+alias+"\", columnName = \""+columnName+"\", queryMode = QueryModesEnum.NOTEQUAL, columnValue = \"1\")");
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 20, tableAlias = \"" + alias + "\", columnName = \"" + columnName + "\", queryMode = QueryModesEnum.NOTEQUAL, columnValue = \"1\")");
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.mybatisplus.annotation.TableDataScope"));
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.constant.enums.core.QueryModesEnum"));
         });
 
         //boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.dao.name());
-        boolean overridable = Mb3GenUtil.fileOverridable(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName+".java");
+        boolean overridable = Mb3GenUtil.fileOverridable(javaClientGeneratorConfiguration.getTargetProject(), javaClientGeneratorConfiguration.getTargetPackage(), daoName + ".java");
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(subInterface,
-                VStringUtil.format("{0} mapper接口，该接口提供了{0}的基本CRUD数据库及相关处理。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0} mapper接口，该接口提供了{0}的基本CRUD数据库及相关处理。", introspectedTable.getRemarks(true)),
                 false,
-                VStringUtil.format("该类继承自'{'@link {0}'}'，",interfaze.getType().getShortNameWithoutTypeArguments()),
-                VStringUtil.format("用于扩展或重写{0}。",interfaze.getType().getShortNameWithoutTypeArguments()));
+                VStringUtil.format("该类继承自'{'@link {0}'}'，", interfaze.getType().getShortNameWithoutTypeArguments()),
+                VStringUtil.format("用于扩展或重写{0}。", interfaze.getType().getShortNameWithoutTypeArguments()));
 
         if (overridable) {
             if (context.getPlugins().subClientGenerated(subInterface, introspectedTable)) {
@@ -222,6 +220,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     /**
      * 增加relation方法
+     *
      * @param interfaze mapper接口
      */
     protected void addSelectByExampleWithRelationMethod(Interface interfaze) {
@@ -239,10 +238,10 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         }
     }
 
-    protected void addDeleteByColumnMethods(Interface interfaze){
+    protected void addDeleteByColumnMethods(Interface interfaze) {
         introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream()
                 .filter(SelectByColumnGeneratorConfiguration::isEnableDelete)
-                .forEach(c->{
+                .forEach(c -> {
                     Method method = serviceMethods.getDeleteByColumnMethod(interfaze, c, true);
                     interfaze.addMethod(method);
                 });
@@ -252,7 +251,43 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (!introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true);
-                 interfaze.addMethod(method);
+                interfaze.addMethod(method);
+            }
+        }
+    }
+
+    /**
+     * 增加统计总数方法
+     *
+     * @param interfaze mapper接口
+     */
+    protected void addStatisticsTotalMethods(Interface interfaze) {
+        if (introspectedTable.getRules().isGenerateStatisticsElement(StatTypeEnum.TOTAL)) {
+            Set<StatisticsDateDimGeneratorConfiguration> statisticsConfigurations = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsConfigurations();
+            if (statisticsConfigurations != null && !statisticsConfigurations.isEmpty()) {
+                for (StatisticsDateDimGeneratorConfiguration configuration : statisticsConfigurations) {
+                    if (StatTypeEnum.TOTAL.code().equals(configuration.getStatType())) {
+                        Method method = serviceMethods.getStatisticsTotalMethod(interfaze, configuration, true,false);
+                        interfaze.addMethod(method);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 增加自定义统计总数方法
+     *
+     * @param interfaze mapper接口
+     */
+    protected void addStatisticsCustomMethods(Interface interfaze) {
+        if (introspectedTable.getRules().isGenerateCustomStatisticsElement()) {
+            Set<StatisticsCustomGeneratorConfiguration> statisticsConfigurations = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsCustomConfigurations();
+            if (statisticsConfigurations != null && !statisticsConfigurations.isEmpty()) {
+                for (StatisticsCustomGeneratorConfiguration configuration : statisticsConfigurations) {
+                    Method method = serviceMethods.getStatisticsCustomMethod(interfaze, configuration, true,false);
+                    interfaze.addMethod(method);
+                }
             }
         }
     }
@@ -261,8 +296,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         //增加附加选择方法
         introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()
                 .forEach(config -> {
-                    Method method = serviceMethods.getSelectBySqlMethodMethod(interfaze,config, true,false);
-                    context.getCommentGenerator().addMethodJavaDocLine(method,"基于sql函数["+config.getSqlMethod()+"]的查询");
+                    Method method = serviceMethods.getSelectBySqlMethodMethod(interfaze, config, true, false);
+                    context.getCommentGenerator().addMethodJavaDocLine(method, "基于sql函数[" + config.getSqlMethod() + "]的查询");
                     interfaze.addMethod(method);
                 });
     }

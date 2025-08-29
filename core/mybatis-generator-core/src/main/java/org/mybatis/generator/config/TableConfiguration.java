@@ -151,9 +151,13 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean cleanAllGeneratedElements = false;
 
-    public TableConfiguration(Context context) {
+    private List<String> warnings;
+
+    public TableConfiguration(Context context,List<String> warings) {
         super();
         this.modelType = context.getDefaultModelType();
+        this.warnings = warings;
+        // initialize properties
         ignoredColumns = new HashMap<>();
 
         isModules = false;
@@ -253,14 +257,6 @@ public class TableConfiguration extends PropertyHolder {
         return selectByExampleStatementEnabled || selectByPrimaryKeyStatementEnabled || insertStatementEnabled || updateByPrimaryKeyStatementEnabled || deleteByExampleStatementEnabled || deleteByPrimaryKeyStatementEnabled || countByExampleStatementEnabled || updateByExampleStatementEnabled;
     }
 
-    public boolean isModules() {
-        return isModules;
-    }
-
-    public void setModules(boolean modules) {
-        isModules = modules;
-    }
-
     /**
      * Returns a List of Strings. The values are the columns
      * that were specified to be ignored in the table, but do not exist in the
@@ -331,14 +327,6 @@ public class TableConfiguration extends PropertyHolder {
         for (IgnoredColumnPattern ignoredColumnPattern : ignoredColumnPatterns) {
             ignoredColumnPattern.validate(errors, fqTableName);
         }
-    }
-
-    public boolean isAllColumnDelimitingEnabled() {
-        return isAllColumnDelimitingEnabled;
-    }
-
-    public void setAllColumnDelimitingEnabled(boolean isAllColumnDelimitingEnabled) {
-        this.isAllColumnDelimitingEnabled = isAllColumnDelimitingEnabled;
     }
 
     public String getDynamicSqlSupportClassName() {
@@ -412,6 +400,10 @@ public class TableConfiguration extends PropertyHolder {
         calculateSelectBaseByPrimaryKeyConfig(introspectedTable);
         //计算所有的selectByColumn配置，去重、计算列信息
         calculateSelectByColumnConfigurations(introspectedTable);
+        //计算StatisticsGeneratorConfiguration统计方法
+        calculateStatisticsGeneratorConfiguration(introspectedTable);
+        calculateStatisticsCustomGeneratorConfiguration(introspectedTable);
+
         //根据所有配置信息，进行调整
         //enableChildren.
         calculateSelectByParentIdConfig(warnings, introspectedTable);
@@ -421,6 +413,74 @@ public class TableConfiguration extends PropertyHolder {
         calculateSelectBySqlMethodProperty(introspectedTable);
         //计算附件属性，把全局配置分配到model和vo的配置上。
         calculateAdditionalProperty();
+    }
+
+    private void calculateStatisticsGeneratorConfiguration(IntrospectedTable introspectedTable) {
+        JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
+        if (serviceImplGeneratorConfiguration == null) {
+            return;
+        }
+        if (serviceImplGeneratorConfiguration.getStatisticsConfigurations().isEmpty()) {
+            return;
+        }
+        // 时间维度统计字段验证、计算方法名称
+        for (StatisticsDateDimGeneratorConfiguration statisticsConfiguration : serviceImplGeneratorConfiguration.getStatisticsConfigurations()) {
+            if (statisticsConfiguration.getStatColumns().isEmpty() || !VStringUtil.stringHasValue(statisticsConfiguration.getDateDimension())) {
+                continue;
+            }
+            IntrospectedColumn statColumn = introspectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
+            IntrospectedColumn joinColumn = introspectedTable.getColumn(statisticsConfiguration.getDateDimColumn()).orElse(null);
+            if (statColumn == null || joinColumn == null) {
+                this.warnings.add("警告：表 " + introspectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"或时间维度字段"+statisticsConfiguration.getDateDimColumn()+"在表中不存在，已被忽略。");
+                continue;
+            }
+            List<String> nameList = Arrays.asList(statisticsConfiguration.getStatType(),
+                    statColumn.getJavaProperty(),
+                    joinColumn.getJavaProperty(),
+                    statisticsConfiguration.getDateDimension());
+            String methodName = nameList.stream().map(VStringUtil::getFirstCharacterUppercase).collect(Collectors.joining(""));
+            if (VStringUtil.stringHasValue(statisticsConfiguration.getNameSuffix())) {
+                methodName += statisticsConfiguration.getNameSuffix();
+            }
+            statisticsConfiguration.setMethodName("stat"+methodName);
+        }
+        Set<StatisticsDateDimGeneratorConfiguration> configurationList = serviceImplGeneratorConfiguration.getStatisticsConfigurations().stream()
+                .filter(configuration -> stringHasValue(configuration.getMethodName())).collect(Collectors.toSet());
+        serviceImplGeneratorConfiguration.setStatisticsConfigurations(configurationList);
+    }
+
+    private void calculateStatisticsCustomGeneratorConfiguration(IntrospectedTable introspectedTable) {
+        JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
+        if (serviceImplGeneratorConfiguration == null) {
+            return;
+        }
+        if (serviceImplGeneratorConfiguration.getStatisticsCustomConfigurations().isEmpty()) {
+            return;
+        }
+        // 时间维度统计字段验证、计算方法名称
+        for (StatisticsCustomGeneratorConfiguration statisticsConfiguration : serviceImplGeneratorConfiguration.getStatisticsCustomConfigurations()) {
+            if (statisticsConfiguration.getStatColumns().isEmpty()) {
+                continue;
+            }
+            IntrospectedColumn statColumn = introspectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
+            if (statColumn == null) {
+                this.warnings.add("警告：表 " + introspectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"在表中不存在，已被忽略。");
+                continue;
+            }
+            List<JoinTableClauseGeneratorConfiguration> joinTableConfigurations = statisticsConfiguration.getJoinTableClauseGeneratorConfigurations();
+            String tableNames = joinTableConfigurations.stream().map(c -> VStringUtil.toCamelCase(c.getJoinTable())).collect(Collectors.joining());
+            List<String> nameList = Arrays.asList(statisticsConfiguration.getStatType(),
+                    statColumn.getJavaProperty(),
+                    tableNames);
+            String methodName = nameList.stream().map(VStringUtil::getFirstCharacterUppercase).collect(Collectors.joining());
+            if (VStringUtil.stringHasValue(statisticsConfiguration.getNameSuffix())) {
+                methodName += statisticsConfiguration.getNameSuffix();
+            }
+            statisticsConfiguration.setMethodName("statCustom"+methodName);
+        }
+        Set<StatisticsCustomGeneratorConfiguration> configurationList = serviceImplGeneratorConfiguration.getStatisticsCustomConfigurations().stream()
+                .filter(configuration -> stringHasValue(configuration.getMethodName())).collect(Collectors.toSet());
+        serviceImplGeneratorConfiguration.setStatisticsCustomConfigurations(configurationList);
     }
 
     private void calculateAdditionalProperty() {
@@ -712,7 +772,7 @@ public class TableConfiguration extends PropertyHolder {
         //html的必填列
         this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
             if (htmlGeneratorConfiguration.getProperties().getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS) != null) {
-                htmlGeneratorConfiguration.getElementRequired().addAll(splitToSet(htmlGeneratorConfiguration.getProperties().getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS)));
+                htmlGeneratorConfiguration.getElementRequired().addAll(VStringUtil.splitToSet(htmlGeneratorConfiguration.getProperties().getProperty(PropertyRegistry.ELEMENT_REQUIRED_COLUMNS)));
             }
             htmlGeneratorConfiguration.getElementDescriptors()
                     .forEach(elementDescriptor -> {
@@ -734,11 +794,11 @@ public class TableConfiguration extends PropertyHolder {
         Set<String> properties = new HashSet<>();
         String contextProperty = introspectedTable.getContext().getProperty(propertyName);
         if (stringHasValue(contextProperty)) {
-            properties.addAll(splitToSet(contextProperty));
+            properties.addAll(VStringUtil.splitToSet(contextProperty));
         }
         String tableProperty = introspectedTable.getTableConfiguration().getProperty(propertyName);
         if (stringHasValue(tableProperty)) {
-            properties.addAll(splitToSet(tableProperty));
+            properties.addAll(VStringUtil.splitToSet(tableProperty));
         }
         return properties;
     }

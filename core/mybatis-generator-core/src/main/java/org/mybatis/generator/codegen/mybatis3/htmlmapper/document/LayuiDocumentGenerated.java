@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper.document;
 
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -12,7 +13,6 @@ import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.layui.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -104,12 +104,12 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
     }
 
     private void addVerifyButton(HtmlElement parent) {
-        String form_verify_id = "btn_form_verify";
+        String formVerifyId = "btn_form_verify";
         HtmlElement btn = new HtmlElement("button");
         btn.addAttribute(new Attribute("type", "submit"));
-        btn.addAttribute(new Attribute("id", form_verify_id));
+        btn.addAttribute(new Attribute("id", formVerifyId));
         btn.addAttribute(new Attribute("lay-submit", ""));
-        btn.addAttribute(new Attribute("lay-filter", form_verify_id));
+        btn.addAttribute(new Attribute("lay-filter", formVerifyId));
         btn.addAttribute(new Attribute("style", "display: none;"));
         parent.addElement(btn);
     }
@@ -426,11 +426,17 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         div.addElement(table);
     }
 
-    //生成页面dropdownlist、switch、radio、checkbox、date及其它元素
+    /**
+     * 生成页面的输入组件.htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType()
+     * @param introspectedColumn 当前字段
+     * @param parent 父元素
+     * @param td 当前td元素
+     */
     private void generateHtmlInputComponent(IntrospectedColumn introspectedColumn, HtmlElement parent, HtmlElement td) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (htmlElementDescriptor != null) { //如果配置了当前字段的元素描述，则使用配置的元素描述
+        //如果配置了当前字段的元素描述，则使用配置的元素描述
+        if (htmlElementDescriptor != null) {
             switch (htmlElementDescriptor.getTagType().toLowerCase()) {
                 case "dropdownlist":
                     DropdownListThymeleafHtmlGenerator dropdownListHtmlGenerator = new DropdownListThymeleafHtmlGenerator(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
@@ -503,19 +509,19 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         } else {
             labelText = introspectedColumn.getRemarks(true);
         }
-        HtmlElement label_p = new HtmlElement("p");
+        HtmlElement labelP = new HtmlElement("p");
         if (!introspectedColumn.isNullable()) {
-            label_p.addAttribute(new Attribute("class", "label-text label-required"));
+            labelP.addAttribute(new Attribute("class", "label-text label-required"));
         } else {
-            label_p.addAttribute(new Attribute("class", "label-text"));
+            labelP.addAttribute(new Attribute("class", "label-text"));
         }
-        label_p.addElement(new TextElement(labelText));
-        label.addElement(label_p);
+        labelP.addElement(new TextElement(labelText));
+        label.addElement(labelP);
         if (VStringUtil.stringHasValue(introspectedColumn.getSubRemarks())) {
-            HtmlElement label_p2 = new HtmlElement("p");
-            label_p2.addAttribute(new Attribute("class", "label-sub-text"));
-            label_p2.addElement(new TextElement(introspectedColumn.getSubRemarks()));
-            label.addElement(label_p2);
+            HtmlElement labelP2 = new HtmlElement("p");
+            labelP2.addAttribute(new Attribute("class", "label-sub-text"));
+            labelP2.addElement(new TextElement(introspectedColumn.getSubRemarks()));
+            label.addElement(labelP2);
             label.addAttribute(new Attribute("title", introspectedColumn.getSubRemarks()));
         }
         addCssClassToElement(label, "class-" + introspectedColumn.getActualColumnName());
@@ -532,7 +538,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
         if (!HTML_KEY_WORD_TOP.equals(config)) {
             HtmlElement btnClose = addLayButton(toolBar, btn_close_id, "关闭", "&#x1006;");
             addCssClassToElement(btnClose, "footer-btn", "layui-btn-primary");
-            if (htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType().equals("inner")) {
+            if ("inner".equals(htmlGeneratorConfiguration.getLayoutDescriptor().getLoadingFrameType())) {
                 HtmlElement btnReset = addLayButton(toolBar, btn_reset_id, "重置", "&#xe9aa;");
                 addCssClassToElement(btnReset, "footer-btn", "btn-primary");
             }

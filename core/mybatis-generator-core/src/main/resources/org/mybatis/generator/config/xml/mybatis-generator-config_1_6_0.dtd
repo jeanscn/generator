@@ -1159,12 +1159,123 @@
                 说明：1、目前不支持在byExample、byTable、bySql相关方法中添加事件。
                      2、RECYCLED、RESTORED配置仅影响初次生成监听器的生成对应的方法配置,而是否发布消息取决于是否启用了移入回收站的操作。
         -->
-        <!ELEMENT generateService (property*)>
+        <!ELEMENT generateService (property*, generateDateDimStatistics*, generateCustomStatistics*)>
         <!ATTLIST generateService
                 generate (true|false) #REQUIRED
                 generateUnitTest (true|false) #IMPLIED
                 noServiceAnnotation (false|true) #IMPLIED
                 targetSubPackage CDATA #IMPLIED>
+
+        <!--
+            默认时间维度的统计接口生成描述，默认生成基于时间维度的统计方法
+            属性信息：
+                1、statType 统计类型，total-总数统计，yoy（year-on-year）-同比统计，mom（month-on-month）-环比统计。缺省值为total
+                2、statColumns 统计列名，表示统计的列名,多值使用逗号分隔，最多支持5个汇总字段。
+                3、dateDimColumn 连接列名，表示与时间维度表连接的列名，如：created_等,缺省值为created_
+                4、dateDimension 最小维度，表示统计的最小维度，如：day、week、month、quarter、year等。缺省值为month
+                5、customAggregationExpr 自定义聚合表达式，多值使用管道符|分割，最多支持5个自定义聚合项。
+                6、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
+                7、orderByClause 默认排序，用于指定默认的排序字段，如：alias.amount desc,alias.created_ asc
+                8、nameSuffix 生成的统计方法名称后缀，默认为空。用于区分相同配置的多个统计方法。
+                9、genControllerMethod 是否生成controller方法，默认false
+             说明：
+                1、statType为total时，表示统计总数，返回一个或多个总数值；
+                2、statType为yoy时，表示同比统计，返回一个列表，包含当前月和去年同月的统计值；
+                3、statType为mom时，表示环比统计，返回一个列表，包含当前月和上月的统计值。
+                4、dateDimColumn和dateDimension用于指定与时间维度表连接的列名和最小维度。
+                5、customAggregationExpr 直接统计字段值无法满足需求时，可以使用自定义聚合表达式来使用其他聚合函数或者指定条件过滤的统计项，多个条件使用管道符“|”分割。
+                   每个条件的格式为：customAggregationExpr1|customAggregationExpr2|...
+                   customAggregationExpr为统计表达式，支持sum(column),avg(column),max(column),min(column),count(column)等统计函数，
+                   如：
+                      - sum(alias.budget_amount),avg(alias.budget_amount)等，
+                      - 也可以增加过滤条件，如：AVG( IF ( alias.unit_price > 5, alias.budget_amount, 0 ))对单价大于5的预算数据统计预算平均额度，
+                                           SUM( IF ( alias.unit_price > 5, 1, 0 )) 统计单价大于5的预算数据的数量
+                                           COALESCE ( SUM( IF ( alias.unit_price > 5, 1, 0 )), 0 ) 统计单价大于5的预算数据的数量，如果没有则返回0
+                                           SUM( IF ( alias.wf_state = 2, 1, 0 )) / COUNT(1) as rate 统计完成率
+                6、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。
+                7、genControllerMethod为true时，会生成一个controller方法，方法名为stat+statType+statColumnField+joinColumnField+minDimension（小驼峰命名），如：statTotalAmountCreatedYear()
+                   生成的controller方法会根据statType的不同返回一个List<dto>类型的结果，包含统计结果和其他信息。
+                   total类型返回-List<com.vgosoft.system.pojo.dto.statistics.TotalStatDto>
+                   yoy-List<com.vgosoft.system.pojo.dto.statistics.YoyStatDto>
+                   mom-List<com.vgosoft.system.pojo.dto.statistics.MomStatDto>
+         -->
+        <!ELEMENT generateDateDimStatistics  (property*)>
+        <!ATTLIST generateDateDimStatistics
+                statType (total|yoy|mom) #IMPLIED
+                statColumns CDATA #REQUIRED
+                dateDimColumn CDATA #IMPLIED
+                dateDimension (day|week|month|quarter|year) #IMPLIED
+                customAggregationExpr CDATA #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                orderByClause CDATA #IMPLIED
+                nameSuffix CDATA #IMPLIED
+                genControllerMethod (false|true) #IMPLIED>
+
+        <!--
+            自定义统计接口生成描述
+            属性信息：
+                1、statType 统计类型，total-总数统计，yoy（year-on-year）-同比统计，mom（month-on-month）-环比统计。缺省值为total
+                2、statColumns 统计列名，表示统计的列名,多值使用逗号分隔。
+                3、customAggregationExpr 自定义聚合表达式，多值使用管道符|分割。
+                4、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
+                5、orderByClause 默认排序，用于指定默认的排序字段，如：alias.amount desc,alias.created_ asc
+                6、nameSuffix 生成的统计方法名称后缀，默认为空。用于区分相同配置的多个统计方法。
+                7、dateDimension 时间维度配置，用于指定是否与时间维度表连接的及最小时间维度。
+                8、dateDimColumn 指定与时间维度表连接的列名，如：created_等,缺省值为created_
+                9、genControllerMethod 是否生成controller方法，默认false
+             说明：
+                1、statType为total时，表示统计总数，statType为yoy时，表示同比统计，statType为mom时，表示环比统计。
+                2、customAggregationExpr 直接统计字段值无法满足需求时，可以使用自定义聚合表达式来使用其他聚合函数或者指定条件过滤的统计项，多个条件使用管道符“|”分割。
+                   每个条件的格式为：customAggregationExpr1|customAggregationExpr2|...
+                   customAggregationExpr为统计表达式，支持sum(column) as prop,avg(column) as prop,max(column) as prop,min(column) as prop,count(column) as prop等统计函数，
+                   如：
+                      - sum(alias.budget_amount) as budgetAmount,avg(alias.budget_amount) as AvgBudgetAmount等，
+                      - 也可以增加过滤条件，如：AVG( IF ( alias.unit_price > 5, alias.budget_amount, 0 ))as budgetAmount对单价大于5的预算数据统计预算平均额度，
+                                           SUM( IF ( alias.unit_price > 5, 1, 0 )) as budgetItems统计单价大于5的预算数据的数量
+                                           COALESCE ( SUM( IF ( alias.unit_price > 5, 1, 0 )), 0 )  as budgetItems统计单价大于5的预算数据的数量，如果没有则返回0
+                                           SUM( IF ( alias.wf_state = 2, 1, 0 )) / COUNT(1) as rate 统计完成率
+                3、defaultFilterExpr 为数据库sql表达式。注意要使用单个等号“=”。使用时需要注意其他统计条件的冲突问题。
+                4、dateDimension用于指定是否与时间维度表连接的及最小时间维度。如果指定了该属性，则会自动与时间维度表连接，并根据指定的最小时间维度进行统计。
+                    当指定为none时，表示不与时间维度表连接。
+                    当指定为day、week、month、quarter、year时，表示与时间维度表连接，并根据指定的最小时间维度进行统计。
+                    时间维度将放置在所有join之后，并且默认为left join
+                5、genControllerMethod为true时，会生成一个controller方法，方法名为stat+statType+Custom+statColumnField（小驼峰命名），如：statTotalAmount()
+                   生成的controller方法会返回-List<Map<String, Object>>类型的结果，包含统计结果和其他信息。
+         -->
+        <!ELEMENT generateCustomStatistics  (property*,joinTableClause*)>
+        <!ATTLIST generateCustomStatistics
+                statType (total|yoy|mom) #IMPLIED
+                statColumns CDATA #REQUIRED
+                customAggregationExpr CDATA #IMPLIED
+                defaultFilterExpr CDATA #IMPLIED
+                orderByClause CDATA #IMPLIED
+                nameSuffix CDATA #IMPLIED
+                dateDimension (none|day|week|month|quarter|year) #IMPLIED
+                dateDimColumn CDATA #IMPLIED
+                genControllerMethod (false|true) #IMPLIED>
+
+
+        <!--
+            自定义关联表配置
+            属性信息：
+            1、joinType 连接类型，inner-内连接，left-左连接，right-右连接，full-全连接。缺省值为inner
+            2、joinTable 连接表名，必须
+            3、tableAlias 连接表别名，必须
+            4、onSearchConditionExpr 连接条件表达式，必须，如：alias.id = jt.alias_id and jt.state_ = 1
+            5、clauseColumns 连接表的列名，多值使用逗号分隔，用于指定需要查询的列名。如果不指定：统计配置中不使用列，其他配置中查询所有列。
+            说明：
+                1、joinTable可以是一个视图或者子查询，如果是子查询则需要使用括号括起来，并指定别名，如：(select id, name, parent_id from sys_category) as [tableAlias]
+                2、onSearchConditionExpr为数据库sql表达式。注意要使用单个等号“=”。
+                3、clauseColumns用于指定需要查询的列名。如果不指定：统计配置中不使用列或者在customAggregationExpr指定使用的列，;其他配置中查询所有列。
+        -->
+        <!ELEMENT joinTableClause  (property*)>
+        <!ATTLIST joinTableClause
+                joinType (inner|left|right|full) #IMPLIED
+                joinTable CDATA #REQUIRED
+                tableAlias CDATA #REQUIRED
+                onSearchConditionExpr CDATA #REQUIRED
+                clauseColumns CDATA #IMPLIED>
+
         <!--
             Controller接口生成描述
             属性信息：
@@ -1451,7 +1562,8 @@
                 defaultSort CDATA #IMPLIED
                 showRowNumber (true|false) #IMPLIED
                 editFormIn (inner|dialog|drawer) #IMPLIED
-                detailFormIn (inner|dialog|drawer) #IMPLIED>
+                detailFormIn (inner|dialog|drawer) #IMPLIED
+                enableShortcut (true|false) #IMPLIED>
         <!--
             用于配置列表列的覆盖信息
             属性信息：

@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -10,7 +11,6 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.HtmlHrefElementConfiguration;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
@@ -22,6 +22,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 /**
  * html生成基类
  * 包含html document、html element生成的公共方法
+ * @author cen_c
  */
 public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
 

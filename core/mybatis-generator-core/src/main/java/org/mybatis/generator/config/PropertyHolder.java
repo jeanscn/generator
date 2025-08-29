@@ -4,6 +4,9 @@ import lombok.Getter;
 
 import java.util.Properties;
 
+/**
+ * @author vgosoft
+ */
 @Getter
 public abstract class PropertyHolder {
     private final Properties properties;

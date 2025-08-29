@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
@@ -305,7 +306,6 @@ public class ServiceMethods {
                                              CompilationUnit parentElement,
                                              final SelectByColumnGeneratorConfiguration config,
                                              boolean isAbstract) {
-        //IntrospectedColumn column = config.getColumn();
         boolean isSelectBase = JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(config.getMethodName());
         List<Parameter> parameters = config.getColumns().stream().map(column -> {
             if (config.getParameterList()) {
@@ -331,6 +331,66 @@ public class ServiceMethods {
         String collect = config.getColumns().stream().map(column -> column.getActualColumnName() + "(" + column.getRemarks(true) + ")").collect(Collectors.joining(","));
         if (isAbstract) {
             context.getCommentGenerator().addMethodJavaDocLine(method,"基于["+collect+"]的查询方法。"+(config.getColumns().size()==1?"该方法常用于为其它方法提供子查询。":""));
+        }
+        return method;
+    }
+
+    public Method getStatisticsTotalMethod(CompilationUnit parentElement, StatisticsDateDimGeneratorConfiguration configuration, boolean isAbstract, boolean isService) {
+        Method method = new Method(configuration.getMethodName());
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(new FullyQualifiedJavaType(StatTypeEnum.TOTAL.dtoClass()));
+        parentElement.addImportedType(new FullyQualifiedJavaType(StatTypeEnum.TOTAL.dtoClass()));
+        method.setReturnRemark("按时间维度统计总数，返回的列表包含时间维度和对应的总数");
+        method.setReturnType(listInstance);
+        Parameter startDate = new Parameter(new FullyQualifiedJavaType("java.lang.String"), "startDate");
+        startDate.setRemark("开始日期，格式yyyy-MM-dd");
+        Parameter endDate = new Parameter(new FullyQualifiedJavaType("java.lang.String"), "endDate");
+        endDate.setRemark("结束日期，格式yyyy-MM-dd");
+        Parameter minDimension = new Parameter(new FullyQualifiedJavaType("java.lang.String"), "minDimension");
+        minDimension.setRemark("最小时间维度（day、week、month、quarter、year），默认为month");
+        if (!isService) {
+            startDate.addAnnotation("@Param(\"startDate\")");
+            endDate.addAnnotation("@Param(\"endDate\")");
+            minDimension.addAnnotation("@Param(\"minDimension\")");
+            parentElement.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
+        }
+        method.addParameter(startDate);
+        method.addParameter(endDate);
+        method.addParameter(minDimension);
+        method.setAbstract(isAbstract);
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "按时间维度统计总数");
+        }
+        return method;
+    }
+
+    public Method getStatisticsCustomMethod(CompilationUnit parentElement, StatisticsCustomGeneratorConfiguration configuration, boolean isAbstract, boolean isService) {
+        Method method = new Method(configuration.getMethodName());
+        FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
+        listInstance.addTypeArgument(new FullyQualifiedJavaType("java.util.Map<String, Object>"));
+        parentElement.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
+        method.setReturnRemark("自定义聚合统计方法，返回的Map列表包含时间维度和对应的总数");
+        method.setReturnType(listInstance);
+        Parameter startDate = new Parameter(new FullyQualifiedJavaType("java.lang.String"), "startDate");
+        startDate.setRemark("开始日期，格式yyyy-MM-dd");
+        Parameter endDate = new Parameter(new FullyQualifiedJavaType("java.lang.String"), "endDate");
+        endDate.setRemark("结束日期，格式yyyy-MM-dd");
+        Parameter minDimension = new Parameter(new FullyQualifiedJavaType("java.lang.String"), "minDimension");
+        minDimension.setRemark("最小时间维度（day、week、month、quarter、year），默认为month");
+        if (!isService) {
+            startDate.addAnnotation("@Param(\"startDate\")");
+            endDate.addAnnotation("@Param(\"endDate\")");
+            minDimension.addAnnotation("@Param(\"minDimension\")");
+            parentElement.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
+        }
+        minDimension.addAnnotation("@Nullable");
+        parentElement.addImportedType(new FullyQualifiedJavaType("javax.annotation.Nullable"));
+        method.addParameter(startDate);
+        method.addParameter(endDate);
+        method.addParameter(minDimension);
+        method.setAbstract(isAbstract);
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "自定义聚合统计方法");
         }
         return method;
     }
@@ -374,8 +434,8 @@ public class ServiceMethods {
         FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
         listInstance.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         List<Parameter> parameters = new ArrayList<>();
-        Parameter p1 = new Parameter(config.getParameterType().equals("list")?listInstance:FullyQualifiedJavaType.getStringInstance(),
-                config.getParameterName()+(config.getParameterType().equals("list")?"s":""));
+        Parameter p1 = new Parameter("list".equals(config.getParameterType())?listInstance:FullyQualifiedJavaType.getStringInstance(),
+                config.getParameterName()+("list".equals(config.getParameterType())?"s":""));
         p1.setRemark("中间表中来自其他表的查询键值,字段名：" + config.getOtherPrimaryKeyColumn());
         parameters.add(p1);
         Method method = getMethodByType(config.getMethodName(),

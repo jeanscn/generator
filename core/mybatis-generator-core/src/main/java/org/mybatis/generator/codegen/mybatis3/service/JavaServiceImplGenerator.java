@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.enums.core.EntityEventEnum;
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
@@ -124,6 +125,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         addSelectByColumnElement(bizGenClazzImpl);
 
         addDeleteByColumnElement(bizGenClazzImpl);
+
+        addStatisticsTotalElement(bizGenClazzImpl);
+        addStatisticsCustomElement(bizGenClazzImpl);
         //增加selectTreeByParentId
         addSelectBySqlMethodElement(bizGenClazzImpl);
 
@@ -309,6 +313,20 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addSelectByColumnElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateSelectByColumn()) {
             AbstractServiceElementGenerator elementGenerator = new SelectByColumnElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addStatisticsTotalElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateStatisticsElement(StatTypeEnum.TOTAL)) {
+            AbstractServiceElementGenerator elementGenerator = new StatisticsTotalElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addStatisticsCustomElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateCustomStatisticsElement()) {
+            AbstractServiceElementGenerator elementGenerator = new StatisticsCustomElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

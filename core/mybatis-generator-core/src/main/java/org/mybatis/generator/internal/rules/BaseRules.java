@@ -1,5 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.tool.core.VStringUtil;
@@ -16,7 +17,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.Arrays;
 
-import static org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum.*;
+import static com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum.*;
 
 /**
  * This class centralizes all the rules related to code generation - including
@@ -565,6 +566,35 @@ public abstract class BaseRules implements Rules {
         JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
         return javaServiceImplGeneratorConfiguration.isGenerate()
                 && javaServiceImplGeneratorConfiguration.isGenerateUnitTest();
+    }
+
+    @Override
+    public boolean isGenerateStatisticsElement(StatTypeEnum statType) {
+        if (isModelOnly) {
+            return false;
+        }
+
+        JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
+        if (javaServiceImplGeneratorConfiguration == null || !javaServiceImplGeneratorConfiguration.isGenerate()) {
+            return false;
+        }
+
+        return javaServiceImplGeneratorConfiguration.getStatisticsConfigurations().stream()
+                .anyMatch(statistics -> statistics.getStatType().equals(statType.code()));
+    }
+
+    @Override
+    public boolean isGenerateCustomStatisticsElement() {
+        if (isModelOnly) {
+            return false;
+        }
+
+        JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration = tc.getJavaServiceImplGeneratorConfiguration();
+        if (javaServiceImplGeneratorConfiguration == null || !javaServiceImplGeneratorConfiguration.isGenerate()) {
+            return false;
+        }
+
+        return !javaServiceImplGeneratorConfiguration.getStatisticsCustomConfigurations().isEmpty();
     }
 
     @Override

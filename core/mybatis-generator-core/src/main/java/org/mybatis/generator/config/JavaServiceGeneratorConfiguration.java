@@ -4,6 +4,9 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 public class JavaServiceGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public JavaServiceGeneratorConfiguration(Context context) {

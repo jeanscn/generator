@@ -1,12 +1,13 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
+import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
@@ -79,7 +80,8 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
             parentElement.addField(workflowTraceInfoImpl);
             parentElement.addImportedType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
             //添加审批记录
-            method.addBodyLine("if (\"true\".equals(viewParam.getWithTraceInfo())) {");
+            method.addBodyLine("if (SymbolConstants.TRUE.equalsIgnoreCase(viewParam.getWithTraceInfo())) {");
+            parentElement.addImportedType("com.vgosoft.core.constant.SymbolConstants");
             method.addBodyLine("// 流程审批记录");
             method.addBodyLine("mv.addObject(\"traceInfo\", workflowTraceInfoImpl.getTraceInfo({0}));", entityType.getShortNameFirstLowCase());
             method.addBodyLine("}");
@@ -88,7 +90,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
             if (htmlGeneratorConfiguration.isGenerate()) {
                 if (htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.PRINT)) {
-                    method.addBodyLine("if (\"print_\".equals(viewParam.getPrefix())) {");
+                    method.addBodyLine("if (HtmlDocumentTypeEnum.{0}.prefix().equals(viewParam.getPrefix())) '{'", HtmlDocumentTypeEnum.PRINT.name());
                     setViewName(method, htmlGeneratorConfiguration);
                     method.addBodyLine("mv.addObject(\"viewStatus\", \"0\");");
                     method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
@@ -99,7 +101,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
                     addInnerListToModel(htmlGeneratorConfiguration, method, parentElement);
                     method.addBodyLine("}");
                 } else if (htmlGeneratorConfiguration.getType().equals(HtmlDocumentTypeEnum.VIEWONLY)) {
-                    method.addBodyLine("if (\"view_\".equals(viewParam.getPrefix())) {");
+                    method.addBodyLine("if (HtmlDocumentTypeEnum.{0}.prefix().equals(viewParam.getPrefix())) '{'", HtmlDocumentTypeEnum.VIEWONLY.name());
                     setViewName(method, htmlGeneratorConfiguration);
                     method.addBodyLine("mv.addObject(\"viewStatus\", \"0\");");
                     method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
@@ -110,7 +112,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
                     addInnerListToModel(htmlGeneratorConfiguration, method, parentElement);
                     method.addBodyLine("}");
                 } else {
-                    method.addBodyLine("if (!VStringUtil.stringHasValue(viewParam.getPrefix()) || \"edit_\".equals(viewParam.getPrefix())) {");
+                    method.addBodyLine("if (!VStringUtil.stringHasValue(viewParam.getPrefix()) || HtmlDocumentTypeEnum.{0}.prefix().equals(viewParam.getPrefix())) '{'", HtmlDocumentTypeEnum.EDITABLE.name());
                     setViewName(method, htmlGeneratorConfiguration);
                     method.addBodyLine("mv.addObject(\"viewStatus\", Optional.ofNullable(viewParam.getViewStatus()).orElse(\"1\"));");
                     method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
@@ -121,6 +123,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
                     addInnerListToModel(htmlGeneratorConfiguration, method, parentElement);
                     method.addBodyLine("}");
                 }
+                parentElement.addImportedType("com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum");
             }
         });
 

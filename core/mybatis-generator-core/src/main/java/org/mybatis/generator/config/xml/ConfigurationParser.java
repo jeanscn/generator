@@ -26,6 +26,9 @@ import java.util.Properties;
 import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author XXXX
+ */
 public class ConfigurationParser {
 
     private final List<String> warnings;
@@ -34,8 +37,10 @@ public class ConfigurationParser {
 
     public ConfigurationParser(List<String> warnings) {
         this(null, warnings);
+        // 设置控制台编码
+        setupConsoleEncoding();
     }
-    /*
+    /**
       此构造函数接受一个 properties 对象，该对象可用于指定其他属性集。
       通常，此属性集将在 build.xml 文件或 POM 中指定的 Ant 或 Maven 属性。<p>如果不同属性集之间存在名称冲突，则按以下顺序解决它们：
       <ol>
@@ -57,6 +62,9 @@ public class ConfigurationParser {
         }
 
         parseErrors = new ArrayList<>();
+
+        // 设置控制台编码
+        setupConsoleEncoding();
     }
 
     public Configuration parseConfiguration(File inputFile) throws IOException,XMLParserException {
@@ -144,7 +152,8 @@ public class ConfigurationParser {
     public void customConfig(Configuration config) {
         List<Context> contexts = config.getContexts();
         for (Context context : contexts) {
-            context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+            ensureUtf8Encoding(context);
+
             String mybatisPlus = context.getProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS);
             if (!StringUtility.stringHasValue(mybatisPlus)) {
                 context.addProperty(PropertyRegistry.CONTEXT_INTEGRATE_MYBATIS_PLUS, "true");
@@ -277,6 +286,40 @@ public class ConfigurationParser {
                 properties.put(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE, targetPackage + "." + properties.get(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE));
             }
             context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
+        }
+    }
+
+    /**
+     * 设置控制台输出编码，解决中文乱码问题
+     */
+    private void setupConsoleEncoding() {
+        try {
+            // 设置系统编码为UTF-8
+            System.setProperty("file.encoding", "UTF-8");
+            System.setProperty("console.encoding", "UTF-8");
+
+            // 重新设置输出流编码
+            if (System.out != null) {
+                System.setOut(new PrintStream(System.out, true, "UTF-8"));
+            }
+            if (System.err != null) {
+                System.setErr(new PrintStream(System.err, true, "UTF-8"));
+            }
+        } catch (UnsupportedEncodingException e) {
+            // 如果UTF-8不支持，使用默认编码
+            warnings.add("无法设置UTF-8编码，使用系统默认编码");
+        }
+    }
+
+    // 在 customConfig 方法开头添加
+    private void ensureUtf8Encoding(Context context) {
+        // 确保Java文件编码为UTF-8
+        context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
+
+        // 确保注释生成器使用UTF-8
+        CommentGeneratorConfiguration commentConfig = context.getCommentGeneratorConfiguration();
+        if (commentConfig != null) {
+            commentConfig.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");
         }
     }
 }

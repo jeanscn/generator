@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.freemaker.js.layui;
 
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import freemarker.template.Template;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -7,7 +8,6 @@ import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.internal.util.Mb3GenUtil;

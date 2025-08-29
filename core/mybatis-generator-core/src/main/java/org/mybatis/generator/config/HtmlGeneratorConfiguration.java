@@ -1,14 +1,17 @@
 package org.mybatis.generator.config;
 
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {

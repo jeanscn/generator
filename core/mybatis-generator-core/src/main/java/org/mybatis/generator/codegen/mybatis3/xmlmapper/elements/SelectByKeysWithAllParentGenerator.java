@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -22,18 +23,19 @@ public class SelectByKeysWithAllParentGenerator extends AbstractXmlElementGenera
         answer.addAttribute(new Attribute("parameterType", "java.util.List"));
         context.getCommentGenerator().addComment(answer);
 
+        String tableAlias = introspectedTable.getTableConfiguration().getAlias();
         answer.addElement(new TextElement("<!-- 使用递归CTE查询指定ID的数据及其所有父级  递归深度限制为10，防止性能问题  -->"));
         answer.addElement(new TextElement("WITH RECURSIVE cte AS ("));
         answer.addElement(new TextElement("<!-- 基本查询：选择指定主键的记录 -->"));
-        answer.addElement(new TextElement("SELECT o.*, 1 AS depth"));
-        answer.addElement(new TextElement("FROM "+introspectedTable.getTableConfiguration().getTableName()+" o"));
-        answer.addElement(new TextElement("WHERE o.id_ IN"));
+        answer.addElement(new TextElement(VStringUtil.format("SELECT {0}.*, 1 AS depth",tableAlias)));
+        answer.addElement(new TextElement("FROM "+introspectedTable.getTableConfiguration().getTableName()+" "+tableAlias));
+        answer.addElement(new TextElement(VStringUtil.format("WHERE {0}.id_ IN",tableAlias)));
         answer.addElement( getForeachXmlElement("list"));
         answer.addElement(new TextElement("UNION ALL"));
         answer.addElement(new TextElement("<!-- 递归查询：查找所有父级 -->"));
-        answer.addElement(new TextElement("SELECT parent.*, child.depth + 1"));
-        answer.addElement(new TextElement("FROM "+introspectedTable.getTableConfiguration().getTableName()+" parent"));
-        answer.addElement(new TextElement("INNER JOIN cte child ON child.parent_id = parent.id_"));
+        answer.addElement(new TextElement(VStringUtil.format("SELECT {0}.*, child.depth + 1",tableAlias)));
+        answer.addElement(new TextElement("FROM "+introspectedTable.getTableConfiguration().getTableName()+" "+tableAlias));
+        answer.addElement(new TextElement(VStringUtil.format("INNER JOIN cte child ON child.parent_id = {0}.id_",tableAlias)));
         answer.addElement(new TextElement("WHERE child.depth &lt; 10 <!-- 限制递归深度为10层，避免性能问题 -->"));
         answer.addElement(new TextElement(")"));
         answer.addElement(new TextElement("SELECT DISTINCT"));

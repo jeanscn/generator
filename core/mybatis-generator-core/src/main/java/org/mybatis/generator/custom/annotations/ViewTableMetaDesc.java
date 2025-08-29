@@ -8,6 +8,8 @@ import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
 import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -24,50 +26,88 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
  * 2022-10-07 04:48
  * @version 3.0
  */
+@Getter
+@Setter
 public class ViewTableMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@" + ViewTableMeta.class.getSimpleName();
     private final String value;
+
     private String listKey;
+
     private String title;
+
     private String size;
     private final String listName;
     private final String beanName;
     private final String appKeyword;
+
     private String dataUrl;
+
     private String createUrl;
+
     private String className;
+
     private String listType;
     private final String tableName;
     private final String tableAlias;
+
     private ViewIndexColumnEnum indexColumn;
+
     private String indexColWidth;
+
     private String[] toolbar = new String[0];
+
     private String columnActions;
+
     private String toolbarActions;
+
     private String[] ignoreFields = new String[0];
+
     private String[] columns = new String[0];
+
     private String[] querys = new String[0];
+
     private String[] filters = new String[0];
+
     private String[] fuzzyColumns = new String[0];
+
     private String actionColWidth;
+
     private int dataFilterType = 0;
+
     private String categoryTreeUrl;
+
     private int wfStatus = 6;
+
     private String areaWidth;
+
     private String areaHeight;
+
     private String restBasePath;
+
     private String tableType = "default";
+
     private int applyWorkflow = 0;
+
     private String moduleId;
+
     private boolean totalRow = false;
+
     private Set<String> totalFields = new HashSet<>();
+
     private String totalText = "合计";
+
     private String defaultFilterExpr;
+
     private boolean showRowNumber = true;
+
     private String defaultSort = "";
+
     private String showActionColumn = "default";
+
     private String editFormIn;
+
     private String detailFormIn;
 
     public static ViewTableMetaDesc create(IntrospectedTable introspectedTable) {
@@ -110,7 +150,7 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(this.getSize()) && !"md".equals(this.getSize())) {
             items.add(VStringUtil.format("size = \"{0}\"", this.getSize()));
         }
-        if (!this.getDataUrl().equals("/viewmgr/getdtdata")) {
+        if (!"/viewmgr/getdtdata".equals(this.getDataUrl())) {
             items.add(VStringUtil.format("dataUrl = \"{0}\"", this.getDataUrl()));
         }
         if (VStringUtil.isNotBlank(this.getCreateUrl())) {
@@ -216,315 +256,4 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
         return ANNOTATION_NAME + "(" + String.join("\n        , ", items.toArray(new String[0])) + ")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getListName() {
-        return listName;
-    }
-
-    public String getBeanName() {
-        return beanName;
-    }
-
-    public String getAppKeyword() {
-        return appKeyword;
-    }
-
-    public String getDataUrl() {
-        return dataUrl;
-    }
-
-    public void setDataUrl(String dataUrl) {
-        this.dataUrl = dataUrl;
-    }
-
-    public String getCreateUrl() {
-        return createUrl;
-    }
-
-    public void setCreateUrl(String createUrl) {
-        this.createUrl = createUrl;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getListType() {
-        return listType;
-    }
-
-    public void setListType(String listType) {
-        this.listType = listType;
-    }
-
-    public ViewIndexColumnEnum getIndexColumn() {
-        return indexColumn;
-    }
-
-    public void setIndexColumn(ViewIndexColumnEnum indexColumn) {
-        this.indexColumn = indexColumn;
-    }
-
-    public String[] getIgnoreFields() {
-        return ignoreFields;
-    }
-
-    public void setIgnoreFields(String[] ignoreFields) {
-        this.ignoreFields = ignoreFields;
-    }
-
-    public String[] getColumns() {
-        return columns;
-    }
-
-    public void setColumns(String[] columns) {
-        this.columns = columns;
-    }
-
-    public String[] getQuerys() {
-        return querys;
-    }
-
-    public void setQuerys(String[] querys) {
-        this.querys = querys;
-    }
-
-    public String getIndexColWidth() {
-        return indexColWidth;
-    }
-
-    public void setIndexColWidth(String indexColWidth) {
-        this.indexColWidth = indexColWidth;
-    }
-
-    public String getActionColWidth() {
-        return actionColWidth;
-    }
-
-    public void setActionColWidth(String actionColWidth) {
-        this.actionColWidth = actionColWidth;
-    }
-
-    public int getDataFilterType() {
-        return dataFilterType;
-    }
-
-    public void setDataFilterType(int dataFilterType) {
-        this.dataFilterType = dataFilterType;
-    }
-
-    public String getCategoryTreeUrl() {
-        return categoryTreeUrl;
-    }
-
-    public void setCategoryTreeUrl(String categoryTreeUrl) {
-        this.categoryTreeUrl = categoryTreeUrl;
-    }
-
-    public int getWfStatus() {
-        return wfStatus;
-    }
-
-    public void setWfStatus(int wfStatus) {
-        this.wfStatus = wfStatus;
-    }
-
-    public String getAreaWidth() {
-        return areaWidth;
-    }
-
-    public void setAreaWidth(String areaWidth) {
-        this.areaWidth = areaWidth;
-    }
-
-    public String getAreaHeight() {
-        return areaHeight;
-    }
-
-    public void setAreaHeight(String areaHeight) {
-        this.areaHeight = areaHeight;
-    }
-
-    public String getRestBasePath() {
-        return restBasePath;
-    }
-
-    public void setRestBasePath(String restBasePath) {
-        this.restBasePath = restBasePath;
-    }
-
-    public String getColumnActions() {
-        return columnActions;
-    }
-
-    public void setColumnActions(String columnActions) {
-        this.columnActions = columnActions;
-    }
-
-    public String getToolbarActions() {
-        return toolbarActions;
-    }
-
-    public void setToolbarActions(String toolbarActions) {
-        this.toolbarActions = toolbarActions;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public String getTableAlias() {
-        return tableAlias;
-    }
-
-    public String[] getFilters() {
-        return filters;
-    }
-
-    public void setFilters(String[] filters) {
-        this.filters = filters;
-    }
-
-    public String getTableType() {
-        return tableType;
-    }
-
-    public void setTableType(String tableType) {
-        this.tableType = tableType;
-    }
-
-    public int getApplyWorkflow() {
-        return applyWorkflow;
-    }
-
-    public void setApplyWorkflow(int applyWorkflow) {
-        this.applyWorkflow = applyWorkflow;
-    }
-
-    public String getModuleId() {
-        return moduleId;
-    }
-
-    public void setModuleId(String moduleId) {
-        this.moduleId = moduleId;
-    }
-
-    public boolean isTotalRow() {
-        return totalRow;
-    }
-
-    public void setTotalRow(boolean totalRow) {
-        this.totalRow = totalRow;
-    }
-
-    public Set<String> getTotalFields() {
-        return totalFields;
-    }
-
-    public void setTotalFields(Set<String> totalFields) {
-        this.totalFields = totalFields;
-    }
-
-    public String getTotalText() {
-        return totalText;
-    }
-
-    public void setTotalText(String totalText) {
-        this.totalText = totalText;
-    }
-
-    public String getDefaultFilterExpr() {
-        return defaultFilterExpr;
-    }
-
-    public void setDefaultFilterExpr(String defaultFilterExpr) {
-        this.defaultFilterExpr = defaultFilterExpr;
-    }
-
-    public boolean isShowRowNumber() {
-        return showRowNumber;
-    }
-
-    public void setShowRowNumber(boolean showRowNumber) {
-        this.showRowNumber = showRowNumber;
-    }
-
-    public String getListKey() {
-        return listKey;
-    }
-
-    public void setListKey(String listKey) {
-        this.listKey = listKey;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String[] getToolbar() {
-        return toolbar;
-    }
-
-    public void setToolbar(String[] toolbar) {
-        this.toolbar = toolbar;
-    }
-
-    public String[] getFuzzyColumns() {
-        return fuzzyColumns;
-    }
-
-    public void setFuzzyColumns(String[] fuzzyColumns) {
-        this.fuzzyColumns = fuzzyColumns;
-    }
-
-    public String getEditFormIn() {
-        return editFormIn;
-    }
-
-    public void setEditFormIn(String editFormIn) {
-        this.editFormIn = editFormIn;
-    }
-
-    public String getDetailFormIn() {
-        return detailFormIn;
-    }
-
-    public void setDetailFormIn(String detailFormIn) {
-        this.detailFormIn = detailFormIn;
-    }
-
-    public String getShowActionColumn() {
-        return showActionColumn;
-    }
-
-    public void setShowActionColumn(String showActionColumn) {
-        this.showActionColumn = showActionColumn;
-    }
-
-    public String getDefaultSort() {
-        return defaultSort;
-    }
-
-    public void setDefaultSort(String defaultSort) {
-        this.defaultSort = defaultSort;
-    }
 }

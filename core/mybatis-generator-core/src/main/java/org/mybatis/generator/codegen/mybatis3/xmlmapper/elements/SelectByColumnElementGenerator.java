@@ -10,6 +10,9 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.stream.Collectors;
 
+/**
+ * @author cen_c
+ */
 public class SelectByColumnElementGenerator extends
         AbstractXmlElementGenerator {
 

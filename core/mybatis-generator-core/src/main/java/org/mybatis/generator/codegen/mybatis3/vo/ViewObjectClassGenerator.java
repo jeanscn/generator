@@ -221,6 +221,10 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
                         sqlBuilder.updateStringValues("notes_", context.getModuleName() + "->" + title + "默认视图");
                         sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
                         sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
+                        sqlBuilder.updateStringValues("tenant_id", GlobalConstant.DEFAULT_TENANT_ID);
+                        if (viewConfiguration.getEnableShortcut()) {
+                            sqlBuilder.updateValues("enable_shortcut", "true");
+                        }
                         introspectedTable.getContext().addSysMenuDataScriptLines(id, sqlBuilder.toSql() + ";");
                     }
                 }

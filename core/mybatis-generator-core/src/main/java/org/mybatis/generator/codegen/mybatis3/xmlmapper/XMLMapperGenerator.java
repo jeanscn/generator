@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -14,6 +15,9 @@ import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
+/**
+ * @author cen_c
+ */
 public class XMLMapperGenerator extends AbstractXmlGenerator {
 
     public XMLMapperGenerator() {
@@ -76,11 +80,30 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         addSelectByKeysDictElement(answer);
         addDeleteByTableElement(answer);
         addInsertByTableElement(answer);
-
+        // 统计相关
+        addStatisticsTotalElements(answer);
+        addStatisticsCustomElements(answer);
         return answer;
     }
 
-    //如果存在parent_id字段，则生成selectByExampleWithChildrenCount方法
+    private void addStatisticsCustomElements(XmlElement answer) {
+        if (introspectedTable.getRules().isGenerateCustomStatisticsElement()) {
+            AbstractXmlElementGenerator statisticsCustomTotalGenerator = new StatisticsCustomTotalGenerator();
+            initializeAndExecuteGenerator(statisticsCustomTotalGenerator, answer);
+        }
+    }
+
+    private void addStatisticsTotalElements(XmlElement answer) {
+        if (introspectedTable.getRules().isGenerateStatisticsElement(StatTypeEnum.TOTAL)) {
+            AbstractXmlElementGenerator statisticsTotalGenerator = new StatisticsDateDimTotalGenerator();
+            initializeAndExecuteGenerator(statisticsTotalGenerator, answer);
+        }
+    }
+
+    /**
+     * 如果存在parent_id字段，则生成selectByExampleWithChildrenCount方法
+     * @param answer XmlElement
+     */
     private void addSelectByExampleWithChildrenCountElement(XmlElement answer) {
         if (introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).isPresent()) {
             if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {

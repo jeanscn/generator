@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.controller;
 
 import com.vgosoft.core.constant.enums.core.JdkVersionEnum;
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
@@ -154,6 +155,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addInsertByTableElement(conTopClazz);
         addGetTreeElement(conTopClazz);
         addGetLayuiTableElement(conTopClazz);
+        addStatisticsTotalElement(conTopClazz);
+        addStatisticsCustomElement(conTopClazz);
         //重写getListData，如果存在Vo的时候
         if (introspectedTable.getRules().isGenerateVoModel()) {
             Method getListData = new Method("getListData");
@@ -326,7 +329,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                             , getterMethodName);
                 } else {
                     if (column.isJdbcCharacterColumn()) {
-                        buildExample.addBodyLine("if (VStringUtil.indexOf({0}.{1}(), '','') > -1) '{'", type.getShortNameFirstLowCase(), getterMethodName);
+                        buildExample.addBodyLine("if (VStringUtil.indexOf({0}.{1}(), SymbolConstants.COMMA.charAt(0)) > -1) '{'", type.getShortNameFirstLowCase(), getterMethodName);
                         buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replaceAll(SymbolConstants.COMMA, SymbolConstants.PIPE) + \")(,|$)''\" );"
                                 , initializeAndMethodName(column)
                                 , type.getShortNameFirstLowCase()
@@ -597,6 +600,26 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                             }
                         }
                 );
+    }
+
+    private void addStatisticsTotalElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateStatisticsElement(StatTypeEnum.TOTAL)) {
+            if (introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsConfigurations().stream()
+                    .anyMatch(StatisticsDateDimGeneratorConfiguration::getGenControllerMethod)) {
+                AbstractControllerElementGenerator elementGenerator = new StatisticsTotalElementGenerator();
+                initializeAndExecuteGenerator(elementGenerator, parentElement);
+            }
+        }
+    }
+
+    private void addStatisticsCustomElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateCustomStatisticsElement()) {
+            if (introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsCustomConfigurations().stream()
+                    .anyMatch(StatisticsCustomGeneratorConfiguration::getGenControllerMethod)) {
+                AbstractControllerElementGenerator elementGenerator = new StatisticsCustomElementGenerator();
+                initializeAndExecuteGenerator(elementGenerator, parentElement);
+            }
+        }
     }
 
     private void addUpdateElement(TopLevelClass parentElement) {

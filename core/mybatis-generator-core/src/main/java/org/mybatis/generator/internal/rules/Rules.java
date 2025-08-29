@@ -1,5 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -284,6 +285,19 @@ public interface Rules {
      * @return true if Spring Security is integrated
      */
     boolean isGenerateServiceUnitTest();
+
+    /**
+     * 是否生成统计相关的代码
+     * @param statType the type of statistics to check
+     * @return true if the statistics element should be generated
+     */
+    boolean isGenerateStatisticsElement(StatTypeEnum statType);
+
+    /**
+     * 是否生成自定义的统计相关的代码
+     * @return true if the custom statistics element should be generated
+     */
+    boolean isGenerateCustomStatisticsElement();
 
     /**
      * 是否生成Controller单元测试

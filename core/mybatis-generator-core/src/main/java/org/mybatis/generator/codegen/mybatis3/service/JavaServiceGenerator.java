@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
@@ -115,6 +116,22 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 Method method = serviceMethods.getSelectByColumnMethod(entityType, bizInf, config, true);
                 bizInf.addMethod(method);
             }
+        }
+
+        // 增加statisticsTotal
+        if (introspectedTable.getRules().isGenerateStatisticsElement(StatTypeEnum.TOTAL)) {
+            introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsConfigurations().forEach(c -> {
+                Method statisticsTotalMethod = serviceMethods.getStatisticsTotalMethod(bizInf, c, true,true);
+                bizInf.addMethod(statisticsTotalMethod);
+            });
+        }
+
+        // 增加statisticsCustom
+        if (introspectedTable.getRules().isGenerateCustomStatisticsElement()) {
+            introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsCustomConfigurations().forEach(c -> {
+                Method customMethod = serviceMethods.getStatisticsCustomMethod(bizInf, c, true,true);
+                bizInf.addMethod(customMethod);
+            });
         }
 
         //增加deleteByColumnXXX

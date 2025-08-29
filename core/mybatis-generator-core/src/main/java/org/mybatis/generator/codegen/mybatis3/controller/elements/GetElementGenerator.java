@@ -16,6 +16,15 @@ import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * 生成Controller中获取单条记录的代码
+ * <p>
+ * 该类会生成一个方法，通常命名为getXXX，根据主键查询单条记录。
+ * 该方法会添加必要的注解，如@RequestMapping、@PathVariable等，
+ * 并且会返回一个ServiceResult对象，包含查询结果。
+ * 如果查询成功，则返回查询到的实体对象；如果查询失败，则返回一个错误信息。
+ * @author cen_c
+ */
 public class GetElementGenerator extends AbstractControllerElementGenerator {
 
     public GetElementGenerator() {

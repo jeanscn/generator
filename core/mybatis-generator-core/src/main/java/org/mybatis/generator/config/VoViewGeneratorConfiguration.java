@@ -12,6 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +23,8 @@ public class VoViewGeneratorConfiguration extends AbstractTableListCommonConfigu
     private List<String> includeColumns = new ArrayList<>();
 
     private String viewMenuIcon;
+
+    private Boolean enableShortcut;
 
     private Set<HtmlButtonGeneratorConfiguration> htmlButtons = new HashSet<>();
 
@@ -52,6 +57,7 @@ public class VoViewGeneratorConfiguration extends AbstractTableListCommonConfigu
         this.tableType = "default";
         this.actionColumnFixed = "right";
         this.indexColumnFixed = "left";
+        this.enableShortcut = false;
     }
 
     public VoViewGeneratorConfiguration(Context context) {

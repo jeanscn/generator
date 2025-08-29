@@ -4,6 +4,7 @@ import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
+import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataFormat;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
@@ -13,7 +14,6 @@ import com.vgosoft.tool.core.VStringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.enums.HtmlDocumentTypeEnum;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.custom.enums.ViewVoUiFrameEnum;
 import org.mybatis.generator.exception.XMLParserException;
@@ -30,7 +30,11 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.mybatis.generator.internal.util.StringUtility.*;
+import static com.vgosoft.tool.core.VBooleanUtil.isTrue;
+import static com.vgosoft.tool.core.VStringUtil.*;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
+import static org.mybatis.generator.internal.util.StringUtility.getTargetProject;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
@@ -253,7 +257,7 @@ public class MyBatisGeneratorConfigurationParser {
         //未配置的context的必须项目，使用默认值
         context.initDefault();
 
-        TableConfiguration tc = new TableConfiguration(context);
+        TableConfiguration tc = new TableConfiguration(context,warnings);
         Properties attributes = parseAttributes(node);
         String tableName = attributes.getProperty("tableName");
         if (stringHasValue(tableName)) {
@@ -1001,7 +1005,7 @@ public class MyBatisGeneratorConfigurationParser {
                 String.join(".", substringAfterLast(fullViewPath, "/"), PropertyRegistry.TABLE_HTML_FIE_SUFFIX));
         String type = attributes.getProperty("type");
         if (stringHasValue(type)) {
-            htmlGeneratorConfiguration.setType(HtmlDocumentTypeEnum.getEnum(type));
+            htmlGeneratorConfiguration.setType(HtmlDocumentTypeEnum.ofCode(type));
         }
         String title = attributes.getProperty("title");
         if (stringHasValue(title)) {
@@ -1295,7 +1299,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String actionColumn = attributes.getProperty(PropertyRegistry.ELEMENT_ACTION_COLUMN);
         if (stringHasValue(actionColumn)) {
-            htmlElementInnerList.setActionColumn(VStringUtil.splitToList(actionColumn));
+            htmlElementInnerList.setActionColumn(splitToList(actionColumn));
         }
         String vxeListButtons = attributes.getProperty(PropertyRegistry.ELEMENT_VXE_LIST_BUTTONS);
         if (stringHasValue(vxeListButtons)) {
@@ -1371,7 +1375,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String verify = attributes.getProperty("verify");
         if (stringHasValue(verify)) {
-            htmlElementInnerList.setVerify(VStringUtil.splitToList(verify));
+            htmlElementInnerList.setVerify(splitToList(verify));
         }
         String showActionColumn = attributes.getProperty("showActionColumn");
         if (stringHasValue(showActionColumn)) {
@@ -1624,7 +1628,7 @@ public class MyBatisGeneratorConfigurationParser {
         String applyProperty = attributes.getProperty("applyProperty");
         htmlElementDescriptor.setApplyProperty(applyProperty);
         String applyPropertyKey = attributes.getProperty("applyPropertyKey");
-        if (VStringUtil.stringHasValue(applyPropertyKey)) {
+        if (stringHasValue(applyPropertyKey)) {
             htmlElementDescriptor.setApplyPropertyKey(applyPropertyKey);
         }
         String verify = attributes.getProperty("verify");
@@ -1720,7 +1724,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String actionColumn = attributes.getProperty(PropertyRegistry.ELEMENT_ACTION_COLUMN);
         if (stringHasValue(actionColumn)) {
-            htmlElementDescriptor.setActionColumn(VStringUtil.splitToList(actionColumn));
+            htmlElementDescriptor.setActionColumn(splitToList(actionColumn));
         }
         String vxeListButtons = attributes.getProperty(PropertyRegistry.ELEMENT_VXE_LIST_BUTTONS);
         if (stringHasValue(vxeListButtons)) {
@@ -2004,6 +2008,179 @@ public class MyBatisGeneratorConfigurationParser {
             javaServiceImplGeneratorConfiguration.setEntityEvent(splitToSet(entityEvent));
         }
 
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node childNode = nodeList.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(javaServiceImplGeneratorConfiguration, childNode);
+                    break;
+                case "generateDateDimStatistics":
+                    parseGenerateStatistics(javaServiceImplGeneratorConfiguration, childNode);
+                    break;
+                case "generateCustomStatistics":
+                    parseGenerateCustomStatistics(javaServiceImplGeneratorConfiguration, childNode);
+                    break;
+                default:
+                    warnings.add(getString("Warning.21", childNode.getNodeName()));
+                    log.warn(getString("Warning.21", childNode.getNodeName()));
+                    break;
+            }
+        }
+    }
+
+    private void parseGenerateCustomStatistics(JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration, Node node) {
+        Properties attributes = parseAttributes(node);
+        StatisticsCustomGeneratorConfiguration statisticsCustomGeneratorConfiguration = new StatisticsCustomGeneratorConfiguration();
+        String statType = attributes.getProperty("statType");
+        if (stringHasValue(statType)) {
+            statisticsCustomGeneratorConfiguration.setStatType(statType);
+        } else {
+            statisticsCustomGeneratorConfiguration.setStatType("total");
+        }
+        String statColumns = attributes.getProperty("statColumns");
+        if (stringHasValue(statColumns)) {
+            statisticsCustomGeneratorConfiguration.setStatColumns(splitToList(statColumns));
+        }
+        String customAggregationExpr = attributes.getProperty("customAggregationExpr");
+        if (stringHasValue(customAggregationExpr)) {
+            statisticsCustomGeneratorConfiguration.setCustomAggregationExpr(splitToList(customAggregationExpr, "|"));
+        }
+        String defaultFilterExpr = attributes.getProperty("defaultFilterExpr");
+        if (stringHasValue(defaultFilterExpr)) {
+            statisticsCustomGeneratorConfiguration.setDefaultFilterExpr(defaultFilterExpr);
+        }
+        String orderByClause = attributes.getProperty("orderByClause");
+        if (stringHasValue(orderByClause)) {
+            statisticsCustomGeneratorConfiguration.setOrderByClause(splitToList(orderByClause));
+        }
+        String nameSuffix = attributes.getProperty("nameSuffix");
+        if (stringHasValue(nameSuffix)) {
+            statisticsCustomGeneratorConfiguration.setNameSuffix(nameSuffix);
+        }
+        String genControllerMethod = attributes.getProperty("genControllerMethod");
+        if (stringHasValue(genControllerMethod)) {
+            statisticsCustomGeneratorConfiguration.setGenControllerMethod(Boolean.parseBoolean(genControllerMethod));
+        } else {
+            statisticsCustomGeneratorConfiguration.setGenControllerMethod(false);
+        }
+        String dateDimension = attributes.getProperty("dateDimension");
+        if (stringHasValue(dateDimension)) {
+            statisticsCustomGeneratorConfiguration.setDateDimension(dateDimension);
+        }
+        String dateDimColumn = attributes.getProperty("dateDimColumn");
+        if (stringHasValue(dateDimColumn)) {
+            statisticsCustomGeneratorConfiguration.setDateDimColumn(dateDimColumn);
+        }
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node childNode = nodeList.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(statisticsCustomGeneratorConfiguration, childNode);
+                    break;
+                case "joinTableClause":
+                    parseJoinTableClause(statisticsCustomGeneratorConfiguration, childNode);
+                    break;
+                default:
+                    warnings.add(getString("Warning.21", childNode.getNodeName()));
+                    log.warn(getString("Warning.21", childNode.getNodeName()));
+                    break;
+            }
+        }
+        javaServiceImplGeneratorConfiguration.addStatisticsCustomConfiguration(statisticsCustomGeneratorConfiguration);
+    }
+
+    private void parseJoinTableClause(StatisticsCustomGeneratorConfiguration statisticsCustomGeneratorConfiguration, Node node) {
+        Properties attributes = parseAttributes(node);
+        JoinTableClauseGeneratorConfiguration joinTableClause = new JoinTableClauseGeneratorConfiguration();
+        String joinType = attributes.getProperty("joinType");
+        if (stringHasValue(joinType)) {
+            joinTableClause.setJoinType(joinType);
+        }
+        String joinTable = attributes.getProperty("joinTable");
+        if (stringHasValue(joinTable)) {
+            joinTableClause.setJoinTable(joinTable);
+        }
+        String tableAlias = attributes.getProperty("tableAlias");
+        if (stringHasValue(tableAlias)) {
+            joinTableClause.setTableAlias(tableAlias);
+        }
+        String onSearchConditionExpr = attributes.getProperty("onSearchConditionExpr");
+        if (stringHasValue(onSearchConditionExpr)) {
+            joinTableClause.setOnSearchConditionExpr(onSearchConditionExpr);
+        }
+        String clauseColumns = attributes.getProperty("clauseColumns");
+        if (stringHasValue(clauseColumns)) {
+            joinTableClause.setClauseColumns(splitToList(clauseColumns));
+        }
+        //计算属性及子元素
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            if ("property".equals(childNode.getNodeName())) {
+                parseProperty(joinTableClause, childNode);
+            }
+        }
+        statisticsCustomGeneratorConfiguration.addJoinTableClauseGeneratorConfiguration(joinTableClause);
+    }
+
+    private void parseGenerateStatistics(JavaServiceImplGeneratorConfiguration javaServiceImplGeneratorConfiguration, Node node) {
+        Properties attributes = parseAttributes(node);
+        StatisticsDateDimGeneratorConfiguration statisticsDateDimGeneratorConfiguration = new StatisticsDateDimGeneratorConfiguration();
+        String statType = attributes.getProperty("statType");
+        if (stringHasValue(statType)) {
+            statisticsDateDimGeneratorConfiguration.setStatType(statType);
+        } else {
+            statisticsDateDimGeneratorConfiguration.setStatType("total");
+        }
+        String statColumns = attributes.getProperty("statColumns");
+        if (stringHasValue(statColumns)) {
+            statisticsDateDimGeneratorConfiguration.setStatColumns(splitToList(statColumns));
+        }
+        String dateDimColumn = attributes.getProperty("dateDimColumn");
+        if (stringHasValue(dateDimColumn)) {
+            statisticsDateDimGeneratorConfiguration.setDateDimColumn(dateDimColumn);
+        }
+        String dateDimension = attributes.getProperty("dateDimension");
+        if (stringHasValue(dateDimension)) {
+            statisticsDateDimGeneratorConfiguration.setDateDimension(dateDimension);
+        } else {
+            statisticsDateDimGeneratorConfiguration.setDateDimension("month");
+        }
+        String customAggregationExpr = attributes.getProperty("customAggregationExpr");
+        if (stringHasValue(customAggregationExpr)) {
+            statisticsDateDimGeneratorConfiguration.setCustomAggregationExpr(splitToList(customAggregationExpr,"|"));
+        }
+        String defaultFilterExpr = attributes.getProperty("defaultFilterExpr");
+        if (stringHasValue(defaultFilterExpr)) {
+            statisticsDateDimGeneratorConfiguration.setDefaultFilterExpr(defaultFilterExpr);
+        }
+        String orderByClause = attributes.getProperty("orderByClause");
+        if (stringHasValue(orderByClause)) {
+            statisticsDateDimGeneratorConfiguration.setOrderByClause(splitToList(orderByClause));
+        }
+        String nameSuffix = attributes.getProperty("nameSuffix");
+        if (stringHasValue(nameSuffix)) {
+            statisticsDateDimGeneratorConfiguration.setNameSuffix(nameSuffix);
+        }
+        String genControllerMethod = attributes.getProperty("genControllerMethod");
+        if (stringHasValue(genControllerMethod)) {
+            statisticsDateDimGeneratorConfiguration.setGenControllerMethod(Boolean.parseBoolean(genControllerMethod));
+        } else {
+            statisticsDateDimGeneratorConfiguration.setGenControllerMethod(false);
+        }
+        javaServiceImplGeneratorConfiguration.addStatisticsConfiguration(statisticsDateDimGeneratorConfiguration);
     }
 
     protected void parseGenerateController(Context context, TableConfiguration tc, Node node) {
@@ -2764,6 +2941,10 @@ public class MyBatisGeneratorConfigurationParser {
         } else {
             voViewGeneratorConfiguration.setViewMenuIcon(GlobalConstant.VIEW_VO_DEFAULT_ICON);
         }
+        String enableShortcut = attributes.getProperty("enableShortcut");
+        if (stringHasValue(enableShortcut)) {
+            voViewGeneratorConfiguration.setEnableShortcut(Boolean.parseBoolean(enableShortcut));
+        }
         //EqualsAndHashCodeColumns
         String equalsHashCode = attributes.getProperty(PropertyRegistry.ANY_EQUALS_AND_HASH_CODE);
         if (stringHasValue(equalsHashCode)) {
@@ -3360,10 +3541,10 @@ public class MyBatisGeneratorConfigurationParser {
 
         Properties attributes = parseAttributes(node);
         String driverClass = attributes.getProperty("driverClass");
-        String connectionURL = attributes.getProperty("connectionURL");
+        String connectionUrl = attributes.getProperty("connectionURL");
 
         jdbcConnectionConfiguration.setDriverClass(driverClass);
-        jdbcConnectionConfiguration.setConnectionURL(connectionURL);
+        jdbcConnectionConfiguration.setConnectionURL(connectionUrl);
 
         String userId = attributes.getProperty("userId");
         if (stringHasValue(userId)) {
@@ -3403,13 +3584,13 @@ public class MyBatisGeneratorConfigurationParser {
     }
 
     String parsePropertyTokens(String s) {
-        final String OPEN = "${";
-        final String CLOSE = "}";
+        final String open = "${";
+        final String close = "}";
         int currentIndex = 0;
 
         List<String> answer = new ArrayList<>();
 
-        int markerStartIndex = s.indexOf(OPEN);
+        int markerStartIndex = s.indexOf(open);
         if (markerStartIndex < 0) {
             // no parameter markers
             answer.add(s);
@@ -3423,11 +3604,11 @@ public class MyBatisGeneratorConfigurationParser {
                 currentIndex = markerStartIndex;
             }
 
-            int markerEndIndex = s.indexOf(CLOSE, currentIndex);
-            int nestedStartIndex = s.indexOf(OPEN, markerStartIndex + OPEN.length());
+            int markerEndIndex = s.indexOf(close, currentIndex);
+            int nestedStartIndex = s.indexOf(open, markerStartIndex + open.length());
             while (nestedStartIndex > -1 && markerEndIndex > -1 && nestedStartIndex < markerEndIndex) {
-                nestedStartIndex = s.indexOf(OPEN, nestedStartIndex + OPEN.length());
-                markerEndIndex = s.indexOf(CLOSE, markerEndIndex + CLOSE.length());
+                nestedStartIndex = s.indexOf(open, nestedStartIndex + open.length());
+                markerEndIndex = s.indexOf(close, markerEndIndex + close.length());
             }
 
             if (markerEndIndex < 0) {
@@ -3438,7 +3619,7 @@ public class MyBatisGeneratorConfigurationParser {
             }
 
             // we have a valid property marker...
-            String property = s.substring(markerStartIndex + OPEN.length(), markerEndIndex);
+            String property = s.substring(markerStartIndex + open.length(), markerEndIndex);
             String propertyValue = resolveProperty(parsePropertyTokens(property));
             if (propertyValue == null) {
                 // add the property marker back into the stream
@@ -3447,8 +3628,8 @@ public class MyBatisGeneratorConfigurationParser {
                 answer.add(propertyValue);
             }
 
-            currentIndex = markerEndIndex + CLOSE.length();
-            markerStartIndex = s.indexOf(OPEN, currentIndex);
+            currentIndex = markerEndIndex + close.length();
+            markerStartIndex = s.indexOf(open, currentIndex);
         }
 
         if (currentIndex < s.length()) {

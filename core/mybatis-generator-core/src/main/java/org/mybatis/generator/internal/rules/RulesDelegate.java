@@ -1,5 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
+import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -233,6 +234,16 @@ public class RulesDelegate implements Rules {
 
     @Override
     public boolean isGenerateServiceUnitTest() {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateStatisticsElement(StatTypeEnum statType) {
+        return false;
+    }
+
+    @Override
+    public boolean isGenerateCustomStatisticsElement() {
         return false;
     }
 
