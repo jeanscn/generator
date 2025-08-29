@@ -12,7 +12,6 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,9 @@ import java.util.TreeSet;
 import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_SERVICE;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     public static final String SUFFIX_INSERT_UPDATE_BATCH = "InsertUpdateBatch";

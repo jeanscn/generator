@@ -311,7 +311,10 @@ public class ConfigurationParser {
         }
     }
 
-    // 在 customConfig 方法开头添加
+    /**
+     * 在 customConfig 方法开头添加
+     * @param context 上下文
+     */
     private void ensureUtf8Encoding(Context context) {
         // 确保Java文件编码为UTF-8
         context.addProperty(PropertyRegistry.CONTEXT_JAVA_FILE_ENCODING, "UTF-8");

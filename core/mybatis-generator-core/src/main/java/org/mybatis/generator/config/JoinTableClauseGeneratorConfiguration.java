@@ -1,8 +1,5 @@
 package org.mybatis.generator.config;
 
-import com.vgosoft.core.constant.SymbolConstants;
-import com.vgosoft.core.constant.enums.data.StatTypeEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.db.JoinTableTypeEnum;
 import lombok.Getter;
 import lombok.Setter;

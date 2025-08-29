@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import org.mybatis.generator.api.dom.java.*;
@@ -19,6 +18,9 @@ import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.V_STRING_UTIL;
 
+/**
+ * @author cen_c
+ */
 public class ViewElementGenerator extends AbstractControllerElementGenerator {
 
     public ViewElementGenerator() {

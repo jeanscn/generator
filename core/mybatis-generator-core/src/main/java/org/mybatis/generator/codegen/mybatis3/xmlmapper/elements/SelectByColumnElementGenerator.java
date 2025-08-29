@@ -25,7 +25,7 @@ public class SelectByColumnElementGenerator extends
         if (introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             return;
         }
-        introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream().filter(c -> c.getColumns().size() > 0)
+        introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().stream().filter(c -> !c.getColumns().isEmpty())
                 .forEach(c -> {
                     XmlElement answer = new XmlElement("select");
                     answer.addAttribute(new Attribute("id", c.getMethodName()));

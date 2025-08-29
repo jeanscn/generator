@@ -1,8 +1,8 @@
 package org.mybatis.generator.internal.util;
 
 import java.io.File;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
 /**
  * @author cen_c

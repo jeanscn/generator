@@ -2,7 +2,6 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.data.StatTimeDimEnum;
-import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.db.JoinTableTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
@@ -12,11 +11,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.JoinTableClauseGeneratorConfiguration;
 import org.mybatis.generator.config.StatisticsCustomGeneratorConfiguration;
-import org.mybatis.generator.config.StatisticsDateDimGeneratorConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author cen_c

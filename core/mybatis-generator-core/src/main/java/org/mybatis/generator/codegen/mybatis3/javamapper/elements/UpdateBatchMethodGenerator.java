@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
+import lombok.Getter;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
@@ -7,6 +8,7 @@ import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 /**
  * @author cen_c
  */
+@Getter
 public class UpdateBatchMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     private final boolean isSimple;
@@ -35,7 +37,4 @@ public class UpdateBatchMethodGenerator extends AbstractJavaMapperMethodGenerato
         // extension point for subclasses
     }
 
-    public boolean isSimple() {
-        return isSimple;
-    }
 }

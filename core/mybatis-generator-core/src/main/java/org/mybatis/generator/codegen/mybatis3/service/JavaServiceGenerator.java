@@ -13,9 +13,8 @@ import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.config.*;
-import org.mybatis.generator.custom.enums.ScalableElementEnum;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -197,7 +196,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 false,
                 VStringUtil.format("该类继承自 '{'@link {0}'}'，",bizInf.getType().getShortNameWithoutTypeArguments()),
                 VStringUtil.format("用于扩展或重写 {0}。",bizInf.getType().getShortNameWithoutTypeArguments()));
-        //boolean forceGenerateScalableElement = introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.service.name());
         boolean overridable = Mb3GenUtil.fileOverridable(serviceInfConfiguration.getTargetProject(), serviceInfConfiguration.getTargetPackage(), "I" + entityType.getShortName()+".java");
         if (overridable) {
             if (plugins.subServiceGenerated(bizSubInf, introspectedTable)) {
