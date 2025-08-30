@@ -73,7 +73,7 @@
                 integrateSpringSecurity (true|false) #IMPLIED
                 forceUpdateScalableElement (true|false) #IMPLIED
                 parentMenuId CDATA #IMPLIED
-                jdkVersion (8|9|11|17) #IMPLIED
+                jdkVersion (8|9|11|17|21) #REQUIRED
                 updateModuleData (false|true) #IMPLIED
                 updateMenuData (false|true) #IMPLIED
                 onlyTables CDATA #IMPLIED

@@ -396,10 +396,10 @@ public class TableConfiguration extends PropertyHolder {
 
         //计算selectByTable配置
         calculateSelectByTableProperty();
-        //增加SelectBaseByPrimaryKey配置
-        calculateSelectBaseByPrimaryKeyConfig(introspectedTable);
         //计算所有的selectByColumn配置，去重、计算列信息
         calculateSelectByColumnConfigurations(introspectedTable);
+        //增加SelectBaseByPrimaryKey配置
+        calculateSelectBaseByPrimaryKeyConfig(introspectedTable);
         //计算StatisticsGeneratorConfiguration统计方法
         calculateStatisticsGeneratorConfiguration(introspectedTable);
         calculateStatisticsCustomGeneratorConfiguration(introspectedTable);
