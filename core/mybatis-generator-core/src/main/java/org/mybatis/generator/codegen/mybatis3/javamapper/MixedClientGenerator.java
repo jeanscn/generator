@@ -50,7 +50,7 @@ public class MixedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addUpdateByPrimaryKeyWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator =
                     new AnnotatedUpdateByPrimaryKeyWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
@@ -59,7 +59,7 @@ public class MixedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addUpdateByPrimaryKeyWithoutBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator =
                     new AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator(false);
             initializeAndExecuteGenerator(methodGenerator, interfaze);
@@ -67,7 +67,7 @@ public class MixedClientGenerator extends JavaMapperGenerator {
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         return new MixedMapperGenerator();
     }
 }

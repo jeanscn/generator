@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -80,52 +80,52 @@ public class CacheNamespacePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
-        if (!skip(introspectedTable)) {
+    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!skip(abstractIntrospectedTable)) {
             interfaze.addImportedType(
                     new FullyQualifiedJavaType("org.apache.ibatis.annotations.CacheNamespace"));
 
             Arrays.stream(CacheProperty.values())
                     .filter(CacheProperty::isClassName)
-                    .map(cp -> getRawPropertyValue(introspectedTable, cp.getPropertyName()))
+                    .map(cp -> getRawPropertyValue(abstractIntrospectedTable, cp.getPropertyName()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .map(FullyQualifiedJavaType::new)
                     .forEach(interfaze::addImportedType);
 
-            interfaze.addAnnotation(calculateAnnotation(introspectedTable, ".class"));
+            interfaze.addAnnotation(calculateAnnotation(abstractIntrospectedTable, ".class"));
         }
 
         return true;
     }
 
     @Override
-    public boolean mapperGenerated(KotlinFile mapperFile, KotlinType mapper, IntrospectedTable introspectedTable) {
-        if (!skip(introspectedTable)) {
+    public boolean mapperGenerated(KotlinFile mapperFile, KotlinType mapper, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!skip(abstractIntrospectedTable)) {
             mapperFile.addImport("org.apache.ibatis.annotations.CacheNamespace");
 
             Arrays.stream(CacheProperty.values())
                     .filter(CacheProperty::isClassName)
-                    .map(cp -> getRawPropertyValue(introspectedTable, cp.getPropertyName()))
+                    .map(cp -> getRawPropertyValue(abstractIntrospectedTable, cp.getPropertyName()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(mapperFile::addImport);
 
-            mapper.addAnnotation(calculateAnnotation(introspectedTable, "::class"));
+            mapper.addAnnotation(calculateAnnotation(abstractIntrospectedTable, "::class"));
         }
 
         return true;
     }
 
-    private boolean skip(IntrospectedTable introspectedTable) {
-        return getRawPropertyValue(introspectedTable, "cache_skip")
+    private boolean skip(AbstractIntrospectedTable abstractIntrospectedTable) {
+        return getRawPropertyValue(abstractIntrospectedTable, "cache_skip")
                 .map("true"::equalsIgnoreCase)
                 .orElse(false);
     }
 
-    private String calculateAnnotation(IntrospectedTable introspectedTable, String classAccessor) {
+    private String calculateAnnotation(AbstractIntrospectedTable abstractIntrospectedTable, String classAccessor) {
         String attributes = Arrays.stream(CacheProperty.values())
-                .map(cp -> calculateAttribute(introspectedTable, cp, classAccessor))
+                .map(cp -> calculateAttribute(abstractIntrospectedTable, cp, classAccessor))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.joining(", "));
@@ -137,17 +137,17 @@ public class CacheNamespacePlugin extends PluginAdapter {
         }
     }
 
-    private Optional<String> calculateAttribute(IntrospectedTable introspectedTable,
+    private Optional<String> calculateAttribute(AbstractIntrospectedTable abstractIntrospectedTable,
                                                 CacheProperty cacheProperty,
                                                 String classAccessor) {
-        return getPropertyValueForAttribute(introspectedTable, cacheProperty, classAccessor)
+        return getPropertyValueForAttribute(abstractIntrospectedTable, cacheProperty, classAccessor)
                 .map(v -> String.format("%s = %s", cacheProperty.getAttributeName(), v));
     }
 
-    private Optional<String> getPropertyValueForAttribute(IntrospectedTable introspectedTable,
+    private Optional<String> getPropertyValueForAttribute(AbstractIntrospectedTable abstractIntrospectedTable,
                                                           CacheProperty cacheProperty,
                                                           String classAccessor) {
-        Optional<String> value = getRawPropertyValue(introspectedTable, cacheProperty.getPropertyName());
+        Optional<String> value = getRawPropertyValue(abstractIntrospectedTable, cacheProperty.getPropertyName());
 
         if (cacheProperty.isClassName()) {
             value = value.map(FullyQualifiedJavaType::new)
@@ -158,8 +158,8 @@ public class CacheNamespacePlugin extends PluginAdapter {
         return value;
     }
 
-    private Optional<String> getRawPropertyValue(IntrospectedTable introspectedTable, String propertyName) {
-        String value = introspectedTable.getTableConfigurationProperty(propertyName);
+    private Optional<String> getRawPropertyValue(AbstractIntrospectedTable abstractIntrospectedTable, String propertyName) {
+        String value = abstractIntrospectedTable.getTableConfigurationProperty(propertyName);
         if (value == null) {
             value = properties.getProperty(propertyName);
         }

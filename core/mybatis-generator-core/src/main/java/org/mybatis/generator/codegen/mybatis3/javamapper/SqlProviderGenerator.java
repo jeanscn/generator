@@ -96,7 +96,7 @@ public class SqlProviderGenerator extends AbstractJavaGenerator {
 
     protected boolean addSelectByExampleWithBLOBsMethod(TopLevelClass topLevelClass) {
         boolean rc = false;
-        if (introspectedTable.getRules().generateSelectByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithBlobs()) {
             AbstractJavaProviderMethodGenerator methodGenerator = new ProviderSelectByExampleWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, topLevelClass);
             rc = true;
@@ -107,7 +107,7 @@ public class SqlProviderGenerator extends AbstractJavaGenerator {
 
     protected boolean addSelectByExampleWithoutBLOBsMethod(TopLevelClass topLevelClass) {
         boolean rc = false;
-        if (introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithoutBlobs()) {
             AbstractJavaProviderMethodGenerator methodGenerator =
                     new ProviderSelectByExampleWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, topLevelClass);
@@ -130,7 +130,7 @@ public class SqlProviderGenerator extends AbstractJavaGenerator {
 
     protected boolean addUpdateByExampleWithBLOBsMethod(TopLevelClass topLevelClass) {
         boolean rc = false;
-        if (introspectedTable.getRules().generateUpdateByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithBlobs()) {
             AbstractJavaProviderMethodGenerator methodGenerator = new ProviderUpdateByExampleWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, topLevelClass);
             rc = true;
@@ -141,7 +141,7 @@ public class SqlProviderGenerator extends AbstractJavaGenerator {
 
     protected boolean addUpdateByExampleWithoutBLOBsMethod(TopLevelClass topLevelClass) {
         boolean rc = false;
-        if (introspectedTable.getRules().generateUpdateByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithoutBlobs()) {
             AbstractJavaProviderMethodGenerator methodGenerator =
                     new ProviderUpdateByExampleWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, topLevelClass);

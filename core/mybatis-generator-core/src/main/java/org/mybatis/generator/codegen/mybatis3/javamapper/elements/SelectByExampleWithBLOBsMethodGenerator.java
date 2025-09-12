@@ -22,14 +22,14 @@ public class SelectByExampleWithBLOBsMethodGenerator extends
         importedTypes.add(type);
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method(introspectedTable.getSelectByExampleWithBLOBsStatementId());
+        Method method = new Method(introspectedTable.getSelectByExampleWithBlobsStatementId());
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setAbstract(true);
 
         FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
         FullyQualifiedJavaType listType;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            listType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBLOBsType());
+        if (introspectedTable.getRules().generateRecordWithBlobsClass()) {
+            listType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBlobsType());
         } else {
             // the blob fields must be rolled up into the base class
             listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());

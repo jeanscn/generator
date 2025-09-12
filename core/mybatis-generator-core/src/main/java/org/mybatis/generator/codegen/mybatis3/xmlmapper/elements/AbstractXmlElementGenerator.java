@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.OutputUtilities;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -364,17 +364,17 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         return answer;
     }
 
-    protected void addUpdateAliasedFullyQualifiedTableName(IntrospectedTable introspectedTable, StringBuilder sb) {
-        if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
-            sb.append(introspectedTable.getFullyQualifiedTable().getAlias());
+    protected void addUpdateAliasedFullyQualifiedTableName(AbstractIntrospectedTable abstractIntrospectedTable, StringBuilder sb) {
+        if (StringUtility.stringHasValue(abstractIntrospectedTable.getFullyQualifiedTable().getAlias())) {
+            sb.append(abstractIntrospectedTable.getFullyQualifiedTable().getAlias());
         } else {
-            sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
+            sb.append(abstractIntrospectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         }
     }
 
-    protected void addUpdateAliasedFullyQualifiedTableNameFrom(IntrospectedTable introspectedTable, XmlElement parent) {
-        if (StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias())) {
-            String from = "from " + introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+    protected void addUpdateAliasedFullyQualifiedTableNameFrom(AbstractIntrospectedTable abstractIntrospectedTable, XmlElement parent) {
+        if (StringUtility.stringHasValue(abstractIntrospectedTable.getFullyQualifiedTable().getAlias())) {
+            String from = "from " + abstractIntrospectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
             parent.addElement(new TextElement(from));
         }
     }
@@ -403,8 +403,8 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     }
 
     protected void addResultMap(XmlElement answer) {
-        if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
+        if (introspectedTable.getRules().generateResultMapWithBlobs()) {
+            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBlobsId()));
         } else {
             if (introspectedTable.getRules().generateRelationWithSubSelected()) {
                 answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));

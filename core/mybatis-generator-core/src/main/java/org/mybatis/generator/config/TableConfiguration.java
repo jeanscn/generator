@@ -8,8 +8,8 @@ import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.factory.*;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
@@ -365,7 +365,7 @@ public class TableConfiguration extends PropertyHolder {
         this.htmlGeneratorConfigurations.add(htmlGeneratorConfiguration);
     }
 
-    public void reprocessConfiguration(List<String> warnings, IntrospectedTable introspectedTable, Context context) {
+    public void reprocessConfiguration(List<String> warnings, AbstractIntrospectedTable introspectedTable, Context context) {
         //根据配置更新introspectedTable的voModelType、voCreateType属性
         updateVoModelType(introspectedTable);
 
@@ -415,8 +415,8 @@ public class TableConfiguration extends PropertyHolder {
         calculateAdditionalProperty();
     }
 
-    private void calculateStatisticsGeneratorConfiguration(IntrospectedTable introspectedTable) {
-        JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
+    private void calculateStatisticsGeneratorConfiguration(AbstractIntrospectedTable abstractIntrospectedTable) {
+        JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = abstractIntrospectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
         if (serviceImplGeneratorConfiguration == null) {
             return;
         }
@@ -428,10 +428,10 @@ public class TableConfiguration extends PropertyHolder {
             if (statisticsConfiguration.getStatColumns().isEmpty() || !VStringUtil.stringHasValue(statisticsConfiguration.getDateDimension())) {
                 continue;
             }
-            IntrospectedColumn statColumn = introspectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
-            IntrospectedColumn joinColumn = introspectedTable.getColumn(statisticsConfiguration.getDateDimColumn()).orElse(null);
+            IntrospectedColumn statColumn = abstractIntrospectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
+            IntrospectedColumn joinColumn = abstractIntrospectedTable.getColumn(statisticsConfiguration.getDateDimColumn()).orElse(null);
             if (statColumn == null || joinColumn == null) {
-                this.warnings.add("警告：表 " + introspectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"或时间维度字段"+statisticsConfiguration.getDateDimColumn()+"在表中不存在，已被忽略。");
+                this.warnings.add("警告：表 " + abstractIntrospectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"或时间维度字段"+statisticsConfiguration.getDateDimColumn()+"在表中不存在，已被忽略。");
                 continue;
             }
             List<String> nameList = Arrays.asList(statisticsConfiguration.getStatType(),
@@ -449,8 +449,8 @@ public class TableConfiguration extends PropertyHolder {
         serviceImplGeneratorConfiguration.setStatisticsConfigurations(configurationList);
     }
 
-    private void calculateStatisticsCustomGeneratorConfiguration(IntrospectedTable introspectedTable) {
-        JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
+    private void calculateStatisticsCustomGeneratorConfiguration(AbstractIntrospectedTable abstractIntrospectedTable) {
+        JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = abstractIntrospectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
         if (serviceImplGeneratorConfiguration == null) {
             return;
         }
@@ -462,9 +462,9 @@ public class TableConfiguration extends PropertyHolder {
             if (statisticsConfiguration.getStatColumns().isEmpty()) {
                 continue;
             }
-            IntrospectedColumn statColumn = introspectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
+            IntrospectedColumn statColumn = abstractIntrospectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
             if (statColumn == null) {
-                this.warnings.add("警告：表 " + introspectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"在表中不存在，已被忽略。");
+                this.warnings.add("警告：表 " + abstractIntrospectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"在表中不存在，已被忽略。");
                 continue;
             }
             List<JoinTableClauseGeneratorConfiguration> joinTableConfigurations = statisticsConfiguration.getJoinTableClauseGeneratorConfigurations();
@@ -499,11 +499,11 @@ public class TableConfiguration extends PropertyHolder {
                 .orElse(new ArrayList<>());
     }
 
-    private void updateQueryColumnConfiguration(IntrospectedTable introspectedTable) {
+    private void updateQueryColumnConfiguration(AbstractIntrospectedTable abstractIntrospectedTable) {
 
         //viewVo中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
         List<QueryColumnConfiguration> queryColumnConfigurations = getViewQueryColumnConfigurations();
-        queryColumnConfigurations.forEach(queryColumnConfiguration -> queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null)));
+        queryColumnConfigurations.forEach(queryColumnConfiguration -> queryColumnConfiguration.setIntrospectedColumn(abstractIntrospectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null)));
         queryColumnConfigurations.removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
 
         //innerList中，为QueryColumnConfiguration赋值IntrospectedColumn，清除列不存在IntrospectedColumn的配置
@@ -512,20 +512,20 @@ public class TableConfiguration extends PropertyHolder {
                 .flatMap(voViewConfiguration -> Optional.ofNullable(voViewConfiguration.getInnerListViewConfigurations()))
                 .orElse(new ArrayList<>());
         innerListViewConfigurations.forEach(innerListViewConfiguration -> {
-            innerListViewConfiguration.getQueryColumnConfigurations().forEach(queryColumnConfiguration -> queryColumnConfiguration.setIntrospectedColumn(introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null)));
+            innerListViewConfiguration.getQueryColumnConfigurations().forEach(queryColumnConfiguration -> queryColumnConfiguration.setIntrospectedColumn(abstractIntrospectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null)));
             innerListViewConfiguration.getQueryColumnConfigurations().removeIf(queryColumnConfiguration -> queryColumnConfiguration.getIntrospectedColumn() == null);
         });
 
         //校验searchColumn
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().isEmpty()) {
-                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().setFuzzyColumns(collect);
             }
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().forEach(innerListViewConfiguration -> {
                     if (!innerListViewConfiguration.getFuzzyColumns().isEmpty()) {
-                        List<String> collect = innerListViewConfiguration.getFuzzyColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                        List<String> collect = innerListViewConfiguration.getFuzzyColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
                         innerListViewConfiguration.setFuzzyColumns(collect);
                     }
                 });
@@ -535,13 +535,13 @@ public class TableConfiguration extends PropertyHolder {
         //校验filterColumn
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().isEmpty()) {
-                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().setFilterColumns(collect);
             }
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().forEach(innerListViewConfiguration -> {
                     if (!innerListViewConfiguration.getFilterColumns().isEmpty()) {
-                        List<String> collect = innerListViewConfiguration.getFilterColumns().stream().map(introspectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                        List<String> collect = innerListViewConfiguration.getFilterColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
                         innerListViewConfiguration.setFilterColumns(collect);
                     }
                 });
@@ -582,29 +582,29 @@ public class TableConfiguration extends PropertyHolder {
     /**
      * 更新introspectedTable的VoModel和VoCreate属性的类名，用于生成TableMeta的参数
      *
-     * @param introspectedTable introspectedTable对象
+     * @param abstractIntrospectedTable introspectedTable对象
      */
-    private void updateVoModelType(IntrospectedTable introspectedTable) {
+    private void updateVoModelType(AbstractIntrospectedTable abstractIntrospectedTable) {
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoModelConfiguration() != null) {
-            introspectedTable.setVoModelType(this.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType());
+            abstractIntrospectedTable.setVoModelType(this.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType());
         }
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoCreateConfiguration() != null) {
-            introspectedTable.setVoCreateType(this.getVoGeneratorConfiguration().getVoCreateConfiguration().getFullyQualifiedJavaType());
+            abstractIntrospectedTable.setVoCreateType(this.getVoGeneratorConfiguration().getVoCreateConfiguration().getFullyQualifiedJavaType());
         }
     }
 
     /**
      * 为所有的html元素描述器生成OverrideProperty属性
-     * @param introspectedTable introspectedTable对象
+     * @param abstractIntrospectedTable introspectedTable对象
      */
-    private void generateDescriptorOverrideProperty(IntrospectedTable introspectedTable) {
+    private void generateDescriptorOverrideProperty(AbstractIntrospectedTable abstractIntrospectedTable) {
         // 为所有的html元素描述器生成OverrideProperty属性
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlMapGeneratorConfiguration -> htmlMapGeneratorConfiguration.getElementDescriptors()
                         .forEach(elementDescriptor -> {
                             //添加附件属性
                             if (elementDescriptor.getOtherFieldName() != null && !elementDescriptor.getColumn().getJavaProperty().equals(elementDescriptor.getOtherFieldName())) {
-                                addHtmlElementAdditionalAttribute(elementDescriptor, introspectedTable);
+                                addHtmlElementAdditionalAttribute(elementDescriptor, abstractIntrospectedTable);
                             }
                         }));
         // 为页内列表的所有html元素描述器生成OverrideProperty属性
@@ -617,17 +617,17 @@ public class TableConfiguration extends PropertyHolder {
                         .forEach(elementDescriptor -> {
                             //添加附件属性
                             if (elementDescriptor.getOtherFieldName() != null && !elementDescriptor.getColumn().getJavaProperty().equals(elementDescriptor.getOtherFieldName())) {
-                                addHtmlElementAdditionalAttribute(elementDescriptor, introspectedTable);
+                                addHtmlElementAdditionalAttribute(elementDescriptor, abstractIntrospectedTable);
                             }
                         }));
     }
 
     /**
      * 更新TC与表结构相关的自定义属性
-     * @param introspectedTable introspectedTable对象
+     * @param abstractIntrospectedTable introspectedTable对象
      */
-    private void updateTableConfiguration(final IntrospectedTable introspectedTable) {
-        introspectedTable.getAllColumns().forEach(column -> {
+    private void updateTableConfiguration(final AbstractIntrospectedTable abstractIntrospectedTable) {
+        abstractIntrospectedTable.getAllColumns().forEach(column -> {
             //1、更新tableConfiguration的FieldNames、ColumnNames列表
             this.getFieldNames().add(column.getJavaProperty());
             this.getColumnNames().add(column.getActualColumnName());
@@ -647,7 +647,14 @@ public class TableConfiguration extends PropertyHolder {
             }
 
             //3、设置是否需要验证的属性
-            if ((column.isRequired() || column.getLength() > 0) && !this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {
+            abstractIntrospectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+                htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
+                    if (elementDescriptor.getName().equals(column.getActualColumnName()) && elementDescriptor.getVerify().contains("required")) {
+                        column.setBeValidated(true);
+                    }
+                });
+            });
+            if (isFieldNeedValidate(column, abstractIntrospectedTable.getTableConfiguration().getHtmlGeneratorConfigurations())) {
                 column.setBeValidated(true);
             }
         });
@@ -655,9 +662,9 @@ public class TableConfiguration extends PropertyHolder {
 
     /**
      * 对指定了dataFormat的快捷配置进行转换
-     * @param introspectedTable introspectedTable对象
+     * @param abstractIntrospectedTable introspectedTable对象
      */
-    private void convertDataFormatConfigurations(IntrospectedTable introspectedTable) {
+    private void convertDataFormatConfigurations(AbstractIntrospectedTable abstractIntrospectedTable) {
         //更新制定了dataType的html元素描述器配置
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
@@ -665,7 +672,7 @@ public class TableConfiguration extends PropertyHolder {
                             if (!stringHasValue(elementDescriptor.getDataFormat())) {
                                 return;
                             }
-                            introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(column -> {
+                            abstractIntrospectedTable.getColumn(elementDescriptor.getName()).ifPresent(column -> {
                                 DefaultColumnNameEnum defaultColumnNameEnum = DefaultColumnNameEnum.ofColumnName(column.getActualColumnName()).orElse(null);
                                 if (defaultColumnNameEnum != null) {
                                     elementDescriptor.setOtherFieldName(defaultColumnNameEnum.otherFieldName());
@@ -754,19 +761,19 @@ public class TableConfiguration extends PropertyHolder {
      * 2、所有HtmlMapGeneratorConfiguration的hiddenColumnNames
      * 3、所有HtmlMapGeneratorConfiguration的elementRequired
      */
-    private void calculateHiddenReadDisplayOnlyColumns(IntrospectedTable introspectedTable) {
-        Set<String> hiddenColumnNames = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_HIDDEN_FIELDS);
+    private void calculateHiddenReadDisplayOnlyColumns(AbstractIntrospectedTable abstractIntrospectedTable) {
+        Set<String> hiddenColumnNames = getHtmlAnyProperties(abstractIntrospectedTable, PropertyRegistry.ANY_HTML_HIDDEN_FIELDS);
         this.getHtmlHiddenFields().addAll(hiddenColumnNames);
         //html的隐藏列
         this.getHtmlMapGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getHiddenFieldNames().addAll(this.getHtmlHiddenFields()));
         //html只读列
-        Set<String> readOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_READONLY_FIELDS);
-        introspectedTable.getTableConfiguration().getHtmlReadonlyFields().addAll(readOnlyFields);
+        Set<String> readOnlyFields = getHtmlAnyProperties(abstractIntrospectedTable, PropertyRegistry.ANY_HTML_READONLY_FIELDS);
+        abstractIntrospectedTable.getTableConfiguration().getHtmlReadonlyFields().addAll(readOnlyFields);
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getReadonlyFields().addAll(readOnlyFields));
         //html只显示列
-        Set<String> displayOnlyFields = getHtmlAnyProperties(introspectedTable, PropertyRegistry.ANY_HTML_DISPLAY_ONLY_FIELDS);
-        introspectedTable.getTableConfiguration().getHtmlDisplayOnlyFields().addAll(displayOnlyFields);
+        Set<String> displayOnlyFields = getHtmlAnyProperties(abstractIntrospectedTable, PropertyRegistry.ANY_HTML_DISPLAY_ONLY_FIELDS);
+        abstractIntrospectedTable.getTableConfiguration().getHtmlDisplayOnlyFields().addAll(displayOnlyFields);
         this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getDisplayOnlyFields().addAll(displayOnlyFields));
         //html的必填列
@@ -781,7 +788,7 @@ public class TableConfiguration extends PropertyHolder {
                         }
                     });
         });
-        introspectedTable.getAllColumns().forEach(column -> this.getHtmlMapGeneratorConfigurations()
+        abstractIntrospectedTable.getAllColumns().forEach(column -> this.getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> {
                     if (column.isRequired()) {
                         htmlGeneratorConfiguration.getElementRequired().add(column.getActualColumnName());
@@ -790,27 +797,27 @@ public class TableConfiguration extends PropertyHolder {
 
     }
 
-    private Set<String> getHtmlAnyProperties(IntrospectedTable introspectedTable, String propertyName) {
+    private Set<String> getHtmlAnyProperties(AbstractIntrospectedTable abstractIntrospectedTable, String propertyName) {
         Set<String> properties = new HashSet<>();
-        String contextProperty = introspectedTable.getContext().getProperty(propertyName);
+        String contextProperty = abstractIntrospectedTable.getContext().getProperty(propertyName);
         if (stringHasValue(contextProperty)) {
             properties.addAll(VStringUtil.splitToSet(contextProperty));
         }
-        String tableProperty = introspectedTable.getTableConfiguration().getProperty(propertyName);
+        String tableProperty = abstractIntrospectedTable.getTableConfiguration().getProperty(propertyName);
         if (stringHasValue(tableProperty)) {
             properties.addAll(VStringUtil.splitToSet(tableProperty));
         }
         return properties;
     }
 
-    private void generateDefaultElementDescriptor(IntrospectedTable introspectedTable) {
+    private void generateDefaultElementDescriptor(AbstractIntrospectedTable abstractIntrospectedTable) {
         /*
          * 对于非隐藏列，根据列名自动添加页面元素
          * state_列名，自动添加页面switch（启用停用）元素
          * parent_id列名，自动添加页面select（父级）元素
          * 注释中包含“是否”，自动添加页面switch（是/否）元素
          */
-        introspectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenFields().contains(column.getJavaProperty()))
+        abstractIntrospectedTable.getAllColumns().stream().filter(column -> !this.getHtmlHiddenFields().contains(column.getJavaProperty()))
                 .forEach(column -> this.getHtmlMapGeneratorConfigurations()
                         .forEach(htmlConfiguration -> {
                             if (htmlConfiguration.getElementDescriptors().stream().noneMatch(elementDescriptor -> elementDescriptor.getName().equals(column.getActualColumnName()))
@@ -819,26 +826,26 @@ public class TableConfiguration extends PropertyHolder {
                                 HtmlElementDescriptor htmlElementDescriptor = null;
                                 if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.STATE.columnName())) {
                                     DefaultHtmlElementDescriptorFactory stateElementDescriptor = new StateElementDescriptor();
-                                    htmlElementDescriptor = stateElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = stateElementDescriptor.getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.PRIORITY.columnName())) {
                                     DefaultHtmlElementDescriptorFactory priorityElementDescriptor = new PriorityElementDescriptor();
-                                    htmlElementDescriptor = priorityElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = priorityElementDescriptor.getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.WF_STATE.columnName())) {
                                     DefaultHtmlElementDescriptorFactory wfStateElementDescriptor = new WfStateElementDescriptor();
-                                    htmlElementDescriptor = wfStateElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = wfStateElementDescriptor.getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.PARENT_ID.columnName())) {   //选择上级
-                                    htmlElementDescriptor = new ParentIdElementDescriptor().getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = new ParentIdElementDescriptor().getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getRemarks(true) != null && column.getRemarks(true).startsWith("是否")) { //如果列注释以“是否”开头，则自动添加页面switch元素
-                                    htmlElementDescriptor = new YesNoElementDescriptor().getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = new YesNoElementDescriptor().getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_DEPT_ID.columnName())) {
                                     DefaultHtmlElementDescriptorFactory deptElementDescriptor = new ApplyDeptIdInputElementDescriptor();
-                                    htmlElementDescriptor = deptElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = deptElementDescriptor.getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_USER_ID.columnName())) {
                                     DefaultHtmlElementDescriptorFactory userElementDescriptor = new ApplyUserIdInputElementDescriptor();
-                                    htmlElementDescriptor = userElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = userElementDescriptor.getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 } else if (column.getActualColumnName().equalsIgnoreCase(DefaultColumnNameEnum.APPLY_HANDLER_ID.columnName())) {
                                     DefaultHtmlElementDescriptorFactory handlerElementDescriptor = new ApplyHandlerIdInputElementDescriptor();
-                                    htmlElementDescriptor = handlerElementDescriptor.getDefaultHtmlElementDescriptor(column, introspectedTable);
+                                    htmlElementDescriptor = handlerElementDescriptor.getDefaultHtmlElementDescriptor(column, abstractIntrospectedTable);
                                 }
                                 if (htmlElementDescriptor != null) {
                                     htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlConfiguration);
@@ -855,8 +862,8 @@ public class TableConfiguration extends PropertyHolder {
      * 更新overrideProperty配置的继承关系
      * overrideProperty去重复
      */
-    private void processOverrideProperty(IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    private void processOverrideProperty(AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         JavaModelGeneratorConfiguration javaModelGeneratorConfig = tc.getJavaModelGeneratorConfiguration();
         VoGeneratorConfiguration voGeneratorConfig = tc.getVoGeneratorConfiguration();
         List<OverridePropertyValueGeneratorConfiguration> overrides = tc.getOverridePropertyConfigurations();
@@ -883,18 +890,18 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
-    private void generateDefaultOverrideProperty(IntrospectedTable introspectedTable) {
+    private void generateDefaultOverrideProperty(AbstractIntrospectedTable abstractIntrospectedTable) {
         //生成默认的overrideProperty
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration() != null) {
-            introspectedTable.getColumn(DefaultColumnNameEnum.MODULE_ID.columnName()).ifPresent(column -> {
-                OverridePropertyValueGeneratorConfiguration override = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration(), column.getActualColumnName());
+        if (abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration() != null) {
+            abstractIntrospectedTable.getColumn(DefaultColumnNameEnum.MODULE_ID.columnName()).ifPresent(column -> {
+                OverridePropertyValueGeneratorConfiguration override = new OverridePropertyValueGeneratorConfiguration(abstractIntrospectedTable.getContext(), abstractIntrospectedTable.getTableConfiguration(), column.getActualColumnName());
                 override.setAnnotationType(DictTypeEnum.DICT_MODULE.getCode());
                 override.setTargetPropertyName(DefaultColumnNameEnum.MODULE_ID.otherFieldName());
                 override.setRemark(DefaultColumnNameEnum.MODULE_ID.comment());
                 ConfigUtil.addOverridePropertyConfiguration(override, this);
             });
-            introspectedTable.getColumn(DefaultColumnNameEnum.CUR_PROCESSORS.columnName()).ifPresent(column -> {
-                OverridePropertyValueGeneratorConfiguration override = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration(), column.getActualColumnName());
+            abstractIntrospectedTable.getColumn(DefaultColumnNameEnum.CUR_PROCESSORS.columnName()).ifPresent(column -> {
+                OverridePropertyValueGeneratorConfiguration override = new OverridePropertyValueGeneratorConfiguration(abstractIntrospectedTable.getContext(), abstractIntrospectedTable.getTableConfiguration(), column.getActualColumnName());
                 override.setAnnotationType(DictTypeEnum.DICT.getCode());
                 override.setBeanName(HtmlElementDataSourceEnum.USER.getBeanName());
                 override.setTargetPropertyName(DefaultColumnNameEnum.CUR_PROCESSORS.otherFieldName());
@@ -906,39 +913,39 @@ public class TableConfiguration extends PropertyHolder {
 
     /**
      * 为已经配置存在的html元素描述器赋值introspectedColumn,自动配置dataUrl
-     * @param introspectedTable introspectedTable对象
+     * @param abstractIntrospectedTable introspectedTable对象
      * @param warnings 警告列表
      */
-    private void assignHtmlIntrospectedColumn(IntrospectedTable introspectedTable, final List<String> warnings) {
-        introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
+    private void assignHtmlIntrospectedColumn(AbstractIntrospectedTable abstractIntrospectedTable, final List<String> warnings) {
+        abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
-                        .forEach(setHtmlElementDescriptorColumn(introspectedTable)));
+                        .forEach(setHtmlElementDescriptorColumn(abstractIntrospectedTable)));
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null
                 && this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations() != null
                 && !this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
             this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations()
                     .forEach(innerListViewConfiguration -> innerListViewConfiguration.getHtmlElements()
-                            .forEach(setHtmlElementDescriptorColumn(introspectedTable)));
+                            .forEach(setHtmlElementDescriptorColumn(abstractIntrospectedTable)));
         }
         //移除没有column实例的html元素描述器,并且添加警告
-        introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
+        abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
                 .forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors()
                         .removeIf(htmlElementDescriptor -> {
                             if (htmlElementDescriptor.getColumn() == null) {
-                                warnings.add(String.format("table:%s,htmlElementDescriptor配置:%s,列不存在，配置被忽略", introspectedTable.getTableConfiguration().getTableName(), htmlElementDescriptor.getName()));
+                                warnings.add(String.format("table:%s,htmlElementDescriptor配置:%s,列不存在，配置被忽略", abstractIntrospectedTable.getTableConfiguration().getTableName(), htmlElementDescriptor.getName()));
                                 return true;
                             }
                             return false;
                         }));
     }
 
-    private static Consumer<HtmlElementDescriptor> setHtmlElementDescriptorColumn(IntrospectedTable introspectedTable) {
+    private static Consumer<HtmlElementDescriptor> setHtmlElementDescriptorColumn(AbstractIntrospectedTable abstractIntrospectedTable) {
         return elementDescriptor -> {
             if (stringHasValue(elementDescriptor.getName()) && elementDescriptor.getColumn() == null) {
-                introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(elementDescriptor::setColumn);
+                abstractIntrospectedTable.getColumn(elementDescriptor.getName()).ifPresent(elementDescriptor::setColumn);
             }
             if (!stringHasValue(elementDescriptor.getOtherFieldName())) {
-                introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty(), elementDescriptor)));
+                abstractIntrospectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> elementDescriptor.setOtherFieldName(ConfigUtil.getOverrideJavaProperty(c.getJavaProperty(), elementDescriptor)));
             }
             //当DataSource值分别为DictSys、DictData、DictUser，且没有配置dataUrl，且指定了DictCode，则分别自动配置dataUrl
             if (stringHasValue(elementDescriptor.getDataSource()) && !stringHasValue(elementDescriptor.getDataUrl())) {
@@ -957,18 +964,18 @@ public class TableConfiguration extends PropertyHolder {
         };
     }
 
-    private void calculateInnerListElementDescriptor(IntrospectedTable introspectedTable) {
+    private void calculateInnerListElementDescriptor(AbstractIntrospectedTable abstractIntrospectedTable) {
         //计算内联列表的元素描述器
         if (this.getVoGeneratorConfiguration() == null
                 || this.getVoGeneratorConfiguration().getVoViewConfiguration() == null
                 || this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
             return;
         }
-        List<InnerListViewConfiguration> innerListViewConfigurations = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
+        List<InnerListViewConfiguration> innerListViewConfigurations = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
         innerListViewConfigurations
                 .forEach(innerListViewConfiguration -> {
                     if (stringHasValue(innerListViewConfiguration.getEditExtendsForm())) {
-                        introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
+                        abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().stream()
                                 .filter(htmlConfiguration -> htmlConfiguration.getSimpleViewPath().equals(innerListViewConfiguration.getEditExtendsForm()))
                                 .findFirst()
                                 .ifPresent(htmlGeneratorConfiguration -> {
@@ -981,12 +988,12 @@ public class TableConfiguration extends PropertyHolder {
                 });
     }
 
-    private void calculateSelectByParentIdConfig(List<String> warnings, IntrospectedTable introspectedTable) {
+    private void calculateSelectByParentIdConfig(List<String> warnings, AbstractIntrospectedTable abstractIntrospectedTable) {
         String parentIdColumnName = DefaultColumnNameEnum.PARENT_ID.columnName();
-        if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren() && this.getColumnNames().contains(parentIdColumnName)) {
+        if (abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren() && this.getColumnNames().contains(parentIdColumnName)) {
             //如果存在parent_id字段，则自动添加selectByParentId方法
             if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(c -> c.getColumns().stream().anyMatch(column -> parentIdColumnName.equalsIgnoreCase(column.getActualColumnName())))) {
-                introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
+                abstractIntrospectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
                     SelectByColumnGeneratorConfiguration selectByParentId = new SelectByColumnGeneratorConfiguration(column.getActualColumnName());
                     selectByParentId.addColumn(column);
                     selectByParentId.setParameterList(false);
@@ -1003,11 +1010,11 @@ public class TableConfiguration extends PropertyHolder {
      * 1、如果存在parent_id字段，则自动添加children属性及子查询
      * 2、如果存在parent_id字段，则添加childrenCount属性及selectWithChildrenCount方法
      */
-    private void calculateChildrenRelationConfig(IntrospectedTable introspectedTable) {
+    private void calculateChildrenRelationConfig(AbstractIntrospectedTable abstractIntrospectedTable) {
         String parentIdColumnName = DefaultColumnNameEnum.PARENT_ID.columnName();
-        introspectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
+        abstractIntrospectedTable.getColumn(parentIdColumnName).ifPresent(column -> {
             if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.LEAF.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
-                VoAdditionalPropertyGeneratorConfiguration leafAdditionalPropertyConfiguration = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(introspectedTable,
+                VoAdditionalPropertyGeneratorConfiguration leafAdditionalPropertyConfiguration = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(abstractIntrospectedTable,
                         DefaultColumnNameEnum.LEAF,
                         "false",
                         Collections.singletonList("@TableField(exist = false)"));
@@ -1015,7 +1022,7 @@ public class TableConfiguration extends PropertyHolder {
                 this.addAdditionalPropertyConfigurations(leafAdditionalPropertyConfiguration);
             }
             if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.DISABLED.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
-                VoAdditionalPropertyGeneratorConfiguration disabledAdditionalPropertyConfiguration = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(introspectedTable,
+                VoAdditionalPropertyGeneratorConfiguration disabledAdditionalPropertyConfiguration = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(abstractIntrospectedTable,
                         DefaultColumnNameEnum.DISABLED,
                         "false",
                         Collections.singletonList("@TableField(exist = false)"));
@@ -1023,7 +1030,7 @@ public class TableConfiguration extends PropertyHolder {
                 this.addAdditionalPropertyConfigurations(disabledAdditionalPropertyConfiguration);
             }
 
-            if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
+            if (abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
                 if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.CHILDREN.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
                     RelationGeneratorConfiguration relationGeneratorConfiguration = new RelationGeneratorConfiguration();
                     relationGeneratorConfiguration.setRemark("子集合");
@@ -1036,7 +1043,7 @@ public class TableConfiguration extends PropertyHolder {
                     sb.append(this.getDomainObjectName());
                     relationGeneratorConfiguration.setModelTye(sb.toString());
                     if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoModelConfiguration() != null && this.getVoGeneratorConfiguration().getVoModelConfiguration().isGenerate()) {
-                        String voType = substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo.vo." + this.getDomainObjectName() + "Vo";
+                        String voType = substringBeforeLast(abstractIntrospectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + ".pojo.vo." + this.getDomainObjectName() + "Vo";
                         relationGeneratorConfiguration.setVoModelTye(voType);
                     } else {
                         relationGeneratorConfiguration.setVoModelTye(sb.toString());
@@ -1052,9 +1059,9 @@ public class TableConfiguration extends PropertyHolder {
                     this.addRelationGeneratorConfiguration(relationGeneratorConfiguration);
                 }
                 if (this.getRelationGeneratorConfigurations().stream().noneMatch(c -> DefaultColumnNameEnum.CHILDREN_COUNT.fieldName().equalsIgnoreCase(c.getPropertyName()))) {
-                    IntrospectedColumn childrenCountColumn = introspectedTable.getColumn(DefaultColumnNameEnum.CHILDREN_COUNT.columnName()).orElse(null);
+                    IntrospectedColumn childrenCountColumn = abstractIntrospectedTable.getColumn(DefaultColumnNameEnum.CHILDREN_COUNT.columnName()).orElse(null);
                     if (childrenCountColumn == null) {
-                        VoAdditionalPropertyGeneratorConfiguration childrenCount = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(introspectedTable,
+                        VoAdditionalPropertyGeneratorConfiguration childrenCount = Mb3GenUtil.generateAdditionalPropertyFromDefaultColumnNameEnum(abstractIntrospectedTable,
                                 DefaultColumnNameEnum.CHILDREN_COUNT,
                                 "0",
                                 Collections.singletonList("@TableField(exist = false)"));
@@ -1067,15 +1074,15 @@ public class TableConfiguration extends PropertyHolder {
         });
     }
 
-    private void calculateSelectBySqlMethodProperty(IntrospectedTable introspectedTable) {
+    private void calculateSelectBySqlMethodProperty(AbstractIntrospectedTable abstractIntrospectedTable) {
         //计算SelectBySqlMethod列
         for (SelectBySqlMethodGeneratorConfiguration bySqlMethodGeneratorConfiguration : this.getSelectBySqlMethodGeneratorConfigurations()) {
-            bySqlMethodGeneratorConfiguration.setParentIdColumn(introspectedTable.getColumn(bySqlMethodGeneratorConfiguration.getParentIdColumnName()).orElse(null));
-            bySqlMethodGeneratorConfiguration.setPrimaryKeyColumn(introspectedTable.getColumn(bySqlMethodGeneratorConfiguration.getPrimaryKeyColumnName()).orElse(null));
+            bySqlMethodGeneratorConfiguration.setParentIdColumn(abstractIntrospectedTable.getColumn(bySqlMethodGeneratorConfiguration.getParentIdColumnName()).orElse(null));
+            bySqlMethodGeneratorConfiguration.setPrimaryKeyColumn(abstractIntrospectedTable.getColumn(bySqlMethodGeneratorConfiguration.getPrimaryKeyColumnName()).orElse(null));
         }
         List<SelectBySqlMethodGeneratorConfiguration> collect = this.getSelectBySqlMethodGeneratorConfigurations().stream().peek(c -> {
-            c.setParentIdColumn(introspectedTable.getColumn(c.getParentIdColumnName()).orElse(null));
-            c.setPrimaryKeyColumn(introspectedTable.getColumn(c.getPrimaryKeyColumnName()).orElse(null));
+            c.setParentIdColumn(abstractIntrospectedTable.getColumn(c.getParentIdColumnName()).orElse(null));
+            c.setPrimaryKeyColumn(abstractIntrospectedTable.getColumn(c.getPrimaryKeyColumnName()).orElse(null));
         }).filter(c -> c.getPrimaryKeyColumn() != null && c.getParentIdColumn() != null).collect(Collectors.toList());
         this.setSelectBySqlMethodGeneratorConfigurations(collect);
 
@@ -1087,11 +1094,11 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
-    private void calculateSelectByColumnConfigurations(IntrospectedTable introspectedTable) {
+    private void calculateSelectByColumnConfigurations(AbstractIntrospectedTable abstractIntrospectedTable) {
         //生成selectByColumn查询方法
         if (!this.getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration configuration : this.getSelectByColumnGeneratorConfigurations()) {
-                configuration.getColumnNames().forEach(n -> introspectedTable.getColumn(n).ifPresent(configuration::addColumn));
+                configuration.getColumnNames().forEach(n -> abstractIntrospectedTable.getColumn(n).ifPresent(configuration::addColumn));
                 configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns(), configuration.getParameterList()));
                 configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns(), configuration.getParameterList()));
             }
@@ -1102,16 +1109,16 @@ public class TableConfiguration extends PropertyHolder {
         this.setSelectByColumnGeneratorConfigurations(collect1);
     }
 
-    private void calculateSelectBaseByPrimaryKeyConfig(IntrospectedTable introspectedTable) {
+    private void calculateSelectBaseByPrimaryKeyConfig(AbstractIntrospectedTable abstractIntrospectedTable) {
         if (this.getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isSubSelected)) {
             //追加一个基于主键的查询，用来区分selectByPrimaryKey方法，避免过多查询
-            if (introspectedTable.getPrimaryKeyColumns().isEmpty()) {
+            if (abstractIntrospectedTable.getPrimaryKeyColumns().isEmpty()) {
                 return;
             }
             final String methodName = "selectBaseByPrimaryKey";
             if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(t -> methodName.equals(t.getMethodName()))) {
                 SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();
-                for (IntrospectedColumn column : introspectedTable.getPrimaryKeyColumns()) {
+                for (IntrospectedColumn column : abstractIntrospectedTable.getPrimaryKeyColumns()) {
                     if (selectByColumnGeneratorConfiguration.addColumnName(column.getActualColumnName())) {
                         selectByColumnGeneratorConfiguration.addColumn(column);
                     }
@@ -1124,11 +1131,11 @@ public class TableConfiguration extends PropertyHolder {
             }
         }
         if (this.getJavaControllerGeneratorConfiguration().generate && this.getJavaControllerGeneratorConfiguration().isEnableSelectByPrimaryKeys()) {
-            if (!introspectedTable.getPrimaryKeyColumns().isEmpty()) {
-                String methodName = JavaBeansUtil.byColumnMethodName(introspectedTable.getPrimaryKeyColumns(), true);
+            if (!abstractIntrospectedTable.getPrimaryKeyColumns().isEmpty()) {
+                String methodName = JavaBeansUtil.byColumnMethodName(abstractIntrospectedTable.getPrimaryKeyColumns(), true);
                 if (this.getSelectByColumnGeneratorConfigurations().stream().noneMatch(t -> methodName.equals(t.getMethodName()))) {
                     SelectByColumnGeneratorConfiguration selectByColumnGeneratorConfiguration = new SelectByColumnGeneratorConfiguration();
-                    for (IntrospectedColumn column : introspectedTable.getPrimaryKeyColumns()) {
+                    for (IntrospectedColumn column : abstractIntrospectedTable.getPrimaryKeyColumns()) {
                         if (selectByColumnGeneratorConfiguration.addColumnName(column.getActualColumnName())) {
                             selectByColumnGeneratorConfiguration.addColumn(column);
                         }
@@ -1144,13 +1151,13 @@ public class TableConfiguration extends PropertyHolder {
         }
     }
 
-    private void addHtmlElementAdditionalAttribute(HtmlElementDescriptor elementDescriptor, IntrospectedTable introspectedTable) {
+    private void addHtmlElementAdditionalAttribute(HtmlElementDescriptor elementDescriptor, AbstractIntrospectedTable abstractIntrospectedTable) {
         //不需要转换的数据源，直接返回
         if (!stringHasValue(elementDescriptor.getDataSource())) {
             return;
         }
         //javaModel或者voModel中不存在对应的属性，需要追加
-        OverridePropertyValueGeneratorConfiguration overrideConfiguration = ConfigUtil.createOverridePropertyConfiguration(elementDescriptor, introspectedTable);
+        OverridePropertyValueGeneratorConfiguration overrideConfiguration = ConfigUtil.createOverridePropertyConfiguration(elementDescriptor, abstractIntrospectedTable);
         ConfigUtil.addOverridePropertyConfiguration(overrideConfiguration, this);
     }
 
@@ -1185,5 +1192,26 @@ public class TableConfiguration extends PropertyHolder {
             }
         }
         this.getAdditionalPropertyConfigurations().add(additionalPropertyConfiguration);
+    }
+
+    /**
+     * 内部方法，字段是否需要提供验证
+     */
+    private boolean isFieldNeedValidate(IntrospectedColumn column, List<HtmlGeneratorConfiguration> htmlGeneratorConfigurations) {
+        if (this.getValidateIgnoreColumns().contains(column.getActualColumnName())) {
+            return false;
+        }
+        if (column.isRequired()) {
+            return true;
+        }
+        if (htmlGeneratorConfigurations != null && !htmlGeneratorConfigurations.isEmpty()) {
+            for (HtmlGeneratorConfiguration htmlGeneratorConfiguration : htmlGeneratorConfigurations) {
+                HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getHtmlElementDescriptor(column.getActualColumnName());
+                if (htmlElementDescriptor != null && htmlElementDescriptor.getVerify().contains("required")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

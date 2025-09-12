@@ -32,7 +32,7 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
                 xmlMapperGenerator = new SimpleXMLMapperGenerator();
             }
         } else {
-            xmlMapperGenerator = javaClientGenerator.getMatchedXMLGenerator();
+            xmlMapperGenerator = javaClientGenerator.getMatchedXmlGenerator();
         }
 
         initializeAbstractGenerator(xmlMapperGenerator, warnings, progressCallback);

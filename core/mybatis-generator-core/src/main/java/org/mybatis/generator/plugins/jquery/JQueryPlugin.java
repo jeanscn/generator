@@ -3,7 +3,7 @@ package org.mybatis.generator.plugins.jquery;
 import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.GeneratedFile;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freemaker.js.layui.GeneratedJqueryFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -20,7 +20,7 @@ import java.util.List;
 public class JQueryPlugin extends PluginAdapter {
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalWebFiles(IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         List<GeneratedFile> answer = new ArrayList<>();
 
         String project = this.properties.getProperty("targetProject", "src/main/resources/static/js");
@@ -36,8 +36,8 @@ public class JQueryPlugin extends PluginAdapter {
                 GeneratedJqueryFile generatedJqueryFile = new GeneratedJqueryFile(
                         jqueryFileNameDev,
                         project,
-                        introspectedTable.getContext().getModuleKeyword(),
-                        introspectedTable,
+                        abstractIntrospectedTable.getContext().getModuleKeyword(),
+                        abstractIntrospectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
                 generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFile);
@@ -47,8 +47,8 @@ public class JQueryPlugin extends PluginAdapter {
                 GeneratedJqueryFile generatedJqueryFileMin = new GeneratedJqueryFile(
                         jqueryFileNameMin,
                         project,
-                        introspectedTable.getContext().getModuleKeyword(),
-                        introspectedTable,
+                        abstractIntrospectedTable.getContext().getModuleKeyword(),
+                        abstractIntrospectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
                 generatedJqueryFileMin.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFileMin);

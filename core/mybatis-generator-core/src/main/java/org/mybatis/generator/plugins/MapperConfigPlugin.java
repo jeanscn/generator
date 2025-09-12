@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.mybatis.generator.api.GeneratedXmlFile;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
@@ -112,7 +112,7 @@ public class MapperConfigPlugin extends PluginAdapter {
      */
     @Override
     public boolean sqlMapGenerated(GeneratedXmlFile sqlMap,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         StringBuilder sb = new StringBuilder();
         sb.append(sqlMap.getTargetPackage());
         sb.append('.');

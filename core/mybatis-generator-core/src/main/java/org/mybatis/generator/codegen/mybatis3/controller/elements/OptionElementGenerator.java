@@ -72,7 +72,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(response);
         method.setReturnRemark("FormSelectTreeOption对象列表");
 
-        method.addAnnotation(new SystemLogDesc("调用数据选项接口",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("调用数据选项接口", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("option/"+ toHyphenCase(column.getJavaProperty())
                 , RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"数据选项");

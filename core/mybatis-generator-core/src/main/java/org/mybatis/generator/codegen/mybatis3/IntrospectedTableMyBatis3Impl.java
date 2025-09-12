@@ -50,7 +50,7 @@ import java.util.List;
  *
  * @author Jeff Butler
  */
-public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
+public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
 
     protected final List<AbstractJavaGenerator> javaGenerators = new ArrayList<>();
 
@@ -116,7 +116,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
                 xmlMapperGenerator = new XMLMapperGenerator();
             }
         } else {
-            xmlMapperGenerator = javaClientGenerator.getMatchedXMLGenerator();
+            xmlMapperGenerator = javaClientGenerator.getMatchedXmlGenerator();
         }
 
         initializeAbstractGenerator(xmlMapperGenerator, warnings,
@@ -202,7 +202,7 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
             javaGenerators.add(javaGenerator);
         }
 
-        if (getRules().generateRecordWithBLOBsClass()) {
+        if (getRules().generateRecordWithBlobsClass()) {
             AbstractJavaGenerator javaGenerator = new RecordWithBLOBsGenerator(getModelProject());
             initializeAbstractGenerator(javaGenerator, warnings, progressCallback);
             javaGenerators.add(javaGenerator);
@@ -437,13 +437,13 @@ public class IntrospectedTableMyBatis3Impl extends IntrospectedTable {
     }
 
     @Override
-    public boolean requiresXMLGenerator() {
+    public boolean requiresXmlGenerator() {
         AbstractJavaClientGenerator javaClientGenerator = createJavaClientGenerator();
 
         if (javaClientGenerator == null) {
             return false;
         } else {
-            return javaClientGenerator.requiresXMLGenerator();
+            return javaClientGenerator.requiresXmlGenerator();
         }
     }
 }

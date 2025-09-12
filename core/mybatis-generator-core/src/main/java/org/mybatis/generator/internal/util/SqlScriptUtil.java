@@ -11,6 +11,9 @@ import java.util.List;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
+/**
+ * @author cen_c
+ */
 public class SqlScriptUtil {
 
     private SqlScriptUtil() {}
@@ -24,10 +27,10 @@ public class SqlScriptUtil {
              * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `parent_id`;
              * */
             DatabaseDDLDialects databaseDialect = DatabaseDDLDialects.getDatabaseDialect(databaseProductName);
-            String COLUMN_STATEMENT = databaseDialect.getColumnModifyStatement();
-            String character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
+            String columnStatement = databaseDialect.getColumnModifyStatement();
+            String character = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
             String position = stringHasValue(col.getPosition()) ? " " + col.getPosition() : "";
-            String onAddRow = VStringUtil.format(COLUMN_STATEMENT,
+            String onAddRow = VStringUtil.format(columnStatement,
                     actionKey,
                     col.getActualColumnName(),
                     col.getActualTypeName(),
@@ -45,18 +48,18 @@ public class SqlScriptUtil {
     }
 
     public static String getSqlFragmentNotNull(IntrospectedColumn introspectedColumn) {
-        JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-        StringBuilder not_null = new StringBuilder();
+        JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+        StringBuilder notNull = new StringBuilder();
         if (!introspectedColumn.isNullable()) {
-            not_null.append("NOT NULL ");
-            not_null.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue()));
+            notNull.append("NOT NULL ");
+            notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue()));
         } else {
-            not_null.append("NULL ");
+            notNull.append("NULL ");
             if (introspectedColumn.getDefaultValue()!=null) {
-                not_null.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue()));
+                notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue()));
             }
         }
-        return not_null.toString();
+        return notNull.toString();
     }
 
     private static String getDefaultValueString(JDBCTypeTypeEnum jdbcTypeType, String defaultValue) {

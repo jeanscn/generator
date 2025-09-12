@@ -12,14 +12,14 @@ public class UpdateByPrimaryKeyWithBLOBsElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         String parameterType;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = introspectedTable.getRecordWithBLOBsType();
+        if (introspectedTable.getRules().generateRecordWithBlobsClass()) {
+            parameterType = introspectedTable.getRecordWithBlobsType();
         } else {
             parameterType = introspectedTable.getBaseRecordType();
         }
 
         XmlElement answer = buildUpdateByPrimaryKeyElement(
-                introspectedTable.getUpdateByPrimaryKeyWithBLOBsStatementId(),
+                introspectedTable.getUpdateByPrimaryKeyWithBlobsStatementId(),
                 parameterType,
                 introspectedTable.getNonPrimaryKeyColumns());
 

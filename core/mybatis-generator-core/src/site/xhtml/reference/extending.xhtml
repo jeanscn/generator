@@ -28,7 +28,7 @@ support mailing list at
 page, in most cases it will be far easier to extend MBG through the use of a plugin.  See the
 <a href="pluggingIn.html">Implementing Plugins</a> reference page for more information.</p>
 <p>The primary extension point for code generation is
-<code>org.mybatis.generator.api.IntrospectedTable</code>.  Implementing a code generator
+<code>org.mybatis.generator.api.AbstractIntrospectedTable</code>.  Implementing a code generator
 is a non-trivial task and should only be contemplated when you want to completely replace
 the code generation activities of MBG.  In the years since the original release of Abator,
 very few enhancement requests have appeared that could not be handled by a plugin.</p>
@@ -40,7 +40,7 @@ activities that can be accomplished with the different extensions.  If you
 need some help understanding the different options, feel free to ask a question
 on the user mailing list.</p>
 
-<h3>org.mybatis.generator.api.IntrospectedTable</h3>
+<h3>org.mybatis.generator.api.AbstractIntrospectedTable</h3>
 <p><code>IntrospectedTable</code> is an abstract class that can be extended to supply
 different code generators than the versions supplied with MBG.  A good example of
 such an implementation would be a FreeMarker or Velocity template based

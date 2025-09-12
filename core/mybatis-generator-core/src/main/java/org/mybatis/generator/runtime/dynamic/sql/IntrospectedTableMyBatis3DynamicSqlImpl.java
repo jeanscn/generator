@@ -41,7 +41,7 @@ public class IntrospectedTableMyBatis3DynamicSqlImpl extends IntrospectedTableMy
     }
 
     @Override
-    public boolean requiresXMLGenerator() {
+    public boolean requiresXmlGenerator() {
         return false;
     }
 }

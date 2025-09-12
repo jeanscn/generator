@@ -5,7 +5,7 @@ import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.config.ConfigUtil;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -18,23 +18,23 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 public class ParentIdElementDescriptor implements DefaultHtmlElementDescriptorFactory{
 
     @Override
-    public HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn column, IntrospectedTable introspectedTable) {
+    public HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn column, AbstractIntrospectedTable abstractIntrospectedTable) {
         HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
         elementDescriptor.setName(column.getActualColumnName());
-        if (VStringUtil.stringHasValue(introspectedTable.getContext().getVueEndProjectPath())) {
+        if (VStringUtil.stringHasValue(abstractIntrospectedTable.getContext().getVueEndProjectPath())) {
             elementDescriptor.setTagType(HtmlElementTagTypeEnum.CASCADER.codeName());
             elementDescriptor.setRemoteToTree(true);
             elementDescriptor.setRemoteApiParse(true);
             elementDescriptor.setRemoteAsync(true);
             elementDescriptor.setMultiple(false);
-            elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/async-tree");
+            elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable) + "/async-tree");
             elementDescriptor.setExcludeSelf(true);
         }else{
             elementDescriptor.setTagType(HtmlElementTagTypeEnum.SELECT.codeName());
-            elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/tree");
+            elementDescriptor.setDataUrl(Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable) + "/tree");
         }
         elementDescriptor.setDataSource(HtmlElementDataSourceEnum.DICT.getCode());
-        elementDescriptor.setBeanName(ConfigUtil.getIntrospectedTableBeanName(introspectedTable.getTableConfiguration()));
+        elementDescriptor.setBeanName(ConfigUtil.getIntrospectedTableBeanName(abstractIntrospectedTable.getTableConfiguration()));
         elementDescriptor.setApplyProperty(DefaultColumnNameEnum.NAME.fieldName());
 
         elementDescriptor.setColumn(column);

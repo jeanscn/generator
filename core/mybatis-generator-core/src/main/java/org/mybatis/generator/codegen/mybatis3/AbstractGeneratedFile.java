@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.GeneratedFile;
-import org.mybatis.generator.api.IntrospectedTable;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -12,9 +12,9 @@ public abstract class AbstractGeneratedFile extends GeneratedFile {
 
     protected final String fileName;
     protected final String targetPackage;
-    protected final IntrospectedTable introspectedTable;
+    protected AbstractIntrospectedTable introspectedTable;
 
-    public AbstractGeneratedFile(String targetProject, String targetPackage, String fileName,  IntrospectedTable introspectedTable) {
+    public AbstractGeneratedFile(String targetProject, String targetPackage, String fileName,  AbstractIntrospectedTable introspectedTable) {
         super(targetProject);
         this.fileName = fileName;
         this.targetPackage = targetPackage;

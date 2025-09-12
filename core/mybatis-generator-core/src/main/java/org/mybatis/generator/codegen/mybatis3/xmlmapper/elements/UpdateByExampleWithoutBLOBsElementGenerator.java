@@ -41,7 +41,7 @@ public class UpdateByExampleWithoutBLOBsElementGenerator extends
         sb.append("set ");
 
         Iterator<IntrospectedColumn> iter =
-                ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonBLOBColumns()).iterator();
+                ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonBlobColumns()).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
 

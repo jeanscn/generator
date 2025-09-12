@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
+import org.mybatis.generator.api.AbstractIntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -43,8 +43,8 @@ public class RowBoundsPlugin extends PluginAdapter {
 
     @Override
     public boolean clientSelectByExampleWithBLOBsMethodGenerated(Method method,
-            Interface interfaze, IntrospectedTable introspectedTable) {
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
+            Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
             copyAndAddMethod(method, interfaze);
         }
         return true;
@@ -53,8 +53,8 @@ public class RowBoundsPlugin extends PluginAdapter {
     @Override
     public boolean clientSelectByExampleWithoutBLOBsMethodGenerated(
             Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
             copyAndAddMethod(method, interfaze);
         }
         return true;
@@ -62,18 +62,18 @@ public class RowBoundsPlugin extends PluginAdapter {
 
     @Override
     public boolean sqlMapSelectByExampleWithoutBLOBsElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
-            copyAndSaveElement(element, introspectedTable.getFullyQualifiedTable());
+            XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
+            copyAndSaveElement(element, abstractIntrospectedTable.getFullyQualifiedTable());
         }
         return true;
     }
 
     @Override
     public boolean sqlMapSelectByExampleWithBLOBsElementGenerated(
-            XmlElement element, IntrospectedTable introspectedTable) {
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
-            copyAndSaveElement(element, introspectedTable.getFullyQualifiedTable());
+            XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
+            copyAndSaveElement(element, abstractIntrospectedTable.getFullyQualifiedTable());
         }
         return true;
     }
@@ -84,8 +84,8 @@ public class RowBoundsPlugin extends PluginAdapter {
      */
     @Override
     public boolean sqlMapDocumentGenerated(Document document,
-            IntrospectedTable introspectedTable) {
-        List<XmlElement> elements = elementsToAdd.get(introspectedTable.getFullyQualifiedTable());
+            AbstractIntrospectedTable abstractIntrospectedTable) {
+        List<XmlElement> elements = elementsToAdd.get(abstractIntrospectedTable.getFullyQualifiedTable());
         if (elements != null) {
             for (XmlElement element : elements) {
                 document.getRootElement().addElement(element);

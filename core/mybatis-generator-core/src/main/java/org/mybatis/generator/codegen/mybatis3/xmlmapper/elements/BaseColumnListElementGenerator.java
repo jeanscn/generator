@@ -20,7 +20,7 @@ public class BaseColumnListElementGenerator extends AbstractXmlElementGenerator 
 
         context.getCommentGenerator().addComment(answer);
 
-        buildSelectList(introspectedTable.getNonBLOBColumns()).forEach(answer::addElement);
+        buildSelectList(introspectedTable.getNonBlobColumns()).forEach(answer::addElement);
 
         if (context.getPlugins().sqlMapBaseColumnListElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);

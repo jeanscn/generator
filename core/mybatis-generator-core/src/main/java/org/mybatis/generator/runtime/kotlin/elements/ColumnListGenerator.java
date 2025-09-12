@@ -5,18 +5,21 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinModifier;
 import org.mybatis.generator.api.dom.kotlin.KotlinProperty;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.runtime.kotlin.elements.AbstractKotlinFunctionGenerator.FieldNameAndImport;
 
+/**
+ * @author cen_c
+ */
 public class ColumnListGenerator {
 
     private final Context context;
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final String supportObjectImport;
     private final String tableFieldName;
 
@@ -67,7 +70,7 @@ public class ColumnListGenerator {
 
     public static class Builder {
         private Context context;
-        private IntrospectedTable introspectedTable;
+        private AbstractIntrospectedTable introspectedTable;
         private String supportObjectImport;
         private String tableFieldName;
 
@@ -81,7 +84,7 @@ public class ColumnListGenerator {
             return this;
         }
 
-        public Builder withIntrospectedTable(IntrospectedTable introspectedTable) {
+        public Builder withIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
             this.introspectedTable = introspectedTable;
             return this;
         }

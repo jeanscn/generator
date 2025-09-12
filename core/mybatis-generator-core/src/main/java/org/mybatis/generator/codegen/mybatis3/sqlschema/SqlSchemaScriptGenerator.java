@@ -4,10 +4,10 @@ import com.vgosoft.core.constant.BaseEmpty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ForeignKeyInfo;
 import org.mybatis.generator.api.IndexInfo;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.internal.util.SqlScriptUtil;
 
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
  */
 public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final DatabaseDDLDialects databaseDDLDialects;
 
-    public SqlSchemaScriptGenerator(IntrospectedTable introspectedTable, DatabaseDDLDialects databaseDDLDialects) {
+    public SqlSchemaScriptGenerator(AbstractIntrospectedTable introspectedTable, DatabaseDDLDialects databaseDdlDialects) {
         this.introspectedTable = introspectedTable;
-        this.databaseDDLDialects = databaseDDLDialects;
+        this.databaseDDLDialects = databaseDdlDialects;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
             String character = BaseEmpty.EMPTY_STRING;
             if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL) && !VStringUtil.toCamelCase(col.getActualTypeName()).equals("JSON")) {
-                character = JDBCTypeTypeEnum.getJDBCTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
+                character = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
             }
 
             String rowSql = VStringUtil.format(createStatement,
@@ -95,9 +95,9 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         }
         ret.add(String.join(",\n", columnSql));
         if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL)) {
-            ret.add(") ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '"+introspectedTable.getRemarks(false)+"' ROW_FORMAT = Dynamic;");
+            ret.add(") ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '"+ introspectedTable.getRemarks(false)+"' ROW_FORMAT = Dynamic;");
         } else {
-            ret.add(") COMMENT =  '"+introspectedTable.getRemarks(false)+"';");
+            ret.add(") COMMENT =  '"+ introspectedTable.getRemarks(false)+"';");
         }
         return String.join("\n", ret);
     }

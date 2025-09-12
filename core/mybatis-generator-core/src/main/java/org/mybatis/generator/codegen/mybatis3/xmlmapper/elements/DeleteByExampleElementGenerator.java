@@ -22,7 +22,7 @@ public class DeleteByExampleElementGenerator extends AbstractXmlElementGenerator
 
         context.getCommentGenerator().addComment(answer);
 
-        String s = "delete "+introspectedTable.getTableConfiguration().getAlias()+" from " + introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String s = "delete "+ introspectedTable.getTableConfiguration().getAlias()+" from " + introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
         answer.addElement(new TextElement(s));
         answer.addElement(getExampleIncludeElement());
         // 增加if判断，防止传入的参数为null或空

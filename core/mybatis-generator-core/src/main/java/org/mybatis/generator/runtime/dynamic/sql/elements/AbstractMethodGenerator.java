@@ -1,7 +1,7 @@
 package org.mybatis.generator.runtime.dynamic.sql.elements;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -12,7 +12,7 @@ import org.mybatis.generator.config.Context;
  */
 public abstract class AbstractMethodGenerator {
     protected final Context context;
-    protected final IntrospectedTable introspectedTable;
+    protected final AbstractIntrospectedTable introspectedTable;
     protected final String tableFieldName;
 
     protected AbstractMethodGenerator(BaseBuilder<?> builder) {
@@ -57,7 +57,7 @@ public abstract class AbstractMethodGenerator {
 
     public abstract static class BaseBuilder<T extends BaseBuilder<T>> {
         private Context context;
-        private IntrospectedTable introspectedTable;
+        private AbstractIntrospectedTable introspectedTable;
         private String tableFieldName;
 
         public T withContext(Context context) {
@@ -65,7 +65,7 @@ public abstract class AbstractMethodGenerator {
             return getThis();
         }
 
-        public T withIntrospectedTable(IntrospectedTable introspectedTable) {
+        public T withIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
             this.introspectedTable = introspectedTable;
             return getThis();
         }

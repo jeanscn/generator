@@ -1633,7 +1633,8 @@ public class MyBatisGeneratorConfigurationParser {
         }
         String verify = attributes.getProperty("verify");
         if (stringHasValue(verify)) {
-            htmlElementDescriptor.setVerify(splitToList(verify));
+            List<String> verifies = splitToList(verify).stream().distinct().collect(Collectors.toList());
+            htmlElementDescriptor.setVerify(verifies);
         }
         String enumClassName = attributes.getProperty(PropertyRegistry.ELEMENT_ENUM_CLASS_FULL_NAME);
         if (stringHasValue(enumClassName)) {

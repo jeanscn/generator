@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -26,7 +26,7 @@ public class CreateMappingsInterface extends AbstractJavaGenerator {
     public static final String SUB_PACKAGE_MAPS = "maps";
     public final String methodKey;
 
-    public CreateMappingsInterface(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings,String methodKey) {
+    public CreateMappingsInterface(AbstractIntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, String methodKey) {
         super(project);
         this.context = introspectedTable.getContext();
         this.introspectedTable = introspectedTable;

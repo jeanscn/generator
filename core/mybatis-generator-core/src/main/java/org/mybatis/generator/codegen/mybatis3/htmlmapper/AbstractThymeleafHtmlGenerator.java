@@ -2,8 +2,8 @@ package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
@@ -28,8 +28,8 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
 
     protected HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
-    public AbstractThymeleafHtmlGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        super(context, introspectedTable, warnings, progressCallback);
+    public AbstractThymeleafHtmlGenerator(Context context, AbstractIntrospectedTable abstractIntrospectedTable, List<String> warnings, ProgressCallback progressCallback, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+        super(context, abstractIntrospectedTable, warnings, progressCallback);
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
 
@@ -216,7 +216,7 @@ public class AbstractThymeleafHtmlGenerator extends AbstractHtmlGenerator {
         sb.append("${").append(entityName).append("?.").append(introspectedColumn.getJavaProperty());
         if (introspectedColumn.isJava8TimeColumn()) {
             sb.append("!=null?#temporals.format(").append(entityName).append(".");
-        } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJDBCDateColumn()) {
+        } else if (introspectedColumn.isJdbcTimeColumn() || introspectedColumn.isJdbcTimeStampColumn() || introspectedColumn.isJdbcDateColumn()) {
             sb.append("!=null?#dates.format(").append(entityName).append(".");
         } else {
             sb.append("}?:_");

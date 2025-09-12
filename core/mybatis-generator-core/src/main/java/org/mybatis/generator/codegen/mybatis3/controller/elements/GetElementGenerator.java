@@ -55,7 +55,7 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
                 parentElement));
         method.setReturnRemark("查询结果数据对象");
 
-        method.addAnnotation(new SystemLogDesc("根据主键查询单条",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("根据主键查询单条", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc(pathVariable, RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"查看详情");
         method.addAnnotation(new ApiOperationDesc("获得单条记录", "根据给定id获取单个实体"),parentElement);
@@ -69,7 +69,7 @@ public class GetElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("return success({0});",
                 introspectedTable.getRules().isGenerateVoModel()?"mappings.to"+entityVoType.getShortName()+"(serviceResult.getResult())":"serviceResult.getResult()");
         method.addBodyLine("} else {");
-        method.addBodyLine("return failure(ApiCodeEnum.FAIL_NOT_FOUND, \"{0}\");",introspectedTable.getRemarks(true)+"数据记录");
+        method.addBodyLine("return failure(ApiCodeEnum.FAIL_NOT_FOUND, \"{0}\");", introspectedTable.getRemarks(true)+"数据记录");
         method.addBodyLine("}");
         parentElement.addMethod(method);
     }

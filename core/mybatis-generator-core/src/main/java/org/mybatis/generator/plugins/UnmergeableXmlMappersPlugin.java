@@ -3,7 +3,7 @@ package org.mybatis.generator.plugins;
 import java.util.List;
 
 import org.mybatis.generator.api.GeneratedXmlFile;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 
 /**
@@ -24,7 +24,7 @@ public class UnmergeableXmlMappersPlugin extends PluginAdapter {
 
     @Override
     public boolean sqlMapGenerated(GeneratedXmlFile sqlMap,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         sqlMap.setMergeable(false);
         return true;
     }

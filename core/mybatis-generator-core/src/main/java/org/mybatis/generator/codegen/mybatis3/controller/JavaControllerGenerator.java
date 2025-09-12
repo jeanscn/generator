@@ -247,7 +247,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 buildTemplateSampleData.addBodyLine("                .{0}({1})",
                         excelVoColumn.getJavaProperty(),
                         JavaBeansUtil.getColumnExampleValue(excelVoColumn));
-                if (excelVoColumn.isJDBCDateColumn() || excelVoColumn.isJDBCTimeColumn() || excelVoColumn.isJDBCTimeStampColumn()
+                if (excelVoColumn.isJdbcDateColumn() || excelVoColumn.isJdbcTimeColumn() || excelVoColumn.isJdbcTimeStampColumn()
                         || excelVoColumn.isJava8TimeColumn()) {
                     conTopClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
                 } else if (excelVoColumn.getJdbcType() == JDBCType.DECIMAL.getVendorTypeNumber()) {
@@ -285,11 +285,11 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         if (introspectedTable.getTopLevelClassExampleFields().containsKey(type.getShortName())) {
             final List<String> fNames = introspectedTable.getTopLevelClassExampleFields().get(type.getShortName());
             isContainOrderByClause = fNames.contains("orderByClause");
-            columns = introspectedTable.getNonBLOBColumns().stream()
+            columns = introspectedTable.getNonBlobColumns().stream()
                     .filter(c -> fNames.contains(c.getJavaProperty()))
                     .collect(Collectors.toList());
         } else {
-            columns = introspectedTable.getNonBLOBColumns();
+            columns = introspectedTable.getNonBlobColumns();
         }
         if (!columns.isEmpty()) {
             buildExample.addBodyLine("{0} example = new {0}();\n" +
@@ -428,7 +428,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(conTopClazz,
-                VStringUtil.format("{0} 控制器抽象类,提供了{0}的基本CRUD操作和其他相关功能。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0} 控制器抽象类,提供了{0}的基本CRUD操作和其他相关功能。", introspectedTable.getRemarks(true)),
                 true,
                 classComments.toArray(new String[0]));
 
@@ -475,7 +475,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         commentGenerator.addMethodJavaDocLine(conMethod);
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(conSubTopClazz,
-                VStringUtil.format("{0}控制器。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0}控制器。", introspectedTable.getRemarks(true)),
                 false,
                 VStringUtil.format("该类继承自'{'@link {0}'}'，",conTopClazz.getType().getShortNameWithoutTypeArguments()),
                 VStringUtil.format("用于扩展或重写{0}。",conTopClazz.getType().getShortNameWithoutTypeArguments()));

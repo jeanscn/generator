@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins;
 
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 
@@ -53,33 +53,33 @@ public class SerializablePlugin extends PluginAdapter {
 
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
-        makeSerializable(topLevelClass, introspectedTable);
+            AbstractIntrospectedTable abstractIntrospectedTable) {
+        makeSerializable(topLevelClass, abstractIntrospectedTable);
         return true;
     }
 
     @Override
     public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
-        makeSerializable(topLevelClass, introspectedTable);
+            AbstractIntrospectedTable abstractIntrospectedTable) {
+        makeSerializable(topLevelClass, abstractIntrospectedTable);
         return true;
     }
 
     @Override
     public boolean modelRecordWithBLOBsClassGenerated(
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        makeSerializable(topLevelClass, introspectedTable);
+            TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        makeSerializable(topLevelClass, abstractIntrospectedTable);
         return true;
     }
 
-    protected void makeSerializable(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    protected void makeSerializable(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         if (addGWTInterface) {
             topLevelClass.addImportedType(gwtSerializable);
             topLevelClass.addSuperInterface(gwtSerializable);
         }
 
         if (!suppressJavaInterface) {
-            if (!JavaBeansUtil.isAssignableCurrent(serializable.getFullyQualifiedName(),topLevelClass,introspectedTable)) {
+            if (!JavaBeansUtil.isAssignableCurrent(serializable.getFullyQualifiedName(),topLevelClass, abstractIntrospectedTable)) {
                 topLevelClass.addSuperInterface(serializable);
                 topLevelClass.addImportedType(serializable);
             }
@@ -88,15 +88,15 @@ public class SerializablePlugin extends PluginAdapter {
             field.setInitializationString("1L");
             field.setStatic(true);
             field.setVisibility(JavaVisibility.PRIVATE);
-            if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+            if (abstractIntrospectedTable.getRules().isIntegrateMybatisPlus()) {
                 field.addAnnotation("@TableField(exist = false)");
             }
-            if (introspectedTable.getContext().getJdkVersion()>8) {
+            if (abstractIntrospectedTable.getContext().getJdkVersion()>8) {
                 field.addAnnotation("@Serial");
             }
 
-            if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
-                context.getCommentGenerator().addFieldAnnotation(field, introspectedTable,topLevelClass.getImportedTypes());
+            if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
+                context.getCommentGenerator().addFieldAnnotation(field, abstractIntrospectedTable,topLevelClass.getImportedTypes());
             }
             boolean exist = false;
             for (Field topLevelClassField : topLevelClass.getFields()) {
@@ -107,7 +107,7 @@ public class SerializablePlugin extends PluginAdapter {
             }
             if (!exist) {
                 topLevelClass.getFields().add(0,field);
-                if (introspectedTable.getContext().getJdkVersion()>8) {
+                if (abstractIntrospectedTable.getContext().getJdkVersion()>8) {
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.io.Serial"));
                 }
             }
@@ -116,7 +116,7 @@ public class SerializablePlugin extends PluginAdapter {
 
     @Override
     public boolean kotlinDataClassGenerated(KotlinFile kotlinFile, KotlinType dataClass,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         kotlinFile.addImport("java.io.Serializable");
         dataClass.addSuperType("Serializable");
         return true;

@@ -66,7 +66,7 @@ public class ProviderSelectByExampleWithoutBLOBsMethodGenerator extends Abstract
     }
 
     public List<IntrospectedColumn> getColumns() {
-        return introspectedTable.getNonBLOBColumns();
+        return introspectedTable.getNonBlobColumns();
     }
 
     public String getMethodName() {

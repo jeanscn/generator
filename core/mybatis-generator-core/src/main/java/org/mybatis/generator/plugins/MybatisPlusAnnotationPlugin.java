@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -28,8 +28,8 @@ public class MybatisPlusAnnotationPlugin extends PluginAdapter {
      * model类的@TableName注解
      */
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        buildModelAnnotation(introspectedTable).addAnnotationToTopLevelClass(topLevelClass);
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        buildModelAnnotation(abstractIntrospectedTable).addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
@@ -37,10 +37,10 @@ public class MybatisPlusAnnotationPlugin extends PluginAdapter {
      * 属性注解@TableField
      */
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, ModelClassType modelClassType) {
         // 添加TableField注解
-        if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
-            TableField tableField = buildModelPropertyAnnotation(field, introspectedTable);
+        if (abstractIntrospectedTable.getRules().isIntegrateMybatisPlus()) {
+            TableField tableField = buildModelPropertyAnnotation(field, abstractIntrospectedTable);
             tableField.addAnnotationToField(field,topLevelClass);
         }
         return true;
@@ -49,9 +49,9 @@ public class MybatisPlusAnnotationPlugin extends PluginAdapter {
     /**
      * 构造注解@TableField
      */
-    private TableField buildModelPropertyAnnotation(final Field field, IntrospectedTable introspectedTable) {
+    private TableField buildModelPropertyAnnotation(final Field field, AbstractIntrospectedTable abstractIntrospectedTable) {
         final TableField tableField = new TableField();
-        introspectedTable.getAllColumns().stream()
+        abstractIntrospectedTable.getAllColumns().stream()
                 .filter(c->c.getJavaProperty().equals(field.getName()))
                 .findFirst()
                 .ifPresent(c-> tableField.setValue(c.getActualColumnName()));
@@ -64,7 +64,7 @@ public class MybatisPlusAnnotationPlugin extends PluginAdapter {
     /**
      * 构造注解@TableName
      */
-    private TableName buildModelAnnotation(IntrospectedTable introspectedTable) {
-        return new TableName(introspectedTable.getTableConfiguration().getTableName());
+    private TableName buildModelAnnotation(AbstractIntrospectedTable abstractIntrospectedTable) {
+        return new TableName(abstractIntrospectedTable.getTableConfiguration().getTableName());
     }
 }

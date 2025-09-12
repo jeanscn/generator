@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 
 /**
@@ -69,7 +69,7 @@ public class RenameExampleClassPlugin extends PluginAdapter {
     }
 
     @Override
-    public void initialized(IntrospectedTable introspectedTable) {
+    public void initialized(AbstractIntrospectedTable introspectedTable) {
         String oldType = introspectedTable.getExampleType();
         Matcher matcher = pattern.matcher(oldType);
         oldType = matcher.replaceAll(replaceString);

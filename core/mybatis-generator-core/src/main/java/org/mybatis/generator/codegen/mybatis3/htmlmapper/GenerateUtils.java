@@ -7,8 +7,8 @@ import static org.mybatis.generator.custom.ConstantsUtil.I_WORK_FLOW_BASE_ENTITY
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.ObjectFactory;
@@ -17,11 +17,12 @@ import cn.hutool.core.util.ObjectUtil;
 
 /**
  * 工具类
+ * @author cen_c
  */
 public class GenerateUtils {
 
-    /*判断当前属性是否为隐藏属性*/
-    public static boolean isHiddenColumn(IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    /** 判断当前属性是否为隐藏属性*/
+    public static boolean isHiddenColumn(AbstractIntrospectedTable abstractIntrospectedTable, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         if (htmlGeneratorConfiguration == null) {
             return false;
         }
@@ -33,7 +34,7 @@ public class GenerateUtils {
         return css.replace(".css", ".min.css");
     }
 
-    /*构造文件路径*/
+    /** 构造文件路径*/
     public static String genLocalFilePath(String path, String filename, String type) {
         StringBuilder sb = new StringBuilder();
         sb.append("/").append(type).append("/");
@@ -49,40 +50,40 @@ public class GenerateUtils {
         return sb.toString();
     }
 
-    public static String getEntityKeyStr(IntrospectedTable introspectedTable) {
-        return GenerateUtils.isWorkflowInstance(introspectedTable) ? "business" : "entity";
+    public static String getEntityKeyStr(AbstractIntrospectedTable abstractIntrospectedTable) {
+        return GenerateUtils.isWorkflowInstance(abstractIntrospectedTable) ? "business" : "entity";
     }
 
     /**
      * 生成的实体是否工作流子类
      *
-     * @param introspectedTable 代码生成的基类
+     * @param abstractIntrospectedTable 代码生成的基类
      * @return 布尔值 true为工作流对象，否则 false
      */
-    public static Boolean isWorkflowInstance(IntrospectedTable introspectedTable) {
-        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
+    public static Boolean isWorkflowInstance(AbstractIntrospectedTable abstractIntrospectedTable) {
+        String rootClass = abstractIntrospectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
         return isAssignable(rootClass, I_WORK_FLOW_BASE_ENTITY);
     }
 
     /**
      * 生成的实体是否为含有大字段的对象
      *
-     * @param introspectedTable 代码生成的基类
+     * @param abstractIntrospectedTable 代码生成的基类
      * @return 布尔值 true为工含有大字段，否则 false
      */
-    public static Boolean isBlobInstance(IntrospectedTable introspectedTable) {
-        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
+    public static Boolean isBlobInstance(AbstractIntrospectedTable abstractIntrospectedTable) {
+        String rootClass = abstractIntrospectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
         return isAssignable(rootClass, I_PERSISTENCE_BLOB);
     }
 
     /**
      * 生成的实体是否为业务对象
      *
-     * @param introspectedTable 代码生成的基类
+     * @param abstractIntrospectedTable 代码生成的基类
      * @return 布尔值 true为业务对象，否则 false
      */
-    public static Boolean isBusinessInstance(IntrospectedTable introspectedTable) {
-        String rootClass = introspectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
+    public static Boolean isBusinessInstance(AbstractIntrospectedTable abstractIntrospectedTable) {
+        String rootClass = abstractIntrospectedTable.getTableConfigurationProperty(PropertyRegistry.ROOT_CLASS);
         return isAssignable(rootClass, I_BUSINESS_ENTITY);
     }
 

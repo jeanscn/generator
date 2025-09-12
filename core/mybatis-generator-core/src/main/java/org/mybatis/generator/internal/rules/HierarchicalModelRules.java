@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 /**
  * This class encapsulates all the code generation rules for a table using the
@@ -17,7 +17,7 @@ public class HierarchicalModelRules extends BaseRules {
      * @param introspectedTable
      *            the introspected table
      */
-    public HierarchicalModelRules(IntrospectedTable introspectedTable) {
+    public HierarchicalModelRules(AbstractIntrospectedTable introspectedTable) {
         super(introspectedTable);
     }
 
@@ -52,7 +52,7 @@ public class HierarchicalModelRules extends BaseRules {
      * @return true if the record with BLOBs class should be generated
      */
     @Override
-    public boolean generateRecordWithBLOBsClass() {
-        return introspectedTable.hasBLOBColumns();
+    public boolean generateRecordWithBlobsClass() {
+        return introspectedTable.hasBlobColumns();
     }
 }

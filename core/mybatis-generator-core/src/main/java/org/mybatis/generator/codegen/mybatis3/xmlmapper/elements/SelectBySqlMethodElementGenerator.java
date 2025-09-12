@@ -19,8 +19,8 @@ public class SelectBySqlMethodElementGenerator extends AbstractXmlElementGenerat
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("select");
         answer.addAttribute(new Attribute("id", configuration.getMethodName()));
-        if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
+        if (introspectedTable.getRules().generateResultMapWithBlobs()) {
+            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBlobsId()));
         } else {
             if (!introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().isEmpty()) {
                 answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
@@ -32,7 +32,7 @@ public class SelectBySqlMethodElementGenerator extends AbstractXmlElementGenerat
         context.getCommentGenerator().addComment(answer);
         answer.addElement(new TextElement("select "));
         answer.addElement(getBaseColumnListElement());
-        if (introspectedTable.hasBLOBColumns()) {
+        if (introspectedTable.hasBlobColumns()) {
             answer.addElement(new TextElement(","));
             answer.addElement(getBlobColumnListElement());
         }

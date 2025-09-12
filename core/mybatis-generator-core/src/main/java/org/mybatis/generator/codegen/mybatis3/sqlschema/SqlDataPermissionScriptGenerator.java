@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.sqlschema;
 
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
 /**
@@ -13,10 +13,10 @@ import org.mybatis.generator.custom.db.DatabaseDDLDialects;
  */
 public class SqlDataPermissionScriptGenerator extends AbstractSqlScriptGenerator {
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final DatabaseDDLDialects databaseDDLDialects;
 
-    public SqlDataPermissionScriptGenerator(IntrospectedTable introspectedTable, DatabaseDDLDialects databaseDDLDialects) {
+    public SqlDataPermissionScriptGenerator(AbstractIntrospectedTable introspectedTable, DatabaseDDLDialects databaseDDLDialects) {
         this.introspectedTable = introspectedTable;
         this.databaseDDLDialects = databaseDDLDialects;
         lines.add("-- ----------------------------");

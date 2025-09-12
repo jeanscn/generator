@@ -10,7 +10,7 @@ import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -110,29 +110,29 @@ public class ViewTableMetaDesc extends AbstractAnnotation {
 
     private String detailFormIn;
 
-    public static ViewTableMetaDesc create(IntrospectedTable introspectedTable) {
-        return new ViewTableMetaDesc(introspectedTable);
+    public static ViewTableMetaDesc create(AbstractIntrospectedTable abstractIntrospectedTable) {
+        return new ViewTableMetaDesc(abstractIntrospectedTable);
     }
 
-    public ViewTableMetaDesc(IntrospectedTable introspectedTable) {
+    public ViewTableMetaDesc(AbstractIntrospectedTable abstractIntrospectedTable) {
         super();
-        this.value = Mb3GenUtil.getDefaultViewId(introspectedTable);
+        this.value = Mb3GenUtil.getDefaultViewId(abstractIntrospectedTable);
         items.add(VStringUtil.format("value = \"{0}\"", this.getValue()));
-        this.listName = introspectedTable.getRemarks(true);
+        this.listName = abstractIntrospectedTable.getRemarks(true);
         items.add(VStringUtil.format("listName = \"{0}\"", this.getListName()));
-        this.beanName = introspectedTable.getControllerBeanName();
+        this.beanName = abstractIntrospectedTable.getControllerBeanName();
         items.add(VStringUtil.format("beanName = \"{0}\"", this.getBeanName()));
-        this.appKeyword = introspectedTable.getContext().getAppKeyword();
+        this.appKeyword = abstractIntrospectedTable.getContext().getAppKeyword();
         items.add(VStringUtil.format("appKeyword = \"{0}\"", this.getAppKeyword()));
-        this.tableName = introspectedTable.getTableConfiguration().getTableName();
+        this.tableName = abstractIntrospectedTable.getTableConfiguration().getTableName();
         items.add(VStringUtil.format("tableName = \"{0}\"", this.tableName));
-        this.tableAlias = introspectedTable.getTableConfiguration().getAlias();
+        this.tableAlias = abstractIntrospectedTable.getTableConfiguration().getAlias();
         items.add(VStringUtil.format("tableAlias = \"{0}\"", this.tableAlias));
         this.dataUrl = "/viewmgr/getdtdata";
-        this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(introspectedTable));
+        this.listType = VMD5Util.MD5_15(Mb3GenUtil.getModelKey(abstractIntrospectedTable));
         this.indexColumn = ViewIndexColumnEnum.CHECKBOX;
-        this.moduleId = Mb3GenUtil.getModelId(introspectedTable);
-        this.applyWorkflow = GenerateUtils.isWorkflowInstance(introspectedTable) ? 1 : 0;
+        this.moduleId = Mb3GenUtil.getModelId(abstractIntrospectedTable);
+        this.applyWorkflow = GenerateUtils.isWorkflowInstance(abstractIntrospectedTable) ? 1 : 0;
         this.addImports(ViewTableMeta.class.getCanonicalName());
     }
 

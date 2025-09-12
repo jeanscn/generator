@@ -56,7 +56,7 @@ public class SimpleAnnotatedClientGenerator extends SimpleJavaClientGenerator {
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         return null;
     }
 }

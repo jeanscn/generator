@@ -32,7 +32,7 @@ public class SelectBySqlElementGenerator extends AbstractXmlElementGenerator{
         ifElement.addElement(ifNotNull);
         XmlElement ifNull = new XmlElement("if");
         ifNull.addAttribute(new Attribute("test", "sql == null or sql ==''"));
-        ifNull.addElement(new TextElement("from "+introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime()));
+        ifNull.addElement(new TextElement("from "+ introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime()));
         ifElement.addElement(ifNull);
         selectBySqlBuilder.addElement(ifElement);
         parentElement.addElement(selectBySqlBuilder);

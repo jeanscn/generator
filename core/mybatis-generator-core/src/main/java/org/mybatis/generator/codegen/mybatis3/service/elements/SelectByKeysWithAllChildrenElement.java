@@ -22,7 +22,7 @@ public class SelectByKeysWithAllChildrenElement extends AbstractServiceElementGe
     public void addElements(TopLevelClass parentElement) {
         Method method = serviceMethods.getSelectByKeysWithChildrenMethod(parentElement, false,true);
         method.addAnnotation("@Override");
-        method.addBodyLine("List<{0}> result = mapper.{1}(ids);", entityType.getShortName(),introspectedTable.getSelectByKeysWithAllChildren());
+        method.addBodyLine("List<{0}> result = mapper.{1}(ids);", entityType.getShortName(), introspectedTable.getSelectByKeysWithAllChildren());
         method.addBodyLine("return ServiceResult.success(result);");
         parentElement.addMethod(method);
         parentElement.addImportedType(new FullyQualifiedJavaType("java.util.List"));

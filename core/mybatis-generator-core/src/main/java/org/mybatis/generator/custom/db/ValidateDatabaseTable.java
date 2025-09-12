@@ -6,8 +6,8 @@ import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
 import com.vgosoft.tool.core.VReflectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
@@ -35,7 +35,7 @@ public class ValidateDatabaseTable {
 
     private final List<String> warnings;
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
 
     private final Connection connection;
 
@@ -45,7 +45,7 @@ public class ValidateDatabaseTable {
 
     private String databaseProductName;
 
-    public ValidateDatabaseTable(IntrospectedTable introspectedTable, Connection connection, List<String> warnings) {
+    public ValidateDatabaseTable(AbstractIntrospectedTable introspectedTable, Connection connection, List<String> warnings) {
         this.introspectedTable = introspectedTable;
         this.warnings = warnings;
         this.connection = connection;
@@ -81,12 +81,12 @@ public class ValidateDatabaseTable {
         Map<String, List<IntrospectedColumn>> updMap = groupColumns(updateColumns);
         for (Map.Entry<String, List<IntrospectedColumn>> stringListEntry : addMap.entrySet()) {
             List<IntrospectedColumn> value = stringListEntry.getValue();
-            IntrospectedTable introspectedTable = value.get(0).getIntrospectedTable();
-            List<IntrospectedColumn> baseColumns = introspectedTable.getBaseColumns();
-            List<IntrospectedColumn> primaryKeyColumns = introspectedTable.getPrimaryKeyColumns();
-            List<IntrospectedColumn> blobColumns = introspectedTable.getBLOBColumns();
+            AbstractIntrospectedTable abstractIntrospectedTable = value.get(0).getIntrospectedTable();
+            List<IntrospectedColumn> baseColumns = abstractIntrospectedTable.getBaseColumns();
+            List<IntrospectedColumn> primaryKeyColumns = abstractIntrospectedTable.getPrimaryKeyColumns();
+            List<IntrospectedColumn> blobColumns = abstractIntrospectedTable.getBlobColumns();
             for (IntrospectedColumn introspectedColumn : value) {
-                if (introspectedColumn.isBLOBColumn()) {
+                if (introspectedColumn.isBlobColumn()) {
                     blobColumns.add(introspectedColumn);
                 } else if (introspectedColumn.isPrimaryKey()) {
                     primaryKeyColumns.add(introspectedColumn);
@@ -97,10 +97,10 @@ public class ValidateDatabaseTable {
         }
         for (Map.Entry<String, List<IntrospectedColumn>> stringListEntry : updMap.entrySet()) {
             List<IntrospectedColumn> value = stringListEntry.getValue();
-            IntrospectedTable introspectedTable = value.get(0).getIntrospectedTable();
-            List<IntrospectedColumn> baseColumns = introspectedTable.getBaseColumns();
-            List<IntrospectedColumn> primaryKeyColumns = introspectedTable.getPrimaryKeyColumns();
-            List<IntrospectedColumn> blobColumns = introspectedTable.getBLOBColumns();
+            AbstractIntrospectedTable abstractIntrospectedTable = value.get(0).getIntrospectedTable();
+            List<IntrospectedColumn> baseColumns = abstractIntrospectedTable.getBaseColumns();
+            List<IntrospectedColumn> primaryKeyColumns = abstractIntrospectedTable.getPrimaryKeyColumns();
+            List<IntrospectedColumn> blobColumns = abstractIntrospectedTable.getBlobColumns();
             for (IntrospectedColumn introspectedColumn : value) {
                 for (IntrospectedColumn baseColumn : baseColumns) {
                     if (baseColumn.getActualColumnName().equals(introspectedColumn.getActualColumnName())) {
@@ -150,7 +150,7 @@ public class ValidateDatabaseTable {
                 JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault
                         .getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
                 String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();//字段完整注释
-                if (!introspectedColumn.isBLOBColumn()) {
+                if (!introspectedColumn.isBlobColumn()) {
                     jdbcTypeInformation.setColumnLength(columnMeta.size());
                     int columnLength = jdbcTypeInformation.getColumnLength();//字段长度
                     if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
@@ -187,7 +187,7 @@ public class ValidateDatabaseTable {
 
     }
 
-    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, IntrospectedTable table,IntrospectedColumn originalColumn) {
+    private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, AbstractIntrospectedTable table, IntrospectedColumn originalColumn) {
         JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
         jdbcTypeInformation.setColumnLength(columnMeta.size());
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();

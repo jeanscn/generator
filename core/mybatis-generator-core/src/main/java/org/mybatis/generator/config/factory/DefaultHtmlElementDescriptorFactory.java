@@ -1,7 +1,7 @@
 package org.mybatis.generator.config.factory;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 
 /**
@@ -16,5 +16,5 @@ public interface DefaultHtmlElementDescriptorFactory {
      *
      * @return html元素描述器
      */
-    HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable);
+    HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable);
 }

@@ -1,24 +1,20 @@
 package org.mybatis.generator.maven;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Properties;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 
 import static org.mybatis.generator.custom.ConstantsUtil.DEFAULT_CHARSET;
 
@@ -199,7 +195,8 @@ public class SqlScriptRunner {
             if (!file.exists()) {
                 throw new MojoExecutionException("SQL script file does not exist");
             }
-            answer = new BufferedReader(new FileReader(file));
+            // answer = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
+            answer = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_CHARSET));
         }
 
         return answer;

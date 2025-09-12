@@ -7,6 +7,7 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.StringUtility;
 
+import java.sql.JDBCType;
 import java.sql.Types;
 import java.util.Properties;
 
@@ -58,11 +59,13 @@ public class IntrospectedColumn {
 
     protected boolean isColumnNameDelimited;
 
-    protected IntrospectedTable introspectedTable;
+    protected AbstractIntrospectedTable introspectedTable;
 
     protected final Properties properties;
 
-    // any database comment associated with this column. May be null
+    /**
+     * any database comment associated with this column. May be null
+     */
     protected String remarks;
 
     protected String subRemarks;
@@ -84,11 +87,6 @@ public class IntrospectedColumn {
      */
     protected boolean isGeneratedAlways;
 
-    /*
-     * Constructs a Column definition. This object holds all the information
-     * about a column that is required to generate Java objects and SQL maps;
-     */
-
     /**
      * 额外增加：位置标识
      * 列在表格中的位置，在创建或编辑列时使用
@@ -106,7 +104,7 @@ public class IntrospectedColumn {
         properties = new Properties();
     }
 
-    /*
+    /**
      * This method is primarily used for debugging, so we don't externalize the
      * strings
      */
@@ -132,7 +130,7 @@ public class IntrospectedColumn {
                 .stringContainsSpace(actualColumnName);
     }
 
-    public boolean isBLOBColumn() {
+    public boolean isBlobColumn() {
         String typeName = getJdbcTypeName();
 
         return "BINARY".equals(typeName) || "BLOB".equals(typeName) || "CLOB".equals(typeName)
@@ -201,17 +199,17 @@ public class IntrospectedColumn {
         return prefix + javaProperty;
     }
 
-    public boolean isJDBCDateColumn() {
+    public boolean isJdbcDateColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
-                && "DATE".equalsIgnoreCase(jdbcTypeName);
+                && JDBCType.DATE.getName().equalsIgnoreCase(jdbcTypeName);
     }
 
-    public boolean isJDBCTimeColumn() {
+    public boolean isJdbcTimeColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
                 && "TIME".equalsIgnoreCase(jdbcTypeName);
     }
 
-    public boolean isJDBCTimeStampColumn() {
+    public boolean isJdbcTimeStampColumn() {
         return fullyQualifiedJavaType.equals(FullyQualifiedJavaType.getDateInstance())
                 && "TIMESTAMP".equalsIgnoreCase(jdbcTypeName);
     }
@@ -232,14 +230,6 @@ public class IntrospectedColumn {
         return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalDate"))
                 || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalDateTime"))
                 || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalTime"));
-    }
-
-    public void setColumnNameDelimited(boolean isColumnNameDelimited) {
-        this.isColumnNameDelimited = isColumnNameDelimited;
-    }
-
-    public boolean isColumnNameDelimited() {
-        return isColumnNameDelimited;
     }
 
     public String getJdbcTypeName() {
@@ -275,38 +265,6 @@ public class IntrospectedColumn {
         return VStringUtil.stringHasValue(remarks) ? remarks : "--";
     }
 
-    public boolean isSequenceColumn() {
-        return isSequenceColumn;
-    }
-
-    public void setSequenceColumn(boolean isSequenceColumn) {
-        this.isSequenceColumn = isSequenceColumn;
-    }
-
-    public boolean isAutoIncrement() {
-        return isAutoIncrement;
-    }
-
-    public void setAutoIncrement(boolean isAutoIncrement) {
-        this.isAutoIncrement = isAutoIncrement;
-    }
-
-    public boolean isGeneratedColumn() {
-        return isGeneratedColumn;
-    }
-
-    public void setGeneratedColumn(boolean isGeneratedColumn) {
-        this.isGeneratedColumn = isGeneratedColumn;
-    }
-
-    public boolean isGeneratedAlways() {
-        return isGeneratedAlways;
-    }
-
-    public void setGeneratedAlways(boolean isGeneratedAlways) {
-        this.isGeneratedAlways = isGeneratedAlways;
-    }
-
     /**
      * The platform specific type name as reported by the JDBC driver. This value is determined
      * from the DatabaseMetadata.getColumns() call - specifically ResultSet.getString("TYPE_NAME").
@@ -338,37 +296,22 @@ public class IntrospectedColumn {
         if (this.getActualTypeName().toUpperCase().contains("UNSIGNED")) {
             return "";
         }
-        StringBuilder sb_length = new StringBuilder();
-        if (!(this.isJDBCDateColumn() || this.isJDBCTimeColumn() || this.isJDBCTimeStampColumn() || this.isBLOBColumn() || this.isJava8TimeColumn() || this.isLongVarchar())) {
-            sb_length.append("(");
-            sb_length.append(this.length);
+        StringBuilder sbLength = new StringBuilder();
+        if (!(this.isJdbcDateColumn() || this.isJdbcTimeColumn() || this.isJdbcTimeStampColumn() || this.isBlobColumn() || this.isJava8TimeColumn() || this.isLongVarchar())) {
+            sbLength.append("(");
+            sbLength.append(this.length);
             if (this.scale > 0) {
-                sb_length.append(",").append(this.scale);
+                sbLength.append(",").append(this.scale);
             }
-            sb_length.append(") ");
+            sbLength.append(") ");
         } else {
-            sb_length.append(" ");
+            sbLength.append(" ");
         }
-        return sb_length.toString();
-    }
-
-    public boolean isForeignKey() {
-        return isForeignKey;
-    }
-
-    public void setForeignKey(boolean foreignKey) {
-        isForeignKey = foreignKey;
+        return sbLength.toString();
     }
 
     public boolean isRequired() {
         return !this.isNullable() && !this.isAutoIncrement() && !this.isGeneratedColumn() && !this.isSequenceColumn();
     }
 
-    public boolean isPrimaryKey() {
-        return isPrimaryKey;
-    }
-
-    public void setPrimaryKey(boolean primaryKey) {
-        isPrimaryKey = primaryKey;
-    }
 }

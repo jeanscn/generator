@@ -145,7 +145,7 @@ public class LayuiDocumentGenerated extends AbstractThymeleafHtmlDocumentGenerat
             formColumns = voGenService.getAllVoColumns(fields, voModelConfiguration.getIncludeColumns(), voModelConfiguration.getExcludeColumns());
             VCollectionUtil.addAllIfNotContains(formColumns, voGenService.getAbstractVoColumns());
         } else {
-            formColumns = introspectedTable.getNonBLOBColumns();
+            formColumns = introspectedTable.getNonBlobColumns();
         }
         for (IntrospectedColumn baseColumn : formColumns) {
             if (GenerateUtils.isHiddenColumn(introspectedTable, baseColumn, htmlGeneratorConfiguration)) {

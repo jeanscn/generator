@@ -43,7 +43,7 @@ public class CreateBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST, getMethodParameterVoType(""), parentElement));
         method.setReturnRemark("更新后的数据（对象）列表");
 
-        method.addAnnotation(new SystemLogDesc("添加了多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("添加了多条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("batch", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量创建");
         method.addAnnotation(new ApiOperationDesc("新增多条记录", "新增多条记录,返回影响条数及消息"),parentElement);

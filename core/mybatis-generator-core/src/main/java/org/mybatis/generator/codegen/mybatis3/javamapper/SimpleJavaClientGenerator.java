@@ -15,8 +15,6 @@ import org.mybatis.generator.codegen.mybatis3.javamapper.elements.*;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.SimpleXMLMapperGenerator;
 import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.custom.enums.ScalableElementEnum;
-import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
@@ -27,6 +25,9 @@ import java.util.stream.Collectors;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
 
     public SimpleJavaClientGenerator(String project) {
@@ -44,7 +45,7 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
         String targetPackageGen = introspectedTable.getTableConfiguration().getJavaClientGeneratorConfiguration().getTargetPackageGen();
-        String mapperFullName = String.join(".", targetPackageGen, "Gen"+introspectedTable.getTableConfiguration().getDomainObjectName()+"Mapper");
+        String mapperFullName = String.join(".", targetPackageGen, "Gen"+ introspectedTable.getTableConfiguration().getDomainObjectName()+"Mapper");
 
         FullyQualifiedJavaType type = new FullyQualifiedJavaType(mapperFullName);
         Interface interfaze = new Interface(type);
@@ -85,10 +86,10 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
         subInterface.addSuperInterface(type);
         subInterface.addImportedType(type);
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
-            subInterface.addAnnotation("@DataScope(tableName = \""+introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()+"\")");
+            subInterface.addAnnotation("@DataScope(tableName = \""+ introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()+"\")");
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.DataScope"));
             String primaryKeys = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
-            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+introspectedTable.getFullyQualifiedTable().getAlias()+"\", columnName = \""+ primaryKeys +"\")");
+            subInterface.addAnnotation("@TableDataScope(dataScopeType = 21, tableAlias = \""+ introspectedTable.getFullyQualifiedTable().getAlias()+"\", columnName = \""+ primaryKeys +"\")");
             subInterface.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.annotation.permission.TableDataScope"));
         }
 
@@ -155,12 +156,12 @@ public class SimpleJavaClientGenerator extends AbstractJavaClientGenerator {
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         return new SimpleXMLMapperGenerator();
     }
 
     @Override
-    public AbstractHtmlGenerator getMatchedHTMLGenerator() {
+    public AbstractHtmlGenerator getMatchedHtmlGenerator() {
         return new HTMLGenerator();
     }
 }

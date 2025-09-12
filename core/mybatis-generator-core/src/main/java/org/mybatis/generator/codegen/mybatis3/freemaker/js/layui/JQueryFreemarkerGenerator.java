@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.freemaker.js.layui;
 import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import freemarker.template.Template;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -25,11 +25,9 @@ import java.util.Optional;
  */
 public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
 
-    private final IntrospectedTable introspectedTable;
-
     private final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
-    public JQueryFreemarkerGenerator(String project, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public JQueryFreemarkerGenerator(String project, AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(project);
         this.introspectedTable = introspectedTable;
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;

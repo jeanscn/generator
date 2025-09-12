@@ -43,7 +43,7 @@ public class UpdateBatchElementGenerator extends AbstractControllerElementGenera
                 parentElement));
         method.setReturnRemark("更新后的数据对象列表");
 
-        method.addAnnotation(new SystemLogDesc("更新了多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("更新了多条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("batch", RequestMethodEnum.PUT),parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "批量更新");
         method.addAnnotation(new ApiOperationDesc("批量更新数据", "根据主键批量更新数据"),parentElement);

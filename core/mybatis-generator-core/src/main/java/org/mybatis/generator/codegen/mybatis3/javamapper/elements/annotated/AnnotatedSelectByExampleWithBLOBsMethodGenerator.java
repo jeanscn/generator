@@ -21,7 +21,7 @@ public class AnnotatedSelectByExampleWithBLOBsMethodGenerator extends SelectByEx
         String s = "@SelectProvider(type="
                 + fqjt.getShortName()
                 + ".class, method=\""
-                + introspectedTable.getSelectByExampleWithBLOBsStatementId()
+                + introspectedTable.getSelectByExampleWithBlobsStatementId()
                 + "\")";
         method.addAnnotation(s);
 

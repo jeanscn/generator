@@ -45,7 +45,7 @@ public class SelectByExampleWithRelationMethodGenerator extends
         parameter.setRemark("查询条件example对象");
         method.addParameter(parameter);
 
-        context.getCommentGenerator().addGeneralMethodComment(method,introspectedTable);
+        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
         addMapperAnnotations(interfaze, method);
 

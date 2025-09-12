@@ -17,11 +17,11 @@ public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenera
         XmlElement answer = new XmlElement("resultMap");
 
         answer.addAttribute(new Attribute("id",
-                introspectedTable.getResultMapWithBLOBsId()));
+                introspectedTable.getResultMapWithBlobsId()));
 
         String returnType;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            returnType = introspectedTable.getRecordWithBLOBsType();
+        if (introspectedTable.getRules().generateRecordWithBlobsClass()) {
+            returnType = introspectedTable.getRecordWithBlobsType();
         } else {
             // table has BLOBs, but no BLOB class - BLOB fields must be
             // in the base class
@@ -32,9 +32,9 @@ public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenera
 
         if (!introspectedTable.isConstructorBased()) {
             if (!introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().isEmpty()) {
-                answer.addAttribute(new Attribute("extends",introspectedTable.getRelationResultMapId()));
+                answer.addAttribute(new Attribute("extends", introspectedTable.getRelationResultMapId()));
             }else{
-                answer.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+                answer.addAttribute(new Attribute("extends", introspectedTable.getBaseResultMapId()));
             }
         }
 
@@ -52,7 +52,7 @@ public class ResultMapWithBLOBsElementGenerator extends AbstractXmlElementGenera
     }
 
     private void addResultMapElements(XmlElement answer) {
-        buildResultMapItems(ResultElementType.RESULT, introspectedTable.getBLOBColumns()).forEach(answer::addElement);
+        buildResultMapItems(ResultElementType.RESULT, introspectedTable.getBlobColumns()).forEach(answer::addElement);
     }
 
     private void addResultMapConstructorElements(XmlElement answer) {

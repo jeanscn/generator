@@ -1,7 +1,7 @@
 package org.mybatis.generator.runtime.kotlin.elements;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
@@ -12,7 +12,7 @@ import org.mybatis.generator.config.Context;
  */
 public abstract class AbstractKotlinFunctionGenerator {
     protected final Context context;
-    protected final IntrospectedTable introspectedTable;
+    protected final AbstractIntrospectedTable introspectedTable;
     protected final String tableFieldName;
 
     protected AbstractKotlinFunctionGenerator(BaseBuilder<?> builder) {
@@ -90,7 +90,7 @@ public abstract class AbstractKotlinFunctionGenerator {
 
     public abstract static class BaseBuilder<T extends BaseBuilder<T>> {
         private Context context;
-        private IntrospectedTable introspectedTable;
+        private AbstractIntrospectedTable introspectedTable;
         private String tableFieldName;
 
         public T withContext(Context context) {
@@ -103,7 +103,7 @@ public abstract class AbstractKotlinFunctionGenerator {
             return getThis();
         }
 
-        public T withIntrospectedTable(IntrospectedTable introspectedTable) {
+        public T withIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
             this.introspectedTable = introspectedTable;
             return getThis();
         }

@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.freemaker.vue3;
 
 import freemarker.template.Template;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -18,7 +18,7 @@ public class VueViewFreemarkerGenerator extends AbstractFreemarkerGenerator {
 
     private final Map<String, Object> data;
 
-    public VueViewFreemarkerGenerator(String project, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration, Map<String, Object> data) {
+    public VueViewFreemarkerGenerator(String project, AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration, Map<String, Object> data) {
         super(project);
         this.introspectedTable = introspectedTable;
         this.data = data;

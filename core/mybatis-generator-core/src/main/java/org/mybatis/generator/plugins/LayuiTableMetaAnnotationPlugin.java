@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -45,13 +45,13 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (!introspectedTable.getRules().isGenerateInnerTable()) return true;
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!abstractIntrospectedTable.getRules().isGenerateInnerTable()) return true;
 
-        VoViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        VoViewGeneratorConfiguration voViewGeneratorConfiguration = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         //增加InnerTableMetaAnnotation
         voViewGeneratorConfiguration.getInnerListViewConfigurations().forEach(listViewConfiguration -> {
-            LayuiTableMetaDesc layuiTableMetaDesc = getLayuiTableMetaDesc(introspectedTable, listViewConfiguration, topLevelClass);
+            LayuiTableMetaDesc layuiTableMetaDesc = getLayuiTableMetaDesc(abstractIntrospectedTable, listViewConfiguration, topLevelClass);
             String annotation = layuiTableMetaDesc.toAnnotation();
             if (!topLevelClass.getAnnotations().contains(annotation)) {
                 topLevelClass.addAnnotation(annotation);
@@ -65,9 +65,9 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
      * Vo抽象父类的ColumnMetaAnnotation
      */
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        if (!introspectedTable.getRules().isGenerateInnerTable()) return true;
-        addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, introspectedTable);
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!abstractIntrospectedTable.getRules().isGenerateInnerTable()) return true;
+        addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, abstractIntrospectedTable);
         return true;
     }
 
@@ -75,14 +75,14 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
      * viewVo类的ViewMetaAnnotation
      */
     @Override
-    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        if (!introspectedTable.getRules().isGenerateInnerTable()) return true;
-        addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, introspectedTable);
+    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!abstractIntrospectedTable.getRules().isGenerateInnerTable()) return true;
+        addLayuiTableColumnMeta(field, topLevelClass, introspectedColumn, abstractIntrospectedTable);
         return true;
     }
 
     //构造适用与Vxe的LayTableColumnMetaDesc
-    private LayuiTableColumnMetaDesc buildVxeTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    private LayuiTableColumnMetaDesc buildVxeTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         String fieldName = field.getName();
         Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap(); //所有的配置标签列表
         //fieldNames包含所有的fieldName和otherFieldName
@@ -110,7 +110,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             return null;
         }
         boolean enableEdit = enableEdit(listViewConfiguration, fieldName);
-        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, hiddenFields.contains(fieldName), introspectedTable,introspectedColumn);
+        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, hiddenFields.contains(fieldName), abstractIntrospectedTable,introspectedColumn);
         if (onlyReadFields.contains(fieldName)) {
             layuiTableColumnMetaDesc.setEdit(false);
             layuiTableColumnMetaDesc.setScope("readonly");
@@ -130,7 +130,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
                     });
         } else if (!hiddenFields.contains(fieldName)) {
             if (enableEdit) {
-                if (introspectedColumn != null && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 1500 || introspectedColumn.isBLOBColumn())) {
+                if (introspectedColumn != null && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 1500 || introspectedColumn.isBlobColumn())) {
                     layuiTableColumnMetaDesc.setEditor("textarea");
                     layuiTableColumnMetaDesc.setEdit(true);
                 } else if (introspectedColumn != null && introspectedColumn.isNumericColumn()) {
@@ -163,7 +163,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     //根据配置生成LayuiTableMetaDesc
-    private LayuiTableColumnMetaDesc buildLayuiTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    private LayuiTableColumnMetaDesc buildLayuiTableColumnDesc(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         String fieldName = field.getName();
         Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap(); //所有的配置标签列表
         //fieldNames包含所有的fieldName和otherFieldName
@@ -190,7 +190,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         boolean enableEdit = enableEdit(listViewConfiguration, fieldName);
         boolean defaultHidden = listViewConfiguration.getDefaultHiddenFields().contains(fieldName);
 
-        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, defaultHidden, introspectedTable,introspectedColumn);
+        LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = getLayuiTableColumnMetaDesc(listViewConfiguration, field, defaultHidden, abstractIntrospectedTable,introspectedColumn);
 
         if (fieldNames.contains(field.getName())) {
             elementDescriptorMap.values().stream()
@@ -233,7 +233,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
                         }
                     });
         } else if (enableEdit) {
-            if (introspectedColumn != null && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 255 || introspectedColumn.isBLOBColumn())) {
+            if (introspectedColumn != null && (introspectedColumn.isJdbcCharacterColumn() && introspectedColumn.getLength() > 255 || introspectedColumn.isBlobColumn())) {
                 layuiTableColumnMetaDesc.setEditor("textarea");
                 layuiTableColumnMetaDesc.setEdit(true);
             } else if (isDateType(field.getType())) {
@@ -261,7 +261,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         }
     }
 
-    private LayuiTableColumnMetaDesc getLayuiTableColumnMetaDesc(InnerListViewConfiguration listViewConfiguration, Field field, boolean defaultHidden, IntrospectedTable introspectedTable,IntrospectedColumn introspectedColumn) {
+    private LayuiTableColumnMetaDesc getLayuiTableColumnMetaDesc(InnerListViewConfiguration listViewConfiguration, Field field, boolean defaultHidden, AbstractIntrospectedTable abstractIntrospectedTable, IntrospectedColumn introspectedColumn) {
         //生成@LayuiTableColumnMeta注解
         LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = new LayuiTableColumnMetaDesc();
         layuiTableColumnMetaDesc.setValue(listViewConfiguration.getListKey());
@@ -269,7 +269,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         layuiTableColumnMetaDesc.setTsType(JavaTypeMapEnum.ofJava(field.getType().getShortName()).tsType());
         //如果指定了显示范围则更新序号
         if (!listViewConfiguration.getDefaultDisplayFields().isEmpty()) {
-            layuiTableColumnMetaDesc.setOrder(getOrder(field, listViewConfiguration, introspectedTable));
+            layuiTableColumnMetaDesc.setOrder(getOrder(field, listViewConfiguration, abstractIntrospectedTable));
         }
         listViewConfiguration.getListColumnConfigurations().stream().filter(listColumn -> listColumn.getField().equals(field.getName())).findFirst().ifPresent(listColumn -> {
             if (listColumn.getLabel() != null) {
@@ -294,7 +294,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         return layuiTableColumnMetaDesc;
     }
 
-    private InnerListEditTemplate buildInnerListEditTemplate(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    private InnerListEditTemplate buildInnerListEditTemplate(InnerListViewConfiguration listViewConfiguration, Field field, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
 
         Map<String, HtmlElementDescriptor> elementDescriptorMap = listViewConfiguration.getElementDescriptorMap();
         if (!elementDescriptorMap.containsKey(field.getName())) {
@@ -333,7 +333,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             innerListEditTemplate.setCallback(htmlElementDescriptor.getCallback());
             innerListEditTemplate.setListViewClass(htmlElementDescriptor.getListViewClass());
             innerListEditTemplate.setDataType(htmlElementDescriptor.getDataSource());
-            String dataUrl = parseDataUrl(htmlElementDescriptor, introspectedTable);
+            String dataUrl = parseDataUrl(htmlElementDescriptor, abstractIntrospectedTable);
             innerListEditTemplate.setDataUrl(dataUrl);
             HtmlElementTagTypeEnum tagTypeEnum = HtmlElementTagTypeEnum.ofCodeName(htmlElementDescriptor.getTagType());
             if (tagTypeEnum != null) {
@@ -358,10 +358,10 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         return null;
     }
 
-    private void addLayuiTableColumnMeta(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        List<InnerListViewConfiguration> innerListViewConfigurationList = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
+    private void addLayuiTableColumnMeta(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        List<InnerListViewConfiguration> innerListViewConfigurationList = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
         innerListViewConfigurationList.forEach(listViewConfiguration -> {
-            LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = buildVxeTableColumnDesc(listViewConfiguration, field, introspectedColumn, introspectedTable);
+            LayuiTableColumnMetaDesc layuiTableColumnMetaDesc = buildVxeTableColumnDesc(listViewConfiguration, field, introspectedColumn, abstractIntrospectedTable);
             if (layuiTableColumnMetaDesc != null) {
                 OverrideListColumnProps(field, listViewConfiguration, layuiTableColumnMetaDesc);
                 String annotation = layuiTableColumnMetaDesc.toAnnotation();
@@ -370,7 +370,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
                     topLevelClass.addImportedTypes(layuiTableColumnMetaDesc.getImportedTypes());
                 }
             }
-            InnerListEditTemplate innerListEditTemplate = buildInnerListEditTemplate(listViewConfiguration, field, introspectedColumn, introspectedTable);
+            InnerListEditTemplate innerListEditTemplate = buildInnerListEditTemplate(listViewConfiguration, field, introspectedColumn, abstractIntrospectedTable);
             if (innerListEditTemplate != null) {
                 listViewConfiguration.getInnerListEditTemplate().add(innerListEditTemplate);
             }
@@ -447,7 +447,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         }
     }
 
-    private String parseDataUrl(HtmlElementDescriptor htmlElementDescriptor, IntrospectedTable introspectedTable) {
+    private String parseDataUrl(HtmlElementDescriptor htmlElementDescriptor, AbstractIntrospectedTable abstractIntrospectedTable) {
         String columnName = htmlElementDescriptor.getName();
         String dataSource = htmlElementDescriptor.getDataSource();
         String dataUrl = htmlElementDescriptor.getDataUrl();
@@ -456,7 +456,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         }
         AtomicReference<String> url = new AtomicReference<>("");
         if (stringHasValue(dataSource) && stringHasValue(columnName)) {
-            introspectedTable.getColumn(columnName).ifPresent(introspectedColumn -> {
+            abstractIntrospectedTable.getColumn(columnName).ifPresent(introspectedColumn -> {
                 switch (dataSource) {
                     case "DictData":
                         url.set("/system/sys-dict-data-impl/option/" + introspectedColumn.getJavaProperty());
@@ -483,21 +483,21 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     /**
      * 获取LayuiTableMetaDesc
      *
-     * @param introspectedTable     表
+     * @param abstractIntrospectedTable     表
      * @param listViewConfiguration 列表配置
      * @return LayuiTableMetaDesc layuiTableMetaDesc
      */
-    private LayuiTableMetaDesc getLayuiTableMetaDesc(IntrospectedTable introspectedTable, InnerListViewConfiguration listViewConfiguration, TopLevelClass topLevelClass) {
+    private LayuiTableMetaDesc getLayuiTableMetaDesc(AbstractIntrospectedTable abstractIntrospectedTable, InnerListViewConfiguration listViewConfiguration, TopLevelClass topLevelClass) {
         LayuiTableMetaDesc layuiTableMetaDesc = new LayuiTableMetaDesc();
 
         VBeanUtil.copyProperties(listViewConfiguration, layuiTableMetaDesc);
         layuiTableMetaDesc.setValue(listViewConfiguration.getListKey());
         if (!stringHasValue(layuiTableMetaDesc.getTitle())) {
-            layuiTableMetaDesc.setTitle(introspectedTable.getRemarks(true));
+            layuiTableMetaDesc.setTitle(abstractIntrospectedTable.getRemarks(true));
         }
-        List<String> columnActions = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getActionColumn(), listViewConfiguration.getHtmlButtons(), null);
+        List<String> columnActions = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, listViewConfiguration.getActionColumn(), listViewConfiguration.getHtmlButtons(), null);
         layuiTableMetaDesc.setColumnActions(String.join(",", columnActions));
-        List<String> toolbarActions = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listViewConfiguration.getVxeListButtons(), listViewConfiguration.getHtmlButtons(), null);
+        List<String> toolbarActions = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, listViewConfiguration.getVxeListButtons(), listViewConfiguration.getHtmlButtons(), null);
         layuiTableMetaDesc.setToolbarActions(String.join(",", toolbarActions));
         layuiTableMetaDesc.setEnablePage(listViewConfiguration.isEnablePager()?"true":"false");
 
@@ -535,10 +535,10 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             //去重,转换为CompositeQueryDesc
             List<CompositeQueryDesc> queryDesc = listViewConfiguration.getQueryColumns().stream().distinct().map(columnName -> {
                 if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), abstractIntrospectedTable);
                 } else {
-                    if (introspectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
+                    if (abstractIntrospectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(abstractIntrospectedTable.getColumn(columnName).get());
                     } else {
                         return null;
                     }
@@ -563,14 +563,14 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             //去重,转换为CompositeQueryDesc
             List<String> filterColumns = listViewConfiguration.getFilterColumns();
             if (filterColumns.isEmpty()) {
-                filterColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns());
+                filterColumns.addAll(abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns());
             }
             List<CompositeQueryDesc> queryDesc = listViewConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
                 if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), abstractIntrospectedTable);
                 } else {
-                    if (introspectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
+                    if (abstractIntrospectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(abstractIntrospectedTable.getColumn(columnName).get());
                     } else {
                         return null;
                     }
@@ -591,10 +591,10 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
         return layuiTableMetaDesc;
     }
 
-    private int getOrder(Field field, InnerListViewConfiguration listViewConfiguration, IntrospectedTable introspectedTable) {
+    private int getOrder(Field field, InnerListViewConfiguration listViewConfiguration, AbstractIntrospectedTable abstractIntrospectedTable) {
         final List<String> fieldNames = listViewConfiguration.getDefaultDisplayFields();
         if (fieldNames.isEmpty()) {
-            fieldNames.addAll(introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList()));
+            fieldNames.addAll(abstractIntrospectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList()));
         }
         //定义一个原子性int变量
         AtomicInteger orderNo = new AtomicInteger(0);

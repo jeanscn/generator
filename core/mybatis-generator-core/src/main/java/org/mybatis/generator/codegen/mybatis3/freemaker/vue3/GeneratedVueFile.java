@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.freemaker.vue3;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
@@ -14,7 +14,6 @@ import java.util.Map;
  * @version 3.0
  */
 public class GeneratedVueFile extends AbstractGeneratedFile {
-    private final IntrospectedTable introspectedTable;
 
     public final String templateName;
 
@@ -27,7 +26,7 @@ public class GeneratedVueFile extends AbstractGeneratedFile {
     public GeneratedVueFile(String fileName,
                             String targetProject,
                             String targetPackage,
-                            IntrospectedTable introspectedTable,
+                            AbstractIntrospectedTable introspectedTable,
                             String templateName, Map<String, Object> data) {
         super(targetProject, targetPackage, fileName, introspectedTable);
         this.introspectedTable = introspectedTable;

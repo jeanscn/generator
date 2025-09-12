@@ -1,8 +1,8 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.ColumnOverride;
@@ -40,49 +40,49 @@ public class ValidatorPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, ModelClassType modelClassType) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         if (introspectedColumn == null) {
             return true;
         }
-        if (!introspectedTable.getRules().isGenerateVoModel()) {
+        if (!abstractIntrospectedTable.getRules().isGenerateVoModel()) {
             if (introspectedColumn.isPrimaryKey()) {
-                addNotNullValidate(field, topLevelClass, introspectedColumn, UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+                addNotNullValidate(field, topLevelClass, introspectedColumn, UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
             } else {
-                addNotNullValidate(field, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+                addNotNullValidate(field, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
             }
-            addLengthValidate(field, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+            addLengthValidate(field, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
         }
         return true;
     }
 
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         ignoreColumns.addAll(tc.getVoGeneratorConfiguration().getValidateIgnoreColumns());
-        addNotNullValidate(field, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey() ? UPDATE_VALIDATE : INSERT_AND_UPDATE_VALIDATE, introspectedTable, ignoreColumns);
-        addLengthValidate(field, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+        addNotNullValidate(field, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey() ? UPDATE_VALIDATE : INSERT_AND_UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
+        addLengthValidate(field, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
         return true;
     }
 
     @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         VoGeneratorConfiguration voGeneratorConfiguration = tc.getVoGeneratorConfiguration();
         ignoreColumns.addAll(voGeneratorConfiguration.getValidateIgnoreColumns());
-        return addVoModelValidate(field, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
+        return addVoModelValidate(field, topLevelClass, introspectedColumn, abstractIntrospectedTable, ignoreColumns);
     }
 
     @Override
-    public boolean voModelGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voModelGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         VoGeneratorConfiguration voGeneratorConfiguration = tc.getVoGeneratorConfiguration();
         ignoreColumns.addAll(voGeneratorConfiguration.getValidateIgnoreColumns());
-        return addVoModelValidate(method, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
+        return addVoModelValidate(method, topLevelClass, introspectedColumn, abstractIntrospectedTable, ignoreColumns);
     }
 
     /**
@@ -90,96 +90,96 @@ public class ValidatorPlugin extends PluginAdapter {
      * @param field 生成的属性
      * @param topLevelClass 生成的类
      * @param introspectedColumn 表字段
-     * @param introspectedTable 表配置
+     * @param abstractIntrospectedTable 表配置
      * @return 是否生成成功
      */
     @Override
-    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> ignoreColumns = tc.getValidateIgnoreColumns();
         VoGeneratorConfiguration voGeneratorConfiguration = tc.getVoGeneratorConfiguration();
         ignoreColumns.addAll(voGeneratorConfiguration.getValidateIgnoreColumns());
         Set<String> validateIgnoreColumns = tc.getVoGeneratorConfiguration().getVoCreateConfiguration().getValidateIgnoreColumns();
         ignoreColumns.addAll(validateIgnoreColumns);
-        return addCreateValidate(field, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
+        return addCreateValidate(field, topLevelClass, introspectedColumn, abstractIntrospectedTable, ignoreColumns);
     }
 
     @Override
-    public boolean voCreateGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voCreateGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> validateIgnoreColumns = tc.getVoGeneratorConfiguration().getVoCreateConfiguration().getValidateIgnoreColumns();
-        return addCreateValidate(method, topLevelClass, introspectedColumn, introspectedTable, validateIgnoreColumns);
+        return addCreateValidate(method, topLevelClass, introspectedColumn, abstractIntrospectedTable, validateIgnoreColumns);
     }
 
     @Override
-    public boolean voUpdateGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voUpdateGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> validateIgnoreColumns = tc.getVoGeneratorConfiguration().getVoUpdateConfiguration().getValidateIgnoreColumns();
-        return addUpdateValidate(method, topLevelClass, introspectedColumn, introspectedTable, validateIgnoreColumns);
+        return addUpdateValidate(method, topLevelClass, introspectedColumn, abstractIntrospectedTable, validateIgnoreColumns);
     }
 
     @Override
-    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         Set<String> validateIgnoreColumns = tc.getVoGeneratorConfiguration().getVoUpdateConfiguration().getValidateIgnoreColumns();
-        return addUpdateValidate(field, topLevelClass, introspectedColumn, introspectedTable, validateIgnoreColumns);
+        return addUpdateValidate(field, topLevelClass, introspectedColumn, abstractIntrospectedTable, validateIgnoreColumns);
     }
 
     private boolean addVoModelValidate(JavaElement javaElement,
                                        TopLevelClass topLevelClass,
                                        IntrospectedColumn introspectedColumn,
-                                       IntrospectedTable introspectedTable,
+                                       AbstractIntrospectedTable abstractIntrospectedTable,
                                        Set<String> ignoreColumns) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         ignoreColumns.addAll(tc.getVoGeneratorConfiguration().getVoModelConfiguration().getValidateIgnoreColumns());
         if (introspectedColumn == null || ignoreColumns.contains(introspectedColumn.getActualColumnName())) {
             return true;
         }
-        boolean generateCreateVo = introspectedTable.getRules().isGenerateCreateVo();
-        boolean generateUpdateVo = introspectedTable.getRules().isGenerateUpdateVo();
+        boolean generateCreateVo = abstractIntrospectedTable.getRules().isGenerateCreateVo();
+        boolean generateUpdateVo = abstractIntrospectedTable.getRules().isGenerateUpdateVo();
         if (!(generateCreateVo || generateUpdateVo)) {
-            addNotNullValidate(javaElement, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey() ? UPDATE_VALIDATE : INSERT_AND_UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+            addNotNullValidate(javaElement, topLevelClass, introspectedColumn, introspectedColumn.isPrimaryKey() ? UPDATE_VALIDATE : INSERT_AND_UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
         } else if (!generateCreateVo) {
-            addCreateValidate(javaElement, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
+            addCreateValidate(javaElement, topLevelClass, introspectedColumn, abstractIntrospectedTable, ignoreColumns);
         } else if (!generateUpdateVo) {
-            addUpdateValidate(javaElement, topLevelClass, introspectedColumn, introspectedTable, ignoreColumns);
+            addUpdateValidate(javaElement, topLevelClass, introspectedColumn, abstractIntrospectedTable, ignoreColumns);
         } else {
             return true;
         }
-        addLengthValidate(javaElement, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+        addLengthValidate(javaElement, topLevelClass, introspectedColumn, INSERT_AND_UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
         return true;
     }
 
     private boolean addCreateValidate(JavaElement javaElement,
                                       TopLevelClass topLevelClass,
                                       IntrospectedColumn introspectedColumn,
-                                      IntrospectedTable introspectedTable,
+                                      AbstractIntrospectedTable abstractIntrospectedTable,
                                       Set<String> ignoreColumns) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
-        if (introspectedTable.getRules().isGenerateCreateVo()) {
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
+        if (abstractIntrospectedTable.getRules().isGenerateCreateVo()) {
             ignoreColumns.addAll(tc.getVoGeneratorConfiguration().getVoCreateConfiguration().getValidateIgnoreColumns());
         }
         if (introspectedColumn == null || ignoreColumns.contains(introspectedColumn.getActualColumnName()) || introspectedColumn.isPrimaryKey()) {
             return true;
         }
-        addNotNullValidate(javaElement, topLevelClass, introspectedColumn, INSERT_VALIDATE, introspectedTable, ignoreColumns);
-        addLengthValidate(javaElement, topLevelClass, introspectedColumn, INSERT_VALIDATE, introspectedTable, ignoreColumns);
+        addNotNullValidate(javaElement, topLevelClass, introspectedColumn, INSERT_VALIDATE, abstractIntrospectedTable, ignoreColumns);
+        addLengthValidate(javaElement, topLevelClass, introspectedColumn, INSERT_VALIDATE, abstractIntrospectedTable, ignoreColumns);
         return true;
     }
 
     private boolean addUpdateValidate(JavaElement javaElement,
                                       TopLevelClass topLevelClass,
                                       IntrospectedColumn introspectedColumn,
-                                      IntrospectedTable introspectedTable,
+                                      AbstractIntrospectedTable abstractIntrospectedTable,
                                       Set<String> ignoreColumns) {
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         VoUpdateGeneratorConfiguration voUpdateConfiguration = tc.getVoGeneratorConfiguration().getVoUpdateConfiguration();
         ignoreColumns.addAll(voUpdateConfiguration.getValidateIgnoreColumns());
         if (introspectedColumn == null || ignoreColumns.contains(introspectedColumn.getActualColumnName())) {
             return true;
         }
-        addNotNullValidate(javaElement, topLevelClass, introspectedColumn, UPDATE_VALIDATE, introspectedTable, ignoreColumns);
-        addLengthValidate(javaElement, topLevelClass, introspectedColumn, UPDATE_VALIDATE, introspectedTable, ignoreColumns);
+        addNotNullValidate(javaElement, topLevelClass, introspectedColumn, UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
+        addLengthValidate(javaElement, topLevelClass, introspectedColumn, UPDATE_VALIDATE, abstractIntrospectedTable, ignoreColumns);
         return true;
     }
 
@@ -195,11 +195,11 @@ public class ValidatorPlugin extends PluginAdapter {
                                    TopLevelClass topLevelClass,
                                    IntrospectedColumn introspectedColumn,
                                    String[] validateGroups,
-                                   IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
+                                   AbstractIntrospectedTable abstractIntrospectedTable, Set<String> validateIgnoreColumns) {
         //校验字符串长度
         if (introspectedColumn.getLength() == 0
                 || validateIgnoreColumns.contains(introspectedColumn.getActualColumnName())
-                || introspectedColumn.isBLOBColumn()
+                || introspectedColumn.isBlobColumn()
                 || introspectedColumn.getLength() > 5000) {
             return;
         }
@@ -256,8 +256,8 @@ public class ValidatorPlugin extends PluginAdapter {
                                     TopLevelClass topLevelClass,
                                     IntrospectedColumn introspectedColumn,
                                     String[] validateGroups,
-                                    IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns) {
-        ColumnOverride override = introspectedTable.getTableConfiguration().getColumnOverrides().stream().filter(columnOverride -> columnOverride.getColumnName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
+                                    AbstractIntrospectedTable abstractIntrospectedTable, Set<String> validateIgnoreColumns) {
+        ColumnOverride override = abstractIntrospectedTable.getTableConfiguration().getColumnOverrides().stream().filter(columnOverride -> columnOverride.getColumnName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
         boolean isOverrideRequired = override != null && override.isRequired();
         if (validateIgnoreColumns.contains(introspectedColumn.getActualColumnName()) || (introspectedColumn.isNullable() && !introspectedColumn.isForeignKey() && !isOverrideRequired)) {
             return;
@@ -279,7 +279,7 @@ public class ValidatorPlugin extends PluginAdapter {
                                TopLevelClass topLevelClass,
                                IntrospectedColumn introspectedColumn,
                                String[] validateGroups,
-                               IntrospectedTable introspectedTable, Set<String> validateIgnoreColumns){
+                               AbstractIntrospectedTable abstractIntrospectedTable, Set<String> validateIgnoreColumns){
         String shortName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
     }
 

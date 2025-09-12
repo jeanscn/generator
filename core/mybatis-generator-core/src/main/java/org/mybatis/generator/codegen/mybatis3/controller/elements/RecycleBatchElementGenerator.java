@@ -28,7 +28,7 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         response.addTypeArgument(new FullyQualifiedJavaType("java.lang.Long"));
         method.setReturnType(response);
         method.setReturnRemark("成功移入回收站的记录数");
-        method.addAnnotation(new SystemLogDesc("把一条或多条记录移入回收站",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("把一条或多条记录移入回收站", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("recycle", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"移入回收站");
         method.addAnnotation(new ApiOperationDesc("批量移入回收站", "把给定的对象批量移入回收站"),parentElement);

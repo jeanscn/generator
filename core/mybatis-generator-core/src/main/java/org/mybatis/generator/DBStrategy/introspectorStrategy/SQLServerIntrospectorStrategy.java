@@ -1,8 +1,8 @@
 package org.mybatis.generator.DBStrategy.introspectorStrategy;
 
 import org.mybatis.generator.DBStrategy.DatabaseIntrospectorStrategy;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,17 +59,17 @@ public class SQLServerIntrospectorStrategy implements DatabaseIntrospectorStrate
     }
 
     @Override
-    public void updateTableRemark(IntrospectedTable introspectedTable, Connection conn) throws SQLException {
+    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException {
         ResultSet sqlServerResultSet = null;
         String sql = "SELECT b.value from sysobjects a\n" +
                 "left join sys.extended_properties b on a.id=b.major_id and b.minor_id=0\n" +
                 "WHERE a.name = ? ";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setString(1, introspectedTable.getTableConfiguration().getTableName());
+        ps.setString(1, abstractIntrospectedTable.getTableConfiguration().getTableName());
         sqlServerResultSet = ps.executeQuery();
         while (sqlServerResultSet.next()) {
             String remark = sqlServerResultSet.getString(1);
-            introspectedTable.setRemarks(remark);
+            abstractIntrospectedTable.setRemarks(remark);
         }
         sqlServerResultSet.close();
     }

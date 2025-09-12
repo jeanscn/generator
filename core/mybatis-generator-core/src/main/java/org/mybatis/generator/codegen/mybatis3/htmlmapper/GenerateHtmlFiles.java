@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.html.Document;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.config.Context;
@@ -9,13 +9,16 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 public class GenerateHtmlFiles {
 
     private final AbstractHtmlGenerator htmlMapperGenerator;
     private final Context context;
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
 
-    public GenerateHtmlFiles(Context context,IntrospectedTable introspectedTable,AbstractHtmlGenerator htmlMapperGenerator) {
+    public GenerateHtmlFiles(Context context, AbstractIntrospectedTable introspectedTable, AbstractHtmlGenerator htmlMapperGenerator) {
        this.context = context;
        this.htmlMapperGenerator = htmlMapperGenerator;
        this.introspectedTable = introspectedTable;
@@ -31,7 +34,7 @@ public class GenerateHtmlFiles {
                         htmlGeneratorConfiguration.getTargetPackage(),
                         targetProject,
                         false,
-                        context.getHtmlFormatter(),introspectedTable);
+                        context.getHtmlFormatter(), introspectedTable);
                 ghf.setOverwriteFile(htmlGeneratorConfiguration.isOverWriteHtmlFile());
                 if (context.getPlugins().htmlMapGenerated(ghf, introspectedTable, htmlGeneratorConfiguration)) {
                     answer.add(ghf);

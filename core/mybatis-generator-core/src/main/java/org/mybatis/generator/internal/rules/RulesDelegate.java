@@ -1,7 +1,7 @@
 package org.mybatis.generator.internal.rules;
 
 import com.vgosoft.core.constant.enums.data.StatTypeEnum;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
@@ -107,23 +107,23 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean generateRecordWithBLOBsClass() {
-        return rules.generateRecordWithBLOBsClass();
+    public boolean generateRecordWithBlobsClass() {
+        return rules.generateRecordWithBlobsClass();
     }
 
     @Override
-    public boolean generateResultMapWithBLOBs() {
-        return rules.generateResultMapWithBLOBs();
+    public boolean generateResultMapWithBlobs() {
+        return rules.generateResultMapWithBlobs();
     }
 
     @Override
-    public boolean generateSelectByExampleWithBLOBs() {
-        return rules.generateSelectByExampleWithBLOBs();
+    public boolean generateSelectByExampleWithBlobs() {
+        return rules.generateSelectByExampleWithBlobs();
     }
 
     @Override
-    public boolean generateSelectByExampleWithoutBLOBs() {
-        return rules.generateSelectByExampleWithoutBLOBs();
+    public boolean generateSelectByExampleWithoutBlobs() {
+        return rules.generateSelectByExampleWithoutBlobs();
     }
 
     @Override
@@ -132,8 +132,8 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean generateSQLExampleWhereClause() {
-        return rules.generateSQLExampleWhereClause();
+    public boolean generateSqlExampleWhereClause() {
+        return rules.generateSqlExampleWhereClause();
     }
 
     @Override
@@ -147,13 +147,13 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean generateUpdateByExampleWithBLOBs() {
-        return rules.generateUpdateByExampleWithBLOBs();
+    public boolean generateUpdateByExampleWithBlobs() {
+        return rules.generateUpdateByExampleWithBlobs();
     }
 
     @Override
-    public boolean generateUpdateByExampleWithoutBLOBs() {
-        return rules.generateUpdateByExampleWithoutBLOBs();
+    public boolean generateUpdateByExampleWithoutBlobs() {
+        return rules.generateUpdateByExampleWithoutBlobs();
     }
 
     @Override
@@ -182,17 +182,17 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
-    public boolean generateUpdateByPrimaryKeyWithBLOBs() {
-        return rules.generateUpdateByPrimaryKeyWithBLOBs();
+    public boolean generateUpdateByPrimaryKeyWithBlobs() {
+        return rules.generateUpdateByPrimaryKeyWithBlobs();
     }
 
     @Override
-    public boolean generateUpdateByPrimaryKeyWithoutBLOBs() {
-        return rules.generateUpdateByPrimaryKeyWithoutBLOBs();
+    public boolean generateUpdateByPrimaryKeyWithoutBlobs() {
+        return rules.generateUpdateByPrimaryKeyWithoutBlobs();
     }
 
     @Override
-    public IntrospectedTable getIntrospectedTable() {
+    public AbstractIntrospectedTable getIntrospectedTable() {
         return rules.getIntrospectedTable();
     }
 

@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.custom.ConstantsUtil;
@@ -17,8 +17,8 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.*;
  */
 public class VoAbstractGenerator extends AbstractVoGenerator {
 
-    public VoAbstractGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
+    public VoAbstractGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.vgosoft.core.annotation.SystemLog;
 import com.vgosoft.core.constant.enums.log.LogTargetTableEnum;
 import com.vgosoft.core.constant.enums.log.LogTypesEnum;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 import static org.mybatis.generator.custom.ConstantsUtil.LOG_TARGET_TABLE_ENUM;
 import static org.mybatis.generator.custom.ConstantsUtil.LOG_TYPES_ENUM;
@@ -21,9 +21,9 @@ public class SystemLogDesc extends AbstractAnnotation {
     private final String value;
     private LogTypesEnum logType;
     private LogTargetTableEnum targetTable;
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
 
-    public SystemLogDesc(String value, IntrospectedTable introspectedTable) {
+    public SystemLogDesc(String value, AbstractIntrospectedTable introspectedTable) {
         super();
         this.value = value;
         this.introspectedTable = introspectedTable;

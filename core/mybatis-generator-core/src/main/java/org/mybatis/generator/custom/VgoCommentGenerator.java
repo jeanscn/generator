@@ -1,8 +1,8 @@
 package org.mybatis.generator.custom;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -54,13 +54,13 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
      * 给model字段添加注释信息
      * @param field
      *            the field
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param introspectedColumn
      *            the introspected column
      */
     @Override
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
+    public void addFieldComment(Field field, AbstractIntrospectedTable abstractIntrospectedTable, IntrospectedColumn introspectedColumn) {
         //文档注释开始
         field.addJavaDocLine("/**");
         //获取数据库字段的备注信息
@@ -94,11 +94,11 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
      * 给model以外字段添加注释，如example类
      * @param field
      *            the field
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
     @Override
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
+    public void addFieldComment(Field field, AbstractIntrospectedTable abstractIntrospectedTable) {
         if ("ignoreDeleteFlag".equals(field.getName())) {
             field.addJavaDocLine("/**");
             field.addJavaDocLine(" * 是否忽略删除标记");
@@ -128,7 +128,7 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
             field.addJavaDocLine(" * 偏移量条件");
             field.addJavaDocLine(" */");
         } else {
-            super.addFieldComment(field, introspectedTable);
+            super.addFieldComment(field, abstractIntrospectedTable);
         }
     }
 
@@ -155,19 +155,19 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     }
 
     @Override
-    public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public void addModelClassComment(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         if (suppressAllComments) {
             return;
         }
         StringBuilder sb = new StringBuilder();
         topLevelClass.addJavaDocLine("/**");
         sb.append(" * 类对应的数据库表为： ");
-        sb.append(introspectedTable.getFullyQualifiedTable());
+        sb.append(abstractIntrospectedTable.getFullyQualifiedTable());
         topLevelClass.addJavaDocLine(sb.toString());
         //添加表注释
         sb.setLength(0);
         sb.append(" * ");
-        sb.append(introspectedTable.getRemarks(false));
+        sb.append(abstractIntrospectedTable.getRemarks(false));
         topLevelClass.addJavaDocLine(sb.toString());
         topLevelClass.addJavaDocLine(" *");
         topLevelClass.addJavaDocLine(" * @author @VCF");
@@ -219,15 +219,15 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
     }
 
     @Override
-    public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType record = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+    public void addGeneralMethodComment(Method method, AbstractIntrospectedTable abstractIntrospectedTable) {
+        FullyQualifiedJavaType record = new FullyQualifiedJavaType(abstractIntrospectedTable.getBaseRecordType());
         if(("view"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据主键获取单个业务实例",""
                     ,"@param id 可选参数，存在时查询数据；否则直接返回视图，用于打开表单。");
         }else if(("get"+record.getShortName()).equals(method.getName())){
             addMethodJavaDocLine(method,"根据主键获取单个实体");
         }else if(("list"+record.getShortName()).equals(method.getName())){
-            String param = getEntityParam(introspectedTable);
+            String param = getEntityParam(abstractIntrospectedTable);
             addMethodJavaDocLine(method,"获取条件实体对象列表",""
                     ,"@param "+param+" 用于接收属性同名参数");
         }else if(("create"+record.getShortName()).equals(method.getName())){
@@ -260,32 +260,32 @@ public class VgoCommentGenerator extends DefaultCommentGenerator {
         }else if(VStringUtil.contains(method.getName(), "insertByTable")){
             addMethodJavaDocLine(method,"添加中间关系表数据（添加数据关联）");
         }else if (VStringUtil.contains(method.getName(), "option")) {
-            String param = getEntityParam(introspectedTable);
+            String param = getEntityParam(abstractIntrospectedTable);
             String property = VStringUtil.replace(method.getName(), "option", "").replace(record.getShortName(), "");
             addMethodJavaDocLine(method,"获取Options-"+JavaBeansUtil.getFirstCharacterLowercase(property)+"选项列表",""
                     ,"@param "+param+" 用于接收属性同名参数","@param selected 选中的值");
         }
     }
 
-    private String getEntityParam(IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+    private String getEntityParam(AbstractIntrospectedTable abstractIntrospectedTable) {
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(abstractIntrospectedTable.getBaseRecordType());
         String firstCharacterLowercase = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
         String param = firstCharacterLowercase;
-        if (introspectedTable.getRules().isGenerateRequestVo()) {
+        if (abstractIntrospectedTable.getRules().isGenerateRequestVo()) {
             param = firstCharacterLowercase + "RequestVo";
-        }else if (introspectedTable.getRules().isGenerateVoModel()) {
+        }else if (abstractIntrospectedTable.getRules().isGenerateVoModel()) {
             param = firstCharacterLowercase + "Vo";
         }
         return param;
     }
 
     @Override
-    public void addGetterComment(Method method, IntrospectedTable introspectedTable,
+    public void addGetterComment(Method method, AbstractIntrospectedTable abstractIntrospectedTable,
                                  IntrospectedColumn introspectedColumn) {
     }
 
     @Override
-    public void addSetterComment(Method method, IntrospectedTable introspectedTable,
+    public void addSetterComment(Method method, AbstractIntrospectedTable abstractIntrospectedTable,
                                  IntrospectedColumn introspectedColumn) {
     }
 

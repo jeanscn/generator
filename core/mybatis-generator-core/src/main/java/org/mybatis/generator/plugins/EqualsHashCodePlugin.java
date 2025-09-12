@@ -6,9 +6,9 @@ import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
+import org.mybatis.generator.api.AbstractIntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.OutputUtilities;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -51,92 +51,92 @@ public class EqualsHashCodePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(introspectedTable, introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration());
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(abstractIntrospectedTable, abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration());
         if (equalsAndHashCodeColumns.isEmpty()) {
             generateOverrideEquals(topLevelClass);
             generateOverrideHashCode(topLevelClass);
         } else {
-            addEqualsAndHashCode(equalsAndHashCodeColumns, topLevelClass, introspectedTable,"true");
+            addEqualsAndHashCode(equalsAndHashCodeColumns, topLevelClass, abstractIntrospectedTable,"true");
         }
         return true;
     }
 
     @Override
-    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        generateEquals(topLevelClass, introspectedTable.getPrimaryKeyColumns(), introspectedTable);
-        generateHashCode(topLevelClass, introspectedTable.getPrimaryKeyColumns(), introspectedTable);
+    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        generateEquals(topLevelClass, abstractIntrospectedTable.getPrimaryKeyColumns(), abstractIntrospectedTable);
+        generateHashCode(topLevelClass, abstractIntrospectedTable.getPrimaryKeyColumns(), abstractIntrospectedTable);
         return true;
     }
 
     @Override
-    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(introspectedTable, introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration());
+    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(abstractIntrospectedTable, abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration());
         if (equalsAndHashCodeColumns.isEmpty()) {
             generateOverrideEquals(topLevelClass);
             generateOverrideHashCode(topLevelClass);
         } else {
-            addEqualsAndHashCode(equalsAndHashCodeColumns, topLevelClass, introspectedTable,"true");
+            addEqualsAndHashCode(equalsAndHashCodeColumns, topLevelClass, abstractIntrospectedTable,"true");
         }
         return true;
     }
 
     @Override
-    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(introspectedTable, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration());
+    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(abstractIntrospectedTable, abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration());
         if (equalsAndHashCodeColumns.isEmpty()) {
-            generateEquals(topLevelClass, introspectedTable.getPrimaryKeyColumns(), introspectedTable);
-            generateHashCode(topLevelClass, introspectedTable.getPrimaryKeyColumns(), introspectedTable);
+            generateEquals(topLevelClass, abstractIntrospectedTable.getPrimaryKeyColumns(), abstractIntrospectedTable);
+            generateHashCode(topLevelClass, abstractIntrospectedTable.getPrimaryKeyColumns(), abstractIntrospectedTable);
         } else {
-            addEqualsAndHashCode(equalsAndHashCodeColumns, topLevelClass, introspectedTable,"true");
+            addEqualsAndHashCode(equalsAndHashCodeColumns, topLevelClass, abstractIntrospectedTable,"true");
         }
         return true;
     }
 
     @Override
-    public boolean voModelCreateClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addEqualsAndHashCode(getEqualsAndHashCodeColumns(introspectedTable, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoCreateConfiguration()), topLevelClass, introspectedTable,"true");
+    public boolean voModelCreateClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addEqualsAndHashCode(getEqualsAndHashCodeColumns(abstractIntrospectedTable, abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoCreateConfiguration()), topLevelClass, abstractIntrospectedTable,"true");
         return true;
     }
 
     @Override
-    public boolean voModelUpdateClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addEqualsAndHashCode(getEqualsAndHashCodeColumns(introspectedTable
-                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoUpdateConfiguration()), topLevelClass, introspectedTable,"true");
+    public boolean voModelUpdateClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addEqualsAndHashCode(getEqualsAndHashCodeColumns(abstractIntrospectedTable
+                , abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoUpdateConfiguration()), topLevelClass, abstractIntrospectedTable,"true");
         return true;
     }
 
     @Override
-    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addEqualsAndHashCode(getEqualsAndHashCodeColumns(introspectedTable
-                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration()), topLevelClass, introspectedTable,"true");
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addEqualsAndHashCode(getEqualsAndHashCodeColumns(abstractIntrospectedTable
+                , abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration()), topLevelClass, abstractIntrospectedTable,"true");
         return true;
     }
 
     @Override
-    public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addEqualsAndHashCode(getEqualsAndHashCodeColumns(introspectedTable, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration()), topLevelClass, introspectedTable,"false");
+    public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addEqualsAndHashCode(getEqualsAndHashCodeColumns(abstractIntrospectedTable, abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration()), topLevelClass, abstractIntrospectedTable,"false");
         return true;
     }
 
     @Override
-    public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addEqualsAndHashCode(getEqualsAndHashCodeColumns(introspectedTable
-                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration()), topLevelClass, introspectedTable,"false");
+    public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addEqualsAndHashCode(getEqualsAndHashCodeColumns(abstractIntrospectedTable
+                , abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration()), topLevelClass, abstractIntrospectedTable,"false");
         return true;
     }
 
     @Override
-    public boolean voModelRequestClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addEqualsAndHashCode(getEqualsAndHashCodeColumns(introspectedTable
-                , introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration()), topLevelClass, introspectedTable,"true");
+    public boolean voModelRequestClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addEqualsAndHashCode(getEqualsAndHashCodeColumns(abstractIntrospectedTable
+                , abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoRequestConfiguration()), topLevelClass, abstractIntrospectedTable,"true");
         return true;
     }
 
-    protected void addEqualsAndHashCode(List<IntrospectedColumn> columns, TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String callSuper) {
+    protected void addEqualsAndHashCode(List<IntrospectedColumn> columns, TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable, String callSuper) {
         if (!columns.isEmpty()) {
-            generateEquals(topLevelClass, columns, introspectedTable);
-            generateHashCode(topLevelClass, columns, introspectedTable);
+            generateEquals(topLevelClass, columns, abstractIntrospectedTable);
+            generateHashCode(topLevelClass, columns, abstractIntrospectedTable);
         } else {
             topLevelClass.addAnnotation("@EqualsAndHashCode(callSuper = " + callSuper + ")");
         }
@@ -174,11 +174,11 @@ public class EqualsHashCodePlugin extends PluginAdapter {
      * @param topLevelClass       the class to which the method will be added
      * @param introspectedColumns column definitions of this class and any superclass of this
      *                            class
-     * @param introspectedTable   the table corresponding to this class
+     * @param abstractIntrospectedTable   the table corresponding to this class
      */
     protected void generateEquals(TopLevelClass topLevelClass,
                                   List<IntrospectedColumn> introspectedColumns,
-                                  IntrospectedTable introspectedTable) {
+                                  AbstractIntrospectedTable abstractIntrospectedTable) {
         Method method = new Method("equals");
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType
@@ -187,12 +187,12 @@ public class EqualsHashCodePlugin extends PluginAdapter {
                 .getObjectInstance(), "that"));
         method.addAnnotation("@Override");
 
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
-            context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable,
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
+            context.getCommentGenerator().addGeneralMethodAnnotation(method, abstractIntrospectedTable,
                     topLevelClass.getImportedTypes());
         } else {
             context.getCommentGenerator().addGeneralMethodComment(method,
-                    introspectedTable);
+                    abstractIntrospectedTable);
         }
 
         method.addBodyLine("if (this == that) {");
@@ -285,22 +285,22 @@ public class EqualsHashCodePlugin extends PluginAdapter {
      * @param topLevelClass       the class to which the method will be added
      * @param introspectedColumns column definitions of this class and any superclass of this
      *                            class
-     * @param introspectedTable   the table corresponding to this class
+     * @param abstractIntrospectedTable   the table corresponding to this class
      */
     protected void generateHashCode(TopLevelClass topLevelClass,
                                     List<IntrospectedColumn> introspectedColumns,
-                                    IntrospectedTable introspectedTable) {
+                                    AbstractIntrospectedTable abstractIntrospectedTable) {
         Method method = new Method("hashCode");
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
         method.addAnnotation("@Override");
 
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
-            context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable,
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
+            context.getCommentGenerator().addGeneralMethodAnnotation(method, abstractIntrospectedTable,
                     topLevelClass.getImportedTypes());
         } else {
             context.getCommentGenerator().addGeneralMethodComment(method,
-                    introspectedTable);
+                    abstractIntrospectedTable);
         }
 
         method.addBodyLine("final int prime = 31;");
@@ -393,9 +393,9 @@ public class EqualsHashCodePlugin extends PluginAdapter {
         topLevelClass.addMethod(method);
     }
 
-    private List<IntrospectedColumn> getEqualsAndHashCodeColumns(IntrospectedTable introspectedTable, AbstractModelGeneratorConfiguration configuration) {
+    private List<IntrospectedColumn> getEqualsAndHashCodeColumns(AbstractIntrospectedTable abstractIntrospectedTable, AbstractModelGeneratorConfiguration configuration) {
         return configuration.getEqualsAndHashCodeColumns().stream()
-                .map(cname -> introspectedTable.getColumn(cname).orElse(null))
+                .map(cname -> abstractIntrospectedTable.getColumn(cname).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

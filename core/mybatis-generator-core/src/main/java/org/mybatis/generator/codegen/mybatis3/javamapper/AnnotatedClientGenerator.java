@@ -21,6 +21,9 @@ import org.mybatis.generator.codegen.mybatis3.javamapper.elements.annotated.Anno
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.annotated.AnnotatedUpdateByPrimaryKeyWithBLOBsMethodGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.annotated.AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator;
 
+/**
+ * @author cen_c
+ */
 public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     public AnnotatedClientGenerator(String project) {
@@ -69,7 +72,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addSelectByExampleWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateSelectByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new AnnotatedSelectByExampleWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -77,7 +80,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addSelectByExampleWithoutBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator =
                     new AnnotatedSelectByExampleWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
@@ -103,7 +106,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addUpdateByExampleWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new AnnotatedUpdateByExampleWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -111,7 +114,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addUpdateByExampleWithoutBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator =
                     new AnnotatedUpdateByExampleWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
@@ -129,7 +132,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addUpdateByPrimaryKeyWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator =
                     new AnnotatedUpdateByPrimaryKeyWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
@@ -138,7 +141,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
 
     @Override
     protected void addUpdateByPrimaryKeyWithoutBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator =
                     new AnnotatedUpdateByPrimaryKeyWithoutBLOBsMethodGenerator(false);
             initializeAndExecuteGenerator(methodGenerator, interfaze);
@@ -156,7 +159,7 @@ public class AnnotatedClientGenerator extends JavaMapperGenerator {
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         // No XML required by the annotated client
         return null;
     }

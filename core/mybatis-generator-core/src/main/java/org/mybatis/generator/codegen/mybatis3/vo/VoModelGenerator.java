@@ -1,8 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.tool.core.VCollectionUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
@@ -28,8 +28,8 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
  */
 public class VoModelGenerator extends AbstractVoGenerator {
 
-    public VoModelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
+    public VoModelGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
@@ -122,9 +122,9 @@ public class VoModelGenerator extends AbstractVoGenerator {
 
         //增加actionType属性
         if (!introspectedTable.getRules().isGenerateRequestVo()) {
-            addActionType(voClass,introspectedTable);
-            addIgnoreDeleteFlag(voClass,introspectedTable);
-            addIgnorePermissionAnnotation(voClass,introspectedTable);
+            addActionType(voClass, introspectedTable);
+            addIgnoreDeleteFlag(voClass, introspectedTable);
+            addIgnorePermissionAnnotation(voClass, introspectedTable);
             //增加ignoreIdList属性
             addIgnoreIdList(voClass, introspectedTable);
             addIsHideIds(voClass, introspectedTable);
@@ -145,8 +145,8 @@ public class VoModelGenerator extends AbstractVoGenerator {
         return voClass;
     }
 
-    private void addPersistenceBeanNameProperty(TopLevelClass voClass,IntrospectedTable introspectedTable) {
-        String initString = introspectedTable.getControllerBeanName();
+    private void addPersistenceBeanNameProperty(TopLevelClass voClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        String initString = abstractIntrospectedTable.getControllerBeanName();
         Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
         persistenceBeanName.setInitializationString("\""+initString+"\"");
         persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
@@ -156,6 +156,6 @@ public class VoModelGenerator extends AbstractVoGenerator {
         voClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
         voClass.addField(persistenceBeanName);
         FieldItem fieldItem = new FieldItem(persistenceBeanName);
-        introspectedTable.getVoModelFields().add(fieldItem);
+        abstractIntrospectedTable.getVoModelFields().add(fieldItem);
     }
 }

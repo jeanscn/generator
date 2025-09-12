@@ -2,7 +2,7 @@ package org.mybatis.generator.plugins.dsql;
 
 import java.util.List;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
@@ -24,30 +24,30 @@ public class DisableDeletePlugin extends PluginAdapter {
 
     @Override
     public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         return false;
     }
 
     @Override
     public boolean clientDeleteByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         return false;
     }
 
     @Override
     public boolean clientGeneralDeleteMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertOrDeleteByTableMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientInsertOrDeleteByTableMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
         return false;
     }
 
     @Override
     public boolean clientGeneralDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
         return false;
     }
 }

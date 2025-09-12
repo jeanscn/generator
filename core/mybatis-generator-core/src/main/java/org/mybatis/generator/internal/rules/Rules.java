@@ -1,7 +1,7 @@
 package org.mybatis.generator.internal.rules;
 
 import com.vgosoft.core.constant.enums.data.StatTypeEnum;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
@@ -50,7 +50,7 @@ public interface Rules {
      *
      * @return true if the element and method should be generated
      */
-    boolean generateUpdateByPrimaryKeyWithoutBLOBs();
+    boolean generateUpdateByPrimaryKeyWithoutBlobs();
 
     /**
      * Implements the rule for generating the update by primary key with BLOBs
@@ -60,7 +60,7 @@ public interface Rules {
      *
      * @return true if the element and method should be generated
      */
-    boolean generateUpdateByPrimaryKeyWithBLOBs();
+    boolean generateUpdateByPrimaryKeyWithBlobs();
 
     /**
      * Implements the rule for generating the update by primary key selective
@@ -106,7 +106,7 @@ public interface Rules {
      *
      * @return true if the result map should be generated
      */
-    boolean generateResultMapWithBLOBs();
+    boolean generateResultMapWithBlobs();
 
     /**
      * Implements the rule for generating the SQL example where clause element.
@@ -116,7 +116,7 @@ public interface Rules {
      *
      * @return true if the SQL where clause element should be generated
      */
-    boolean generateSQLExampleWhereClause();
+    boolean generateSqlExampleWhereClause();
 
     /**
      * Implements the rule for generating the SQL example where clause element
@@ -163,7 +163,7 @@ public interface Rules {
      *
      * @return true if the element and method should be generated
      */
-    boolean generateSelectByExampleWithoutBLOBs();
+    boolean generateSelectByExampleWithoutBlobs();
 
     /**
      * Implements the rule for generating the select by example with BLOBs SQL
@@ -173,7 +173,7 @@ public interface Rules {
      *
      * @return true if the element and method should be generated
      */
-    boolean generateSelectByExampleWithBLOBs();
+    boolean generateSelectByExampleWithBlobs();
 
     /**
      * Implements the rule for generating an example class. The class should be
@@ -209,7 +209,7 @@ public interface Rules {
      *
      * @return true if the element and method should be generated
      */
-    boolean generateUpdateByExampleWithoutBLOBs();
+    boolean generateUpdateByExampleWithoutBlobs();
 
     /**
      * Implements the rule for generating an update by example with BLOBs SQL
@@ -219,7 +219,7 @@ public interface Rules {
      *
      * @return true if the element and method should be generated
      */
-    boolean generateUpdateByExampleWithBLOBs();
+    boolean generateUpdateByExampleWithBlobs();
 
     /**
      * Implements the rule for determining whether to generate a primary key
@@ -245,7 +245,7 @@ public interface Rules {
      *
      * @return true if the record with BLOBs class should be generated
      */
-    boolean generateRecordWithBLOBsClass();
+    boolean generateRecordWithBlobsClass();
 
     /**
      * Implements the rule for generating a Java client.  This rule is
@@ -261,7 +261,7 @@ public interface Rules {
      * Returns the introspected table for which these rules apply.
      * @return the introspected table
      */
-    IntrospectedTable getIntrospectedTable();
+    AbstractIntrospectedTable getIntrospectedTable();
 
     /**
      * 是否生成Mapper接口

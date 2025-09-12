@@ -2,8 +2,8 @@ package org.mybatis.generator.internal.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
  */
 public class VoGenService {
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final VoGeneratorConfiguration voGeneratorConfiguration;
 
     private List<IntrospectedColumn> abstractVoColumns = new ArrayList<>();
     private List<String> abstractVoColumnNames = new ArrayList<>();
 
-    public VoGenService(IntrospectedTable introspectedTable) {
+    public VoGenService(AbstractIntrospectedTable introspectedTable) {
         this.introspectedTable = introspectedTable;
         this.voGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
     }
@@ -344,9 +344,9 @@ public class VoGenService {
         }
     }
 
-    public FullyQualifiedJavaType getMappingType(IntrospectedTable introspectedTable) {
-        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        String baseTargetPackage = StringUtility.substringBeforeLast(introspectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVoGenerator.SUB_PACKAGE_POJO;
+    public FullyQualifiedJavaType getMappingType(AbstractIntrospectedTable abstractIntrospectedTable) {
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(abstractIntrospectedTable.getBaseRecordType());
+        String baseTargetPackage = StringUtility.substringBeforeLast(abstractIntrospectedTable.getContext().getJavaModelGeneratorConfiguration().getTargetPackage(), ".") + "."+ AbstractVoGenerator.SUB_PACKAGE_POJO;
         String type = String.join(".", baseTargetPackage, CreateMappingsInterface.SUB_PACKAGE_MAPS, entityType.getShortName() + "Mappings");
         return new FullyQualifiedJavaType(type);
     }

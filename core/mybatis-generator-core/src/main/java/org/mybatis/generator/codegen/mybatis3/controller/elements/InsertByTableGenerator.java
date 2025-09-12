@@ -49,7 +49,7 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnType(response);
                     method.setReturnRemark("成功添加的记录数");
 
-                    method.addAnnotation(new SystemLogDesc("添加数据关联",introspectedTable),parentElement);
+                    method.addAnnotation(new SystemLogDesc("添加数据关联", introspectedTable),parentElement);
                     method.addAnnotation(new RequestMappingDesc("union/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethodEnum.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getUnionMethodName(),"添加关系");

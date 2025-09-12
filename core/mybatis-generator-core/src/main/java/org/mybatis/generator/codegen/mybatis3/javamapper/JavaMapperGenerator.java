@@ -5,7 +5,7 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractHtmlGenerator;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
@@ -358,14 +358,14 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     protected void addSelectByExampleWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateSelectByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }
 
     protected void addSelectByExampleWithoutBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByExampleWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -386,14 +386,14 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     protected void addUpdateByExampleWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new UpdateByExampleWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }
 
     protected void addUpdateByExampleWithoutBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new UpdateByExampleWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -407,7 +407,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     protected void addUpdateByPrimaryKeyWithBLOBsMethod(Interface interfaze) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new UpdateByPrimaryKeyWithBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -415,7 +415,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
     protected void addUpdateByPrimaryKeyWithoutBLOBsMethod(Interface interfaze) {
         if (introspectedTable.getRules()
-                .generateUpdateByPrimaryKeyWithoutBLOBs()) {
+                .generateUpdateByPrimaryKeyWithoutBlobs()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new UpdateByPrimaryKeyWithoutBLOBsMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
@@ -444,20 +444,20 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         return new XMLMapperGenerator();
     }
 
     @Override
-    public AbstractHtmlGenerator getMatchedHTMLGenerator() {
+    public AbstractHtmlGenerator getMatchedHtmlGenerator() {
         return new HTMLGenerator();
     }
 
     /**
      * 获得mapper接口
      */
-    private String getMapperInterface(IntrospectedTable introspectedTable) {
-        if (GenerateUtils.isBlobInstance(introspectedTable)) {
+    private String getMapperInterface(AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (GenerateUtils.isBlobInstance(abstractIntrospectedTable)) {
             return MBG_MAPPER_BLOB_INTERFACE;
         }
         return MBG_MAPPER_INTERFACE;

@@ -21,7 +21,7 @@ public class AnnotatedUpdateByExampleWithBLOBsMethodGenerator extends UpdateByEx
         String s = "@UpdateProvider(type="
                 + fqjt.getShortName()
                 + ".class, method=\""
-                + introspectedTable.getUpdateByExampleWithBLOBsStatementId()
+                + introspectedTable.getUpdateByExampleWithBlobsStatementId()
                 + "\")";
         method.addAnnotation(s);
     }

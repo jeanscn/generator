@@ -1,7 +1,7 @@
 package org.mybatis.generator.DBStrategy;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedTable;
 
 import java.sql.*;
 import java.util.Map;
@@ -26,7 +26,7 @@ public interface DatabaseIntrospectorStrategy {
     };
     Map<String, String> getIndexComments(Connection conn, FullyQualifiedTable table) throws SQLException;
     Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException;
-    void updateTableRemark(IntrospectedTable introspectedTable, Connection conn) throws SQLException;
+    void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException;
     default void closeResultSet(ResultSet rs) {
         if (rs != null) {
             try {

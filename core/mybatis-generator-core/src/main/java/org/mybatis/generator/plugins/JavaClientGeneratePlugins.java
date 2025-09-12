@@ -2,7 +2,7 @@ package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -38,7 +38,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
      * 添加@TableMeta和@ColumnMeta注解
      */
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         //添加@Repository注解
         topLevelClass.addImportedType(new FullyQualifiedJavaType(ANNOTATION_REPOSITORY));
         JavaBeansUtil.addAnnotation(topLevelClass, "@Repository");
@@ -46,7 +46,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
         //添加@Setter,@Getter
         topLevelClass.addImportedType("lombok.*");
         topLevelClass.addAnnotation("@Data");
-        if (!introspectedTable.isConstructorBased()) {
+        if (!abstractIntrospectedTable.isConstructorBased()) {
             topLevelClass.addAnnotation("@NoArgsConstructor");
         }
         if (topLevelClass.getSuperClass().isPresent()) {
@@ -56,7 +56,7 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
         }
 
         //检查是否存在children属性，如果存在则追加实现ISimpleKVP接口
-        Set<String> fieldNames = introspectedTable.getTableConfiguration().getFieldNames();
+        Set<String> fieldNames = abstractIntrospectedTable.getTableConfiguration().getFieldNames();
         if (fieldNames.contains(DefaultColumnNameEnum.ID.fieldName())
                 && fieldNames.contains(DefaultColumnNameEnum.NAME.fieldName())
                 && fieldNames.contains(DefaultColumnNameEnum.PARENT_ID.fieldName())
@@ -71,10 +71,10 @@ public class JavaClientGeneratePlugins extends PluginAdapter implements Plugin, 
     }
 
     @Override
-    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, IntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public boolean htmlMapDocumentGenerated(org.mybatis.generator.api.dom.html.Document document, AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         HtmlDocumentGenerator htmlDocumentGenerated;
         String uiFrame = htmlGeneratorConfiguration.getLayoutDescriptor().getUiFrameType();
-        GeneratorInitialParameters generatorInitialParameters = new GeneratorInitialParameters(introspectedTable.getContext(), introspectedTable,null , null);
+        GeneratorInitialParameters generatorInitialParameters = new GeneratorInitialParameters(abstractIntrospectedTable.getContext(), abstractIntrospectedTable,null , null);
         if (HTML_UI_FRAME_LAYUI.equals(uiFrame)) {
             if (HtmlDocumentTypeEnum.PRINT.equals(htmlGeneratorConfiguration.getType())) {
                 htmlDocumentGenerated = new LayuiPrintDocumentGenerated(generatorInitialParameters,document, htmlGeneratorConfiguration);

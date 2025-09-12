@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.freemaker.css;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
@@ -14,7 +14,7 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 @Setter
 @Getter
 public class GeneratedStyleFile extends AbstractGeneratedFile {
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
 
     public final String templateName;
 
@@ -23,7 +23,7 @@ public class GeneratedStyleFile extends AbstractGeneratedFile {
     public GeneratedStyleFile(String fileName,
                               String targetProject,
                               String targetPackage,
-                              IntrospectedTable introspectedTable,
+                              AbstractIntrospectedTable introspectedTable,
                               String templateName) {
         super(targetProject, targetPackage, fileName, introspectedTable);
         this.introspectedTable = introspectedTable;

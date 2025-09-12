@@ -35,7 +35,7 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         method.setReturnType(response);
         method.setReturnRemark("成功删除的记录数");
 
-        method.addAnnotation(new SystemLogDesc("删除了一条或多条记录",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("删除了一条或多条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"批量删除");
         method.addAnnotation(new ApiOperationDesc("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
@@ -44,7 +44,7 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
 
         method.addBodyLine("{0} example = new {0}();", exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andIdIn(ids);");
-        method.addBodyLine("ServiceResult<Integer> result =  {0}.{1}(example);",serviceBeanName,introspectedTable.getDeleteByExampleStatementId());
+        method.addBodyLine("ServiceResult<Integer> result =  {0}.{1}(example);",serviceBeanName, introspectedTable.getDeleteByExampleStatementId());
         method.addBodyLine("if (result.hasResult() && result.getResult() > 0) {");
         method.addBodyLine("return success((long) result.getResult(),result.getAffectedRows());");
         method.addBodyLine("} else {");

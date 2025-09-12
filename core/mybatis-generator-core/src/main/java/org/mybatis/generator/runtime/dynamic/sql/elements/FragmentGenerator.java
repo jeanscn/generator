@@ -10,17 +10,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
+/**
+ * @author cen_c
+ */
 public class FragmentGenerator {
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final String resultMapId;
     private final String tableFieldName;
 
@@ -303,11 +306,11 @@ public class FragmentGenerator {
     }
 
     public static class Builder {
-        private IntrospectedTable introspectedTable;
+        private AbstractIntrospectedTable introspectedTable;
         private String resultMapId;
         private String tableFieldName;
 
-        public Builder withIntrospectedTable(IntrospectedTable introspectedTable) {
+        public Builder withIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
             this.introspectedTable = introspectedTable;
             return this;
         }

@@ -6,7 +6,7 @@ import com.vgosoft.core.constant.enums.db.DbFiledDefaultValueEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.PropertyRegistry;
@@ -68,7 +68,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      *
      * @param introspectedTable 生成基类
      */
-    protected String getAbstractService(IntrospectedTable introspectedTable) {
+    protected String getAbstractService(AbstractIntrospectedTable introspectedTable) {
         if (GenerateUtils.isBlobInstance(introspectedTable)) {
             String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
             if (GenerateUtils.isBusinessInstance(introspectedTable)) {
@@ -231,7 +231,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
             if (includeBlobColumns()) {
                 introspectedColumns = introspectedTable.getAllColumns();
             } else {
-                introspectedColumns = introspectedTable.getNonBLOBColumns();
+                introspectedColumns = introspectedTable.getNonBlobColumns();
             }
         } else {
             if (includeBlobColumns()) {
@@ -255,8 +255,8 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * 内部方法：是否包含大字段列
      */
     protected boolean includeBlobColumns() {
-        return !introspectedTable.getRules().generateRecordWithBLOBsClass()
-                && introspectedTable.hasBLOBColumns();
+        return !introspectedTable.getRules().generateRecordWithBlobsClass()
+                && introspectedTable.hasBlobColumns();
     }
 
     /**
@@ -265,7 +265,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @param topLevelClass     类
      * @param introspectedTable 表对象
      */
-    protected void addActionType(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    protected void addActionType(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
         Field addActionType = getField("actionType", FullyQualifiedJavaType.getStringInstance(), "查询应用场景的类型标识", introspectedTable);
         new ApiModelPropertyDesc(addActionType.getRemark(), "selector").addAnnotationToField(addActionType, topLevelClass);
         Optional<Field> actionType = topLevelClass.getFields().stream().filter(f -> "actionType".equals(f.getName())).findFirst();
@@ -284,7 +284,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @param topLevelClass     类
      * @param introspectedTable 表对象
      */
-    protected void addIgnoreDeleteFlag(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    protected void addIgnoreDeleteFlag(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
         Field ignoreDeleteFlag = getField("ignoreDeleteFlag", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略删除标记", introspectedTable);
         new ApiModelPropertyDesc(ignoreDeleteFlag.getRemark(), "false").addAnnotationToField(ignoreDeleteFlag, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignoreDeleteFlag".equals(f.getName())).findFirst();
@@ -298,7 +298,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         }
     }
 
-    protected void addIgnorePermissionAnnotation(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    protected void addIgnorePermissionAnnotation(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
         Field ignorePermissionAnnotation = getField("ignorePermissionAnnotation", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略权限注解", introspectedTable);
         new ApiModelPropertyDesc(ignorePermissionAnnotation.getRemark(), "false").addAnnotationToField(ignorePermissionAnnotation, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "ignorePermissionAnnotation".equals(f.getName())).findFirst();
@@ -312,7 +312,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         }
     }
 
-    private static Field getField(String ignorePermissionAnnotation, FullyQualifiedJavaType booleanPrimitiveInstance, String remark, IntrospectedTable introspectedTable) {
+    private static Field getField(String ignorePermissionAnnotation, FullyQualifiedJavaType booleanPrimitiveInstance, String remark, AbstractIntrospectedTable introspectedTable) {
         Field field = new Field(ignorePermissionAnnotation, booleanPrimitiveInstance);
         field.setVisibility(JavaVisibility.PRIVATE);
         field.setRemark(remark);
@@ -328,7 +328,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @param topLevelClass     类
      * @param introspectedTable 表对象
      */
-    protected void addIgnoreIdList(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    protected void addIgnoreIdList(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
         Field ignoreIdList = getField("ignoreIdList", listType, "查询忽略id列表", introspectedTable);
@@ -351,7 +351,7 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
      * @param topLevelClass     类
      * @param introspectedTable 表对象
      */
-    protected void addIsHideIds(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    protected void addIsHideIds(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
         Field isHideIds = getField("isHideIds", FullyQualifiedJavaType.getBooleanPrimitiveInstance(), "是否忽略隐藏id列表", introspectedTable);
         new ApiModelPropertyDesc(isHideIds.getRemark(), "false").addAnnotationToField(isHideIds, topLevelClass);
         Optional<Field> optionalField = topLevelClass.getFields().stream().filter(f -> "isHideIds".equals(f.getName())).findFirst();

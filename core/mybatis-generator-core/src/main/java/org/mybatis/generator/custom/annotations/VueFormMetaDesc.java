@@ -4,7 +4,7 @@ import com.vgosoft.core.annotation.*;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.ArrayList;
@@ -50,17 +50,17 @@ public class VueFormMetaDesc extends AbstractAnnotation {
 
     private List<VueFormApprovalMetaDesc> approvalMeta = new ArrayList<>();
 
-    public static VueFormMetaDesc create(IntrospectedTable introspectedTable) {
-        return new VueFormMetaDesc(introspectedTable);
+    public static VueFormMetaDesc create(AbstractIntrospectedTable abstractIntrospectedTable) {
+        return new VueFormMetaDesc(abstractIntrospectedTable);
     }
 
-    public VueFormMetaDesc(IntrospectedTable introspectedTable) {
+    public VueFormMetaDesc(AbstractIntrospectedTable abstractIntrospectedTable) {
         super();
-        this.value = Mb3GenUtil.getDefaultHtmlKey(introspectedTable);
+        this.value = Mb3GenUtil.getDefaultHtmlKey(abstractIntrospectedTable);
         items.add(VStringUtil.format("value = \"{0}\"", this.getValue()));
-        this.appKeyword = introspectedTable.getContext().getAppKeyword();
+        this.appKeyword = abstractIntrospectedTable.getContext().getAppKeyword();
         items.add(VStringUtil.format("appKeyword = \"{0}\"", this.getAppKeyword()));
-        this.tableName = introspectedTable.getTableConfiguration().getTableName();
+        this.tableName = abstractIntrospectedTable.getTableConfiguration().getTableName();
         items.add(VStringUtil.format("tableName = \"{0}\"", this.tableName));
         this.addImports(VueFormMeta.class.getCanonicalName());
     }

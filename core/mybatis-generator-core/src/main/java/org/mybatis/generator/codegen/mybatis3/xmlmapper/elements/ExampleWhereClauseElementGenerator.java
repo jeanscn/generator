@@ -61,7 +61,7 @@ public class ExampleWhereClauseElementGenerator extends AbstractXmlElementGenera
 
         trimElement.addElement(getMiddleForEachElement(null));
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBlobColumns()) {
             if (stringHasValue(introspectedColumn.getTypeHandler())) {
                 trimElement.addElement(getMiddleForEachElement(introspectedColumn));
             }

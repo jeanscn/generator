@@ -50,7 +50,7 @@ public class DatabaseIntrospector {
     }
 
     private void calculatePrimaryKey(FullyQualifiedTable table,
-                                     IntrospectedTable introspectedTable) {
+                                     AbstractIntrospectedTable abstractIntrospectedTable) {
         ResultSet rs;
         try {
             rs = databaseMetaData.getPrimaryKeys(
@@ -72,7 +72,7 @@ public class DatabaseIntrospector {
             }
 
             for (String columnName : keyColumns.values()) {
-                introspectedTable.addPrimaryKeyColumn(columnName);
+                abstractIntrospectedTable.addPrimaryKeyColumn(columnName);
             }
         } catch (SQLException e) {
             // ignore the primary key if there's any error
@@ -81,7 +81,7 @@ public class DatabaseIntrospector {
         }
     }
 
-    private void calculateIndex(FullyQualifiedTable table, IntrospectedTable introspectedTable) {
+    private void calculateIndex(FullyQualifiedTable table, AbstractIntrospectedTable abstractIntrospectedTable) {
         ResultSet rs = null;
         try {
             rs = databaseMetaData.getIndexInfo(
@@ -129,7 +129,7 @@ public class DatabaseIntrospector {
 
             // 将收集到的索引信息添加到IntrospectedTable
             for (IndexInfo indexInfo : indexInfoMap.values()) {
-                introspectedTable.addIndex(indexInfo);
+                abstractIntrospectedTable.addIndex(indexInfo);
             }
 
         } catch (SQLException e) {
@@ -139,7 +139,7 @@ public class DatabaseIntrospector {
         }
     }
 
-    private void calculateForeignKeys(FullyQualifiedTable table, IntrospectedTable introspectedTable) {
+    private void calculateForeignKeys(FullyQualifiedTable table, AbstractIntrospectedTable abstractIntrospectedTable) {
         ResultSet rs = null;
         try {
             rs = databaseMetaData.getImportedKeys(
@@ -161,7 +161,7 @@ public class DatabaseIntrospector {
                         fkName, pkTableName, pkColumnName, fkColumnName, updateRule, deleteRule, keySeq);
                 foreignKeys.computeIfAbsent(fkName, k -> new ArrayList<>()).add(fkInfo);
                 // Mark the column as foreign key column
-                introspectedTable.getColumn(fkColumnName).ifPresent(column -> {
+                abstractIntrospectedTable.getColumn(fkColumnName).ifPresent(column -> {
                     column.setForeignKey(true);
                     column.addProperty("FK_NAME", fkName);
                     column.addProperty("PK_TABLE_NAME", pkTableName);
@@ -172,7 +172,7 @@ public class DatabaseIntrospector {
             foreignKeys.forEach((fkName, fkInfos) -> {
                 // Sort by key sequence
                 fkInfos.sort(Comparator.comparing(ForeignKeyInfo::getKeySeq));
-                introspectedTable.addForeignKey(fkName, fkInfos);
+                abstractIntrospectedTable.addForeignKey(fkName, fkInfos);
             });
 
         } catch (SQLException e) {
@@ -193,13 +193,13 @@ public class DatabaseIntrospector {
     }
 
     private void reportIntrospectionWarnings(
-            IntrospectedTable introspectedTable,
+            AbstractIntrospectedTable abstractIntrospectedTable,
             TableConfiguration tableConfiguration, FullyQualifiedTable table) {
         // make sure that every column listed in column overrides
         // actually exists in the table
         for (ColumnOverride columnOverride : tableConfiguration
                 .getColumnOverrides()) {
-            if (!introspectedTable.getColumn(columnOverride.getColumnName()).isPresent()) {
+            if (!abstractIntrospectedTable.getColumn(columnOverride.getColumnName()).isPresent()) {
                 warnings.add(getString("Warning.3",
                         columnOverride.getColumnName(), table.toString()));
             }
@@ -213,7 +213,7 @@ public class DatabaseIntrospector {
         }
 
         tableConfiguration.getGeneratedKey().ifPresent(generatedKey -> {
-            if (!introspectedTable.getColumn(generatedKey.getColumn()).isPresent()) {
+            if (!abstractIntrospectedTable.getColumn(generatedKey.getColumn()).isPresent()) {
                 if (generatedKey.isIdentity()) {
                     warnings.add(getString("Warning.5",
                             generatedKey.getColumn(), table.toString()));
@@ -224,7 +224,7 @@ public class DatabaseIntrospector {
             }
         });
 
-        for (IntrospectedColumn ic : introspectedTable.getAllColumns()) {
+        for (IntrospectedColumn ic : abstractIntrospectedTable.getAllColumns()) {
             if (JavaReservedWords.containsWord(ic.getJavaProperty())) {
                 warnings.add(getString("Warning.26",
                         ic.getActualColumnName(), table.toString()));
@@ -239,7 +239,7 @@ public class DatabaseIntrospector {
      * @return a list of introspected tables
      * @throws SQLException if any errors in introspection
      */
-    public List<IntrospectedTable> introspectTables(TableConfiguration tc)
+    public List<AbstractIntrospectedTable> introspectTables(TableConfiguration tc)
             throws SQLException {
 
         // 从数据库中获取原始列
@@ -260,37 +260,37 @@ public class DatabaseIntrospector {
         //主键
         calculateIdentityColumns(tc, columns);
 
-        List<IntrospectedTable> introspectedTables = calculateIntrospectedTables(tc, columns);
+        List<AbstractIntrospectedTable> abstractIntrospectedTables = calculateIntrospectedTables(tc, columns);
 
         // now introspectedTables has all the columns from all the
         // tables in the configuration. Do some validation...
         // introspectedTables配置中所有表中的所有列。做一些验证
 
-        Iterator<IntrospectedTable> iter = introspectedTables.iterator();
+        Iterator<AbstractIntrospectedTable> iter = abstractIntrospectedTables.iterator();
         while (iter.hasNext()) {
-            IntrospectedTable introspectedTable = iter.next();
+            AbstractIntrospectedTable abstractIntrospectedTable = iter.next();
 
-            if (!introspectedTable.hasAnyColumns()) {
+            if (!abstractIntrospectedTable.hasAnyColumns()) {
                 // add warning that the table has no columns, remove from the
                 // list
-                String warning = getString("Warning.1", introspectedTable.getFullyQualifiedTable().toString());
+                String warning = getString("Warning.1", abstractIntrospectedTable.getFullyQualifiedTable().toString());
                 warnings.add(warning);
                 iter.remove();
-            } else if (!introspectedTable.hasPrimaryKeyColumns() && !introspectedTable.hasBaseColumns()) {
+            } else if (!abstractIntrospectedTable.hasPrimaryKeyColumns() && !abstractIntrospectedTable.hasBaseColumns()) {
                 // add warning that the table has only BLOB columns, remove from
                 // the list
-                String warning = getString("Warning.18", introspectedTable.getFullyQualifiedTable().toString());
+                String warning = getString("Warning.18", abstractIntrospectedTable.getFullyQualifiedTable().toString());
                 warnings.add(warning);
                 iter.remove();
             } else {
                 // now make sure that all columns called out in the
                 // configuration
                 // actually exist
-                reportIntrospectionWarnings(introspectedTable, tc, introspectedTable.getFullyQualifiedTable());
+                reportIntrospectionWarnings(abstractIntrospectedTable, tc, abstractIntrospectedTable.getFullyQualifiedTable());
             }
         }
 
-        return introspectedTables;
+        return abstractIntrospectedTables;
     }
 
     private void removeIgnoredColumns(TableConfiguration tc,
@@ -644,13 +644,13 @@ public class DatabaseIntrospector {
         return sb.toString();
     }
 
-    private List<IntrospectedTable> calculateIntrospectedTables(TableConfiguration tc, Map<ActualTableName, List<IntrospectedColumn>> columns) throws SQLException {
+    private List<AbstractIntrospectedTable> calculateIntrospectedTables(TableConfiguration tc, Map<ActualTableName, List<IntrospectedColumn>> columns) throws SQLException {
         boolean delimitIdentifiers = tc.isDelimitIdentifiers()
                 || stringContainsSpace(tc.getCatalog())
                 || stringContainsSpace(tc.getSchema())
                 || stringContainsSpace(tc.getTableName());
 
-        List<IntrospectedTable> answer = new ArrayList<>();
+        List<AbstractIntrospectedTable> answer = new ArrayList<>();
 
         for (Map.Entry<ActualTableName, List<IntrospectedColumn>> entry : columns.entrySet()) {
             ActualTableName atn = entry.getKey();
@@ -676,7 +676,7 @@ public class DatabaseIntrospector {
                     tc.getDomainObjectRenamingRule(),
                     context);
 
-            IntrospectedTable introspectedTable = ObjectFactory.createIntrospectedTable(tc, table, context);
+            AbstractIntrospectedTable introspectedTable = ObjectFactory.createIntrospectedTable(tc, table, context);
 
             String dbType = this.databaseMetaData.getDatabaseProductName().toLowerCase();
             introspectedTable.setDbType(dbType);
@@ -713,19 +713,19 @@ public class DatabaseIntrospector {
      *
      * <p>If there is any error, we just add a warning and continue.
      *
-     * @param introspectedTable the introspected table to enhance
+     * @param abstractIntrospectedTable the introspected table to enhance
      */
-    private void enhanceIntrospectedTable(IntrospectedTable introspectedTable) {
+    private void enhanceIntrospectedTable(AbstractIntrospectedTable abstractIntrospectedTable) {
         try {
-            FullyQualifiedTable fqt = introspectedTable.getFullyQualifiedTable();
+            FullyQualifiedTable fqt = abstractIntrospectedTable.getFullyQualifiedTable();
 
             ResultSet rs = databaseMetaData.getTables(fqt.getIntrospectedCatalog(), fqt.getIntrospectedSchema(),
                     fqt.getIntrospectedTableName(), null);
             if (rs.next()) {
                 String remarks = rs.getString("REMARKS");
                 String tableType = rs.getString("TABLE_TYPE");
-                introspectedTable.setRemarks(remarks);
-                introspectedTable.setTableType(tableType);
+                abstractIntrospectedTable.setRemarks(remarks);
+                abstractIntrospectedTable.setTableType(tableType);
             }
             closeResultSet(rs);
         } catch (SQLException e) {

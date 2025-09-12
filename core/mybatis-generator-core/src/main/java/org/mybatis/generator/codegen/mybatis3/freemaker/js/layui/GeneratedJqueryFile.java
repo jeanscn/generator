@@ -1,6 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.freemaker.js.layui;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import lombok.Getter;
+import lombok.Setter;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 
@@ -9,21 +11,21 @@ import org.mybatis.generator.config.HtmlGeneratorConfiguration;
  * 2023-04-06 16:11
  * @version 3.0
  */
+@Setter
+@Getter
 public class GeneratedJqueryFile extends AbstractGeneratedFile {
 
     private final String templateName;
-
-    private final IntrospectedTable introspectedTable;
 
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
     public GeneratedJqueryFile(String fileName,
                                String targetProject,
                                String targetPackage,
-                               IntrospectedTable introspectedTable,
+                               AbstractIntrospectedTable introspectedTable,
                                String templateName,
                                HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        super(targetProject,targetPackage,fileName,introspectedTable);
+        super(targetProject,targetPackage,fileName, introspectedTable);
         this.templateName = templateName;
         this.introspectedTable = introspectedTable;
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
@@ -34,13 +36,5 @@ public class GeneratedJqueryFile extends AbstractGeneratedFile {
         JQueryFreemarkerGenerator freemarkerGenerator = new JQueryFreemarkerGenerator(this.targetProject,this.introspectedTable,this.htmlGeneratorConfiguration);
 
         return freemarkerGenerator.generate(templateName);
-    }
-
-    public HtmlGeneratorConfiguration getHtmlGeneratorConfiguration() {
-        return htmlGeneratorConfiguration;
-    }
-
-    public void setHtmlGeneratorConfiguration(HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
-        this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;
     }
 }

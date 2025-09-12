@@ -46,7 +46,7 @@ public class IntrospectedTableKotlinImpl extends IntrospectedTableMyBatis3Impl {
     }
 
     @Override
-    public boolean requiresXMLGenerator() {
+    public boolean requiresXmlGenerator() {
         return false;
     }
 }

@@ -3,8 +3,8 @@ package org.mybatis.generator.codegen.mybatis3.po;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.vo.AbstractVoGenerator;
@@ -26,8 +26,8 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
  */
 public class PoCacheGenerator extends AbstractVoGenerator {
 
-    public PoCacheGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+    public PoCacheGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project, progressCallback, warnings,mappingsInterface);
     }
 
 

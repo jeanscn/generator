@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.freemaker.css;
 
 import java.util.List;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -16,11 +16,9 @@ import freemarker.template.Template;
  */
 public class StyleFreemarkerGenerator extends AbstractFreemarkerGenerator {
 
-    private final IntrospectedTable introspectedTable;
-
     private final HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
-    public StyleFreemarkerGenerator(String project, IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public StyleFreemarkerGenerator(String project, AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(project);
         this.introspectedTable = introspectedTable;
         this.htmlGeneratorConfiguration = htmlGeneratorConfiguration;

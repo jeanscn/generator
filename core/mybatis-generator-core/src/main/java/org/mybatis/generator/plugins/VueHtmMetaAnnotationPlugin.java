@@ -4,8 +4,8 @@ import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
 import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -33,17 +33,17 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
 
 
     @Override
-    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(introspectedTable);
+    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(abstractIntrospectedTable);
         if (htmlGeneratorConfiguration != null) {
-            VueFormMetaDesc vueFormMetaDesc = new VueFormMetaDesc(introspectedTable);
+            VueFormMetaDesc vueFormMetaDesc = new VueFormMetaDesc(abstractIntrospectedTable);
             HtmlLayoutDescriptor layoutDescriptor = htmlGeneratorConfiguration.getLayoutDescriptor();
             vueFormMetaDesc.setLabelWidth(layoutDescriptor.getLabelWidth());
             vueFormMetaDesc.setLabelPosition(layoutDescriptor.getLabelPosition());
             vueFormMetaDesc.setSize(layoutDescriptor.getSize());
             vueFormMetaDesc.setPopSize(layoutDescriptor.getPopSize());
             vueFormMetaDesc.setPopDraggable(layoutDescriptor.isPopDraggable());
-            vueFormMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+            vueFormMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable));
             vueFormMetaDesc.setHiddenFields(htmlGeneratorConfiguration.getHiddenFieldNames());
             vueFormMetaDesc.setDisplayOnlyFields(htmlGeneratorConfiguration.getDisplayOnlyFields());
             vueFormMetaDesc.setReadonlyFields(htmlGeneratorConfiguration.getReadonlyFields());
@@ -54,17 +54,17 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             }
 
             //内置列表注解
-            if (introspectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
+            if (abstractIntrospectedTable.getRules().isAdditionInnerList(htmlGeneratorConfiguration)) {
                 List<HtmlElementInnerListConfiguration> listConfigurations = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration();
                 for (int i = 0; i <listConfigurations.size(); i++) {
                     HtmlElementInnerListConfiguration listConfiguration = listConfigurations.get(i);
-                    VueFormInnerListMetaDesc vueFormInnerListMetaDesc = new VueFormInnerListMetaDesc(listConfiguration, introspectedTable, i + 1);
+                    VueFormInnerListMetaDesc vueFormInnerListMetaDesc = new VueFormInnerListMetaDesc(listConfiguration, abstractIntrospectedTable, i + 1);
                     if (!listConfiguration.getVxeListButtons().isEmpty()) {
-                        List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listConfiguration.getVxeListButtons(), listConfiguration.getHtmlButtons(), null);
+                        List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, listConfiguration.getVxeListButtons(), listConfiguration.getHtmlButtons(), null);
                         vueFormInnerListMetaDesc.setToolbarActions(String.join(",", annotations));
                     }
                     if (!listConfiguration.getActionColumn().isEmpty()) {
-                        List<String> actionColumnAnnotation = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, listConfiguration.getActionColumn(), listConfiguration.getHtmlButtons(), null);
+                        List<String> actionColumnAnnotation = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, listConfiguration.getActionColumn(), listConfiguration.getHtmlButtons(), null);
                         vueFormInnerListMetaDesc.setColumnActions(String.join(",", actionColumnAnnotation));
                     }
                     vueFormMetaDesc.getInnerListMeta().add(vueFormInnerListMetaDesc);
@@ -72,7 +72,7 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
             }
 
             //审批意见注解
-            if (introspectedTable.getRules().isGenerateApprovalComment(htmlGeneratorConfiguration)) {
+            if (abstractIntrospectedTable.getRules().isGenerateApprovalComment(htmlGeneratorConfiguration)) {
                 for (HtmlApprovalCommentConfiguration htmlApprovalCommentConfiguration : htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations()) {
                     vueFormMetaDesc.getApprovalMeta().add(new VueFormApprovalMetaDesc(htmlApprovalCommentConfiguration));
                 }
@@ -102,36 +102,36 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
      * Vo抽象父类的ColumnMetaAnnotation
      */
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addVueFormItemMetaDescAnnotation(field, topLevelClass, introspectedColumn, introspectedTable);
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addVueFormItemMetaDescAnnotation(field, topLevelClass, introspectedColumn, abstractIntrospectedTable);
         return true;
     }
 
     @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addVueFormItemMetaDescAnnotation(field, topLevelClass, introspectedColumn, introspectedTable);
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addVueFormItemMetaDescAnnotation(field, topLevelClass, introspectedColumn, abstractIntrospectedTable);
         return true;
     }
 
-    private void addVueFormItemMetaDescAnnotation(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    private void addVueFormItemMetaDescAnnotation(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         if (introspectedColumn == null) {
             return;
         }
 
-        HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(introspectedTable);
+        HtmlGeneratorConfiguration htmlGeneratorConfiguration = getHtmlGeneratorConfiguration(abstractIntrospectedTable);
         if (htmlGeneratorConfiguration != null) {
             //获取显示的字段
             List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
             List<IntrospectedColumn> displayColumns = new ArrayList<>();
-            for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
-                if (introspectedTable.getRules().isGenerateVoModel()) {
-                    if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
+            for (IntrospectedColumn baseColumn : abstractIntrospectedTable.getNonBlobColumns()) {
+                if (abstractIntrospectedTable.getRules().isGenerateVoModel()) {
+                    if (isIgnore(baseColumn, abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                             && !baseColumn.isPrimaryKey()
                             && !"version_".equalsIgnoreCase(baseColumn.getActualColumnName())) {
                         continue;
                     }
                 }
-                if (GenerateUtils.isHiddenColumn(introspectedTable, baseColumn, htmlGeneratorConfiguration)) {
+                if (GenerateUtils.isHiddenColumn(abstractIntrospectedTable, baseColumn, htmlGeneratorConfiguration)) {
                     hiddenColumns.add(baseColumn);
                 } else {
                     displayColumns.add(baseColumn);
@@ -249,11 +249,11 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
                 vueFormItemMetaDesc.setEnablePager(elementDescriptor.isEnablePager());
 
                 if (!elementDescriptor.getActionColumn().isEmpty()) {
-                    List<String> columnActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, elementDescriptor.getActionColumn(), elementDescriptor.getHtmlButtons(), null);
+                    List<String> columnActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, elementDescriptor.getActionColumn(), elementDescriptor.getHtmlButtons(), null);
                     vueFormItemMetaDesc.setColumnActions(String.join(",", columnActionsA));
                 }
                 if (!elementDescriptor.getVxeListButtons().isEmpty()) {
-                    List<String> toolbarActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, elementDescriptor.getVxeListButtons(), elementDescriptor.getHtmlButtons(), null);
+                    List<String> toolbarActionsA = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, elementDescriptor.getVxeListButtons(), elementDescriptor.getHtmlButtons(), null);
                     vueFormItemMetaDesc.setToolbarActions(String.join(",", toolbarActionsA));
                 }
 
@@ -295,8 +295,8 @@ public class VueHtmMetaAnnotationPlugin extends PluginAdapter {
         }
     }
 
-    private HtmlGeneratorConfiguration getHtmlGeneratorConfiguration(IntrospectedTable introspectedTable) {
-        List<HtmlGeneratorConfiguration> htmlMapGeneratorConfigurations = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
+    private HtmlGeneratorConfiguration getHtmlGeneratorConfiguration(AbstractIntrospectedTable abstractIntrospectedTable) {
+        List<HtmlGeneratorConfiguration> htmlMapGeneratorConfigurations = abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations();
         if (htmlMapGeneratorConfigurations.isEmpty()) {
             return null;
         }else{

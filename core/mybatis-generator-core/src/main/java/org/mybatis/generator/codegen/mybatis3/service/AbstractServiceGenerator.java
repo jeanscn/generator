@@ -1,11 +1,14 @@
 package org.mybatis.generator.codegen.mybatis3.service;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 
 import java.util.*;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractServiceGenerator extends AbstractJavaGenerator {
 
     protected FullyQualifiedJavaType entityType;
@@ -19,8 +22,9 @@ public abstract class AbstractServiceGenerator extends AbstractJavaGenerator {
     @Override
     public abstract List<CompilationUnit> getCompilationUnits();
 
+
     @Override
-    public void setIntrospectedTable(IntrospectedTable introspectedTable) {
+    public void setIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
         super.setIntrospectedTable(introspectedTable);
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());

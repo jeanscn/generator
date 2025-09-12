@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 /**
  * This class encapsulates all the code generation rules for a table using the
@@ -14,11 +14,11 @@ public class FlatModelRules extends BaseRules {
     /**
      * Instantiates a new flat model rules.
      *
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
-    public FlatModelRules(IntrospectedTable introspectedTable) {
-        super(introspectedTable);
+    public FlatModelRules(AbstractIntrospectedTable abstractIntrospectedTable) {
+        super(abstractIntrospectedTable);
     }
 
     /**
@@ -47,7 +47,7 @@ public class FlatModelRules extends BaseRules {
      * @return true if the record with BLOBs class should be generated
      */
     @Override
-    public boolean generateRecordWithBLOBsClass() {
+    public boolean generateRecordWithBlobsClass() {
         return false;
     }
 }

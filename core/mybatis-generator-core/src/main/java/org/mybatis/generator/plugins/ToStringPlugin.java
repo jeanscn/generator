@@ -5,8 +5,8 @@ import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import java.util.List;
 import java.util.Properties;
 
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -31,38 +31,38 @@ public class ToStringPlugin extends PluginAdapter {
 
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
-        generateToString(introspectedTable, topLevelClass);
+            AbstractIntrospectedTable abstractIntrospectedTable) {
+        generateToString(abstractIntrospectedTable, topLevelClass);
         return true;
     }
 
     @Override
     public boolean modelRecordWithBLOBsClassGenerated(
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        generateToString(introspectedTable, topLevelClass);
+            TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        generateToString(abstractIntrospectedTable, topLevelClass);
         return true;
     }
 
     @Override
     public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
-        generateToString(introspectedTable, topLevelClass);
+            AbstractIntrospectedTable abstractIntrospectedTable) {
+        generateToString(abstractIntrospectedTable, topLevelClass);
         return true;
     }
 
-    private void generateToString(IntrospectedTable introspectedTable,
-            TopLevelClass topLevelClass) {
+    private void generateToString(AbstractIntrospectedTable abstractIntrospectedTable,
+                                  TopLevelClass topLevelClass) {
         Method method = new Method("toString");
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getStringInstance());
         method.addAnnotation("@Override");
 
-        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
+        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3_DSQL) {
             context.getCommentGenerator().addGeneralMethodAnnotation(method,
-                    introspectedTable, topLevelClass.getImportedTypes());
+                    abstractIntrospectedTable, topLevelClass.getImportedTypes());
         } else {
             context.getCommentGenerator().addGeneralMethodComment(method,
-                    introspectedTable);
+                    abstractIntrospectedTable);
         }
 
         method.addBodyLine("StringBuilder sb = new StringBuilder();");

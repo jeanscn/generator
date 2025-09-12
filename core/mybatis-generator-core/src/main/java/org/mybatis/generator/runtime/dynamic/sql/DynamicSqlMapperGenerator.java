@@ -114,7 +114,7 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
         recordType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         resultMapId = recordType.getShortNameWithoutTypeArguments() + "Result";
         tableFieldName =
-                JavaBeansUtil.getValidPropertyName(introspectedTable.getMyBatisDynamicSQLTableObjectName());
+                JavaBeansUtil.getValidPropertyName(introspectedTable.getMyBatisDynamicSqlTableObjectName());
         fragmentGenerator = new FragmentGenerator.Builder()
                 .withIntrospectedTable(introspectedTable)
                 .withResultMapId(resultMapId)
@@ -435,12 +435,12 @@ public class DynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         return null;
     }
 
     @Override
-    public AbstractHtmlGenerator getMatchedHTMLGenerator() {
+    public AbstractHtmlGenerator getMatchedHtmlGenerator() {
         return null;
     }
 }

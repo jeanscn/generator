@@ -19,12 +19,12 @@ public class UpdateByPrimaryKeyWithBLOBsMethodGenerator extends AbstractJavaMapp
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         FullyQualifiedJavaType parameterType;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBLOBsType());
+        if (introspectedTable.getRules().generateRecordWithBlobsClass()) {
+            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBlobsType());
         } else {
             parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         }
-        String statementId = introspectedTable.getUpdateByPrimaryKeyWithBLOBsStatementId();
+        String statementId = introspectedTable.getUpdateByPrimaryKeyWithBlobsStatementId();
         importedTypes.add(parameterType);
 
         Method method = buildBasicUpdateByPrimaryKeyMethod(statementId, parameterType);

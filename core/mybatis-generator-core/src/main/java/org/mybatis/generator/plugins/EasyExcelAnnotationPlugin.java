@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -25,9 +25,9 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
+    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, int index) {
         addExcelAnnotation(topLevelClass,field,introspectedColumn,index);
-        Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getExportIgnoreFields();
+        Set<String> ignoreFields = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getExportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
             topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");
@@ -36,12 +36,12 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, int index) {
         addExcelAnnotation(topLevelClass,field,introspectedColumn,index);
         if (field.getInitializationString().isPresent()) {
             field.addAnnotation("@Builder.Default");
         }
-        Set<String> ignoreFields = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getImportIgnoreFields();
+        Set<String> ignoreFields = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getImportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
             topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");

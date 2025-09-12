@@ -61,7 +61,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("上传处理异常，含IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("上传记录",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("上传记录", introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("upload", RequestMethodEnum.POST);
         requestMappingDesc.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         requestMappingDesc.addProduces("MediaType.APPLICATION_JSON_VALUE");
@@ -74,7 +74,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         if (introspectedTable.getRules().isGenerateVoModel() || introspectedTable.getRules().isGenerateCreateVo()) {
             method.addBodyLine(format("{0} {1} = mappings.from{2}({3});", entityType.getShortName(),entityType.getShortNameFirstLowCase(),parameter.getType().getShortName(),parameter.getType().getShortNameFirstLowCase()));
         }
-        if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent() && introspectedTable.hasBLOBColumns()) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent() && introspectedTable.hasBlobColumns()) {
             method.addBodyLine(format("initBlobEntityFromMultipartFile({0},file);", entityType.getShortNameFirstLowCase()));
             method.addBodyLine(format("ServiceResult<{0}> serviceResult;", entityType.getShortName()));
             method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));

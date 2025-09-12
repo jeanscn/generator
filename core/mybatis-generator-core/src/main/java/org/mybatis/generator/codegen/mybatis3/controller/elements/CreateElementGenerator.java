@@ -44,7 +44,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
                 parentElement));
         method.setReturnRemark("更新后的数据（对象）");
 
-        method.addAnnotation(new SystemLogDesc("添加了一条记录",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("添加了一条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"创建");
         method.addAnnotation(new ApiOperationDesc("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);

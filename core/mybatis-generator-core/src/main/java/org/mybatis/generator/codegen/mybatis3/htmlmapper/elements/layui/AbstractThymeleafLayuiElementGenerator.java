@@ -5,19 +5,21 @@ import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
 import org.mybatis.generator.codegen.GeneratorInitialParameters;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.elements.AbstractThymeleafHtmlElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.vue.VueFormGenerateUtil;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import com.vgosoft.core.constant.enums.core.DictTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -26,6 +28,13 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  */
 public abstract class AbstractThymeleafLayuiElementGenerator extends AbstractThymeleafHtmlElementGenerator {
 
+    /**
+     * 数值类型的JDBC类型名称集合
+     */
+    private static final Set<String> NUMERIC_TYPES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            "NUMERIC", "BIGINT", "INTEGER", "INT", "SMALLINT", "TINYINT",
+            "DECIMAL", "DOUBLE", "FLOAT", "REAL"
+    )));
 
     protected AbstractThymeleafLayuiElementGenerator(GeneratorInitialParameters generatorInitialParameters, IntrospectedColumn introspectedColumn, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         super(generatorInitialParameters, introspectedColumn, htmlGeneratorConfiguration);
@@ -50,22 +59,19 @@ public abstract class AbstractThymeleafLayuiElementGenerator extends AbstractThy
         }
 
         //日期类型
-        if (column.getJdbcTypeName().equalsIgnoreCase("DATE") && !verifyList.contains("date")) {
+        if ("DATE".equalsIgnoreCase(column.getJdbcTypeName()) && !verifyList.contains("date")) {
             verifyList.add("date");
         }
         //时间类型
-        if (column.getJdbcTypeName().equalsIgnoreCase("TIME") && !verifyList.contains("time")) {
+        if ("TIME".equalsIgnoreCase(column.getJdbcTypeName()) && !verifyList.contains("time")) {
             verifyList.add("time");
         }
         //日期时间类型
-        if (column.getJdbcTypeName().equalsIgnoreCase("TIMESTAMP") && !verifyList.contains("datetime")) {
+        if ("TIMESTAMP".equalsIgnoreCase(column.getJdbcTypeName()) && !verifyList.contains("datetime")) {
             verifyList.add("datetime");
         }
         //数字类型
-        if ((column.getJdbcTypeName().equalsIgnoreCase("NUMERIC")
-                || column.getJdbcTypeName().equalsIgnoreCase("BIGINT")
-                || column.getJdbcTypeName().equalsIgnoreCase("INTEGER")
-                || column.getJdbcTypeName().equalsIgnoreCase("INT")) && !verifyList.contains("number")) {
+        if (isNumeric(column) && !verifyList.contains("number")) {
             verifyList.add("number");
         }
         //长度
@@ -93,17 +99,12 @@ public abstract class AbstractThymeleafLayuiElementGenerator extends AbstractThy
         }
     }
 
+    private boolean isNumeric(IntrospectedColumn column) {
+        return NUMERIC_TYPES.contains(column.getJdbcTypeName().toUpperCase());
+    }
+
     protected void addDataUrl(HtmlElement element, HtmlElementDescriptor htmlElementDescriptor, String defaultDataUrl) {
-        if (htmlElementDescriptor == null) {
-            return;
-        }
-        if (htmlElementDescriptor.getDataUrl() != null) {
-            element.addAttribute(new Attribute("data-url", htmlElementDescriptor.getDataUrl()));
-        } else if (htmlElementDescriptor.getDataSource() != null && htmlElementDescriptor.getDataSource().equals(DictTypeEnum.DICT_ENUM.getCode()) && stringHasValue(htmlElementDescriptor.getEnumClassName())) {
-            element.addAttribute(new Attribute("data-url", "/system/enum/options/" + htmlElementDescriptor.getEnumClassName()));
-        } else if (defaultDataUrl != null) {
-            element.addAttribute(new Attribute("data-url", defaultDataUrl));
-        }
+        VueFormGenerateUtil.addDataUrl(element, htmlElementDescriptor, defaultDataUrl);
     }
 
     /**

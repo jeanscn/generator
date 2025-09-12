@@ -4,16 +4,17 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 
 /**
- * priorityElementDescriptor 生成缓急程度的元素描述
+ * priorityElementDescriptor 生成申请人的元素描述
+ * @author cen_c
  */
 public class ApplyUserIdInputElementDescriptor implements DefaultHtmlElementDescriptorFactory{
 
     @Override
-    public HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn column, IntrospectedTable introspectedTable) {
+    public HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn column, AbstractIntrospectedTable abstractIntrospectedTable) {
         HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
         elementDescriptor.setName(column.getActualColumnName());
         elementDescriptor.setColumn(column);

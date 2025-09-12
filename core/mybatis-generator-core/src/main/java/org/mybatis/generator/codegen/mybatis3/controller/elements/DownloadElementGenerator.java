@@ -40,7 +40,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addParameter(typeParameter);
         method.setReturnType(new FullyQualifiedJavaType("ResponseEntity<byte[]>"));
         method.addAnnotation("@PermitAll");
-        method.addAnnotation(new SystemLogDesc("下载（预览）",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("下载（预览）", introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethodEnum.GET);
         method.addAnnotation(requestMappingDesc,parentElement);
         method.addAnnotation(new ApiOperationDesc("单个文件下载（预览）", "单个文件下载(预览)接口"),parentElement);
@@ -50,7 +50,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(id);", entityType.getShortName(),this.serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");
         method.addBodyLine(format("{0} {1} = serviceResult.getResult();", entityType.getShortName(),entityType.getShortNameFirstLowCase()));
-        if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent()  && introspectedTable.hasBLOBColumns()) {
+        if (introspectedTable.getColumn(DefaultColumnNameEnum.BYTES.columnName()).isPresent()  && introspectedTable.hasBlobColumns()) {
             method.addBodyLine("byte[] bytes = {0}.getBytes();", entityType.getShortNameFirstLowCase());
         } else {
             method.addBodyLine("File file = new File({0}.getFullPath());", entityType.getShortNameFirstLowCase());

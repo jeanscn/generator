@@ -3,8 +3,8 @@ package org.mybatis.generator.codegen.mybatis3.vo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -25,8 +25,8 @@ import com.vgosoft.tool.core.VCollectionUtil;
  */
 public class VoExcelImportGenerator extends AbstractVoGenerator {
 
-    public VoExcelImportGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings,mappingsInterface);
+    public VoExcelImportGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project, progressCallback, warnings,mappingsInterface);
     }
 
     @Override

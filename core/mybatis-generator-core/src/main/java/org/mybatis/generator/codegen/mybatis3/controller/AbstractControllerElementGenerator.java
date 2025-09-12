@@ -5,9 +5,9 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractGenerator;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
@@ -316,8 +316,8 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         }
     }
 
-    protected static void addIocInitialDefaultValue(IntrospectedTable introspectedTable, Method method, FullyQualifiedJavaType type) {
-        List<IntrospectedColumn> initialColumns = introspectedTable.getAllColumns().stream()
+    protected static void addIocInitialDefaultValue(AbstractIntrospectedTable abstractIntrospectedTable, Method method, FullyQualifiedJavaType type) {
+        List<IntrospectedColumn> initialColumns = abstractIntrospectedTable.getAllColumns().stream()
                 .filter(column -> VStringUtil.stringHasValue(column.getDefaultValue()) && DbFiledDefaultValueEnum.ofCode(column.getDefaultValue()) != null)
                 .collect(Collectors.toList());
         if (!initialColumns.isEmpty()) {

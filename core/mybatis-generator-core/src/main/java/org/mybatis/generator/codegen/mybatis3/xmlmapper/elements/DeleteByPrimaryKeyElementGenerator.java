@@ -43,7 +43,7 @@ public class DeleteByPrimaryKeyElementGenerator extends AbstractXmlElementGenera
 
         buildPrimaryKeyWhereClause().forEach(answer::addElement);
 
-        if (context.getPlugins().sqlMapDeleteByPrimaryKeyElementGenerated(answer,introspectedTable)) {
+        if (context.getPlugins().sqlMapDeleteByPrimaryKeyElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
     }

@@ -8,7 +8,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.config.AbstractFilterConditionConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -48,8 +48,8 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         return new CompositeQueryDesc(introspectedColumn);
     }
 
-    public static CompositeQueryDesc create(AbstractFilterConditionConfiguration abstractFilterConditionConfiguration, IntrospectedTable introspectedTable) {
-        CompositeQueryDesc compositeQueryDesc = new CompositeQueryDesc(abstractFilterConditionConfiguration, introspectedTable);
+    public static CompositeQueryDesc create(AbstractFilterConditionConfiguration abstractFilterConditionConfiguration, AbstractIntrospectedTable abstractIntrospectedTable) {
+        CompositeQueryDesc compositeQueryDesc = new CompositeQueryDesc(abstractFilterConditionConfiguration, abstractIntrospectedTable);
         if (abstractFilterConditionConfiguration.getDataFormat() != null) {
             String enumClassNameByDataFmt = Mb3GenUtil.getEnumClassNameByDataFmt(abstractFilterConditionConfiguration.getDataFormat().codeName());
             if (enumClassNameByDataFmt != null) {
@@ -128,11 +128,11 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         this.column = introspectedColumn.getActualColumnName();
         this.addImports("com.vgosoft.core.annotation.CompositeQuery");
         this.introspectedColumn = introspectedColumn;
-        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
+        if (introspectedColumn.isJdbcDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
             this.tagName = HtmlElementTagTypeEnum.DATE;
             this.fieldType = FieldTypeEnum.DATETIME;
             this.queryMode = QueryModesEnum.EQUAL;
-        } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
+        } else if (introspectedColumn.isJdbcTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
             this.tagName = HtmlElementTagTypeEnum.DATE;
             this.fieldType = FieldTypeEnum.TIME;
             this.queryMode = QueryModesEnum.EQUAL;
@@ -155,11 +155,11 @@ public class CompositeQueryDesc extends AbstractAnnotation {
         }
     }
 
-    public CompositeQueryDesc(AbstractFilterConditionConfiguration queryColumnConfiguration, IntrospectedTable introspectedTable) {
+    public CompositeQueryDesc(AbstractFilterConditionConfiguration queryColumnConfiguration, AbstractIntrospectedTable abstractIntrospectedTable) {
         super();
-        this.introspectedColumn = introspectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null);
-        this.tableName = introspectedTable.getTableConfiguration().getTableName();
-        this.tableAlias = introspectedTable.getTableConfiguration().getAlias();
+        this.introspectedColumn = abstractIntrospectedTable.getColumn(queryColumnConfiguration.getColumn()).orElse(null);
+        this.tableName = abstractIntrospectedTable.getTableConfiguration().getTableName();
+        this.tableAlias = abstractIntrospectedTable.getTableConfiguration().getAlias();
         this.column = queryColumnConfiguration.getColumn();
         this.tagName = queryColumnConfiguration.getTagName();
         this.field = queryColumnConfiguration.getField();

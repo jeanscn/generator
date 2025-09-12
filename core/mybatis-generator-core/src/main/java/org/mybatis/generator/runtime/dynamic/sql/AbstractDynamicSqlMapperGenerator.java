@@ -17,13 +17,19 @@ import org.mybatis.generator.runtime.dynamic.sql.elements.MethodAndImports;
 
 public abstract class AbstractDynamicSqlMapperGenerator extends AbstractJavaClientGenerator {
 
-    // record type for insert, select, update
+    /**
+     * record type for insert, select, update
+     */
     protected FullyQualifiedJavaType recordType;
 
-    // id to use for the common result map
+    /**
+     * id to use for the common result map
+     */
     protected String resultMapId;
 
-    // name of the field containing the table in the support class
+    /**
+     * name of the field containing the table in the support class
+     */
     protected String tableFieldName;
 
     protected FragmentGenerator fragmentGenerator;
@@ -83,12 +89,12 @@ public abstract class AbstractDynamicSqlMapperGenerator extends AbstractJavaClie
     }
 
     @Override
-    public AbstractXmlGenerator getMatchedXMLGenerator() {
+    public AbstractXmlGenerator getMatchedXmlGenerator() {
         return null;
     }
 
     @Override
-    public AbstractHtmlGenerator getMatchedHTMLGenerator() {
+    public AbstractHtmlGenerator getMatchedHtmlGenerator() {
         return null;
     }
 }

@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.VoCreateGeneratorConfiguration;
@@ -24,8 +24,8 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getJavaBeansFiel
  */
 public class VoCreateGenerator extends AbstractVoGenerator {
 
-    public VoCreateGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project,progressCallback, warnings,mappingsInterface);
+    public VoCreateGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project,progressCallback, warnings,mappingsInterface);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class VoCreateGenerator extends AbstractVoGenerator {
             Field selectiveUpdate = new Field("selectiveUpdate", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
             selectiveUpdate.setRemark("插入时选择性更新");
             commentGenerator.addFieldComment(selectiveUpdate, "插入时是否检查记录是否存在，进行选择性更新");
-            addProperty(createVoClass, selectiveUpdate,"true",introspectedTable);
+            addProperty(createVoClass, selectiveUpdate,"true", introspectedTable);
         }
 
         Field modelTempId = new Field("modelTempId", FullyQualifiedJavaType.getStringInstance());

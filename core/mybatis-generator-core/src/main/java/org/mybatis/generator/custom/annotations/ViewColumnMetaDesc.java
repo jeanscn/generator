@@ -5,8 +5,8 @@ import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.VoViewGeneratorConfiguration;
@@ -62,7 +62,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     private String columnName;
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
 
     private IntrospectedColumn introspectedColumn;
 
@@ -70,11 +70,11 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
 
     Set<String> hiddenProperties;
 
-    public static ViewColumnMetaDesc create(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return new ViewColumnMetaDesc(introspectedColumn, introspectedTable);
+    public static ViewColumnMetaDesc create(IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        return new ViewColumnMetaDesc(introspectedColumn, abstractIntrospectedTable);
     }
 
-    public ViewColumnMetaDesc(Field field, String title, IntrospectedTable introspectedTable) {
+    public ViewColumnMetaDesc(Field field, String title, AbstractIntrospectedTable introspectedTable) {
         super();
         this.introspectedTable = introspectedTable;
         this.value = field.getName();
@@ -86,7 +86,7 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         parseRenderFun(field.getName());
     }
 
-    public ViewColumnMetaDesc(IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public ViewColumnMetaDesc(IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         super();
         this.introspectedColumn = introspectedColumn;
         this.introspectedTable = introspectedTable;

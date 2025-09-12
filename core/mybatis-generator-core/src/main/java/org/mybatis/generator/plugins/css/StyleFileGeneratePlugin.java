@@ -1,8 +1,8 @@
 package org.mybatis.generator.plugins.css;
 
 import com.vgosoft.tool.core.VStringUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.GeneratedFile;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.codegen.mybatis3.freemaker.css.GeneratedStyleFile;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
@@ -20,7 +20,7 @@ import java.util.List;
 public class StyleFileGeneratePlugin extends PluginAdapter {
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalWebFiles(IntrospectedTable introspectedTable,HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         List<GeneratedFile> answer = new ArrayList<>();
 
         String project = this.properties.getProperty("targetProject", "src/main/resources/static/css");
@@ -39,8 +39,8 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                 GeneratedStyleFile generatedStyleFile = new GeneratedStyleFile(
                         styleFileNameDev,
                         project,
-                        introspectedTable.getContext().getModuleKeyword(),
-                        introspectedTable,
+                        abstractIntrospectedTable.getContext().getModuleKeyword(),
+                        abstractIntrospectedTable,
                         "app_main_css.css.ftl");
                 generatedStyleFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 generatedStyleFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteCssFile());
@@ -50,8 +50,8 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                 GeneratedStyleFile generatedStyleFileMin = new GeneratedStyleFile(
                         min,
                         project,
-                        introspectedTable.getContext().getModuleKeyword(),
-                        introspectedTable,
+                        abstractIntrospectedTable.getContext().getModuleKeyword(),
+                        abstractIntrospectedTable,
                         "app_main_css.css.ftl");
                 generatedStyleFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteCssFile());
                 generatedStyleFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);

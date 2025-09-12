@@ -5,8 +5,8 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
@@ -30,7 +30,8 @@ public abstract class BaseRules implements Rules {
 
     protected final TableConfiguration tc;
 
-    protected final IntrospectedTable introspectedTable;
+    @Getter
+    protected final AbstractIntrospectedTable introspectedTable;
 
     protected final boolean isModelOnly;
 
@@ -57,7 +58,7 @@ public abstract class BaseRules implements Rules {
 
     protected final boolean generateUnitTest;
 
-    public BaseRules(IntrospectedTable introspectedTable) {
+    public BaseRules(AbstractIntrospectedTable introspectedTable) {
         super();
         this.introspectedTable = introspectedTable;
         this.tc = introspectedTable.getTableConfiguration();
@@ -177,8 +178,8 @@ public abstract class BaseRules implements Rules {
 
         String answer;
 
-        if (generateRecordWithBLOBsClass()) {
-            answer = introspectedTable.getRecordWithBLOBsType();
+        if (generateRecordWithBlobsClass()) {
+            answer = introspectedTable.getRecordWithBlobsType();
         } else if (generateBaseRecordClass()) {
             answer = introspectedTable.getBaseRecordType();
         } else {
@@ -197,7 +198,7 @@ public abstract class BaseRules implements Rules {
      * @return true if the element and method should be generated
      */
     @Override
-    public boolean generateUpdateByPrimaryKeyWithoutBLOBs() {
+    public boolean generateUpdateByPrimaryKeyWithoutBlobs() {
         if (isModelOnly) {
             return false;
         }
@@ -220,7 +221,7 @@ public abstract class BaseRules implements Rules {
      * @return true if the element and method should be generated
      */
     @Override
-    public boolean generateUpdateByPrimaryKeyWithBLOBs() {
+    public boolean generateUpdateByPrimaryKeyWithBlobs() {
         if (isModelOnly) {
             return false;
         }
@@ -231,7 +232,7 @@ public abstract class BaseRules implements Rules {
 
         return tc.isUpdateByPrimaryKeyStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
-                && introspectedTable.hasBLOBColumns();
+                && introspectedTable.hasBlobColumns();
     }
 
     /**
@@ -254,7 +255,7 @@ public abstract class BaseRules implements Rules {
 
         return tc.isUpdateByPrimaryKeyStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
-                && (introspectedTable.hasBLOBColumns() || introspectedTable
+                && (introspectedTable.hasBlobColumns() || introspectedTable
                 .hasBaseColumns());
     }
 
@@ -270,7 +271,7 @@ public abstract class BaseRules implements Rules {
 
         return tc.isUpdateBatchStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
-                && (introspectedTable.hasBLOBColumns() || introspectedTable.hasBaseColumns());
+                && (introspectedTable.hasBlobColumns() || introspectedTable.hasBaseColumns());
     }
 
     /**
@@ -331,10 +332,10 @@ public abstract class BaseRules implements Rules {
      * @return true if the result map should be generated
      */
     @Override
-    public boolean generateResultMapWithBLOBs() {
+    public boolean generateResultMapWithBlobs() {
         boolean rc;
 
-        if (introspectedTable.hasBLOBColumns()) {
+        if (introspectedTable.hasBlobColumns()) {
             if (isModelOnly) {
                 rc = true;
             } else {
@@ -357,7 +358,7 @@ public abstract class BaseRules implements Rules {
      * @return true if the SQL where clause element should be generated
      */
     @Override
-    public boolean generateSQLExampleWhereClause() {
+    public boolean generateSqlExampleWhereClause() {
         if (isModelOnly) {
             return false;
         }
@@ -403,7 +404,7 @@ public abstract class BaseRules implements Rules {
         return tc.isSelectByPrimaryKeyStatementEnabled()
                 && introspectedTable.hasPrimaryKeyColumns()
                 && (introspectedTable.hasBaseColumns() || introspectedTable
-                .hasBLOBColumns());
+                .hasBlobColumns());
     }
 
     /**
@@ -414,7 +415,7 @@ public abstract class BaseRules implements Rules {
      * @return true if the element and method should be generated
      */
     @Override
-    public boolean generateSelectByExampleWithoutBLOBs() {
+    public boolean generateSelectByExampleWithoutBlobs() {
         if (isModelOnly) {
             return false;
         }
@@ -431,13 +432,13 @@ public abstract class BaseRules implements Rules {
      * @return true if the element and method should be generated
      */
     @Override
-    public boolean generateSelectByExampleWithBLOBs() {
+    public boolean generateSelectByExampleWithBlobs() {
         if (isModelOnly) {
             return false;
         }
 
         return tc.isSelectByExampleStatementEnabled()
-                && introspectedTable.hasBLOBColumns();
+                && introspectedTable.hasBlobColumns();
     }
 
     /**
@@ -479,7 +480,7 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean generateUpdateByExampleWithoutBLOBs() {
+    public boolean generateUpdateByExampleWithoutBlobs() {
         if (isModelOnly) {
             return false;
         }
@@ -490,18 +491,13 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
-    public boolean generateUpdateByExampleWithBLOBs() {
+    public boolean generateUpdateByExampleWithBlobs() {
         if (isModelOnly) {
             return false;
         }
 
         return tc.isUpdateByExampleStatementEnabled()
-                && introspectedTable.hasBLOBColumns();
-    }
-
-    @Override
-    public IntrospectedTable getIntrospectedTable() {
-        return introspectedTable;
+                && introspectedTable.hasBlobColumns();
     }
 
     @Override
@@ -511,7 +507,7 @@ public abstract class BaseRules implements Rules {
         }
 
         return generateSelectByPrimaryKey()
-                || generateSelectByExampleWithoutBLOBs();
+                || generateSelectByExampleWithoutBlobs();
     }
 
     @Override
@@ -520,7 +516,7 @@ public abstract class BaseRules implements Rules {
             return false;
         }
 
-        return introspectedTable.hasBLOBColumns()
+        return introspectedTable.hasBlobColumns()
                 && (tc.isSelectByExampleStatementEnabled() || tc
                 .isSelectByPrimaryKeyStatementEnabled());
     }

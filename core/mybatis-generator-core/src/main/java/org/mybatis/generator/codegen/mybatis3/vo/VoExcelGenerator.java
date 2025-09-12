@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
  */
 public class VoExcelGenerator extends AbstractVoGenerator {
 
-    public VoExcelGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
+    public VoExcelGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class VoExcelGenerator extends AbstractVoGenerator {
 
         //获得所有可能的属性
         List<Field> allFields = new ArrayList<>();
-        for (IntrospectedColumn nonBLOBColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn nonBLOBColumn : introspectedTable.getNonBlobColumns()) {
             Field field = new Field(nonBLOBColumn.getJavaProperty(), nonBLOBColumn.getFullyQualifiedJavaType());
             field.setVisibility(JavaVisibility.PRIVATE);
             field.setRemark(nonBLOBColumn.getRemarks(true));
@@ -62,7 +62,7 @@ public class VoExcelGenerator extends AbstractVoGenerator {
             exportFields = allFields.stream().filter(f->voExcelGeneratorConfiguration.getExportIncludeFields().contains(f.getName())).collect(Collectors.toList());
         }else{
            Set<String> excludeFields = voExcelGeneratorConfiguration.getExportExcludeFields();
-            voGeneratorConfiguration.getExcludeColumns().stream().map(c->introspectedTable.getColumn(c).orElse(null)).filter(Objects::nonNull).forEach(c->excludeFields.add(c.getJavaProperty()));
+            voGeneratorConfiguration.getExcludeColumns().stream().map(c-> introspectedTable.getColumn(c).orElse(null)).filter(Objects::nonNull).forEach(c->excludeFields.add(c.getJavaProperty()));
             exportFields = allFields.stream().filter(f->!excludeFields.contains(f.getName())).collect(Collectors.toList());
         }
         if (!exportFields.isEmpty()) {

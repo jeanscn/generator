@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -19,10 +19,10 @@ import static org.mybatis.generator.internal.util.StringUtility.packageToDir;
  */
 public class VoGeneratorUtil {
 
-    public static Method addMappingMethod(FullyQualifiedJavaType fromType, FullyQualifiedJavaType toType, boolean isList, IntrospectedTable introspectedTable) {
+    public static Method addMappingMethod(FullyQualifiedJavaType fromType, FullyQualifiedJavaType toType, boolean isList, AbstractIntrospectedTable abstractIntrospectedTable) {
         String methodName;
         Method method;
-        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(abstractIntrospectedTable.getBaseRecordType());
         if (entityType.getFullyQualifiedName().equalsIgnoreCase(toType.getFullyQualifiedName())) {
             methodName = "from" + fromType.getShortNameWithoutTypeArguments();
         } else if (entityType.getFullyQualifiedName().equalsIgnoreCase(fromType.getFullyQualifiedName())) {
@@ -45,7 +45,7 @@ public class VoGeneratorUtil {
             method.setReturnType(toType);
         }
         method.setAbstract(true);
-        introspectedTable.getContext().getCommentGenerator().addMappingMethodJavaDocLine(method,fromType,toType);
+        abstractIntrospectedTable.getContext().getCommentGenerator().addMappingMethodJavaDocLine(method,fromType,toType);
         return method;
     }
 

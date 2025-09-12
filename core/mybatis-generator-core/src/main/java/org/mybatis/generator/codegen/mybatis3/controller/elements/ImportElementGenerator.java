@@ -45,7 +45,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.setExceptionRemark("导入处理异常，含IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("数据导入",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("数据导入", introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import", RequestMethodEnum.POST);
         requestMappingDesc.addConsumes("MediaType.MULTIPART_FORM_DATA_VALUE");
         requestMappingDesc.addProduces("MediaType.APPLICATION_JSON_VALUE");

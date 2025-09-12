@@ -2,7 +2,7 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.TableMeta;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -29,19 +29,19 @@ public class TableMetaDesc extends AbstractAnnotation{
 
     private String[] superInterfaces;
 
-    public static TableMetaDesc create(IntrospectedTable introspectedTable){
-        return new TableMetaDesc(introspectedTable);
+    public static TableMetaDesc create(AbstractIntrospectedTable abstractIntrospectedTable){
+        return new TableMetaDesc(abstractIntrospectedTable);
     }
 
-    public TableMetaDesc(IntrospectedTable introspectedTable) {
+    public TableMetaDesc(AbstractIntrospectedTable abstractIntrospectedTable) {
         super();
-        this.value = introspectedTable.getTableConfiguration().getTableName();
-        this.alias = introspectedTable.getTableConfiguration().getAlias();
-        this.descript = introspectedTable.getRemarks(true);
-        this.beanname = introspectedTable.getControllerBeanName();
+        this.value = abstractIntrospectedTable.getTableConfiguration().getTableName();
+        this.alias = abstractIntrospectedTable.getTableConfiguration().getAlias();
+        this.descript = abstractIntrospectedTable.getRemarks(true);
+        this.beanname = abstractIntrospectedTable.getControllerBeanName();
         this.summary = true;
-        if (introspectedTable.getVoModelType() != null) {
-            this.voClass = introspectedTable.getVoModelType().getFullyQualifiedName();
+        if (abstractIntrospectedTable.getVoModelType() != null) {
+            this.voClass = abstractIntrospectedTable.getVoModelType().getFullyQualifiedName();
         }
         this.addImports(TableMeta.class.getCanonicalName());
     }

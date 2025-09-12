@@ -17,6 +17,7 @@ import java.util.Map;
 public abstract class AbstractFreemarkerGenerator extends AbstractJavaGenerator {
 
     protected Map<String,Object> freeMakerContext;
+
     protected AbstractFreemarkerGenerator(String project) {
         super(project);
         this.freeMakerContext = new HashMap<>();

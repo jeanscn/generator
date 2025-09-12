@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.freemaker.html.layui;
 
 import freemarker.template.Template;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
 import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
@@ -22,13 +22,11 @@ import java.util.stream.Stream;
  */
 public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
 
-    private final IntrospectedTable introspectedTable;
-
     private HtmlGeneratorConfiguration htmlGeneratorConfiguration;
 
     private final InnerListViewConfiguration innerListViewConfiguration;
 
-    public HtmlFreemarkerGenerator(String project, IntrospectedTable introspectedTable, InnerListViewConfiguration innerListViewConfiguration) {
+    public HtmlFreemarkerGenerator(String project, AbstractIntrospectedTable introspectedTable, InnerListViewConfiguration innerListViewConfiguration) {
         super(project);
         this.introspectedTable = introspectedTable;
         this.innerListViewConfiguration = innerListViewConfiguration;

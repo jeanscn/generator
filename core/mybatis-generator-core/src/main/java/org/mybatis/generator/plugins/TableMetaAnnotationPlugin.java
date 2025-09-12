@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -25,41 +25,41 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
      * model类的@apiModel
      */
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         //添加实体对象元数据注解
-       addTableMetaAnnotation(introspectedTable, topLevelClass);
+       addTableMetaAnnotation(abstractIntrospectedTable, topLevelClass);
        return true;
     }
 
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        addColumnMetaAnnotation(field, topLevelClass,introspectedTable, introspectedColumn);
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, ModelClassType modelClassType) {
+        addColumnMetaAnnotation(field, topLevelClass, abstractIntrospectedTable, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addColumnMetaAnnotation(field, topLevelClass,introspectedTable, introspectedColumn);
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addColumnMetaAnnotation(field, topLevelClass, abstractIntrospectedTable, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addColumnMetaAnnotation(field, topLevelClass, introspectedTable,introspectedColumn);
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addColumnMetaAnnotation(field, topLevelClass, abstractIntrospectedTable,introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        addColumnMetaAnnotation(field, topLevelClass, introspectedTable,introspectedColumn);
+    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addColumnMetaAnnotation(field, topLevelClass, abstractIntrospectedTable,introspectedColumn);
         return true;
     }
 
-    private boolean isNoMetaAnnotation(IntrospectedTable introspectedTable) {
+    private boolean isNoMetaAnnotation(AbstractIntrospectedTable abstractIntrospectedTable) {
         return context.getAnyPropertyBoolean(PropertyRegistry.ANY_NO_META_ANNOTATION,
                 "false",
-                introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration(),
-                introspectedTable.getTableConfiguration(),
+                abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration(),
+                abstractIntrospectedTable.getTableConfiguration(),
                 context);
     }
 
@@ -68,10 +68,10 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
      */
     private void addColumnMetaAnnotation(Field field,
                                          TopLevelClass topLevelClass,
-                                         IntrospectedTable introspectedTable,
+                                         AbstractIntrospectedTable abstractIntrospectedTable,
                                          IntrospectedColumn introspectedColumn) {
 
-        if (isNoMetaAnnotation(introspectedTable) ||introspectedColumn==null) {
+        if (isNoMetaAnnotation(abstractIntrospectedTable) ||introspectedColumn==null) {
             return;
         }
         ColumnMetaDesc columnMetaDesc = new ColumnMetaDesc(introspectedColumn);
@@ -82,11 +82,11 @@ public class TableMetaAnnotationPlugin extends PluginAdapter {
     /**
      * 类的@TableMeta
      */
-    private void addTableMetaAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
-        if (isNoMetaAnnotation(introspectedTable)) {
+    private void addTableMetaAnnotation(AbstractIntrospectedTable abstractIntrospectedTable, TopLevelClass topLevelClass) {
+        if (isNoMetaAnnotation(abstractIntrospectedTable)) {
             return;
         }
-        TableMetaDesc tableMetaDesc = new TableMetaDesc(introspectedTable);
+        TableMetaDesc tableMetaDesc = new TableMetaDesc(abstractIntrospectedTable);
         topLevelClass.getSuperClass().ifPresent(superClass -> tableMetaDesc.setSuperClass(superClass.getShortNameWithoutTypeArguments()+".class"));
         topLevelClass.getSuperInterfaceTypes().forEach(superInterface -> tableMetaDesc.addSuperInterface(superInterface.getShortNameWithoutTypeArguments()+".class"));
         topLevelClass.addAnnotation(tableMetaDesc.toAnnotation());

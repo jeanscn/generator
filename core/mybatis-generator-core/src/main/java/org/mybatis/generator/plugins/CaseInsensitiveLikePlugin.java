@@ -3,7 +3,7 @@ package org.mybatis.generator.plugins;
 import java.util.List;
 
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.InnerClass;
@@ -37,12 +37,12 @@ public class CaseInsensitiveLikePlugin extends PluginAdapter {
 
     @Override
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+            AbstractIntrospectedTable abstractIntrospectedTable) {
 
         topLevelClass.getInnerClasses().stream()
         .filter(this::isGeneratedCriteria)
         .findFirst()
-        .ifPresent(c -> addMethods(introspectedTable, c));
+        .ifPresent(c -> addMethods(abstractIntrospectedTable, c));
 
         return true;
     }
@@ -51,8 +51,8 @@ public class CaseInsensitiveLikePlugin extends PluginAdapter {
         return "GeneratedCriteria".equals(innerClass.getType().getShortName());
     }
 
-    private void addMethods(IntrospectedTable introspectedTable, InnerClass criteria) {
-        introspectedTable.getNonBLOBColumns().stream()
+    private void addMethods(AbstractIntrospectedTable abstractIntrospectedTable, InnerClass criteria) {
+        abstractIntrospectedTable.getNonBlobColumns().stream()
         .filter(this::isEligibleColumn)
         .map(this::toMethod)
         .forEach(criteria::addMethod);

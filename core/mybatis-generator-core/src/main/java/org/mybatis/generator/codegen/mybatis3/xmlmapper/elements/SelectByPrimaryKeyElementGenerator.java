@@ -47,7 +47,7 @@ public class SelectByPrimaryKeyElementGenerator extends AbstractXmlElementGenera
         }
         answer.addElement(new TextElement(sb.toString()));
         answer.addElement(getBaseColumnListElement());
-        if (introspectedTable.hasBLOBColumns()) {
+        if (introspectedTable.hasBlobColumns()) {
             answer.addElement(new TextElement(","));
             answer.addElement(getBlobColumnListElement());
         }

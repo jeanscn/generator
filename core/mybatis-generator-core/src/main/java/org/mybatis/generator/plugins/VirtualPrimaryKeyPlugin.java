@@ -3,7 +3,7 @@ package org.mybatis.generator.plugins;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 
 /**
@@ -32,7 +32,7 @@ public class VirtualPrimaryKeyPlugin extends PluginAdapter {
      * @see org.mybatis.generator.api.PluginAdapter#initialized(org.mybatis.generator.api.IntrospectedTable)
      */
     @Override
-    public void initialized(IntrospectedTable introspectedTable) {
+    public void initialized(AbstractIntrospectedTable introspectedTable) {
         String virtualKey = introspectedTable.getTableConfiguration()
                 .getProperty("virtualKeyColumns");
 

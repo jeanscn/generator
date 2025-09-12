@@ -28,6 +28,7 @@ import java.util.*;
 
 /**
  * Goal which generates MyBatis artifacts.
+ * @author ---
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.TEST)

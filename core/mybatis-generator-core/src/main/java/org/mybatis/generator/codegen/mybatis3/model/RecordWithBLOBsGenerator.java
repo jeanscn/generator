@@ -34,7 +34,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         Plugin plugins = context.getPlugins();
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
-        TopLevelClass topLevelClass = new TopLevelClass(introspectedTable.getRecordWithBLOBsType());
+        TopLevelClass topLevelClass = new TopLevelClass(introspectedTable.getRecordWithBlobsType());
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(topLevelClass,false);
 
@@ -54,7 +54,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
             }
         }
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable.getBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getBlobColumns()) {
             if (RootClassInfo.getInstance(rootClass, warnings).containsProperty(introspectedColumn)) {
                 continue;
             }
@@ -103,7 +103,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         boolean comma = false;
         StringBuilder sb = new StringBuilder();
         sb.append("super(");
-        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBlobColumns()) {
             if (comma) {
                 sb.append(", ");
             } else {
@@ -114,7 +114,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         sb.append(");");
         method.addBodyLine(sb.toString());
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable.getBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getBlobColumns()) {
             sb.setLength(0);
             sb.append("this.");
             sb.append(introspectedColumn.getJavaProperty());

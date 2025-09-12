@@ -1,6 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.freemaker.html.layui;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import lombok.Getter;
+import lombok.Setter;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.config.InnerListViewConfiguration;
 
@@ -9,35 +11,26 @@ import org.mybatis.generator.config.InnerListViewConfiguration;
  * 2023-04-06 16:11
  * @version 3.0
  */
+@Getter
+@Setter
 public class GeneratedHtmlFragmentsFile extends AbstractGeneratedFile {
 
     private final String templateName;
-
-    private final IntrospectedTable introspectedTable;
 
     private InnerListViewConfiguration innerListViewConfiguration;
 
     public GeneratedHtmlFragmentsFile(String fileName,
                                       String targetProject,
                                       String targetPackage,
-                                      IntrospectedTable introspectedTable,
+                                      AbstractIntrospectedTable introspectedTable,
                                       String templateName) {
-        super(targetProject,targetPackage,fileName,introspectedTable);
+        super(targetProject,targetPackage,fileName, introspectedTable);
         this.templateName = templateName;
-        this.introspectedTable = introspectedTable;
     }
 
     @Override
     public String getFormattedContent() {
         HtmlFreemarkerGenerator freemarkerGenerator = new HtmlFreemarkerGenerator(this.targetProject,this.introspectedTable,this.innerListViewConfiguration);
         return freemarkerGenerator.generate(templateName);
-    }
-
-    public InnerListViewConfiguration getInnerListViewConfiguration() {
-        return innerListViewConfiguration;
-    }
-
-    public void setInnerListViewConfiguration(InnerListViewConfiguration innerListViewConfiguration) {
-        this.innerListViewConfiguration = innerListViewConfiguration;
     }
 }

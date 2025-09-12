@@ -27,7 +27,7 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
         Method method = createMethod(methodPrefix);
         method.setReturnType(new FullyQualifiedJavaType(MODEL_AND_VIEW));
 
-        method.addAnnotation(new SystemLogDesc("查看默认视图",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("查看默认视图", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("dt/view-default/show", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图");
         method.addAnnotation(new ApiOperationDesc("默认数据视图显示", "显示默认数据视图"),parentElement);
@@ -35,8 +35,8 @@ public class GetDefaultViewElementGenerator extends AbstractControllerElementGen
 
         method.addBodyLine("ModelAndView modelAndView = new ModelAndView(\"vgoweb/view/DataTables\");");
         method.addBodyLine("modelAndView.addObject(\"viewId\", DataTablesUtil.getDefaultViewId(\"{0}\"));"
-                ,introspectedTable.getControllerBeanName());
-        method.addBodyLine("modelAndView.addObject(\"listName\", \"{0}\");",introspectedTable.getRemarks(true));
+                , introspectedTable.getControllerBeanName());
+        method.addBodyLine("modelAndView.addObject(\"listName\", \"{0}\");", introspectedTable.getRemarks(true));
         method.addBodyLine("return modelAndView;");
         parentElement.addMethod(method);
     }

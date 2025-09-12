@@ -150,7 +150,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
         sb.append("${").append(entityName).append("?.").append(baseColumn.getJavaProperty());
         if (baseColumn.isJava8TimeColumn()) {
             sb.append("!=null?#temporals.format(").append(entityName).append(".");
-        }else if(baseColumn.isJDBCTimeColumn() || baseColumn.isJDBCTimeStampColumn() || baseColumn.isJDBCDateColumn()){
+        }else if(baseColumn.isJdbcTimeColumn() || baseColumn.isJdbcTimeStampColumn() || baseColumn.isJdbcDateColumn()){
             sb.append("!=null?#dates.format(").append(entityName).append(".");
         } else {
             if ("version".equals(baseColumn.getJavaProperty())) {
@@ -217,7 +217,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
     }
 
     protected void addSubjectInput(HtmlElement parent) {
-        if (introspectedTable.getNonBLOBColumns().stream()
+        if (introspectedTable.getNonBlobColumns().stream()
                 .noneMatch(c -> input_subject_id.equals(c.getJavaProperty()))) {
             HtmlElement subject = generateHtmlInput(input_subject_id, true, false, true, true);
             String title = getDocTitle();

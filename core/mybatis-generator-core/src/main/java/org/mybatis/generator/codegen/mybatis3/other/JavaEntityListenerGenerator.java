@@ -122,7 +122,7 @@ public class JavaEntityListenerGenerator extends AbstractJavaGenerator {
                 addDefaultMethod(topLevelClass, entityType, "entityDeletedEvent");
                 break;
             default:
-                throw new RuntimeException(getString("创建监听类出现错误,位置的事件类型：{0}-{1}",introspectedTable.getTableConfiguration().getTableName(), entityEvent));
+                throw new RuntimeException(getString("创建监听类出现错误,位置的事件类型：{0}-{1}", introspectedTable.getTableConfiguration().getTableName(), entityEvent));
         }
         topLevelClass.addImportedType("java.util.List");
     }

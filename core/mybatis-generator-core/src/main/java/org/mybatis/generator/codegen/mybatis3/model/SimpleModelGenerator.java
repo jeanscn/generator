@@ -93,7 +93,7 @@ public class SimpleModelGenerator extends AbstractJavaGenerator {
         String rootClass = getRootClass();
         if (rootClass != null) {
             superClass = new FullyQualifiedJavaType(rootClass);
-            boolean assignable = isAssignable(I_SORTABLE_ENTITY, rootClass,introspectedTable);
+            boolean assignable = isAssignable(I_SORTABLE_ENTITY, rootClass, introspectedTable);
             if (assignable) {
                 superClass.addTypeArgument(new FullyQualifiedJavaType(introspectedTable.getBaseRecordType()));
             }

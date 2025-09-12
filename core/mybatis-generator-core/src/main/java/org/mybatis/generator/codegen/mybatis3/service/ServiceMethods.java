@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.service;
 
 import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
@@ -22,11 +22,11 @@ import static org.mybatis.generator.custom.ConstantsUtil.*;
 public class ServiceMethods {
 
     private final Context context;
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final FullyQualifiedJavaType entityType;
     private final FullyQualifiedJavaType exampleType;
 
-    public ServiceMethods(Context context, IntrospectedTable introspectedTable) {
+    public ServiceMethods(Context context, AbstractIntrospectedTable introspectedTable) {
         this.context = context;
         this.introspectedTable = introspectedTable;
         entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
@@ -101,7 +101,7 @@ public class ServiceMethods {
         parameters.add(new Parameter(entityType, "record").setRemark("数据对象"));
         parameters.add(new Parameter(exampleType, "example").setRemark("检索条件对象"));
         Method method =  getMethodByType(
-                isSelective?introspectedTable.getUpdateByExampleSelectiveStatementId():introspectedTable.getUpdateByExampleStatementId(),
+                isSelective? introspectedTable.getUpdateByExampleSelectiveStatementId(): introspectedTable.getUpdateByExampleStatementId(),
                 ReturnTypeEnum.SERVICE_RESULT_MODEL,
                 FullyQualifiedJavaType.getIntegerInstance(),
                 "影响行数Service返回封装对象",
@@ -118,7 +118,7 @@ public class ServiceMethods {
         List<Parameter> parameters = new ArrayList<>();
         parameters.add(new Parameter(entityType, "record").setRemark("主键及其它数据对象"));
         Method method =  getMethodByType(
-                isSelective?introspectedTable.getUpdateByPrimaryKeySelectiveStatementId():introspectedTable.getUpdateByPrimaryKeyStatementId(),
+                isSelective? introspectedTable.getUpdateByPrimaryKeySelectiveStatementId(): introspectedTable.getUpdateByPrimaryKeyStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
                 introspectedTable.getRemarks(true)+(isService?"对象ServiceResult封装":"成功更新的记录数"),
@@ -152,10 +152,10 @@ public class ServiceMethods {
         List<Parameter> parameters = new ArrayList<>();
         parameters.add(new Parameter(entityType, "record").setRemark("待插入的数据对象"));
         Method method =  getMethodByType(
-                isSelective?introspectedTable.getInsertSelectiveStatementId():introspectedTable.getInsertStatementId(),
+                isSelective? introspectedTable.getInsertSelectiveStatementId(): introspectedTable.getInsertStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_MODEL:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
-                isService?introspectedTable.getRemarks(true)+"对象ServiceResult封装":"成功插入的记录数",
+                isService? introspectedTable.getRemarks(true)+"对象ServiceResult封装":"成功插入的记录数",
                 parameters,
                 isAbstract,
                 parentElement);
@@ -175,7 +175,7 @@ public class ServiceMethods {
         Method method = getMethodByType(introspectedTable.getInsertBatchStatementId(),
                 isService?ReturnTypeEnum.SERVICE_RESULT_LIST:ReturnTypeEnum.MODEL,
                 isService?entityType:FullyQualifiedJavaType.getIntInstance(),
-                isService?introspectedTable.getRemarks(true)+"对象列表ServiceResult封装":"成功插入的记录数",
+                isService? introspectedTable.getRemarks(true)+"对象列表ServiceResult封装":"成功插入的记录数",
                 parameters,
                 isAbstract,
                 parentElement);
@@ -492,7 +492,7 @@ public class ServiceMethods {
                 isAbstract,
                 parentElement);
         if (isAbstract) {
-            context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+introspectedTable.getRemarks(true)+"缓存数据，将返回对象列表",
+            context.getCommentGenerator().addMethodJavaDocLine(method, "查询"+ introspectedTable.getRemarks(true)+"缓存数据，将返回对象列表",
                     "对dao的方法参数进行对象封装，以便于处理为null参数");
         }
         return method;
@@ -536,14 +536,14 @@ public class ServiceMethods {
         return method;
     }
 
-    public List<IntrospectedColumn> getSelectDictParameterColumns(VoCacheGeneratorConfiguration config, IntrospectedTable introspectedTable) {
-        if (introspectedTable.getRules().isGenerateCachePoWithMultiKey()) {
+    public List<IntrospectedColumn> getSelectDictParameterColumns(VoCacheGeneratorConfiguration config, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (abstractIntrospectedTable.getRules().isGenerateCachePoWithMultiKey()) {
             return Stream.of(config.getTypeColumn(), config.getKeyColumn())
-                    .map(n -> introspectedTable.getColumn(n).orElse(null))
+                    .map(n -> abstractIntrospectedTable.getColumn(n).orElse(null))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }else {
-            return introspectedTable.getPrimaryKeyColumns();
+            return abstractIntrospectedTable.getPrimaryKeyColumns();
         }
     }
 

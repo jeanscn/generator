@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.kotlin.FullyQualifiedKotlinType;
 import org.mybatis.generator.api.dom.kotlin.JavaToKotlinTypeConverter;
 import org.mybatis.generator.api.dom.kotlin.KotlinArg;
@@ -18,9 +18,12 @@ import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.runtime.kotlin.KotlinDynamicSqlSupportClassGenerator;
 
+/**
+ * @author cen_c
+ */
 public class KotlinFragmentGenerator {
 
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final String resultMapId;
     private final String supportObjectImport;
     private final String tableFieldName;
@@ -234,12 +237,12 @@ public class KotlinFragmentGenerator {
     }
 
     public static class Builder {
-        private IntrospectedTable introspectedTable;
+        private AbstractIntrospectedTable introspectedTable;
         private String resultMapId;
         private String supportObjectImport;
         private String tableFieldName;
 
-        public Builder withIntrospectedTable(IntrospectedTable introspectedTable) {
+        public Builder withIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
             this.introspectedTable = introspectedTable;
             return this;
         }

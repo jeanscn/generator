@@ -64,9 +64,9 @@ public class VueFormGenerateUtil {
         } else if (introspectedColumn != null) {
             if (introspectedColumn.isNumericColumn()) {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.NUMBER.codeName());
-            } else if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
+            } else if (introspectedColumn.isJdbcDateColumn() || introspectedColumn.isJdbcTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.DATE.codeName());
-            } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
+            } else if (introspectedColumn.isJdbcTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.TIME.codeName());
             } else if (introspectedColumn.isLongVarchar()) {
                 vueFormItemMetaDesc.setComponent(HtmlElementTagTypeEnum.EDITOR.codeName());
@@ -160,13 +160,13 @@ public class VueFormGenerateUtil {
                 }
             } else {
                 if (introspectedColumn != null) {
-                    if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn()) {
+                    if (introspectedColumn.isJdbcDateColumn() || introspectedColumn.isJavaLocalDateColumn()) {
                         vueFormItemMetaDesc.setType("date");
                         vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD");
-                    } else if (introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
+                    } else if (introspectedColumn.isJdbcTimeStampColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
                         vueFormItemMetaDesc.setType("datetime");
                         vueFormItemMetaDesc.setValueFormat("YYYY-MM-DD HH:mm:ss");
-                    } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
+                    } else if (introspectedColumn.isJdbcTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
                         vueFormItemMetaDesc.setType("time");
                         vueFormItemMetaDesc.setValueFormat("HH:mm:ss");
                     } else {
@@ -283,9 +283,9 @@ public class VueFormGenerateUtil {
                     vueFormItemMetaDesc.setRemoteValueType("boolean");
                 } else if (introspectedColumn.isNumericColumn()) {
                     vueFormItemMetaDesc.setRemoteValueType("number");
-                } else if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJDBCTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
+                } else if (introspectedColumn.isJdbcDateColumn() || introspectedColumn.isJdbcTimeStampColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn()) {
                     vueFormItemMetaDesc.setRemoteValueType("date");
-                } else if (introspectedColumn.isJDBCTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
+                } else if (introspectedColumn.isJdbcTimeColumn() || introspectedColumn.isJavaLocalTimeColumn()) {
                     vueFormItemMetaDesc.setRemoteValueType("time");
                 } else {
                     vueFormItemMetaDesc.setRemoteValueType("string");

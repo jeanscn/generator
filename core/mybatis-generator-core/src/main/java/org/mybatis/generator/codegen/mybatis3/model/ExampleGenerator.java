@@ -362,7 +362,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         List<String> criteriaLists = new ArrayList<>();
         criteriaLists.add("criteria");
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBlobColumns()) {
             if (stringHasValue(introspectedColumn.getTypeHandler())) {
                 String name = addTypeHandledObjectsAndMethods(introspectedColumn, method, answer);
                 criteriaLists.add(name);
@@ -486,7 +486,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
         FullyQualifiedJavaType listOfDates =
                 new FullyQualifiedJavaType("java.util.List<java.util.Date>");
 
-        if (introspectedTable.hasJDBCDateColumns()) {
+        if (introspectedTable.hasJdbcDateColumns()) {
             topLevelClass.addImportedType(FullyQualifiedJavaType.getDateInstance());
             topLevelClass.addImportedType(FullyQualifiedJavaType.getNewIteratorInstance());
             method = new Method("addCriterionForJDBCDate");
@@ -537,7 +537,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(method);
         }
 
-        if (introspectedTable.hasJDBCTimeColumns()) {
+        if (introspectedTable.hasJdbcTimeColumns()) {
             topLevelClass.addImportedType(FullyQualifiedJavaType.getDateInstance());
             topLevelClass.addImportedType(FullyQualifiedJavaType.getNewIteratorInstance());
             method = new Method("addCriterionForJDBCTime");
@@ -588,7 +588,7 @@ public class ExampleGenerator extends AbstractJavaGenerator {
             answer.addMethod(method);
         }
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBlobColumns()) {
             topLevelClass.addImportedType(introspectedColumn.getFullyQualifiedJavaType());
 
             // here we need to add the individual methods for setting the
@@ -746,9 +746,9 @@ public class ExampleGenerator extends AbstractJavaGenerator {
 
     private String initializeAddLine(IntrospectedColumn introspectedColumn, String nameFragment) {
         StringBuilder sb = new StringBuilder();
-        if (introspectedColumn.isJDBCDateColumn()) {
+        if (introspectedColumn.isJdbcDateColumn()) {
             sb.append("addCriterionForJDBCDate(\"");
-        } else if (introspectedColumn.isJDBCTimeColumn()) {
+        } else if (introspectedColumn.isJdbcTimeColumn()) {
             sb.append("addCriterionForJDBCTime(\"");
         } else if (stringHasValue(introspectedColumn.getTypeHandler())) {
             sb.append("add");

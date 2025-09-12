@@ -39,13 +39,13 @@ public interface CommentGenerator {
      *
      * @param field
      *            the field
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param introspectedColumn
      *            the introspected column
      */
     default void addFieldComment(Field field,
-            IntrospectedTable introspectedTable,
+            AbstractIntrospectedTable abstractIntrospectedTable,
             IntrospectedColumn introspectedColumn) {}
 
     /**
@@ -60,10 +60,10 @@ public interface CommentGenerator {
      *
      * @param field
      *            the field
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
-    default void addFieldComment(Field field, IntrospectedTable introspectedTable) {}
+    default void addFieldComment(Field field, AbstractIntrospectedTable abstractIntrospectedTable) {}
 
     /**
      * Adds a comment for a model class.  The Java code merger should
@@ -77,11 +77,11 @@ public interface CommentGenerator {
      *
      * @param topLevelClass
      *            the top level class
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
     default void addModelClassComment(TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {}
+            AbstractIntrospectedTable abstractIntrospectedTable) {}
 
     /**
      * Adds a comment for a model class.  The Java code merger should
@@ -97,59 +97,59 @@ public interface CommentGenerator {
      *
      * @param modelClass
      *            the generated KotlinType for the model
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
     default void addModelClassComment(KotlinType modelClass,
-            IntrospectedTable introspectedTable) {}
+            AbstractIntrospectedTable abstractIntrospectedTable) {}
 
     /**
      * Adds the inner class comment.
      *
      * @param innerClass
      *            the inner class
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
     default void addClassComment(InnerClass innerClass,
-            IntrospectedTable introspectedTable) {}
+            AbstractIntrospectedTable abstractIntrospectedTable) {}
 
     /**
      * Adds the inner class comment.
      *
      * @param innerClass
      *            the inner class
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param markAsDoNotDelete
      *            the mark as do not delete
      */
     default void addClassComment(InnerClass innerClass,
-            IntrospectedTable introspectedTable, boolean markAsDoNotDelete) {}
+                                 AbstractIntrospectedTable abstractIntrospectedTable, boolean markAsDoNotDelete) {}
 
     /**
      * Adds the enum comment.
      *
      * @param innerEnum
      *            the inner enum
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
     default void addEnumComment(InnerEnum innerEnum,
-            IntrospectedTable introspectedTable) {}
+            AbstractIntrospectedTable abstractIntrospectedTable) {}
 
     /**
      * Adds the getter comment.
      *
      * @param method
      *            the method
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param introspectedColumn
      *            the introspected column
      */
     default void addGetterComment(Method method,
-            IntrospectedTable introspectedTable,
+            AbstractIntrospectedTable abstractIntrospectedTable,
             IntrospectedColumn introspectedColumn) {}
 
     /**
@@ -157,13 +157,13 @@ public interface CommentGenerator {
      *
      * @param method
      *            the method
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param introspectedColumn
      *            the introspected column
      */
     default void addSetterComment(Method method,
-            IntrospectedTable introspectedTable,
+            AbstractIntrospectedTable abstractIntrospectedTable,
             IntrospectedColumn introspectedColumn) {}
 
     /**
@@ -171,11 +171,11 @@ public interface CommentGenerator {
      *
      * @param method
      *            the method
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
     default void addGeneralMethodComment(Method method,
-            IntrospectedTable introspectedTable) {}
+            AbstractIntrospectedTable abstractIntrospectedTable) {}
 
     /**
      * This method is called to add a file level comment to a generated java file. This method
@@ -224,14 +224,14 @@ public interface CommentGenerator {
      *
      * @param method
      *            the method
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param imports
      *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    default void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
+    default void addGeneralMethodAnnotation(Method method, AbstractIntrospectedTable abstractIntrospectedTable,
             Set<FullyQualifiedJavaType> imports) {}
 
     /**
@@ -239,7 +239,7 @@ public interface CommentGenerator {
      *
      * @param method
      *            the method
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param introspectedColumn
      *     thr introspected column
@@ -248,7 +248,7 @@ public interface CommentGenerator {
      *
      * @since 1.3.6
      */
-    default void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable,
+    default void addGeneralMethodAnnotation(Method method, AbstractIntrospectedTable abstractIntrospectedTable,
                                             IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
 
     /**
@@ -256,14 +256,14 @@ public interface CommentGenerator {
      *
      * @param field
      *            the field
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param imports
      *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    default void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
+    default void addFieldAnnotation(Field field, AbstractIntrospectedTable abstractIntrospectedTable,
             Set<FullyQualifiedJavaType> imports) {}
 
     /**
@@ -271,7 +271,7 @@ public interface CommentGenerator {
      *
      * @param field
      *            the field
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param introspectedColumn
      *            the introspected column
@@ -280,7 +280,7 @@ public interface CommentGenerator {
      *
      * @since 1.3.6
      */
-    default void addFieldAnnotation(Field field, IntrospectedTable introspectedTable,
+    default void addFieldAnnotation(Field field, AbstractIntrospectedTable abstractIntrospectedTable,
                                     IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {}
 
     /**
@@ -288,14 +288,14 @@ public interface CommentGenerator {
      *
      * @param innerClass
      *            the class
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      * @param imports
      *     the comment generator may add a required imported type to this list
      *
      * @since 1.3.6
      */
-    default void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable,
+    default void addClassAnnotation(InnerClass innerClass, AbstractIntrospectedTable abstractIntrospectedTable,
             Set<FullyQualifiedJavaType> imports) {}
 
     /**
@@ -355,18 +355,18 @@ public interface CommentGenerator {
     /**
      * Adds a comment to a general Kotlin function.
      * @param kf the Kotlin function
-     * @param introspectedTable the introspected table
+     * @param abstractIntrospectedTable the introspected table
      * @param imports the set of imports that the comment generator may add to
      */
-    default void addGeneralFunctionComment(KotlinFunction kf, IntrospectedTable introspectedTable,
+    default void addGeneralFunctionComment(KotlinFunction kf, AbstractIntrospectedTable abstractIntrospectedTable,
             Set<String> imports) {}
 
     /**
      * Adds a comment to a general Kotlin property.
      * @param property the Kotlin property
-     * @param introspectedTable the introspected table
+     * @param abstractIntrospectedTable the introspected table
      * @param imports the set of imports that the comment generator may add to
      */
-    default void addGeneralPropertyComment(KotlinProperty property, IntrospectedTable introspectedTable,
+    default void addGeneralPropertyComment(KotlinProperty property, AbstractIntrospectedTable abstractIntrospectedTable,
             Set<String> imports) {}
 }

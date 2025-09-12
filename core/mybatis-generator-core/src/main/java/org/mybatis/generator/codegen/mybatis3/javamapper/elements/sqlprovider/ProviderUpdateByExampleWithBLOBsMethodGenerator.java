@@ -11,7 +11,7 @@ public class ProviderUpdateByExampleWithBLOBsMethodGenerator extends
 
     @Override
     public String getMethodName() {
-        return introspectedTable.getUpdateByExampleWithBLOBsStatementId();
+        return introspectedTable.getUpdateByExampleWithBlobsStatementId();
     }
 
     @Override

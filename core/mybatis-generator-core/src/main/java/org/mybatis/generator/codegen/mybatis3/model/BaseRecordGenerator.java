@@ -88,7 +88,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         List<IntrospectedColumn> introspectedColumns = getColumnsInThisClass();
 
         if (introspectedTable.isConstructorBased()) {
-            addParameterizedConstructor(topLevelClass, introspectedTable.getNonBLOBColumns());
+            addParameterizedConstructor(topLevelClass, introspectedTable.getNonBlobColumns());
 
             if (includeBlobColumns()) {
                 addParameterizedConstructor(topLevelClass, introspectedTable.getAllColumns());
@@ -158,9 +158,9 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
         //增加actionType属性
         if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVo()) {
-            addActionType(topLevelClass,introspectedTable);
-            addIgnoreDeleteFlag(topLevelClass,introspectedTable);
-            addIgnorePermissionAnnotation(topLevelClass,introspectedTable);
+            addActionType(topLevelClass, introspectedTable);
+            addIgnoreDeleteFlag(topLevelClass, introspectedTable);
+            addIgnorePermissionAnnotation(topLevelClass, introspectedTable);
             //增加ignoreIdList属性
             addIgnoreIdList(topLevelClass, introspectedTable);
             addIsHideIds(topLevelClass, introspectedTable);
@@ -240,7 +240,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         });
 
         // 重写转换vo对象的方法：Vo getViewObject();
-        addGetViewObject(topLevelClass,introspectedTable);
+        addGetViewObject(topLevelClass, introspectedTable);
 
         if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
@@ -248,12 +248,12 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         return answer;
     }
 
-    private void addGetViewObject(TopLevelClass topLevelClass,IntrospectedTable introspectedTable){
-        boolean assignableCurrent = isAssignableCurrent("com.vgosoft.workflow.adapter.IWorkflowBusinessEntity", topLevelClass, introspectedTable);
+    private void addGetViewObject(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable){
+        boolean assignableCurrent = isAssignableCurrent("com.vgosoft.workflow.adapter.IWorkflowBusinessEntity", topLevelClass, abstractIntrospectedTable);
         if (!assignableCurrent) {
             return;
         }
-        VoGenService voGenService = new VoGenService(introspectedTable);
+        VoGenService voGenService = new VoGenService(abstractIntrospectedTable);
         Method method = new Method("getViewObject");
         method.setVisibility(JavaVisibility.PUBLIC);
         method.addAnnotation("@Override");
@@ -261,9 +261,9 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         method.addJavaDocLine(" * 重写返回ViewObject对象");
         method.addJavaDocLine(" * @return ViewObject对象");
         method.addJavaDocLine(" */");
-        if (introspectedTable.getRules().isGenerateVoModel()) {
-            FullyQualifiedJavaType mappingType = voGenService.getMappingType(introspectedTable);
-            TableConfiguration tc = introspectedTable.getTableConfiguration();
+        if (abstractIntrospectedTable.getRules().isGenerateVoModel()) {
+            FullyQualifiedJavaType mappingType = voGenService.getMappingType(abstractIntrospectedTable);
+            TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
             FullyQualifiedJavaType voType = tc.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType();
             method.setReturnType(voType);
             method.addBodyLine("{0} mappings = SpringContextHolder.getBean({0}.class);",mappingType.getShortName());
@@ -349,8 +349,8 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
      * @param method          构造器方法
      * @param existParameters 是否有参
      */
-    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        boolean assignable = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, introspectedTable);
+    private void addConstructorBodyLine(Method method, boolean existParameters, TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        boolean assignable = JavaBeansUtil.isAssignableCurrent(I_PERSISTENCE_BASIC, topLevelClass, abstractIntrospectedTable);
         if (existParameters) {
             if (assignable) {
                 method.addBodyLine("super(persistenceStatus);");
@@ -368,8 +368,8 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         topLevelClass.addField(cascade);
     }
 
-    private void addOrgUserOverrideMethod(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (!"org_user".equalsIgnoreCase(introspectedTable.getTableConfiguration().getTableName())) {
+    private void addOrgUserOverrideMethod(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!"org_user".equalsIgnoreCase(abstractIntrospectedTable.getTableConfiguration().getTableName())) {
             return;
         }
         Method getContactInfo = new Method("getContactInfo");

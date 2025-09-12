@@ -34,7 +34,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("下载数据导入模板",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("下载数据导入模板", introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("import/template", RequestMethodEnum.GET);
         requestMappingDesc.addProduces("MediaType.APPLICATION_OCTET_STREAM_VALUE");
         method.addAnnotation(requestMappingDesc,parentElement);
@@ -45,7 +45,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         commentGenerator.addMethodJavaDocLine(method, "下载数据导入模板");
 
         method.addBodyLine("List<{0}> list = buildTemplateSampleData();",entityExcelImportVoType.getShortName());
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"template\"));",entityExcelImportVoType.getShortName(),introspectedTable.getRemarks(true));
+        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"template\"));",entityExcelImportVoType.getShortName(), introspectedTable.getRemarks(true));
 
         parentElement.addMethod(method);
     }

@@ -25,8 +25,8 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends AbstractXmlElem
 
         String parameterType;
 
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = introspectedTable.getRecordWithBLOBsType();
+        if (introspectedTable.getRules().generateRecordWithBlobsClass()) {
+            parameterType = introspectedTable.getRecordWithBlobsType();
         } else {
             parameterType = introspectedTable.getBaseRecordType();
         }

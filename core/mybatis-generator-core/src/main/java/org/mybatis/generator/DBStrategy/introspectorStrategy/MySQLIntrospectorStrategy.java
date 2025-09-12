@@ -1,8 +1,8 @@
 package org.mybatis.generator.DBStrategy.introspectorStrategy;
 
 import org.mybatis.generator.DBStrategy.DatabaseIntrospectorStrategy;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -66,7 +66,7 @@ public class MySQLIntrospectorStrategy implements DatabaseIntrospectorStrategy {
     }
 
     @Override
-    public void updateTableRemark(IntrospectedTable introspectedTable, Connection conn) throws SQLException {
+    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException {
 
     }
 }

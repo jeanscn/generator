@@ -2,7 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.AbstractModelGeneratorConfiguration;
@@ -20,8 +20,8 @@ import java.util.Set;
  */
 public class VoRequestGenerator extends AbstractVoGenerator {
 
-    public VoRequestGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
-        super(introspectedTable, project, progressCallback, warnings, mappingsInterface);
+    public VoRequestGenerator(AbstractIntrospectedTable abstractIntrospectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+        super(abstractIntrospectedTable, project, progressCallback, warnings, mappingsInterface);
     }
 
     @Override
@@ -55,8 +55,8 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         //增加countChildren开关
         addCountChildren(requestVoClass);
         //增加ignoreDeleteFlag开关
-        addIgnoreDeleteFlag(requestVoClass,introspectedTable);
-        addIgnorePermissionAnnotation(requestVoClass,introspectedTable);
+        addIgnoreDeleteFlag(requestVoClass, introspectedTable);
+        addIgnorePermissionAnnotation(requestVoClass, introspectedTable);
         //增加ignoreIdList属性
         addIgnoreIdList(requestVoClass, introspectedTable);
         addIsHideIds(requestVoClass, introspectedTable);
@@ -67,7 +67,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         //增加前端过滤器属性
         addFilterMap(requestVoClass);
         //增加actionType属性
-        addActionType(requestVoClass,introspectedTable);
+        addActionType(requestVoClass, introspectedTable);
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
         mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
         return requestVoClass;

@@ -1,6 +1,6 @@
 package org.mybatis.generator.plugins;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
 
@@ -14,7 +14,7 @@ public class MapperAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
         return true;
     }
 }

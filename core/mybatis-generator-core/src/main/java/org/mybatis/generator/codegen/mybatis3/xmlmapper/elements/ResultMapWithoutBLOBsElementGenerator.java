@@ -58,8 +58,8 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
                 .collect(Collectors.toList());
         if (!collect.isEmpty()) {
             XmlElement resultMapWithRelation = new XmlElement("resultMap");
-            resultMapWithRelation.addAttribute(new Attribute("id",introspectedTable.getRelationResultMapId()));
-            resultMapWithRelation.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+            resultMapWithRelation.addAttribute(new Attribute("id", introspectedTable.getRelationResultMapId()));
+            resultMapWithRelation.addAttribute(new Attribute("extends", introspectedTable.getBaseResultMapId()));
             resultMapWithRelation.addAttribute(new Attribute("type",returnType));
             context.getCommentGenerator().addComment(resultMapWithRelation);
             for (RelationGeneratorConfiguration relationProperty : collect) {
@@ -90,12 +90,12 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
         }
 
         //根据childrenCount属性生成ResultMap
-        String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())?introspectedTable.getTableConfiguration().getAlias()+"_":"";
+        String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())? introspectedTable.getTableConfiguration().getAlias()+"_":"";
         introspectedTable.getColumn(DefaultColumnNameEnum.PARENT_ID.columnName()).ifPresent(introspectedColumn -> {
             if (introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration().isEnableChildren()) {
                 XmlElement resultMapWithChildrenCount = new XmlElement("resultMap");
                 resultMapWithChildrenCount.addAttribute(new Attribute("id","ResultMapChildrenCount"));
-                resultMapWithChildrenCount.addAttribute(new Attribute("extends",introspectedTable.getBaseResultMapId()));
+                resultMapWithChildrenCount.addAttribute(new Attribute("extends", introspectedTable.getBaseResultMapId()));
                 resultMapWithChildrenCount.addAttribute(new Attribute("type",returnType));
                 context.getCommentGenerator().addComment(resultMapWithChildrenCount);
                 XmlElement relationElement = new XmlElement("result");

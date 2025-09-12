@@ -1,8 +1,8 @@
 package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.db.util.JDBCUtil;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -32,9 +32,9 @@ public class SwaggerApiPlugin extends PluginAdapter {
      * model类的@apiModel
      */
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (!isNoSwaggerAnnotation(introspectedTable)) {
-            ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!isNoSwaggerAnnotation(abstractIntrospectedTable)) {
+            ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(abstractIntrospectedTable, topLevelClass);
             apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
@@ -42,22 +42,22 @@ public class SwaggerApiPlugin extends PluginAdapter {
 
 
     @Override
-    public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+    public boolean voModelAbstractClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(abstractIntrospectedTable, topLevelClass);
         apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
     @Override
-    public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+    public boolean voModelExcelClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(abstractIntrospectedTable, topLevelClass);
         apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
 
     @Override
-    public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(introspectedTable, topLevelClass);
+    public boolean voModelExcelImportClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        ApiModelDesc apiModelDescAnnotation = buildApiModelAnnotation(abstractIntrospectedTable, topLevelClass);
         apiModelDescAnnotation.addAnnotationToTopLevelClass(topLevelClass);
         return true;
     }
@@ -66,16 +66,16 @@ public class SwaggerApiPlugin extends PluginAdapter {
      * model属性注解@ApiModelProperty
      */
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        if (!isNoSwaggerAnnotation(introspectedTable)) {
-            addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, ModelClassType modelClassType) {
+        if (!isNoSwaggerAnnotation(abstractIntrospectedTable)) {
+            addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,false);
         }
         return true;
     }
 
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        ApiModelPropertyDesc apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        ApiModelPropertyDesc apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, abstractIntrospectedTable);
         if (apiModelPropertyAnnotation != null) {
             if (!introspectedColumn.isNullable()) {
                 apiModelPropertyAnnotation.setRequired("true");
@@ -86,16 +86,16 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,true);
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,true);
     }
 
     /**
      * ViewVo属性注解@ApiModelProperty
      */
     @Override
-    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        ApiModelPropertyDesc apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, introspectedTable);
+    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        ApiModelPropertyDesc apiModelPropertyAnnotation = buildApiModelPropertyAnnotation(field, abstractIntrospectedTable);
         if (apiModelPropertyAnnotation != null) {
             apiModelPropertyAnnotation.addAnnotationToField(field,topLevelClass);
         }
@@ -103,28 +103,28 @@ public class SwaggerApiPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,false);
     }
 
     @Override
-    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+    public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, int index) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,false);
     }
 
     @Override
-    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,int index) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+    public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, int index) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,false);
     }
 
     @Override
-    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,true);
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,true);
     }
 
     @Override
-    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
-        return addApiModelProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+        return addApiModelProperty(field, topLevelClass, introspectedColumn, abstractIntrospectedTable,false);
     }
 
     /**
@@ -144,7 +144,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      * @param introspectedTable the introspected table
      */
     @Override
-    public void initialized(IntrospectedTable introspectedTable) {
+    public void initialized(AbstractIntrospectedTable introspectedTable) {
         super.initialized(introspectedTable);
     }
 
@@ -152,23 +152,23 @@ public class SwaggerApiPlugin extends PluginAdapter {
      * controller及方法注解@Api、@ApiOperation
      */
     @Override
-    public boolean controllerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (!isNoSwaggerAnnotation(introspectedTable)) {
-            ApiDesc.create(introspectedTable.getRemarks(true)).addAnnotationToTopLevelClass(topLevelClass);
+    public boolean controllerGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (!isNoSwaggerAnnotation(abstractIntrospectedTable)) {
+            ApiDesc.create(abstractIntrospectedTable.getRemarks(true)).addAnnotationToTopLevelClass(topLevelClass);
         }
         return true;
     }
 
-    private boolean isNoSwaggerAnnotation(IntrospectedTable introspectedTable) {
+    private boolean isNoSwaggerAnnotation(AbstractIntrospectedTable abstractIntrospectedTable) {
         return context.getAnyPropertyBoolean(PropertyRegistry.ANY_NO_SWAGGER_ANNOTATION,
                 "false",
-                introspectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration(),
-                introspectedTable.getTableConfiguration(),
+                abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration(),
+                abstractIntrospectedTable.getTableConfiguration(),
                 context);
     }
 
-    private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable,boolean required) {
-        ApiModelPropertyDesc apiModelPropertyDesc = buildApiModelPropertyAnnotation(field, introspectedTable);
+    private boolean addApiModelProperty(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, boolean required) {
+        ApiModelPropertyDesc apiModelPropertyDesc = buildApiModelPropertyAnnotation(field, abstractIntrospectedTable);
         if (apiModelPropertyDesc != null) {
             if (required) {
                 apiModelPropertyDesc.setRequired("true");
@@ -183,10 +183,10 @@ public class SwaggerApiPlugin extends PluginAdapter {
     /**
      * 构造注解@ApiModelProperty
      */
-    private ApiModelPropertyDesc buildApiModelPropertyAnnotation(Field field, IntrospectedTable introspectedTable) {
+    private ApiModelPropertyDesc buildApiModelPropertyAnnotation(Field field, AbstractIntrospectedTable abstractIntrospectedTable) {
         final ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(field.getRemark());
         apiModelPropertyDesc.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
-        introspectedTable.getAllColumns().stream()
+        abstractIntrospectedTable.getAllColumns().stream()
                 .filter(column -> column.getJavaProperty().equals(field.getName()))
                 .findFirst()
                 .ifPresent(column -> {
@@ -203,10 +203,10 @@ public class SwaggerApiPlugin extends PluginAdapter {
     /**
      * model类的@apiModel
      */
-    private ApiModelDesc buildApiModelAnnotation(IntrospectedTable introspectedTable, TopLevelClass topLevelClass) {
+    private ApiModelDesc buildApiModelAnnotation(AbstractIntrospectedTable abstractIntrospectedTable, TopLevelClass topLevelClass) {
         FullyQualifiedJavaType fullyQualifiedJavaType =  topLevelClass.getType();
         ApiModelDesc apiModelDesc = ApiModelDesc.create(fullyQualifiedJavaType.getShortName());
-        apiModelDesc.setDescription(introspectedTable.getRemarks(true));
+        apiModelDesc.setDescription(abstractIntrospectedTable.getRemarks(true));
         final Optional<FullyQualifiedJavaType> superClass = topLevelClass.getSuperClass();
         superClass.ifPresent(qualifiedJavaType -> apiModelDesc.setParent(qualifiedJavaType.getShortNameWithoutTypeArguments() + ".class"));
         return apiModelDesc;

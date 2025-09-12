@@ -95,7 +95,7 @@ public class DynamicSqlModelGenerator extends AbstractJavaGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
-        if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass,introspectedTable)) {
+        if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
         }
         return answer;

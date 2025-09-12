@@ -7,6 +7,7 @@ import lombok.Getter;
  *
  * @author Jeff Butler
  */
+@Getter
 public abstract class GeneratedFile {
 
     /**
@@ -15,7 +16,6 @@ public abstract class GeneratedFile {
      *  save the results.
      *
      */
-    @Getter
     protected final String targetProject;
 
     protected boolean isOverWriteFile = true;
@@ -74,10 +74,6 @@ public abstract class GeneratedFile {
      * @return the file encoding
      */
     public abstract String getFileEncoding();
-
-    public boolean isOverWriteFile(){
-        return this.isOverWriteFile;
-    }
 
     public void setOverWriteFile(boolean isOverWriteFile){
         this.isOverWriteFile = isOverWriteFile;

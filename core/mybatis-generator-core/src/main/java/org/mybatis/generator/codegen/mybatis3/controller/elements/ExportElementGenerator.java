@@ -43,7 +43,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("数据导出",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("数据导出", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("export", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"导出");
         method.addAnnotation(new ApiOperationDesc("Excel数据导出", "Excel数据导出接口"),parentElement);
@@ -58,7 +58,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
                 entityExcelVoType.getShortName());
         method.addBodyLine("        .map(JsonUtil::serializeObject)\n" +
                 "                .collect(Collectors.toList());");
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"export\"));",entityExcelVoType.getShortName(),introspectedTable.getRemarks(true));
+        method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"export\"));",entityExcelVoType.getShortName(), introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
         parentElement.addImportedType("java.util.stream.Collectors");
         parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");

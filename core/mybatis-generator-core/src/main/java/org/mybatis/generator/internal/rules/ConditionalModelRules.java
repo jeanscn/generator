@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal.rules;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 /**
  * This class encapsulates all the code generation rules for a table using the
@@ -15,11 +15,11 @@ public class ConditionalModelRules extends BaseRules {
     /**
      * Instantiates a new conditional model rules.
      *
-     * @param introspectedTable
+     * @param abstractIntrospectedTable
      *            the introspected table
      */
-    public ConditionalModelRules(IntrospectedTable introspectedTable) {
-        super(introspectedTable);
+    public ConditionalModelRules(AbstractIntrospectedTable abstractIntrospectedTable) {
+        super(abstractIntrospectedTable);
     }
 
     /**
@@ -53,7 +53,7 @@ public class ConditionalModelRules extends BaseRules {
      * @return true if there are blobs but they are in the base record class
      */
     private boolean blobsAreInBaseRecord() {
-        return introspectedTable.hasBLOBColumns() && !generateRecordWithBLOBsClass();
+        return introspectedTable.hasBlobColumns() && !generateRecordWithBlobsClass();
     }
 
     /**
@@ -64,11 +64,11 @@ public class ConditionalModelRules extends BaseRules {
      * @return true if the record with BLOBs class should be generated
      */
     @Override
-    public boolean generateRecordWithBLOBsClass() {
+    public boolean generateRecordWithBlobsClass() {
         int otherColumnCount = introspectedTable.getPrimaryKeyColumns().size()
                 + introspectedTable.getBaseColumns().size();
 
         return otherColumnCount > 1
-                && introspectedTable.getBLOBColumns().size() > 1;
+                && introspectedTable.getBlobColumns().size() > 1;
     }
 }

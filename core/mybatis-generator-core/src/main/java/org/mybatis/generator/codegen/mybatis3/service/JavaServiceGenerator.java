@@ -10,7 +10,7 @@ import com.vgosoft.tool.core.VMD5Util;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
@@ -172,7 +172,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizInf,
-                VStringUtil.format("{0}服务接口类，该接口提供了{0}的基本业务方法。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0}服务接口类，该接口提供了{0}的基本业务方法。", introspectedTable.getRemarks(true)),
                 true,
                 classComments.toArray(new String[0]));
 
@@ -192,7 +192,7 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizSubInf,
-                VStringUtil.format("可重写的{0}的服务接口。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("可重写的{0}的服务接口。", introspectedTable.getRemarks(true)),
                 false,
                 VStringUtil.format("该类继承自 '{'@link {0}'}'，",bizInf.getType().getShortNameWithoutTypeArguments()),
                 VStringUtil.format("用于扩展或重写 {0}。",bizInf.getType().getShortNameWithoutTypeArguments()));
@@ -264,11 +264,11 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
     /**
      * 获得service类的抽象实现类
      *
-     * @param introspectedTable 生成基类
+     * @param abstractIntrospectedTable 生成基类
      */
-    protected String getServiceInterface(IntrospectedTable introspectedTable) {
-        if (GenerateUtils.isBlobInstance(introspectedTable)) {
-            String steamOutType = introspectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
+    protected String getServiceInterface(AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (GenerateUtils.isBlobInstance(abstractIntrospectedTable)) {
+            String steamOutType = abstractIntrospectedTable.getConfigPropertyValue(PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE);
             switch (steamOutType) {
                 case "bytes":
                     return MBG_BLOB_BYTES_SERVICE;

@@ -18,9 +18,9 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         String fqjt = introspectedTable.getExampleType();
-        String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())?introspectedTable.getTableConfiguration().getAlias()+"_":"";
+        String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())? introspectedTable.getTableConfiguration().getAlias()+"_":"";
         XmlElement answer = new XmlElement("select");
-        answer.addAttribute(new Attribute("id",introspectedTable.getSelectByExampleWithChildrenCountStatementId()));
+        answer.addAttribute(new Attribute("id", introspectedTable.getSelectByExampleWithChildrenCountStatementId()));
         answer.addAttribute(new Attribute("resultMap", "ResultMapChildrenCount"));
         answer.addAttribute(new Attribute("parameterType", fqjt));
         context.getCommentGenerator().addComment(answer);

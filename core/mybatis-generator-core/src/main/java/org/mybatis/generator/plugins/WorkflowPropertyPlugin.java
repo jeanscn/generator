@@ -1,6 +1,6 @@
 package org.mybatis.generator.plugins;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -18,27 +18,27 @@ import java.util.List;
 public class WorkflowPropertyPlugin extends PluginAdapter{
 
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addWorkflowProperty(topLevelClass, introspectedTable);
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addWorkflowProperty(topLevelClass, abstractIntrospectedTable);
         return true;
     }
 
     @Override
-    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addWorkflowProperty(topLevelClass, introspectedTable);
+    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addWorkflowProperty(topLevelClass, abstractIntrospectedTable);
         return true;
     }
 
     @Override
-    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        addWorkflowProperty(topLevelClass, introspectedTable);
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+        addWorkflowProperty(topLevelClass, abstractIntrospectedTable);
         return true;
     }
 
     //添加一个属性，并根据是否工作流类型，添加初始值，1-工作流，0-非工作流
-    private void addWorkflowProperty(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    private void addWorkflowProperty(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         Field field = new Field("workflowEnabled", new FullyQualifiedJavaType("Integer"));
-        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
+        if (GenerateUtils.isWorkflowInstance(abstractIntrospectedTable)) {
             field.setInitializationString("1");
         } else {
             field.setInitializationString("0");

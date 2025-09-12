@@ -17,10 +17,10 @@ public class UpdateByExampleWithBLOBsMethodGenerator extends AbstractJavaMapperM
     @Override
     public void addInterfaceElements(Interface interfaze) {
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
-        String statementId = introspectedTable.getUpdateByExampleWithBLOBsStatementId();
+        String statementId = introspectedTable.getUpdateByExampleWithBlobsStatementId();
         FullyQualifiedJavaType parameterType;
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBLOBsType());
+        if (introspectedTable.getRules().generateRecordWithBlobsClass()) {
+            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBlobsType());
         } else {
             parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         }

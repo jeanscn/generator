@@ -25,7 +25,7 @@ public class SelectByExampleWithChildrenCountElement extends AbstractServiceElem
          * */
         Method method = serviceMethods.getSelectWithChildrenCountMethod(parentElement, false,true);
         method.addAnnotation("@Override");
-        method.addBodyLine("List<{0}> result = mapper.{1}(example);", entityType.getShortName(),introspectedTable.getSelectByExampleWithChildrenCountStatementId());
+        method.addBodyLine("List<{0}> result = mapper.{1}(example);", entityType.getShortName(), introspectedTable.getSelectByExampleWithChildrenCountStatementId());
         method.addBodyLine("return ServiceResult.success(result);");
         parentElement.addMethod(method);
     }

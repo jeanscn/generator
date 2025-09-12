@@ -21,7 +21,7 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
         XmlElement answer = new XmlElement("update");
 
         answer.addAttribute(new Attribute("id",
-                introspectedTable.getUpdateByExampleWithBLOBsStatementId()));
+                introspectedTable.getUpdateByExampleWithBlobsStatementId()));
 
         answer.addAttribute(new Attribute("parameterType", "map"));
         context.getCommentGenerator().addComment(answer);

@@ -4,17 +4,20 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.config.Context;
 
+/**
+ * @author cen_c
+ */
 public class SelectListGenerator {
 
     private final FragmentGenerator fragmentGenerator;
     private final Context context;
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
 
     private SelectListGenerator(Builder builder) {
         this.fragmentGenerator = Objects.requireNonNull(builder.fragmentGenerator);
@@ -45,7 +48,7 @@ public class SelectListGenerator {
     public static class Builder {
         private FragmentGenerator fragmentGenerator;
         private Context context;
-        private IntrospectedTable introspectedTable;
+        private AbstractIntrospectedTable introspectedTable;
 
         public Builder withFragmentGenerator(FragmentGenerator fragmentGenerator) {
             this.fragmentGenerator = fragmentGenerator;
@@ -57,7 +60,7 @@ public class SelectListGenerator {
             return this;
         }
 
-        public Builder withIntrospectedTable(IntrospectedTable introspectedTable) {
+        public Builder withIntrospectedTable(AbstractIntrospectedTable introspectedTable) {
             this.introspectedTable = introspectedTable;
             return this;
         }

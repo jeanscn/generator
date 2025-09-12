@@ -91,8 +91,8 @@ public class StatisticsDateDimTotalGenerator extends AbstractXmlElementGenerator
                     }
                 }
             }
-            selectElement.addElement(new TextElement(VStringUtil.format("COALESCE ( COUNT( {0} ), 0 ) AS itemCount",aliasDot+introspectedTable.getPrimaryKeyColumns().get(0).getActualColumnName())));
-            selectElement.addElement(new TextElement(VStringUtil.format("FROM {0}",introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime())));
+            selectElement.addElement(new TextElement(VStringUtil.format("COALESCE ( COUNT( {0} ), 0 ) AS itemCount",aliasDot+ introspectedTable.getPrimaryKeyColumns().get(0).getActualColumnName())));
+            selectElement.addElement(new TextElement(VStringUtil.format("FROM {0}", introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime())));
             selectElement.addElement(new TextElement(VStringUtil.format("JOIN sys_dim_date dt ON DATE({0}) = dt.date_value",aliasedJoinColumn)));
             selectElement.addElement(new TextElement(VStringUtil.format("WHERE dt.date_value = DATE({0})",aliasedJoinColumn)));
             if (VStringUtil.stringHasValue(statisticsConfiguration.getDefaultFilterExpr())) {

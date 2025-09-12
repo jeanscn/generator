@@ -2,7 +2,7 @@ package org.mybatis.generator.plugins;
 
 import java.util.List;
 
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
@@ -66,13 +66,13 @@ public class CachePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
+    public boolean sqlMapDocumentGenerated(Document document, AbstractIntrospectedTable abstractIntrospectedTable) {
 
         XmlElement element = new XmlElement("cache");
         context.getCommentGenerator().addComment(element);
 
         for (CacheProperty cacheProperty : CacheProperty.values()) {
-            addAttributeIfExists(element, introspectedTable, cacheProperty);
+            addAttributeIfExists(element, abstractIntrospectedTable, cacheProperty);
         }
 
         document.getRootElement().addElement(element);
@@ -80,9 +80,9 @@ public class CachePlugin extends PluginAdapter {
         return true;
     }
 
-    private void addAttributeIfExists(XmlElement element, IntrospectedTable introspectedTable,
+    private void addAttributeIfExists(XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable,
             CacheProperty cacheProperty) {
-        String property = introspectedTable.getTableConfigurationProperty(cacheProperty.getPropertyName());
+        String property = abstractIntrospectedTable.getTableConfigurationProperty(cacheProperty.getPropertyName());
         if (property == null) {
             property = properties.getProperty(cacheProperty.getPropertyName());
         }

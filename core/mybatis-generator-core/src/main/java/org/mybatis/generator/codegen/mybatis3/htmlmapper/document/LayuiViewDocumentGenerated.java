@@ -86,7 +86,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
             HtmlElementInnerListConfiguration listConfiguration = htmlGeneratorConfiguration.getHtmlElementInnerListConfiguration().get(0);
             HtmlElement div = new HtmlElement("div");
             String moduleKeyword = VStringUtil.stringHasValue(listConfiguration.getModuleKeyword()) ? listConfiguration.getModuleKeyword() : introspectedTable.getContext().getModuleKeyword();
-            String format = VStringUtil.format("{0}/fragments/{1}::{2}", moduleKeyword,Mb3GenUtil.getInnerListFragmentFileName(listConfiguration,introspectedTable),ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
+            String format = VStringUtil.format("{0}/fragments/{1}::{2}", moduleKeyword,Mb3GenUtil.getInnerListFragmentFileName(listConfiguration, introspectedTable),ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS);
             div.addAttribute(new Attribute("th:replace", format));
             body.get("body").addElement(div);
             //根据数据源添加
@@ -135,7 +135,7 @@ public class LayuiViewDocumentGenerated extends AbstractThymeleafHtmlDocumentGen
         form.addAttribute(new Attribute("lay-filter", "mainForm"));
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
-        for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn baseColumn : introspectedTable.getNonBlobColumns()) {
             if (introspectedTable.getRules().isGenerateVoModel()) {
                 if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                         && !baseColumn.isPrimaryKey()

@@ -32,8 +32,8 @@ public class SelectByColumnElementGenerator extends
                     if (c.isReturnPrimaryKey()) {
                         answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
                     } else {
-                        if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
-                            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
+                        if (introspectedTable.getRules().generateResultMapWithBlobs()) {
+                            answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBlobsId()));
                         } else if (!introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().isEmpty()) {
                             answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
                         } else {
@@ -51,7 +51,7 @@ public class SelectByColumnElementGenerator extends
                         answer.addElement(new TextElement(collect));
                     } else {
                         answer.addElement(getBaseColumnListElement());
-                        if (introspectedTable.hasBLOBColumns()) {
+                        if (introspectedTable.hasBlobColumns()) {
                             answer.addElement(new TextElement(","));
                             answer.addElement(getBlobColumnListElement());
                         }

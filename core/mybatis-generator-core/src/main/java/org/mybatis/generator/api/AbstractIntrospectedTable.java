@@ -32,15 +32,21 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  */
 @Getter
 @Setter
-public abstract class IntrospectedTable {
+public abstract class AbstractIntrospectedTable {
 
 
     public enum TargetRuntime {
+        /**
+         * The MyBatis3 runtime (the default)
+         */
         MYBATIS3,
         MYBATIS3_DSQL
     }
 
     protected enum InternalAttribute {
+        /**
+         * used to hold the primary key class name
+         */
         ATTR_PRIMARY_KEY_TYPE,
         ATTR_BASE_RECORD_TYPE,
         ATTR_RECORD_WITH_BLOBS_TYPE,
@@ -127,7 +133,7 @@ public abstract class IntrospectedTable {
     /**
      * Internal attributes are used to store commonly accessed items by all code generators.
      */
-    protected final Map<IntrospectedTable.InternalAttribute, String> internalAttributes =
+    protected final Map<AbstractIntrospectedTable.InternalAttribute, String> internalAttributes =
             new EnumMap<>(InternalAttribute.class);
     /**
      * Table remarks retrieved from database metadata.
@@ -144,7 +150,7 @@ public abstract class IntrospectedTable {
 
     protected List<FieldItem> voModelFields = new ArrayList<>();
 
-    protected IntrospectedTable(TargetRuntime targetRuntime) {
+    protected AbstractIntrospectedTable(TargetRuntime targetRuntime) {
         this.targetRuntime = targetRuntime;
     }
 
@@ -181,10 +187,10 @@ public abstract class IntrospectedTable {
      *
      * @return true if the table contains DATE columns
      */
-    public boolean hasJDBCDateColumns() {
+    public boolean hasJdbcDateColumns() {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream())
                 .flatMap(Function.identity())
-                .anyMatch(IntrospectedColumn::isJDBCDateColumn);
+                .anyMatch(IntrospectedColumn::isJdbcDateColumn);
     }
 
     /**
@@ -193,10 +199,10 @@ public abstract class IntrospectedTable {
      *
      * @return true if the table contains TIME columns
      */
-    public boolean hasJDBCTimeColumns() {
+    public boolean hasJdbcTimeColumns() {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream())
                 .flatMap(Function.identity())
-                .anyMatch(IntrospectedColumn::isJDBCTimeColumn);
+                .anyMatch(IntrospectedColumn::isJdbcTimeColumn);
     }
 
     public boolean hasPrimaryKeyColumns() {
@@ -220,13 +226,13 @@ public abstract class IntrospectedTable {
      *
      * @return a List of ColumnDefinition objects for columns in the table that are non BLOBs
      */
-    public List<IntrospectedColumn> getNonBLOBColumns() {
+    public List<IntrospectedColumn> getNonBlobColumns() {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream())
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
 
-    public int getNonBLOBColumnCount() {
+    public int getNonBlobColumnCount() {
         return primaryKeyColumns.size() + baseColumns.size();
     }
 
@@ -236,11 +242,7 @@ public abstract class IntrospectedTable {
                 .collect(Collectors.toList());
     }
 
-    public List<IntrospectedColumn> getBLOBColumns() {
-        return blobColumns;
-    }
-
-    public boolean hasBLOBColumns() {
+    public boolean hasBlobColumns() {
         return !blobColumns.isEmpty();
     }
 
@@ -285,7 +287,7 @@ public abstract class IntrospectedTable {
      * @return the type for the record with BLOBs class. Note that the value will be calculated regardless of whether
      * the table has BLOB columns or not.
      */
-    public String getRecordWithBLOBsType() {
+    public String getRecordWithBlobsType() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_RECORD_WITH_BLOBS_TYPE);
     }
@@ -305,11 +307,11 @@ public abstract class IntrospectedTable {
     }
 
     public boolean hasAnyColumns() {
-        return hasPrimaryKeyColumns() || hasBaseColumns() || hasBLOBColumns();
+        return hasPrimaryKeyColumns() || hasBaseColumns() || hasBlobColumns();
     }
 
     public void addColumn(IntrospectedColumn introspectedColumn) {
-        if (introspectedColumn.isBLOBColumn()) {
+        if (introspectedColumn.isBlobColumn()) {
             blobColumns.add(introspectedColumn);
         } else {
             baseColumns.add(introspectedColumn);
@@ -397,17 +399,17 @@ public abstract class IntrospectedTable {
         setInsertSelectiveStatementId("insertSelective");
         setSelectAllStatementId("selectAll");
         setSelectByExampleStatementId("selectByExample");
-        setSelectByExampleWithBLOBsStatementId("selectByExampleWithBLOBs");
+        setSelectByExampleWithBlobsStatementId("selectByExampleWithBLOBs");
         setSelectByPrimaryKeyStatementId("selectByPrimaryKey");
         setUpdateByExampleStatementId("updateByExample");
         setUpdateByExampleSelectiveStatementId("updateByExampleSelective");
-        setUpdateByExampleWithBLOBsStatementId("updateByExampleWithBLOBs");
+        setUpdateByExampleWithBlobsStatementId("updateByExampleWithBLOBs");
         setUpdateByPrimaryKeyStatementId("updateByPrimaryKey");
         setUpdateByPrimaryKeySelectiveStatementId("updateByPrimaryKeySelective");
-        setUpdateByPrimaryKeyWithBLOBsStatementId("updateByPrimaryKeyWithBLOBs");
+        setUpdateByPrimaryKeyWithBlobsStatementId("updateByPrimaryKeyWithBLOBs");
         setBaseResultMapId("BaseResultMap");
         setRelationResultMapId("ResultMapRelation");
-        setResultMapWithBLOBsId("ResultMapWithBLOBs");
+        setResultMapWithBlobsId("ResultMapWithBLOBs");
         setExampleWhereClauseId("Example_Where_Clause");
         setBaseColumnListId("Base_Column_List");
         setBlobColumnListId("Blob_Column_List");
@@ -434,7 +436,7 @@ public abstract class IntrospectedTable {
                 s);
     }
 
-    public void setResultMapWithBLOBsId(String s) {
+    public void setResultMapWithBlobsId(String s) {
         internalAttributes.put(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID,
                 s);
     }
@@ -447,7 +449,7 @@ public abstract class IntrospectedTable {
         internalAttributes.put(InternalAttribute.ATTR_RELATION_RESULT_MAP_ID, s);
     }
 
-    public void setUpdateByPrimaryKeyWithBLOBsStatementId(String s) {
+    public void setUpdateByPrimaryKeyWithBlobsStatementId(String s) {
         internalAttributes.put(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID, s);
     }
 
@@ -463,7 +465,7 @@ public abstract class IntrospectedTable {
                 InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_STATEMENT_ID, s);
     }
 
-    public void setUpdateByExampleWithBLOBsStatementId(String s) {
+    public void setUpdateByExampleWithBlobsStatementId(String s) {
         internalAttributes.put(
                 InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,
                 s);
@@ -486,7 +488,7 @@ public abstract class IntrospectedTable {
                 InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID, s);
     }
 
-    public void setSelectByExampleWithBLOBsStatementId(String s) {
+    public void setSelectByExampleWithBlobsStatementId(String s) {
         internalAttributes
                 .put(
                         InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID,
@@ -557,7 +559,7 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID);
     }
 
-    public String getResultMapWithBLOBsId() {
+    public String getResultMapWithBlobsId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_RESULT_MAP_WITH_BLOBS_ID);
     }
@@ -574,7 +576,7 @@ public abstract class IntrospectedTable {
         return "selectByExampleWithChildrenCount";
     }
 
-    public String getUpdateByPrimaryKeyWithBLOBsStatementId() {
+    public String getUpdateByPrimaryKeyWithBlobsStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_WITH_BLOBS_STATEMENT_ID);
     }
@@ -589,7 +591,7 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_UPDATE_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
-    public String getUpdateByExampleWithBLOBsStatementId() {
+    public String getUpdateByExampleWithBlobsStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_UPDATE_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
     }
@@ -608,7 +610,7 @@ public abstract class IntrospectedTable {
         return internalAttributes.get(InternalAttribute.ATTR_SELECT_BY_PRIMARY_KEY_STATEMENT_ID);
     }
 
-    public String getSelectByExampleWithBLOBsStatementId() {
+    public String getSelectByExampleWithBlobsStatementId() {
         return internalAttributes
                 .get(InternalAttribute.ATTR_SELECT_BY_EXAMPLE_WITH_BLOBS_STATEMENT_ID);
     }
@@ -687,11 +689,11 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID);
     }
 
-    public String getMyBatisDynamicSQLTableObjectName() {
+    public String getMyBatisDynamicSqlTableObjectName() {
         return internalAttributes.get(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME);
     }
 
-    public void setMyBatisDynamicSQLTableObjectName(String name) {
+    public void setMyBatisDynamicSqlTableObjectName(String name) {
         internalAttributes.put(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME, name);
     }
 
@@ -725,9 +727,9 @@ public abstract class IntrospectedTable {
             return null;
         }
 
-        String cds_package = config.getProperty(PropertyRegistry.CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE);
-        if (stringHasValue(cds_package)) {
-            return cds_package + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+        String cdsPackage = config.getProperty(PropertyRegistry.CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE);
+        if (stringHasValue(cdsPackage)) {
+            return cdsPackage + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
         } else {
             return calculateJavaClientInterfacePackage();
         }
@@ -784,9 +786,9 @@ public abstract class IntrospectedTable {
         setMyBatisDynamicSqlSupportType(sb.toString());
 
         if (stringHasValue(tableConfiguration.getDynamicSqlTableObjectName())) {
-            setMyBatisDynamicSQLTableObjectName(tableConfiguration.getDynamicSqlTableObjectName());
+            setMyBatisDynamicSqlTableObjectName(tableConfiguration.getDynamicSqlTableObjectName());
         } else {
-            setMyBatisDynamicSQLTableObjectName(fullyQualifiedTable.getDomainObjectName());
+            setMyBatisDynamicSqlTableObjectName(fullyQualifiedTable.getDomainObjectName());
         }
     }
 
@@ -799,33 +801,33 @@ public abstract class IntrospectedTable {
     }
 
     protected void calculateModelAttributes() {
-        String jm_package = calculateJavaModelPackage();
+        String jmPackage = calculateJavaModelPackage();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(jm_package);
+        sb.append(jmPackage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         sb.append("Key");
         setPrimaryKeyType(sb.toString());
 
         sb.setLength(0);
-        sb.append(jm_package);
+        sb.append(jmPackage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         setBaseRecordType(sb.toString());
 
         sb.setLength(0);
-        sb.append(jm_package);
+        sb.append(jmPackage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         setKotlinRecordType(sb.toString());
 
         sb.setLength(0);
-        sb.append(jm_package);
+        sb.append(jmPackage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
         sb.append("WithBLOBs");
-        setRecordWithBLOBsType(sb.toString());
+        setRecordWithBlobsType(sb.toString());
 
         String exampleTargetPackage = calculateJavaModelExamplePackage();
         sb.setLength(0);
@@ -925,6 +927,12 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_ALIASED_FULLY_QUALIFIED_TABLE_NAME_AT_RUNTIME);
     }
 
+    /**
+     * This method should return the number of subTasks that will be
+     * @param warnings the warnings
+     * @param callback the progress callback
+     * sent during the generation phase.
+     */
     public abstract void calculateCustom(List<String> warnings, ProgressCallback callback);
 
     /**
@@ -957,13 +965,28 @@ public abstract class IntrospectedTable {
      */
     public abstract List<GeneratedXmlFile> getGeneratedXmlFiles();
 
-
+    /**
+     * This method should return a list of generated HTML files related to this
+     * @return the list of generated HTML files for this table
+     */
     public abstract List<GeneratedHtmlFile> getGeneratedHtmlFiles();
 
+    /**
+     * This method should return a list of generated SQL schema files related to this
+     * @return the list of generated SQL schema files for this table
+     */
     public abstract List<GeneratedSqlSchemaFile> getGeneratedSqlSchemaFiles();
 
+    /**
+     * This method should return a list of generated SQL data files related to permission data
+     * @return the list of generated SQL data files for this table
+     */
     public abstract List<GeneratedSqlSchemaFile> getGeneratedPermissionSqlDataFiles();
 
+    /**
+     * This method should return a list of generated SQL data files related to permission action data
+     * @return the list of generated SQL data files for this table
+     */
     public abstract List<GeneratedSqlSchemaFile> getGeneratedPermissionActionSqlDataFiles();
 
     /**
@@ -997,9 +1020,9 @@ public abstract class IntrospectedTable {
                 kotlinRecordType);
     }
 
-    public void setRecordWithBLOBsType(String recordWithBLOBsType) {
+    public void setRecordWithBlobsType(String recordWithBlobsType) {
         internalAttributes.put(InternalAttribute.ATTR_RECORD_WITH_BLOBS_TYPE,
-                recordWithBLOBsType);
+                recordWithBlobsType);
     }
 
     public void setExampleType(String exampleType) {
@@ -1115,7 +1138,7 @@ public abstract class IntrospectedTable {
      *
      * @return true, if successful
      */
-    public abstract boolean requiresXMLGenerator();
+    public abstract boolean requiresXmlGenerator();
 
     /**
      * 获得表注释

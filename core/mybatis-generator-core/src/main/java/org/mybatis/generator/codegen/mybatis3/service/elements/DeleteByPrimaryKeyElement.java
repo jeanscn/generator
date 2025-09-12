@@ -68,7 +68,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
         } else {
             if (containPreDeleteEvent || containDeletedEvent) {
-                overwriteParentDeleteByPrimaryKey(method ,introspectedTable.getDeleteByPrimaryKeyStatementId());
+                overwriteParentDeleteByPrimaryKey(method , introspectedTable.getDeleteByPrimaryKeyStatementId());
             }else{
                 method.addBodyLine("return super.{0}({1});", introspectedTable.getDeleteByPrimaryKeyStatementId()
                         , introspectedTable.getPrimaryKeyColumns().stream()

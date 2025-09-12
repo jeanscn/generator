@@ -198,14 +198,14 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addResultMapWithBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateResultMapWithBLOBs()) {
+        if (introspectedTable.getRules().generateResultMapWithBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new ResultMapWithBLOBsElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }
 
     protected void addExampleWhereClauseElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateSQLExampleWhereClause()) {
+        if (introspectedTable.getRules().generateSqlExampleWhereClause()) {
             AbstractXmlElementGenerator elementGenerator = new ExampleWhereClauseElementGenerator(false);
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -233,14 +233,14 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addSelectByExampleWithoutBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithoutBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new SelectByExampleWithoutBLOBsElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }
 
     protected void addSelectByExampleWithBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateSelectByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateSelectByExampleWithBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new SelectByExampleWithBLOBsElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -310,14 +310,14 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addUpdateByExampleWithBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateUpdateByExampleWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new UpdateByExampleWithBLOBsElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }
 
     protected void addUpdateByExampleWithoutBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateUpdateByExampleWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByExampleWithoutBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new UpdateByExampleWithoutBLOBsElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
@@ -338,14 +338,14 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     }
 
     protected void addUpdateByPrimaryKeyWithBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new UpdateByPrimaryKeyWithBLOBsElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }
 
     protected void addUpdateByPrimaryKeyWithoutBLOBsElement(XmlElement parentElement) {
-        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithoutBLOBs()) {
+        if (introspectedTable.getRules().generateUpdateByPrimaryKeyWithoutBlobs()) {
             AbstractXmlElementGenerator elementGenerator = new UpdateByPrimaryKeyWithoutBLOBsElementGenerator(false);
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }

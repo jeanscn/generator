@@ -6,7 +6,7 @@ import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
@@ -169,7 +169,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizGenClazzImpl,
-                VStringUtil.format("{0} 服务实现抽象类，该类提供了{0}的基本业务逻辑方法的实现。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("{0} 服务实现抽象类，该类提供了{0}的基本业务逻辑方法的实现。", introspectedTable.getRemarks(true)),
                 true,
                 classComments.toArray(new String[0]));
 
@@ -187,7 +187,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         commentGenerator.addJavaFileComment(bizClazzImpl,true);
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizClazzImpl,
-                VStringUtil.format("可重写的{0}的服务实现。",introspectedTable.getRemarks(true)),
+                VStringUtil.format("可重写的{0}的服务实现。", introspectedTable.getRemarks(true)),
                 false,
                 VStringUtil.format("该类继承自 '{'@link {0}'}'，",bizGenClazzImpl.getType().getShortNameWithoutTypeArguments()),
                 VStringUtil.format("用于扩展或重写 {0}。",bizGenClazzImpl.getType().getShortNameWithoutTypeArguments()));
@@ -452,7 +452,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      * 内部类
      * 获得Service抽象类父类
      */
-    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType mapperType, FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType, IntrospectedTable introspectedTable) {
+    private FullyQualifiedJavaType getServiceSupperType(FullyQualifiedJavaType mapperType, FullyQualifiedJavaType entityType, FullyQualifiedJavaType exampleType, AbstractIntrospectedTable introspectedTable) {
         FullyQualifiedJavaType supperType = new FullyQualifiedJavaType(getAbstractService(introspectedTable));
         supperType.addTypeArgument(mapperType);
         supperType.addTypeArgument(entityType);
@@ -472,8 +472,8 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     /**
      * 获得对应的操作Bean的名称
      */
-    private String getTableBeanName(IntrospectedTable introspectedTable) {
-        String implClazzName = introspectedTable.getControllerBeanName();
+    private String getTableBeanName(AbstractIntrospectedTable abstractIntrospectedTable) {
+        String implClazzName = abstractIntrospectedTable.getControllerBeanName();
         return JavaBeansUtil.getFirstCharacterLowercase(implClazzName);
     }
 }

@@ -43,7 +43,7 @@ public class HTMLGenerator extends AbstractHtmlGenerator {
                 MYBATIS3_THYMELEAF_XMLNS_TH,
                 MYBATIS3_THYMELEAF_XMLNS_SEC);
         document.setRootElement(getHtmlMapElement(htmlGeneratorConfiguration));
-        if (!context.getPlugins().htmlMapDocumentGenerated(document,introspectedTable, htmlGeneratorConfiguration)) {
+        if (!context.getPlugins().htmlMapDocumentGenerated(document, introspectedTable, htmlGeneratorConfiguration)) {
             document = null;
         }
         return document;

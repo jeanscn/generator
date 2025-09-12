@@ -213,14 +213,14 @@ public class Context extends PropertyHolder {
             javaClientGeneratorConfiguration.validate(errors, id);
         }
 
-        IntrospectedTable it = null;
+        AbstractIntrospectedTable it = null;
         try {
             it = ObjectFactory.createIntrospectedTableForValidation(this);
         } catch (Exception e) {
             errors.add(getString("ValidationError.25", id));
         }
 
-        if (it != null && it.requiresXMLGenerator()) {
+        if (it != null && it.requiresXmlGenerator()) {
             if (sqlMapGeneratorConfiguration == null) {
                 errors.add(getString("ValidationError.9", id));
             } else {
@@ -324,7 +324,7 @@ public class Context extends PropertyHolder {
      *
      */
     @Getter
-    private final List<IntrospectedTable> introspectedTables = new ArrayList<>();
+    private final List<AbstractIntrospectedTable> abstractIntrospectedTables = new ArrayList<>();
 
     public int getIntrospectionSteps() {
         int steps = 0;
@@ -361,7 +361,7 @@ public class Context extends PropertyHolder {
     public void introspectTables(ProgressCallback callback, List<String> warnings, Set<String> fullyQualifiedTableNames)
             throws SQLException, InterruptedException {
 
-        introspectedTables.clear();
+        abstractIntrospectedTables.clear();
         JavaTypeResolver javaTypeResolver = ObjectFactory.createJavaTypeResolver(this, warnings);
 
         Connection connection = null;
@@ -388,11 +388,11 @@ public class Context extends PropertyHolder {
                 }
 
                 callback.startTask(getString("Progress.1", tableName));
-                List<IntrospectedTable> tables = databaseIntrospector.introspectTables(tc);
+                List<AbstractIntrospectedTable> tables = databaseIntrospector.introspectTables(tc);
 
                 if (tables != null) {
-                    introspectedTables.addAll(tables);
-                    for (IntrospectedTable table : tables) {
+                    abstractIntrospectedTables.addAll(tables);
+                    for (AbstractIntrospectedTable table : tables) {
                         if (!table.getTableConfiguration().isIgnore()) {
                             ValidateDatabaseTable validateDatabaseTables = new ValidateDatabaseTable(table, connection, warnings);
                             validateDatabaseTables.executeUpdate();
@@ -409,8 +409,8 @@ public class Context extends PropertyHolder {
     public int getGenerationSteps() {
         int steps = 0;
 
-        for (IntrospectedTable introspectedTable : introspectedTables) {
-            steps += introspectedTable.getGenerationSteps();
+        for (AbstractIntrospectedTable abstractIntrospectedTable : abstractIntrospectedTables) {
+            steps += abstractIntrospectedTable.getGenerationSteps();
         }
 
         return steps;
@@ -437,30 +437,30 @@ public class Context extends PropertyHolder {
 
         // initialize everything first before generating. This allows plugins to know about other
         // items in the configuration.
-        for (IntrospectedTable introspectedTable : introspectedTables) {
+        for (AbstractIntrospectedTable abstractIntrospectedTable : abstractIntrospectedTables) {
             callback.checkCancel();
-            introspectedTable.initialize();
-            introspectedTable.calculateCustom(warnings, callback);
-            introspectedTable.calculateGenerators(warnings, callback);
+            abstractIntrospectedTable.initialize();
+            abstractIntrospectedTable.calculateCustom(warnings, callback);
+            abstractIntrospectedTable.calculateGenerators(warnings, callback);
         }
 
-        for (IntrospectedTable introspectedTable : introspectedTables) {
+        for (AbstractIntrospectedTable abstractIntrospectedTable : abstractIntrospectedTables) {
             callback.checkCancel();
-            generatedJavaFiles.addAll(introspectedTable.getGeneratedJavaFiles());
-            generatedXmlFiles.addAll(introspectedTable.getGeneratedXmlFiles());
-            generatedHtmlFiles.addAll(introspectedTable.getGeneratedHtmlFiles());
-            generatedKotlinFiles.addAll(introspectedTable.getGeneratedKotlinFiles());
+            generatedJavaFiles.addAll(abstractIntrospectedTable.getGeneratedJavaFiles());
+            generatedXmlFiles.addAll(abstractIntrospectedTable.getGeneratedXmlFiles());
+            generatedHtmlFiles.addAll(abstractIntrospectedTable.getGeneratedHtmlFiles());
+            generatedKotlinFiles.addAll(abstractIntrospectedTable.getGeneratedKotlinFiles());
 
-            otherGeneratedFiles.addAll(introspectedTable.getGeneratedSqlSchemaFiles());
-            otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionSqlDataFiles());
-            otherGeneratedFiles.addAll(introspectedTable.getGeneratedPermissionActionSqlDataFiles());
+            otherGeneratedFiles.addAll(abstractIntrospectedTable.getGeneratedSqlSchemaFiles());
+            otherGeneratedFiles.addAll(abstractIntrospectedTable.getGeneratedPermissionSqlDataFiles());
+            otherGeneratedFiles.addAll(abstractIntrospectedTable.getGeneratedPermissionActionSqlDataFiles());
 
-            generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(introspectedTable));
-            generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(introspectedTable));
-            introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlMapGeneratorConfiguration -> otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(introspectedTable,htmlMapGeneratorConfiguration)));
+            generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles(abstractIntrospectedTable));
+            generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles(abstractIntrospectedTable));
+            abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().forEach(htmlMapGeneratorConfiguration -> otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalWebFiles(abstractIntrospectedTable,htmlMapGeneratorConfiguration)));
 
-            generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(introspectedTable));
-            otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(introspectedTable));
+            generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles(abstractIntrospectedTable));
+            otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles(abstractIntrospectedTable));
         }
         generatedJavaFiles.addAll(pluginAggregator.contextGenerateAdditionalJavaFiles());
         generatedXmlFiles.addAll(pluginAggregator.contextGenerateAdditionalXmlFiles());
@@ -577,10 +577,10 @@ public class Context extends PropertyHolder {
     }
 
     public void validateTableConfig(ProgressCallback callback, List<String> warnings, Context context) {
-        if (tableConfigurations == null || this.getIntrospectedTables().isEmpty()) {
+        if (tableConfigurations == null || this.getAbstractIntrospectedTables().isEmpty()) {
             return;
         }
-        this.getIntrospectedTables().forEach(introspectedTable -> introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable,context));
+        this.getAbstractIntrospectedTables().forEach(introspectedTable -> introspectedTable.getTableConfiguration().reprocessConfiguration(warnings, introspectedTable,context));
     }
 
     public void initDefault() {

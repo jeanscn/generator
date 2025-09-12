@@ -29,10 +29,10 @@ public class SelectByTableElementGenerator extends
             if (configuration.isReturnPrimaryKey()) {
                 answer.addAttribute(new Attribute("resultType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             }else{
-                if(introspectedTable.getRules().generateResultMapWithBLOBs()){
-                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBLOBsId()));
+                if(introspectedTable.getRules().generateResultMapWithBlobs()){
+                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getResultMapWithBlobsId()));
                 }else if (!introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().isEmpty()) {
-                    answer.addAttribute(new Attribute("resultMap",introspectedTable.getRelationResultMapId()));
+                    answer.addAttribute(new Attribute("resultMap", introspectedTable.getRelationResultMapId()));
                 }else{
                     answer.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
                 }

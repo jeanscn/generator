@@ -36,7 +36,7 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
         if (useResultMapIfAvailable) {
             if (introspectedTable.getRules().generateBaseResultMap()
-                    || introspectedTable.getRules().generateResultMapWithBLOBs()) {
+                    || introspectedTable.getRules().generateResultMapWithBlobs()) {
                 addResultMapAnnotation(method);
             } else {
                 addAnnotatedResults(interfaze, method, introspectedTable.getNonPrimaryKeyColumns());
@@ -50,8 +50,8 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
         String annotation = String.format("@ResultMap(\"%s.%s\")",
                 introspectedTable.getMyBatis3SqlMapNamespace(),
-                introspectedTable.getRules().generateResultMapWithBLOBs()
-                    ? introspectedTable.getResultMapWithBLOBsId() : introspectedTable.getBaseResultMapId());
+                introspectedTable.getRules().generateResultMapWithBlobs()
+                    ? introspectedTable.getResultMapWithBlobsId() : introspectedTable.getBaseResultMapId());
         method.addAnnotation(annotation);
     }
 
@@ -61,7 +61,7 @@ public class AnnotatedSelectByPrimaryKeyMethodGenerator extends SelectByPrimaryK
 
         if (useResultMapIfAvailable) {
             if (introspectedTable.getRules().generateBaseResultMap()
-                    || introspectedTable.getRules().generateResultMapWithBLOBs()) {
+                    || introspectedTable.getRules().generateResultMapWithBlobs()) {
                 interfaze.addImportedType(
                         new FullyQualifiedJavaType("org.apache.ibatis.annotations.ResultMap"));
             } else {

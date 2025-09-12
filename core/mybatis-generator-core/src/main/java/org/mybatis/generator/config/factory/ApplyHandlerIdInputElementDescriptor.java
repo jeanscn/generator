@@ -3,8 +3,8 @@ package org.mybatis.generator.config.factory;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.HtmlElementDescriptor;
 
 /**
@@ -13,7 +13,7 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 public class ApplyHandlerIdInputElementDescriptor implements DefaultHtmlElementDescriptorFactory{
 
     @Override
-    public HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn column, IntrospectedTable introspectedTable) {
+    public HtmlElementDescriptor getDefaultHtmlElementDescriptor(IntrospectedColumn column, AbstractIntrospectedTable abstractIntrospectedTable) {
         HtmlElementDescriptor elementDescriptor = new HtmlElementDescriptor();
         elementDescriptor.setName(column.getActualColumnName());
         elementDescriptor.setColumn(column);

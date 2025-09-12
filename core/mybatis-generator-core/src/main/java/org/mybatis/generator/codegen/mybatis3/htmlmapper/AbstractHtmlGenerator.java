@@ -1,7 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.htmlmapper;
 
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.html.Attribute;
 import org.mybatis.generator.api.dom.html.HtmlElement;
@@ -19,13 +19,14 @@ import java.util.stream.Collectors;
 /**
  * html生成的基类
  *
+ * @author cen_c
  */
 public class AbstractHtmlGenerator extends AbstractGenerator implements HtmlConstant{
 
     protected VoGenService voGenService;
 
-    public AbstractHtmlGenerator(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
-        super(context, introspectedTable, warnings, progressCallback);
+    public AbstractHtmlGenerator(Context context, AbstractIntrospectedTable abstractIntrospectedTable, List<String> warnings, ProgressCallback progressCallback) {
+        super(context, abstractIntrospectedTable, warnings, progressCallback);
         this.voGenService = new VoGenService(this.introspectedTable);
     }
 

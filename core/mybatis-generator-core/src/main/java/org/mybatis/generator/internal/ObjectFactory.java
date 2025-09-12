@@ -294,11 +294,11 @@ public class ObjectFactory {
         return answer;
     }
 
-    public static IntrospectedTable createIntrospectedTable(
+    public static AbstractIntrospectedTable createIntrospectedTable(
             TableConfiguration tableConfiguration, FullyQualifiedTable table,
             Context context) {
 
-        IntrospectedTable answer = createIntrospectedTableForValidation(context);
+        AbstractIntrospectedTable answer = createIntrospectedTableForValidation(context);
         answer.setFullyQualifiedTable(table);
         answer.setTableConfiguration(tableConfiguration);
 
@@ -313,7 +313,7 @@ public class ObjectFactory {
      *            the context
      * @return the introspected table
      */
-    public static IntrospectedTable createIntrospectedTableForValidation(Context context) {
+    public static AbstractIntrospectedTable createIntrospectedTableForValidation(Context context) {
         String type = context.getTargetRuntime();
         if (!stringHasValue(type)) {
             type = IntrospectedTableMyBatis3DynamicSqlImpl.class.getName();
@@ -327,7 +327,7 @@ public class ObjectFactory {
             type = IntrospectedTableKotlinImpl.class.getName();
         }
 
-        IntrospectedTable answer = (IntrospectedTable) createInternalObject(type);
+        AbstractIntrospectedTable answer = (AbstractIntrospectedTable) createInternalObject(type);
         answer.setContext(context);
 
         return answer;

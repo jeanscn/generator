@@ -39,14 +39,14 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         method.setReturnType(response);
         method.setReturnRemark("成功删除的记录数");
 
-        method.addAnnotation(new SystemLogDesc("删除了一条记录",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("删除了一条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc(pathVariable, RequestMethodEnum.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"删除");
         method.addAnnotation(new ApiOperationDesc("单条记录删除", "根据给定的id删除一条记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "删除一条记录");
 
-        method.addBodyLine("ServiceResult<Integer> result =  {0}.{1}(id);",serviceBeanName,introspectedTable.getDeleteByPrimaryKeyStatementId());
+        method.addBodyLine("ServiceResult<Integer> result =  {0}.{1}(id);",serviceBeanName, introspectedTable.getDeleteByPrimaryKeyStatementId());
         method.addBodyLine("if (result.hasResult() && result.getResult() > 0) {");
         method.addBodyLine("return success((long) result.getResult(),result.getAffectedRows());");
         method.addBodyLine("} else {");

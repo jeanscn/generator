@@ -16,7 +16,7 @@ public class ProviderSelectByExampleWithBLOBsMethodGenerator
 
     @Override
     public String getMethodName() {
-        return introspectedTable.getSelectByExampleWithBLOBsStatementId();
+        return introspectedTable.getSelectByExampleWithBlobsStatementId();
     }
 
     @Override

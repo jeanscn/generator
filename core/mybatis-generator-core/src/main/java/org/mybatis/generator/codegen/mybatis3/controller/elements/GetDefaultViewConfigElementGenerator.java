@@ -32,7 +32,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
         method.setReturnType(responseResult);
         method.setReturnRemark("视图配置数据对象");
 
-        method.addAnnotation(new SystemLogDesc("查看表默认视图配置",introspectedTable),parentElement);
+        method.addAnnotation(new SystemLogDesc("查看表默认视图配置", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("dt/view-default", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"默认视图配置");
         method.addAnnotation(new ApiOperationDesc("默认数据视图配置", "获取默认数据视图配置"),parentElement);
@@ -41,7 +41,7 @@ public class GetDefaultViewConfigElementGenerator extends AbstractControllerElem
 
         method.addBodyLine("Optional<ViewDtTableVo> result = DataTablesUtil");
         method.addBodyLine("        .getSingleViewDtTableByAnnotation(DataTablesUtil.getDefaultViewId(\"{0}\"), true);"
-                ,introspectedTable.getControllerBeanName());
+                , introspectedTable.getControllerBeanName());
         method.addBodyLine("return result.map(viewDtTableVo -> success(DataTablesMappings.INSTANCE.fromViewDtTableVo(viewDtTableVo)))\n" +
                 "                .orElseGet(() -> failure(ApiCodeEnum.FAIL_NOT_FOUND,\"默认列表配置\"));");
         parentElement.addMethod(method);

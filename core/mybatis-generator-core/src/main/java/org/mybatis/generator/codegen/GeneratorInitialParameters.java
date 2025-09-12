@@ -1,7 +1,9 @@
 package org.mybatis.generator.codegen;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.config.Context;
 
@@ -12,58 +14,21 @@ import java.util.List;
  * 2023-04-13 12:56
  * @version 3.0
  */
+@Setter
+@Getter
 public class GeneratorInitialParameters {
     private Context context;
-    private IntrospectedTable introspectedTable;
+    private AbstractIntrospectedTable introspectedTable;
     private List<String> warnings;
     private ProgressCallback progressCallback;
 
     private IntrospectedColumn introspectedColumn;
 
-    public GeneratorInitialParameters(Context context, IntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
+    public GeneratorInitialParameters(Context context, AbstractIntrospectedTable introspectedTable, List<String> warnings, ProgressCallback progressCallback) {
         this.context = context;
         this.introspectedTable = introspectedTable;
         this.warnings = warnings;
         this.progressCallback = progressCallback;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    public IntrospectedTable getIntrospectedTable() {
-        return introspectedTable;
-    }
-
-    public void setIntrospectedTable(IntrospectedTable introspectedTable) {
-        this.introspectedTable = introspectedTable;
-    }
-
-    public List<String> getWarnings() {
-        return warnings;
-    }
-
-    public void setWarnings(List<String> warnings) {
-        this.warnings = warnings;
-    }
-
-    public ProgressCallback getProgressCallback() {
-        return progressCallback;
-    }
-
-    public void setProgressCallback(ProgressCallback progressCallback) {
-        this.progressCallback = progressCallback;
-    }
-
-    public IntrospectedColumn getIntrospectedColumn() {
-        return introspectedColumn;
-    }
-
-    public void setIntrospectedColumn(IntrospectedColumn introspectedColumn) {
-        this.introspectedColumn = introspectedColumn;
-    }
 }

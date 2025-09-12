@@ -46,7 +46,7 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
 
     protected final FullyQualifiedJavaType entityType;
 
-    public AbstractVoGenerator(IntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
+    public AbstractVoGenerator(AbstractIntrospectedTable introspectedTable, String project, ProgressCallback progressCallback, List<String> warnings, Interface mappingsInterface) {
         super(project);
         this.context = introspectedTable.getContext();
         this.commentGenerator = context.getCommentGenerator();
@@ -163,13 +163,13 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
         requestVoClass.addField(cascade);
     }
 
-    protected void addProperty(TopLevelClass topLevelClass,Field field, String strExample,IntrospectedTable introspectedTable) {
+    protected void addProperty(TopLevelClass topLevelClass, Field field, String strExample, AbstractIntrospectedTable abstractIntrospectedTable) {
         field.setVisibility(JavaVisibility.PRIVATE);
         ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(field.getRemark());
         apiModelPropertyDesc.setExample(strExample);
         field.addAnnotation(apiModelPropertyDesc.toAnnotation());
         topLevelClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
-        if (introspectedTable.getRules().isIntegrateMybatisPlus()) {
+        if (abstractIntrospectedTable.getRules().isIntegrateMybatisPlus()) {
             field.addAnnotation("@TableField(exist = false)");
             topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
         }

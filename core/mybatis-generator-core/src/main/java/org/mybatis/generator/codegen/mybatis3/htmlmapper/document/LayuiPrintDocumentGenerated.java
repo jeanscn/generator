@@ -142,7 +142,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
         table.addAttribute(new Attribute("id", "main-table"));
         List<IntrospectedColumn> hiddenColumns = new ArrayList<>();
         List<IntrospectedColumn> displayColumns = new ArrayList<>();
-        for (IntrospectedColumn baseColumn : introspectedTable.getNonBLOBColumns()) {
+        for (IntrospectedColumn baseColumn : introspectedTable.getNonBlobColumns()) {
             if (introspectedTable.getRules().isGenerateVoModel()) {
                 if (isIgnore(baseColumn, introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoModelConfiguration())
                         && !baseColumn.isPrimaryKey()
@@ -341,7 +341,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                     scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
                 }
                 scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\" + relationField;"));
-                scriptElement.addElement(new TextElement("        dataUrl = dataUrl + \"&ignorePermissionAnnotation=true&ignoreDeleteFlag=true\";"));
+                scriptElement.addElement(new TextElement("        dataUrl = dataUrl + \"&ignorePermissionAnnotation=true&ignoreDeleteFlag=true&credentials=include\";"));
                 scriptElement.addElement(new TextElement("        const laytpl = layui.laytpl;"));
                 scriptElement.addElement(new TextElement("        let getTpl = document.getElementById('" + tplId + "').innerHTML;"));
                 scriptElement.addElement(new TextElement("        const elemView = document.getElementById('" + placeId + "');"));
@@ -381,7 +381,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
                     scriptElement.addElement(new TextElement("        let relationField = /*[[${" + GenerateUtils.getEntityKeyStr(introspectedTable) + "?.id}]]*/'';"));
                 }
                 scriptElement.addElement(new TextElement("        let dataUrl = \"" + listConfiguration.getDataUrl() + "?pageSize=0&" + listConfiguration.getRelationField() + "=\"+relationField;"));
-                scriptElement.addElement(new TextElement("        dataUrl = dataUrl + \"&ignorePermissionAnnotation=true&ignoreDeleteFlag=true\";"));
+                scriptElement.addElement(new TextElement("        dataUrl = dataUrl + \"&ignorePermissionAnnotation=true&ignoreDeleteFlag=true&credentials=include\";"));
                 scriptElement.addElement(new TextElement("        let innerBody = $(\"#innerListBody\");"));
                 scriptElement.addElement(new TextElement("        loadDetail(innerListHeaders, dataUrl, innerBody, layui);"));
                 scriptElement.addElement(new TextElement("    });"));
@@ -471,7 +471,7 @@ public class LayuiPrintDocumentGenerated extends AbstractThymeleafHtmlDocumentGe
     private String getThymeleafValueFieldName(IntrospectedColumn introspectedColumn) {
         HtmlElementDescriptor htmlElementDescriptor = htmlGeneratorConfiguration.getElementDescriptors().stream()
                 .filter(t -> t.getName().equals(introspectedColumn.getActualColumnName())).findFirst().orElse(null);
-        if (introspectedColumn.isJDBCDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor != null && htmlElementDescriptor.getTagType() != null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
+        if (introspectedColumn.isJdbcDateColumn() || introspectedColumn.isJavaLocalDateColumn() || introspectedColumn.isJavaLocalDateTimeColumn() || (htmlElementDescriptor != null && htmlElementDescriptor.getTagType() != null && htmlElementDescriptor.getTagType().equals(HtmlElementTagTypeEnum.DATE.codeName()))) {
             return getDateFieldValueFormatPattern(introspectedColumn, ThymeleafValueScopeEnum.READONLY);
         } else {
             return thymeleafValue(introspectedColumn, ThymeleafValueScopeEnum.READONLY, htmlElementDescriptor);

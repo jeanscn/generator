@@ -2,7 +2,7 @@ package org.mybatis.generator.config;
 
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -16,11 +16,11 @@ import static com.vgosoft.tool.core.VStringUtil.*;
  */
 public class ConfigUtil {
 
-    public static boolean javaPropertyExist(final String propertyName, final IntrospectedTable introspectedTable) {
-        if (introspectedTable.getAllColumns().stream().anyMatch(c -> c.getJavaProperty().equals(propertyName))) {
+    public static boolean javaPropertyExist(final String propertyName, final AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (abstractIntrospectedTable.getAllColumns().stream().anyMatch(c -> c.getJavaProperty().equals(propertyName))) {
             return true;
         }
-        TableConfiguration tc = introspectedTable.getTableConfiguration();
+        TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
         //检查VoModel，Vo配置中是否存在对应的转换属性
         if (tc.getVoGeneratorConfiguration().getVoModelConfiguration() != null && !tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations().isEmpty()) {
             return tc.getVoGeneratorConfiguration().getVoModelConfiguration().getOverridePropertyConfigurations().stream()
@@ -61,8 +61,8 @@ public class ConfigUtil {
     }
 
     // 通过HtmlElementDescriptor配置，创建转换属性配置
-    public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(HtmlElementDescriptor elementDescriptor, final IntrospectedTable introspectedTable) {
-        OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration(), elementDescriptor.getName());
+    public static OverridePropertyValueGeneratorConfiguration createOverridePropertyConfiguration(HtmlElementDescriptor elementDescriptor, final AbstractIntrospectedTable abstractIntrospectedTable) {
+        OverridePropertyValueGeneratorConfiguration overrideConfiguration = new OverridePropertyValueGeneratorConfiguration(abstractIntrospectedTable.getContext(), abstractIntrospectedTable.getTableConfiguration(), elementDescriptor.getName());
         overrideConfiguration.setElementDescriptor(elementDescriptor);
         HtmlElementDataSourceEnum anEnum = HtmlElementDataSourceEnum.getEnum(elementDescriptor.getDataSource());
         if (anEnum != null && stringHasValue(anEnum.getBeanName())) {
@@ -84,7 +84,7 @@ public class ConfigUtil {
         if (elementDescriptor.getApplyProperty() != null) {
             overrideConfiguration.setApplyProperty(elementDescriptor.getApplyProperty());
         }
-        introspectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> overrideConfiguration.setRemark(c.getRemarks(true)));
+        abstractIntrospectedTable.getColumn(elementDescriptor.getName()).ifPresent(c -> overrideConfiguration.setRemark(c.getRemarks(true)));
         return overrideConfiguration;
 
     }

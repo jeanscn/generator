@@ -6,8 +6,8 @@ import static org.mybatis.generator.internal.util.StringUtility.escapeStringForK
 import java.util.List;
 import java.util.Objects;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.kotlin.FullyQualifiedKotlinType;
 import org.mybatis.generator.api.dom.kotlin.JavaToKotlinTypeConverter;
@@ -20,8 +20,11 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
 
+/**
+ * @author cen_c
+ */
 public class KotlinDynamicSqlSupportClassGenerator {
-    private final IntrospectedTable introspectedTable;
+    private final AbstractIntrospectedTable introspectedTable;
     private final Context context;
     private final List<String> warnings;
     private KotlinFile kotlinFile;
@@ -29,7 +32,7 @@ public class KotlinDynamicSqlSupportClassGenerator {
     private KotlinType outerObject;
     private KotlinProperty tableProperty;
 
-    public KotlinDynamicSqlSupportClassGenerator(Context context, IntrospectedTable introspectedTable,
+    public KotlinDynamicSqlSupportClassGenerator(Context context, AbstractIntrospectedTable introspectedTable,
                                                  List<String> warnings) {
         this.introspectedTable = Objects.requireNonNull(introspectedTable);
         this.context = Objects.requireNonNull(context);
@@ -106,7 +109,7 @@ public class KotlinDynamicSqlSupportClassGenerator {
 
 
     private KotlinType buildInnerClass() {
-        String domainObjectName = introspectedTable.getMyBatisDynamicSQLTableObjectName();
+        String domainObjectName = introspectedTable.getMyBatisDynamicSqlTableObjectName();
 
         return KotlinType.newClass(domainObjectName)
                 .withSuperType("AliasableSqlTable<" + domainObjectName + ">(\""
@@ -117,9 +120,9 @@ public class KotlinDynamicSqlSupportClassGenerator {
     }
 
     private KotlinProperty calculateTableProperty() {
-        String tableType = introspectedTable.getMyBatisDynamicSQLTableObjectName();
+        String tableType = introspectedTable.getMyBatisDynamicSqlTableObjectName();
         String fieldName =
-                JavaBeansUtil.getValidPropertyName(introspectedTable.getMyBatisDynamicSQLTableObjectName());
+                JavaBeansUtil.getValidPropertyName(introspectedTable.getMyBatisDynamicSqlTableObjectName());
 
         return KotlinProperty.newVal(fieldName)
                 .withInitializationString(tableType + "()")

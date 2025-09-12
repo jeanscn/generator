@@ -50,7 +50,9 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     private final Set<String> hiddenFields = new HashSet<>();
 
-    //指定页面表单不允许为空的字段
+    /**
+     * 指定页面表单不允许为空的字段
+     */
     private final Set<String> elementRequired = new HashSet<>();
 
     private final List<HtmlElementDescriptor> elementDescriptors = new ArrayList<>();
@@ -89,6 +91,20 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
 
     public void addHtmlApprovalCommentConfiguration(HtmlApprovalCommentConfiguration htmlApprovalCommentConfiguration) {
         this.htmlApprovalCommentConfigurations.add(htmlApprovalCommentConfiguration);
+    }
+
+    /**
+     * 获取指定字段的HtmlElementDescriptor
+     * @param columnName 字段名称
+     * @return HtmlElementDescriptor
+     */
+    public HtmlElementDescriptor getHtmlElementDescriptor(String columnName) {
+        for (HtmlElementDescriptor descriptor : this.elementDescriptors) {
+            if (descriptor.getName().equalsIgnoreCase(columnName)) {
+                return descriptor;
+            }
+        }
+        return null;
     }
 
 }

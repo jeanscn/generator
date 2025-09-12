@@ -3,7 +3,7 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.HtmlButton;
 import com.vgosoft.core.annotation.VueFormInnerListMeta;
 import com.vgosoft.tool.core.VStringUtil;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -107,20 +107,20 @@ public class VueFormInnerListMetaDesc extends AbstractAnnotation {
         this.addImports(VueFormInnerListMeta.class.getCanonicalName());
     }
 
-    public VueFormInnerListMetaDesc(HtmlElementInnerListConfiguration innerListConfiguration, IntrospectedTable introspectedTable, int index) {
+    public VueFormInnerListMetaDesc(HtmlElementInnerListConfiguration innerListConfiguration, AbstractIntrospectedTable abstractIntrospectedTable, int index) {
         super();
         if (VStringUtil.stringHasValue(innerListConfiguration.getElementKey())) {
             this.value = innerListConfiguration.getElementKey();
         } else {
             this.value = innerListConfiguration.getModuleKeyword() +
-                    "_" + Mb3GenUtil.getDefaultHtmlKey(introspectedTable) +
+                    "_" + Mb3GenUtil.getDefaultHtmlKey(abstractIntrospectedTable) +
                     "_" + index;
         }
         this.listKey = innerListConfiguration.getListKey();
         if (VStringUtil.stringHasValue(innerListConfiguration.getLabel())) {
             this.label = innerListConfiguration.getLabel();
         } else {
-            this.label = introspectedTable.getRemarks(true);
+            this.label = abstractIntrospectedTable.getRemarks(true);
         }
         this.showTitle = innerListConfiguration.isShowTitle();
         this.moduleKeyword = innerListConfiguration.getModuleKeyword();

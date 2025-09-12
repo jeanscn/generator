@@ -1,7 +1,7 @@
 package org.mybatis.generator.plugins;
 
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -24,17 +24,17 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, ModelClassType modelClassType) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
-        if (!introspectedTable.getRules().isGenerateVoModel()) {
+        if (!abstractIntrospectedTable.getRules().isGenerateVoModel()) {
             addJSONSerialize(field, topLevelClass, introspectedColumn);
         }
         return true;
     }
 
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
         addJSONSerialize(field, topLevelClass, introspectedColumn);
@@ -42,7 +42,7 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
         addJSONSerialize(field, topLevelClass, introspectedColumn);
@@ -50,20 +50,20 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable) {
+    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
         return true;
     }
