@@ -19,7 +19,6 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static org.mybatis.generator.internal.util.Mb3GenUtil.isContainOverridableMarker;
@@ -32,29 +31,29 @@ import static org.mybatis.generator.internal.util.Mb3GenUtil.isContainOverridabl
 public class Vue3FilesPlugin extends PluginAdapter {
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         List<GeneratedFile> answer = new ArrayList<>();
-        if (!this.isGenerateVueFile(abstractIntrospectedTable)) {
+        if (!this.isGenerateVueFile(introspectedTable)) {
             return answer;
         }
 
-        Map<String, Object> freeMakerContext = getContextProps(abstractIntrospectedTable, htmlGeneratorConfiguration);
-        String modulesPath = getVueEndProjectBasePath(abstractIntrospectedTable);
-        String modelPath = abstractIntrospectedTable.getTableConfiguration().getDomainObjectName().toLowerCase();
+        Map<String, Object> freeMakerContext = getContextProps(introspectedTable, htmlGeneratorConfiguration);
+        String modulesPath = getVueEndProjectBasePath(introspectedTable);
+        String modelPath = introspectedTable.getTableConfiguration().getDomainObjectName().toLowerCase();
 
-        boolean generateEditHtml = abstractIntrospectedTable.getRules().isGenerateEditHtml();
-        if (generateEditHtml && abstractIntrospectedTable.getRules().isGenerateViewVo()) {
+        boolean generateEditHtml = introspectedTable.getRules().isGenerateEditHtml();
+        if (generateEditHtml && introspectedTable.getRules().isGenerateViewVo()) {
             // 生成vue的主列表文件
             String viewPath = String.join(File.separator, (modulesPath + "/views").split("/"));
             String project = this.properties.getProperty("targetProject", viewPath);
-            String fileName = abstractIntrospectedTable.getTableConfiguration().getDomainObjectName();
+            String fileName = introspectedTable.getTableConfiguration().getDomainObjectName();
             if (stringHasValue(fileName)) {
                 String vueViewFileNameDev = fileName + ".vue";
                 GeneratedVueFile generatedVueFile = new GeneratedVueFile(
                         vueViewFileNameDev,
                         project,
                         "",
-                        abstractIntrospectedTable,
+                        introspectedTable,
                         "vue_module_list.vue.ftl", freeMakerContext);
 
                 generatedVueFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueView() || isContainOverridableMarker(generatedVueFile));
@@ -72,19 +71,19 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     vuePrivateTableColumnSlotsFileName,
                     projectSlots,
                     "",
-                    abstractIntrospectedTable,
+                    introspectedTable,
                     "vue_module_private_column_slots.vue.ftl", freeMakerContext);
             generatedVuePrivateTableColumnSlotsFile.setOverWriteFile(isContainOverridableMarker(generatedVuePrivateTableColumnSlotsFile));
             answer.add(generatedVuePrivateTableColumnSlotsFile);
         }
 
         //生成vue的type文件
-        if (generateEditHtml || abstractIntrospectedTable.getRules().isGenerateAnyVo()) {
-            List<FieldItem> fields = abstractIntrospectedTable.getVoModelFields().stream().distinct().collect(Collectors.toList());
+        if (generateEditHtml || introspectedTable.getRules().isGenerateAnyVo()) {
+            List<FieldItem> fields = introspectedTable.getVoModelFields().stream().distinct().toList();
             if (!fields.isEmpty()) {
                 String typePath = String.join(File.separator, (modulesPath + "/" + modelPath + "/types").split("/"));
                 String projectType = this.properties.getProperty("targetProject", typePath);
-                String fileNameType = "T" + abstractIntrospectedTable.getTableConfiguration().getDomainObjectName();
+                String fileNameType = "T" + introspectedTable.getTableConfiguration().getDomainObjectName();
                 List<FieldItem> fieldsList = new ArrayList<>();
                 List<String> noRequiredFields = Arrays.asList("id", "version", "deleteFlag");
                 for (FieldItem field : fields) {
@@ -121,7 +120,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                             vueTypeFileName,
                             projectType,
                             "",
-                            abstractIntrospectedTable,
+                            introspectedTable,
                             "vue_module_type.ts.ftl", freeMakerContext);
                     generatedVueTypeFile.setOverWriteFile(true);
                     answer.add(generatedVueTypeFile);
@@ -129,47 +128,47 @@ public class Vue3FilesPlugin extends PluginAdapter {
             }
         }
 
+        String hooksPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
         if (generateEditHtml) {
             //生成modal文件
             String modalPath = String.join(File.separator, (modulesPath + "/modals").split("/"));
             String projectModal = this.properties.getProperty("targetProject", modalPath);
-            String fileNameModal = abstractIntrospectedTable.getTableConfiguration().getDomainObjectName() + "Modal";
+            String fileNameModal = introspectedTable.getTableConfiguration().getDomainObjectName() + "Modal";
             String vueModalFileName = fileNameModal + ".vue";
             GeneratedVueFile generatedVueModalFile = new GeneratedVueFile(
                     vueModalFileName,
                     projectModal,
                     "",
-                    abstractIntrospectedTable,
+                    introspectedTable,
                     "vue_module_modal.vue.ftl", freeMakerContext);
             generatedVueModalFile.setOverWriteFile(true);
             answer.add(generatedVueModalFile);
 
             //生成SharedVariables共享变量定义文件
-            String variablesPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
-            String projectVariables = this.properties.getProperty("targetProject", variablesPath);
+            String projectVariables = this.properties.getProperty("targetProject", hooksPath);
             String fileNameSharedVariables = "sharedVariables";
 
             GeneratedVueFile generatedSharedVariablesFile = new GeneratedVueFile(
                     fileNameSharedVariables + ".ts",
                     projectVariables,
                     "",
-                    abstractIntrospectedTable,
+                    introspectedTable,
                     "vue_module_shared_variables.ts.ftl", freeMakerContext);
             generatedSharedVariablesFile.setOverWriteFile(true);
             answer.add(generatedSharedVariablesFile);
         }
 
         //生成edit组件
+        String vuePath = String.join(File.separator, (modulesPath + "/" + modelPath + "/components").split("/"));
         if (generateEditHtml) {
-            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath + "/components").split("/"));
-            String projectEdit = this.properties.getProperty("targetProject", editPath);
-            String fileNameEdit = abstractIntrospectedTable.getTableConfiguration().getDomainObjectName() + "Edit";
+            String projectEdit = this.properties.getProperty("targetProject", vuePath);
+            String fileNameEdit = introspectedTable.getTableConfiguration().getDomainObjectName() + "Edit";
             String vueEditFileName = fileNameEdit + ".vue";
             GeneratedVueFile generatedVueEditFile = new GeneratedVueFile(
                     vueEditFileName,
                     projectEdit,
                     "",
-                    abstractIntrospectedTable,
+                    introspectedTable,
                     "vue_module_edit.vue.ftl", freeMakerContext);
             generatedVueEditFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueEdit() || isContainOverridableMarker(generatedVueEditFile));
             answer.add(generatedVueEditFile);
@@ -177,15 +176,14 @@ public class Vue3FilesPlugin extends PluginAdapter {
 
         //生成detail组件
         if (generateEditHtml) {
-            String editPath = String.join(File.separator, (modulesPath + "/" + modelPath + "/components").split("/"));
-            String projectEdit = this.properties.getProperty("targetProject", editPath);
-            String fileNameDetail = abstractIntrospectedTable.getTableConfiguration().getDomainObjectName() + "Detail";
+            String projectEdit = this.properties.getProperty("targetProject", vuePath);
+            String fileNameDetail = introspectedTable.getTableConfiguration().getDomainObjectName() + "Detail";
             String vueDetailFileName = fileNameDetail + ".vue";
             GeneratedVueFile generatedVueDetailFile = new GeneratedVueFile(
                     vueDetailFileName,
                     projectEdit,
                     "",
-                    abstractIntrospectedTable,
+                    introspectedTable,
                     "vue_module_detail.vue.ftl", freeMakerContext);
             generatedVueDetailFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteVueDetail() || isContainOverridableMarker(generatedVueDetailFile));
             answer.add(generatedVueDetailFile);
@@ -193,7 +191,6 @@ public class Vue3FilesPlugin extends PluginAdapter {
 
         //生成PrivateUseFormHooks钩子函数定义文件
         if (generateEditHtml) {
-            String hooksPath = String.join(File.separator, (modulesPath + "/" + modelPath).split("/"));
             String projectHooks = this.properties.getProperty("targetProject", hooksPath);
             String fileNamePrivateUseFormHooks = "PrivateUseFormHooks";
 
@@ -201,7 +198,7 @@ public class Vue3FilesPlugin extends PluginAdapter {
                     fileNamePrivateUseFormHooks + ".ts",
                     projectHooks,
                     "",
-                    abstractIntrospectedTable,
+                    introspectedTable,
                     "vue_module_private_form_hooks.ts.ftl", freeMakerContext);
             generatedVuePrivateUseFormHooksFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile() || isContainOverridableMarker(generatedVuePrivateUseFormHooksFile));
             answer.add(generatedVuePrivateUseFormHooksFile);
