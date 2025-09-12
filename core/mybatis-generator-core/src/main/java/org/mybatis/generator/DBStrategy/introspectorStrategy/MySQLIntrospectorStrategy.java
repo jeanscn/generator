@@ -61,12 +61,12 @@ public class MySQLIntrospectorStrategy implements DatabaseIntrospectorStrategy {
     }
 
     @Override
-    public Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException {
+    public Map<String, String> getColumnRemarks(Connection conn, String tableName) {
         return Collections.emptyMap();
     }
 
     @Override
-    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException {
+    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) {
 
     }
 }

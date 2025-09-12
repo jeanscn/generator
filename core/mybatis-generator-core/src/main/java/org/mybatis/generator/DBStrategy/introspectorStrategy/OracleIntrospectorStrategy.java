@@ -9,9 +9,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author cen_c
+ */
 public class OracleIntrospectorStrategy implements DatabaseIntrospectorStrategy {
     @Override
-    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) throws SQLException {
+    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) {
 
     }
 
@@ -43,12 +46,12 @@ public class OracleIntrospectorStrategy implements DatabaseIntrospectorStrategy 
     }
 
     @Override
-    public Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException {
+    public Map<String, String> getColumnRemarks(Connection conn, String tableName) {
         return Collections.emptyMap();
     }
 
     @Override
-    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException {
+    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) {
 
     }
 }
