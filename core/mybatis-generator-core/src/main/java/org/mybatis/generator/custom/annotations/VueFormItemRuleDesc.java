@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 /**
  * ElementPlus表单元数据描述注解
  *
+ * @author cen_c
  * @version 6.0
  */
 @Getter
@@ -69,7 +70,7 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
     @Override
     public String toAnnotation() {
         // 生成注解内容
-        List<HtmlValidatorElementConfiguration> validatorConfig = elementDescriptor != null ? elementDescriptor.getHtmlValidatorElementConfigurations().stream().filter(vConfig-> vConfig.getScope() == 0 || vConfig.getScope() == this.scope).collect(Collectors.toList()) : new ArrayList<>();
+        List<HtmlValidatorElementConfiguration> validatorConfig = elementDescriptor != null ? elementDescriptor.getHtmlValidatorElementConfigurations().stream().filter(vConfig -> vConfig.getScope() == 0 || vConfig.getScope() == this.scope).collect(Collectors.toList()) : new ArrayList<>();
         String validatorType;
         List<HtmlValidatorElementConfiguration> typeConfigs = getValidatorElementConfiguration(validatorConfig, config -> config.getType() != null);
         if (!typeConfigs.isEmpty() && VStringUtil.stringHasValue(typeConfigs.get(0).getType())) {
@@ -312,17 +313,19 @@ public class VueFormItemRuleDesc extends AbstractAnnotation {
 
     private void setTriggerType(int scope) {
         if (scope == 2) {
-            this.setTrigger("change"); // vxeTable列表默认触发方式
+            // vxeTable列表默认触发方式
+            this.setTrigger("change");
         } else if (scope == 1) {
-            this.setTrigger("blur"); // elForm表单默认触发方式
-        }
-    }
-    private void setTriggerType(int scope, String trigger) {
-        if (VStringUtil.stringHasValue(trigger)) {
-            this.setTrigger(trigger);
-        } else{
-            setTriggerType(scope);
+            // elForm表单默认触发方式
+            this.setTrigger("blur");
         }
     }
 
+    private void setTriggerType(int scope, String trigger) {
+        if (VStringUtil.stringHasValue(trigger)) {
+            this.setTrigger(trigger);
+        } else {
+            setTriggerType(scope);
+        }
+    }
 }

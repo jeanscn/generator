@@ -2,13 +2,18 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.VueFormUploadMeta;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.config.HtmlFileAttachmentConfiguration;
 
 /**
  * ElementPlus表单元数据描述注解
  *
+ * @author cen_c
  * @version 6.0
  */
+@Setter
+@Getter
 public class VueFormUploadMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@" + VueFormUploadMeta.class.getSimpleName();
@@ -44,15 +49,15 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("multiple = {0}", this.isMultiple()));
         }
         this.type = configuration.getType();
-        if(!type.equals("text")) {
+        if (!"text".equals(type)) {
             this.items.add(VStringUtil.format("type = \"{0}\"", this.getType()));
         }
         this.location = configuration.getLocation();
-        if(!location.equals("table")) {
+        if (!"table".equals(location)) {
             this.items.add(VStringUtil.format("location = \"{0}\"", this.getLocation()));
         }
         this.limit = configuration.getLimit();
-        if (limit!=0) {
+        if (limit != 0) {
             this.items.add(VStringUtil.format("limit = {0}", this.getLimit()));
         }
         this.tips = configuration.getTips();
@@ -60,7 +65,7 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("tips = \"{0}\"", this.getTips()));
         }
         this.label = configuration.getLabel();
-        if(!"附件".equals(this.getLabel())) {
+        if (!"附件".equals(this.getLabel())) {
             this.items.add(VStringUtil.format("label = \"{0}\"", this.getLabel()));
         }
         this.restBasePath = configuration.getRestBasePath();
@@ -85,91 +90,4 @@ public class VueFormUploadMetaDesc extends AbstractAnnotation {
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
-    public boolean isMultiple() {
-        return multiple;
-    }
-
-    public void setMultiple(boolean multiple) {
-        this.multiple = multiple;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public int getLimit() {
-        return limit;
-    }
-
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    public String getTips() {
-        return tips;
-    }
-
-    public void setTips(String tips) {
-        this.tips = tips;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getRestBasePath() {
-        return restBasePath;
-    }
-
-    public void setRestBasePath(String restBasePath) {
-        this.restBasePath = restBasePath;
-    }
-
-    public String getAfterColumn() {
-        return afterColumn;
-    }
-
-    public void setAfterColumn(String afterColumn) {
-        this.afterColumn = afterColumn;
-    }
-
-    public Integer getSpan() {
-        return span;
-    }
-
-    public void setSpan(Integer span) {
-        this.span = span;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
 }

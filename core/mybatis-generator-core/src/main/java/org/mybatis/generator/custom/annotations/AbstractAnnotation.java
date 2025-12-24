@@ -30,13 +30,20 @@ public abstract class AbstractAnnotation implements IAnnotation{
         this.imports.add(imports);
     }
 
-    // 添加注解到字段上
+    /**
+     * 添加注解到字段上
+     * @param field 字段
+     * @param topLevelClass 类
+     */
     public void addAnnotationToField(Field field, TopLevelClass topLevelClass) {
         field.addAnnotation(this.toAnnotation());
         topLevelClass.addImportedTypes(this.getImportedTypes());
     }
 
-    // 添加注解到类上
+    /**
+     * 添加注解到类上
+     * @param topLevelClass 类
+     */
     public void addAnnotationToTopLevelClass(TopLevelClass topLevelClass){
         topLevelClass.addAnnotation(this.toAnnotation());
         topLevelClass.addImportedTypes(this.getImportedTypes());

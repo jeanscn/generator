@@ -2,6 +2,8 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.TableMeta;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 /**
@@ -9,6 +11,8 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
  * 2022-10-07 03:59
  * @version 3.0
  */
+@Getter
+@Setter
 public class TableMetaDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@TableMeta";
@@ -70,62 +74,6 @@ public class TableMetaDesc extends AbstractAnnotation{
             items.add(VStringUtil.format("superInterfaces = '{'{0}'}'", String.join(", ", this.getSuperInterfaces())));
         }
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public String getDescript() {
-        return descript;
-    }
-
-    public void setDescript(String descript) {
-        this.descript = descript;
-    }
-
-    public String getBeanname() {
-        return beanname;
-    }
-
-    public void setBeanname(String beanname) {
-        this.beanname = beanname;
-    }
-
-    public boolean isSummary() {
-        return summary;
-    }
-
-    public void setSummary(boolean summary) {
-        this.summary = summary;
-    }
-
-    public String getVoClass() {
-        return voClass;
-    }
-
-    public void setVoClass(String voClass) {
-        this.voClass = voClass;
-    }
-
-    public String getSuperClass() {
-        return superClass;
-    }
-
-    public void setSuperClass(String superClass) {
-        this.superClass = superClass;
-    }
-
-    public String[] getSuperInterfaces() {
-        return superInterfaces;
-    }
-
-    public void setSuperInterfaces(String[] superInterfaces) {
-        this.superInterfaces = superInterfaces;
     }
 
     public void addSuperInterface(String superInterface) {

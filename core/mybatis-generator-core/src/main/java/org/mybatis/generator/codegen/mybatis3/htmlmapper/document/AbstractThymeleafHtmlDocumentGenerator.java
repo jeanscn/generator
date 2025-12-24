@@ -61,6 +61,7 @@ public abstract class AbstractThymeleafHtmlDocumentGenerator extends AbstractThy
 
     /**
      * 是否生成html文档
+     * @return boolean true 生成,false不生成
      */
     @Override
     public abstract boolean htmlMapDocumentGenerated();

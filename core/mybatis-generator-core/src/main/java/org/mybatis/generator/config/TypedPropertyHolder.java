@@ -3,6 +3,9 @@ package org.mybatis.generator.config;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public abstract class TypedPropertyHolder extends PropertyHolder {

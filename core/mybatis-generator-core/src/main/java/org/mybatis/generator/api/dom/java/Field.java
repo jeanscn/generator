@@ -1,17 +1,35 @@
 package org.mybatis.generator.api.dom.java;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * @author cen_c
+ */
+@Setter
+@Getter
 public class Field extends JavaElement {
+
     private FullyQualifiedJavaType type;
+
     private String name;
+
     private String initializationString;
+
     private boolean isTransient;
+
     private boolean isVolatile;
+
     private boolean isFinal;
+
     private String remark;
+
     private String sourceColumnName;
+
+    private Boolean isRequired;
 
     public Field(String name, FullyQualifiedJavaType type) {
         this.name = name;
@@ -28,77 +46,17 @@ public class Field extends JavaElement {
         this.isFinal = field.isFinal;
         this.remark = field.remark;
         this.sourceColumnName = field.sourceColumnName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public FullyQualifiedJavaType getType() {
-        return type;
-    }
-
-    public void setType(FullyQualifiedJavaType type) {
-        this.type = type;
+        this.isRequired = field.isRequired;
     }
 
     public Optional<String> getInitializationString() {
         return Optional.ofNullable(initializationString);
     }
 
-    public void setInitializationString(String initializationString) {
-        this.initializationString = initializationString;
-    }
-
-    public boolean isTransient() {
-        return isTransient;
-    }
-
-    public void setTransient(boolean isTransient) {
-        this.isTransient = isTransient;
-    }
-
-    public boolean isVolatile() {
-        return isVolatile;
-    }
-
-    public void setVolatile(boolean isVolatile) {
-        this.isVolatile = isVolatile;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
-    }
-
-    public void setFinal(boolean isFinal) {
-        this.isFinal = isFinal;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public String getSourceColumnName() {
-        return sourceColumnName;
-    }
-
-    public void setSourceColumnName(String sourceColumnName) {
-        this.sourceColumnName = sourceColumnName;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Field)) return false;
-        Field field = (Field) o;
+        if (this == o) { return true; }
+        if (!(o instanceof Field field)) { return false; }
         return Objects.equals(getName(), field.getName());
     }
 

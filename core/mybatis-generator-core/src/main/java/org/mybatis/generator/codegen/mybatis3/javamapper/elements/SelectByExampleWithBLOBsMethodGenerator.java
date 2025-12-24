@@ -47,7 +47,7 @@ public class SelectByExampleWithBLOBsMethodGenerator extends
         addMapperAnnotations(interfaze, method);
 
         if (context.getPlugins()
-                .clientSelectByExampleWithBLOBsMethodGenerated(method, interfaze, introspectedTable)) {
+                .clientSelectByExampleWithBlobsMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);

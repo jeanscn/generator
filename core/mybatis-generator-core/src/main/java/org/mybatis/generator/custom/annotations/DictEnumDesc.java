@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -13,8 +15,12 @@ public class DictEnumDesc extends AbstractAnnotation {
 
     private String value;
 
+    @Setter
+    @Getter
     private String generic;
 
+    @Setter
+    @Getter
     private String source;
 
     public static DictEnumDesc create() {
@@ -31,22 +37,6 @@ public class DictEnumDesc extends AbstractAnnotation {
         this.value = value;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getGeneric() {
-        return generic;
-    }
-
-    public void setGeneric(String generic) {
-        this.generic = generic;
-    }
-
     @Override
     public String toAnnotation() {
         if (VStringUtil.isNotBlank(value)) {
@@ -58,7 +48,7 @@ public class DictEnumDesc extends AbstractAnnotation {
         if (VStringUtil.isNotBlank(generic)) {
             this.items.add(VStringUtil.format("generic = \"{0}\"", this.generic));
         }
-        if (!this.items.isEmpty()) return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-        else return ANNOTATION_NAME;
+        if (!this.items.isEmpty()) { return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";}
+        else { return ANNOTATION_NAME;}
     }
 }

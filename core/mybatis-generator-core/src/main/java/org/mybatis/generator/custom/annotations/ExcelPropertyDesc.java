@@ -1,22 +1,28 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2022-10-03 16:24
  * @version 3.0
  */
+@Getter
 public class ExcelPropertyDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ExcelProperty";
-    public static final String importClass = "com.alibaba.excel.annotation.ExcelProperty";
+    public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
 
     private final String[] value;
 
+    @Setter
     private int index = -1;
 
+    @Setter
     private int order;
+    @Setter
     String converter;
 
     public static ExcelPropertyDesc create(String... value) {
@@ -26,7 +32,7 @@ public class ExcelPropertyDesc extends AbstractAnnotation {
     public ExcelPropertyDesc(String... value) {
         super();
         this.value = value;
-        this.addImports(importClass);
+        this.addImports(EXCEL_PROPERTY);
     }
 
 
@@ -50,34 +56,5 @@ public class ExcelPropertyDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("order = {0}", this.order));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-    }
-
-
-    public String[] getValue() {
-        return value;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public String getConverter() {
-        return converter;
-    }
-
-    public void setConverter(String converter) {
-        this.converter = converter;
     }
 }

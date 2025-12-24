@@ -4,6 +4,9 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 
 import java.util.*;
 
+/**
+ * @author cen_c
+ */
 public class TopLevelClass extends InnerClass implements CompilationUnit {
 
     private final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();

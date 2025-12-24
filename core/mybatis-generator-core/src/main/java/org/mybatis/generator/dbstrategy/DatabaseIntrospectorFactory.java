@@ -1,8 +1,8 @@
-package org.mybatis.generator.DBStrategy;
+package org.mybatis.generator.dbstrategy;
 
-import org.mybatis.generator.DBStrategy.introspectorStrategy.MySQLIntrospectorStrategy;
-import org.mybatis.generator.DBStrategy.introspectorStrategy.OracleIntrospectorStrategy;
-import org.mybatis.generator.DBStrategy.introspectorStrategy.SQLServerIntrospectorStrategy;
+import org.mybatis.generator.dbstrategy.introspectorstrategy.MySQLIntrospectorStrategy;
+import org.mybatis.generator.dbstrategy.introspectorstrategy.OracleIntrospectorStrategy;
+import org.mybatis.generator.dbstrategy.introspectorstrategy.SqlServerIntrospectorStrategy;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ public class DatabaseIntrospectorFactory {
         if (dbType.contains("mysql")) {
             return new MySQLIntrospectorStrategy();
         } else if (dbType.contains("sql server")) {
-            return new SQLServerIntrospectorStrategy();
+            return new SqlServerIntrospectorStrategy();
         } else if (dbType.contains("oracle")) {
             return new OracleIntrospectorStrategy();
         } else {

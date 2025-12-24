@@ -61,7 +61,7 @@
 
         -->
         <!ELEMENT context (property*, plugin*, commentGenerator?, (connectionFactory | jdbcConnection), javaTypeResolver?,
-                javaModelGenerator?, sqlMapGenerator?, javaClientGenerator?, table+)>
+                javaModelGenerator?, sqlMapGenerator?, javaClientGenerator?, reusableElements?,table+)>
         <!ATTLIST context id ID #REQUIRED
                 appKeyword CDATA #REQUIRED
                 moduleKeyword CDATA #REQUIRED
@@ -167,6 +167,25 @@
                 targetPackage CDATA #REQUIRED
                 targetProject CDATA #REQUIRED>
 
+        <!--
+            对相列名相同且配置相同的字段，在当前元素中定义后，可以被多个表的配置复用
+            重用规则：
+                - 优先使用table中同名字段的配置元素，如果table中未配置，且table名称没有包含在排除属性excludedTable中，则使用reusableElements中的配置。
+                - 如果table和reusableElements中都存在同一字段名的配置，且table名称没有包含在排除属性excludedTable中，则使用table中的配置覆盖reusableElements中的配置。
+                - 唯一标识为原始列名或属性名（listColumnDescriptor），如：parent_id、status_或parentId、status等
+            可重用元素包括：
+                - htmlElementDescriptor
+                - htmlSwitchDescriptor
+                - htmlTableSelectDescriptor
+                - overridePropertyValue
+                - listColumnDescriptor
+                - filterColumn
+            属性信息：
+            1、excludedTable 排除的表名称，多个”,“分隔。指定后，当前reusableElements中的元素不会应用到指定的表中。
+        -->
+        <!ELEMENT reusableElements (property*, htmlElementDescriptor*, htmlSwitchDescriptor*, htmlTableSelectDescriptor*, overridePropertyValue*, listColumnDescriptor*,fieldOverrides*,filterColumn*)>
+        <!ATTLIST reusableElements
+                excludedTables CDATA #IMPLIED>
         <!--
           The table element is used to specify a database table that will be the source information
           for a set of generated objects.
@@ -546,11 +565,7 @@
             8、targetProject 视图路径，默认"src/main/resources/templates"
             9、targetPackage 页面文件的基础包路径，默认使用context的htmlTargetPackage
             10、default 是否为默认页面，如果为true，则当前页面为默认页面。如果所有配置的页面都不是默认页面，则第一个页面为默认页面。
-            11、overWriteVueView 当vue的路由组件view文件存在时，是否覆盖。默认为true
-            12、overWriteVueEdit 当vue的Edit组件文件存在时，是否覆盖。默认为true
-            13、overWriteVueDetail 当vue的Detail组件文件存在时，是否覆盖。默认为true
-
-            可能的property配置：
+           可能的property配置：
             1、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             2、requiredColumns 页面文件中必填的列，多个”,“分隔。
             3、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。
@@ -568,10 +583,7 @@
                 overWriteCssFile (true|false) #IMPLIED
                 targetPackage  CDATA #IMPLIED
                 targetProject CDATA #IMPLIED
-                default (true|false) #IMPLIED
-                overWriteVueView (true|false) #IMPLIED
-                overWriteVueEdit (true|false) #IMPLIED
-                overWriteVueDetail (true|false) #IMPLIED>
+                default (true|false) #IMPLIED>
         <!--
             页面布局生成描述
             属性信息：

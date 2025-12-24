@@ -155,12 +155,17 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
         });
     }
 
-    protected void addWhereConditionResult(TopLevelClass requestVoClass) {
+    /**
+     * 构建anyWhereCondition属性
+     * @param requestVoClass TopLevelClass
+     * @return Field anyWhereCondition
+     */
+    protected Field getWhereConditionResult(TopLevelClass requestVoClass) {
         Field cascade = new Field("anyWhereCondition", FullyQualifiedJavaType.getStringInstance());
         cascade.setVisibility(JavaVisibility.PRIVATE);
         cascade.setRemark("任意过滤条件");
         new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, requestVoClass);
-        requestVoClass.addField(cascade);
+        return cascade;
     }
 
     protected void addProperty(TopLevelClass topLevelClass, Field field, String strExample, AbstractIntrospectedTable abstractIntrospectedTable) {

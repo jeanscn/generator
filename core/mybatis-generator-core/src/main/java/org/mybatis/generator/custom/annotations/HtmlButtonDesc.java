@@ -16,7 +16,7 @@ import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
  */
 @Getter
 @Setter
-public class HtmlButtonDesc  extends AbstractAnnotation{
+public class HtmlButtonDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@HtmlButton";
 
@@ -42,9 +42,9 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     private boolean isLink;
 
-    private boolean  isRound;
+    private boolean isRound;
 
-    private boolean  isCircle;
+    private boolean isCircle;
 
     private boolean isPlain;
 
@@ -123,25 +123,25 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
 
     @Override
     public String toAnnotation() {
-        this.value = this.value==null?this.id:this.value;
-        items.add("value = \""+this.value+"\"");
+        this.value = this.value == null ? this.id : this.value;
+        items.add("value = \"" + this.value + "\"");
         if (this.text) {
             items.add("text = true");
         }
-        if (this.title!=null) {
-            items.add("title = \""+this.title+"\"");
+        if (this.title != null) {
+            items.add("title = \"" + this.title + "\"");
         }
-        if (this.icon!=null) {
-            items.add("icon = \""+this.icon+"\"");
+        if (this.icon != null) {
+            items.add("icon = \"" + this.icon + "\"");
         }
-        if (this.elIcon!=null) {
-            items.add("elIcon = \""+this.elIcon+"\"");
+        if (this.elIcon != null) {
+            items.add("elIcon = \"" + this.elIcon + "\"");
         }
-        if (this.classes!=null) {
-            items.add("classes = \""+this.classes+"\"");
+        if (this.classes != null) {
+            items.add("classes = \"" + this.classes + "\"");
         }
-        if (this.handler!=null) {
-            items.add("handler = \""+this.handler+"\"");
+        if (this.handler != null) {
+            items.add("handler = \"" + this.handler + "\"");
         }
         if (this.isLink) {
             items.add("isLink = true");
@@ -155,29 +155,29 @@ public class HtmlButtonDesc  extends AbstractAnnotation{
         if (this.isPlain) {
             items.add("isPlain = true");
         }
-        if (this.type!=null && !this.type.equalsIgnoreCase("primary")) {
-            items.add("type = \""+this.type+"\"");
+        if (this.type != null && !this.type.equalsIgnoreCase("primary")) {
+            items.add("type = \"" + this.type + "\"");
         }
         if (this.label != null) {
-            items.add("label = \""+this.label+"\"");
+            items.add("label = \"" + this.label + "\"");
         }
         if (VStringUtil.stringHasValue(this.css)) {
-            items.add("css = \""+this.css+"\"");
+            items.add("css = \"" + this.css + "\"");
         }
-        if (this.showCondition!=null && !this.showCondition.equalsIgnoreCase("true")) {
-            items.add("showCondition = \""+this.showCondition+"\"");
+        if (this.showCondition != null && !this.showCondition.equalsIgnoreCase("true")) {
+            items.add("showCondition = \"" + this.showCondition + "\"");
         }
-        if (this.disabledCondition!=null && !this.disabledCondition.equalsIgnoreCase("false")) {
-            items.add("disabledCondition = \""+this.disabledCondition+"\"");
+        if (this.disabledCondition != null && !this.disabledCondition.equalsIgnoreCase("false")) {
+            items.add("disabledCondition = \"" + this.disabledCondition + "\"");
         }
         if (this.configurable) {
             items.add("configurable = true");
         }
         if (VStringUtil.stringHasValue(this.localeKey)) {
-            items.add("localeKey = \""+this.localeKey+"\"");
+            items.add("localeKey = \"" + this.localeKey + "\"");
         }
         if (VStringUtil.stringHasValue(this.componentType) && !this.componentType.equalsIgnoreCase("button")) {
-            items.add("componentType = \""+this.componentType+"\"");
+            items.add("componentType = \"" + this.componentType + "\"");
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }

@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +12,24 @@ import java.util.List;
  * 2022-10-03 16:33
  * @version 3.0
  */
+@Getter
 public class ApiOperationDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ApiOperation";
-    public static final String importClass = "io.swagger.annotations.ApiOperation";
+    public static final String API_OPERATION = "io.swagger.annotations.ApiOperation";
 
     private final String value;
+    @Setter
     private  String notes;
+    @Setter
     private  List<String> tags = new ArrayList<>();
+    @Setter
     private  Class<?> response;
+    @Setter
     private  String httpMethod;
+    @Setter
     private  boolean hidden;
+    @Setter
     private  int code;
 
     public static ApiOperationDesc create(String value, String notes){
@@ -31,7 +40,7 @@ public class ApiOperationDesc extends AbstractAnnotation{
         super();
         this.value = value;
         this.notes = notes;
-        this.addImports(importClass);
+        this.addImports(API_OPERATION);
     }
 
     @Override
@@ -45,55 +54,4 @@ public class ApiOperationDesc extends AbstractAnnotation{
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public Class<?> getResponse() {
-        return response;
-    }
-
-    public void setResponse(Class<?> response) {
-        this.response = response;
-    }
-
-    public String getHttpMethod() {
-        return httpMethod;
-    }
-
-    public void setHttpMethod(String httpMethod) {
-        this.httpMethod = httpMethod;
-    }
-
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
 }

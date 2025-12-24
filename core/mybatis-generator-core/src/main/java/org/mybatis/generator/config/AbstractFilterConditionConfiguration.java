@@ -10,6 +10,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.mybatis.generator.api.IntrospectedColumn;
 
+import java.util.Objects;
+
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,4 +45,15 @@ public class AbstractFilterConditionConfiguration extends TypedPropertyHolder {
         this.tableAlias = tc.getAlias();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) { return false; }
+        AbstractFilterConditionConfiguration that = (AbstractFilterConditionConfiguration) o;
+        return Objects.equals(column, that.column);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(column);
+    }
 }

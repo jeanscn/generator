@@ -48,7 +48,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends AbstractXmlElementGen
             addResultMapElements(answer);
         }
 
-        if (context.getPlugins().sqlMapResultMapWithoutBLOBsElementGenerated(answer, introspectedTable)) {
+        if (context.getPlugins().sqlMapResultMapWithoutBlobsElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
 

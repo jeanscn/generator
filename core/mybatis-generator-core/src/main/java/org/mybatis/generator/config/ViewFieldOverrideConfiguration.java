@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -25,14 +26,23 @@ public class ViewFieldOverrideConfiguration extends TypedPropertyHolder {
 
     private String fixed;
     private String headerAlign = "left";
-    private boolean sort = true; // 是否允许排序
 
-    private boolean hide = false; // 是否隐藏
+    /**
+     * 是否允许排序
+      */
+    private boolean sort = true;
 
-    private boolean edit = false; // 是否可编辑
+    /**
+     * 是否隐藏
+     */
+    private boolean hide = false;
+
+    /**
+     * 是否可编辑
+     */
+    private boolean edit = false;
 
     public ViewFieldOverrideConfiguration() {
         super();
     }
-
 }

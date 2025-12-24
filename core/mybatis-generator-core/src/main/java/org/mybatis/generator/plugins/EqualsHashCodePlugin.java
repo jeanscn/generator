@@ -70,7 +70,7 @@ public class EqualsHashCodePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean modelRecordWithBlobsClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         List<IntrospectedColumn> equalsAndHashCodeColumns = getEqualsAndHashCodeColumns(abstractIntrospectedTable, abstractIntrospectedTable.getTableConfiguration().getJavaModelGeneratorConfiguration());
         if (equalsAndHashCodeColumns.isEmpty()) {
             generateOverrideEquals(topLevelClass);

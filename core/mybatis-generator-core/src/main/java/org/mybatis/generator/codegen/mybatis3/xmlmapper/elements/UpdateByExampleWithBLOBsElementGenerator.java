@@ -74,7 +74,7 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
         ifElement.addElement(where);
         answer.addElement(ifElement);
         if (context.getPlugins()
-                .sqlMapUpdateByExampleWithBLOBsElementGenerated(answer,
+                .sqlMapUpdateByExampleWithBlobsElementGenerated(answer,
                         introspectedTable)) {
             parentElement.addElement(answer);
         }

@@ -31,32 +31,32 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
 
     //entity实体生成后的调整
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
-        addWebProperties(topLevelClass, abstractIntrospectedTable,"model");
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
+        addWebProperties(topLevelClass, introspectedTable,"model");
         return true;
     }
 
     @Override
-    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
-        addWebProperties(topLevelClass, abstractIntrospectedTable,"voModel");
+    public boolean voModelRecordClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
+        addWebProperties(topLevelClass, introspectedTable,"voModel");
         return true;
     }
 
     @Override
-    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
-        addWebProperties(topLevelClass, abstractIntrospectedTable, "view");
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
+        addWebProperties(topLevelClass, introspectedTable, "view");
         return true;
     }
 
-    private void addWebProperties(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable, String type) {
+    private void addWebProperties(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable, String type) {
         //追加respBasePath属性
-        addRespBasePath(topLevelClass, abstractIntrospectedTable, type);
+        addRespBasePath(topLevelClass, introspectedTable, type);
         //追加viewPath
-        addViewPath(topLevelClass, abstractIntrospectedTable, type);
+        addViewPath(topLevelClass, introspectedTable, type);
     }
 
-    private void addViewPath(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable, String type) {
-        HtmlGeneratorConfiguration htmlGeneratorConfiguration = abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
+    private void addViewPath(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable, String type) {
+        HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()
                 .stream()
                 .filter(t -> stringHasValue(t.getViewPath()))
                 .findFirst().orElse(null);
@@ -66,18 +66,19 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             viewPath.setInitializationString("\""+htmlGeneratorConfiguration.getViewPath()+"\"");
             viewPath.setRemark("视图路径");
             if (topLevelClass.addField(viewPath,null,true)) {
-                if (!abstractIntrospectedTable.getRules().isNoSwaggerAnnotation()) {
+                if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                     ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("视图路径",htmlGeneratorConfiguration.getViewPath());
                     apiModelPropertyDesc.setHidden("true");
                     apiModelPropertyDesc.addAnnotationToField(viewPath, topLevelClass);
                 }
-                if (type.equals("model") && abstractIntrospectedTable.getRules().isIntegrateMybatisPlus()) {
+                if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     viewPath.addAnnotation("@TableField(exist = false)");
                     topLevelClass.addMultipleImports("TableField");
                 }
-                abstractIntrospectedTable.getVoModelFields().add(new FieldItem(viewPath));
+                FieldItem fieldItem = new FieldItem(viewPath);
+                introspectedTable.getVoModelFields().add(fieldItem);
             }
-            boolean assignable = JavaBeansUtil.isAssignableCurrent(ConstantsUtil.I_SHOW_IN_VIEW, topLevelClass, abstractIntrospectedTable);
+            boolean assignable = JavaBeansUtil.isAssignableCurrent(ConstantsUtil.I_SHOW_IN_VIEW, topLevelClass, introspectedTable);
             if (!assignable) {
                 FullyQualifiedJavaType showInView = new FullyQualifiedJavaType(I_SHOW_IN_VIEW);
                 topLevelClass.addImportedType(showInView);
@@ -86,23 +87,24 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
         }
     }
 
-    private void addRespBasePath(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable, String type) {
-        if (stringHasValue(abstractIntrospectedTable.getControllerSimplePackage())) {
+    private void addRespBasePath(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable, String type) {
+        if (stringHasValue(introspectedTable.getControllerSimplePackage())) {
             Field field = new Field(PROP_NAME_REST_BASE_PATH, FullyQualifiedJavaType.getStringInstance());
             field.setVisibility(JavaVisibility.PRIVATE);
-            field.setInitializationString("\""+ Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable) +"\"");
+            field.setInitializationString("\""+ Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) +"\"");
             field.setRemark("Restful请求中的跟路径");
             if(topLevelClass.addField(field, null, true)){
-                if (!abstractIntrospectedTable.getRules().isNoSwaggerAnnotation()) {
+                if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
                     ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("Restful请求中的跟路径", "api/serv");
                     apiModelPropertyDesc.setHidden("true");
                     apiModelPropertyDesc.addAnnotationToField(field, topLevelClass);
                 }
-                if (type.equals("model") && abstractIntrospectedTable.getRules().isIntegrateMybatisPlus()) {
+                if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     field.addAnnotation("@TableField(exist = false)");
                     topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
                 }
-                abstractIntrospectedTable.getVoModelFields().add(new FieldItem(field));
+                FieldItem fieldItem = new FieldItem(field);
+                introspectedTable.getVoModelFields().add(fieldItem);
             }
         }
     }

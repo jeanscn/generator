@@ -1,15 +1,19 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-02-20 15:49
  * @version 3.0
  */
+@Setter
+@Getter
 public class ApiDesc extends AbstractAnnotation {
     public static final String ANNOTATION_NAME = "@Api";
-    public static final String importClass = "io.swagger.annotations.Api";
+    public static final String ANNOTATIONS_API = "io.swagger.annotations.Api";
     private String value;
     private String tags;
     private String hidden;
@@ -23,7 +27,7 @@ public class ApiDesc extends AbstractAnnotation {
    public ApiDesc(String tags) {
         super();
         this.tags = tags;
-        this.addImports(importClass);
+        this.addImports(ANNOTATIONS_API);
     }
 
     @Override
@@ -50,51 +54,4 @@ public class ApiDesc extends AbstractAnnotation {
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
-    public String getHidden() {
-        return hidden;
-    }
-
-    public void setHidden(String hidden) {
-        this.hidden = hidden;
-    }
-
-    public String getProduces() {
-        return produces;
-    }
-
-    public void setProduces(String produces) {
-        this.produces = produces;
-    }
-
-    public String getConsumes() {
-        return consumes;
-    }
-
-    public void setConsumes(String consumes) {
-        this.consumes = consumes;
-    }
-
-    public String getProtocols() {
-        return protocols;
-    }
-
-    public void setProtocols(String protocols) {
-        this.protocols = protocols;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 }

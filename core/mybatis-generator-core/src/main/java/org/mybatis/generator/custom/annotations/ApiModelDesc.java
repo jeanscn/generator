@@ -1,20 +1,26 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-02-20 15:27
  * @version 3.0
  */
+@Getter
+@Setter
 public class ApiModelDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ApiModel";
-    public static final  String importClass = "io.swagger.annotations.ApiModel";
+    public static final  String ANNOTATIONS_API_MODEL = "io.swagger.annotations.ApiModel";
 
     private final String value;
 
+
     private String description;
+
 
     private String parent;
 
@@ -26,7 +32,7 @@ public class ApiModelDesc extends AbstractAnnotation{
     public ApiModelDesc(String value) {
         super();
         this.value = value;
-        this.addImports(importClass);
+        this.addImports(ANNOTATIONS_API_MODEL);
     }
 
     @Override
@@ -43,23 +49,4 @@ public class ApiModelDesc extends AbstractAnnotation{
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
 }

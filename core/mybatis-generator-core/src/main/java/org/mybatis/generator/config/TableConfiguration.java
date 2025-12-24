@@ -4,6 +4,7 @@ import com.vgosoft.core.constant.enums.core.*;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
@@ -153,7 +154,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private List<String> warnings;
 
-    public TableConfiguration(Context context,List<String> warings) {
+    public TableConfiguration(Context context, List<String> warings) {
         super();
         this.modelType = context.getDefaultModelType();
         this.warnings = warings;
@@ -304,7 +305,7 @@ public class TableConfiguration extends PropertyHolder {
             boolean queryId2Set = stringHasValue(selectByPrimaryKeyQueryId);
 
             if (queryId1Set != queryId2Set) {
-                errors.add(Messages.getString("ValidationError.13",fqTableName));
+                errors.add(Messages.getString("ValidationError.13", fqTableName));
             }
         }
 
@@ -369,6 +370,9 @@ public class TableConfiguration extends PropertyHolder {
         //根据配置更新introspectedTable的voModelType、voCreateType属性
         updateVoModelType(introspectedTable);
 
+        // 处理复用元素的配置
+        calculateReusableElementsConfiguration(introspectedTable, context, warnings);
+
         //更新TC与表结构相关的自定义属性
         updateTableConfiguration(introspectedTable);
         //检查并更新queryColumnConfiguration的表名及别名配置
@@ -415,6 +419,68 @@ public class TableConfiguration extends PropertyHolder {
         calculateAdditionalProperty();
     }
 
+    private void calculateReusableElementsConfiguration(AbstractIntrospectedTable introspectedTable, Context context, List<String> warnings) {
+        ReusableElementsConfiguration reusableElementsConfiguration = context.getReusableElementsConfiguration();
+        if (reusableElementsConfiguration.getExcludedTables().contains(this.tableName)) {
+            return;
+        }
+        // 处理htmlElementDescriptors
+        List<HtmlElementDescriptor> reusableHtmlElementDescriptors = reusableElementsConfiguration.getHtmlElementDescriptors(introspectedTable);
+        if (!reusableHtmlElementDescriptors.isEmpty() && !introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().isEmpty()) {
+            introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+                Collection<HtmlElementDescriptor> htmlElementDescriptors = VArrayUtil.merge(htmlGeneratorConfiguration.getElementDescriptors(), reusableHtmlElementDescriptors, false);
+                htmlElementDescriptors.forEach(htmlElementDescriptor -> {
+                    if (htmlElementDescriptor.getHtmlGeneratorConfiguration() == null) {
+                        htmlElementDescriptor.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
+                    }
+                });
+                htmlGeneratorConfiguration.getElementDescriptors().clear();
+                htmlGeneratorConfiguration.getElementDescriptors().addAll(htmlElementDescriptors);
+            });
+        }
+
+
+        // 处理overridePropertyValues
+        List<OverridePropertyValueGeneratorConfiguration> reusableOverrideProperty = reusableElementsConfiguration.getOverridePropertyValueGeneratorConfigurations(introspectedTable);
+        if (!reusableOverrideProperty.isEmpty()) {
+            if (this.getVoGeneratorConfiguration() != null
+                    && this.getVoGeneratorConfiguration().isGenerate()) {
+                VoGeneratorConfiguration voGeneratorConfiguration = this.getVoGeneratorConfiguration();
+                Collection<OverridePropertyValueGeneratorConfiguration> configurations = VArrayUtil.merge(voGeneratorConfiguration.getOverridePropertyConfigurations(), reusableOverrideProperty, false);
+                voGeneratorConfiguration.getOverridePropertyConfigurations().clear();
+                voGeneratorConfiguration.getOverridePropertyConfigurations().addAll(configurations);
+            } else {
+                JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = this.getJavaModelGeneratorConfiguration();
+                Collection<OverridePropertyValueGeneratorConfiguration> configurations = VArrayUtil.merge(javaModelGeneratorConfiguration.getOverridePropertyConfigurations(), reusableOverrideProperty, false);
+                javaModelGeneratorConfiguration.getOverridePropertyConfigurations().clear();
+                javaModelGeneratorConfiguration.getOverridePropertyConfigurations().addAll(configurations);
+            }
+        }
+
+        // 处理listColumnDescriptors和filterColumnDescriptors
+        if (this.getVoGeneratorConfiguration() != null
+                && this.getVoGeneratorConfiguration().isGenerate()
+                && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null
+                && this.getVoGeneratorConfiguration().getVoViewConfiguration().isGenerate()) {
+            // 处理listColumnDescriptors
+            if (!reusableElementsConfiguration.getListColumnDescriptors().isEmpty()) {
+                List<InnerListViewConfiguration> innerListViewConfigurations = this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
+                innerListViewConfigurations.forEach(innerListViewConfiguration -> {
+                    Collection<ListColumnConfiguration> listColumnConfigurations = VArrayUtil.merge(innerListViewConfiguration.getListColumnConfigurations(), reusableElementsConfiguration.getListColumnConfigurations(innerListViewConfiguration, introspectedTable), false);
+                    innerListViewConfiguration.getListColumnConfigurations().clear();
+                    innerListViewConfiguration.getListColumnConfigurations().addAll(listColumnConfigurations);
+                });
+            }
+            // 处理filterColumnDescriptors
+            if (!reusableElementsConfiguration.getFilterColumnDescriptors().isEmpty()) {
+                List<FilterColumnConfiguration> filterColumnsConfigurations = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumnsConfigurations();
+                Collection<FilterColumnConfiguration> filterColumnConfigurations = VArrayUtil.merge(filterColumnsConfigurations, reusableElementsConfiguration.getFilterColumnConfigurations(introspectedTable), false);
+                filterColumnsConfigurations.clear();
+                filterColumnsConfigurations.addAll(filterColumnConfigurations);
+            }
+        }
+    }
+
     private void calculateStatisticsGeneratorConfiguration(AbstractIntrospectedTable abstractIntrospectedTable) {
         JavaServiceImplGeneratorConfiguration serviceImplGeneratorConfiguration = abstractIntrospectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration();
         if (serviceImplGeneratorConfiguration == null) {
@@ -431,7 +497,7 @@ public class TableConfiguration extends PropertyHolder {
             IntrospectedColumn statColumn = abstractIntrospectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
             IntrospectedColumn joinColumn = abstractIntrospectedTable.getColumn(statisticsConfiguration.getDateDimColumn()).orElse(null);
             if (statColumn == null || joinColumn == null) {
-                this.warnings.add("警告：表 " + abstractIntrospectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"或时间维度字段"+statisticsConfiguration.getDateDimColumn()+"在表中不存在，已被忽略。");
+                this.warnings.add("警告：表 " + abstractIntrospectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段" + statisticsConfiguration.getStatColumns().get(0) + "或时间维度字段" + statisticsConfiguration.getDateDimColumn() + "在表中不存在，已被忽略。");
                 continue;
             }
             List<String> nameList = Arrays.asList(statisticsConfiguration.getStatType(),
@@ -442,7 +508,7 @@ public class TableConfiguration extends PropertyHolder {
             if (VStringUtil.stringHasValue(statisticsConfiguration.getNameSuffix())) {
                 methodName += statisticsConfiguration.getNameSuffix();
             }
-            statisticsConfiguration.setMethodName("stat"+methodName);
+            statisticsConfiguration.setMethodName("stat" + methodName);
         }
         Set<StatisticsDateDimGeneratorConfiguration> configurationList = serviceImplGeneratorConfiguration.getStatisticsConfigurations().stream()
                 .filter(configuration -> stringHasValue(configuration.getMethodName())).collect(Collectors.toSet());
@@ -464,7 +530,7 @@ public class TableConfiguration extends PropertyHolder {
             }
             IntrospectedColumn statColumn = abstractIntrospectedTable.getColumn(statisticsConfiguration.getStatColumns().get(0)).orElse(null);
             if (statColumn == null) {
-                this.warnings.add("警告：表 " + abstractIntrospectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段"+statisticsConfiguration.getStatColumns().get(0)+"在表中不存在，已被忽略。");
+                this.warnings.add("警告：表 " + abstractIntrospectedTable.getFullyQualifiedTable() + " 的 StatisticsGeneratorConfiguration 配置无效，统计字段" + statisticsConfiguration.getStatColumns().get(0) + "在表中不存在，已被忽略。");
                 continue;
             }
             List<JoinTableClauseGeneratorConfiguration> joinTableConfigurations = statisticsConfiguration.getJoinTableClauseGeneratorConfigurations();
@@ -476,7 +542,7 @@ public class TableConfiguration extends PropertyHolder {
             if (VStringUtil.stringHasValue(statisticsConfiguration.getNameSuffix())) {
                 methodName += statisticsConfiguration.getNameSuffix();
             }
-            statisticsConfiguration.setMethodName("statCustom"+methodName);
+            statisticsConfiguration.setMethodName("statCustom" + methodName);
         }
         Set<StatisticsCustomGeneratorConfiguration> configurationList = serviceImplGeneratorConfiguration.getStatisticsCustomConfigurations().stream()
                 .filter(configuration -> stringHasValue(configuration.getMethodName())).collect(Collectors.toSet());
@@ -595,6 +661,7 @@ public class TableConfiguration extends PropertyHolder {
 
     /**
      * 为所有的html元素描述器生成OverrideProperty属性
+     *
      * @param abstractIntrospectedTable introspectedTable对象
      */
     private void generateDescriptorOverrideProperty(AbstractIntrospectedTable abstractIntrospectedTable) {
@@ -624,10 +691,11 @@ public class TableConfiguration extends PropertyHolder {
 
     /**
      * 更新TC与表结构相关的自定义属性
-     * @param abstractIntrospectedTable introspectedTable对象
+     *
+     * @param introspectedTable introspectedTable对象
      */
-    private void updateTableConfiguration(final AbstractIntrospectedTable abstractIntrospectedTable) {
-        abstractIntrospectedTable.getAllColumns().forEach(column -> {
+    private void updateTableConfiguration(final AbstractIntrospectedTable introspectedTable) {
+        introspectedTable.getAllColumns().forEach(column -> {
             //1、更新tableConfiguration的FieldNames、ColumnNames列表
             this.getFieldNames().add(column.getJavaProperty());
             this.getColumnNames().add(column.getActualColumnName());
@@ -647,14 +715,14 @@ public class TableConfiguration extends PropertyHolder {
             }
 
             //3、设置是否需要验证的属性
-            abstractIntrospectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
+            introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
                 htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
                     if (elementDescriptor.getName().equals(column.getActualColumnName()) && elementDescriptor.getVerify().contains("required")) {
                         column.setBeValidated(true);
                     }
                 });
             });
-            if (isFieldNeedValidate(column, abstractIntrospectedTable.getTableConfiguration().getHtmlGeneratorConfigurations())) {
+            if (isFieldNeedValidate(column, introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations())) {
                 column.setBeValidated(true);
             }
         });
@@ -662,6 +730,7 @@ public class TableConfiguration extends PropertyHolder {
 
     /**
      * 对指定了dataFormat的快捷配置进行转换
+     *
      * @param abstractIntrospectedTable introspectedTable对象
      */
     private void convertDataFormatConfigurations(AbstractIntrospectedTable abstractIntrospectedTable) {
@@ -913,8 +982,9 @@ public class TableConfiguration extends PropertyHolder {
 
     /**
      * 为已经配置存在的html元素描述器赋值introspectedColumn,自动配置dataUrl
+     *
      * @param abstractIntrospectedTable introspectedTable对象
-     * @param warnings 警告列表
+     * @param warnings                  警告列表
      */
     private void assignHtmlIntrospectedColumn(AbstractIntrospectedTable abstractIntrospectedTable, final List<String> warnings) {
         abstractIntrospectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations()

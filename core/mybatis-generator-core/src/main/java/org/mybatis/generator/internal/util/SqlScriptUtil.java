@@ -39,7 +39,7 @@ public class SqlScriptUtil {
                     SqlScriptUtil.getSqlFragmentNotNull(col),
                     col.getRemarks(false),
                     position);
-            if (sb.length() > 0) {
+            if (sb.length()>0) {
                 sb.append(",").append("\n");
             }
             sb.append(onAddRow);

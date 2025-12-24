@@ -1,4 +1,5 @@
 /**
+* @VCF.overridable
 * 个性化处理的js文件
 * 如果对当前文件进行了修改，请务必修改生成配置的“generateHtml”元素的overWriteJsFile属性值改为false，
 *    即overWriteJsFile=“false”，否则再次生成时会被覆盖

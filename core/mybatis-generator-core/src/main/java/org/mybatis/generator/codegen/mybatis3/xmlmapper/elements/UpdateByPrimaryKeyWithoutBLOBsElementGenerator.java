@@ -26,7 +26,7 @@ public class UpdateByPrimaryKeyWithoutBLOBsElementGenerator extends AbstractXmlE
                 introspectedTable.getBaseRecordType(),
                 columns);
 
-        if (context.getPlugins().sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(answer, introspectedTable)) {
+        if (context.getPlugins().sqlMapUpdateByPrimaryKeyWithoutBlobsElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
     }

@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations.mybatisplus;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
 /**
@@ -10,9 +12,11 @@ import org.mybatis.generator.custom.annotations.AbstractAnnotation;
  * 2023-02-27 13:14
  * @version 3.0
  */
+@Getter
+@Setter
 public class TableName extends AbstractAnnotation {
     public static final String ANNOTATION_NAME = "@TableName";
-    public static final String importClass = "com.baomidou.mybatisplus.annotation.TableName";
+    public static final String TABLE_NAME = "com.baomidou.mybatisplus.annotation.TableName";
     private String value;
     private String schema;
     private boolean keepGlobalPrefix = false;
@@ -27,13 +31,13 @@ public class TableName extends AbstractAnnotation {
 
     public TableName() {
         super();
-        this.addImports(importClass);
+        this.addImports(TABLE_NAME);
     }
 
     public TableName(String value) {
         super();
         this.value = value;
-        this.addImports(importClass);
+        this.addImports(TABLE_NAME);
     }
 
     @Override
@@ -59,53 +63,13 @@ public class TableName extends AbstractAnnotation {
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
     public TableName setValue(String value) {
         this.value = value;
         return this;
     }
 
-    public boolean isAutoResultMap() {
-        return autoResultMap;
-    }
-
     public TableName setAutoResultMap(boolean autoResultMap) {
         this.autoResultMap = autoResultMap;
         return this;
-    }
-
-    public String getSchema() {
-        return schema;
-    }
-
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    public boolean isKeepGlobalPrefix() {
-        return keepGlobalPrefix;
-    }
-
-    public void setKeepGlobalPrefix(boolean keepGlobalPrefix) {
-        this.keepGlobalPrefix = keepGlobalPrefix;
-    }
-
-    public String getResultMap() {
-        return resultMap;
-    }
-
-    public void setResultMap(String resultMap) {
-        this.resultMap = resultMap;
-    }
-
-    public String[] getExcludeProperty() {
-        return excludeProperty;
-    }
-
-    public void setExcludeProperty(String[] excludeProperty) {
-        this.excludeProperty = excludeProperty;
     }
 }

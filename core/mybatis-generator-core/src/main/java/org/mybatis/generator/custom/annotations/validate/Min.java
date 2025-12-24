@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
+/**
+ * @author cen_c
+ */
 @Setter
 @Getter
 public class Min  extends AbstractAnnotation {
@@ -39,7 +42,7 @@ public class Min  extends AbstractAnnotation {
         if (groups != null && groups.length > 0) {
             this.items.add("groups = {" + String.join(", ", groups) + "}");
         }
-        if (!this.items.isEmpty()) return "@Min(" + String.join(", ", items.toArray(new String[0])) + ")";
-        else return "@Min";
+        if (!this.items.isEmpty()) { return "@Min(" + String.join(", ", items.toArray(new String[0])) + ")";}
+        else {return "@Min";}
     }
 }

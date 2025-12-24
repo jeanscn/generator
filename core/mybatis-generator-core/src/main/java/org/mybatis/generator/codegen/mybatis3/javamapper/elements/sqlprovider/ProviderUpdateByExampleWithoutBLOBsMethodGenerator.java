@@ -71,6 +71,6 @@ public class ProviderUpdateByExampleWithoutBLOBsMethodGenerator extends Abstract
 
     public boolean callPlugins(Method method, TopLevelClass topLevelClass) {
         return context.getPlugins()
-                .providerUpdateByExampleWithoutBLOBsMethodGenerated(method, topLevelClass, introspectedTable);
+                .providerUpdateByExampleWithoutBlobsMethodGenerated(method, topLevelClass, introspectedTable);
     }
 }

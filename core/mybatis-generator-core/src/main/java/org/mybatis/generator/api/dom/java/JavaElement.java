@@ -6,6 +6,9 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public abstract class JavaElement {

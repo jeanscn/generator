@@ -24,46 +24,46 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable, ModelClassType modelClassType) {
+    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable, ModelClassType modelClassType) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
-        if (!abstractIntrospectedTable.getRules().isGenerateVoModel()) {
-            addJSONSerialize(field, topLevelClass, introspectedColumn);
+        if (!introspectedTable.getRules().isGenerateVoModel()) {
+            addJsonSerialize(field, topLevelClass, introspectedColumn);
         }
         return true;
     }
 
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
-        addJSONSerialize(field, topLevelClass, introspectedColumn);
+        addJsonSerialize(field, topLevelClass, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
-        addJSONSerialize(field, topLevelClass, introspectedColumn);
+        addJsonSerialize(field, topLevelClass, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         addJsonFieldFormat(field, topLevelClass, introspectedColumn);
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
         return true;
     }
 
     @Override
-    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         addDateTimeFormat(field, topLevelClass, introspectedColumn);
         return true;
     }
@@ -92,7 +92,7 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
         }
     }
 
-    private void addJSONSerialize(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
+    private void addJsonSerialize(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
         if (introspectedColumn == null || !"JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName())) {
             return;
         }

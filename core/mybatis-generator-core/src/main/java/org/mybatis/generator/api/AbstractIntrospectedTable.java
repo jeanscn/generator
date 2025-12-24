@@ -148,7 +148,9 @@ public abstract class AbstractIntrospectedTable {
     protected FullyQualifiedJavaType voModelType;
     protected FullyQualifiedJavaType voCreateType;
 
-    protected List<FieldItem> voModelFields = new ArrayList<>();
+    protected final List<TypeScriptTypeDescriptor> typeScriptTypeDescriptors = new ArrayList<>();
+
+    protected final List<FieldItem> voModelFields = new ArrayList<>();
 
     protected AbstractIntrospectedTable(TargetRuntime targetRuntime) {
         this.targetRuntime = targetRuntime;

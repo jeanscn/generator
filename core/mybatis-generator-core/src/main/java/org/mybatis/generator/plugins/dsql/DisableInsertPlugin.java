@@ -24,71 +24,71 @@ public class DisableInsertPlugin extends PluginAdapter {
 
     @Override
     public boolean clientBasicInsertMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientBasicInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientBasicInsertMultipleMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientBasicInsertMultipleMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientInsertMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientInsertMultipleMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientInsertMultipleMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientInsertSelectiveMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertBatchMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientInsertBatchMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientInsertSelectiveMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 

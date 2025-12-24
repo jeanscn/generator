@@ -1,10 +1,19 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Objects;
+
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-07-17 04:28
  * @version 4.0
  */
+@Setter
+@Getter
+@NoArgsConstructor
 public class ListColumnConfiguration extends PropertyHolder{
 
     private String field;
@@ -23,71 +32,15 @@ public class ListColumnConfiguration extends PropertyHolder{
 
     private String align;
 
-    public ListColumnConfiguration() {
-
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) { return false; }
+        ListColumnConfiguration that = (ListColumnConfiguration) o;
+        return Objects.equals(field, that.field);
     }
 
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
-
-    public String getWidth() {
-        return width;
-    }
-
-    public void setWidth(String width) {
-        this.width = width;
-    }
-
-    public Integer getMinWidth() {
-        return minWidth;
-    }
-
-    public void setMinWidth(Integer minWidth) {
-        this.minWidth = minWidth;
-    }
-
-    public String getFixed() {
-        return fixed;
-    }
-
-    public void setFixed(String fixed) {
-        this.fixed = fixed;
-    }
-
-    public String getTemplet() {
-        return templet;
-    }
-
-    public void setTemplet(String templet) {
-        this.templet = templet;
-    }
-
-    public String getStyle() {
-        return style;
-    }
-
-    public void setStyle(String style) {
-        this.style = style;
-    }
-
-    public String getAlign() {
-        return align;
-    }
-
-    public void setAlign(String align) {
-        this.align = align;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(field);
     }
 }

@@ -30,7 +30,7 @@ public class UpdateByExampleWithBLOBsMethodGenerator extends AbstractJavaMapperM
 
         addMapperAnnotations(method);
 
-        if (context.getPlugins().clientUpdateByExampleWithBLOBsMethodGenerated(method, interfaze, introspectedTable)) {
+        if (context.getPlugins().clientUpdateByExampleWithBlobsMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);

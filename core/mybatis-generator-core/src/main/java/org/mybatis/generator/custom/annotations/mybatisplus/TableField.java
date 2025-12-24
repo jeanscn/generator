@@ -1,6 +1,8 @@
 package org.mybatis.generator.custom.annotations.mybatisplus;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
 
 /**
@@ -10,9 +12,11 @@ import org.mybatis.generator.custom.annotations.AbstractAnnotation;
  * 2023-02-27 02:12
  * @version 3.0
  */
+@Setter
+@Getter
 public class TableField extends AbstractAnnotation {
 public static final String ANNOTATION_NAME = "@TableField";
-    public static final String importClass = "com.baomidou.mybatisplus.annotation.TableField";
+    public static final String TABLE_FIELD = "com.baomidou.mybatisplus.annotation.TableField";
     private  String value;
     private boolean exist = true;
     private String condition;
@@ -33,13 +37,13 @@ public static final String ANNOTATION_NAME = "@TableField";
 
     public TableField() {
         super();
-        this.addImports(importClass);
+        this.addImports(TABLE_FIELD);
     }
 
     public TableField(String value) {
         super();
         this.value = value;
-        this.addImports(importClass);
+        this.addImports(TABLE_FIELD);
     }
 
     @Override
@@ -66,107 +70,4 @@ public static final String ANNOTATION_NAME = "@TableField";
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
-    public boolean isExist() {
-        return exist;
-    }
-
-    public void setExist(boolean exist) {
-        this.exist = exist;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getUpdate() {
-        return update;
-    }
-
-    public void setUpdate(String update) {
-        this.update = update;
-    }
-
-    public String getSelect() {
-        return select;
-    }
-
-    public void setSelect(String select) {
-        this.select = select;
-    }
-
-    public String getWhereStrategy() {
-        return whereStrategy;
-    }
-
-    public void setWhereStrategy(String whereStrategy) {
-        this.whereStrategy = whereStrategy;
-    }
-
-    public boolean isJdbcType() {
-        return jdbcType;
-    }
-
-    public void setJdbcType(boolean jdbcType) {
-        this.jdbcType = jdbcType;
-    }
-
-    public String getTypeHandler() {
-        return typeHandler;
-    }
-
-    public void setTypeHandler(String typeHandler) {
-        this.typeHandler = typeHandler;
-    }
-
-    public String getFill() {
-        return fill;
-    }
-
-    public void setFill(String fill) {
-        this.fill = fill;
-    }
-
-    public String getUpdateStrategy() {
-        return updateStrategy;
-    }
-
-    public void setUpdateStrategy(String updateStrategy) {
-        this.updateStrategy = updateStrategy;
-    }
-
-    public String getInsertStrategy() {
-        return insertStrategy;
-    }
-
-    public void setInsertStrategy(String insertStrategy) {
-        this.insertStrategy = insertStrategy;
-    }
-
-    public String getUpdateIgnoreStrategy() {
-        return updateIgnoreStrategy;
-    }
-
-    public void setUpdateIgnoreStrategy(String updateIgnoreStrategy) {
-        this.updateIgnoreStrategy = updateIgnoreStrategy;
-    }
-
-    public String getInsertIgnoreStrategy() {
-        return insertIgnoreStrategy;
-    }
-
-    public void setInsertIgnoreStrategy(String insertIgnoreStrategy) {
-        this.insertIgnoreStrategy = insertIgnoreStrategy;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 }

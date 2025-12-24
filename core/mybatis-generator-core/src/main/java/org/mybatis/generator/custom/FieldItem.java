@@ -15,7 +15,7 @@ public class FieldItem {
     public String name;
     public String type;
     public String remarks;
-    public boolean required;
+    public boolean required = false;
 
     public FieldItem(String name, String type) {
         this.name = name;
@@ -26,7 +26,6 @@ public class FieldItem {
         this.name = field.getName();
         this.type = field.getType().getShortName();
         this.remarks = field.getRemark();
-        this.required = false;
     }
 
     @Override

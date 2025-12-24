@@ -118,6 +118,8 @@ public class CompositeQueryDesc extends AbstractAnnotation {
                     compositeQueryDesc.setFieldType(FieldTypeEnum.ORGAN);
                     compositeQueryDesc.setQueryMode(QueryModesEnum.EQUAL);
                     break;
+                default:
+                    break;
             }
         }
         return compositeQueryDesc;

@@ -23,7 +23,7 @@ public class UpdateByPrimaryKeyWithBLOBsElementGenerator extends
                 parameterType,
                 introspectedTable.getNonPrimaryKeyColumns());
 
-        if (context.getPlugins().sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(answer, introspectedTable)) {
+        if (context.getPlugins().sqlMapUpdateByPrimaryKeyWithBlobsElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
     }

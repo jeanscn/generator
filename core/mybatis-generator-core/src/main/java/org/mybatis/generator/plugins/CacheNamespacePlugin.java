@@ -80,20 +80,20 @@ public class CacheNamespacePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (!skip(abstractIntrospectedTable)) {
+    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable introspectedTable) {
+        if (!skip(introspectedTable)) {
             interfaze.addImportedType(
                     new FullyQualifiedJavaType("org.apache.ibatis.annotations.CacheNamespace"));
 
             Arrays.stream(CacheProperty.values())
                     .filter(CacheProperty::isClassName)
-                    .map(cp -> getRawPropertyValue(abstractIntrospectedTable, cp.getPropertyName()))
+                    .map(cp -> getRawPropertyValue(introspectedTable, cp.getPropertyName()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .map(FullyQualifiedJavaType::new)
                     .forEach(interfaze::addImportedType);
 
-            interfaze.addAnnotation(calculateAnnotation(abstractIntrospectedTable, ".class"));
+            interfaze.addAnnotation(calculateAnnotation(introspectedTable, ".class"));
         }
 
         return true;

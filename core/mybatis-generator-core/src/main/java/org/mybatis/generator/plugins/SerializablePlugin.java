@@ -66,7 +66,7 @@ public class SerializablePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelRecordWithBLOBsClassGenerated(
+    public boolean modelRecordWithBlobsClassGenerated(
             TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         makeSerializable(topLevelClass, abstractIntrospectedTable);
         return true;

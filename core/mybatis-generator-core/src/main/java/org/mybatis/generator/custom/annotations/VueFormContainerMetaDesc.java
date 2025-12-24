@@ -1,11 +1,18 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.VueFormContainerMeta;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.config.HtmlGroupContainerConfiguration;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 
+/**
+ * @author cen_c
+ */
+@Setter
+@Getter
 public class VueFormContainerMetaDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@VueFormContainerMeta";
@@ -93,102 +100,5 @@ public class VueFormContainerMetaDesc extends AbstractAnnotation {
             items.add(format("className = \"{0}\"", className));
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public int getSpan() {
-        return span;
-    }
-
-    public void setSpan(int span) {
-        this.span = span;
-    }
-
-    public int getColumnNum() {
-        return columnNum;
-    }
-
-    public void setColumnNum(int columnNum) {
-        this.columnNum = columnNum;
-    }
-
-    public String getAfterColumn() {
-        return afterColumn;
-    }
-
-    public void setAfterColumn(String afterColumn) {
-        this.afterColumn = afterColumn;
-    }
-
-    public String getIncludeElements() {
-        return includeElements;
-    }
-
-    public void setIncludeElements(String includeElements) {
-        this.includeElements = includeElements;
-    }
-
-
-    public String getParentElementKey() {
-        return parentElementKey;
-    }
-
-    public void setParentElementKey(String parentElementKey) {
-        this.parentElementKey = parentElementKey;
-    }
-
-    public boolean isNoBorder() {
-        return noBorder;
-    }
-
-    public void setNoBorder(boolean noBorder) {
-        this.noBorder = noBorder;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getHideExpression() {
-        return hideExpression;
-    }
-
-    public void setHideExpression(String hideExpression) {
-        this.hideExpression = hideExpression;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 }

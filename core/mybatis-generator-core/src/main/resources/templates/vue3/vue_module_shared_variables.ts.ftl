@@ -1,4 +1,5 @@
 /**
+* ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }-${ modelPath }-共享变量定义
 * @version: shared variables version 1.0.5
 */

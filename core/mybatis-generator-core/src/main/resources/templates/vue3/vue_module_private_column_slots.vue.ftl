@@ -1,9 +1,9 @@
 <!--
 * ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }列表列插槽渲染
-* @version: slots template version 1.0.6
+* @version: slots template version 1.0.8
 -->
-<template #[slotName]="scope">
+<template>
     <el-tag v-if="slotName === 'state'"
             :type="stateText === '启用' ? 'primary' : stateText === '停用' ? 'warning' : 'info'">
         {{ stateText }}

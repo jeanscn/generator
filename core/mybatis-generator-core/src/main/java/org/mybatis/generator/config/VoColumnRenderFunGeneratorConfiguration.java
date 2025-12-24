@@ -1,5 +1,8 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,14 +11,17 @@ import java.util.List;
  * 2023-04-11 13:43
  * @version 3.0
  */
+@Getter
 public class VoColumnRenderFunGeneratorConfiguration extends TypedPropertyHolder {
 
     private final TableConfiguration tc;
 
     private final Context context;
 
+    @Setter
     private List<String> fieldNames = new ArrayList<>();
 
+    @Setter
     private String renderFun;
 
     public VoColumnRenderFunGeneratorConfiguration(Context context, TableConfiguration tc) {
@@ -23,27 +29,4 @@ public class VoColumnRenderFunGeneratorConfiguration extends TypedPropertyHolder
         this.context = context;
     }
 
-    public TableConfiguration getTc() {
-        return tc;
-    }
-
-    public Context getContext() {
-        return context;
-    }
-
-    public List<String> getFieldNames() {
-        return fieldNames;
-    }
-
-    public void setFieldNames(List<String> fieldNames) {
-        this.fieldNames = fieldNames;
-    }
-
-    public String getRenderFun() {
-        return renderFun;
-    }
-
-    public void setRenderFun(String renderFun) {
-        this.renderFun = renderFun;
-    }
 }

@@ -1,6 +1,6 @@
-package org.mybatis.generator.DBStrategy.introspectorStrategy;
+package org.mybatis.generator.dbstrategy.introspectorstrategy;
 
-import org.mybatis.generator.DBStrategy.DatabaseIntrospectorStrategy;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
 
@@ -11,7 +11,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SQLServerIntrospectorStrategy implements DatabaseIntrospectorStrategy {
+/**
+ * @author cen_c
+ */
+public class SqlServerIntrospectorStrategy implements DatabaseIntrospectorStrategy {
 
     @Override
     public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) throws SQLException {
@@ -41,7 +44,7 @@ public class SQLServerIntrospectorStrategy implements DatabaseIntrospectorStrate
     @Override
     public Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException {
         Map<String, String> remarks = new HashMap<>();
-        ResultSet sqlServerResultSet = null;
+        ResultSet sqlServerResultSet;
         StringBuilder sb = new StringBuilder("SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS ");
         sb.append("FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id ");
         sb.append("LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id ");
@@ -50,9 +53,9 @@ public class SQLServerIntrospectorStrategy implements DatabaseIntrospectorStrate
         ps.setString(1, tableName);
         sqlServerResultSet = ps.executeQuery();
         while (sqlServerResultSet.next()) {
-            String col_Name = sqlServerResultSet.getString(1);
-            String col_Remark = sqlServerResultSet.getString(2);
-            remarks.put(col_Name, col_Remark);
+            String colName = sqlServerResultSet.getString(1);
+            String colRemark = sqlServerResultSet.getString(2);
+            remarks.put(colName, colRemark);
         }
         sqlServerResultSet.close();
         return remarks;

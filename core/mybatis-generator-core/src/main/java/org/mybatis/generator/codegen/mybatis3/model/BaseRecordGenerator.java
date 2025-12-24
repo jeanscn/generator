@@ -158,16 +158,44 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
 
         //增加actionType属性
         if (!introspectedTable.getRules().isGenerateVoModel() && !introspectedTable.getRules().isGenerateRequestVo()) {
-            addActionType(topLevelClass, introspectedTable);
-            addIgnoreDeleteFlag(topLevelClass, introspectedTable);
-            addIgnorePermissionAnnotation(topLevelClass, introspectedTable);
+            Field actionType = getActionType(topLevelClass, introspectedTable);
+            if (actionType != null && plugins.modelFieldGenerated(actionType, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(actionType);
+                topLevelClass.addImportedType(actionType.getType());
+            }
+
+            // 增加ignoreDeleteFlag属性
+            Field ignoreDeleteFlag = getIgnoreDeleteFlag(topLevelClass, introspectedTable);
+            if (ignoreDeleteFlag != null && plugins.modelFieldGenerated(ignoreDeleteFlag, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(ignoreDeleteFlag);
+                topLevelClass.addImportedType(ignoreDeleteFlag.getType());
+            }
+
+            //增加ignorePermissionAnnotation属性
+            Field ignorePermissionAnnotation = addIgnorePermissionAnnotation(topLevelClass, introspectedTable);
+            if (ignorePermissionAnnotation != null && plugins.modelFieldGenerated(ignorePermissionAnnotation, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(ignorePermissionAnnotation);
+                topLevelClass.addImportedType(ignorePermissionAnnotation.getType());
+            }
             //增加ignoreIdList属性
-            addIgnoreIdList(topLevelClass, introspectedTable);
-            addIsHideIds(topLevelClass, introspectedTable);
+            Field ignoreIdList = getIgnoreIdList(topLevelClass, introspectedTable);
+            if (ignoreIdList != null && plugins.modelFieldGenerated(ignoreIdList, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(ignoreIdList);
+                topLevelClass.addImportedType(ignoreIdList.getType());
+            }
+            //增加isHideIds属性
+            Field isHideIds = getIsHideIds(topLevelClass, introspectedTable);
+            if (isHideIds != null && plugins.modelFieldGenerated(isHideIds, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(isHideIds);
+            }
             //增加任意过滤条件接收
             addWhereConditionResult(topLevelClass);
             //增加前端过滤器属性
-            addFilterMap(topLevelClass);
+            Field filterMap = getFilterMap(topLevelClass);
+            if (filterMap != null && plugins.modelFieldGenerated(filterMap, topLevelClass, null, introspectedTable, Plugin.ModelClassType.BASE_RECORD)) {
+                topLevelClass.addField(filterMap);
+                topLevelClass.addImportedType(filterMap.getType());
+            }
         }
 
         //添加一个参数的构造器

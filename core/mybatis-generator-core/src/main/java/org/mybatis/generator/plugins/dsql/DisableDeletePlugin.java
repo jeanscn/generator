@@ -24,30 +24,30 @@ public class DisableDeletePlugin extends PluginAdapter {
 
     @Override
     public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientDeleteByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientGeneralDeleteMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertOrDeleteByTableMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientInsertOrDeleteByTableMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientGeneralDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 }

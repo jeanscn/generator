@@ -2,6 +2,8 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,12 +16,15 @@ import java.util.stream.Stream;
  * 2022-10-03 11:11
  * @version 3.0
  */
+@Getter
 public class RequestMappingDesc extends AbstractAnnotation {
 
+    @Setter
     private String name;
     private final List<String> value = new ArrayList<>();
     private final List<RequestMethodEnum> method = new ArrayList<>();
     private final List<String> params = new ArrayList<>();
+    @Setter
     private List<String> headers = new ArrayList<>();
     private final List<String> consumes = new ArrayList<>();
     private final List<String> produces = new ArrayList<>();
@@ -104,56 +109,20 @@ public class RequestMappingDesc extends AbstractAnnotation {
         return null;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<String> getValue() {
-        return value;
-    }
-
     public void addValue(String value) {
         this.value.add(value);
-    }
-
-    public List<RequestMethodEnum> getMethod() {
-        return method;
     }
 
     public void addMethod(RequestMethodEnum method) {
         this.method.add(method);
     }
 
-    public List<String> getParams() {
-        return params;
-    }
-
     public void addParams(String param) {
         this.params.add(param);
     }
 
-    public List<String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(List<String> headers) {
-        this.headers = headers;
-    }
-
-    public List<String> getConsumes() {
-        return consumes;
-    }
-
     public void addConsumes(String consumes) {
         this.consumes.add(consumes);
-    }
-
-    public List<String> getProduces() {
-        return produces;
     }
 
     public void addProduces(String produces) {

@@ -3,6 +3,8 @@ package org.mybatis.generator.custom.annotations;
 import com.vgosoft.core.annotation.Dict;
 import com.vgosoft.core.constant.GlobalConstant;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -10,16 +12,20 @@ import com.vgosoft.tool.core.VStringUtil;
  * @version 3.0
  */
 
+@Getter
 public class DictDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@"+Dict.class.getSimpleName();
 
+    @Setter
     private String value;
 
     private final String beanName;
 
+    @Setter
     private String applyProperty;
 
+    @Setter
     private String source;
 
     public static DictDesc create(String beanName){
@@ -51,35 +57,7 @@ public class DictDesc extends AbstractAnnotation{
         if (VStringUtil.isNotBlank(source)) {
             this.items.add(VStringUtil.format("source = \"{0}\"", this.source));
         }
-        if (!this.items.isEmpty()) return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
-        else return ANNOTATION_NAME;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getBeanName() {
-        return beanName;
-    }
-
-    public String getApplyProperty() {
-        return applyProperty;
-    }
-
-    public void setApplyProperty(String applyProperty) {
-        this.applyProperty = applyProperty;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
+        if (!this.items.isEmpty()) { return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";}
+        else {return ANNOTATION_NAME;}
     }
 }

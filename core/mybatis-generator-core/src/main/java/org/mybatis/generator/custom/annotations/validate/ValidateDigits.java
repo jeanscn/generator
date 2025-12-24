@@ -1,5 +1,6 @@
 package org.mybatis.generator.custom.annotations.validate;
 
+import com.vgosoft.core.constant.SymbolConstants;
 import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.custom.annotations.AbstractAnnotation;
@@ -19,9 +20,10 @@ public class ValidateDigits extends AbstractAnnotation {
     private String message;
     private String[] groups;
 
-    public static ValidateDigits create(String integer, String fraction, String message, String[] groups){
-        return new ValidateDigits(integer,fraction,message,groups);
+    public static ValidateDigits create(String integer, String fraction, String message, String[] groups) {
+        return new ValidateDigits(integer, fraction, message, groups);
     }
+
     public ValidateDigits() {
         super();
         this.addImports("javax.validation.constraints.Digits");
@@ -38,20 +40,23 @@ public class ValidateDigits extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        if (integer!=null && !integer.equalsIgnoreCase("")) {
-            this.items.add("integer = "+integer);
+        if (integer != null && !integer.equalsIgnoreCase(SymbolConstants.EMPTY_STRING)) {
+            this.items.add("integer = " + integer);
         }
-        if (fraction!=null && !fraction.equalsIgnoreCase("")) {
-            this.items.add("fraction = "+fraction);
+        if (fraction != null && !fraction.equalsIgnoreCase(SymbolConstants.EMPTY_STRING)) {
+            this.items.add("fraction = " + fraction);
         }
-        if (message!=null && !message.equalsIgnoreCase("")) {
-            this.items.add("message = \""+message+"\"");
+        if (message != null && !message.equalsIgnoreCase(SymbolConstants.EMPTY_STRING)) {
+            this.items.add("message = \"" + message + "\"");
         }
-        if (groups!=null && groups.length>0) {
-            this.items.add("groups = {"+String.join(", ",groups)+"}");
+        if (groups != null && groups.length > 0) {
+            this.items.add("groups = {" + String.join(", ", groups) + "}");
         }
-        if (!this.items.isEmpty()) return "@Digits("+ String.join(", ",items.toArray(new String[0])) +")";
-        else return "@Digits";
+        if (!this.items.isEmpty()) {
+            return "@Digits(" + String.join(", ", items.toArray(new String[0])) + ")";
+        } else {
+            return "@Digits";
+        }
     }
 
 }

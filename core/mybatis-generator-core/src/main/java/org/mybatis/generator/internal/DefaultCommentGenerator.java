@@ -25,6 +25,9 @@ import java.util.Set;
 
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 
+/**
+ * @author cen_c
+ */
 public class DefaultCommentGenerator implements CommentGenerator {
 
     private final Properties properties = new Properties();
@@ -205,7 +208,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
         String remarks = abstractIntrospectedTable.getRemarks(false);
         if (addRemarkComments && StringUtility.stringHasValue(remarks)) {
             topLevelClass.addJavaDocLine(" * Database Table Remarks:");
-            String[] remarkLines = remarks.split(System.getProperty("line.separator"));
+            String[] remarkLines = remarks.split(System.lineSeparator());
             for (String remarkLine : remarkLines) {
                 topLevelClass.addJavaDocLine(" *   " + remarkLine);
             }
@@ -268,7 +271,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
         String remarks = introspectedColumn.getRemarks(false);
         if (addRemarkComments && StringUtility.stringHasValue(remarks)) {
             field.addJavaDocLine(" * Database Column Remarks:");
-            String[] remarkLines = remarks.split(System.getProperty("line.separator"));
+            String[] remarkLines = remarks.split(System.lineSeparator());
             for (String remarkLine : remarkLines) {
                 field.addJavaDocLine(" *   " + remarkLine);
             }
@@ -435,7 +438,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
             if (addRemarkComments && StringUtility.stringHasValue(remarks)) {
                 field.addJavaDocLine("/**");
                 field.addJavaDocLine(" * Database Column Remarks:");
-                String[] remarkLines = remarks.split(System.getProperty("line.separator"));
+                String[] remarkLines = remarks.split(System.lineSeparator());
                 for (String remarkLine : remarkLines) {
                     field.addJavaDocLine(" *   " + remarkLine);
                 }
@@ -532,7 +535,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
 
     @Override
     public void addRootComment(HtmlElement rootElement) {
-
+        rootElement.addElement(0,new org.mybatis.generator.api.dom.html.TextElement("<!-- @VCF.overridable -->"));
     }
 
     @Override

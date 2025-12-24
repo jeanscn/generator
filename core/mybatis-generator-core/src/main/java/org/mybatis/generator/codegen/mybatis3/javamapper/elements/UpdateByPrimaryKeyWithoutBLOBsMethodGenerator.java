@@ -27,7 +27,7 @@ public class UpdateByPrimaryKeyWithoutBLOBsMethodGenerator extends AbstractJavaM
         addMapperAnnotations(method);
 
         if (context.getPlugins()
-                .clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(method, interfaze, introspectedTable)) {
+                .clientUpdateByPrimaryKeyWithoutBlobsMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);

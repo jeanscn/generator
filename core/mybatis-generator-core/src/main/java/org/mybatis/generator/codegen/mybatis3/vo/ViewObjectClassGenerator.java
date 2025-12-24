@@ -104,7 +104,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             ignoreFields.addAll(defaultFields);
             //忽略字段
             List<String> allTableFields = new ArrayList<>();
-            this.context.getAbstractIntrospectedTables().forEach(t -> {
+            this.context.getIntrospectedTables().forEach(t -> {
                 String objectName = t.getTableConfiguration().getDomainObjectName();
                 if (target.getShortName().equals(objectName)) {
                     allTableFields.addAll(t.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList()));

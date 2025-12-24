@@ -17,9 +17,10 @@ public class NotEmpty extends AbstractAnnotation {
     private String message;
     private String[] groups;
 
-    public static NotEmpty create(String message, String[] groups){
-        return new NotEmpty(message,groups);
+    public static NotEmpty create(String message, String[] groups) {
+        return new NotEmpty(message, groups);
     }
+
     public NotEmpty() {
         super();
         this.addImports("javax.validation.constraints.NotEmpty");
@@ -34,14 +35,17 @@ public class NotEmpty extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        if (message!=null && !message.equalsIgnoreCase("")) {
-            this.items.add("message = \""+message+"\"");
+        if (message != null && !message.equalsIgnoreCase("")) {
+            this.items.add("message = \"" + message + "\"");
         }
-        if (groups!=null && groups.length>0) {
-            this.items.add("groups = {"+String.join(", ",groups)+"}");
+        if (groups != null && groups.length > 0) {
+            this.items.add("groups = {" + String.join(", ", groups) + "}");
         }
-        if (!this.items.isEmpty()) return "@NotEmpty("+ String.join(", ",items.toArray(new String[0])) +")";
-        else return "@NotEmpty";
+        if (!this.items.isEmpty()) {
+            return "@NotEmpty(" + String.join(", ", items.toArray(new String[0])) + ")";
+        } else {
+            return "@NotEmpty";
+        }
     }
 
 }

@@ -24,43 +24,43 @@ public class DisableUpdatePlugin extends PluginAdapter {
 
     @Override
     public boolean clientGeneralUpdateMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientGeneralUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientUpdateByPrimaryKeyWithBlobsMethodGenerated(Method method, Interface interfaze,
+                                                                    AbstractIntrospectedTable abstractIntrospectedTable) {
         return false;
     }
 
     @Override
     public boolean clientUpdateAllColumnsMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientUpdateAllColumnsMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientUpdateSelectiveColumnsMethodGenerated(Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
     public boolean clientUpdateSelectiveColumnsMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
+            AbstractIntrospectedTable introspectedTable) {
         return false;
     }
 

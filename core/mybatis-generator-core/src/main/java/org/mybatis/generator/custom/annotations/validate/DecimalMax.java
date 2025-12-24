@@ -9,6 +9,7 @@ import org.mybatis.generator.custom.annotations.AbstractAnnotation;
  * 适用类型：数值类型、字符串
  * 验证内容：最大值（支持小数）
  * 典型场景：价格、重量等小数验证
+ * @author cen_c
  */
 
 @Setter
@@ -46,7 +47,7 @@ public class DecimalMax extends AbstractAnnotation {
         if (groups != null && groups.length > 0) {
             this.items.add("groups = {" + String.join(", ", groups) + "}");
         }
-        if (!this.items.isEmpty()) return "@DecimalMax(" + String.join(", ", items.toArray(new String[0])) + ")";
-        else return "@DecimalMax";
+        if (!this.items.isEmpty()) { return "@DecimalMax(" + String.join(", ", items.toArray(new String[0])) + ")";}
+        else {return "@DecimalMax";}
     }
 }

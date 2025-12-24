@@ -2,7 +2,14 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.DateRangeFormat;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
+/**
+ * @author cen_c
+ */
+@Setter
+@Getter
 public class DateRangeFormatDesc  extends AbstractAnnotation{
 
         public static final String ANNOTATION_NAME = "@"+DateRangeFormat.class.getSimpleName();
@@ -59,47 +66,7 @@ public class DateRangeFormatDesc  extends AbstractAnnotation{
             if (VStringUtil.isNotBlank(endPlaceholder)) {
                 this.items.add(VStringUtil.format("endPlaceholder = \"{0}\"", this.endPlaceholder));
             }
-            if (!this.items.isEmpty()) return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
-            else return ANNOTATION_NAME;
+            if (!this.items.isEmpty()) { return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";}
+            else { return ANNOTATION_NAME;}
         }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
-    }
-
-    public String getSeparator() {
-        return separator;
-    }
-
-    public void setSeparator(String separator) {
-        this.separator = separator;
-    }
-
-    public String getStartPlaceholder() {
-        return startPlaceholder;
-    }
-
-    public void setStartPlaceholder(String startPlaceholder) {
-        this.startPlaceholder = startPlaceholder;
-    }
-
-    public String getEndPlaceholder() {
-        return endPlaceholder;
-    }
-
-    public void setEndPlaceholder(String endPlaceholder) {
-        this.endPlaceholder = endPlaceholder;
-    }
 }

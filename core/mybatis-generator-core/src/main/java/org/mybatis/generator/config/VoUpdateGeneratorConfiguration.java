@@ -6,18 +6,17 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
 import java.util.*;
 
+/**
+ * @author cen_c
+ */
+@Setter
+@Getter
 public class VoUpdateGeneratorConfiguration extends AbstractModelGeneratorConfiguration {
 
-    @Setter
-    @Getter
     private List<String> includeColumns = new ArrayList<>();
 
-    @Setter
-    @Getter
     private List<String> requiredColumns = new ArrayList<>();
 
-    @Setter
-    @Getter
     private Set<String> validateIgnoreColumns = new HashSet<>();
 
     private boolean isEnableSelective = true;
@@ -27,14 +26,6 @@ public class VoUpdateGeneratorConfiguration extends AbstractModelGeneratorConfig
         this.generate = true;
         targetPackage = String.join(".", baseTargetPackage,"vo");
         fullyQualifiedJavaType = new FullyQualifiedJavaType(String.join(".",targetPackage,tc.getDomainObjectName()+"UpdateVo"));
-    }
-
-    public boolean isEnableSelective() {
-        return isEnableSelective;
-    }
-
-    public void setEnableSelective(boolean enableSelective) {
-        isEnableSelective = enableSelective;
     }
 
     @Override

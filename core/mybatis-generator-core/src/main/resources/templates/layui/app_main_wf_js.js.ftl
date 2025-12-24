@@ -1,4 +1,5 @@
 /**
+* @VCF.overridable
 * 个性化处理的js文件
  */
 $(function () {

@@ -39,7 +39,7 @@ public class Max  extends AbstractAnnotation {
         if (groups != null && groups.length > 0) {
             this.items.add("groups = {" + String.join(", ", groups) + "}");
         }
-        if (!this.items.isEmpty()) return "@Max(" + String.join(", ", items.toArray(new String[0])) + ")";
-        else return "@Max";
+        if (!this.items.isEmpty()) { return "@Max(" + String.join(", ", items.toArray(new String[0])) + ")";}
+        else {return "@Max";}
     }
 }

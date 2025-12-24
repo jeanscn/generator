@@ -68,9 +68,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(AbstractIntrospectedTable abstractIntrospectedTable) {
+    public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(AbstractIntrospectedTable introspectedTable) {
         return plugins.stream()
-                .map(p -> p.contextGenerateAdditionalJavaFiles(abstractIntrospectedTable))
+                .map(p -> p.contextGenerateAdditionalJavaFiles(introspectedTable))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -84,9 +84,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public List<GeneratedKotlinFile> contextGenerateAdditionalKotlinFiles(AbstractIntrospectedTable abstractIntrospectedTable) {
+    public List<GeneratedKotlinFile> contextGenerateAdditionalKotlinFiles(AbstractIntrospectedTable introspectedTable) {
         return plugins.stream()
-                .map(p -> p.contextGenerateAdditionalKotlinFiles(abstractIntrospectedTable))
+                .map(p -> p.contextGenerateAdditionalKotlinFiles(introspectedTable))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -100,9 +100,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalFiles(AbstractIntrospectedTable abstractIntrospectedTable) {
+    public List<GeneratedFile> contextGenerateAdditionalFiles(AbstractIntrospectedTable introspectedTable) {
         return plugins.stream()
-                .map(p -> p.contextGenerateAdditionalFiles(abstractIntrospectedTable))
+                .map(p -> p.contextGenerateAdditionalFiles(introspectedTable))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -116,9 +116,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(AbstractIntrospectedTable abstractIntrospectedTable) {
+    public List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(AbstractIntrospectedTable introspectedTable) {
         return plugins.stream()
-                .map(p -> p.contextGenerateAdditionalXmlFiles(abstractIntrospectedTable))
+                .map(p -> p.contextGenerateAdditionalXmlFiles(introspectedTable))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -132,17 +132,25 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         return plugins.stream()
-                .map(p -> p.contextGenerateAdditionalWebFiles(abstractIntrospectedTable,htmlGeneratorConfiguration))
+                .map(p -> p.contextGenerateAdditionalWebFiles(introspectedTable,htmlGeneratorConfiguration))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public List<GeneratedFile> contextGenerateVue3OtherFiles(AbstractIntrospectedTable introspectedTable) {
+        return plugins.stream()
+                .map(p -> p.contextGenerateVue3OtherFiles(introspectedTable))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGenerated(interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientGenerated(interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -151,9 +159,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean subClientGenerated(Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean subClientGenerated(Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.subClientGenerated(interfaze, abstractIntrospectedTable)) {
+            if (!plugin.subClientGenerated(interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -163,9 +171,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicInsertMethodGenerated(Method method, Interface interfaze,
-                                                    AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                    AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicInsertMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -175,9 +183,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                    AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                    AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicInsertMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -187,9 +195,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicInsertMultipleMethodGenerated(Method method, Interface interfaze,
-                                                            AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                            AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMultipleMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicInsertMultipleMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -199,9 +207,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicInsertMultipleMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                            AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                            AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMultipleMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicInsertMultipleMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -211,9 +219,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicSelectManyMethodGenerated(Method method, Interface interfaze,
-                                                        AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                        AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicSelectManyMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicSelectManyMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -224,9 +232,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicSelectManyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                        AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                        AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicSelectManyMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicSelectManyMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -237,9 +245,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicSelectOneMethodGenerated(Method method, Interface interfaze,
-                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                       AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicSelectOneMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicSelectOneMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -250,9 +258,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientBasicSelectOneMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                       AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicSelectOneMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientBasicSelectOneMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -263,9 +271,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientCountByExampleMethodGenerated(Method method, Interface interfaze,
-                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                       AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientCountByExampleMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientCountByExampleMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -276,9 +284,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientDeleteByExampleMethodGenerated(Method method, Interface interfaze,
-                                                        AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                        AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientDeleteByExampleMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientDeleteByExampleMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -289,9 +297,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
-                                                           AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                           AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientDeleteByPrimaryKeyMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientDeleteByPrimaryKeyMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -302,9 +310,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientDeleteByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                           AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                           AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientDeleteByPrimaryKeyMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientDeleteByPrimaryKeyMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -315,9 +323,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralCountMethodGenerated(Method method, Interface interfaze,
-                                                     AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                     AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralCountMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralCountMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -328,9 +336,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertOrDeleteByTableMethodGenerated(Method method, Interface interfaze,
-                                                              AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                              AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertOrDeleteByTableMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertOrDeleteByTableMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -341,9 +349,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                     AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                     AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralCountMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralCountMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -354,9 +362,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralDeleteMethodGenerated(Method method, Interface interfaze,
-                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                      AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralDeleteMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralDeleteMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -367,9 +375,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                      AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralDeleteMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralDeleteMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -380,9 +388,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralSelectDistinctMethodGenerated(Method method, Interface interfaze,
-                                                              AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                              AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralSelectDistinctMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralSelectDistinctMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -393,9 +401,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralSelectDistinctMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                              AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                              AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralSelectDistinctMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralSelectDistinctMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -406,9 +414,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralSelectMethodGenerated(Method method, Interface interfaze,
-                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                      AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralSelectMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralSelectMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -419,9 +427,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralSelectMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                      AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralSelectMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralSelectMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -432,9 +440,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralUpdateMethodGenerated(Method method, Interface interfaze,
-                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                      AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralUpdateMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralUpdateMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -445,9 +453,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientGeneralUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                      AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientGeneralUpdateMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientGeneralUpdateMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -458,9 +466,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertMethodGenerated(Method method, Interface interfaze,
-                                               AbstractIntrospectedTable abstractIntrospectedTable) {
+                                               AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -470,9 +478,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertOrUpdateMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertOrUpdateMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -481,9 +489,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                               AbstractIntrospectedTable abstractIntrospectedTable) {
+                                               AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -494,9 +502,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertMultipleMethodGenerated(Method method, Interface interfaze,
-                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                       AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertMultipleMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertMultipleMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -507,9 +515,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertMultipleMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                       AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertMultipleMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertMultipleMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -520,9 +528,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertSelectiveMethodGenerated(Method method, Interface interfaze,
-                                                        AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                        AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertSelectiveMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertSelectiveMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -531,9 +539,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientInsertBatchMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientInsertBatchMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertBatchMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertBatchMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -542,9 +550,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientInsertSelectiveMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                        AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                        AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientInsertSelectiveMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientInsertSelectiveMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -554,10 +562,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientSelectByExampleWithBLOBsMethodGenerated(Method method, Interface interfaze,
-                                                                 AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientSelectByExampleWithBlobsMethodGenerated(Method method, Interface interfaze,
+                                                                 AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectByExampleWithBLOBsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectByExampleWithBlobsMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -567,10 +575,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientSelectByExampleWithoutBLOBsMethodGenerated(Method method, Interface interfaze,
-                                                                    AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientSelectByExampleWithoutBlobsMethodGenerated(Method method, Interface interfaze,
+                                                                    AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectByExampleWithoutBLOBsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectByExampleWithoutBlobsMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -581,9 +589,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientSelectByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
-                                                           AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                           AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectByPrimaryKeyMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectByPrimaryKeyMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -593,9 +601,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientSelectByKeysDicMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientSelectByKeysDicMethodGenerated(Method method, Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectByKeysDicMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectByKeysDicMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -604,9 +612,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientSelectByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                           AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                           AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectByPrimaryKeyMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectByPrimaryKeyMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -617,9 +625,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientSelectListFieldGenerated(Field field, Interface interfaze,
-                                                  AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                  AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectListFieldGenerated(field, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectListFieldGenerated(field, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -630,9 +638,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientSelectOneMethodGenerated(Method method, Interface interfaze,
-                                                  AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                  AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectOneMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectOneMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -643,9 +651,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientSelectOneMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                  AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                  AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientSelectOneMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientSelectOneMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -656,9 +664,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientUpdateByExampleSelectiveMethodGenerated(Method method, Interface interfaze,
-                                                                 AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                                 AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateByExampleSelectiveMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateByExampleSelectiveMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -669,9 +677,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientUpdateAllColumnsMethodGenerated(Method method, Interface interfaze,
-                                                         AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                         AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateAllColumnsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateAllColumnsMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -682,9 +690,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientUpdateAllColumnsMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-                                                         AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                         AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateAllColumnsMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateAllColumnsMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -695,9 +703,9 @@ public abstract class CompositePlugin implements Plugin {
 
     @Override
     public boolean clientUpdateSelectiveColumnsMethodGenerated(Method method, Interface interfaze,
-                                                               AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                               AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateSelectiveColumnsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateSelectiveColumnsMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -709,9 +717,9 @@ public abstract class CompositePlugin implements Plugin {
     @Override
     public boolean clientUpdateSelectiveColumnsMethodGenerated(KotlinFunction kotlinFunction, KotlinFile
             kotlinFile,
-                                                               AbstractIntrospectedTable abstractIntrospectedTable) {
+                                                               AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateSelectiveColumnsMethodGenerated(kotlinFunction, kotlinFile, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateSelectiveColumnsMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -721,10 +729,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientUpdateByExampleWithBLOBsMethodGenerated(Method method, Interface interfaze,
-                                                                 AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientUpdateByExampleWithBlobsMethodGenerated(Method method, Interface interfaze,
+                                                                 AbstractIntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateByExampleWithBLOBsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateByExampleWithBlobsMethodGenerated(method, interfaze, introspectedTable)) {
                 return false;
             }
         }
@@ -734,10 +742,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientUpdateByExampleWithoutBLOBsMethodGenerated(Method method, Interface interfaze,
+    public boolean clientUpdateByExampleWithoutBlobsMethodGenerated(Method method, Interface interfaze,
                                                                     AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateByExampleWithoutBLOBsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateByExampleWithoutBlobsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -784,10 +792,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method, Interface interfaze,
+    public boolean clientUpdateByPrimaryKeyWithBlobsMethodGenerated(Method method, Interface interfaze,
                                                                     AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateByPrimaryKeyWithBlobsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -797,10 +805,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(Method method, Interface interfaze,
+    public boolean clientUpdateByPrimaryKeyWithoutBlobsMethodGenerated(Method method, Interface interfaze,
                                                                        AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
+            if (!plugin.clientUpdateByPrimaryKeyWithoutBlobsMethodGenerated(method, interfaze, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1103,10 +1111,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass,
+    public boolean modelRecordWithBlobsClassGenerated(TopLevelClass topLevelClass,
                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.modelRecordWithBLOBsClassGenerated(topLevelClass, abstractIntrospectedTable)) {
+            if (!plugin.modelRecordWithBlobsClassGenerated(topLevelClass, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1171,10 +1179,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapResultMapWithoutBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapResultMapWithoutBlobsElementGenerated(XmlElement element,
                                                                AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapResultMapWithoutBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapResultMapWithoutBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1292,9 +1300,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapResultMapWithBLOBsElementGenerated(XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean sqlMapResultMapWithBlobsElementGenerated(XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapResultMapWithBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapResultMapWithBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1339,10 +1347,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapSelectByExampleWithoutBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapSelectByExampleWithoutBlobsElementGenerated(XmlElement element,
                                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapSelectByExampleWithoutBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapSelectByExampleWithoutBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1352,10 +1360,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapSelectByExampleWithBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapSelectByExampleWithBlobsElementGenerated(XmlElement element,
                                                                   AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapSelectByExampleWithBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapSelectByExampleWithBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1378,10 +1386,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapUpdateByExampleWithBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapUpdateByExampleWithBlobsElementGenerated(XmlElement element,
                                                                   AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapUpdateByExampleWithBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapUpdateByExampleWithBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1391,10 +1399,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapUpdateByExampleWithoutBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapUpdateByExampleWithoutBlobsElementGenerated(XmlElement element,
                                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapUpdateByExampleWithoutBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapUpdateByExampleWithoutBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1430,10 +1438,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapUpdateByPrimaryKeyWithBlobsElementGenerated(XmlElement element,
                                                                      AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapUpdateByPrimaryKeyWithBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1443,10 +1451,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element,
+    public boolean sqlMapUpdateByPrimaryKeyWithoutBlobsElementGenerated(XmlElement element,
                                                                         AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(element, abstractIntrospectedTable)) {
+            if (!plugin.sqlMapUpdateByPrimaryKeyWithoutBlobsElementGenerated(element, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1520,10 +1528,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean providerSelectByExampleWithBLOBsMethodGenerated(Method method, TopLevelClass topLevelClass,
+    public boolean providerSelectByExampleWithBlobsMethodGenerated(Method method, TopLevelClass topLevelClass,
                                                                    AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.providerSelectByExampleWithBLOBsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
+            if (!plugin.providerSelectByExampleWithBlobsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1533,10 +1541,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean providerSelectByExampleWithoutBLOBsMethodGenerated(Method method, TopLevelClass topLevelClass,
+    public boolean providerSelectByExampleWithoutBlobsMethodGenerated(Method method, TopLevelClass topLevelClass,
                                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.providerSelectByExampleWithoutBLOBsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
+            if (!plugin.providerSelectByExampleWithoutBlobsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1559,10 +1567,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean providerUpdateByExampleWithBLOBsMethodGenerated(Method method, TopLevelClass topLevelClass,
+    public boolean providerUpdateByExampleWithBlobsMethodGenerated(Method method, TopLevelClass topLevelClass,
                                                                    AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.providerUpdateByExampleWithBLOBsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
+            if (!plugin.providerUpdateByExampleWithBlobsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
                 return false;
             }
         }
@@ -1572,10 +1580,10 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean providerUpdateByExampleWithoutBLOBsMethodGenerated(Method method, TopLevelClass topLevelClass,
+    public boolean providerUpdateByExampleWithoutBlobsMethodGenerated(Method method, TopLevelClass topLevelClass,
                                                                       AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.providerUpdateByExampleWithoutBLOBsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
+            if (!plugin.providerUpdateByExampleWithoutBlobsMethodGenerated(method, topLevelClass, abstractIntrospectedTable)) {
                 return false;
             }
         }

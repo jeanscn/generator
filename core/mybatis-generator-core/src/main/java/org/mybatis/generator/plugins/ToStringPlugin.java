@@ -37,7 +37,7 @@ public class ToStringPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelRecordWithBLOBsClassGenerated(
+    public boolean modelRecordWithBlobsClassGenerated(
             TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         generateToString(abstractIntrospectedTable, topLevelClass);
         return true;

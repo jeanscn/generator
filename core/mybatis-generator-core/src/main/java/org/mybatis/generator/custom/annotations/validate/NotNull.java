@@ -17,8 +17,8 @@ public class NotNull extends AbstractAnnotation {
     private String message;
     private String[] groups;
 
-    public static NotNull create(String message, String[] groups){
-        return new NotNull(message,groups);
+    public static NotNull create(String message, String[] groups) {
+        return new NotNull(message, groups);
     }
 
     public NotNull() {
@@ -35,14 +35,17 @@ public class NotNull extends AbstractAnnotation {
 
     @Override
     public String toAnnotation() {
-        if (message!=null && !message.equalsIgnoreCase("")) {
-            this.items.add("message = \""+message+"\"");
+        if (message != null && !message.equalsIgnoreCase("")) {
+            this.items.add("message = \"" + message + "\"");
         }
-        if (groups!=null && groups.length>0) {
-            this.items.add("groups = {"+String.join(", ",groups)+"}");
+        if (groups != null && groups.length > 0) {
+            this.items.add("groups = {" + String.join(", ", groups) + "}");
         }
-        if (!this.items.isEmpty()) return "@NotNull("+ String.join(", ",items.toArray(new String[0])) +")";
-        else return "@NotNull";
+        if (!this.items.isEmpty()) {
+            return "@NotNull(" + String.join(", ", items.toArray(new String[0])) + ")";
+        } else {
+            return "@NotNull";
+        }
     }
 
 }

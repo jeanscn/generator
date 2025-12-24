@@ -227,6 +227,9 @@ public class MyBatisGeneratorConfigurationParser {
                 case "javaClientGenerator":
                     parseJavaClientGenerator(context, childNode);
                     break;
+                case "reusableElements":
+                    parseReusableElementsConfiguration(context, childNode);
+                    break;
                 case "table":
                     parseTable(context, childNode);
                     break;
@@ -236,6 +239,59 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
             }
         }
+    }
+
+    private void parseReusableElementsConfiguration(Context context, Node node) {
+        ReusableElementsConfiguration reusableElementsConfiguration = context.getReusableElementsConfiguration();
+        Properties attributes = parseAttributes(node);
+        String excludedTables = attributes.getProperty("excludedTables");
+        if (stringHasValue(excludedTables)) {
+            reusableElementsConfiguration.setExcludedTables(splitToSet(excludedTables));
+        }
+
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node childNode = nodeList.item(i);
+
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(reusableElementsConfiguration, childNode);
+                    break;
+                case "htmlElementDescriptor":
+                case "htmlSwitchDescriptor":
+                case "htmlTableSelectDescriptor":
+                    HtmlElementDescriptor htmlElementDescriptor = parseHtmlElementDescriptor(childNode);
+                    if (htmlElementDescriptor != null) {
+                        reusableElementsConfiguration.getHtmlElementDescriptors().add(htmlElementDescriptor);
+                    }
+                    break;
+                case "overridePropertyValue":
+                    OverridePropertyValueGeneratorConfiguration overrideConfiguration = parseVoOverrideColumn(context, null, childNode);
+                    if (overrideConfiguration != null){
+                        reusableElementsConfiguration.getOverridePropertyValues().add(overrideConfiguration);
+                    }
+                    break;
+                case "listColumnDescriptor":
+                    List<ListColumnConfiguration> listColumnConfigurations = parseListColumnDescriptor(childNode);
+                    reusableElementsConfiguration.getListColumnDescriptors().addAll(listColumnConfigurations);
+                    break;
+                case "fieldOverrides":
+                    ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = parseFieldOverrides(childNode);
+                    reusableElementsConfiguration.getFieldOverrides().add(viewFieldOverrideConfiguration);
+                    break;
+                case "filterColumn":
+                    FilterColumnConfiguration filterColumnConfiguration = parseFilterColumn(null,childNode);
+                    reusableElementsConfiguration.getFilterColumnDescriptors().add(filterColumnConfiguration);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
     }
 
     protected void parseSqlMapGenerator(Context context, Node node) {
@@ -1027,19 +1083,6 @@ public class MyBatisGeneratorConfigurationParser {
         String aDefault = attributes.getProperty("default");
         if (stringHasValue(aDefault)) {
             htmlGeneratorConfiguration.setDefaultConfig(Boolean.parseBoolean(aDefault));
-        }
-
-        String overWriteVueView = attributes.getProperty("overWriteVueView");
-        if (stringHasValue(overWriteVueView)) {
-            htmlGeneratorConfiguration.setOverWriteVueView(Boolean.parseBoolean(overWriteVueView));
-        }
-        String overWriteVueEdit = attributes.getProperty("overWriteVueEdit");
-        if (stringHasValue(overWriteVueEdit)) {
-            htmlGeneratorConfiguration.setOverWriteVueEdit(Boolean.parseBoolean(overWriteVueEdit));
-        }
-        String overWriteVueDetail = attributes.getProperty("overWriteVueDetail");
-        if (stringHasValue(overWriteVueDetail)) {
-            htmlGeneratorConfiguration.setOverWriteVueDetail(Boolean.parseBoolean(overWriteVueDetail));
         }
 
         //计算属性及子元素
@@ -2996,7 +3039,7 @@ public class MyBatisGeneratorConfigurationParser {
                     voViewGeneratorConfiguration.addFilterColumnsConfigurations(filterColumnConfiguration);
                     break;
                 case ("fieldOverrides"):
-                    ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = parseFieldOverrides(context, tc, childNode, voViewGeneratorConfiguration);
+                    ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = parseFieldOverrides(childNode);
                     voViewGeneratorConfiguration.addViewFieldOverrideConfiguration(viewFieldOverrideConfiguration);
                     break;
                 default:
@@ -3145,7 +3188,7 @@ public class MyBatisGeneratorConfigurationParser {
         }
     }
 
-    private ViewFieldOverrideConfiguration parseFieldOverrides(Context context, TableConfiguration tc, Node childNode, VoViewGeneratorConfiguration voViewGeneratorConfiguration) {
+    private ViewFieldOverrideConfiguration parseFieldOverrides(Node childNode) {
         ViewFieldOverrideConfiguration viewFieldOverrideConfiguration = new ViewFieldOverrideConfiguration();
         Properties attributes = parseAttributes(childNode);
         String fields = attributes.getProperty("fields");
@@ -3250,7 +3293,12 @@ public class MyBatisGeneratorConfigurationParser {
     }
 
     private FilterColumnConfiguration parseFilterColumn(TableConfiguration tc, Node childNode) {
-        FilterColumnConfiguration filterColumnConfiguration = new FilterColumnConfiguration(tc);
+        FilterColumnConfiguration filterColumnConfiguration;
+        if (tc == null) {
+            filterColumnConfiguration = new FilterColumnConfiguration();
+        } else {
+            filterColumnConfiguration = new FilterColumnConfiguration(tc);
+        }
         Properties attributes = parseAttributes(childNode);
         String column = attributes.getProperty("column");
         if (stringHasValue(column)) {

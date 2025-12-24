@@ -54,7 +54,7 @@ public class SelectByExampleWithoutBLOBsElementGenerator extends
         ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 
-        if (context.getPlugins().sqlMapSelectByExampleWithoutBLOBsElementGenerated(answer, introspectedTable)) {
+        if (context.getPlugins().sqlMapSelectByExampleWithoutBlobsElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
     }

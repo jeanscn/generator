@@ -308,11 +308,11 @@
             <distributionManagement>
                 <snapshotRepository>
                     <id>nexus</id>
-                    <url>http://maven.vgosoft.com:34990/repository/maven-snapshots/</url>
+                    <url>http://43.138.48.104:34991/repository/maven-snapshots/</url>
                 </snapshotRepository>
                 <repository>
                     <id>nexus</id>
-                    <url>http://maven.vgosoft.com:34990/repository/maven-releases/</url>
+                    <url>http://43.138.48.104:34991/repository/maven-releases/</url>
                 </repository>
             </distributionManagement>
         </profile>

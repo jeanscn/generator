@@ -6,6 +6,9 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public class FilterColumnConfiguration extends AbstractFilterConditionConfiguration {
@@ -15,4 +18,9 @@ public class FilterColumnConfiguration extends AbstractFilterConditionConfigurat
     public FilterColumnConfiguration(TableConfiguration tc) {
         super(tc);
     }
+
+    public FilterColumnConfiguration() {
+        super();
+    }
+
 }

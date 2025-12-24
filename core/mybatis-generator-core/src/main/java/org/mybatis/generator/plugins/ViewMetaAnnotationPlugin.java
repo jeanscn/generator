@@ -2,6 +2,7 @@ package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
 import com.vgosoft.core.constant.enums.view.ViewIndexColumnEnum;
+import com.vgosoft.tool.core.VArrayUtil;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.PluginAdapter;
@@ -21,6 +22,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * 添加ViewMetaAnnotation
+ * @author cen_c
  */
 public class ViewMetaAnnotationPlugin extends PluginAdapter {
 
@@ -30,11 +32,11 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (abstractIntrospectedTable.getRules().isGenerateViewVo()) {
+    public boolean voModelViewClassGenerated(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
+        if (introspectedTable.getRules().isGenerateViewVo()) {
             //增加ViewTableMetaAnnotation
-            VoViewGeneratorConfiguration voViewGeneratorConfiguration = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-            addViewTableMeta(voViewGeneratorConfiguration, topLevelClass, abstractIntrospectedTable);
+            VoViewGeneratorConfiguration voViewGeneratorConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+            addViewTableMeta(voViewGeneratorConfiguration, topLevelClass, introspectedTable);
         }
         return true;
     }
@@ -43,14 +45,14 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
      * Vo抽象父类的ColumnMetaAnnotation
      */
     @Override
-    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (abstractIntrospectedTable.getRules().isGenerateViewVo()) {
-            VoViewGeneratorConfiguration viewConfiguration = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+    public boolean voAbstractFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
+        if (introspectedTable.getRules().isGenerateViewVo()) {
+            VoViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
             //增加ViewMetaAnnotation
-            ViewColumnMetaDesc viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, abstractIntrospectedTable);
+            ViewColumnMetaDesc viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, introspectedTable);
             // 列覆盖信息
-            generateVoFieldCustom(field, viewConfiguration, viewColumnMetaDesc);
-            updateOrder(field, abstractIntrospectedTable, viewColumnMetaDesc);
+            generateVoFieldCustom(field, viewConfiguration, viewColumnMetaDesc,introspectedTable);
+            updateOrder(field, introspectedTable, viewColumnMetaDesc);
             field.addAnnotation(viewColumnMetaDesc.toAnnotation());
             topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
             //模糊查询列注解
@@ -67,20 +69,20 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
      * viewVo类的ViewMetaAnnotation
      */
     @Override
-    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (!abstractIntrospectedTable.getRules().isGenerateViewVo()) {
+    public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
+        if (!introspectedTable.getRules().isGenerateViewVo()) {
             return true;
         }
-        VoViewGeneratorConfiguration viewConfiguration = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        VoViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
         ViewColumnMetaDesc viewColumnMetaDesc;
         if (introspectedColumn != null) {
-            viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, abstractIntrospectedTable);
+            viewColumnMetaDesc = ViewColumnMetaDesc.create(introspectedColumn, introspectedTable);
         } else {
-            viewColumnMetaDesc = new ViewColumnMetaDesc(field, field.getRemark(), abstractIntrospectedTable);
+            viewColumnMetaDesc = new ViewColumnMetaDesc(field, field.getRemark(), introspectedTable);
         }
         // 列覆盖信息
-        generateVoFieldCustom(field, viewConfiguration, viewColumnMetaDesc);
-        updateOrder(field, abstractIntrospectedTable, viewColumnMetaDesc);
+        generateVoFieldCustom(field, viewConfiguration, viewColumnMetaDesc,introspectedTable);
+        updateOrder(field, introspectedTable, viewColumnMetaDesc);
         field.addAnnotation(viewColumnMetaDesc.toAnnotation());
         topLevelClass.addImportedTypes(viewColumnMetaDesc.getImportedTypes());
 
@@ -93,8 +95,17 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         return true;
     }
 
-    private static void generateVoFieldCustom(Field field, VoViewGeneratorConfiguration viewConfiguration, ViewColumnMetaDesc viewColumnMetaDesc) {
-        for (ViewFieldOverrideConfiguration config : viewConfiguration.getViewFieldOverrideConfigurations().stream().filter(config -> config.getFields().contains(field.getName())).collect(Collectors.toList())) {
+    private void generateVoFieldCustom(Field field, VoViewGeneratorConfiguration viewConfiguration, ViewColumnMetaDesc viewColumnMetaDesc, AbstractIntrospectedTable introspectedTable) {
+        List<ViewFieldOverrideConfiguration> viewFieldOverrides = viewConfiguration.getViewFieldOverrideConfigurations().stream()
+                .filter(config -> config.getFields().contains(field.getName()))
+                .collect(Collectors.toList());
+        if (viewFieldOverrides.isEmpty()) {
+            List<ViewFieldOverrideConfiguration> fieldOverrides = context.getReusableElementsConfiguration().getFieldOverrides();
+            viewFieldOverrides = fieldOverrides.stream()
+                    .filter(config -> config.getFields().contains(field.getName()))
+                    .collect(Collectors.toList());
+        }
+        for (ViewFieldOverrideConfiguration config : viewFieldOverrides) {
             if (stringHasValue(config.getLabel())) {
                 viewColumnMetaDesc.setTitle(config.getLabel());
             }
@@ -124,8 +135,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
     }
 
-    private void addViewTableMeta(VoViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVoClass, AbstractIntrospectedTable abstractIntrospectedTable) {
-        ViewTableMetaDesc viewTableMetaDesc = new ViewTableMetaDesc(abstractIntrospectedTable);
+    private void addViewTableMeta(VoViewGeneratorConfiguration voViewGeneratorConfiguration, TopLevelClass viewVoClass, AbstractIntrospectedTable introspectedTable) {
+        ViewTableMetaDesc viewTableMetaDesc = new ViewTableMetaDesc(introspectedTable);
         viewTableMetaDesc.setTableType(voViewGeneratorConfiguration.getTableType());
         viewTableMetaDesc.setTotalRow(voViewGeneratorConfiguration.isTotalRow());
         viewTableMetaDesc.setTotalFields(voViewGeneratorConfiguration.getTotalFields());
@@ -136,13 +147,13 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setDefaultSort(voViewGeneratorConfiguration.getDefaultSort());
         //createUrl
         String createUrl = "";
-        FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(abstractIntrospectedTable));
+        FullyQualifiedJavaType rootType = new FullyQualifiedJavaType(getRootClass(introspectedTable));
         if (stringHasValue(rootType.getShortName())) {
             if (EntityAbstractParentEnum.ofCode(rootType.getShortName()) == null
                     || (EntityAbstractParentEnum.ofCode(rootType.getShortName()) != null
                     && EntityAbstractParentEnum.ofCode(rootType.getShortName()).scope() != 1)) {
                 createUrl = String.join("/"
-                        , Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable)
+                        , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                         , "view");
             }
         }
@@ -151,12 +162,12 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         //dataUrl
         viewTableMetaDesc.setDataUrl(String.join("/"
-                , Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable)
+                , Mb3GenUtil.getControllerBaseMappingPath(introspectedTable)
                 , "getdtdata"));
         //数据权限
-        String tableName = abstractIntrospectedTable.getTableConfiguration().getTableName();
+        String tableName = introspectedTable.getTableConfiguration().getTableName();
         List<String> orgTables = Arrays.asList("org_user", "org_team","org_role","org_organization","org_group","org_department");
-        if (GenerateUtils.isWorkflowInstance(abstractIntrospectedTable)) {
+        if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             viewTableMetaDesc.setDataFilterType(1);
         } else if ("wf_per_todo".equals(tableName) || "wf_per_done".equals(tableName)) {
             viewTableMetaDesc.setDataFilterType(2);
@@ -170,8 +181,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
 
         //toolbar
         if (!voViewGeneratorConfiguration.getToolbar().isEmpty()) {
-            String parentMenuId = Mb3GenUtil.getParentMenuId(abstractIntrospectedTable,voViewGeneratorConfiguration);
-            List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, voViewGeneratorConfiguration.getToolbar(), voViewGeneratorConfiguration.getHtmlButtons(), parentMenuId);
+            String parentMenuId = Mb3GenUtil.getParentMenuId(introspectedTable,voViewGeneratorConfiguration);
+            List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, voViewGeneratorConfiguration.getToolbar(), voViewGeneratorConfiguration.getHtmlButtons(), parentMenuId);
             viewTableMetaDesc.setToolbarActions(String.join(",", annotations));
         }
         //indexColumn
@@ -181,8 +192,8 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         }
         //actionColumn
         if (!voViewGeneratorConfiguration.getActionColumn().isEmpty()) {
-            String parentMenuId = Mb3GenUtil.getParentMenuId(abstractIntrospectedTable,voViewGeneratorConfiguration);
-            List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(abstractIntrospectedTable, voViewGeneratorConfiguration.getActionColumn(), voViewGeneratorConfiguration.getHtmlButtons(), parentMenuId);
+            String parentMenuId = Mb3GenUtil.getParentMenuId(introspectedTable,voViewGeneratorConfiguration);
+            List<String> annotations = Mb3GenUtil.genHtmlButtonAnnotationDescFromKeys(introspectedTable, voViewGeneratorConfiguration.getActionColumn(), voViewGeneratorConfiguration.getHtmlButtons(), parentMenuId);
             viewTableMetaDesc.setColumnActions(String.join(",", annotations));
         }
         //querys
@@ -192,10 +203,10 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //去重,转换为CompositeQueryDesc
             List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getQueryColumns().stream().distinct().map(columnName -> {
                 if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), abstractIntrospectedTable);
+                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
                 } else {
-                    if (abstractIntrospectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(abstractIntrospectedTable.getColumn(columnName).get());
+                    if (introspectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
                     }else{
                         return null;
                     }
@@ -219,13 +230,13 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //去重,转换为CompositeQueryDesc
             List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
                 if (listMap.containsKey(columnName)) {
-                    CompositeQueryDesc compositeQueryDesc = CompositeQueryDesc.create(listMap.get(columnName).get(0), abstractIntrospectedTable);
+                    CompositeQueryDesc compositeQueryDesc = CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
                     compositeQueryDesc.setRepeat(listMap.get(columnName).get(0).isRepeat());
                     compositeQueryDesc.setOperators(listMap.get(columnName).get(0).getOperators().stream().distinct().collect(Collectors.joining(",")));
                     return compositeQueryDesc;
                 } else {
-                    if (abstractIntrospectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(abstractIntrospectedTable.getColumn(columnName).get());
+                    if (introspectedTable.getColumn(columnName).isPresent()) {
+                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
                     }else{
                         return null;
                     }
@@ -252,9 +263,9 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (!voViewGeneratorConfiguration.getIncludeColumns().isEmpty()) {
             String[] strings = voViewGeneratorConfiguration.getIncludeColumns().stream()
                     .distinct()
-                    .map(f -> abstractIntrospectedTable.getColumn(f).orElse(null))
+                    .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
-                    .map(c -> ViewColumnMetaDesc.create(c, abstractIntrospectedTable).toAnnotation())
+                    .map(c -> ViewColumnMetaDesc.create(c, introspectedTable).toAnnotation())
                     .toArray(String[]::new);
             viewTableMetaDesc.setColumns(strings);
         }
@@ -267,7 +278,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         if (!voViewGeneratorConfiguration.getExcludeColumns().isEmpty()) {
             String[] columns2 = voViewGeneratorConfiguration.getExcludeColumns().stream()
                     .distinct()
-                    .map(f -> abstractIntrospectedTable.getColumn(f).orElse(null))
+                    .map(f -> introspectedTable.getColumn(f).orElse(null))
                     .filter(Objects::nonNull)
                     .map(IntrospectedColumn::getJavaProperty)
                     .toArray(String[]::new);
@@ -278,7 +289,7 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
         viewTableMetaDesc.setClassName(viewVoClass.getType().getFullyQualifiedName());
 
         //restBasePath
-        viewTableMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable));
+        viewTableMetaDesc.setRestBasePath(Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
 
         //构造ViewTableMeta
         viewVoClass.addAnnotation(viewTableMetaDesc.toAnnotation());

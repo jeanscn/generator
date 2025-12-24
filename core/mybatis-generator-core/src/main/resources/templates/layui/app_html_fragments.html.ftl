@@ -1,3 +1,4 @@
+<!-- @VCF.overridable -->
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>

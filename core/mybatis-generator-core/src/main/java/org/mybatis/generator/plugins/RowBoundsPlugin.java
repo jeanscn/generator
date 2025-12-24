@@ -42,26 +42,26 @@ public class RowBoundsPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientSelectByExampleWithBLOBsMethodGenerated(Method method,
-            Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
+    public boolean clientSelectByExampleWithBlobsMethodGenerated(Method method,
+                                                                 Interface interfaze, AbstractIntrospectedTable introspectedTable) {
+        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
             copyAndAddMethod(method, interfaze);
         }
         return true;
     }
 
     @Override
-    public boolean clientSelectByExampleWithoutBLOBsMethodGenerated(
+    public boolean clientSelectByExampleWithoutBlobsMethodGenerated(
             Method method, Interface interfaze,
-            AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
+            AbstractIntrospectedTable introspectedTable) {
+        if (introspectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
             copyAndAddMethod(method, interfaze);
         }
         return true;
     }
 
     @Override
-    public boolean sqlMapSelectByExampleWithoutBLOBsElementGenerated(
+    public boolean sqlMapSelectByExampleWithoutBlobsElementGenerated(
             XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable) {
         if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
             copyAndSaveElement(element, abstractIntrospectedTable.getFullyQualifiedTable());
@@ -70,7 +70,7 @@ public class RowBoundsPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean sqlMapSelectByExampleWithBLOBsElementGenerated(
+    public boolean sqlMapSelectByExampleWithBlobsElementGenerated(
             XmlElement element, AbstractIntrospectedTable abstractIntrospectedTable) {
         if (abstractIntrospectedTable.getTargetRuntime() == TargetRuntime.MYBATIS3) {
             copyAndSaveElement(element, abstractIntrospectedTable.getFullyQualifiedTable());

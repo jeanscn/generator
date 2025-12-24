@@ -33,13 +33,9 @@ public class HtmlGeneratorConfiguration extends AbstractGeneratorConfiguration {
     private boolean overWriteJsFile;
 
     private boolean defaultConfig = true;
-
-    private boolean overWriteVueView = true;
-
-    private boolean overWriteVueEdit = true;
-
-    private boolean overWriteVueDetail = true;
-
+    /**
+     *  指定页面表格不显示的列
+     */
     private final Set<String> hiddenColumnNames = new HashSet<>();
 
     private final Set<String> hiddenFieldNames = new HashSet<>();

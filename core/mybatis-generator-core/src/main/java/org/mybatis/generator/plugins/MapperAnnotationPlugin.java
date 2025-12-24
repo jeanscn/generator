@@ -14,7 +14,7 @@ public class MapperAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         return true;
     }
 }

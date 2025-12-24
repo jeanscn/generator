@@ -1,4 +1,4 @@
-package org.mybatis.generator.DBStrategy;
+package org.mybatis.generator.dbstrategy;
 
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;

@@ -14,16 +14,32 @@ import java.util.TreeSet;
  */
 public interface IAnnotation {
 
+    /**
+     * 转换为注解列表
+     * @return 注解列表
+     */
     default List<String> toAnnotations(){
         return Collections.singletonList(toAnnotation());
     }
 
+    /**
+     * 转换为注解
+     * @return 注解
+     */
     default String toAnnotation(){
         return toAnnotations().get(0);
     }
 
+    /**
+     * 获取需要导入的类
+     * @return 需要导入的类
+     */
     Set<String> getImports();
 
+    /**
+     * 获取需要导入的类
+     * @return 需要导入的类
+     */
     default Set<FullyQualifiedJavaType> getImportedTypes() {
         Set<FullyQualifiedJavaType> imports = new TreeSet<>();
         for (String item : this.getImports()) {
@@ -31,5 +47,4 @@ public interface IAnnotation {
         }
         return imports;
     }
-
 }

@@ -83,19 +83,34 @@ public class VoModelGenerator extends AbstractVoGenerator {
             if (plugins.voModelFieldGenerated(field, voClass, null, introspectedTable)) {
                 voClass.addField(field);
                 voClass.addImportedType(field.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(field));
             }
         });
 
         if (!introspectedTable.getRules().isGenerateRequestVo()) {
             //增加任意过滤条件接收
-            addWhereConditionResult(voClass);
+            Field whereConditionResult = getWhereConditionResult(voClass);
+            if (plugins.voModelFieldGenerated(whereConditionResult, voClass, null, introspectedTable)) {
+                voClass.addField(whereConditionResult);
+                voClass.addImportedType(whereConditionResult.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(whereConditionResult));
+            }
             //增加前端过滤器属性
-            addFilterMap(voClass);
+            Field filterMap = getFilterMap(voClass);
+            if (filterMap != null && plugins.voModelFieldGenerated(filterMap, voClass, null, introspectedTable)) {
+                voClass.addField(filterMap);
+                voClass.addImportedType(filterMap.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(filterMap));
+            }
         }
-
         voClass.addImportedType(getAbstractVoType().getFullyQualifiedName());
+
         //persistenceBeanName属性
-        addPersistenceBeanNameProperty(voClass, introspectedTable);
+        Field persistenceBeanName = getPersistenceBeanNameProperty(voClass, introspectedTable);
+        if (plugins.voModelFieldGenerated(persistenceBeanName, voClass, null, introspectedTable)) {
+            voClass.addField(persistenceBeanName);
+            introspectedTable.getVoModelFields().add(new FieldItem(persistenceBeanName));
+        }
 
         //检查是否有定制的新属性
         introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().forEach(relationProperty -> {
@@ -120,14 +135,45 @@ public class VoModelGenerator extends AbstractVoGenerator {
             }
         });
 
-        //增加actionType属性
+
         if (!introspectedTable.getRules().isGenerateRequestVo()) {
-            addActionType(voClass, introspectedTable);
-            addIgnoreDeleteFlag(voClass, introspectedTable);
-            addIgnorePermissionAnnotation(voClass, introspectedTable);
+            //增加actionType属性
+            Field actionType = getActionType(voClass, introspectedTable);
+            if (actionType != null && plugins.voModelFieldGenerated(actionType, voClass, null, introspectedTable)) {
+                voClass.addField(actionType);
+                voClass.addImportedType(actionType.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(actionType));
+            }
+            //增加ignoreDeleteFlag属性
+            Field ignoreDeleteFlag = getIgnoreDeleteFlag(voClass, introspectedTable);
+            if (ignoreDeleteFlag != null && plugins.voModelFieldGenerated(ignoreDeleteFlag, voClass, null, introspectedTable)) {
+                voClass.addField(ignoreDeleteFlag);
+                voClass.addImportedType(ignoreDeleteFlag.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(ignoreDeleteFlag));
+            }
+
+            //增加ignorePermissionAnnotation属性
+            Field ignorePermissionAnnotation = addIgnorePermissionAnnotation(voClass, introspectedTable);
+            if (ignorePermissionAnnotation != null) {
+                voClass.addField(ignorePermissionAnnotation);
+                voClass.addImportedType(ignorePermissionAnnotation.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(ignorePermissionAnnotation));
+            }
             //增加ignoreIdList属性
-            addIgnoreIdList(voClass, introspectedTable);
-            addIsHideIds(voClass, introspectedTable);
+            Field ignoreIdList = getIgnoreIdList(voClass, introspectedTable);
+            if (ignoreIdList != null && plugins.voModelFieldGenerated(ignoreIdList, voClass, null, introspectedTable)) {
+                voClass.addField(ignoreIdList);
+                voClass.addImportedType(ignoreIdList.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(ignoreIdList));
+            }
+
+            //增加isHideIds属性
+            Field isHideIds = getIsHideIds(voClass, introspectedTable);
+            if (isHideIds != null && plugins.voModelFieldGenerated(isHideIds, voClass, null, introspectedTable)) {
+                voClass.addField(isHideIds);
+                voClass.addImportedType(isHideIds.getType());
+                introspectedTable.getVoModelFields().add(new FieldItem(isHideIds));
+            }
         }
 
         Field modelTempId = new Field("modelTempId", FullyQualifiedJavaType.getStringInstance());
@@ -145,7 +191,7 @@ public class VoModelGenerator extends AbstractVoGenerator {
         return voClass;
     }
 
-    private void addPersistenceBeanNameProperty(TopLevelClass voClass, AbstractIntrospectedTable abstractIntrospectedTable) {
+    private Field getPersistenceBeanNameProperty(TopLevelClass voClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         String initString = abstractIntrospectedTable.getControllerBeanName();
         Field persistenceBeanName = new Field("persistenceBeanName", FullyQualifiedJavaType.getStringInstance());
         persistenceBeanName.setInitializationString("\""+initString+"\"");
@@ -154,8 +200,6 @@ public class VoModelGenerator extends AbstractVoGenerator {
         ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(persistenceBeanName.getRemark());
         persistenceBeanName.addAnnotation(apiModelPropertyDesc.toAnnotation());
         voClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
-        voClass.addField(persistenceBeanName);
-        FieldItem fieldItem = new FieldItem(persistenceBeanName);
-        abstractIntrospectedTable.getVoModelFields().add(fieldItem);
+        return persistenceBeanName;
     }
 }

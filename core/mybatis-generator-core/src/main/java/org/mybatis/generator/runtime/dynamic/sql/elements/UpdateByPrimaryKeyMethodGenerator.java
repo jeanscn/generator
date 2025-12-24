@@ -52,7 +52,7 @@ public class UpdateByPrimaryKeyMethodGenerator extends AbstractMethodGenerator {
 
     @Override
     public boolean callPlugins(Method method, Interface interfaze) {
-        return context.getPlugins().clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(method,
+        return context.getPlugins().clientUpdateByPrimaryKeyWithBlobsMethodGenerated(method,
                 interfaze, introspectedTable);
     }
 

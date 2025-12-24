@@ -20,7 +20,7 @@ import java.util.List;
 public class JQueryPlugin extends PluginAdapter {
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         List<GeneratedFile> answer = new ArrayList<>();
 
         String project = this.properties.getProperty("targetProject", "src/main/resources/static/js");
@@ -36,8 +36,8 @@ public class JQueryPlugin extends PluginAdapter {
                 GeneratedJqueryFile generatedJqueryFile = new GeneratedJqueryFile(
                         jqueryFileNameDev,
                         project,
-                        abstractIntrospectedTable.getContext().getModuleKeyword(),
-                        abstractIntrospectedTable,
+                        introspectedTable.getContext().getModuleKeyword(),
+                        introspectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
                 generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFile);
@@ -47,8 +47,8 @@ public class JQueryPlugin extends PluginAdapter {
                 GeneratedJqueryFile generatedJqueryFileMin = new GeneratedJqueryFile(
                         jqueryFileNameMin,
                         project,
-                        abstractIntrospectedTable.getContext().getModuleKeyword(),
-                        abstractIntrospectedTable,
+                        introspectedTable.getContext().getModuleKeyword(),
+                        introspectedTable,
                         "app_main_js.js.ftl",htmlGeneratorConfiguration);
                 generatedJqueryFileMin.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFileMin);

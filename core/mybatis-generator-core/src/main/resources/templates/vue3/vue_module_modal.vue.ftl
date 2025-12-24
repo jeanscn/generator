@@ -1,6 +1,7 @@
 <!--
+* ${ OVERRIDABLE_FLAG }
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.12
+* @version: modal template version 1.0.13
 -->
 <template>
     <div class="form-modal-container">
@@ -83,7 +84,7 @@
         moduleId: { type: String as PropType<string>, default: '${ moduleId }' },
         applyWorkflow: { type: Number as PropType<number>, default: <#if workflowEnabled>1<#else>0</#if> },
         formConfig: { type: Object as PropType<TFormConfig>, default: EMPTY_OBJECT },
-        formData: { type: Object as PropType<T${ modelName }>, default: EMPTY_OBJECT },
+        formData: { type: Object as PropType<T${ modelName } | undefined | unknown | {}>, default: EMPTY_OBJECT },
         pageTitle: { type: String as PropType<string>, default: undefined },
         popSize: { type: String as PropType<string>, default: undefined },
         popDraggable: { type: Boolean as PropType<boolean>, default: undefined },
@@ -140,7 +141,7 @@
     const _popDraggable = ref<boolean>(props.popDraggable ?? _elDialogProps.value.draggable ?? true);
     const _viewStatus = ref<number>(props.viewStatus);
     const _formConfig = ref<TFormConfig>(props.formConfig);
-    const _formData = ref<T${ modelName }>(props.formData);
+    const _formData = ref<T${ modelName }>(props.formData || EMPTY_OBJECT as any);
     const _service = ref<ServiceApi<T${ modelName }>>();
     provide('loadModalProvideData', props.loadModalProvideData);
 

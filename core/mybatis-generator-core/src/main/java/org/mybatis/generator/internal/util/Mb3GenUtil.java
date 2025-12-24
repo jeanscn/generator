@@ -18,6 +18,7 @@ import org.mybatis.generator.codegen.mybatis3.AbstractGeneratedFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.custom.ConstantsUtil;
+import org.mybatis.generator.custom.FieldItem;
 import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
@@ -52,9 +53,9 @@ public class Mb3GenUtil {
         return VStringUtil.stringHasValue(parentMenuId)?parentMenuId:VStringUtil.stringHasValue(contextParentMenuId)?contextParentMenuId:null;
     }
 
-    public static String getControllerBaseMappingPath(AbstractIntrospectedTable abstractIntrospectedTable) {
-        String beanName = ConfigUtil.getIntrospectedTableBeanName(abstractIntrospectedTable.getTableConfiguration());
-        String basePath = abstractIntrospectedTable.getTableConfiguration().getServiceApiBasePath();
+    public static String getControllerBaseMappingPath(AbstractIntrospectedTable introspectedTable) {
+        String beanName = ConfigUtil.getIntrospectedTableBeanName(introspectedTable.getTableConfiguration());
+        String basePath = introspectedTable.getTableConfiguration().getServiceApiBasePath();
         if (StringUtility.stringHasValue(basePath)) {
             return basePath + "/" + toHyphenCase(beanName);
         } else {
@@ -70,26 +71,26 @@ public class Mb3GenUtil {
         return null;
     }
 
-    public static String getModelKey(AbstractIntrospectedTable abstractIntrospectedTable) {
-        return StringUtils.lowerCase(abstractIntrospectedTable.getContext().getModuleKeyword() + SymbolConstants.UNDERLINE + abstractIntrospectedTable.getTableConfiguration().getDomainObjectName());
+    public static String getModelKey(AbstractIntrospectedTable introspectedTable) {
+        return StringUtils.lowerCase(introspectedTable.getContext().getModuleKeyword() + SymbolConstants.UNDERLINE + introspectedTable.getTableConfiguration().getDomainObjectName());
     }
 
-    public static String getModelId(AbstractIntrospectedTable abstractIntrospectedTable) {
-        String modelKey = getModelKey(abstractIntrospectedTable);
+    public static String getModelId(AbstractIntrospectedTable introspectedTable) {
+        String modelKey = getModelKey(introspectedTable);
         return VMD5Util.MD5_15(modelKey);
     }
 
 
-    public static String getDefaultViewId(AbstractIntrospectedTable abstractIntrospectedTable) {
-        String aCase = StringUtils.lowerCase(abstractIntrospectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
+    public static String getDefaultViewId(AbstractIntrospectedTable introspectedTable) {
+        String aCase = StringUtils.lowerCase(introspectedTable.getControllerBeanName() + GlobalConstant.DEFAULT_VIEW_ID_SUFFIX);
         if (VStringUtil.stringHasValue(aCase)) {
             return VMD5Util.MD5_15(aCase);
         }
         return null;
     }
 
-    public static String getDefaultHtmlKey(AbstractIntrospectedTable abstractIntrospectedTable) {
-        String controllerBaseMappingPath = Mb3GenUtil.getControllerBaseMappingPath(abstractIntrospectedTable);
+    public static String getDefaultHtmlKey(AbstractIntrospectedTable introspectedTable) {
+        String controllerBaseMappingPath = Mb3GenUtil.getControllerBaseMappingPath(introspectedTable);
         return controllerBaseMappingPath.replace("/", "-");
     }
 
@@ -97,29 +98,29 @@ public class Mb3GenUtil {
         return !introspectedColumn.isNullable() && introspectedColumn.getDefaultValue() == null && !introspectedColumn.isAutoIncrement() && !introspectedColumn.isGeneratedColumn() && !introspectedColumn.isSequenceColumn();
     }
 
-    public static boolean isInDefaultFields(AbstractIntrospectedTable abstractIntrospectedTable, String fieldName) {
-        if (GenerateUtils.isWorkflowInstance(abstractIntrospectedTable) && ConstantsUtil.DEFAULT_WORKFLOW_FIELDS.contains(fieldName)) {
+    public static boolean isInDefaultFields(AbstractIntrospectedTable introspectedTable, String fieldName) {
+        if (GenerateUtils.isWorkflowInstance(introspectedTable) && ConstantsUtil.DEFAULT_WORKFLOW_FIELDS.contains(fieldName)) {
             return true;
         } else {
             return ConstantsUtil.DEFAULT_CORE_FIELDS.contains(fieldName);
         }
     }
 
-    public static String getInnerListFragmentFileName(@Nullable HtmlElementInnerListConfiguration listConfiguration, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public static String getInnerListFragmentFileName(@Nullable HtmlElementInnerListConfiguration listConfiguration, AbstractIntrospectedTable introspectedTable) {
         if (listConfiguration != null) {
             String listKey = stringHasValue(listConfiguration.getListKey()) ? "_" + listConfiguration.getListKey() : "";
             return listConfiguration.getSourceViewPath() + listKey + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
         } else {
-            return abstractIntrospectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
+            return introspectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
         }
     }
 
-    public static String getHtmlInnerListFragmentFileName(@Nullable InnerListViewConfiguration innerListViewConfiguration, AbstractIntrospectedTable abstractIntrospectedTable) {
+    public static String getHtmlInnerListFragmentFileName(@Nullable InnerListViewConfiguration innerListViewConfiguration, AbstractIntrospectedTable introspectedTable) {
         if (innerListViewConfiguration != null) {
             String listKey = stringHasValue(innerListViewConfiguration.getListKey()) ? "_" + innerListViewConfiguration.getListKey() : "";
             return innerListViewConfiguration.getEditExtendsForm() + listKey + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
         } else {
-            return abstractIntrospectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
+            return introspectedTable.getTableConfiguration().getTableName() + "_" + ConstantsUtil.SUFFIX_INNER_LIST_FRAGMENTS + ".html";
         }
     }
 
@@ -229,11 +230,11 @@ public class Mb3GenUtil {
         return null;
     }
 
-    public static Map<String,String> getColumnRenderFunMap(AbstractIntrospectedTable abstractIntrospectedTable) {
+    public static Map<String,String> getColumnRenderFunMap(AbstractIntrospectedTable introspectedTable) {
         // 列渲染
         Map<String, String> columnRenderFunMap = new HashMap<>();
-        if (abstractIntrospectedTable.getRules().isGenerateViewVo()) {
-            VoViewGeneratorConfiguration viewConfiguration = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
+        if (introspectedTable.getRules().isGenerateViewVo()) {
+            VoViewGeneratorConfiguration viewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
             viewConfiguration.getVoColumnRenderFunGeneratorConfigurations()
                     .forEach(config -> config.getFieldNames().forEach(fieldName -> columnRenderFunMap.putIfAbsent(fieldName, config.getRenderFun())));        }
         return columnRenderFunMap;
@@ -260,10 +261,10 @@ public class Mb3GenUtil {
 
     /**
      * 设置权限数据sql脚本
-     * @param abstractIntrospectedTable IntrospectedTable 内省表对象
+     * @param introspectedTable IntrospectedTable 内省表对象
      * @param levels 权限数据
      */
-    public static void setPermissionSqlData(AbstractIntrospectedTable abstractIntrospectedTable, Map<String, String> levels) {
+    public static void setPermissionSqlData(AbstractIntrospectedTable introspectedTable, Map<String, String> levels) {
         int index = 0;
         List<String> keys = new ArrayList<>();
         List<String> names = new ArrayList<>();
@@ -275,7 +276,7 @@ public class Mb3GenUtil {
             names.add(name);
             InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermission();
             sqlBuilder.updateStringValues("id_", id);
-            sqlBuilder.updateValues("sort_", String.valueOf(abstractIntrospectedTable.getPermissionDataScriptLines().size() + 1));
+            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionDataScriptLines().size() + 1));
             if (index > 0) {
                 sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
             } else {
@@ -285,7 +286,7 @@ public class Mb3GenUtil {
             sqlBuilder.updateStringValues("name_", name);
             sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
             sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
-            abstractIntrospectedTable.addPermissionDataScriptLines(id, sqlBuilder.toSql()+";");
+            introspectedTable.addPermissionDataScriptLines(id, sqlBuilder.toSql()+";");
             index++;
         }
     }
@@ -296,7 +297,7 @@ public class Mb3GenUtil {
      * @param htmlButtonGeneratorConfigurations HtmlButtonGeneratorConfiguration 按钮生成配置集合
      * @return List<String> 按钮注解字符串的集合
      */
-    public static List<String> genHtmlButtonAnnotationDescFromKeys(AbstractIntrospectedTable abstractIntrospectedTable, List<String> buttonIds, Set<HtmlButtonGeneratorConfiguration> htmlButtonGeneratorConfigurations, @Nullable String parentMenuId){
+    public static List<String> genHtmlButtonAnnotationDescFromKeys(AbstractIntrospectedTable introspectedTable, List<String> buttonIds, Set<HtmlButtonGeneratorConfiguration> htmlButtonGeneratorConfigurations, @Nullable String parentMenuId){
         return buttonIds.stream().filter(VStringUtil::stringHasValue).map(buttonId -> {
            // 先检查配置中是否存在
             HtmlButtonGeneratorConfiguration htmlButtonGeneratorConfiguration = htmlButtonGeneratorConfigurations.stream()
@@ -305,7 +306,7 @@ public class Mb3GenUtil {
             if (htmlButtonGeneratorConfiguration != null) {
                 HtmlButtonDesc htmlButtonDesc = HtmlButtonDesc.create(htmlButtonGeneratorConfiguration);
                 if (htmlButtonDesc.isConfigurable() && VStringUtil.stringHasValue(parentMenuId)) {
-                    addActionPermissionSqlData(abstractIntrospectedTable, htmlButtonDesc,parentMenuId);
+                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc,parentMenuId);
                 }
                 return "\n                                "+htmlButtonDesc.toAnnotation();
             }
@@ -318,7 +319,7 @@ public class Mb3GenUtil {
                     htmlButtonDesc.setIcon(viewDefaultToolBarsEnum.icon());
                 }
                 if (htmlButtonDesc.isConfigurable() && VStringUtil.stringHasValue(parentMenuId)) {
-                    addActionPermissionSqlData(abstractIntrospectedTable, htmlButtonDesc,parentMenuId);
+                    addActionPermissionSqlData(introspectedTable, htmlButtonDesc,parentMenuId);
                 }
                 return "\n                                "+htmlButtonDesc.toAnnotation();
             }
@@ -329,26 +330,26 @@ public class Mb3GenUtil {
 
     /**
      * 添加操作权限数据
-     * @param abstractIntrospectedTable IntrospectedTable 内省表对象
+     * @param introspectedTable IntrospectedTable 内省表对象
      * @param htmlButtonDesc HtmlButtonDesc 按钮描述对象
      * @param parentMenuId 父级菜单ID
      */
-    private static void addActionPermissionSqlData(AbstractIntrospectedTable abstractIntrospectedTable, HtmlButtonDesc htmlButtonDesc, String parentMenuId) {
-        String l2 = abstractIntrospectedTable.getControllerBeanName().toLowerCase();
+    private static void addActionPermissionSqlData(AbstractIntrospectedTable introspectedTable, HtmlButtonDesc htmlButtonDesc, String parentMenuId) {
+        String l2 = introspectedTable.getControllerBeanName().toLowerCase();
         String l3 = htmlButtonDesc.getId().toLowerCase();
         Map<String, String> mapAction = new LinkedHashMap<>();
-        mapAction.put(l2, abstractIntrospectedTable.getRemarks(true));
+        mapAction.put(l2, introspectedTable.getRemarks(true));
         mapAction.put(l3, htmlButtonDesc.getTitle()!=null?htmlButtonDesc.getTitle():htmlButtonDesc.getLabel());
-        setPermissionActionSqlData(abstractIntrospectedTable, mapAction,parentMenuId);
+        setPermissionActionSqlData(introspectedTable, mapAction,parentMenuId);
     }
 
     /**
      * 设置权限操作数据sql脚本
-     * @param abstractIntrospectedTable IntrospectedTable 内省表对象
+     * @param introspectedTable IntrospectedTable 内省表对象
      * @param levels 权限数据
      * @param parentMenuId 父级菜单ID
      */
-    private static void setPermissionActionSqlData(AbstractIntrospectedTable abstractIntrospectedTable, Map<String, String> levels, String parentMenuId) {
+    private static void setPermissionActionSqlData(AbstractIntrospectedTable introspectedTable, Map<String, String> levels, String parentMenuId) {
         int index = 0;
         List<String> keys = new ArrayList<>();
         List<String> names = new ArrayList<>();
@@ -360,15 +361,15 @@ public class Mb3GenUtil {
             names.add(name);
             InsertSqlBuilder sqlBuilder = GenerateSqlTemplate.insertSqlForPermissionAction();
             sqlBuilder.updateStringValues("id_", id);
-            sqlBuilder.updateValues("sort_", String.valueOf(abstractIntrospectedTable.getPermissionActionDataScriptLines().size() + 1));
+            sqlBuilder.updateValues("sort_", String.valueOf(introspectedTable.getPermissionActionDataScriptLines().size() + 1));
             sqlBuilder.updateStringValues("code_", code);
             sqlBuilder.updateStringValues("name_", name);
             if (index > 0) {
                 sqlBuilder.updateStringValues("parent_id", VMD5Util.MD5_15(keys.get(index - 1)));
-                abstractIntrospectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
+                introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
             } else {
                 sqlBuilder.updateStringValues("parent_id", parentMenuId);
-                abstractIntrospectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
+                introspectedTable.addPermissionActionDataScriptLines(id, sqlBuilder.toSql()+";");
             }
             sqlBuilder.updateStringValues("created_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
             sqlBuilder.updateStringValues("modified_id", GlobalConstant.DEFAULT_SYSTEM_ADMIN_ID);
@@ -376,11 +377,11 @@ public class Mb3GenUtil {
         }
     }
 
-    public static VoAdditionalPropertyGeneratorConfiguration generateAdditionalPropertyFromDefaultColumnNameEnum(AbstractIntrospectedTable abstractIntrospectedTable,
+    public static VoAdditionalPropertyGeneratorConfiguration generateAdditionalPropertyFromDefaultColumnNameEnum(AbstractIntrospectedTable introspectedTable,
                                                                                                                  DefaultColumnNameEnum defaultColumnNameEnum,
                                                                                                                  String initializationString,
                                                                                                                  List<String> annotations) {
-        VoAdditionalPropertyGeneratorConfiguration leafAdditionalPropertyConfiguration = new VoAdditionalPropertyGeneratorConfiguration(abstractIntrospectedTable.getContext(), abstractIntrospectedTable.getTableConfiguration());
+        VoAdditionalPropertyGeneratorConfiguration leafAdditionalPropertyConfiguration = new VoAdditionalPropertyGeneratorConfiguration(introspectedTable.getContext(), introspectedTable.getTableConfiguration());
         leafAdditionalPropertyConfiguration.setName(defaultColumnNameEnum.fieldName());
         leafAdditionalPropertyConfiguration.setRemark(defaultColumnNameEnum.comment());
         if (initializationString != null) {
@@ -464,5 +465,20 @@ public class Mb3GenUtil {
 
     public static boolean isContainOverridableMarker(AbstractGeneratedFile generatedFile) {
         return isContainOverridableMarker(generatedFile.getTargetProject(), generatedFile.getTargetPackage(), generatedFile.getFileName());
+    }
+
+    public static  void addTypeScriptTypeDescriptor(AbstractIntrospectedTable introspectedTable,TopLevelClass topLevelClass, FieldItem property, @Nullable String superName) {
+        String typeName = topLevelClass.getType().getShortName();
+        TypeScriptTypeDescriptor typeScriptTypeDescriptor = introspectedTable.getTypeScriptTypeDescriptors().stream()
+                .filter(descriptor -> typeName.equals(descriptor.getName()))
+                .findFirst().orElse(null);
+        if (typeScriptTypeDescriptor == null) {
+            typeScriptTypeDescriptor = new TypeScriptTypeDescriptor(typeName,"interface", introspectedTable.getRemarks(true));
+            introspectedTable.getTypeScriptTypeDescriptors().add(typeScriptTypeDescriptor);
+            if (VStringUtil.stringHasValue(superName)) {
+                typeScriptTypeDescriptor.setExtendsName(superName);
+            }
+        }
+        typeScriptTypeDescriptor.addProperty(property);
     }
 }

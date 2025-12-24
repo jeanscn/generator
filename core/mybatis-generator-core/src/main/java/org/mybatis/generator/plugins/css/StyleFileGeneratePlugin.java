@@ -20,7 +20,7 @@ import java.util.List;
 public class StyleFileGeneratePlugin extends PluginAdapter {
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable abstractIntrospectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
+    public List<GeneratedFile> contextGenerateAdditionalWebFiles(AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
         List<GeneratedFile> answer = new ArrayList<>();
 
         String project = this.properties.getProperty("targetProject", "src/main/resources/static/css");
@@ -39,8 +39,8 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                 GeneratedStyleFile generatedStyleFile = new GeneratedStyleFile(
                         styleFileNameDev,
                         project,
-                        abstractIntrospectedTable.getContext().getModuleKeyword(),
-                        abstractIntrospectedTable,
+                        introspectedTable.getContext().getModuleKeyword(),
+                        introspectedTable,
                         "app_main_css.css.ftl");
                 generatedStyleFile.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);
                 generatedStyleFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteCssFile());
@@ -50,8 +50,8 @@ public class StyleFileGeneratePlugin extends PluginAdapter {
                 GeneratedStyleFile generatedStyleFileMin = new GeneratedStyleFile(
                         min,
                         project,
-                        abstractIntrospectedTable.getContext().getModuleKeyword(),
-                        abstractIntrospectedTable,
+                        introspectedTable.getContext().getModuleKeyword(),
+                        introspectedTable,
                         "app_main_css.css.ftl");
                 generatedStyleFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteCssFile());
                 generatedStyleFileMin.setHtmlGeneratorConfiguration(htmlGeneratorConfiguration);

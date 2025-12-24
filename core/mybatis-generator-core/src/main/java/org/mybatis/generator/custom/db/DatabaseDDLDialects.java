@@ -1,7 +1,25 @@
 package org.mybatis.generator.custom.db;
 
+import lombok.Getter;
+
+/**
+ * @author cen_c
+ */
+
+@Getter
 public enum DatabaseDDLDialects {
 
+    /**
+     * 数据库方言对应的ddl语句模板
+     * {0}操作类型 ADD|MODIFY|CHANGE|DROP
+     * {1}列名
+     * {2}列类型
+     * {3}列长度
+     * {4}字符集
+     * {5}非空
+     * {6}备注
+     * {7}位置
+     */
     DB2("",""),
     MYSQL("{0} COLUMN `{1}` {2}{3}{4}{5}COMMENT ''{6}''{7}","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''"),
     SQLSERVER("",""),
@@ -19,14 +37,6 @@ public enum DatabaseDDLDialects {
     DatabaseDDLDialects(String columnModifyStatement,String createStatement) {
         this.columnModifyStatement = columnModifyStatement;
         this.createStatement = createStatement;
-    }
-
-    public String getColumnModifyStatement() {
-        return columnModifyStatement;
-    }
-
-    public String getCreateStatement() {
-        return createStatement;
     }
 
     /**

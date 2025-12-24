@@ -1,7 +1,7 @@
 package org.mybatis.generator.internal.db;
 
-import org.mybatis.generator.DBStrategy.DatabaseIntrospectorFactory;
-import org.mybatis.generator.DBStrategy.DatabaseIntrospectorStrategy;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;

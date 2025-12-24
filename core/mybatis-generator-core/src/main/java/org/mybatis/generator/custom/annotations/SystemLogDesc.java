@@ -4,6 +4,7 @@ import com.vgosoft.core.annotation.SystemLog;
 import com.vgosoft.core.constant.enums.log.LogTargetTableEnum;
 import com.vgosoft.core.constant.enums.log.LogTypesEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 
 import static org.mybatis.generator.custom.ConstantsUtil.LOG_TARGET_TABLE_ENUM;
@@ -16,10 +17,13 @@ import static org.mybatis.generator.custom.ConstantsUtil.LOG_TYPES_ENUM;
  */
 public class SystemLogDesc extends AbstractAnnotation {
 
-    public static final String ANNOTATION_NAME = "@"+ SystemLog.class.getSimpleName();
+    public static final String ANNOTATION_NAME = "@" + SystemLog.class.getSimpleName();
 
+    @Getter
     private final String value;
+    @Getter
     private LogTypesEnum logType;
+    @Getter
     private LogTargetTableEnum targetTable;
     private final AbstractIntrospectedTable introspectedTable;
 
@@ -33,7 +37,7 @@ public class SystemLogDesc extends AbstractAnnotation {
     @Override
     public String toAnnotation() {
         if (VStringUtil.isNotBlank(value)) {
-            items.add(VStringUtil.format("value = \"{0}:{1}\"", introspectedTable.getRemarks(true),value));
+            items.add(VStringUtil.format("value = \"{0}:{1}\"", introspectedTable.getRemarks(true), value));
         }
         if (logType != null) {
             items.add(VStringUtil.format("logType = LogTypesEnum.{0}", logType.name()));
@@ -41,24 +45,12 @@ public class SystemLogDesc extends AbstractAnnotation {
         if (targetTable != null) {
             items.add(VStringUtil.format("logType = LogTargetTableEnum.{0}", targetTable.name()));
         }
-        return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public LogTypesEnum getLogType() {
-        return logType;
+        return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
 
     public void setLogType(LogTypesEnum logType) {
         this.logType = logType;
         this.addImports(LOG_TYPES_ENUM);
-    }
-
-    public LogTargetTableEnum getTargetTable() {
-        return targetTable;
     }
 
     public void setTargetTable(LogTargetTableEnum targetTable) {

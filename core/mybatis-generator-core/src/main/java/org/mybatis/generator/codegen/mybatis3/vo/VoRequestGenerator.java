@@ -46,6 +46,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         introspectedColumns.stream()
                 .filter(introspectedColumn -> !isAbstractVoColumn(introspectedColumn) && !excludeColumns.contains(introspectedColumn.getActualColumnName()))
                 .forEach(introspectedColumn -> addRequestField(requestVoClass, introspectedColumn));
+
         //分页属性
         addPageProperty(voRequestGeneratorConfiguration, requestVoClass);
         //排序属性
@@ -54,20 +55,51 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         addCascadeResult(requestVoClass);
         //增加countChildren开关
         addCountChildren(requestVoClass);
+
         //增加ignoreDeleteFlag开关
-        addIgnoreDeleteFlag(requestVoClass, introspectedTable);
-        addIgnorePermissionAnnotation(requestVoClass, introspectedTable);
+        Field ignoreDeleteFlag = getIgnoreDeleteFlag(requestVoClass, introspectedTable);
+        if (ignoreDeleteFlag != null && plugins.voRequestFieldGenerated(ignoreDeleteFlag, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(ignoreDeleteFlag);
+        }
+
+        //增加是否权限过滤注解
+        Field ignorePermissionAnnotation = addIgnorePermissionAnnotation(requestVoClass, introspectedTable);
+        if (ignorePermissionAnnotation != null && plugins.voRequestFieldGenerated(ignorePermissionAnnotation, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(ignorePermissionAnnotation);
+        }
+
         //增加ignoreIdList属性
-        addIgnoreIdList(requestVoClass, introspectedTable);
-        addIsHideIds(requestVoClass, introspectedTable);
+        Field ignoreIdList = getIgnoreIdList(requestVoClass, introspectedTable);
+        if (ignoreIdList != null && plugins.voRequestFieldGenerated(ignoreIdList, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(ignoreIdList);
+            requestVoClass.addImportedType(ignoreIdList.getType());
+        }
+
+        //增加isHideIds属性
+        Field isHideIds = getIsHideIds(requestVoClass, introspectedTable);
+        if (isHideIds != null && plugins.voRequestFieldGenerated(isHideIds, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(isHideIds);
+        }
         //附加属性
         additionalProperties(voRequestGeneratorConfiguration, requestVoClass);
         //增加任意过滤条件接收
-        addWhereConditionResult(requestVoClass);
+        Field whereConditionResult = getWhereConditionResult(requestVoClass);
+        if (whereConditionResult != null && plugins.voRequestFieldGenerated(whereConditionResult, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(whereConditionResult);
+            requestVoClass.addImportedType(whereConditionResult.getType());
+        }
         //增加前端过滤器属性
-        addFilterMap(requestVoClass);
+        Field filterMap = getFilterMap(requestVoClass);
+        if (filterMap != null && plugins.voRequestFieldGenerated(filterMap, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(filterMap);
+            requestVoClass.addImportedType(filterMap.getType());
+        }
         //增加actionType属性
-        addActionType(requestVoClass, introspectedTable);
+        Field actionType = getActionType(requestVoClass, introspectedTable);
+        if (actionType != null && plugins.voRequestFieldGenerated(actionType, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(actionType);
+            requestVoClass.addImportedType(actionType.getType());
+        }
         mappingsInterface.addImportedType(new FullyQualifiedJavaType(requestVoType));
         mappingsInterface.addMethod(addMappingMethod(requestVoClass.getType(), entityType, false));
         return requestVoClass;
@@ -79,7 +111,9 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             countChildren.setVisibility(JavaVisibility.PRIVATE);
             countChildren.setRemark("是否统计子级数量");
             new ApiModelPropertyDesc(countChildren.getRemark(), "false").addAnnotationToField(countChildren, requestVoClass);
-            requestVoClass.addField(countChildren);
+            if (plugins.voRequestFieldGenerated(countChildren, requestVoClass, null, introspectedTable)) {
+                requestVoClass.addField(countChildren);
+            }
         }
     }
 
@@ -99,7 +133,9 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             cascade.setVisibility(JavaVisibility.PRIVATE);
             cascade.setRemark("结果是否包含子级");
             new ApiModelPropertyDesc(cascade.getRemark(), "false").addAnnotationToField(cascade, requestVoClass);
-            requestVoClass.addField(cascade);
+            if (plugins.voRequestFieldGenerated(cascade, requestVoClass, null, introspectedTable)) {
+                requestVoClass.addField(cascade);
+            }
         }
     }
 
@@ -108,7 +144,9 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         orderByClause.setVisibility(JavaVisibility.PRIVATE);
         orderByClause.setRemark("排序语句");
         new ApiModelPropertyDesc(orderByClause.getRemark(), "SORT_").addAnnotationToField(orderByClause, requestVoClass);
-        requestVoClass.addField(orderByClause);
+        if (plugins.voRequestFieldGenerated(orderByClause, requestVoClass, null, introspectedTable)) {
+            requestVoClass.addField(orderByClause);
+        }
     }
 
     private void addPageProperty(VoRequestGeneratorConfiguration voRequestGeneratorConfiguration, TopLevelClass topLevelClass) {
@@ -121,13 +159,19 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             pNo.setRemark("页码");
             pNo.setInitializationString("DEFAULT_FIRST_PAGE_NO");
             new ApiModelPropertyDesc(pNo.getRemark(), "1").addAnnotationToField(pNo, topLevelClass);
-            topLevelClass.addField(pNo);
+            if (plugins.voRequestFieldGenerated(pNo, topLevelClass, null, introspectedTable)) {
+                topLevelClass.addField(pNo);
+            }
+
+
             Field pSize = new Field("pageSize", FullyQualifiedJavaType.getIntInstance());
             pSize.setRemark("每页数据数量");
             new ApiModelPropertyDesc(pSize.getRemark(), "10").addAnnotationToField(pSize, topLevelClass);
             pSize.setInitializationString("DEFAULT_PAGE_SIZE");
             pSize.setVisibility(JavaVisibility.PRIVATE);
-            topLevelClass.addField(pSize);
+            if (plugins.voRequestFieldGenerated(pSize, topLevelClass, null, introspectedTable)) {
+                topLevelClass.addField(pSize);
+            }
         }
     }
 

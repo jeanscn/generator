@@ -17,23 +17,23 @@ import java.util.List;
 public class HtmlFragmentsPlugin extends PluginAdapter {
 
     @Override
-    public List<GeneratedFile> contextGenerateAdditionalFiles(AbstractIntrospectedTable abstractIntrospectedTable) {
+    public List<GeneratedFile> contextGenerateAdditionalFiles(AbstractIntrospectedTable introspectedTable) {
         List<GeneratedFile> answer = new ArrayList<>();
         //检查innerList是否存在，存在则生成html编辑器模板片段
         String project = this.properties.getProperty("targetProject", "src/main/resources/templates");
         //生成html fragments file
-        if (!abstractIntrospectedTable.getRules().isGenerateInnerTable()) {
+        if (!introspectedTable.getRules().isGenerateInnerTable()) {
             return answer;
         }
-        List<InnerListViewConfiguration> innerListViewConfigurations = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
+        List<InnerListViewConfiguration> innerListViewConfigurations = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations();
         if (innerListViewConfigurations != null && !innerListViewConfigurations.isEmpty()) {
             for (InnerListViewConfiguration innerListViewConfiguration : innerListViewConfigurations) {
-                String innerListFragmentsFileName = Mb3GenUtil.getHtmlInnerListFragmentFileName(innerListViewConfiguration, abstractIntrospectedTable);
+                String innerListFragmentsFileName = Mb3GenUtil.getHtmlInnerListFragmentFileName(innerListViewConfiguration, introspectedTable);
                 GeneratedHtmlFragmentsFile generatedHtmlFragmentsFile = new GeneratedHtmlFragmentsFile(
                         innerListFragmentsFileName,
                         project,
-                        abstractIntrospectedTable.getContext().getModuleKeyword() + "/fragments",
-                        abstractIntrospectedTable,
+                        introspectedTable.getContext().getModuleKeyword() + "/fragments",
+                        introspectedTable,
                         "app_html_fragments.html.ftl");
                 generatedHtmlFragmentsFile.setInnerListViewConfiguration(innerListViewConfiguration);
                 answer.add(generatedHtmlFragmentsFile);

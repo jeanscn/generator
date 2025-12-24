@@ -1,461 +1,75 @@
 <!--
 * ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.32
+* @version: list template version 1.0.35
 -->
 <#-- language=Vue3 -->
 <template>
-    <el-container class="main-view-container">
-        <el-aside width="220px" v-if="showTreePanel">
-            <TreePanel :treeDataUrl="categoryTreeUrl" :treePanelProps="sideTreePanelProps"
-                       @node-click="navTreeItemClick"></TreePanel>
-        </el-aside>
-        <el-container>
-            <el-main class="nopadding">
-                <vgo-table v-if="tableConfigReady" ref="tableRef" tableName="${ tableName }"  modelType="${ modelType!'default' }"
-                           :apiObj="tableApiObj.fetchTableData"
-                           :tableConfigProps="_tableConfigProps"
-                           :defaultSort = "defaultSort"
-                           @view-row-button-click="defaultViewRowActionHandler"
-                           @view-toolbar-button-click="defaultDtCustomButtonActionHandler"
-                           row-key="id" stripe remoteSort>
-                    <template v-for="(column) in _tableConfigProps!.columns" :key="`column_`+ column.prop" #[column.prop]="scope">
-                        <span>
-							<el-link
-                                    v-if="selectedHref(column)"
-                                    type="primary"
-                                    class="table-cell-link"
-                                    @click="openSelectedHrefModal(column, scope.row)"
-                                    underline="never"
-                            >
-								<span class="table-cell-link-text">
-									<PrivateTableColumnSlots v-memo="[scope.row[column.prop], column.prop]"
-                                                             :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
-								</span>
-							</el-link>
-							<span v-else>
-								<PrivateTableColumnSlots v-memo="[scope.row[column.prop], column.prop]"
-                                                         :scope="scope" :column="column" :slotName="column.prop"></PrivateTableColumnSlots>
-							</span>
-						</span>
-                    </template>
-                </vgo-table>
-                <LoadModals v-if="loadModalsProps.dataLoaded && loadModalsProps.key === '${ componentName }-list'"
-                            v-model="loadModalsProps.modelValue"
-                            :type="loadModalsProps.type"
-                            :viewStatus="loadModalsProps.viewStatus"
-                            :popSize="loadModalsProps.popSize"
-                            :formData="loadModalsProps.formData"
-                            :elDialogProps="loadModalsProps.elDialogProps"
-                            :elDrawerProps="loadModalsProps.elDrawerProps"
-                            :loadModalProvideData="loadModalsProps.loadModalProvideData"
-                            @vxe-button-click="defaultInnerListButtonActionHandler"
-                            @close="destroyComponent">
-                </LoadModals>
-                <${ componentName }Modal v-if="showDialog" v-model="showDialog"
-                                :type="dialogType"
-                                :viewStatus="viewStatus"
-                                :moduleId="moduleId"
-                                :applyWorkflow="applyWorkflow"
-                                :formConfig="formConfig"
-                                :formData="formData"
-                                :service="service"
-                                :pageTitle="pageTitle"
-                                :popSize="popSize"
-                                :popDraggable="popDraggable"
-                                :closeOnClickModal="false"
-                                :closeOnPressEscape="false"
-                                :tableRef="tableRef"
-                                :isModeal="false"
-                                @vxe-button-click="defaultInnerListButtonActionHandler"
-                                @form-submit="onSubmit"
-                                @close="destroyForm">
-                </${ componentName }Modal>
-                <VgoTreeDrawer v-model="showTreeDrawer" v-model:treeSelected="treeSelected" :title="pageTitle"
-                               :apiObj="drawerTreeApiObj" :treePanelProps="drawerTreePanelProps"
-                               :mainRecordId="mainRecordId" :drawerOnButtonId="drawerOnButtonId" @check="treeDrawerCheckCheck" @save="saveTreeDrawerData">
-                </VgoTreeDrawer>
-                <vgoFileImport v-model="showImportDialog" :service="service" @on-success="importSuccess"></vgoFileImport>
-            </el-main>
-        </el-container>
-    </el-container>
-
+    <VgoTableView :moduleKey="moduleKey" :permissionKey="permissionKey" :tableKey="tableKey">
+        <template v-for="column in availableColumns" :key="column.prop"
+            #[column.prop]="{ scope, column: col, selectedHref, openSelectedHrefModal }">
+            <el-link v-if="selectedHref(col)" type="primary" class="table-cell-link"
+             @click="openSelectedHrefModal(col, scope.row)" underline="never">
+            <span class="table-cell-link-text">
+                <PrivateTableColumnSlots v-memo="[scope.row[col.prop], col.prop]" :scope="scope" :column="col"
+                     :slotName="col.prop" />
+            </span>
+            </el-link>
+            <span v-else>
+				<PrivateTableColumnSlots v-memo="[scope.row[col.prop], col.prop]" :scope="scope" :column="col"
+                   :slotName="col.prop" />
+			</span>
+        </template>
+        <template #module-modal="modalCtx">
+            <${ componentName }Modal
+                    v-if="modalCtx.showDialog"
+                    :modelValue="modalCtx.showDialog"
+                    :type="modalCtx.dialogType"
+                    :viewStatus="modalCtx.viewStatus"
+                    :moduleId="modalCtx.moduleId"
+                    :applyWorkflow="modalCtx.applyWorkflow"
+                    :formConfig="modalCtx.formConfig"
+                    :formData="modalCtx.formData || {}"
+                    :service="modalCtx.service"
+                    :pageTitle="modalCtx.pageTitle"
+                    :popSize="modalCtx.popSize"
+                    :popDraggable="modalCtx.popDraggable"
+                    :tableRef="modalCtx.tableRef"
+                    :isModal="false"
+                    @update:modelValue="(val) => modalCtx.updateShowDialog(val)"
+                    @vxe-button-click="modalCtx.defaultInnerListButtonActionHandler"
+                    @form-submit="modalCtx.onSubmit"
+                    @close="modalCtx.destroyForm" />
+        </template>
+    </VgoTableView>
 </template>
 
 <#-- language=TypeScript -->
 <script lang="ts" setup name="${ componentName }">
+import { TColumn } from '@/framework/components/vgoTable/types';
+import VgoTableView from '@/framework/components/vgoTable/vgoTableView.vue';
+import { useTableConfigStore } from '@/store/tableConfig';
+import { onMounted, provide, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
+import PrivateTableColumnSlots from '../${ modelPath }/PrivateTableColumnSlots.vue';
+import { loadModalsProps } from '../${ modelPath }/sharedVariables';
 
-    import { Ref, watch, onMounted, ref, inject, provide, nextTick } from 'vue';
-    import { useRoute } from 'vue-router';
-    import { TTableConfigProps, TTableApiObj, TVgoTableInstance, TColumn, ExtendedSort } from "@/framework/components/vgoTable/types";
-    import API from '@/api';
-    import { ServiceApi } from '@/api/service';
-    import { isEmpty, isNullOrUnDef } from '@/framework/utils/is';
-    import * as extMethod from '@/hooks/useCustomHandle';
-    import TreePanel from '@/framework/components/vgoTree/TreePanel.vue';
-    import { TFormConfig } from '@/framework/components/vgoForm/types';
-    import { T${ componentName } } from '../${ modelPath }/types/T${ componentName }';
-    import VgoTreeDrawer from '@/framework/components/vgoDrawer/VgoTreeDrawer.vue';
-    import PrivateTableColumnSlots from '../${ modelPath }/PrivateTableColumnSlots.vue';
-    import { useTableConfigStore } from '@/store/tableConfig';
-    import { useFormConfigStore } from '@/store/formConfig';
-    import { TDtCustomButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
-    import { TTreeApiObj, TTreeCheckDataParams, TTreePanelButtons, TTreePanelProps, TTreeSaveDataParams, TVgoTreeProps } from '@/framework/components/vgoTree/types';
-    import { TApi } from '@/api/types';
-    import { useI18n } from 'vue-i18n';
-    import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
-    import { TGlobalDrawer } from '@/framework/layout/components/GlobalDrawer.vue';
-    import { IButtonProps } from '@/framework/types/core';
-    import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
-    import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
-    import LoadModals from '@/modules/components/loadModals/index.vue';
-    import { loadModalsProps } from '../${ modelPath }/sharedVariables';
-    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
+const route = useRoute();
+const meta = route.meta as { viewId: string };
 
-    const i18n = useI18n();
+const tableKey = ref<string>(meta.viewId);
+const moduleKey = ref<string>("${ modelPath }");
+const permissionKey = ref<string>('${ permissionKey }');
 
-    const moduleKey = "${ modelPath }";
-    const permissionKey = '${ permissionKey }';
+const tableConfigStore = useTableConfigStore();
+// 获取可用的列配置，用于动态生成插槽
+const availableColumns = ref<TColumn[]>([]);
 
-    const tableConfigStore = useTableConfigStore();
-    const formConfigStore = useFormConfigStore();
+provide('loadModalsProps', loadModalsProps);
 
-    const showImportDialog = ref(false);
-
-    const route = useRoute();
-    const meta = route.meta as { viewId: string };
-    const tableRef = ref<TVgoTableInstance>();
-    const tableConfigReady = ref<boolean>(false);
-    const showTreePanel = ref(false);
-    const _tableConfigProps = ref<TTableConfigProps | null>(null);
-    const pageTitle = ref('');
-    const showDialog = ref(false);
-    const dialogType = ref<'dialog' | 'drawer'>('dialog');
-    const formConfig = ref<TFormConfig>();
-    const formData = ref<T${ componentName }|undefined>();
-    const popSize = ref<string>('default');
-    const popDraggable = ref<boolean>(false);
-    const bizFormRef = ref();
-    const restBasePath = ref<any>('');
-    const showTreeDrawer = ref<boolean>(false);
-    const drawerTreeApiObj = ref<TTreeApiObj>();
-    const treeSelected = ref<string[]>([]);
-    const drawerOnButtonId = ref('');
-    const buttonRef = ref<IButtonProps>();
-    const mainRecordId = ref('');
-    const categoryTreeUrl = ref('');
-    const service = ref<ServiceApi<any>>();
-    const tableApiObj = ref<TTableApiObj>({
-        fetchTableConfig: async (...params: any) => (API as TApi).common.viewConfig.post(params),
-        fetchTableData: async (params: any) => service.value!.listPost(<#if isHideAction>Object.assign(params, {hideIds: true})<#else>params</#if>),
-        fetchFormConfig: async (...params: any) =>  (API as TApi).common.formConfig.get(params),
-    });
-    const defaultSort = ref<ExtendedSort>({
-        prop: '${ defaultSortProp!"" }',
-        order: '${ defaultSortOrder!"descending" }',
-        column: '${ defaultSortColumn!"" }',
-    });
-    provide('tableRef', tableRef);
-    const sideTreePanelProps = ref<TTreePanelProps>({
-        treePanelButtons: {
-            showAll: true,
-            expandAll: true,
-            add: false,
-            edit: false,
-            del: false,
-        } as TTreePanelButtons,
-        vgoTreeProps: {
-            showCheckbox: false,
-            checkStrictly: true,
-            defaultExpandAll: true,
-        } as TVgoTreeProps,
-    });
-    const drawerTreePanelProps = ref<TTreePanelProps>({
-        treePanelButtons: {
-            showAll: false,
-            expandAll: true,
-            add: false,
-            edit: false,
-            del: false,
-            save:true,
-            reset: true,
-            close: true,
-        } as TTreePanelButtons,
-        vgoTreeProps: {
-            showCheckbox: true,
-            checkStrictly: false,
-            defaultExpandAll: true,
-            props: {
-                children: 'children',
-                label: 'name',
-                value: 'id',
-                disabled: () => {
-                    // 入参可以是data,node,node.data
-                    return false;
-                },
-            },
-        } as TVgoTreeProps,
-        treePanelWidth: '30%',
-    });
-    const viewStatus = ref<number>(1);
-    const applyWorkflow = ref<number>(0);
-    const moduleId = ref<string>('');
-    onMounted(() => {
-        loadViewConfig();
-    });
-
-    const selectedHref = (column: TColumn) => {
-        if (!column) return false;
-        if (column.renderFunction && column.renderFunction.includes('colDefsAsLink')) {
-            return true;
-        }
-        return false;
-    }
-    const openSelectedHrefModal = async (column: TColumn, rowData: any) => {
-        loadModalsProps.formData = {};
-        loadModalsProps.dataLoaded = false;
-        loadModalsProps.modelValue = false;
-        // 检查是否可以打开抽屉
-        if (selectedHref(column)) {
-            // 更新数据
-            Object.assign(loadModalsProps.formData, rowData);
-            nextTick(() => {
-                loadModalsProps.dataLoaded = true;
-                loadModalsProps.modelValue = true;
-            });
-        } else {
-            // 如果不能打开，输出调试信息
-            console.warn('无法打开抽屉，column 不符合条件', column);
-        }
-    }
-
-    watch(() => showDialog.value, (val) => {
-        if (!val) {
-            bizFormRef.value = null;
-        }
-    });
-
-    const importSuccess = () => {
-        tableRef.value!.refresh();
-    };
-
-    const globalDialog:Ref<TGlobalDialog> = inject('globalDialog', ref({
-        openGlobalDialog: () => {
-            console.log('openGlobalDialog()不存在');
-        },
-        closeGlobalDialog: () => {
-            console.log('closeGlobalDialog()不存在');
-        },
-        getComponentRef: () => {
-            console.log('getComponentRef()不存在');
-        },
-    }));
-
-    const globalDrawer:Ref<TGlobalDrawer> = inject('globalDrawer', ref({
-        openGlobalDrawer: () => {
-            console.log('openGlobalDialog()不存在');
-        },
-        closeGlobalDrawer: () => {
-            console.log('openGlobalDrawer()不存在');
-        },
-        getComponentRef: () => {
-            console.log('getComponentRef()不存在');
-        },
-    }));
-
-    const loadViewConfig = async () => {
-        const tableKey = meta.viewId;
-        _tableConfigProps.value = tableConfigStore.hasTableConfig(tableKey) ? tableConfigStore.getTableConfig(tableKey) : await tableConfigStore.fetchTableConfigAsync(tableKey);
-        _tableConfigProps.value!.moduleKey = moduleKey;
-        _tableConfigProps.value!.permissionId = permissionKey;
-        pageTitle.value = _tableConfigProps.value!.listName || '';
-        restBasePath.value = _tableConfigProps.value!.restBasePath;
-        applyWorkflow.value = _tableConfigProps.value!.applyWorkflow ?? 0;
-        moduleId.value = _tableConfigProps.value!.moduleId || '';
-        service.value = new ServiceApi(restBasePath.value);
-        tableConfigReady.value = true;
-        let cateUrl = _tableConfigProps.value!.categoryTreeUrl;
-        if (cateUrl && !isEmpty(cateUrl) && !isNullOrUnDef(cateUrl)) {
-            categoryTreeUrl.value = cateUrl;
-            showTreePanel.value = true;
-        }
-        //form配置
-        let formKey = restBasePath.value.replace(/\//g, '-');
-        formConfig.value = formConfigStore.hasFormConfig(formKey) ? formConfigStore.getFormConfig(formKey) : await formConfigStore.fetchFormConfigAsync(formKey);
-        popSize.value = formConfig.value!.popSize||'default';
-        popDraggable.value = formConfig.value!.popDraggable ?? false;
-    };
-
-    const defaultViewRowActionHandler = (rowData: any, button: IButtonProps) => {
-        drawerOnButtonId.value = button.id;
-        formData.value = {...rowData};
-        buttonRef.value = button;
-        let params: TViewRowActionParam<T${ componentName }> = {
-            moduleKey: moduleKey,
-            moduleId: moduleId.value,
-            applyWorkflow: applyWorkflow.value,
-            rowData: rowData,
-            button: button,
-            formData: formData,
-            formConfig: formConfig,
-            dialogVisible: showDialog,
-            dialogType: dialogType,
-            service: service,
-            tableRef: tableRef,
-            drawerTreeApiObj: drawerTreeApiObj,
-            drawerTreePanelProps: drawerTreePanelProps,
-            showTreeDrawer: showTreeDrawer,
-            pageTitle: pageTitle,
-            mainRecordId: mainRecordId,
-            viewStatus: viewStatus,
-            globalDialog: globalDialog,
-            globalDrawer: globalDrawer,
-            i18n: i18n,
-            tableConfigProps: _tableConfigProps,
-        };
-        pageTitle.value = _tableConfigProps.value!.listName || '';
-        extMethod.defaultViewRowActionHandler<T${ componentName }>(params);
-    };
-
-    const defaultDtCustomButtonActionHandler = (selectedRows: T${ componentName }[], button: IButtonProps) => {
-        drawerOnButtonId.value = button.id;
-        buttonRef.value = button;
-        let params: TDtCustomButtonActionParam<T${ componentName }> = {
-            moduleKey: moduleKey,
-            moduleId: moduleId.value,
-            applyWorkflow: applyWorkflow.value,
-            selectedRows: selectedRows,
-            button: button,
-            formData: formData,
-            formConfig: formConfig,
-            dialogVisible: showDialog,
-            dialogType: dialogType,
-            service: service,
-            showTreeDrawer: showTreeDrawer,
-            tableRef: tableRef as Ref<any>,
-            pageTitle: pageTitle,
-            viewStatus: viewStatus,
-            globalDialog: globalDialog,
-            globalDrawer: globalDrawer,
-            i18n: i18n,
-            tableConfigProps: _tableConfigProps,
-        };
-        pageTitle.value = _tableConfigProps.value!.listName || '';
-        switch (button.id) {
-            case 'top-custom-import':
-                showImportDialog.value = true;
-                break;
-            default:
-                extMethod.defaultDtCustomButtonActionHandler<T${ componentName }>(params);
-                break;
-        }
-    };
-
-    const defaultInnerListButtonActionHandler = (params: TVxeTableActionsParams) => {
-        params = {
-            moduleKey: moduleKey,
-            ...params,
-        };
-        extMethod.defaultInnerListButtonActionHandler(params);
-    };
-
-    const treeDrawerCheckCheck = (params: TTreeCheckDataParams) => {
-        params = {
-            moduleKey: moduleKey,
-            service: service,
-            ...params,
-        };
-        extMethod.treeDrawerCheckCheck(params);
-    };
-
-    const saveTreeDrawerData = (params: TTreeSaveDataParams) => {
-        const param = {
-            moduleKey: moduleKey,
-            service: service,
-            ...params,
-        };
-        extMethod.saveTreeDrawerData(param);
-    };
-
-    const navTreeItemClick = (args: any) => {
-        let searchExpr = args?.data?.searchExpr || {};
-        tableRef.value!.reload({anyWhereCondition: searchExpr});
-    };
-
-    const onSubmit = (val) => {
-        tableRef.value!.updateRows([val]);
-    };
-
-    const destroyForm = () => {
-        showDialog.value = false;
-    };
-    const destroyComponent = () => {
-        loadModalsProps.modelValue = false;
-        loadModalsProps.formData = {};
-        loadModalsProps.dataLoaded = false;
-    };
+onMounted(async () => {
+    const config = await tableConfigStore.getTableConfig(tableKey.value);
+    availableColumns.value = config?.columns || [];
+});
 </script>
-<#-- language=SCSS -->
-<style lang="scss" scoped>
-    .el-container {
-        margin: 0 !important;
-    }
-
-    :deep(.table-cell-link) {
-        display: contents;
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    :deep(.table-cell-link-text) {
-        display: block;
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    // 屏幕宽度小于 768px 时隐藏
-    @media (max-width: 768px) {
-        :deep(.el-aside) {
-            display: none;
-        }
-        .main-view-container {
-            display: flex;
-            flex-direction: row !important;
-            height: calc(100vh - 60px); /* 减去banner高度60px */
-        }
-    }
-
-
-    // 在中等屏幕尺寸上调整侧边栏宽度
-    @media (min-width: 768px) and (max-width: 992px) {
-        .main-view-container > .el-aside {
-            width: 180px !important;
-        }
-    // 修复布局问题，确保顶层和子元素都有正确的方向
-    .main-view-container {
-        display: flex;
-        flex-direction: row !important;
-        height: calc(100vh - 60px); /* 减去banner高度60px */
-    }
-
-    // 对TreePanel内部的容器特别处理，避免影响其内部布局
-    :deep(.el-aside > .el-container) {
-        flex-direction: column !important;
-    }
-
-    // 对表格容器进行特别处理
-    .main-view-container > .el-container {
-        display: flex;
-        flex-direction: column !important;
-
-        > .el-main {
-            display: flex;
-            flex-direction: column;
-        }
-    }
-    }
-</style>

@@ -53,7 +53,7 @@ public class SelectByExampleWithBLOBsElementGenerator extends AbstractXmlElement
         ifElement.addElement(new TextElement("order by ${orderByClause}"));
         answer.addElement(ifElement);
 
-        if (context.getPlugins().sqlMapSelectByExampleWithBLOBsElementGenerated(answer, introspectedTable)) {
+        if (context.getPlugins().sqlMapSelectByExampleWithBlobsElementGenerated(answer, introspectedTable)) {
             parentElement.addElement(answer);
         }
     }

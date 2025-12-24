@@ -1,16 +1,20 @@
 package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.tool.core.VStringUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-02-20 14:17
  * @version 3.0
  */
+@Getter
+@Setter
 public class ApiModelPropertyDesc extends AbstractAnnotation{
 
     public static final String ANNOTATION_NAME = "@ApiModelProperty";
-    public static final  String importClass = "io.swagger.annotations.ApiModelProperty";
+    public static final  String API_MODEL_PROPERTY = "io.swagger.annotations.ApiModelProperty";
 
     private final String value;
 
@@ -28,13 +32,13 @@ public class ApiModelPropertyDesc extends AbstractAnnotation{
     public ApiModelPropertyDesc(String value) {
         super();
         this.value = value;
-        this.addImports(importClass);
+        this.addImports(API_MODEL_PROPERTY);
     }
 
     public ApiModelPropertyDesc(String value, String example) {
         this.value = value;
         this.example = example;
-        this.addImports(importClass);
+        this.addImports(API_MODEL_PROPERTY);
     }
 
     @Override
@@ -54,31 +58,4 @@ public class ApiModelPropertyDesc extends AbstractAnnotation{
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getExample() {
-        return example;
-    }
-
-    public void setExample(String example) {
-        this.example = example;
-    }
-
-    public String getHidden() {
-        return hidden;
-    }
-
-    public void setHidden(String hidden) {
-        this.hidden = hidden;
-    }
-
-    public String getRequired() {
-        return required;
-    }
-
-    public void setRequired(String required) {
-        this.required = required;
-    }
 }

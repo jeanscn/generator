@@ -2,6 +2,7 @@ package org.mybatis.generator.custom.annotations;
 
 import com.vgosoft.core.annotation.ViewColumnMeta;
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -201,13 +202,13 @@ public class ViewColumnMetaDesc extends AbstractAnnotation {
         if (this.searchable != null) {
             items.add(VStringUtil.format("searchable = {0}", this.searchable));
         }
-        if (this.orderable.equalsIgnoreCase("false")) {
+        if (this.orderable.equalsIgnoreCase(SymbolConstants.FALSE)) {
             items.add("orderable = false");
         }
         if (this.render != null) {
             items.add(VStringUtil.format("render = \"{0}\"", this.render));
         }
-        if (this.dataType != null && !this.dataType.equals("string")) {
+        if (this.dataType != null && !"string".equals(this.dataType)) {
             items.add(VStringUtil.format("dataType = \"{0}\"", this.dataType));
         }
         if (this.dataFormat != null) {

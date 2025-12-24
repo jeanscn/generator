@@ -76,7 +76,7 @@ public class UpdateByExampleWithoutBLOBsElementGenerator extends
         ifElement.addElement(where);
         answer.addElement(ifElement);
         if (context.getPlugins()
-                .sqlMapUpdateByExampleWithoutBLOBsElementGenerated(answer,
+                .sqlMapUpdateByExampleWithoutBlobsElementGenerated(answer,
                         introspectedTable)) {
             parentElement.addElement(answer);
         }

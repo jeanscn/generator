@@ -1,6 +1,6 @@
-package org.mybatis.generator.DBStrategy.introspectorStrategy;
+package org.mybatis.generator.dbstrategy.introspectorstrategy;
 
-import org.mybatis.generator.DBStrategy.DatabaseIntrospectorStrategy;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
 

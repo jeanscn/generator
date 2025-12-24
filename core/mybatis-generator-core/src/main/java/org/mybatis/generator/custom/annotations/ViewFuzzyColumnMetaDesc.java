@@ -6,6 +6,9 @@ import com.vgosoft.tool.core.VStringUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author cen_c
+ */
 @Setter
 @Getter
 public class ViewFuzzyColumnMetaDesc extends AbstractAnnotation {
@@ -39,5 +42,4 @@ public class ViewFuzzyColumnMetaDesc extends AbstractAnnotation {
         }
         return ANNOTATION_NAME + "(" + String.join(", ", items.toArray(new String[0])) + ")";
     }
-
 }
