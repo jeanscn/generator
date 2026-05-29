@@ -1,22 +1,22 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import static com.vgosoft.tool.core.VStringUtil.format;
-import static org.mybatis.generator.custom.ConstantsUtil.MULTIPART_FILE;
-import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
-
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
-import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class UploadElementGenerator extends AbstractControllerElementGenerator {
 
     public UploadElementGenerator() {
@@ -68,7 +68,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"上传");
-        method.addAnnotation(new ApiOperationDesc("单个文件上传", "单个文件上传接口"),parentElement);
+        method.addAnnotation(new OperationDesc("单个文件上传", "单个文件上传接口"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "单个文件上传");
         method.addBodyLine("if (file.isEmpty()) return ResponseResult.failure(ApiCodeEnum.FAIL_CUSTOM, \"上传文件为空\");");
         if (introspectedTable.getRules().isGenerateVoModel() || introspectedTable.getRules().isGenerateCreateVo()) {

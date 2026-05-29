@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 import static org.mybatis.generator.internal.util.StringUtility.*;
 
 /**
@@ -585,13 +584,23 @@ public class TableConfiguration extends PropertyHolder {
         //校验searchColumn
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().isEmpty()) {
-                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFuzzyColumns().stream()
+                        .map(abstractIntrospectedTable::getColumn)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(IntrospectedColumn::getActualColumnName)
+                        .collect(Collectors.toList());
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().setFuzzyColumns(collect);
             }
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().forEach(innerListViewConfiguration -> {
                     if (!innerListViewConfiguration.getFuzzyColumns().isEmpty()) {
-                        List<String> collect = innerListViewConfiguration.getFuzzyColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                        List<String> collect = innerListViewConfiguration.getFuzzyColumns().stream()
+                                .map(abstractIntrospectedTable::getColumn)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .map(IntrospectedColumn::getActualColumnName)
+                                .collect(Collectors.toList());
                         innerListViewConfiguration.setFuzzyColumns(collect);
                     }
                 });
@@ -601,18 +610,29 @@ public class TableConfiguration extends PropertyHolder {
         //校验filterColumn
         if (this.getVoGeneratorConfiguration() != null && this.getVoGeneratorConfiguration().getVoViewConfiguration() != null) {
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().isEmpty()) {
-                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                List<String> collect = this.getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns().stream()
+                        .map(abstractIntrospectedTable::getColumn)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(IntrospectedColumn::getActualColumnName)
+                        .collect(Collectors.toList());
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().setFilterColumns(collect);
             }
             if (!this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().isEmpty()) {
                 this.getVoGeneratorConfiguration().getVoViewConfiguration().getInnerListViewConfigurations().forEach(innerListViewConfiguration -> {
                     if (!innerListViewConfiguration.getFilterColumns().isEmpty()) {
-                        List<String> collect = innerListViewConfiguration.getFilterColumns().stream().map(abstractIntrospectedTable::getColumn).filter(Optional::isPresent).map(col -> col.get().getActualColumnName()).collect(Collectors.toList());
+                        List<String> collect = innerListViewConfiguration.getFilterColumns().stream()
+                                .map(abstractIntrospectedTable::getColumn)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .map(IntrospectedColumn::getActualColumnName)
+                                .collect(Collectors.toList());
                         innerListViewConfiguration.setFilterColumns(collect);
                     }
                 });
             }
         }
+
     }
 
     private void generateDefaultColumnRenderConfiguration(Context context) {

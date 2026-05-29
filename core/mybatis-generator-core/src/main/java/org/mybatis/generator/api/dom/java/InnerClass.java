@@ -1,6 +1,8 @@
 package org.mybatis.generator.api.dom.java;
 
 import com.vgosoft.tool.core.VReflectionUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import java.util.ArrayList;
@@ -13,6 +15,9 @@ import java.util.Optional;
  *
  * @author Jeff Butler
  */
+
+@Setter
+@Getter
 public class InnerClass extends AbstractJavaType {
 
     private final List<TypeParameter> typeParameters = new ArrayList<>();
@@ -45,36 +50,12 @@ public class InnerClass extends AbstractJavaType {
         this.superClass = new FullyQualifiedJavaType(superClassType);
     }
 
-    public List<TypeParameter> getTypeParameters() {
-        return this.typeParameters;
-    }
-
     public void addTypeParameter(TypeParameter typeParameter) {
         this.typeParameters.add(typeParameter);
     }
 
-    public List<InitializationBlock> getInitializationBlocks() {
-        return initializationBlocks;
-    }
-
     public void addInitializationBlock(InitializationBlock initializationBlock) {
         initializationBlocks.add(initializationBlock);
-    }
-
-    public boolean isAbstract() {
-        return isAbstract;
-    }
-
-    public void setAbstract(boolean isAbtract) {
-        this.isAbstract = isAbtract;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
-    }
-
-    public void setFinal(boolean isFinal) {
-        this.isFinal = isFinal;
     }
 
     public boolean isNotContainField(String fieldName){
@@ -82,20 +63,23 @@ public class InnerClass extends AbstractJavaType {
         if (count>0) {
             return false;
         }
-        if (this.getSuperClass().isPresent()) {
-            try {
-                Class<?> aClass = ObjectFactory.internalClassForName(this.getSuperClass().get().getFullyQualifiedName());
-                java.lang.reflect.Field field = VReflectionUtil.getField(aClass, fieldName);
-                return field == null;
-            } catch (ClassNotFoundException e) {
-                return true;
-            }
+        Optional<FullyQualifiedJavaType> optionalSuperClass = this.getSuperClass();
+        if (optionalSuperClass.isEmpty()) {
+            return true;
         }
-        return true;
+        try {
+            FullyQualifiedJavaType currentSuperClass = optionalSuperClass.orElseThrow(
+                    () -> new IllegalStateException("InnerClass 缺少 superClass，无法校验字段：" + fieldName));
+            Class<?> aClass = ObjectFactory.internalClassForName(currentSuperClass.getFullyQualifiedName());
+            java.lang.reflect.Field field = VReflectionUtil.getField(aClass, fieldName);
+            return field == null;
+        } catch (ClassNotFoundException e) {
+            return true;
+        }
     }
 
     public boolean addField(Field field, Integer index, boolean checkUnique) {
-        if (index == null) index = getFields().size();
+        if (index == null) { index = getFields().size(); }
         if (getFields().isEmpty()) {
             getFields().add(index,field);
             return true;

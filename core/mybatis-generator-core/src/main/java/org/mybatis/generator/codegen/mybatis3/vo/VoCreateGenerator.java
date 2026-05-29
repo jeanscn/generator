@@ -35,7 +35,7 @@ public class VoCreateGenerator extends AbstractVoGenerator {
         TopLevelClass createVoClass = createTopLevelClass(createVoType, getAbstractVoType().getFullyQualifiedName());
         commentGenerator.addModelClassComment(createVoClass, introspectedTable);
         createVoClass.addMultipleImports("lombok");
-        addApiModel(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
+        addSchemaDesc(voCreateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(createVoClass);
         voGenService.addConfigurationSuperInterface(createVoClass, voCreateGeneratorConfiguration);
         createVoClass.addImportedType(getAbstractVoType().getFullyQualifiedName());
         createVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());

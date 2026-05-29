@@ -8,7 +8,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.AbstractModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoRequestGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
 
 import java.util.List;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         commentGenerator.addModelClassComment(requestVoClass, introspectedTable);
         requestVoClass.addMultipleImports("lombok");
         voGenService.addConfigurationSuperInterface(requestVoClass, voRequestGeneratorConfiguration);
-        addApiModel(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);
+        addSchemaDesc(voRequestGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(requestVoClass);
         requestVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         Set<String> excludeColumns = voGenService.getDefaultExcludeColumnNames(voRequestGeneratorConfiguration.getExcludeColumns());
@@ -82,12 +82,14 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         }
         //附加属性
         additionalProperties(voRequestGeneratorConfiguration, requestVoClass);
+
         //增加任意过滤条件接收
         Field whereConditionResult = getWhereConditionResult(requestVoClass);
         if (whereConditionResult != null && plugins.voRequestFieldGenerated(whereConditionResult, requestVoClass, null, introspectedTable)) {
             requestVoClass.addField(whereConditionResult);
             requestVoClass.addImportedType(whereConditionResult.getType());
         }
+
         //增加前端过滤器属性
         Field filterMap = getFilterMap(requestVoClass);
         if (filterMap != null && plugins.voRequestFieldGenerated(filterMap, requestVoClass, null, introspectedTable)) {
@@ -110,7 +112,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             Field countChildren = new Field("countChildren", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
             countChildren.setVisibility(JavaVisibility.PRIVATE);
             countChildren.setRemark("是否统计子级数量");
-            new ApiModelPropertyDesc(countChildren.getRemark(), "false").addAnnotationToField(countChildren, requestVoClass);
+            new SchemaPropertyDesc(countChildren.getRemark(), "false").addAnnotationToField(countChildren, requestVoClass);
             if (plugins.voRequestFieldGenerated(countChildren, requestVoClass, null, introspectedTable)) {
                 requestVoClass.addField(countChildren);
             }
@@ -132,7 +134,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             Field cascade = new Field("cascadeResult", FullyQualifiedJavaType.getBooleanPrimitiveInstance());
             cascade.setVisibility(JavaVisibility.PRIVATE);
             cascade.setRemark("结果是否包含子级");
-            new ApiModelPropertyDesc(cascade.getRemark(), "false").addAnnotationToField(cascade, requestVoClass);
+            new SchemaPropertyDesc(cascade.getRemark(), "false").addAnnotationToField(cascade, requestVoClass);
             if (plugins.voRequestFieldGenerated(cascade, requestVoClass, null, introspectedTable)) {
                 requestVoClass.addField(cascade);
             }
@@ -143,7 +145,7 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         Field orderByClause = new Field("orderByClause", FullyQualifiedJavaType.getStringInstance());
         orderByClause.setVisibility(JavaVisibility.PRIVATE);
         orderByClause.setRemark("排序语句");
-        new ApiModelPropertyDesc(orderByClause.getRemark(), "SORT_").addAnnotationToField(orderByClause, requestVoClass);
+        new SchemaPropertyDesc(orderByClause.getRemark(), "SORT_").addAnnotationToField(orderByClause, requestVoClass);
         if (plugins.voRequestFieldGenerated(orderByClause, requestVoClass, null, introspectedTable)) {
             requestVoClass.addField(orderByClause);
         }
@@ -158,15 +160,14 @@ public class VoRequestGenerator extends AbstractVoGenerator {
             pNo.setVisibility(JavaVisibility.PRIVATE);
             pNo.setRemark("页码");
             pNo.setInitializationString("DEFAULT_FIRST_PAGE_NO");
-            new ApiModelPropertyDesc(pNo.getRemark(), "1").addAnnotationToField(pNo, topLevelClass);
+            new SchemaPropertyDesc(pNo.getRemark(), "1").addAnnotationToField(pNo, topLevelClass);
             if (plugins.voRequestFieldGenerated(pNo, topLevelClass, null, introspectedTable)) {
                 topLevelClass.addField(pNo);
             }
 
-
             Field pSize = new Field("pageSize", FullyQualifiedJavaType.getIntInstance());
             pSize.setRemark("每页数据数量");
-            new ApiModelPropertyDesc(pSize.getRemark(), "10").addAnnotationToField(pSize, topLevelClass);
+            new SchemaPropertyDesc(pSize.getRemark(), "10").addAnnotationToField(pSize, topLevelClass);
             pSize.setInitializationString("DEFAULT_PAGE_SIZE");
             pSize.setVisibility(JavaVisibility.PRIVATE);
             if (plugins.voRequestFieldGenerated(pSize, topLevelClass, null, introspectedTable)) {
@@ -175,7 +176,11 @@ public class VoRequestGenerator extends AbstractVoGenerator {
         }
     }
 
-    //附加属性
+    /**
+     * 附件属性
+     * @param configuration 生成配置
+     * @param topLevelClass 生成类
+     */
     protected void additionalProperties(AbstractModelGeneratorConfiguration configuration, TopLevelClass topLevelClass) {
         List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = configuration.getAdditionalPropertyConfigurations();
         VCollectionUtil.addAllIfNotContains(additionalPropertyConfigurations, voGeneratorConfiguration.getAdditionalPropertyConfigurations());

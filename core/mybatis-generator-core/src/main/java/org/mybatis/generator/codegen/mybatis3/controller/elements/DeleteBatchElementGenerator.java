@@ -6,12 +6,15 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class DeleteBatchElementGenerator extends AbstractControllerElementGenerator {
 
     public DeleteBatchElementGenerator() {
@@ -38,7 +41,7 @@ public class DeleteBatchElementGenerator extends AbstractControllerElementGenera
         method.addAnnotation(new SystemLogDesc("删除了一条或多条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"批量删除");
-        method.addAnnotation(new ApiOperationDesc("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
+        method.addAnnotation(new OperationDesc("批量记录删除", "根据给定的一组id删除多条记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "根据ids批量删除记录");
 

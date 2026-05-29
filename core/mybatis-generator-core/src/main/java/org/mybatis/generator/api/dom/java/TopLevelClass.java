@@ -133,10 +133,10 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                     this.addAnnotation("@ToString(callSuper = true)");
                     break;
                 case "ApiModel":
-                    this.addImportedType("io.swagger.annotations.ApiModel");
-                    break;
                 case "ApiModelProperty":
-                    this.addImportedType("io.swagger.annotations.ApiModelProperty");
+                case "Schema":
+                case "SchemaProperty":
+                    this.addImportedType("io.swagger.v3.oas.annotations.media.Schema");
                     break;
                 case "ExcelProperty":
                     this.addImportedType("com.alibaba.excel.annotation.ExcelProperty");

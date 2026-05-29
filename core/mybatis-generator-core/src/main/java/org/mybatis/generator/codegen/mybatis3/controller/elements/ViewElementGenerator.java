@@ -7,9 +7,9 @@ import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerEleme
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.HtmlElementInnerListConfiguration;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
@@ -42,10 +42,10 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         Parameter parameter = new Parameter(paraType, "viewParam");
         parameter.setRemark("参数，view方法参数对象。");
         method.addParameter(parameter);
-        Parameter response = new Parameter(new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse"), "response");
+        Parameter response = new Parameter(new FullyQualifiedJavaType("jakarta.servlet.http.HttpServletResponse"), "response");
         response.setRemark("响应对象");
         method.addParameter(response);
-        parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
+        parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
         method.setReturnType(new FullyQualifiedJavaType("ModelAndView"));
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         //添加注解
@@ -53,7 +53,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         parentElement.addImportedType("javax.annotation.security.PermitAll");
         method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("view", RequestMethodEnum.GET), parentElement);
-        method.addAnnotation(new ApiOperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
+        method.addAnnotation(new OperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
                 "根据给定id获取单个实体，id为可选参数，当id存在时查询数据，否则直接返回视图"), parentElement);
         //添加注释
         commentGenerator.addMethodJavaDocLine(method, "根据主键获取单个业务实例");

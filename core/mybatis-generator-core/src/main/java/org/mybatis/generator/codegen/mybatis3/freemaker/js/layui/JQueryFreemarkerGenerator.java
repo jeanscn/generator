@@ -22,6 +22,7 @@ import java.util.Optional;
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-04-06 15:04
  * @version 3.0
+ * @author cen_c
  */
 public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
 
@@ -77,7 +78,8 @@ public class JQueryFreemarkerGenerator extends AbstractFreemarkerGenerator {
                         .filter(config -> config.getMethodSuffix().equals(elementDescriptor.getCallback()))
                         .findFirst();
                 if (byTableGeneratorConfiguration.isPresent()) {
-                    SelectByTableGeneratorConfiguration configuration = byTableGeneratorConfiguration.get();
+                    SelectByTableGeneratorConfiguration configuration = byTableGeneratorConfiguration.orElseThrow(
+                            () -> new IllegalStateException("未找到回调[" + elementDescriptor.getCallback() + "]对应的 SelectByTable 配置"));
                     callBackMethod.setParams(" o , n ");
                     callBackMethod.getMethodBodyLines().clear();
                     callBackMethod.getMethodBodyLines().add(VStringUtil.format("    return window.relationHandle(o, n, '{0}', '{1}', '{2}');",

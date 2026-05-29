@@ -3,9 +3,9 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
@@ -31,7 +31,7 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         method.addAnnotation(new SystemLogDesc("把一条或多条记录移入回收站", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("recycle", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"移入回收站");
-        method.addAnnotation(new ApiOperationDesc("批量移入回收站", "把给定的对象批量移入回收站"),parentElement);
+        method.addAnnotation(new OperationDesc("批量移入回收站", "把给定的对象批量移入回收站"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "批量移入回收站");
         FullyQualifiedJavaType exceptionType = new FullyQualifiedJavaType("java.lang.Exception");
         method.addException(exceptionType);

@@ -4,10 +4,10 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.custom.FieldItem;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.util.List;
@@ -67,9 +67,9 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             viewPath.setRemark("视图路径");
             if (topLevelClass.addField(viewPath,null,true)) {
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("视图路径",htmlGeneratorConfiguration.getViewPath());
-                    apiModelPropertyDesc.setHidden("true");
-                    apiModelPropertyDesc.addAnnotationToField(viewPath, topLevelClass);
+                    SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc("视图路径", htmlGeneratorConfiguration.getViewPath());
+                    schemaPropertyDesc.setHidden("true");
+                    schemaPropertyDesc.addAnnotationToField(viewPath, topLevelClass);
                 }
                 if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     viewPath.addAnnotation("@TableField(exist = false)");
@@ -95,9 +95,9 @@ public class ModelWebPropertiesPlugin extends PluginAdapter {
             field.setRemark("Restful请求中的跟路径");
             if(topLevelClass.addField(field, null, true)){
                 if (!introspectedTable.getRules().isNoSwaggerAnnotation()) {
-                    ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("Restful请求中的跟路径", "api/serv");
-                    apiModelPropertyDesc.setHidden("true");
-                    apiModelPropertyDesc.addAnnotationToField(field, topLevelClass);
+                    SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc("Restful请求中的跟路径", "api/serv");
+                    schemaPropertyDesc.setHidden("true");
+                    schemaPropertyDesc.addAnnotationToField(field, topLevelClass);
                 }
                 if (type.equals("model") && introspectedTable.getRules().isIntegrateMybatisPlus()) {
                     field.addAnnotation("@TableField(exist = false)");

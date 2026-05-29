@@ -3,7 +3,6 @@ package org.mybatis.generator.codegen.mybatis3.sqlschema;
 import com.vgosoft.core.constant.BaseEmpty;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.ForeignKeyInfo;
 import org.mybatis.generator.api.IndexInfo;
@@ -72,7 +71,10 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         //生成添加索引的sql
         if (!introspectedTable.getIndexes().isEmpty()) {
             for (IndexInfo index : introspectedTable.getIndexes()) {
-                String indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING {2}", index.getName(), StringUtils.join(index.getColumnNames(), "`,`"),VStringUtil.stringHasValue(index.getType())?index.getType() : "BTREE");
+                String indexSql = VStringUtil.format("    INDEX `{0}` (`{1}`) USING {2}",
+                        index.getName(),
+                        String.join("`,`", index.getColumnNames()),
+                        VStringUtil.stringHasValue(index.getType()) ? index.getType() : "BTREE");
                 if (VStringUtil.stringHasValue(index.getComments())) {
                     indexSql = VStringUtil.format("{0} COMMENT {1}", indexSql, "'"+index.getComments()+"'" );
                 }

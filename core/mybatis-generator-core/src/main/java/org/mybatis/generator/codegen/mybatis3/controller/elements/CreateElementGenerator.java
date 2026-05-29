@@ -5,13 +5,16 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.enums.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class CreateElementGenerator extends AbstractControllerElementGenerator {
 
     public CreateElementGenerator() {
@@ -47,7 +50,7 @@ public class CreateElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(new SystemLogDesc("添加了一条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.POST),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"创建");
-        method.addAnnotation(new ApiOperationDesc("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);
+        method.addAnnotation(new OperationDesc("新增一条记录", "新增一条记录,返回json，包含影响条数及消息"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "新增一条记录");
 

@@ -9,9 +9,9 @@ import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
 import org.mybatis.generator.config.VoModelGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.FieldItem;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
 import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public class VoModelGenerator extends AbstractVoGenerator {
         commentGenerator.addModelClassComment(voClass, introspectedTable);
         voClass.addMultipleImports("lombok");
         voClass.addAnnotation("@NoArgsConstructor");
-        addApiModel(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
+        addSchemaDesc(voModelGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(voClass);
         voClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         //添加父类
         voGenService.addConfigurationSuperInterface(voClass, voModelGeneratorConfiguration);
@@ -197,9 +197,6 @@ public class VoModelGenerator extends AbstractVoGenerator {
         persistenceBeanName.setInitializationString("\""+initString+"\"");
         persistenceBeanName.setVisibility(JavaVisibility.PRIVATE);
         persistenceBeanName.setRemark("对象服务java bean名称");
-        ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(persistenceBeanName.getRemark());
-        persistenceBeanName.addAnnotation(apiModelPropertyDesc.toAnnotation());
-        voClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
         return persistenceBeanName;
     }
 }

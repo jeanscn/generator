@@ -18,6 +18,9 @@
         {{ wfStateText }}
     </el-tag>
     </#if>
+    <#if blobFieldsCondition?has_content>
+    <div v-else-if="${ blobFieldsCondition }" v-html="scope.row[slotName]"></div>
+    </#if>
     <span v-else>{{ scope.row[slotName] }}</span>
 </template>
 <script lang="ts" setup name="PrivateTableColumnSlots">

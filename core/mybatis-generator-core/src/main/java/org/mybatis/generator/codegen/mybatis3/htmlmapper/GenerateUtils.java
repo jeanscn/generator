@@ -6,14 +6,13 @@ import static org.mybatis.generator.custom.ConstantsUtil.I_WORK_FLOW_BASE_ENTITY
 
 import java.util.Set;
 
+import com.vgosoft.tool.core.VObjectUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.ObjectFactory;
-
-import cn.hutool.core.util.ObjectUtil;
 
 /**
  * 工具类
@@ -99,7 +98,7 @@ public class GenerateUtils {
      * @return 布尔值 true为子类，否则 false
      */
     public static boolean isAssignable(String subClassName, String parentClassName) {
-        if (ObjectUtil.isEmpty(subClassName) || ObjectUtil.isEmpty(parentClassName)) {
+        if (VObjectUtil.isEmpty(subClassName) || VObjectUtil.isEmpty(parentClassName)) {
             return false;
         }
         try {

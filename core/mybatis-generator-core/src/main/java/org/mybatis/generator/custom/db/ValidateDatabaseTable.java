@@ -144,23 +144,26 @@ public class ValidateDatabaseTable {
             ColumnMeta columnMeta = declaredField.getAnnotation(ColumnMeta.class);
             boolean isPk = introspectedTable.getPrimaryKeyColumns().stream()
                     .anyMatch(t -> columnMeta.value().equalsIgnoreCase(t.getActualColumnName()));
-            if (introspectedTable.getColumn(columnMeta.value()).isPresent()) {
-                //比较是否需要更新
-                IntrospectedColumn introspectedColumn = introspectedTable.getColumn(columnMeta.value()).get();
+            java.util.Optional<IntrospectedColumn> columnOpt = introspectedTable.getColumn(columnMeta.value());
+            if (columnOpt.isPresent()) {
+                // 比较是否需要更新，使用 orElseThrow 以符合 prefer Optional.orElseThrow 的实践
+                IntrospectedColumn introspectedColumn = columnOpt.orElseThrow(() -> new IllegalStateException("配置列在表中未找到: " + columnMeta.value()));
                 JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault
                         .getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-                String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();//字段完整注释
+                //字段完整注释
+                String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();
                 if (!introspectedColumn.isBlobColumn()) {
                     jdbcTypeInformation.setColumnLength(columnMeta.size());
-                    int columnLength = jdbcTypeInformation.getColumnLength();//字段长度
-                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
-                            || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber() //类型
+                    //字段长度
+                    int columnLength = jdbcTypeInformation.getColumnLength();
+                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
+                            || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber()
                             || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
-                            || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale())) //小数点位数
+                            || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale()))
                             || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
-                            || (!columnMeta.pkid() && VStringUtil.stringHasValue(columnMeta.defaultValue()) && (!columnMeta.defaultValue().equalsIgnoreCase(introspectedColumn.getDefaultValue()) && !columnMeta.defaultValue().replace("'", "").equalsIgnoreCase(introspectedColumn.getDefaultValue())))//默认值
+                            || (!columnMeta.pkid() && VStringUtil.stringHasValue(columnMeta.defaultValue()) && (!columnMeta.defaultValue().equalsIgnoreCase(introspectedColumn.getDefaultValue()) && !columnMeta.defaultValue().replace("'", "").equalsIgnoreCase(introspectedColumn.getDefaultValue())))
                     ) {
                         IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,introspectedColumn);
                         newColumn.setIntrospectedTable(introspectedTable);

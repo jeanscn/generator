@@ -84,7 +84,14 @@ public class FieldTypescriptTypePlugin extends PluginAdapter {
     private void addTypeScriptType(TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable, FieldItem fieldItem, IntrospectedColumn introspectedColumn) {
         // 生成typescript的类型描述
         if (topLevelClass.getSuperClass().isPresent()) {
-            Mb3GenUtil.addTypeScriptTypeDescriptor(introspectedTable, topLevelClass, fieldItem, topLevelClass.getSuperClass().get().getShortName());
+            Mb3GenUtil.addTypeScriptTypeDescriptor(
+                    introspectedTable,
+                    topLevelClass,
+                    fieldItem,
+                    topLevelClass.getSuperClass()
+                            .orElseThrow(() -> new IllegalStateException("TopLevelClass 声明了 superClass，但无法获取 FullyQualifiedJavaType"))
+                            .getShortName()
+            );
         } else {
             Mb3GenUtil.addTypeScriptTypeDescriptor(introspectedTable, topLevelClass, fieldItem, null);
         }

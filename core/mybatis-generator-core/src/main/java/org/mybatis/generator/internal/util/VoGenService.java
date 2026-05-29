@@ -1,7 +1,7 @@
 package org.mybatis.generator.internal.util;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.vgosoft.core.constant.enums.core.EntityAbstractParentEnum;
+import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.Field;
@@ -83,7 +83,7 @@ public class VoGenService {
                     .stream()
                     .filter(c -> fields.contains(c.getJavaProperty()))
                     .collect(Collectors.toList());
-            return CollectionUtil.addAllIfNotContains(voColumns, fieldColumns);
+            return VCollectionUtil.addAllIfNotContains(voColumns, fieldColumns);
         }
     }
 
@@ -224,14 +224,15 @@ public class VoGenService {
             field.setRemark(overrideConfiguration.getRemark() != null ? overrideConfiguration.getRemark() : sourceColumn.getRemarks(true));
             field.setVisibility(JavaVisibility.PRIVATE);
 
-            if (!overrideConfiguration.getInitializationString().isPresent()) {
+            if (overrideConfiguration.getInitializationString().isEmpty()) {
                 if (field.getType().equals(FullyQualifiedJavaType.getStringInstance())) {
                     field.setInitializationString("\"-\"");
                 } else if (field.getType().equals(FullyQualifiedJavaType.getIntegerInstance()) || field.getType().equals(FullyQualifiedJavaType.getIntInstance())) {
                     field.setInitializationString("0");
                 }
             } else {
-                field.setInitializationString(overrideConfiguration.getInitializationString().get());
+                field.setInitializationString(overrideConfiguration.getInitializationString()
+                        .orElseThrow(() -> new IllegalStateException("OverrideConfiguration 初始化字符串缺失: " + overrideConfiguration.getTargetPropertyName())));
                 overrideConfiguration.getImportTypes().forEach(topLevelClass::addImportedType);
             }
             if (overrideConfiguration.getAnnotationType() != null) {

@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.config.VoGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaDesc;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelDesc;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.VoGenService;
@@ -95,11 +95,11 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
         return new FullyQualifiedJavaType(baseTargetPackage + "." + SUB_PACKAGE_ABS + "." + abstractName);
     }
 
-    protected ApiModelDesc addApiModel(String voModelName) {
-        ApiModelDesc apiModelDesc = ApiModelDesc.create(voModelName);
-        apiModelDesc.setParent(getAbstractVoType().getShortName() + ".class");
-        apiModelDesc.setDescription(introspectedTable.getRemarks(true));
-        return apiModelDesc;
+    protected SchemaDesc addSchemaDesc(String voModelName) {
+        SchemaDesc schemaDesc = SchemaDesc.create(voModelName);
+        schemaDesc.setImplementation(getAbstractVoType().getShortName() + ".class");
+        schemaDesc.setDescription(introspectedTable.getRemarks(true));
+        return schemaDesc;
     }
 
     protected boolean isAbstractVoColumn(IntrospectedColumn introspectedColumn) {
@@ -164,16 +164,15 @@ public abstract class AbstractVoGenerator extends AbstractJavaGenerator {
         Field cascade = new Field("anyWhereCondition", FullyQualifiedJavaType.getStringInstance());
         cascade.setVisibility(JavaVisibility.PRIVATE);
         cascade.setRemark("任意过滤条件");
-        new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, requestVoClass);
         return cascade;
     }
 
     protected void addProperty(TopLevelClass topLevelClass, Field field, String strExample, AbstractIntrospectedTable abstractIntrospectedTable) {
         field.setVisibility(JavaVisibility.PRIVATE);
-        ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc(field.getRemark());
-        apiModelPropertyDesc.setExample(strExample);
-        field.addAnnotation(apiModelPropertyDesc.toAnnotation());
-        topLevelClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
+        SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc(field.getRemark());
+        schemaPropertyDesc.setExample(strExample);
+        field.addAnnotation(schemaPropertyDesc.toAnnotation());
+        topLevelClass.addImportedTypes(schemaPropertyDesc.getImportedTypes());
         if (abstractIntrospectedTable.getRules().isIntegrateMybatisPlus()) {
             field.addAnnotation("@TableField(exist = false)");
             topLevelClass.addImportedType("com.baomidou.mybatisplus.annotation.TableField");

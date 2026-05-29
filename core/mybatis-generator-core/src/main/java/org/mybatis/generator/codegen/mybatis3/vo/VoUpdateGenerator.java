@@ -30,7 +30,7 @@ public class VoUpdateGenerator extends AbstractVoGenerator {
         commentGenerator.addModelClassComment(updateVoClass, introspectedTable);
         voGenService.addConfigurationSuperInterface(updateVoClass, voUpdateGeneratorConfiguration);
         updateVoClass.addMultipleImports("lombok");
-        addApiModel(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
+        addSchemaDesc(voUpdateGeneratorConfiguration.getFullyQualifiedJavaType().getShortName()).addAnnotationToTopLevelClass(updateVoClass);
         updateVoClass.addImportedType(getAbstractVoType().getFullyQualifiedName());
         updateVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 

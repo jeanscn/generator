@@ -6,13 +6,16 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.MULTIPART_FILE;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class ImportElementGenerator extends AbstractControllerElementGenerator {
 
     public ImportElementGenerator() {
@@ -52,7 +55,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(requestMappingDesc,parentElement);
         parentElement.addImportedType("org.springframework.http.MediaType");
         addSecurityPreAuthorize(method,methodPrefix,"导入");
-        method.addAnnotation(new ApiOperationDesc("Excel数据导入", "Excel数据导入接口"),parentElement);
+        method.addAnnotation(new OperationDesc("Excel数据导入", "Excel数据导入接口"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导入");
 
         //方法体

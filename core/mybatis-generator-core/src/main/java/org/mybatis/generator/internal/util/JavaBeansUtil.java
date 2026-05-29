@@ -384,8 +384,10 @@ public class JavaBeansUtil {
     }
 
     public static boolean isAssignableCurrent(String parentClassName, TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
-        if (topLevelClass.getSuperClass().isPresent()) {
-            FullyQualifiedJavaType fullyQualifiedJavaType = topLevelClass.getSuperClass().get();
+        java.util.Optional<FullyQualifiedJavaType> superClassOpt = topLevelClass.getSuperClass();
+        if (superClassOpt.isPresent()) {
+            FullyQualifiedJavaType fullyQualifiedJavaType = superClassOpt.orElseThrow(
+                    () -> new IllegalStateException("TopLevelClass 声明了 superClass 但无法获取 FullyQualifiedJavaType"));
             String fullyQualifiedName = fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters();
             boolean assignable = JavaBeansUtil.isAssignable(parentClassName, fullyQualifiedName, abstractIntrospectedTable);
             if (assignable) {

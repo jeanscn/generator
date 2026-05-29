@@ -1,17 +1,20 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
 import com.vgosoft.tool.core.VCollectionUtil;
-import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
-import org.mybatis.generator.config.VoViewGeneratorConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+import org.mybatis.generator.config.VoViewGeneratorConfiguration;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaDesc;
 import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelDesc;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -32,8 +35,8 @@ public class VoViewGenerator extends AbstractVoGenerator {
         commentGenerator.addModelClassComment(viewVoClass, introspectedTable);
         viewVoClass.addMultipleImports("lombok");
         voGenService.addConfigurationSuperInterface(viewVoClass, voViewGeneratorConfiguration);
-        ApiModelDesc apiModelDesc = addApiModel(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
-        apiModelDesc.addAnnotationToTopLevelClass(viewVoClass);
+        SchemaDesc schemaDesc = addSchemaDesc(voViewGeneratorConfiguration.getFullyQualifiedJavaType().getShortName());
+        schemaDesc.addAnnotationToTopLevelClass(viewVoClass);
         viewVoClass.addImportedType(getAbstractVoType().getFullyQualifiedName());
         viewVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
         List<IntrospectedColumn> introspectedColumns = voGenService.getAllVoColumns(null, voViewGeneratorConfiguration.getIncludeColumns(), voViewGeneratorConfiguration.getExcludeColumns());

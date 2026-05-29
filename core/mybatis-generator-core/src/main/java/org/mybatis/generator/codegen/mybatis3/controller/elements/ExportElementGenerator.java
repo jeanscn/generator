@@ -6,10 +6,13 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
+/**
+ * @author cen_c
+ */
 public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
     public ExportElementGenerator() {
@@ -18,7 +21,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
+        parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
         parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoEasyExcel");
         parentElement.addImportedType("java.io.IOException");
         parentElement.addImportedType(entityExcelVoType);
@@ -28,7 +31,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         final String methodPrefix = "export";
         Method method = createMethod(methodPrefix);
 
-        FullyQualifiedJavaType response = new FullyQualifiedJavaType("javax.servlet.http.HttpServletResponse");
+        FullyQualifiedJavaType response = new FullyQualifiedJavaType("jakarta.servlet.http.HttpServletResponse");
         Parameter parameter = new Parameter(response, "response");
         parameter.setRemark("http响应");
         method.addParameter(parameter);
@@ -46,7 +49,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(new SystemLogDesc("数据导出", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("export", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"导出");
-        method.addAnnotation(new ApiOperationDesc("Excel数据导出", "Excel数据导出接口"),parentElement);
+        method.addAnnotation(new OperationDesc("Excel数据导出", "Excel数据导出接口"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导出");
 

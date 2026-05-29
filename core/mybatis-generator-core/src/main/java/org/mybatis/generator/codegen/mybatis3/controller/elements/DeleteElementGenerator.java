@@ -6,9 +6,9 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +42,7 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(new SystemLogDesc("删除了一条记录", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc(pathVariable, RequestMethodEnum.DELETE),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"删除");
-        method.addAnnotation(new ApiOperationDesc("单条记录删除", "根据给定的id删除一条记录"),parentElement);
+        method.addAnnotation(new OperationDesc("单条记录删除", "根据给定的id删除一条记录"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "删除一条记录");
 

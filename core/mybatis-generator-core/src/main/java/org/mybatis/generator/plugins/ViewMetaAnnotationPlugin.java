@@ -201,17 +201,20 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             //按列名分组
             Map<String, List<QueryColumnConfiguration>> listMap = voViewGeneratorConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
             //去重,转换为CompositeQueryDesc
-            List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getQueryColumns().stream().distinct().map(columnName -> {
-                if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
-                } else {
-                    if (introspectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
-                    }else{
-                        return null;
-                    }
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getQueryColumns().stream()
+                    .distinct()
+                    .map(columnName -> {
+                        if (listMap.containsKey(columnName)) {
+                            return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                        } else {
+                            // 原来这里使用 orElseThrow，改为列不存在则忽略
+                            return introspectedTable.getColumn(columnName)
+                                    .map(CompositeQueryDesc::create)
+                                    .orElse(null);
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
             //更新顺序号，order
             for (int i = 0; i < queryDesc.size(); i++) {
                 queryDesc.get(i).setOrder(i + 1);
@@ -223,40 +226,42 @@ public class ViewMetaAnnotationPlugin extends PluginAdapter {
             viewVoClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
         }
 
-        //filters
-        if (!voViewGeneratorConfiguration.getFilterColumns().isEmpty()) {
-            // viewVo中定义的filterColumn配置按列名分组
-            Map<String, List<FilterColumnConfiguration>> listMap = voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().collect(Collectors.groupingBy(FilterColumnConfiguration::getColumn));
-            //去重,转换为CompositeQueryDesc
-            List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
-                if (listMap.containsKey(columnName)) {
-                    CompositeQueryDesc compositeQueryDesc = CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
-                    compositeQueryDesc.setRepeat(listMap.get(columnName).get(0).isRepeat());
-                    compositeQueryDesc.setOperators(listMap.get(columnName).get(0).getOperators().stream().distinct().collect(Collectors.joining(",")));
-                    return compositeQueryDesc;
-                } else {
-                    if (introspectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
-                    }else{
-                        return null;
-                    }
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-            //更新顺序号，order
-            for (int i = 0; i < queryDesc.size(); i++) {
-                CompositeQueryDesc compositeQueryDesc = queryDesc.get(i);
-                compositeQueryDesc.setOrder(i + 1);
-                voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().filter(f -> f.getColumn().equals(compositeQueryDesc.getColumn())).findFirst().ifPresent(f -> {
-                    compositeQueryDesc.setOperators(f.getOperators().stream().distinct().collect(Collectors.joining(",")));
-                    compositeQueryDesc.setRepeat(f.isRepeat());
-                });
-            }
-            //转换为注解
-            String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
-            viewTableMetaDesc.setFilters(array);
-            //导入类型
-            viewVoClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
-        }
+         //filters
+         if (!voViewGeneratorConfiguration.getFilterColumns().isEmpty()) {
+             // viewVo中定义的filterColumn配置按列名分组
+             Map<String, List<FilterColumnConfiguration>> listMap = voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().collect(Collectors.groupingBy(FilterColumnConfiguration::getColumn));
+             //去重,转换为CompositeQueryDesc
+             List<CompositeQueryDesc> queryDesc = voViewGeneratorConfiguration.getFilterColumns().stream()
+                     .distinct()
+                     .map(columnName -> {
+                         if (listMap.containsKey(columnName)) {
+                             CompositeQueryDesc compositeQueryDesc = CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                             compositeQueryDesc.setRepeat(listMap.get(columnName).get(0).isRepeat());
+                             compositeQueryDesc.setOperators(listMap.get(columnName).get(0).getOperators().stream().distinct().collect(Collectors.joining(",")));
+                             return compositeQueryDesc;
+                         } else {
+                             IntrospectedColumn col = introspectedTable.getColumn(columnName)
+                                     .orElseThrow(() -> new IllegalStateException("配置的 filter 列在表 "
+                                             + introspectedTable.getTableConfiguration().getTableName()
+                                             + " 中未找到: " + columnName));
+                             return CompositeQueryDesc.create(col);
+                         }
+                     }).toList();
+             //更新顺序号，order
+             for (int i = 0; i < queryDesc.size(); i++) {
+                 CompositeQueryDesc compositeQueryDesc = queryDesc.get(i);
+                 compositeQueryDesc.setOrder(i + 1);
+                 voViewGeneratorConfiguration.getFilterColumnsConfigurations().stream().filter(f -> f.getColumn().equals(compositeQueryDesc.getColumn())).findFirst().ifPresent(f -> {
+                     compositeQueryDesc.setOperators(f.getOperators().stream().distinct().collect(Collectors.joining(",")));
+                     compositeQueryDesc.setRepeat(f.isRepeat());
+                 });
+             }
+             //转换为注解
+             String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
+             viewTableMetaDesc.setFilters(array);
+             //导入类型
+             viewVoClass.addImportedTypes(queryDesc.stream().flatMap(q -> q.getImportedTypes().stream()).collect(Collectors.toSet()));
+         }
 
 
         //columns

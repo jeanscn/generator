@@ -205,6 +205,16 @@ public class Vue3OtherFilesPlugin extends PluginAdapter {
 
         freeMakerContext.put("OVERRIDABLE_FLAG", ConstantsUtil.OVERRIDABLE_FLAG);
 
+        // 过滤出大文本字段并生成一个
+        List<String> blobFields = introspectedTable.getAllColumns().stream()
+                .filter(IntrospectedColumn::isLongVarchar)
+                .map(IntrospectedColumn::getJavaProperty)
+                .toList();
+        // 将list转为“slotName === 'taskContent' || slotName === 'feedbackContent'”的格式字符串
+        String blobFieldsCondition = blobFields.stream()
+                .map(field -> "slotName === '" + field + "'")
+                .collect(Collectors.joining(" || "));
+        freeMakerContext.put("blobFieldsCondition", blobFieldsCondition);
         return freeMakerContext;
     }
 

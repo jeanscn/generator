@@ -1157,27 +1157,18 @@ public abstract class AbstractIntrospectedTable {
      * 获得配置表的属性值
      */
     public String getConfigPropertyValue(String propertyRegistry, PropertyScope scope, String defaultValue) {
-        Optional<String> property;
         if (PropertyScope.any.equals(scope)) {
-            property = Optional.ofNullable(tableConfiguration.getProperty(propertyRegistry));
-            if (!property.isPresent()) {
-                property = Optional.ofNullable(context.getProperty(propertyRegistry));
-                if (!property.isPresent()) {
-                    return defaultValue;
-                }
-            }
+            return Optional.ofNullable(tableConfiguration.getProperty(propertyRegistry))
+                    .or(() -> Optional.ofNullable(context.getProperty(propertyRegistry)))
+                    .orElse(defaultValue);
         } else if (PropertyScope.table.equals(scope)) {
-            property = Optional.ofNullable(tableConfiguration.getProperty(propertyRegistry));
-            if (!property.isPresent()) {
-                return defaultValue;
-            }
+            return Optional.ofNullable(tableConfiguration.getProperty(propertyRegistry))
+                    .orElse(defaultValue);
         } else {
-            property = Optional.ofNullable(context.getProperty(propertyRegistry));
-            if (!property.isPresent()) {
-                return defaultValue;
-            }
+            // PropertyScope.context
+            return Optional.ofNullable(context.getProperty(propertyRegistry))
+                    .orElse(defaultValue);
         }
-        return property.get();
     }
 
     public String getConfigPropertyValue(String propertyRegistry, PropertyScope scope) {

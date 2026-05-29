@@ -9,15 +9,18 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.VoCacheGeneratorConfiguration;
-import org.mybatis.generator.custom.enums.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import java.util.List;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class GetDictElementGenerator extends AbstractControllerElementGenerator {
 
     public GetDictElementGenerator() {
@@ -41,7 +44,7 @@ public class GetDictElementGenerator extends AbstractControllerElementGenerator 
         method.addAnnotation(new SystemLogDesc("查询字典数据", introspectedTable),parentElement);
         method.addAnnotation(new RequestMappingDesc("dict", RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"查询字典");
-        method.addAnnotation(new ApiOperationDesc("字典数据查询", "获取字典数据并缓存"),parentElement);
+        method.addAnnotation(new OperationDesc("字典数据查询", "获取字典数据并缓存"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "查询字典数据");
 

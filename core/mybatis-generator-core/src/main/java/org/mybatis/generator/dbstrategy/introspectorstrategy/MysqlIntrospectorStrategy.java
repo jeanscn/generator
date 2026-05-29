@@ -12,7 +12,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MySQLIntrospectorStrategy implements DatabaseIntrospectorStrategy {
+/**
+ * @author cen_c
+ */
+public class MysqlIntrospectorStrategy implements DatabaseIntrospectorStrategy {
     @Override
     public void getIndexDetails(Connection conn, FullyQualifiedTable table,
                                 Map<String, String> indexComments,

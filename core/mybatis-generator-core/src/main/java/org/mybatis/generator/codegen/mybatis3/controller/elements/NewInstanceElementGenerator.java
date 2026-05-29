@@ -4,12 +4,15 @@ import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class NewInstanceElementGenerator extends AbstractControllerElementGenerator {
 
     public NewInstanceElementGenerator() {
@@ -59,7 +62,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
         method.addAnnotation(new SystemLogDesc("实例化空对象", introspectedTable), parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("new-instance", RequestMethodEnum.GET);
         method.addAnnotation(requestMappingDesc, parentElement);
-        method.addAnnotation(new ApiOperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
+        method.addAnnotation(new OperationDesc("实例化对象", "实例化一个空对象，供前端使用"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "实例化一个空对象，供前端使用.允许提供一些初始化值");
         if (introspectedTable.getRules().isGenerateCreateVo() && introspectedTable.getRules().isGenerateVoModel()) {
             addIocInitialDefaultValue(introspectedTable, method, type);

@@ -5,9 +5,9 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.FormOptionGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
@@ -61,6 +61,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         selected.addAnnotation("@RequestParam(required = false)");
         selected.setRemark("选中的值，用于前端选中数据的回显");
         method.addParameter(selected);
+        // 增加一个可选的查询场景标识参数
         Parameter actionType = new Parameter(FullyQualifiedJavaType.getStringInstance(), "actionType");
         actionType.addAnnotation("@RequestParam(required = false)");
         actionType.setRemark("可选参数，查询场景标识");
@@ -76,7 +77,7 @@ public class OptionElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(new RequestMappingDesc("option/"+ toHyphenCase(column.getJavaProperty())
                 , RequestMethodEnum.GET),parentElement);
         addSecurityPreAuthorize(method,methodPrefix,"数据选项");
-        method.addAnnotation(new ApiOperationDesc("获取Options-XX选项列表","根据给定条件获取Options-XXX选项列表，可以根据需要传入属性同名参数、消费端选中的值"),parentElement);
+        method.addAnnotation(new OperationDesc("获取Options-XX选项列表","根据给定条件获取Options-XXX选项列表，可以根据需要传入属性同名参数、消费端选中的值"),parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "获取Options-XX选项列表");
 

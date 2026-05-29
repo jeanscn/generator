@@ -1,26 +1,23 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
-import static org.mybatis.generator.custom.ConstantsUtil.Z_TREE_DATA_SIMPLE;
-import static org.mybatis.generator.custom.ConstantsUtil.Z_TREE_DATA_SIMPLE_CATE;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
-import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
-import com.vgosoft.tool.core.VStringUtil;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mybatis.generator.custom.ConstantsUtil.*;
 
 public class FetchTreeDataElementGenerator extends AbstractControllerElementGenerator {
 
@@ -61,7 +58,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         method.setReturnRemark("tree对象集合结果封装对象");
         method.addAnnotation(new SystemLogDesc("查询树结果数据", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("tree", RequestMethodEnum.GET), parentElement);
-        method.addAnnotation(new ApiOperationDesc("树形数据查询", "获取指定根或所有的树形结构数据"), parentElement);
+        method.addAnnotation(new OperationDesc("树形数据查询", "获取指定根或所有的树形结构数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取指定根或所有的树形结构数据");
         //函数体
         method.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
@@ -99,7 +96,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             //methodCate.addAnnotation(new SystemLog("查询分类树结果数据", introspectedTable), parentElement);
             String hyphenCase = VStringUtil.toHyphenCase(cateTreeConfig.getPathKeyWord());
             methodCate.addAnnotation(new RequestMappingDesc(hyphenCase, RequestMethodEnum.GET), parentElement);
-            methodCate.addAnnotation(new ApiOperationDesc("树形分类数据查询", "获取指定根或所有的树形分类结构数据"), parentElement);
+            methodCate.addAnnotation(new OperationDesc("树形分类数据查询", "获取指定根或所有的树形分类结构数据"), parentElement);
             commentGenerator.addMethodJavaDocLine(methodCate, "获取指定根或所有的树形结构数据");
             //函数体
             methodCate.addBodyLine("ITreeNodeConverter<{0}> nodeConverter = new TreeNodeConverterImpl<>();", entityType.getShortName());
@@ -140,7 +137,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
         aMethod.setReturnRemark("对象集合结果封装对象,带有子集合数量");
         aMethod.addAnnotation(new SystemLogDesc("查询带有子集合数量数据", introspectedTable), parentElement);
         aMethod.addAnnotation(new RequestMappingDesc("async-tree", RequestMethodEnum.GET), parentElement);
-        aMethod.addAnnotation(new ApiOperationDesc("带有子集合数量数据查询", "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据"), parentElement);
+        aMethod.addAnnotation(new OperationDesc("带有子集合数量数据查询", "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据"), parentElement);
         commentGenerator.addMethodJavaDocLine(aMethod, "异步获取指定根或所有的带有子集合数量数据，用于异步树获取数据");
         //函数体
         aMethod.addBodyLine("{0}Example example = new {0}Example();", entityType.getShortName());

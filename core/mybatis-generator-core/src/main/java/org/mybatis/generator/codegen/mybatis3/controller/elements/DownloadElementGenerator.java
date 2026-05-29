@@ -7,13 +7,16 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static com.vgosoft.tool.core.VStringUtil.format;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class DownloadElementGenerator extends AbstractControllerElementGenerator {
 
     public DownloadElementGenerator() {
@@ -24,7 +27,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
-        parentElement.addImportedType("javax.servlet.http.HttpServletResponse");
+        parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
         parentElement.addImportedType("org.springframework.util.Assert");
 
         final String methodPrefix = "download";
@@ -43,7 +46,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addAnnotation(new SystemLogDesc("下载（预览）", introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethodEnum.GET);
         method.addAnnotation(requestMappingDesc,parentElement);
-        method.addAnnotation(new ApiOperationDesc("单个文件下载（预览）", "单个文件下载(预览)接口"),parentElement);
+        method.addAnnotation(new OperationDesc("单个文件下载（预览）", "单个文件下载(预览)接口"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "单个文件下载(预览)接口");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         method.addBodyLine("Assert.notNull(id, \"资源的id非法！\");");

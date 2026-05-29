@@ -6,12 +6,15 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.enums.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class GetLayuiTableElementGenerator extends AbstractControllerElementGenerator {
 
     public GetLayuiTableElementGenerator() {
@@ -43,7 +46,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
                 parentElement));
         method.setReturnRemark("layui table配置对象");
         method.addAnnotation(new RequestMappingDesc("lay-table-config", RequestMethodEnum.GET),parentElement);
-        method.addAnnotation(new ApiOperationDesc("获得layui table配置对象", "根据ViewVo获得layui table配置对象"),parentElement);
+        method.addAnnotation(new OperationDesc("获得layui table配置对象", "根据ViewVo获得layui table配置对象"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "根据ViewVo获得layui table配置对象");
         //函数体
         method.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");
@@ -76,7 +79,7 @@ public class GetLayuiTableElementGenerator extends AbstractControllerElementGene
                 parentElement));
         vexMethod.setReturnRemark("Vxe table配置对象");
         vexMethod.addAnnotation(new RequestMappingDesc("vxe-table-config", RequestMethodEnum.GET),parentElement);
-        vexMethod.addAnnotation(new ApiOperationDesc("获得vxe table配置对象", "根据ViewVo获得vxe table配置对象"),parentElement);
+        vexMethod.addAnnotation(new OperationDesc("获得vxe table配置对象", "根据ViewVo获得vxe table配置对象"),parentElement);
         commentGenerator.addMethodJavaDocLine(vexMethod, "根据ViewVo获得vxe table配置对象");
         //函数体
         vexMethod.addBodyLine("final int edit = viewStatus==null?0:viewStatus;");

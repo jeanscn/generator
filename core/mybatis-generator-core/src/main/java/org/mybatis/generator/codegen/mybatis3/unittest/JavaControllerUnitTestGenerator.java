@@ -53,16 +53,13 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         FullyQualifiedJavaType topClassType = new FullyQualifiedJavaType(controllerType.getFullyQualifiedName() + "Test");
         TopLevelClass testClazz = new TopLevelClass(topClassType);
         testClazz.setVisibility(JavaVisibility.PUBLIC);
-        if (configuration.getSpringBootApplicationClass() != null) {
-            FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType(configuration.getSpringBootApplicationClass());
-            testClazz.addAnnotation(VStringUtil.format("@SpringBootTest(classes = {0})", fullyQualifiedJavaType.getShortName() + ".class"));
-            testClazz.addImportedType(fullyQualifiedJavaType.getFullyQualifiedName());
-        } else testClazz.addAnnotation("@SpringBootTest");
-        testClazz.addImportedType("org.springframework.boot.test.context.SpringBootTest");
+        testClazz.addAnnotation("@ExtendWith(MockitoExtension.class)");
+        testClazz.addImportedType("org.junit.jupiter.api.extension.ExtendWith");
+        testClazz.addImportedType("org.mockito.junit.jupiter.MockitoExtension");
 
         //添加属性
         testClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
-        testClazz.addImportedType("org.springframework.boot.test.mock.mockito.MockBean");
+        testClazz.addImportedType("org.mockito.Mock");
         addField(WEB_APPLICATION_CONTEXT,
                 "org.springframework.web.context.WebApplicationContext",
                 "@Autowired", testClazz);
@@ -80,16 +77,16 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 null, testClazz);
         addField("mockSysLogExceptionImpl",
                 "com.vgosoft.system.service.impl.SysLogExceptionImpl",
-                "@MockBean", testClazz);
+                "@Mock", testClazz);
         addField("mockSysLogInfoImpl",
                 "com.vgosoft.system.service.impl.SysLogInfoImpl",
-                "@MockBean", testClazz);
+                "@Mock", testClazz);
         addField("mockOrganizationMgr",
                 "com.vgosoft.core.adapter.organization.OrganizationMgr<FooUserInfo,?,?,FooDepartment,FooOrganization>",
-                "@MockBean", testClazz);
+                "@Mock", testClazz);
         addField(mockServiceImpl,
                 serviceGeneratorConfiguration.getTargetPackage() + ".I" + entityType.getShortName(),
-                "@MockBean", testClazz);
+                "@Mock", testClazz);
         addField(entityInstanceVar,
                 entityType.getFullyQualifiedName(),
                 null, testClazz);

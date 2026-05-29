@@ -8,15 +8,18 @@ import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.enums.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class DeleteByColumnGenerator extends AbstractControllerElementGenerator {
 
     private final SelectByColumnGeneratorConfiguration config;
@@ -48,7 +51,7 @@ public class DeleteByColumnGenerator extends AbstractControllerElementGenerator 
             parameter.setRemark("id列表 Map<columnProperty , List<String>>");
             method.addParameter(parameter);
             method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getDeleteMethodName()), RequestMethodEnum.POST),parentElement);
-            method.addAnnotation(new ApiOperationDesc("根据指定列（多值）获取匹配的记录集合", "根据指定列（多值）获取匹配的记录集合接口"),parentElement);
+            method.addAnnotation(new OperationDesc("根据指定列（多值）获取匹配的记录集合", "根据指定列（多值）获取匹配的记录集合接口"),parentElement);
             commentGenerator.addMethodJavaDocLine(method, "根据指定字段的集合获取匹配的记录结合");
             config.getColumns().forEach(column -> {
                 method.addBodyLine("List<{0}> {1}s = paramsMap.get(\"{1}s\");", column.getFullyQualifiedJavaType().getShortName(), column.getJavaProperty());
@@ -65,10 +68,10 @@ public class DeleteByColumnGenerator extends AbstractControllerElementGenerator 
                 parameter.addAnnotation("@RequestParam(value = \"" + column.getJavaProperty() + "\")");
                 parameter.setRemark(column.getRemarks(false));
                 return parameter;
-            }).collect(Collectors.toList());
+            }).toList();
             parameters.forEach(method::addParameter);
             method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getDeleteMethodName()), RequestMethodEnum.GET),parentElement);
-            method.addAnnotation(new ApiOperationDesc("根据指定列获取匹配的记录集合", "根据指定列获取匹配的记录集合接口"),parentElement);
+            method.addAnnotation(new OperationDesc("根据指定列获取匹配的记录集合", "根据指定列获取匹配的记录集合接口"),parentElement);
             commentGenerator.addMethodJavaDocLine(method, "根据指定字段获取匹配的记录结合");
             config.getColumns().forEach(column -> method.addBodyLine("Assert.notNull({0}, \"参数{0}非法！\");", column.getJavaProperty()));
             parentElement.addImportedType("org.springframework.util.Assert");

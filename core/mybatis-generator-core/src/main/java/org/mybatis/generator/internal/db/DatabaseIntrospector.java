@@ -19,6 +19,9 @@ import java.util.regex.Pattern;
 import static org.mybatis.generator.internal.util.StringUtility.*;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class DatabaseIntrospector {
 
     private final DatabaseMetaData databaseMetaData;

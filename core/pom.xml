@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-parent</artifactId>
-        <version>34</version>
+        <version>48</version>
         <relativePath/>
     </parent>
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator</artifactId>
     <name>MyBatis Generator</name>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2006</inceptionYear>
     <description>Parent POM for MyBatis Generator</description>
@@ -27,10 +27,14 @@
     </issueManagement>
     <ciManagement>
         <system>Github</system>
-        <url>https://github.com/mybatis/generator/actions</url>
+        <url>https://gitfhub.com/mybatis/generator/actions</url>
     </ciManagement>
 
     <properties>
+        <java.version>17</java.version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -40,13 +44,33 @@
         <hsqldb.version>2.7.1</hsqldb.version>
         <checkstyle.config>${project.basedir}/checkstyle-override.xml</checkstyle.config>
         <formatter.config>eclipse-formatter-config-4space.xml</formatter.config>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <java.version>17</java.version>
-        <kotlin.version>1.7.0</kotlin.version>
-        <junit.jupiter.version>5.8.2</junit.jupiter.version>
+
+        <vgosoft-basic.version>6.0.0-SNAPSHOT</vgosoft-basic.version>
+
+        <kotlin.version>1.9.24</kotlin.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <junit.platform.version>1.8.2</junit.platform.version>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <jar.version>3.5.0</jar.version>
+        <assembly.version>3.7.1</assembly.version>
+        <compiler.version>3.14.1</compiler.version>
+        <enforcer.version>3.6.2</enforcer.version>
+        <surefire.version>3.5.4</surefire.version>
+        <site.version>4.0.0-M16</site.version>
+        <javadoc.version>3.12.0</javadoc.version>
+
+        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+        <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
+
+        <slf4j-api.version>2.0.13</slf4j-api.version>
+        <log4j-api.version>2.23.1</log4j-api.version>
+        <commons-logging.version>1.2</commons-logging.version>
+        <ant.version>1.10.12</ant.version>
+        <assertj-core.version>3.22.0</assertj-core.version>
+        <maven-plugin-api.version>3.8.5</maven-plugin-api.version>
+        <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
+        <maven-core.version>3.8.5</maven-core.version>
+        <javaparser-core.version>3.24.2</javaparser-core.version>
     </properties>
 
     <build>
@@ -65,7 +89,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.6.4</version>
+                    <version>${maven-plugin-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -137,7 +161,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>${maven-gpg-plugin.version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -163,7 +187,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.6.4</version>
+                <version>${maven-plugin-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -181,22 +205,22 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.36</version>
+                <version>${slf4j-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.17.2</version>
+                <version>${log4j-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.2</version>
+                <version>${commons-logging.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.10.12</version>
+                <version>${ant.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -225,7 +249,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.22.0</version>
+                <version>${assertj-core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -237,24 +261,24 @@
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
-                <version>3.8.5</version>
+                <version>${maven-plugin-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>
                 <artifactId>maven-plugin-annotations</artifactId>
-                <version>3.6.4</version>
+                <version>${maven-plugin-annotations.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
-                <version>3.8.5</version>
+                <version>${maven-core.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.javaparser</groupId>
                 <artifactId>javaparser-core</artifactId>
-                <version>3.24.2</version>
+                <version>${javaparser-core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -294,6 +318,16 @@
                 <artifactId>lombok</artifactId>
                 <version>1.18.30</version> <!-- Use an appropriate version -->
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.vgosoft</groupId>
+                <artifactId>vgosoft-mybatis</artifactId>
+                <version>${vgosoft-basic.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vgosoft</groupId>
+                <artifactId>vgosoft-core</artifactId>
+                <version>${vgosoft-basic.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

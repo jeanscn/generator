@@ -3,12 +3,15 @@ package org.mybatis.generator.codegen.mybatis3.controller.elements;
 import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class HideBatchElementGenerator extends AbstractControllerElementGenerator {
 
     public HideBatchElementGenerator() {
@@ -27,7 +30,7 @@ public class HideBatchElementGenerator extends AbstractControllerElementGenerato
         method.setReturnType(response);
         method.setReturnRemark("创建的隐藏数据列表Vo的响应对象");
         method.addAnnotation(new RequestMappingDesc("hide", RequestMethodEnum.POST),parentElement);
-        method.addAnnotation(new ApiOperationDesc("批量隐藏", "批量设置列表中选择的数据为隐藏"),parentElement);
+        method.addAnnotation(new OperationDesc("批量隐藏", "批量设置列表中选择的数据为隐藏"),parentElement);
 
         // 判断是否有Vo对象
         String entityVar = entityType.getShortNameFirstLowCase();

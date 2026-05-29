@@ -6,13 +6,10 @@ import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.AbstractJavaGenerator;
 import org.mybatis.generator.codegen.RootClassInfo;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.OverridePropertyValueGeneratorConfiguration;
-import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
+import org.mybatis.generator.config.*;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
 import org.mybatis.generator.custom.enums.ModelClassTypeEnum;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.custom.annotations.mybatisplus.TableField;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
@@ -23,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mybatis.generator.custom.ConstantsUtil.I_PERSISTENCE_BASIC;
 import static org.mybatis.generator.custom.ConstantsUtil.PARAM_NAME_PERSISTENCE_STATUS;
@@ -241,11 +239,11 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                     returnType = FullyQualifiedJavaType.getNewListInstance();
                     returnType.addTypeArgument(fullyQualifiedJavaType);
                     field = new Field(relationProperty.getPropertyName(), returnType);
-                    if (relationProperty.getInitializationString().isPresent()) {
-                        field.setInitializationString(relationProperty.getInitializationString().get());
-                    } else {
-                        field.setInitializationString("new ArrayList<>()");
-                    }
+                    // 使用 Optional.ifPresentOrElse 替代 get()
+                    relationProperty.getInitializationString().ifPresentOrElse(
+                            field::setInitializationString,
+                            () -> field.setInitializationString("new ArrayList<>()")
+                    );
                     topLevelClass.addImportedType(FullyQualifiedJavaType.getNewArrayListInstance());
                 } else {
                     returnType = fullyQualifiedJavaType;
@@ -260,8 +258,8 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 if (field.getRemark() == null) {
                     field.setRemark(relationProperty.getRemark());
                 }
-                ApiModelPropertyDesc apiModelProperty = new ApiModelPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
-                apiModelProperty.addAnnotationToField(field, topLevelClass);
+                SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
+                schemaPropertyDesc.addAnnotationToField(field, topLevelClass);
                 topLevelClass.addField(field, null, true);
                 topLevelClass.addImportedType(fullyQualifiedJavaType);
             }
@@ -276,6 +274,11 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         return answer;
     }
 
+    /**
+     * 重写转换vo对象的方法：Vo getViewObject();
+     * @param topLevelClass 主类
+     * @param abstractIntrospectedTable 表信息
+     */
     private void addGetViewObject(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable){
         boolean assignableCurrent = isAssignableCurrent("com.vgosoft.workflow.adapter.IWorkflowBusinessEntity", topLevelClass, abstractIntrospectedTable);
         if (!assignableCurrent) {
@@ -292,7 +295,11 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         if (abstractIntrospectedTable.getRules().isGenerateVoModel()) {
             FullyQualifiedJavaType mappingType = voGenService.getMappingType(abstractIntrospectedTable);
             TableConfiguration tc = abstractIntrospectedTable.getTableConfiguration();
-            FullyQualifiedJavaType voType = tc.getVoGeneratorConfiguration().getVoModelConfiguration().getFullyQualifiedJavaType();
+            FullyQualifiedJavaType voType = Optional.ofNullable(tc.getVoGeneratorConfiguration())
+                    .map(VoGeneratorConfiguration::getVoModelConfiguration)
+                    .map(AbstractModelGeneratorConfiguration::getFullyQualifiedJavaType)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "未配置 VO 模型（voGeneratorConfiguration / voModelConfiguration），无法生成视图对象"));
             method.setReturnType(voType);
             method.addBodyLine("{0} mappings = SpringContextHolder.getBean({0}.class);",mappingType.getShortName());
             method.addBodyLine("return mappings.to{0}(this);",voType.getShortName());
@@ -392,7 +399,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         Field cascade = new Field("anyWhereCondition", FullyQualifiedJavaType.getStringInstance());
         cascade.setVisibility(JavaVisibility.PRIVATE);
         cascade.setRemark("任意过滤条件");
-        new ApiModelPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, topLevelClass);
+        new SchemaPropertyDesc(cascade.getRemark(), "field = ‘condition’").addAnnotationToField(cascade, topLevelClass);
         topLevelClass.addField(cascade);
     }
 

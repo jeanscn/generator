@@ -4,9 +4,9 @@ import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,7 +52,7 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.addAnnotation(new RequestMappingDesc("split/"+ toHyphenCase(c.getMethodSuffix())
                             , RequestMethodEnum.POST),parentElement);
                     addSecurityPreAuthorize(method,c.getSplitMethodName(),"删除关系");
-                    method.addAnnotation(new ApiOperationDesc("删除数据关联关系", "删除中间表数据"),parentElement);
+                    method.addAnnotation(new OperationDesc("删除数据关联关系", "删除中间表数据"),parentElement);
 
                     commentGenerator.addMethodJavaDocLine(method, "删除中间关系表数据（取消数据关联）");
 

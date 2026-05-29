@@ -8,8 +8,8 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
 import org.mybatis.generator.config.StatisticsDateDimGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class StatisticsTotalElementGenerator extends AbstractControllerElementGe
         Set<StatisticsDateDimGeneratorConfiguration> statisticsConfigurations = introspectedTable.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().getStatisticsConfigurations();
         List<StatisticsDateDimGeneratorConfiguration> configurationList = statisticsConfigurations.stream()
                 .filter(config -> config.getStatType().equalsIgnoreCase(StatTypeEnum.TOTAL.code()))
-                .collect(Collectors.toList());
+                .toList();
         if (configurationList.isEmpty()) {
             return;
         }
@@ -59,7 +59,7 @@ public class StatisticsTotalElementGenerator extends AbstractControllerElementGe
             method.setVisibility(JavaVisibility.PROTECTED);
             method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(configuration.getMethodName()), RequestMethodEnum.GET),parentElement);
             addSecurityPreAuthorize(method,"statistics","统计数据");
-            method.addAnnotation(new ApiOperationDesc("获取汇总数据",remark),parentElement);
+            method.addAnnotation(new OperationDesc("获取汇总数据",remark),parentElement);
 
             FullyQualifiedJavaType response = getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_LIST, returnDto, parentElement);
             method.setReturnRemark("统计结果列表");

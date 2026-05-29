@@ -6,10 +6,10 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.controller.AbstractControllerElementGenerator;
-import org.mybatis.generator.custom.enums.ReturnTypeEnum;
-import org.mybatis.generator.custom.annotations.ApiOperationDesc;
 import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
+import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
+import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 /**
  * @author cen_c
@@ -42,7 +42,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         method.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("", RequestMethodEnum.GET), parentElement);
         addSecurityPreAuthorize(method, methodPrefix, "数据列表");
-        method.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
+        method.addAnnotation(new OperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
         commentGenerator.addMethodJavaDocLine(method, "获取条件实体对象列表");
         method.addBodyLine("if (actionType != null) '{'{0}.setActionType(actionType);'}'", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());
@@ -70,7 +70,7 @@ public class ListElementGenerator extends AbstractControllerElementGenerator {
         postMethod.addAnnotation(new SystemLogDesc("查看数据列表", introspectedTable), parentElement);
         postMethod.addAnnotation(new RequestMappingDesc("list", RequestMethodEnum.POST), parentElement);
         addSecurityPreAuthorize(postMethod, methodPrefix, "数据列表");
-        postMethod.addAnnotation(new ApiOperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
+        postMethod.addAnnotation(new OperationDesc("获得列表数据", "根据给定条件获取多条或所有数据列表，可以根据需要传入属性同名参数"), parentElement);
         commentGenerator.addMethodJavaDocLine(postMethod, "获取条件实体对象列表");
         postMethod.addBodyLine("if (actionType != null) '{'{0}.setActionType(actionType);'}'", introspectedTable.getRules().isGenerateRequestVo() ? entityRequestVoType.getShortNameFirstLowCase() :
                 introspectedTable.getRules().isGenerateVoModel() ? entityVoType.getShortNameFirstLowCase() : entityType.getShortNameFirstLowCase());

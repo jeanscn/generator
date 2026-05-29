@@ -151,7 +151,8 @@ class MethodTest {
         assertFalse(method.getReturnType().isPresent());
 
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        assertEquals(FullyQualifiedJavaType.getIntInstance(), method.getReturnType().get());
+        assertEquals(FullyQualifiedJavaType.getIntInstance(),
+                method.getReturnType().orElseThrow(() -> new IllegalStateException("期望 method 有返回类型")));
     }
 
     @Test

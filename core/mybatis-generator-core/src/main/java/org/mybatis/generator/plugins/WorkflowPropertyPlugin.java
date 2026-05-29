@@ -5,8 +5,8 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.custom.annotations.ApiModelPropertyDesc;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
 
 import java.util.List;
 
@@ -35,7 +35,11 @@ public class WorkflowPropertyPlugin extends PluginAdapter{
         return true;
     }
 
-    //添加一个属性，并根据是否工作流类型，添加初始值，1-工作流，0-非工作流
+    /**
+     * 添加工作流属性 并根据是否工作流类型，添加初始值，1-工作流，0-非工作流
+     * @param topLevelClass 生成的类
+     * @param abstractIntrospectedTable 表信息
+     */
     private void addWorkflowProperty(TopLevelClass topLevelClass, AbstractIntrospectedTable abstractIntrospectedTable) {
         Field field = new Field("workflowEnabled", new FullyQualifiedJavaType("Integer"));
         if (GenerateUtils.isWorkflowInstance(abstractIntrospectedTable)) {
@@ -43,10 +47,10 @@ public class WorkflowPropertyPlugin extends PluginAdapter{
         } else {
             field.setInitializationString("0");
         }
-        ApiModelPropertyDesc apiModelPropertyDesc = new ApiModelPropertyDesc("是否工作流应用", "0");
-        field.addAnnotation(apiModelPropertyDesc.toAnnotation());
+        SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc("是否工作流应用", "0");
+        field.addAnnotation(schemaPropertyDesc.toAnnotation());
         topLevelClass.addField(field);
-        topLevelClass.addImportedTypes(apiModelPropertyDesc.getImportedTypes());
+        topLevelClass.addImportedTypes(schemaPropertyDesc.getImportedTypes());
     }
 
     @Override

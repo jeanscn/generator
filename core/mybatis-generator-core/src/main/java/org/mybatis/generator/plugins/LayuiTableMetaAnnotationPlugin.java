@@ -2,7 +2,6 @@ package org.mybatis.generator.plugins;
 
 import com.vgosoft.core.constant.enums.db.JavaTypeMapEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
-import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VBeanUtil;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -468,14 +467,11 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     }
 
     private String getDateformat(String javaType) {
-        switch (javaType) {
-            case "LocalDateTime":
-                return "datetime";
-            case "LocalTime":
-                return "time";
-            default:
-                return "date";
-        }
+        return switch (javaType) {
+            case "LocalDateTime" -> "datetime";
+            case "LocalTime" -> "time";
+            default -> "date";
+        };
     }
 
     private String parseDataUrl(HtmlElementDescriptor htmlElementDescriptor, AbstractIntrospectedTable introspectedTable) {
@@ -536,22 +532,23 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             //按列名分组
             Map<String, List<QueryColumnConfiguration>> listMap = listViewConfiguration.getQueryColumnConfigurations().stream().collect(Collectors.groupingBy(QueryColumnConfiguration::getColumn));
             //去重,转换为CompositeQueryDesc
-            List<CompositeQueryDesc> queryDesc = listViewConfiguration.getQueryColumns().stream().distinct().map(columnName -> {
-                if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
-                } else {
-                    if (introspectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
-                    } else {
-                        return null;
-                    }
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-            //更新顺序号，order
-            for (int i = 0; i < queryDesc.size(); i++) {
-                CompositeQueryDesc compositeQueryDesc = queryDesc.get(i);
-                compositeQueryDesc.setOrder(i + 1);
-            }
+            List<CompositeQueryDesc> queryDesc = listViewConfiguration.getQueryColumns().stream()
+                    .distinct()
+                    .map(columnName -> {
+                        if (listMap.containsKey(columnName)) {
+                            return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                        }
+                        return introspectedTable.getColumn(columnName)
+                                .map(CompositeQueryDesc::create)
+                                .orElse(null);
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+             //更新顺序号，order
+             for (int i = 0; i < queryDesc.size(); i++) {
+                 CompositeQueryDesc compositeQueryDesc = queryDesc.get(i);
+                 compositeQueryDesc.setOrder(i + 1);
+             }
             //转换为注解
             String[] array = queryDesc.stream().map(CompositeQueryDesc::toAnnotation).toArray(String[]::new);
             layuiTableMetaDesc.setQuerys(array);
@@ -568,17 +565,18 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
             if (filterColumns.isEmpty()) {
                 filterColumns.addAll(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration().getFilterColumns());
             }
-            List<CompositeQueryDesc> queryDesc = listViewConfiguration.getFilterColumns().stream().distinct().map(columnName -> {
-                if (listMap.containsKey(columnName)) {
-                    return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
-                } else {
-                    if (introspectedTable.getColumn(columnName).isPresent()) {
-                        return CompositeQueryDesc.create(introspectedTable.getColumn(columnName).get());
-                    } else {
-                        return null;
-                    }
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            List<CompositeQueryDesc> queryDesc = listViewConfiguration.getFilterColumns().stream()
+                    .distinct()
+                    .map(columnName -> {
+                        if (listMap.containsKey(columnName)) {
+                            return CompositeQueryDesc.create(listMap.get(columnName).get(0), introspectedTable);
+                        }
+                        return introspectedTable.getColumn(columnName)
+                                .map(CompositeQueryDesc::create)
+                                .orElse(null);
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
 
             //更新顺序号，order
             for (int i = 0; i < queryDesc.size(); i++) {
@@ -597,7 +595,7 @@ public class LayuiTableMetaAnnotationPlugin extends PluginAdapter {
     private int getOrder(Field field, InnerListViewConfiguration listViewConfiguration, AbstractIntrospectedTable introspectedTable) {
         final List<String> fieldNames = listViewConfiguration.getDefaultDisplayFields();
         if (fieldNames.isEmpty()) {
-            fieldNames.addAll(introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.toList()));
+            fieldNames.addAll(introspectedTable.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty).toList());
         }
         //定义一个原子性int变量
         AtomicInteger orderNo = new AtomicInteger(0);
