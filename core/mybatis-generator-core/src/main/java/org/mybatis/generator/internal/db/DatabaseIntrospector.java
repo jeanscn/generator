@@ -91,8 +91,8 @@ public class DatabaseIntrospector {
                     table.getIntrospectedCatalog(),
                     table.getIntrospectedSchema(),
                     table.getIntrospectedTableName(),
-                    false, // unique=false获取所有索引(包括非唯一索引)
-                    true); // approximate
+                    false,
+                    true);
             // 使用Map存储索引信息，以索引名为键
             Map<String, IndexInfo> indexInfoMap = new HashMap<>();
             Map<String, String> indexTypes = new HashMap<>();
@@ -108,7 +108,8 @@ public class DatabaseIntrospector {
                 boolean nonUnique = rs.getBoolean("NON_UNIQUE");
                 short ordinalPosition = rs.getShort("ORDINAL_POSITION");
                 String columnName = rs.getString("COLUMN_NAME");
-                String ascOrDesc = rs.getString("ASC_OR_DESC"); // 可能为null
+                // 可能为null
+                String ascOrDesc = rs.getString("ASC_OR_DESC");
 
                 // 获取索引类型
                 short type = rs.getShort("TYPE");

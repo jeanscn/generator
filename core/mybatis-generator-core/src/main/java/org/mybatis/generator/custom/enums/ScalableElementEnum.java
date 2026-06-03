@@ -6,5 +6,8 @@ package org.mybatis.generator.custom.enums;
  * @version 3.0
  */
 public enum ScalableElementEnum {
+    /**
+     *  对象类型
+     */
     dao,service,controller,vo,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
 }

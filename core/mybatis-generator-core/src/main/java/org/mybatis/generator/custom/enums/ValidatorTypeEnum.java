@@ -3,8 +3,16 @@ package org.mybatis.generator.custom.enums;
 import com.vgosoft.core.constant.enums.IBaseEnum;
 import lombok.AllArgsConstructor;
 
+/**
+ * @author cen_c
+ */
+
 @AllArgsConstructor
 public enum ValidatorTypeEnum implements IBaseEnum<String> {
+
+    /**
+     * 验证类型：字符串、数字、布尔值、方法、表达式、整数、小数、数组、对象、枚举、日期、URL、十六进制、电子邮件
+     */
     STRING("string", "字符串","{0}类型错误，存在无效文本"),
     NUMBER("number", "数字","{0}类型错误，应该是数字类型"),
     BOOLEAN("boolean", "布尔值","{0}类型错误，应该是布尔类型"),
