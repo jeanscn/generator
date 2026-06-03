@@ -1,6 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.model;
 
-import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.core.db.util.JdbcUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
@@ -258,7 +258,7 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
                 if (field.getRemark() == null) {
                     field.setRemark(relationProperty.getRemark());
                 }
-                SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc(field.getRemark(), JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
+                SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc(field.getRemark(), JdbcUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
                 schemaPropertyDesc.addAnnotationToField(field, topLevelClass);
                 topLevelClass.addField(field, null, true);
                 topLevelClass.addImportedType(fullyQualifiedJavaType);

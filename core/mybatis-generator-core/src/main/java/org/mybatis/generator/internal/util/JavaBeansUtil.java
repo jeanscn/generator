@@ -1,6 +1,6 @@
 package org.mybatis.generator.internal.util;
 
-import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.core.db.util.JdbcUtil;
 import org.apache.commons.lang3.ClassUtils;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -96,7 +96,7 @@ public class JavaBeansUtil {
                 case ' ':
                 case '/':
                 case '&':
-                    if (sb.length() > 0) {
+                    if (!sb.isEmpty()) {
                         nextUpperCase = true;
                     }
                     break;
@@ -438,9 +438,9 @@ public class JavaBeansUtil {
         String defaultValue;
         String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
         try {
-            defaultValue = JDBCUtil.getJDBCTypeExample(ObjectFactory.internalClassForName(javaTypeName));
+            defaultValue = JdbcUtil.getJdbcTypeExample(ObjectFactory.internalClassForName(javaTypeName));
         } catch (ClassNotFoundException e) {
-            defaultValue = JDBCUtil.getJDBCTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+            defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
         }
        if ("String".equals(javaTypeName)) {
             return "\"" + introspectedColumn.getJavaProperty() + "\"";

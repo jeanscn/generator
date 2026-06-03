@@ -1,6 +1,6 @@
 package org.mybatis.generator.plugins;
 
-import com.vgosoft.core.db.util.JDBCUtil;
+import com.vgosoft.core.db.util.JdbcUtil;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.PluginAdapter;
@@ -76,7 +76,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable, ModelClassType modelClassType) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+            addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, false);
         }
         return true;
     }
@@ -88,7 +88,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
             if (!introspectedColumn.isNullable()) {
                 schemaPropertyDesc.setRequiredMode("Schema.RequiredMode.REQUIRED");
             }
-            schemaPropertyDesc.addAnnotationToField(field,topLevelClass);
+            schemaPropertyDesc.addAnnotationToField(field, topLevelClass);
         }
         return true;
     }
@@ -96,7 +96,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean voModelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,true);
+            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, true);
         }
         return true;
     }
@@ -108,7 +108,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     public boolean voViewFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         SchemaPropertyDesc schemaPropertyDesc = buildSchemaPropertyAnnotation(field, introspectedTable);
         if (schemaPropertyDesc != null) {
-            schemaPropertyDesc.addAnnotationToField(field,topLevelClass);
+            schemaPropertyDesc.addAnnotationToField(field, topLevelClass);
         }
         return true;
     }
@@ -116,7 +116,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean voRequestFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, false);
         }
         return true;
     }
@@ -124,7 +124,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean voExcelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable, int index) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, false);
         }
         return true;
     }
@@ -132,7 +132,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean voExcelImportFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable, int index) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, false);
         }
         return true;
     }
@@ -140,7 +140,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean voUpdateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,true);
+            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, true);
         }
         return true;
     }
@@ -148,7 +148,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
     @Override
     public boolean voCreateFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, AbstractIntrospectedTable introspectedTable) {
         if (isSwaggerAnnotation(introspectedTable)) {
-            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable,false);
+            return addSchemaProperty(field, topLevelClass, introspectedColumn, introspectedTable, false);
         }
         return true;
     }
@@ -205,7 +205,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
         if (schemaPropertyDesc != null) {
             if (required) {
                 schemaPropertyDesc.setRequiredMode("Schema.RequiredMode.REQUIRED");
-            }else{
+            } else {
                 schemaPropertyDesc.setRequiredMode(null);
             }
             schemaPropertyDesc.addAnnotationToField(field, topLevelClass);
@@ -218,7 +218,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
      */
     private SchemaPropertyDesc buildSchemaPropertyAnnotation(Field field, AbstractIntrospectedTable introspectedTable) {
         SchemaPropertyDesc schemaPropertyDesc = new SchemaPropertyDesc(field.getRemark());
-        schemaPropertyDesc.setExample(JDBCUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(),field.getName(),0));
+        schemaPropertyDesc.setExample(JdbcUtil.getExampleByClassName(field.getType().getFullyQualifiedNameWithoutTypeParameters(), field.getName(), 0));
         introspectedTable.getAllColumns().stream()
                 .filter(column -> column.getJavaProperty().equals(field.getName()))
                 .findFirst()
@@ -226,12 +226,13 @@ public class SwaggerApiPlugin extends PluginAdapter {
                     if (!column.isNullable()) {
                         schemaPropertyDesc.setRequiredMode("Schema.RequiredMode.REQUIRED");
                     }
-        });
+                });
         if (schemaPropertyDesc.getDescription() == null) {
             return null;
         }
         return schemaPropertyDesc;
     }
+
     /**
      * 构造注解@Schema
      */
@@ -240,7 +241,7 @@ public class SwaggerApiPlugin extends PluginAdapter {
         if (exist.isPresent()) {
             return null;
         }
-        FullyQualifiedJavaType fullyQualifiedJavaType =  topLevelClass.getType();
+        FullyQualifiedJavaType fullyQualifiedJavaType = topLevelClass.getType();
         SchemaDesc schemaDesc = SchemaDesc.create(fullyQualifiedJavaType.getShortName());
         schemaDesc.setDescription(introspectedTable.getRemarks(true));
         final Optional<FullyQualifiedJavaType> superClass = topLevelClass.getSuperClass();
