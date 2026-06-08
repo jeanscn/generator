@@ -29,7 +29,8 @@ public enum DatabaseDDLDialects {
     SYBASE("",""),
     DB2_MF("",""),
     H2("","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''"),
-    INFORMIX("","");
+    INFORMIX("",""),
+    DM("","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''");
 
     private final String columnModifyStatement;
     private final String createStatement;
@@ -70,6 +71,8 @@ public enum DatabaseDDLDialects {
             returnValue = INFORMIX;
         } else if("H2".equalsIgnoreCase(database)) {
             returnValue = H2;
+        } else if("DM DBMS".equalsIgnoreCase(database)) {
+            returnValue = DM;
         }
         return returnValue;
     }

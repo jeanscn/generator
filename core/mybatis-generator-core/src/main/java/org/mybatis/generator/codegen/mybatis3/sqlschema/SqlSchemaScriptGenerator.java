@@ -43,12 +43,16 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         ret.add(VStringUtil.format("-- Table structure for {0}", tableName));
         ret.add("-- ----------------------------");
         ret.add("");
-        ret.add(VStringUtil.format("CREATE TABLE IF NOT EXISTS `{0}`  (", tableName));
+        if (this.databaseDDLDialects.equals(DatabaseDDLDialects.DM)){
+            ret.add(VStringUtil.format("CREATE TABLE `{0}`  (", tableName));
+        } else {
+            ret.add(VStringUtil.format("CREATE TABLE IF NOT EXISTS `{0}`  (", tableName));
+        }
 
         for (IntrospectedColumn col : this.introspectedTable.getAllColumns()) {
 
             String character = BaseEmpty.EMPTY_STRING;
-            if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL) && !VStringUtil.toCamelCase(col.getActualTypeName()).equals("JSON")) {
+            if (this.databaseDDLDialects.equals(DatabaseDDLDialects.MYSQL) && !"JSON".equals(VStringUtil.toCamelCase(col.getActualTypeName()))) {
                 character = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)?" CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ":" ";
             }
 
