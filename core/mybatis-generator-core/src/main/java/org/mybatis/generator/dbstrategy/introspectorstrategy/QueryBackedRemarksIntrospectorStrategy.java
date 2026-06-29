@@ -24,7 +24,7 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 abstract class QueryBackedRemarksIntrospectorStrategy implements DatabaseIntrospectorStrategy {
     @Override
-    public Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException {
+    public Map<String, String> getColumnRemarks(Connection conn, String tableName) {
         if (!stringHasValue(tableName)) {
             return Collections.emptyMap();
         }
@@ -44,7 +44,7 @@ abstract class QueryBackedRemarksIntrospectorStrategy implements DatabaseIntrosp
     }
 
     @Override
-    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException {
+    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) {
         String tableName = abstractIntrospectedTable.getFullyQualifiedTable().getIntrospectedTableName();
         if (!stringHasValue(tableName)) {
             return;
@@ -67,47 +67,49 @@ abstract class QueryBackedRemarksIntrospectorStrategy implements DatabaseIntrosp
     }
 
     protected boolean sameIdentifier(String source, String target) {
-        return source != null && target != null && source.equalsIgnoreCase(target);
+        return source != null && source.equalsIgnoreCase(target);
     }
 
     private static final class ConnectionBackedDataSource implements DataSource {
-        private final Connection connection;
         private final Connection proxyConnection;
 
         private ConnectionBackedDataSource(Connection connection) {
-            this.connection = connection;
             this.proxyConnection = (Connection) Proxy.newProxyInstance(
                     Connection.class.getClassLoader(),
                     new Class<?>[]{Connection.class},
                     (proxy, method, args) -> {
                         String methodName = method.getName();
-                        if ("close".equals(methodName)) {
-                            return null;
-                        }
-                        if ("unwrap".equals(methodName)) {
-                            Class<?> iface = (Class<?>) args[0];
-                            if (iface.isInstance(connection) || iface == Connection.class) {
-                                return connection;
+                        switch (methodName) {
+                            case "close" -> {
+                                return null;
                             }
-                            return connection.unwrap(iface);
-                        }
-                        if ("isWrapperFor".equals(methodName)) {
-                            Class<?> iface = (Class<?>) args[0];
-                            return iface == Connection.class || iface.isInstance(connection) || connection.isWrapperFor(iface);
-                        }
-                        if ("equals".equals(methodName)) {
-                            return proxy == args[0];
-                        }
-                        if ("hashCode".equals(methodName)) {
-                            return System.identityHashCode(proxy);
-                        }
-                        if ("toString".equals(methodName)) {
-                            return connection.toString();
-                        }
-                        try {
-                            return method.invoke(connection, args);
-                        } catch (InvocationTargetException e) {
-                            throw e.getTargetException();
+                            case "unwrap" -> {
+                                Class<?> iface = (Class<?>) args[0];
+                                if (iface.isInstance(connection) || iface == Connection.class) {
+                                    return connection;
+                                }
+                                return connection.unwrap(iface);
+                            }
+                            case "isWrapperFor" -> {
+                                Class<?> iface = (Class<?>) args[0];
+                                return iface == Connection.class || iface.isInstance(connection) || connection.isWrapperFor(iface);
+                            }
+                            case "equals" -> {
+                                return proxy == args[0];
+                            }
+                            case "hashCode" -> {
+                                return System.identityHashCode(proxy);
+                            }
+                            case "toString" -> {
+                                return connection.toString();
+                            }
+                            default -> {
+                                try {
+                                    return method.invoke(connection, args);
+                                } catch (InvocationTargetException e) {
+                                    throw e.getTargetException();
+                                }
+                            }
                         }
                     });
         }

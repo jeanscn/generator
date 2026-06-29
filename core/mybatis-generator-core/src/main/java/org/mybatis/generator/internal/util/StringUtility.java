@@ -33,7 +33,7 @@ public class StringUtility {
             sb.append(schema);
             sb.append(separator);
         } else {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append(separator);
             }
         }
@@ -83,7 +83,7 @@ public class StringUtility {
         return "true".equalsIgnoreCase(s);
     }
 
-    public static boolean stringContainsSQLWildcard(String s) {
+    public static boolean stringContainsSqlWildcard(String s) {
         if (s == null) {
             return false;
         }

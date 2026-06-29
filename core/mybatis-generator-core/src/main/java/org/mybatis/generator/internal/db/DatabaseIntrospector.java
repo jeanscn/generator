@@ -609,8 +609,8 @@ public class DatabaseIntrospector {
         closeResultSet(rs);
 
         if (answer.size() > 1
-                && !stringContainsSQLWildcard(localSchema)
-                && !stringContainsSQLWildcard(localTableName)) {
+                && !stringContainsSqlWildcard(localSchema)
+                && !stringContainsSqlWildcard(localTableName)) {
             // issue a warning if there is more than one table and
             // no wildcards were used
             ActualTableName inputAtn = new ActualTableName(tc.getCatalog(), tc

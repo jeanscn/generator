@@ -1,6 +1,5 @@
 package org.mybatis.generator.dbstrategy.introspectorstrategy;
 
-import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.FullyQualifiedTable;
 
 import java.sql.*;
