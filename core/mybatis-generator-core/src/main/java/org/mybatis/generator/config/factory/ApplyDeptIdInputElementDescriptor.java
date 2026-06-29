@@ -9,6 +9,7 @@ import org.mybatis.generator.config.HtmlElementDescriptor;
 
 /**
  * priorityElementDescriptor 生成缓急程度的元素描述
+ * @author cen_c
  */
 public class ApplyDeptIdInputElementDescriptor implements DefaultHtmlElementDescriptorFactory{
 

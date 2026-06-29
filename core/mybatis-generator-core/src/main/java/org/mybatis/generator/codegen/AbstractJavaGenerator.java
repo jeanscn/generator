@@ -135,8 +135,9 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 defaultFields.addAll(entityAbstractParentEnum.fields());
             }
         });
+
         columns.forEach(c -> {
-            if (c.isGeneratedAlways() || c.isAutoIncrement()) {
+            if (c.isGeneratedAlways() || c.isAutoIncrement() || c.isIdentity() || c.isPrimaryKey()) {
                 // 如果是自动生成的主键或自增列，则不进行初始化
                 return;
             }
@@ -145,15 +146,17 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 if (!defaultFields.contains(c.getJavaProperty())) {
                     columnNames.add(c.getActualColumnName());
                 }
-                if ("CURRENT_TIMESTAMP".equals(defaultValue) || defaultValue.startsWith("now(") || defaultValue.startsWith("'now(")) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
-                    topLevelClass.addImportedType(V_DATE_UTILS);
-                } else if (defaultValue.startsWith("'curdate(") || defaultValue.startsWith("curdate(")) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDate();", c.getJavaProperty()));
-                    topLevelClass.addImportedType(V_DATE_UTILS);
-                } else if (defaultValue.startsWith("'curtime(") || defaultValue.startsWith("curtime(")) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentTime();", c.getJavaProperty()));
-                    topLevelClass.addImportedType(V_DATE_UTILS);
+                if (startWithCurrent(defaultValue)) {
+                    if (c.isJavaLocalDateTimeColumn() || c.isTimestampColumn()) {
+                        initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDatetime();", c.getJavaProperty()));
+                        topLevelClass.addImportedType(V_DATE_UTILS);
+                    } else if (c.isJavaLocalDateColumn() || c.isDateColumn()) {
+                        initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentDate();", c.getJavaProperty()));
+                        topLevelClass.addImportedType(V_DATE_UTILS);
+                    } else if (c.isTimeColumn()) {
+                        initializationBlock.addBodyLine(VStringUtil.format("this.{0} = VDateUtils.getCurrentTime();", c.getJavaProperty()));
+                        topLevelClass.addImportedType(V_DATE_UTILS);
+                    }
                 } else if (DbFiledDefaultValueEnum.ofCode(defaultValue) != null) {
                     // 这里需要重写getter，依赖ioc，只能进行懒加载
                     DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(defaultValue);
@@ -365,5 +368,15 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
         new SchemaPropertyDesc(filterMap.getRemark(), "filterParam = ‘{}’").addAnnotationToField(filterMap, topLevelClass);
         topLevelClass.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.adapter.web.FilterParam"));
        return  filterMap;
+    }
+
+    /**
+     * 判断默认值是否以CURRENT_TIMESTAMP、now(、'now(、'curdate(、curdate(、'curtime(、curtime(开头
+     * @param defaultValue  默认值
+     * @return 是否以CURRENT_TIMESTAMP、now(、'now(、'curdate(、curdate(、'curtime(、curtime(开头
+     */
+    protected boolean startWithCurrent(String defaultValue) {
+        List<String> startWithCurrent = Arrays.asList("CURRENT_TIMESTAMP", "now(", "'now(","'curdate(","curdate(","'curtime(","curtime(");
+        return startWithCurrent.stream().anyMatch(defaultValue::startsWith);
     }
 }

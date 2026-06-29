@@ -1,5 +1,6 @@
 package org.mybatis.generator.internal.db;
 
+import com.vgosoft.core.constant.SymbolConstants;
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.*;
@@ -203,7 +204,7 @@ public class DatabaseIntrospector {
         // actually exists in the table
         for (ColumnOverride columnOverride : tableConfiguration
                 .getColumnOverrides()) {
-            if (!abstractIntrospectedTable.getColumn(columnOverride.getColumnName()).isPresent()) {
+            if (abstractIntrospectedTable.getColumn(columnOverride.getColumnName()).isEmpty()) {
                 warnings.add(getString("Warning.3",
                         columnOverride.getColumnName(), table.toString()));
             }
@@ -217,7 +218,7 @@ public class DatabaseIntrospector {
         }
 
         tableConfiguration.getGeneratedKey().ifPresent(generatedKey -> {
-            if (!abstractIntrospectedTable.getColumn(generatedKey.getColumn()).isPresent()) {
+            if (abstractIntrospectedTable.getColumn(generatedKey.getColumn()).isEmpty()) {
                 if (generatedKey.isIdentity()) {
                     warnings.add(getString("Warning.5",
                             generatedKey.getColumn(), table.toString()));
@@ -564,7 +565,6 @@ public class DatabaseIntrospector {
             if (fkColumnNames.contains(introspectedColumn.getActualColumnName())) {
                 introspectedColumn.setForeignKey(true);
             }
-            //introspectedColumn.setRemarks(rs.getString("REMARKS"));
             String remark = null;
             if (!remarks.isEmpty()) {
                 remark = remarks.get(introspectedColumn.getActualColumnName());
@@ -639,8 +639,8 @@ public class DatabaseIntrospector {
         StringBuilder sb = new StringBuilder();
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
-            if (token.equals("_")
-                    || token.equals("%")) {
+            if (SymbolConstants.UNDERLINE.equals(token)
+                    || SymbolConstants.PERCENT.equals(token)) {
                 sb.append(escapeString);
             }
             sb.append(token);
