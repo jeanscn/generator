@@ -1,18 +1,16 @@
 package org.mybatis.generator.dbstrategy.introspectorstrategy;
 
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
-import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
 
 import java.sql.*;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author cen_c
  */
-public class OracleIntrospectorStrategy implements DatabaseIntrospectorStrategy {
+public class OracleIntrospectorStrategy extends QueryBackedRemarksIntrospectorStrategy {
     @Override
     public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) {
 
@@ -45,13 +43,4 @@ public class OracleIntrospectorStrategy implements DatabaseIntrospectorStrategy 
         return comments;
     }
 
-    @Override
-    public Map<String, String> getColumnRemarks(Connection conn, String tableName) {
-        return Collections.emptyMap();
-    }
-
-    @Override
-    public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) {
-
-    }
 }

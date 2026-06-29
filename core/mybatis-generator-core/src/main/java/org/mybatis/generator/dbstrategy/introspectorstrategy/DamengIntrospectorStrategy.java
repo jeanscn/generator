@@ -1,8 +1,6 @@
 package org.mybatis.generator.dbstrategy.introspectorstrategy;
 
-import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
-import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +13,7 @@ import java.util.Map;
 /**
  * @author cen_c
  */
-public class DamengIntrospectorStrategy implements DatabaseIntrospectorStrategy {
+public class DamengIntrospectorStrategy extends QueryBackedRemarksIntrospectorStrategy {
 
 	@Override
 	public void getIndexDetails(Connection conn, FullyQualifiedTable table,
@@ -56,53 +54,6 @@ public class DamengIntrospectorStrategy implements DatabaseIntrospectorStrategy 
 		Map<String, String> indexComments = new HashMap<>();
 		getIndexDetails(conn, table, indexComments, new HashMap<>());
 		return indexComments;
-	}
-
-	@Override
-	public Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException {
-		Map<String, String> remarks = new HashMap<>();
-		String schema = resolveCurrentSchema(conn);
-		// noinspection SqlResolve
-		String sql = "SELECT COLUMN_NAME, COMMENTS FROM ALL_COL_COMMENTS WHERE OWNER = ? AND TABLE_NAME = ?";
-
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, schema);
-			ps.setString(2, normalizeIdentifier(tableName));
-
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					String columnName = rs.getString("COLUMN_NAME");
-					String comment = rs.getString("COMMENTS");
-					if (columnName != null && comment != null) {
-						remarks.put(columnName, comment);
-					}
-				}
-			}
-		}
-		return remarks;
-	}
-
-	@Override
-	public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable,
-								  Connection conn) throws SQLException {
-		FullyQualifiedTable table = abstractIntrospectedTable.getFullyQualifiedTable();
-		String schema = resolveSchema(conn, table);
-		// noinspection SqlResolve
-		String sql = "SELECT COMMENTS FROM ALL_TAB_COMMENTS WHERE OWNER = ? AND TABLE_NAME = ?";
-
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, schema);
-			ps.setString(2, normalizeIdentifier(table.getIntrospectedTableName()));
-
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					String remark = rs.getString("COMMENTS");
-					if (remark != null && !remark.trim().isEmpty()) {
-						abstractIntrospectedTable.setRemarks(remark);
-					}
-				}
-			}
-		}
 	}
 
 	private String resolveSchema(Connection conn, FullyQualifiedTable table) throws SQLException {

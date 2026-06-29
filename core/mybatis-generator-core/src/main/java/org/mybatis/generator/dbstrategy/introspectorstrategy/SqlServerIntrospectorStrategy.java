@@ -1,8 +1,8 @@
 package org.mybatis.generator.dbstrategy.introspectorstrategy;
 
-import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.FullyQualifiedTable;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class SqlServerIntrospectorStrategy implements DatabaseIntrospectorStrategy {
 
     @Override
-    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) throws SQLException {
+    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) {
 
     }
 
@@ -45,11 +45,10 @@ public class SqlServerIntrospectorStrategy implements DatabaseIntrospectorStrate
     public Map<String, String> getColumnRemarks(Connection conn, String tableName) throws SQLException {
         Map<String, String> remarks = new HashMap<>();
         ResultSet sqlServerResultSet;
-        StringBuilder sb = new StringBuilder("SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS ");
-        sb.append("FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id ");
-        sb.append("LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id ");
-        sb.append("WHERE A.name = ? ");
-        PreparedStatement ps = conn.prepareStatement(sb.toString());
+        String sb = "SELECT  B.name AS NAME,convert(varchar(1000), C.VALUE) AS REMARKS " + "FROM sys.tables A INNER JOIN sys.columns B ON B.object_id = A.object_id " +
+                "LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id " +
+                "WHERE A.name = ? ";
+        PreparedStatement ps = conn.prepareStatement(sb);
         ps.setString(1, tableName);
         sqlServerResultSet = ps.executeQuery();
         while (sqlServerResultSet.next()) {
@@ -63,7 +62,7 @@ public class SqlServerIntrospectorStrategy implements DatabaseIntrospectorStrate
 
     @Override
     public void updateTableRemark(AbstractIntrospectedTable abstractIntrospectedTable, Connection conn) throws SQLException {
-        ResultSet sqlServerResultSet = null;
+        ResultSet sqlServerResultSet;
         String sql = "SELECT b.value from sysobjects a\n" +
                 "left join sys.extended_properties b on a.id=b.major_id and b.minor_id=0\n" +
                 "WHERE a.name = ? ";
