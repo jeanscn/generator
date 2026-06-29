@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration PUBLIC
  "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
- "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+ "http://mybatis.org/dtd/mybatis-generator-config_1_7_0.dtd">
 
 <generatorConfiguration>
   <!-- This should cause an error because sqlMapGenerator is required
        if there is no javaClientGenerator -->
-  <context id="MyBatis3NoClient" targetRuntime="MyBatis3" defaultModelType="flat">
+  <context id="MyBatis3NoClient" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3" defaultModelType="flat">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 
     <connectionFactory type="DEFAULT">
@@ -42,7 +42,7 @@
 
   <!-- This should cause an error because sqlMapGenerator is required
        for the XMLMAPPER client -->
-  <context id="MyBatis3XMLMapper" targetRuntime="MyBatis3" defaultModelType="flat">
+  <context id="MyBatis3XMLMapper" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3" defaultModelType="flat">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 
     <jdbcConnection driverClass="org.hsqldb.jdbcDriver"
@@ -80,7 +80,7 @@
 
   <!-- This should cause an error because sqlMapGenerator is required
        for the MIXEDMAPPER client -->
-  <context id="MyBatis3MixedMapper" targetRuntime="MyBatis3" defaultModelType="flat">
+  <context id="MyBatis3MixedMapper" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3" defaultModelType="flat">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 
     <commentGenerator>
@@ -122,7 +122,7 @@
 
   <!-- This should not cause an error because sqlMapGenerator is not required
        for the ANNOTATEDMAPPER client -->
-  <context id="MyBatis3AnnotatedMapper" targetRuntime="MyBatis3" defaultModelType="flat">
+  <context id="MyBatis3AnnotatedMapper" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3" defaultModelType="flat">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 
     <commentGenerator>

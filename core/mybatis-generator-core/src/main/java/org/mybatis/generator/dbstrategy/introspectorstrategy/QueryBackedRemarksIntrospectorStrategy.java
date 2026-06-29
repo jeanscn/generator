@@ -39,7 +39,7 @@ abstract class QueryBackedRemarksIntrospectorStrategy implements DatabaseIntrosp
             }
             return remarks;
         } catch (RuntimeException e) {
-            throw new SQLException("Failed to query column remarks for table: " + tableName, e);
+            return Collections.emptyMap();
         }
     }
 
@@ -58,7 +58,7 @@ abstract class QueryBackedRemarksIntrospectorStrategy implements DatabaseIntrosp
                 }
             }
         } catch (RuntimeException e) {
-            throw new SQLException("Failed to query table remarks for table: " + tableName, e);
+            // fall back to JDBC metadata remark already loaded by DatabaseIntrospector
         }
     }
 

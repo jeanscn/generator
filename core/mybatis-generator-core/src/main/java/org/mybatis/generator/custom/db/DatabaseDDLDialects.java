@@ -50,28 +50,36 @@ public enum DatabaseDDLDialects {
     }
 
     private static DatabaseDDLDialects getDialects(String database) {
+        if (database == null) {
+            return null;
+        }
+
+        String normalized = database.trim().toUpperCase();
         DatabaseDDLDialects returnValue = null;
-        if ("DB2".equalsIgnoreCase(database)) {
+        if ("DB2".equalsIgnoreCase(normalized)) {
             returnValue = DB2;
-        } else if ("MySQL".equalsIgnoreCase(database)) {
+        } else if ("MYSQL".equalsIgnoreCase(normalized)) {
             returnValue = MYSQL;
-        } else if ("SqlServer".equalsIgnoreCase(database)) {
+        } else if ("SQLSERVER".equalsIgnoreCase(normalized)
+                || normalized.contains("SQL SERVER")) {
             returnValue = SQLSERVER;
-        } else if ("Cloudscape".equalsIgnoreCase(database)) {
+        } else if ("CLOUDSCAPE".equalsIgnoreCase(normalized)) {
             returnValue = CLOUDSCAPE;
-        } else if ("Derby".equalsIgnoreCase(database)) {
+        } else if ("DERBY".equalsIgnoreCase(normalized)) {
             returnValue = DERBY;
-        } else if ("HSQLDB".equalsIgnoreCase(database)) {
+        } else if ("HSQLDB".equalsIgnoreCase(normalized)
+                || normalized.contains("HSQL")) {
             returnValue = HSQLDB;
-        } else if ("SYBASE".equalsIgnoreCase(database)) {
+        } else if ("SYBASE".equalsIgnoreCase(normalized)) {
             returnValue = SYBASE;
-        } else if ("DB2_MF".equalsIgnoreCase(database)) {
+        } else if ("DB2_MF".equalsIgnoreCase(normalized)) {
             returnValue = DB2_MF;
-        } else if ("Informix".equalsIgnoreCase(database)) {
+        } else if ("INFORMIX".equalsIgnoreCase(normalized)) {
             returnValue = INFORMIX;
-        } else if("H2".equalsIgnoreCase(database)) {
+        } else if("H2".equalsIgnoreCase(normalized)) {
             returnValue = H2;
-        } else if("DM DBMS".equalsIgnoreCase(database)) {
+        } else if("DM DBMS".equalsIgnoreCase(normalized)
+                || "DM".equalsIgnoreCase(normalized)) {
             returnValue = DM;
         }
         return returnValue;

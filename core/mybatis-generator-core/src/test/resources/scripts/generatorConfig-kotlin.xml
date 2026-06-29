@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration PUBLIC
  "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
- "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+ "http://mybatis.org/dtd/mybatis-generator-config_1_7_0.dtd">
 
 <generatorConfiguration>
 
-  <context id="kotlin" targetRuntime="MyBatis3Kotlin">
+  <context id="kotlin" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3Kotlin">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 
     <jdbcConnection driverClass="org.hsqldb.jdbcDriver"
@@ -60,7 +60,7 @@
     <table schema="mbgtest" tableName="Ids" domainObjectName="Id"/>
   </context>
 
-  <context id="kotlin-readonly" targetRuntime="MyBatis3Kotlin">
+  <context id="kotlin-readonly" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3Kotlin">
     <plugin type="org.mybatis.generator.plugins.dsql.ReadOnlyPlugin" />
 
     <jdbcConnection driverClass="org.hsqldb.jdbcDriver"
@@ -100,7 +100,7 @@
     </table>
   </context>
 
-  <context id="kotlin-miscellaneousTests_Annotated" targetRuntime="MyBatis3Kotlin">
+  <context id="kotlin-miscellaneousTests_Annotated" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3Kotlin">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
     <plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
     <plugin type="org.mybatis.generator.plugins.CacheNamespacePlugin" >
@@ -157,7 +157,7 @@
     </table>
   </context>
 
-  <context id="kotlin-modelonly" targetRuntime="MyBatis3Kotlin">
+  <context id="kotlin-modelonly" appKeyword="mbg" moduleKeyword="core" moduleName="MyBatis Generator" jdkVersion="17" targetRuntime="MyBatis3Kotlin">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
     <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
 

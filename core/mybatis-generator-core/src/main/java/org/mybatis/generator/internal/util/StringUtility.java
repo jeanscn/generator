@@ -143,6 +143,9 @@ public class StringUtility {
      * @return 字符串
      */
     public static String remarkLeft(String remark) {
+        if (remark == null) {
+            return null;
+        }
         return remark.split("[(（]")[0];
     }
 

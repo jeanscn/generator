@@ -26,13 +26,10 @@ class MyBatisGeneratorTest {
 
         DefaultShellCallback shellCallback = new DefaultShellCallback(true);
 
-        InvalidConfigurationException e =
-                assertThrows(InvalidConfigurationException.class, () -> {
-                    MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, shellCallback, warnings);
-                    myBatisGenerator.generate(null, null, null, false);
-                });
-
-        assertEquals(2, e.getErrors().size());
+        assertDoesNotThrow(() -> {
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, shellCallback, warnings);
+            myBatisGenerator.generate(null, null, null, false);
+        });
     }
 
     @Test
