@@ -1,5 +1,8 @@
 package org.mybatis.generator.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 /**
@@ -9,6 +12,8 @@ import java.util.List;
  * 2022-06-17 16:16
  * @version 3.0
  */
+@Setter
+@Getter
 public class SqlSchemaGeneratorConfiguration extends AbstractGeneratorConfiguration{
 
     public String filePrefix;
@@ -18,14 +23,6 @@ public class SqlSchemaGeneratorConfiguration extends AbstractGeneratorConfigurat
         this.targetProject = "src/main/resources/sql";
         this.filePrefix = "schema_";
         this.targetPackage = "schema";
-    }
-
-    public String getFilePrefix() {
-        return filePrefix;
-    }
-
-    public void setFilePrefix(String filePrefix) {
-        this.filePrefix = filePrefix;
     }
 
 

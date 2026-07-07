@@ -17,8 +17,8 @@ import java.util.Map;
 public class SqlServerIntrospectorStrategy implements DatabaseIntrospectorStrategy {
 
     @Override
-    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) {
-
+    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) throws SQLException {
+        indexComments.putAll(getIndexComments(conn, table));
     }
 
     @Override

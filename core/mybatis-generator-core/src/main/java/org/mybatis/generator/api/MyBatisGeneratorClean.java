@@ -10,15 +10,15 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.ClassloaderUtility.getCustomClassloader;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 public class MyBatisGeneratorClean {
 
     private static final ProgressCallback NULL_PROGRESS_CALLBACK = new ProgressCallback() {
@@ -41,17 +41,9 @@ public class MyBatisGeneratorClean {
             this.configuration = configuration;
         }
 
-        if (shellCallback == null) {
-            this.shellCallback = new DefaultShellCallback(false);
-        } else {
-            this.shellCallback = shellCallback;
-        }
+        this.shellCallback = Objects.requireNonNullElseGet(shellCallback, () -> new DefaultShellCallback(false));
 
-        if (warnings == null) {
-            this.warnings = new ArrayList<>();
-        } else {
-            this.warnings = warnings;
-        }
+        this.warnings = Objects.requireNonNullElseGet(warnings, ArrayList::new);
 
         this.configuration.validate();
     }
@@ -88,7 +80,7 @@ public class MyBatisGeneratorClean {
         int totalTables = 0;
         for (Context context : contextsToRun) {
             List<TableConfiguration> configurationList = context.getTableConfigurations().stream()
-                    .filter(TableConfiguration::isCleanAllGeneratedElements).collect(Collectors.toList());
+                    .filter(TableConfiguration::isCleanAllGeneratedElements).toList();
             context.getTableConfigurations().clear();
             context.getTableConfigurations().addAll(configurationList);
             totalTables += context.getTableConfigurations().size();

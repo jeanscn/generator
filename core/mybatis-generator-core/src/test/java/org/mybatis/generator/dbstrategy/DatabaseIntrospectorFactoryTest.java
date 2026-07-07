@@ -1,6 +1,7 @@
 package org.mybatis.generator.dbstrategy;
 
 import org.junit.jupiter.api.Test;
+import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.dbstrategy.introspectorstrategy.DamengIntrospectorStrategy;
 import org.mybatis.generator.dbstrategy.introspectorstrategy.GenericIntrospectorStrategy;
 import org.mybatis.generator.dbstrategy.introspectorstrategy.MysqlIntrospectorStrategy;
@@ -19,58 +20,101 @@ class DatabaseIntrospectorFactoryTest {
 
     @Test
     void shouldCreateMysqlStrategy() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("MySQL", "jdbc:mysql://localhost:3306/demo"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("MySQL", "jdbc:mysql://localhost:3306/demo"));
 
-        assertThat(strategy).isInstanceOf(MysqlIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(MysqlIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.MYSQL);
     }
 
     @Test
     void shouldCreateMysqlStrategyForMariaDbUrl() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("MySQL", "jdbc:mariadb://localhost:3306/demo"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("MySQL", "jdbc:mariadb://localhost:3306/demo"));
 
-        assertThat(strategy).isInstanceOf(MysqlIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(MysqlIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.MYSQL);
+    }
+
+    @Test
+    void shouldCreateMysqlStrategyForMariaDbProduct() throws SQLException {
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("MariaDB", "jdbc:unknown://localhost:3306/demo"));
+
+        assertThat(profile.introspectorStrategy()).isInstanceOf(MysqlIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.MYSQL);
     }
 
     @Test
     void shouldCreateSqlServerStrategy() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("Microsoft SQL Server", "jdbc:sqlserver://localhost:1433;databaseName=demo"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("Microsoft SQL Server", "jdbc:sqlserver://localhost:1433;databaseName=demo"));
 
-        assertThat(strategy).isInstanceOf(SqlServerIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(SqlServerIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.SQL_SERVER);
     }
 
     @Test
     void shouldCreateOracleStrategy() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("Oracle", "jdbc:oracle:thin:@localhost:1521:xe"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("Oracle", "jdbc:oracle:thin:@localhost:1521:xe"));
 
-        assertThat(strategy).isInstanceOf(OracleIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(OracleIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isNull();
     }
 
     @Test
     void shouldCreateDamengStrategy() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("DM DBMS", "jdbc:dm://localhost:5236"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("DM DBMS", "jdbc:dm://localhost:5236"));
 
-        assertThat(strategy).isInstanceOf(DamengIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(DamengIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.DM);
     }
 
     @Test
     void shouldCreatePostgreSqlStrategy() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("PostgreSQL", "jdbc:postgresql://localhost:5432/demo"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("PostgreSQL", "jdbc:postgresql://localhost:5432/demo"));
 
-        assertThat(strategy).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isNull();
+    }
+
+    @Test
+    void shouldCreatePostgreSqlStrategyForHighgo() throws SQLException {
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("HIGHGO", "jdbc:highgo://localhost:5866/demo"));
+
+        assertThat(profile.introspectorStrategy()).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isNull();
+    }
+
+    @Test
+    void shouldCreatePostgreSqlStrategyForKingbase() throws SQLException {
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("KingbaseES", "jdbc:kingbase8://localhost:54321/demo"));
+
+        assertThat(profile.introspectorStrategy()).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isNull();
+    }
+
+    @Test
+    void shouldCreateGenericStrategyForXugu() throws SQLException {
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("Xugu", "jdbc:xugu://localhost:5138/demo"));
+
+        assertThat(profile.introspectorStrategy()).isInstanceOf(GenericIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isNull();
     }
 
     @Test
     void shouldFallbackToGenericStrategyForUnsupportedDatabase() throws SQLException {
-        DatabaseIntrospectorStrategy strategy = DatabaseIntrospectorFactory
-                .createIntrospectorStrategy(connection("Firebird", "jdbc:firebirdsql://localhost:3050/demo"));
+        DatabaseProfile profile = DatabaseIntrospectorFactory
+                .createProfile(connection("Firebird", "jdbc:firebirdsql://localhost:3050/demo"));
 
-        assertThat(strategy).isInstanceOf(GenericIntrospectorStrategy.class);
+        assertThat(profile.introspectorStrategy()).isInstanceOf(GenericIntrospectorStrategy.class);
+        assertThat(profile.ddlDialect()).isNull();
     }
 
     private Connection connection(String productName, String jdbcUrl) {

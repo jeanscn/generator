@@ -8,6 +8,9 @@ import java.util.List;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public abstract class AbstractGeneratorConfiguration  extends TypedPropertyHolder{

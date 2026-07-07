@@ -13,14 +13,11 @@ import org.mybatis.generator.custom.db.DatabaseDDLDialects;
  */
 public class SqlDataSysModuleScriptGenerator extends AbstractSqlScriptGenerator {
 
-    private final DatabaseDDLDialects databaseDDLDialects;
-
-    public SqlDataSysModuleScriptGenerator(Context context, DatabaseDDLDialects databaseDDLDialects) {
+    public SqlDataSysModuleScriptGenerator(Context context, DatabaseDDLDialects databaseDdlDialects) {
         this.context = context;
-        this.databaseDDLDialects = databaseDDLDialects;
         lines.add("-- ----------------------------");
         lines.add(VStringUtil.format("-- Module Data for {0}", this.context.getModuleKeyword()));
-        lines.add("-- "+this.databaseDDLDialects.name());
+        lines.add("-- "+ databaseDdlDialects.name());
         lines.add("-- ----------------------------");
         lines.add("");
     }

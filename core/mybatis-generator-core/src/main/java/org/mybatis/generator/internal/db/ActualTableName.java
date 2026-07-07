@@ -1,5 +1,7 @@
 package org.mybatis.generator.internal.db;
 
+import lombok.Getter;
+
 import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
 
 /**
@@ -11,8 +13,11 @@ import static org.mybatis.generator.internal.util.StringUtility.composeFullyQual
  */
 public class ActualTableName {
 
+    @Getter
     private final String tableName;
+    @Getter
     private final String catalog;
+    @Getter
     private final String schema;
     private final String fullName;
 
@@ -22,18 +27,6 @@ public class ActualTableName {
         this.tableName = tableName;
         fullName = composeFullyQualifiedTableName(catalog,
                 schema, tableName, '.');
-    }
-
-    public String getCatalog() {
-        return catalog;
-    }
-
-    public String getSchema() {
-        return schema;
-    }
-
-    public String getTableName() {
-        return tableName;
     }
 
     @Override

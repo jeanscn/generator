@@ -2,6 +2,7 @@ package org.mybatis.generator.api;
 
 import lombok.Getter;
 import lombok.Setter;
+import com.vgosoft.core.db.query.DatabaseType;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GeneratedHtmlFile;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.GeneratedSqlSchemaFile;
@@ -99,7 +100,7 @@ public abstract class AbstractIntrospectedTable {
 
     protected FullyQualifiedTable fullyQualifiedTable;
 
-    protected String dbType;
+    protected DatabaseType dbType;
 
     protected Context context;
 

@@ -11,8 +11,8 @@ import java.util.Map;
  */
 public class OracleIntrospectorStrategy extends QueryBackedRemarksIntrospectorStrategy {
     @Override
-    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) {
-
+    public void getIndexDetails(Connection conn, FullyQualifiedTable table, Map<String, String> indexComments, Map<String, String> indexTypes) throws SQLException {
+        indexComments.putAll(getIndexComments(conn, table));
     }
 
     @Override

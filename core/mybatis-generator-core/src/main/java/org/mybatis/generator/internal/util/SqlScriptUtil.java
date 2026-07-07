@@ -5,6 +5,7 @@ import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 
 import java.sql.JDBCType;
 import java.util.List;
@@ -26,7 +27,12 @@ public class SqlScriptUtil {
              * sql模板
              * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `parent_id`;
              * */
-            DatabaseDDLDialects databaseDialect = DatabaseDDLDialects.getDatabaseDialect(databaseProductName);
+            DatabaseDDLDialects databaseDialect = DatabaseIntrospectorFactory
+                    .createProfile(databaseProductName, null)
+                    .ddlDialect();
+            if (databaseDialect == null) {
+                throw new IllegalArgumentException("Unsupported database dialect: " + databaseProductName);
+            }
             String columnStatement = databaseDialect.getColumnModifyStatement();
             String character = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
             String position = stringHasValue(col.getPosition()) ? " " + col.getPosition() : "";

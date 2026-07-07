@@ -5,6 +5,7 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.mybatis.generator.internal.db.DatabaseDialects;
 
 /**
@@ -15,10 +16,13 @@ import org.mybatis.generator.internal.db.DatabaseDialects;
  */
 public class GeneratedKey {
 
+    @Getter
     private final String column;
 
+    @Getter
     private final String runtimeSqlStatement;
 
+    @Getter
     private final boolean isIdentity;
 
     private final String type;
@@ -37,18 +41,6 @@ public class GeneratedKey {
         } else {
             this.runtimeSqlStatement = dialect.getIdentityRetrievalStatement();
         }
-    }
-
-    public String getColumn() {
-        return column;
-    }
-
-    public boolean isIdentity() {
-        return isIdentity;
-    }
-
-    public String getRuntimeSqlStatement() {
-        return runtimeSqlStatement;
     }
 
     public String getMyBatis3Order() {

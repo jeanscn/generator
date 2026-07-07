@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.mybatis.generate.GenerateSqlTemplate;
 import com.vgosoft.mybatis.sqlbuilder.InsertSqlBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -37,13 +38,16 @@ import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.SqlSchemaGeneratorConfiguration;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Locale;
 
 /**
  * Introspected table implementation for generating MyBatis3 artifacts.
@@ -386,13 +390,17 @@ public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
             if (StringUtility.stringHasValue(sqlSchemaGeneratorConfiguration.getFilePrefix())) {
                 fileName = sqlSchemaGeneratorConfiguration.getFilePrefix() + fileName;
             }
-            List<String> dbType = Arrays.asList("h2", this.getDbType());
-            for (String type : dbType) {
+            Set<DatabaseType> dbTypes = new LinkedHashSet<>(List.of(DatabaseType.H2, resolveCurrentDatabaseType()));
+            for (DatabaseType databaseType : dbTypes) {
+                DatabaseDDLDialects ddlDialects = DatabaseIntrospectorFactory.createProfile(databaseType).ddlDialect();
+                if (ddlDialects == null) {
+                    continue;
+                }
                 GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName + ".sql",
-                        type,
+                        databaseType.name().toLowerCase(Locale.ROOT),
                         sqlSchemaGeneratorConfiguration.getTargetProject(),
                         this,
-                        new SqlSchemaScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect(type.toUpperCase())));
+                        new SqlSchemaScriptGenerator(this, ddlDialects));
                 answer.add(generatedSqlSchemaFile);
             }
         }
@@ -406,11 +414,12 @@ public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
             return answer;
         }
         String fileName = "data-permission-" + this.getTableConfiguration().getTableName().toLowerCase() + ".sql";
+        DatabaseDDLDialects currentDialect = resolveCurrentDialect();
         GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
                 "init",
                 "src/main/resources/sql",
                 this,
-                new SqlDataPermissionScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+                new SqlDataPermissionScriptGenerator(this, currentDialect));
         answer.add(generatedSqlSchemaFile);
         return answer;
     }
@@ -422,13 +431,23 @@ public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
             return answer;
         }
         String fileName = "data-permission-action-" + this.getTableConfiguration().getTableName().toLowerCase() + ".sql";
+        DatabaseDDLDialects currentDialect = resolveCurrentDialect();
         GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName,
                 "init",
                 "src/main/resources/sql",
                 this,
-                new SqlDataPermissionActionScriptGenerator(this, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+                new SqlDataPermissionActionScriptGenerator(this, currentDialect));
         answer.add(generatedSqlSchemaFile);
         return answer;
+    }
+
+    private DatabaseDDLDialects resolveCurrentDialect() {
+        DatabaseDDLDialects dialect = DatabaseIntrospectorFactory.createProfile(resolveCurrentDatabaseType()).ddlDialect();
+        return dialect == null ? DatabaseDDLDialects.OTHER : dialect;
+    }
+
+    private DatabaseType resolveCurrentDatabaseType() {
+        return this.getDbType() == null ? DatabaseType.OTHER : this.getDbType();
     }
 
     @Override

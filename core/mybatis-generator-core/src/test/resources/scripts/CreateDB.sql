@@ -134,6 +134,27 @@ create table CompoundKey (
   primary key(id, updateDate)
 );
 
+create table MetaAdapterParent (
+  parent_id int not null,
+  parent_code varchar(20) not null,
+  parent_name varchar(30),
+  primary key(parent_id, parent_code)
+);
+
+create table MetaAdapterChild (
+  child_id int not null,
+  parent_id int not null,
+  parent_code varchar(20) not null,
+  seq_no int not null,
+  child_name varchar(30),
+  primary key(child_id),
+  constraint FK_META_ADAPTER_CHILD_PARENT foreign key (parent_id, parent_code)
+    references MetaAdapterParent(parent_id, parent_code)
+);
+
+create index IDX_META_ADAPTER_CHILD_LOOKUP on MetaAdapterChild (parent_id, parent_code);
+create index IDX_META_ADAPTER_CHILD_SEQ_NAME on MetaAdapterChild (seq_no, child_name);
+
 create table EnumTest (
   id int not null,
   name varchar(20) not null,

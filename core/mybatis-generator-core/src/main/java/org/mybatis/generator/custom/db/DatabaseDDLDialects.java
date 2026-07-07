@@ -1,6 +1,13 @@
 package org.mybatis.generator.custom.db;
 
+import com.vgosoft.core.db.query.DatabaseType;
 import lombok.Getter;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author cen_c
@@ -20,68 +27,142 @@ public enum DatabaseDDLDialects {
      * {6}备注
      * {7}位置
      */
-    DB2("",""),
-    MYSQL("{0} COLUMN `{1}` {2}{3}{4}{5}COMMENT ''{6}''{7}","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''"),
-    SQLSERVER("",""),
-    CLOUDSCAPE("",""),
-    DERBY("",""),
-    HSQLDB("",""),
-    SYBASE("",""),
-    DB2_MF("",""),
-    H2("","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''"),
-    INFORMIX("",""),
-    DM("","    `{0}` {1}{2}{3}{4}COMMENT ''{5}''");
+
+    MYSQL("{0} COLUMN {1} {2}{3}{4}{5}COMMENT ''{6}''{7}", "    {0} {1}{2}{3}{4}COMMENT ''{5}''", DatabaseType.MYSQL),
+    MARIADB("{0} COLUMN {1} {2}{3}{4}{5}COMMENT ''{6}''{7}", "    {0} {1}{2}{3}{4}COMMENT ''{5}''", DatabaseType.MARIADB),
+    ORACLE("{0} ({1} {2}{3}{5})", "    {0} {1}{2}{4}", DatabaseType.ORACLE),
+    /**
+     * db2数据库
+     */
+    DB2("{0} COLUMN {1} SET DATA TYPE {2}{3}", "    {0} {1}{2}{4}", DatabaseType.DB2),
+    H2("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{3}{4}COMMENT ''{5}''", DatabaseType.H2),
+    HSQL("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{3}{4}", DatabaseType.HSQL),
+    SQLITE("", "    {0} {1}{2}{4}", DatabaseType.SQLITE),
+    POSTGRE_SQL("{0} COLUMN {1} TYPE {2}{3}", "    {0} {1}{2}{4}", DatabaseType.POSTGRE_SQL),
+    SQL_SERVER2005("{0} {1} {2}{3}{5}", "    {0} {1}{2}{4}", DatabaseType.SQL_SERVER2005, "SQLSERVER2005"),
+    SQL_SERVER("{0} {1} {2}{3}{5}", "    {0} {1}{2}{4}", DatabaseType.SQL_SERVER, "SQLSERVER"),
+    DM("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{3}{4}", DatabaseType.DM),
+    HIGHGO("{0} COLUMN {1} TYPE {2}{3}", "    {0} {1}{2}{4}", DatabaseType.HIGHGO),
+    XU_GU("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{4}", DatabaseType.XU_GU),
+    KINGBASE_ES("{0} COLUMN {1} TYPE {2}{3}", "    {0} {1}{2}{4}", DatabaseType.KINGBASE_ES),
+    PHOENIX("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{4}", DatabaseType.PHOENIX),
+    CACHEDB("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{4}", DatabaseType.CACHEDB),
+    OTHER("{0} COLUMN {1} {2}{3}{4}", "    {0} {1}{2}{4}", DatabaseType.OTHER);
+
+    private static final Map<String, DatabaseDDLDialects> DIALECTS_BY_KEY = createDialectsByKey();
 
     private final String columnModifyStatement;
     private final String createStatement;
+    private final Set<String> mappingKeys;
 
-    DatabaseDDLDialects(String columnModifyStatement,String createStatement) {
+    DatabaseDDLDialects(String columnModifyStatement, String createStatement, DatabaseType databaseType,
+                        String... aliases) {
         this.columnModifyStatement = columnModifyStatement;
         this.createStatement = createStatement;
+        Set<String> keys = new LinkedHashSet<>();
+        keys.add(databaseType.name());
+        keys.add(normalizeKey(databaseType.getName()));
+        for (String alias : aliases) {
+            keys.add(normalizeKey(alias));
+        }
+        this.mappingKeys = Collections.unmodifiableSet(keys);
     }
 
-    /**
-     * 获取数据库方言。
-     * @param database 数据库
-     * @return 为所选数据库创建数据库方言。如果所选数据库没有已知方言，则可能返回null
-     */
     public static DatabaseDDLDialects getDatabaseDialect(String database) {
-        return getDialects(database);
-    }
-
-    private static DatabaseDDLDialects getDialects(String database) {
         if (database == null) {
             return null;
         }
+        return DIALECTS_BY_KEY.get(normalizeKey(database));
+    }
 
-        String normalized = database.trim().toUpperCase();
-        DatabaseDDLDialects returnValue = null;
-        if ("DB2".equalsIgnoreCase(normalized)) {
-            returnValue = DB2;
-        } else if ("MYSQL".equalsIgnoreCase(normalized)) {
-            returnValue = MYSQL;
-        } else if ("SQLSERVER".equalsIgnoreCase(normalized)
-                || normalized.contains("SQL SERVER")) {
-            returnValue = SQLSERVER;
-        } else if ("CLOUDSCAPE".equalsIgnoreCase(normalized)) {
-            returnValue = CLOUDSCAPE;
-        } else if ("DERBY".equalsIgnoreCase(normalized)) {
-            returnValue = DERBY;
-        } else if ("HSQLDB".equalsIgnoreCase(normalized)
-                || normalized.contains("HSQL")) {
-            returnValue = HSQLDB;
-        } else if ("SYBASE".equalsIgnoreCase(normalized)) {
-            returnValue = SYBASE;
-        } else if ("DB2_MF".equalsIgnoreCase(normalized)) {
-            returnValue = DB2_MF;
-        } else if ("INFORMIX".equalsIgnoreCase(normalized)) {
-            returnValue = INFORMIX;
-        } else if("H2".equalsIgnoreCase(normalized)) {
-            returnValue = H2;
-        } else if("DM DBMS".equalsIgnoreCase(normalized)
-                || "DM".equalsIgnoreCase(normalized)) {
-            returnValue = DM;
+    public static DatabaseDDLDialects getDatabaseDialect(DatabaseType databaseType) {
+        if (databaseType == null) {
+            return null;
         }
-        return returnValue;
+        return DIALECTS_BY_KEY.get(databaseType.name());
+    }
+
+    private static Map<String, DatabaseDDLDialects> createDialectsByKey() {
+        Map<String, DatabaseDDLDialects> dialectsByKey = new LinkedHashMap<>();
+        for (DatabaseDDLDialects dialect : values()) {
+            for (String key : dialect.mappingKeys) {
+                dialectsByKey.put(key, dialect);
+            }
+        }
+        return Collections.unmodifiableMap(dialectsByKey);
+    }
+
+    private static String normalizeKey(String key) {
+        return key == null ? null : key.trim().toUpperCase().replace(' ', '_').replace('-', '_');
+    }
+
+    public String quoteIdentifier(String identifier) {
+        if (identifier == null) {
+            return "";
+        }
+        return switch (this) {
+            case SQL_SERVER, SQL_SERVER2005 -> "[" + identifier + "]";
+            case ORACLE, DB2, POSTGRE_SQL, HIGHGO, KINGBASE_ES, XU_GU, DM, PHOENIX, CACHEDB -> "\"" + identifier + "\"";
+            default -> "`" + identifier + "`";
+        };
+    }
+
+    public String escapeSqlLiteral(String value) {
+        return value == null ? "" : value.replace("'", "''");
+    }
+
+    public boolean supportsCreateTableIfNotExists() {
+        return switch (this) {
+            case MYSQL, MARIADB, H2, HSQL, SQLITE -> true;
+            default -> false;
+        };
+    }
+
+    public boolean supportsInlineColumnComment() {
+        return switch (this) {
+            case MYSQL, MARIADB, H2 -> true;
+            default -> false;
+        };
+    }
+
+    public boolean supportsInlineTableComment() {
+        return switch (this) {
+            case MYSQL, MARIADB, H2 -> true;
+            default -> false;
+        };
+    }
+
+    public boolean supportsCommentOnStatement() {
+        return !supportsInlineColumnComment();
+    }
+
+    public boolean supportsIndexUsingClause() {
+        return switch (this) {
+            case MYSQL, MARIADB -> true;
+            default -> false;
+        };
+    }
+
+    public boolean supportsInlineIndexDefinition() {
+        return switch (this) {
+            case ORACLE, POSTGRE_SQL, HIGHGO, KINGBASE_ES, SQL_SERVER, SQL_SERVER2005, SQLITE -> false;
+            default -> true;
+        };
+    }
+
+    public boolean supportsIndexCommentClause() {
+        return switch (this) {
+            case MYSQL, MARIADB -> true;
+            default -> false;
+        };
+    }
+
+    public String createTableSuffix(String tableRemark) {
+        String safeRemark = escapeSqlLiteral(tableRemark);
+        return switch (this) {
+            case MYSQL, MARIADB -> " ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '" + safeRemark + "' ROW_FORMAT = Dynamic";
+            case H2 -> " COMMENT '" + safeRemark + "'";
+            default -> "";
+        };
     }
 }

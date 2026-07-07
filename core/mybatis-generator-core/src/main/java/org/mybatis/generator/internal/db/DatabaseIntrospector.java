@@ -1,6 +1,14 @@
 package org.mybatis.generator.internal.db;
 
 import com.vgosoft.core.constant.SymbolConstants;
+import com.vgosoft.core.db.model.metadata.Column;
+import com.vgosoft.core.db.model.metadata.ForeignKey;
+import com.vgosoft.core.db.model.metadata.Index;
+import com.vgosoft.core.db.model.metadata.PrimaryKey;
+import com.vgosoft.core.db.model.metadata.Table;
+import com.vgosoft.core.db.query.Capability;
+import com.vgosoft.core.db.query.DatabaseType;
+import com.vgosoft.core.db.util.JdbcUtils;
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorStrategy;
 import org.mybatis.generator.api.*;
@@ -12,6 +20,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
 
+import java.sql.JDBCType;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -38,6 +47,7 @@ public class DatabaseIntrospector {
     private final Connection connection;
 
     private final DatabaseIntrospectorStrategy strategy;
+    private final DatabaseQueryMetadataAdapter metadataAdapter;
 
     public DatabaseIntrospector(Context context,
                                 DatabaseMetaData databaseMetaData,
@@ -51,10 +61,90 @@ public class DatabaseIntrospector {
         logger = LogFactory.getLog(getClass());
         this.connection = databaseMetaData.getConnection();
         this.strategy = DatabaseIntrospectorFactory.createIntrospectorStrategy(this.connection);
+        this.metadataAdapter = new DatabaseQueryMetadataAdapter(this.connection);
+    }
+
+    /**
+     * Returns a List of IntrospectedTable elements that matches the specified table configuration.
+     *
+     * @param tc the table configuration
+     * @return a list of introspected tables
+     * @throws SQLException if any errors in introspection
+     */
+    public List<AbstractIntrospectedTable> introspectTables(TableConfiguration tc)
+            throws SQLException {
+
+        // 从数据库中获取原始列
+        Map<ActualTableName, List<IntrospectedColumn>> columns = getColumns(tc);
+
+        if (columns.isEmpty()) {
+            warnings.add(getString("Warning.19", tc.getCatalog(),
+                    tc.getSchema(), tc.getTableName()));
+            return Collections.emptyList();
+        }
+
+        //去除忽略的列,根据配置文件<ignoreColumn column=""/>
+        removeIgnoredColumns(tc, columns);
+        //重命名
+        calculateExtraColumnInformation(tc, columns);
+        //override
+        applyColumnOverrides(tc, columns);
+        //主键
+        calculateIdentityColumns(tc, columns);
+
+        List<AbstractIntrospectedTable> abstractIntrospectedTables = calculateIntrospectedTables(tc, columns);
+
+        // now introspectedTables has all the columns from all the
+        // tables in the configuration. Do some validation...
+        // introspectedTables配置中所有表中的所有列。做一些验证
+
+        Iterator<AbstractIntrospectedTable> iter = abstractIntrospectedTables.iterator();
+        while (iter.hasNext()) {
+            AbstractIntrospectedTable abstractIntrospectedTable = iter.next();
+
+            if (!abstractIntrospectedTable.hasAnyColumns()) {
+                // add warning that the table has no columns, remove from the
+                // list
+                String warning = getString("Warning.1", abstractIntrospectedTable.getFullyQualifiedTable().toString());
+                warnings.add(warning);
+                iter.remove();
+            } else if (!abstractIntrospectedTable.hasPrimaryKeyColumns() && !abstractIntrospectedTable.hasBaseColumns()) {
+                // add warning that the table has only BLOB columns, remove from
+                // the list
+                String warning = getString("Warning.18", abstractIntrospectedTable.getFullyQualifiedTable().toString());
+                warnings.add(warning);
+                iter.remove();
+            } else {
+                // now make sure that all columns called out in the
+                // configuration
+                // actually exist
+                reportIntrospectionWarnings(abstractIntrospectedTable, tc, abstractIntrospectedTable.getFullyQualifiedTable());
+            }
+        }
+
+        return abstractIntrospectedTables;
     }
 
     private void calculatePrimaryKey(FullyQualifiedTable table,
                                      AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (metadataAdapter.supports(Capability.PRIMARY_KEY)) {
+            try {
+                // keep primary columns in key sequence order
+                Map<Short, String> keyColumns = new TreeMap<>();
+                for (PrimaryKey primaryKey : metadataAdapter.getPrimaryKeys(table.getIntrospectedTableName())) {
+                    String columnName = primaryKey.getColumnName();
+                    short keySeq = safeParseShort(primaryKey.getKeySeq(), (short) 0);
+                    keyColumns.put(keySeq, columnName);
+                }
+                for (String columnName : keyColumns.values()) {
+                    abstractIntrospectedTable.addPrimaryKeyColumn(columnName);
+                }
+                return;
+            } catch (RuntimeException e) {
+                warnings.add(getString("Warning.27", e.getMessage()));
+            }
+        }
+
         ResultSet rs;
         try {
             rs = databaseMetaData.getPrimaryKeys(
@@ -86,6 +176,62 @@ public class DatabaseIntrospector {
     }
 
     private void calculateIndex(FullyQualifiedTable table, AbstractIntrospectedTable abstractIntrospectedTable) {
+        Map<String, String> indexTypes = new HashMap<>();
+        Map<String, String> indexComments = new HashMap<>();
+        try {
+            strategy.getIndexDetails(this.connection, table, indexComments, indexTypes);
+            if (indexComments.isEmpty()) {
+                indexComments.putAll(strategy.getIndexComments(this.connection, table));
+            }
+        } catch (SQLException e) {
+            warnings.add(getString("Warning.27", e.getMessage()));
+        }
+
+        if (metadataAdapter.supports(Capability.INDEX)) {
+            try {
+                Map<String, IndexInfo> indexInfoMap = new HashMap<>();
+                for (Index index : metadataAdapter.getIndexes(table.getIntrospectedTableName())) {
+                    String indexName = index.getIndexName();
+                    if (!stringHasValue(indexName) || "PRIMARY".equalsIgnoreCase(indexName)) {
+                        continue;
+                    }
+
+                    String columnName = index.getColumnName();
+                    if (!stringHasValue(columnName)) {
+                        continue;
+                    }
+
+                    boolean nonUnique = isTruthy(index.getNonUnique());
+                    short ordinalPosition = safeParseShort(index.getOrdinalPosition(), (short) 0);
+                    String ascOrDesc = index.getAscOrDesc();
+
+                    String indexType = indexTypes.get(indexName);
+                    if (!stringHasValue(indexType)) {
+                        indexType = index.getType();
+                    }
+
+                    String indexComment = indexComments.get(indexName);
+                    if (!stringHasValue(indexComment)) {
+                        indexComment = stringHasValue(index.getComment())
+                                ? index.getComment()
+                                : "Index on " + columnName;
+                    }
+
+                    IndexInfo indexInfo = indexInfoMap.computeIfAbsent(indexName, k -> new IndexInfo(indexName, !nonUnique));
+                    indexInfo.setType(indexType);
+                    indexInfo.setComments(indexComment);
+                    indexInfo.addColumn(columnName, ordinalPosition, ascOrDesc);
+                }
+
+                for (IndexInfo indexInfo : indexInfoMap.values()) {
+                    abstractIntrospectedTable.addIndex(indexInfo);
+                }
+                return;
+            } catch (RuntimeException e) {
+                warnings.add(getString("Warning.27", e.getMessage()));
+            }
+        }
+
         ResultSet rs = null;
         try {
             rs = databaseMetaData.getIndexInfo(
@@ -96,9 +242,6 @@ public class DatabaseIntrospector {
                     true);
             // 使用Map存储索引信息，以索引名为键
             Map<String, IndexInfo> indexInfoMap = new HashMap<>();
-            Map<String, String> indexTypes = new HashMap<>();
-            Map<String, String> indexComments = strategy.getIndexComments(this.connection,table);
-            strategy.getIndexDetails(this.connection, table, indexComments, indexTypes);
             while (rs.next()) {
                 String indexName = rs.getString("INDEX_NAME");
                 // 过滤掉主键索引和空索引名
@@ -145,6 +288,42 @@ public class DatabaseIntrospector {
     }
 
     private void calculateForeignKeys(FullyQualifiedTable table, AbstractIntrospectedTable abstractIntrospectedTable) {
+        if (metadataAdapter.supports(Capability.FOREIGN_KEY)) {
+            try {
+                Map<String, List<ForeignKeyInfo>> foreignKeys = new HashMap<>();
+                for (ForeignKey foreignKey : metadataAdapter.getForeignKeys(table.getIntrospectedTableName())) {
+                    String fkName = foreignKey.getFkName();
+                    String pkTableName = foreignKey.getPkTableName();
+                    String pkColumnName = foreignKey.getPkColumnName();
+                    String fkColumnName = foreignKey.getFkColumnName();
+                    short keySeq = safeParseShort(foreignKey.getKeySeq(), (short) 0);
+                    ForeignKeyInfo fkInfo = new ForeignKeyInfo(
+                            fkName,
+                            pkTableName,
+                            pkColumnName,
+                            fkColumnName,
+                            (short) DatabaseMetaData.importedKeyNoAction,
+                            (short) DatabaseMetaData.importedKeyNoAction,
+                            keySeq);
+                    foreignKeys.computeIfAbsent(fkName, k -> new ArrayList<>()).add(fkInfo);
+                    abstractIntrospectedTable.getColumn(fkColumnName).ifPresent(column -> {
+                        column.setForeignKey(true);
+                        column.addProperty("FK_NAME", fkName);
+                        column.addProperty("PK_TABLE_NAME", pkTableName);
+                        column.addProperty("PK_COLUMN_NAME", pkColumnName);
+                    });
+                }
+
+                foreignKeys.forEach((fkName, fkInfos) -> {
+                    fkInfos.sort(Comparator.comparing(ForeignKeyInfo::getKeySeq));
+                    abstractIntrospectedTable.addForeignKey(fkName, fkInfos);
+                });
+                return;
+            } catch (RuntimeException e) {
+                warnings.add(getString("Warning.16", e.getMessage()));
+            }
+        }
+
         ResultSet rs = null;
         try {
             rs = databaseMetaData.getImportedKeys(
@@ -237,66 +416,7 @@ public class DatabaseIntrospector {
         }
     }
 
-    /**
-     * Returns a List of IntrospectedTable elements that matches the specified table configuration.
-     *
-     * @param tc the table configuration
-     * @return a list of introspected tables
-     * @throws SQLException if any errors in introspection
-     */
-    public List<AbstractIntrospectedTable> introspectTables(TableConfiguration tc)
-            throws SQLException {
 
-        // 从数据库中获取原始列
-        Map<ActualTableName, List<IntrospectedColumn>> columns = getColumns(tc);
-
-        if (columns.isEmpty()) {
-            warnings.add(getString("Warning.19", tc.getCatalog(),
-                    tc.getSchema(), tc.getTableName()));
-            return Collections.emptyList();
-        }
-
-        //去除忽略的列,根据配置文件<ignoreColumn column=""/>
-        removeIgnoredColumns(tc, columns);
-        //重命名
-        calculateExtraColumnInformation(tc, columns);
-        //override
-        applyColumnOverrides(tc, columns);
-        //主键
-        calculateIdentityColumns(tc, columns);
-
-        List<AbstractIntrospectedTable> abstractIntrospectedTables = calculateIntrospectedTables(tc, columns);
-
-        // now introspectedTables has all the columns from all the
-        // tables in the configuration. Do some validation...
-        // introspectedTables配置中所有表中的所有列。做一些验证
-
-        Iterator<AbstractIntrospectedTable> iter = abstractIntrospectedTables.iterator();
-        while (iter.hasNext()) {
-            AbstractIntrospectedTable abstractIntrospectedTable = iter.next();
-
-            if (!abstractIntrospectedTable.hasAnyColumns()) {
-                // add warning that the table has no columns, remove from the
-                // list
-                String warning = getString("Warning.1", abstractIntrospectedTable.getFullyQualifiedTable().toString());
-                warnings.add(warning);
-                iter.remove();
-            } else if (!abstractIntrospectedTable.hasPrimaryKeyColumns() && !abstractIntrospectedTable.hasBaseColumns()) {
-                // add warning that the table has only BLOB columns, remove from
-                // the list
-                String warning = getString("Warning.18", abstractIntrospectedTable.getFullyQualifiedTable().toString());
-                warnings.add(warning);
-                iter.remove();
-            } else {
-                // now make sure that all columns called out in the
-                // configuration
-                // actually exist
-                reportIntrospectionWarnings(abstractIntrospectedTable, tc, abstractIntrospectedTable.getFullyQualifiedTable());
-            }
-        }
-
-        return abstractIntrospectedTables;
-    }
 
     private void removeIgnoredColumns(TableConfiguration tc,
                                       Map<ActualTableName, List<IntrospectedColumn>> columns) {
@@ -528,12 +648,73 @@ public class DatabaseIntrospector {
         }
 
         Set<String> fkColumnNames = new HashSet<>();
-        ResultSet importedKeys = databaseMetaData.getImportedKeys(localCatalog, localSchema, localTableName);
-        if (importedKeys.next()) {
-            String fkColumnName = importedKeys.getString("FKCOLUMN_NAME");
-            fkColumnNames.add(fkColumnName);
+        if (metadataAdapter.supports(Capability.FOREIGN_KEY)) {
+            try {
+                for (ForeignKey foreignKey : metadataAdapter.getForeignKeys(localTableName)) {
+                    if (stringHasValue(foreignKey.getFkColumnName())) {
+                        fkColumnNames.add(foreignKey.getFkColumnName());
+                    }
+                }
+            } catch (RuntimeException e) {
+                warnings.add(getString("Warning.16", e.getMessage()));
+            }
         }
-        closeResultSet(importedKeys);
+        if (fkColumnNames.isEmpty()) {
+            ResultSet importedKeys = databaseMetaData.getImportedKeys(localCatalog, localSchema, localTableName);
+            while (importedKeys.next()) {
+                String fkColumnName = importedKeys.getString("FKCOLUMN_NAME");
+                if (stringHasValue(fkColumnName)) {
+                    fkColumnNames.add(fkColumnName);
+                }
+            }
+            closeResultSet(importedKeys);
+        }
+
+        Map<String, String> remarks = strategy.getColumnRemarks(connection, localTableName);
+        int order = 10;
+        if (metadataAdapter.supports(Capability.COLUMN)) {
+            try {
+                for (Column column : metadataAdapter.getTableColumns(localTableName)) {
+                    IntrospectedColumn introspectedColumn = ObjectFactory.createIntrospectedColumn(context);
+                    introspectedColumn.setTableAlias(tc.getAlias());
+                    introspectedColumn.setJdbcType(resolveJdbcType(column));
+                    introspectedColumn.setActualTypeName(column.getTypeName());
+                    introspectedColumn.setLength(safeParseInt(column.getColumnSize(), 0));
+                    introspectedColumn.setActualColumnName(column.getColumnName());
+                    introspectedColumn.setNullable(isNullable(column.getNullable()));
+                    introspectedColumn.setScale(safeParseInt(column.getDecimalDigits(), 0));
+                    if (fkColumnNames.contains(introspectedColumn.getActualColumnName())) {
+                        introspectedColumn.setForeignKey(true);
+                    }
+                    String remark = remarks.get(introspectedColumn.getActualColumnName());
+                    introspectedColumn.setRemarks(remark != null ? remark : column.getRemarks());
+                    introspectedColumn.setDefaultValue(column.getColumnDef());
+                    introspectedColumn.setAutoIncrement(isTruthy(invokeGetter(column, "getAutoIncrement")));
+                    introspectedColumn.setGeneratedColumn(isTruthy(invokeGetter(column, "getGeneratedColumn")));
+
+                    ActualTableName atn = new ActualTableName(
+                            stringHasValue(invokeGetter(column, "getTableCat")) ? invokeGetter(column, "getTableCat") : localCatalog,
+                            stringHasValue(invokeGetter(column, "getTableSchem")) ? invokeGetter(column, "getTableSchem") : localSchema,
+                            stringHasValue(column.getTableName()) ? column.getTableName() : localTableName);
+
+                    List<IntrospectedColumn> columns = answer.computeIfAbsent(atn, k -> new ArrayList<>());
+                    introspectedColumn.setOrder(order);
+                    columns.add(introspectedColumn);
+                    order++;
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(getString(
+                                "Tracing.2",
+                                introspectedColumn.getActualColumnName(),
+                                Integer.toString(introspectedColumn.getJdbcType()),
+                                atn.toString()));
+                    }
+                }
+                return handleMultipleTableWarning(tc, answer, localSchema, localTableName);
+            } catch (RuntimeException e) {
+                warnings.add(getString("Warning.27", e.getMessage()));
+            }
+        }
 
         ResultSet rs = databaseMetaData.getColumns(localCatalog, localSchema, localTableName, "%");
 
@@ -550,8 +731,6 @@ public class DatabaseIntrospector {
             }
         }
 
-        Map<String, String> remarks = strategy.getColumnRemarks(connection,localTableName);
-        int order = 10;
         while (rs.next()) {
             IntrospectedColumn introspectedColumn = ObjectFactory.createIntrospectedColumn(context);
 
@@ -565,10 +744,7 @@ public class DatabaseIntrospector {
             if (fkColumnNames.contains(introspectedColumn.getActualColumnName())) {
                 introspectedColumn.setForeignKey(true);
             }
-            String remark = null;
-            if (!remarks.isEmpty()) {
-                remark = remarks.get(introspectedColumn.getActualColumnName());
-            }
+            String remark = remarks.get(introspectedColumn.getActualColumnName());
             if (remark != null) {
                 introspectedColumn.setRemarks(remark);
             } else {
@@ -608,6 +784,14 @@ public class DatabaseIntrospector {
 
         closeResultSet(rs);
 
+        return handleMultipleTableWarning(tc, answer, localSchema, localTableName);
+    }
+
+    private Map<ActualTableName, List<IntrospectedColumn>> handleMultipleTableWarning(
+            TableConfiguration tc,
+            Map<ActualTableName, List<IntrospectedColumn>> answer,
+            String localSchema,
+            String localTableName) {
         if (answer.size() > 1
                 && !stringContainsSqlWildcard(localSchema)
                 && !stringContainsSqlWildcard(localTableName)) {
@@ -630,8 +814,127 @@ public class DatabaseIntrospector {
             warnings.add(getString("Warning.25",
                     inputAtn.toString(), sb.toString()));
         }
-
         return answer;
+    }
+
+    private int safeParseInt(String value, int defaultValue) {
+        if (!stringHasValue(value)) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private short safeParseShort(String value, short defaultValue) {
+        if (!stringHasValue(value)) {
+            return defaultValue;
+        }
+        try {
+            return Short.parseShort(value.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private int resolveJdbcType(Column column) {
+        int value = safeParseInt(invokeGetter(column, "getDataType"), Integer.MIN_VALUE);
+        if (value != Integer.MIN_VALUE) {
+            return value;
+        }
+        value = safeParseInt(invokeGetter(column, "getJdbcType"), Integer.MIN_VALUE);
+        if (value != Integer.MIN_VALUE) {
+            return value;
+        }
+        value = safeParseInt(column.getColumnType(), Integer.MIN_VALUE);
+        if (value != Integer.MIN_VALUE) {
+            return value;
+        }
+
+        value = resolveJdbcTypeFromName(column.getTypeName());
+        if (value != Types.OTHER) {
+            return value;
+        }
+
+        return resolveJdbcTypeFromName(column.getColumnType());
+    }
+
+    private int resolveJdbcTypeFromName(String typeName) {
+        if (!stringHasValue(typeName)) {
+            return Types.OTHER;
+        }
+
+        String normalized = typeName.trim().toUpperCase(Locale.ROOT);
+        int bracketIndex = normalized.indexOf('(');
+        if (bracketIndex > 0) {
+            normalized = normalized.substring(0, bracketIndex).trim();
+        }
+        normalized = normalized.replace(" UNSIGNED", "").trim();
+
+        int spaceIndex = normalized.indexOf(' ');
+        if (spaceIndex > 0) {
+            normalized = normalized.substring(0, spaceIndex);
+        }
+
+        try {
+            return JDBCType.valueOf(normalized).getVendorTypeNumber();
+        } catch (IllegalArgumentException e) {
+            // fall through
+        }
+
+        return switch (normalized) {
+            case "INT" -> Types.INTEGER;
+            case "DATETIME" -> Types.TIMESTAMP;
+            case "BOOL" -> Types.BOOLEAN;
+            case "NUMBER" -> Types.NUMERIC;
+            case "TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "VARCHAR2", "NVARCHAR2", "UUID" -> Types.VARCHAR;
+            case "BYTEA" -> Types.BINARY;
+            default -> Types.OTHER;
+        };
+    }
+
+    private boolean isTruthy(String value) {
+        if (!stringHasValue(value)) {
+            return false;
+        }
+        String normalized = value.trim();
+        if ("1".equals(normalized)) {
+            return true;
+        }
+        if ("0".equals(normalized)) {
+            return false;
+        }
+        return "Y".equalsIgnoreCase(normalized)
+                || "YES".equalsIgnoreCase(normalized)
+                || "TRUE".equalsIgnoreCase(normalized);
+    }
+
+    private boolean isNullable(String value) {
+        if (!stringHasValue(value)) {
+            return false;
+        }
+        String normalized = value.trim();
+        if ("1".equals(normalized)) {
+            return true;
+        }
+        if ("0".equals(normalized)) {
+            return false;
+        }
+        return "Y".equalsIgnoreCase(normalized)
+                || "YES".equalsIgnoreCase(normalized)
+                || "TRUE".equalsIgnoreCase(normalized)
+                || "NULLABLE".equalsIgnoreCase(normalized);
+    }
+
+    private String invokeGetter(Object source, String methodName) {
+        try {
+            Object value = source.getClass().getMethod(methodName).invoke(source);
+            return value == null ? null : String.valueOf(value);
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
     }
 
     private String escapeName(String localName, String escapeString) {
@@ -682,8 +985,10 @@ public class DatabaseIntrospector {
 
             AbstractIntrospectedTable introspectedTable = ObjectFactory.createIntrospectedTable(tc, table, context);
 
-            String dbType = this.databaseMetaData.getDatabaseProductName().toLowerCase();
-            introspectedTable.setDbType(dbType);
+            String productName = this.databaseMetaData.getDatabaseProductName();
+            String jdbcUrl = this.databaseMetaData.getURL();
+            DatabaseType dbType = JdbcUtils.getDbType(productName, jdbcUrl);
+            introspectedTable.setDbType(dbType == null ? DatabaseType.OTHER : dbType);
 
             for (IntrospectedColumn introspectedColumn : entry.getValue()) {
                 introspectedTable.addColumn(introspectedColumn);
@@ -722,13 +1027,24 @@ public class DatabaseIntrospector {
     private void enhanceIntrospectedTable(AbstractIntrospectedTable abstractIntrospectedTable) {
         try {
             FullyQualifiedTable fqt = abstractIntrospectedTable.getFullyQualifiedTable();
+            if (metadataAdapter.supports(Capability.TABLE)
+                    && metadataAdapter.supports(Capability.REMARK)) {
+                metadataAdapter.findTable(fqt.getIntrospectedTableName())
+                        .ifPresent(table -> {
+                            if (stringHasValue(table.getRemarks())) {
+                                abstractIntrospectedTable.setRemarks(table.getRemarks());
+                            }
+                        });
+            }
 
             ResultSet rs = databaseMetaData.getTables(fqt.getIntrospectedCatalog(), fqt.getIntrospectedSchema(),
                     fqt.getIntrospectedTableName(), null);
             if (rs.next()) {
                 String remarks = rs.getString("REMARKS");
                 String tableType = rs.getString("TABLE_TYPE");
-                abstractIntrospectedTable.setRemarks(remarks);
+                if (!stringHasValue(abstractIntrospectedTable.getRemarks(true))) {
+                    abstractIntrospectedTable.setRemarks(remarks);
+                }
                 abstractIntrospectedTable.setTableType(tableType);
             }
             closeResultSet(rs);

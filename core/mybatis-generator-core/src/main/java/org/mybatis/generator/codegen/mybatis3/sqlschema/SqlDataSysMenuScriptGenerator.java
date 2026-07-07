@@ -14,14 +14,11 @@ import com.vgosoft.tool.core.VStringUtil;
  */
 public class SqlDataSysMenuScriptGenerator extends AbstractSqlScriptGenerator {
 
-    private final DatabaseDDLDialects databaseDDLDialects;
-
-    public SqlDataSysMenuScriptGenerator(Context context, DatabaseDDLDialects databaseDDLDialects) {
+    public SqlDataSysMenuScriptGenerator(Context context, DatabaseDDLDialects databaseDdlDialects) {
         this.context = context;
-        this.databaseDDLDialects = databaseDDLDialects;
         lines.add("-- ----------------------------");
         lines.add(VStringUtil.format("-- SysMenu Data for {0}", this.context.getModuleKeyword()));
-        lines.add("-- "+this.databaseDDLDialects.name());
+        lines.add("-- "+ databaseDdlDialects.name());
         lines.add("-- ----------------------------");
         lines.add("");
     }

@@ -7,6 +7,7 @@ import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysMenuScriptGene
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataSysModuleScriptGenerator;
 import org.mybatis.generator.codegen.mybatis3.sqlschema.SqlDataWfProcTypeScriptGenerator;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
+import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
     @Override
     public List<GeneratedFile> contextGenerateAdditionalFiles() {
         List<GeneratedFile> answer = new ArrayList<>();
+        DatabaseDDLDialects currentDialect = resolveContextDialect();
 
         //menu data
         if (!this.context.getSysMenuDataScriptLines().isEmpty() && context.isUpdateMenuData()) {
@@ -39,7 +41,7 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
                     "init",
                     "src/main/resources/sql",
                     null,
-                    new SqlDataSysMenuScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+                    new SqlDataSysMenuScriptGenerator(this.context, currentDialect));
             answer.add(generatedMenuDataFile);
         }
 
@@ -50,7 +52,7 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
                     "init",
                     "src/main/resources/sql",
                     null,
-                    new SqlDataSysModuleScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+                    new SqlDataSysModuleScriptGenerator(this.context, currentDialect));
             answer.add(generatedModuleDataFile);
         }
 
@@ -61,10 +63,18 @@ public class GenerateAdditionalFilesPlugin extends PluginAdapter {
                     "init",
                     "src/main/resources/sql",
                     null,
-                    new SqlDataWfProcTypeScriptGenerator(this.context, DatabaseDDLDialects.getDatabaseDialect("MYSQL")));
+                    new SqlDataWfProcTypeScriptGenerator(this.context, currentDialect));
             answer.add(generatedWfProcTypeDataFile);
         }
         return answer;
+    }
+
+    private DatabaseDDLDialects resolveContextDialect() {
+        String jdbcUrl = context.getJdbcConnectionConfiguration() == null
+                ? null
+                : context.getJdbcConnectionConfiguration().getConnectionURL();
+        DatabaseDDLDialects dialect = DatabaseIntrospectorFactory.createProfile(null, jdbcUrl).ddlDialect();
+        return dialect == null ? DatabaseDDLDialects.OTHER : dialect;
     }
 
     @Override
