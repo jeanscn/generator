@@ -5,7 +5,6 @@ import com.vgosoft.core.db.model.metadata.Column;
 import com.vgosoft.core.db.model.metadata.ForeignKey;
 import com.vgosoft.core.db.model.metadata.Index;
 import com.vgosoft.core.db.model.metadata.PrimaryKey;
-import com.vgosoft.core.db.model.metadata.Table;
 import com.vgosoft.core.db.query.Capability;
 import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.core.db.util.JdbcUtils;

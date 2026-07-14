@@ -21,7 +21,7 @@ import org.mybatis.generator.config.JavaTypeResolverConfiguration;
 import org.mybatis.generator.config.PluginConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
+import org.mybatis.generator.internal.types.MbgJavaTypeResolverDefaultImpl;
 import org.mybatis.generator.runtime.dynamic.sql.IntrospectedTableMyBatis3DynamicSqlImpl;
 import org.mybatis.generator.runtime.kotlin.IntrospectedTableKotlinImpl;
 
@@ -32,10 +32,10 @@ import org.mybatis.generator.runtime.kotlin.IntrospectedTableKotlinImpl;
  */
 public class ObjectFactory {
 
-    private static final List<ClassLoader> externalClassLoaders;
+    private static final List<ClassLoader> EXTERNAL_CLASS_LOADERS;
 
     static {
-        externalClassLoaders = new ArrayList<>();
+            EXTERNAL_CLASS_LOADERS = new ArrayList<>();
     }
 
     /**
@@ -53,7 +53,7 @@ public class ObjectFactory {
      *
      */
     public static void reset() {
-        externalClassLoaders.clear();
+        EXTERNAL_CLASS_LOADERS.clear();
     }
 
     /**
@@ -66,7 +66,7 @@ public class ObjectFactory {
      */
     public static synchronized void addExternalClassLoader(
             ClassLoader classLoader) {
-        ObjectFactory.externalClassLoaders.add(classLoader);
+        EXTERNAL_CLASS_LOADERS.add(classLoader);
     }
 
     /**
@@ -85,7 +85,7 @@ public class ObjectFactory {
 
         Class<?> clazz;
 
-        for (ClassLoader classLoader : externalClassLoaders) {
+        for (ClassLoader classLoader : EXTERNAL_CLASS_LOADERS) {
             try {
                 clazz = Class.forName(type, true, classLoader);
                 return clazz;
@@ -132,7 +132,7 @@ public class ObjectFactory {
     public static URL getResource(String resource) {
         URL url;
 
-        for (ClassLoader classLoader : externalClassLoaders) {
+        for (ClassLoader classLoader : EXTERNAL_CLASS_LOADERS) {
             url = classLoader.getResource(resource);
             if (url != null) {
                 return url;
@@ -164,7 +164,7 @@ public class ObjectFactory {
     }
 
     public static JavaTypeResolver createJavaTypeResolver(Context context,
-            List<String> warnings) {
+                                                          List<String> warnings) {
         JavaTypeResolverConfiguration config = context
                 .getJavaTypeResolverConfiguration();
         String type;
@@ -172,10 +172,10 @@ public class ObjectFactory {
         if (config != null && config.getConfigurationType() != null) {
             type = config.getConfigurationType();
             if ("DEFAULT".equalsIgnoreCase(type)) {
-                type = JavaTypeResolverDefaultImpl.class.getName();
+                type = MbgJavaTypeResolverDefaultImpl.class.getName();
             }
         } else {
-            type = JavaTypeResolverDefaultImpl.class.getName();
+            type = MbgJavaTypeResolverDefaultImpl.class.getName();
         }
 
         JavaTypeResolver answer = (JavaTypeResolver) createInternalObject(type);
