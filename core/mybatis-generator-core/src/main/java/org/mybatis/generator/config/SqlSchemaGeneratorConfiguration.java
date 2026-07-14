@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Sql脚本文件生成配置类
@@ -18,11 +19,14 @@ public class SqlSchemaGeneratorConfiguration extends AbstractGeneratorConfigurat
 
     public String filePrefix;
 
+    public Set<String> additionalDbTypes;
+
     public SqlSchemaGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
         this.targetProject = "src/main/resources/sql";
         this.filePrefix = "schema_";
         this.targetPackage = "schema";
+        this.additionalDbTypes = Set.of();
     }
 
 

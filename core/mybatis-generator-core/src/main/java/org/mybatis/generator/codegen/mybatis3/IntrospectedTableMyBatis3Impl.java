@@ -391,12 +391,17 @@ public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
                 fileName = sqlSchemaGeneratorConfiguration.getFilePrefix() + fileName;
             }
             Set<DatabaseType> dbTypes = new LinkedHashSet<>(List.of(DatabaseType.H2, resolveCurrentDatabaseType()));
+            sqlSchemaGeneratorConfiguration.getAdditionalDbTypes().forEach(dbType -> {
+                DatabaseType type = DatabaseType.getType(dbType);
+                dbTypes.add(type);
+            });
             for (DatabaseType databaseType : dbTypes) {
                 DatabaseDDLDialects ddlDialects = DatabaseIntrospectorFactory.createProfile(databaseType).ddlDialect();
                 if (ddlDialects == null) {
                     continue;
                 }
-                GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(fileName + ".sql",
+                GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(
+                        fileName + ".sql",
                         databaseType.name().toLowerCase(Locale.ROOT),
                         sqlSchemaGeneratorConfiguration.getTargetProject(),
                         this,

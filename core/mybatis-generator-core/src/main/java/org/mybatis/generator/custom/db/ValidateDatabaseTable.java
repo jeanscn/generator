@@ -1,9 +1,11 @@
 package org.mybatis.generator.custom.db;
 
 import com.vgosoft.core.annotation.ColumnMeta;
+import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.core.db.types.JavaTypeResolver;
 import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
+import com.vgosoft.core.db.util.JdbcUtils;
 import com.vgosoft.tool.core.VReflectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
@@ -134,7 +136,7 @@ public class ValidateDatabaseTable {
     }
 
     private void checkTable() {
-        JavaTypeResolverDefaultImpl javaTypeResolverDefault = new JavaTypeResolverDefaultImpl(databaseProductName);
+        JavaTypeResolverDefaultImpl javaTypeResolverDefault = new JavaTypeResolverDefaultImpl(JdbcUtils.getDbType(databaseProductName,""));
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         String rootClassName = tc.getProperty(PropertyRegistry.ROOT_CLASS);
         if (!stringHasValue(rootClassName)) {
@@ -170,7 +172,7 @@ public class ValidateDatabaseTable {
                         updateColumns.add(newColumn);
                     }
                 }else{
-                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value()) //字段名称
+                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
                             || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
@@ -191,12 +193,13 @@ public class ValidateDatabaseTable {
     }
 
     private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, AbstractIntrospectedTable table, IntrospectedColumn originalColumn) {
-        JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
-        jdbcTypeInformation.setColumnLength(columnMeta.size());
+        //JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
+        //jdbcTypeInformation.setColumnLength(columnMeta.size());
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();
         introspectedColumn.setActualColumnName(columnMeta.value());
         introspectedColumn.setJdbcType(columnMeta.type().getVendorTypeNumber());
-        introspectedColumn.setActualTypeName(jdbcTypeInformation.getActualTypeName());
+        //introspectedColumn.setActualTypeName(jdbcTypeInformation.getActualTypeName());
+        introspectedColumn.setActualTypeName(columnMeta.type().getName());
         introspectedColumn.setLength(columnMeta.size());
         introspectedColumn.setScale(columnMeta.scale());
         String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();
@@ -250,26 +253,26 @@ public class ValidateDatabaseTable {
                 List<IntrospectedColumn> introspectedColumns = updMap.get(tc.getTableName());
                 String collect = introspectedColumns.stream().map(IntrospectedColumn::getActualColumnName).collect(Collectors.joining(","));
                 warnings.add(VStringUtil.format("需要更新的字段：{0}->{1}", tc.getTableName(), collect));
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(",\n");
                 }
                 sb.append(SqlScriptUtil.getColumnSql(updMap.get(tc.getTableName()), "MODIFY", this.databaseProductName));
             }
             //增加主键
-            List<String> affectPKs = Stream.of(addColumns.stream(), updateColumns.stream())
+            List<String> affectPks = Stream.of(addColumns.stream(), updateColumns.stream())
                     .flatMap(Function.identity())
                     .filter(IntrospectedColumn::isPrimaryKey)
                     .map(IntrospectedColumn::getActualColumnName)
-                    .collect(Collectors.toList());
+                    .toList();
             List<String> pkColumnName = introspectedTable.getPrimaryKeyColumns().stream()
                     .map(IntrospectedColumn::getActualColumnName)
-                    .collect(Collectors.toList());
-            List<String> collect = affectPKs.stream()
+                    .toList();
+            List<String> collect = affectPks.stream()
                     .filter(t -> !pkColumnName.contains(t))
-                    .collect(Collectors.toList());
+                    .toList();
             if (!collect.isEmpty()) {
                 warnings.add(VStringUtil.format("需要设置为主键的字段：{0}->{1}", tc.getTableName(), String.join(",", collect)));
-                if (sb.length() > 0) sb.append(",\n");
+                if (!sb.isEmpty()) sb.append(",\n");
                 sb.append("ADD PRIMARY KEY (");
                 for (int i = 0; i < collect.size(); i++) {
                     if (i > 0) sb.append(",");
@@ -278,14 +281,14 @@ public class ValidateDatabaseTable {
                 sb.append(")");
             }
         }
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             ret.append("ALTER TABLE `");
             ret.append(sqlTableName);
             ret.append("`\n");
             ret.append(sb);
         }
 
-        if (ret.length() > 0) {
+        if (!ret.isEmpty()) {
             ret.append(";");
         }
         return ret.toString();

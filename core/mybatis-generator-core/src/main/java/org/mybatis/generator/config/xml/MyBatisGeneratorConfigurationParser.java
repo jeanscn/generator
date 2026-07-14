@@ -2368,6 +2368,12 @@ public class MyBatisGeneratorConfigurationParser {
         SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration = new SqlSchemaGeneratorConfiguration(context, tc);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
         sqlSchemaGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
+
+        String additionalDbTypes = attributes.getProperty("additionalDbTypes");
+        if (stringHasValue(additionalDbTypes)) {
+            Set<String> dbTypes = splitToSet(additionalDbTypes);
+            sqlSchemaGeneratorConfiguration.setAdditionalDbTypes(dbTypes);
+        }
         parseChildNodeOnlyProperty(sqlSchemaGeneratorConfiguration, node);
         tc.setSqlSchemaGeneratorConfiguration(sqlSchemaGeneratorConfiguration);
     }
