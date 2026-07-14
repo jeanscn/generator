@@ -1387,10 +1387,13 @@
             SqlSchema sql schema文件生成描述
             属性信息：
             1、generate 是否生成,true生成（生成H2\Mysql数据库对应的ddl）,false忽略。缺省值true
+            2、additionalDbTypes 额外生成的数据库类型，多个数据库类型用逗号分隔。缺省值为空
+               数据库类型包括：mysql,oracle,PostgreSql,sqlserver,sqlServer2005,dm,highgo,xugu,kingbasees,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase
         -->
         <!ELEMENT generateSqlSchema (property*)>
         <!ATTLIST generateSqlSchema
-                generate (true|false) #REQUIRED>
+                generate (true|false) #REQUIRED
+                additionalDbTypes CDATA #IMPLIED>
 
         <!--
             所有Vo类的父级配置，用于配置vo的通用属性

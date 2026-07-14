@@ -60,7 +60,7 @@ class DatabaseIntrospectorFactoryTest {
                 .createProfile(connection("Oracle", "jdbc:oracle:thin:@localhost:1521:xe"));
 
         assertThat(profile.introspectorStrategy()).isInstanceOf(OracleIntrospectorStrategy.class);
-        assertThat(profile.ddlDialect()).isNull();
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.ORACLE);
     }
 
     @Test
@@ -78,7 +78,7 @@ class DatabaseIntrospectorFactoryTest {
                 .createProfile(connection("PostgreSQL", "jdbc:postgresql://localhost:5432/demo"));
 
         assertThat(profile.introspectorStrategy()).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
-        assertThat(profile.ddlDialect()).isNull();
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.POSTGRE_SQL);
     }
 
     @Test
@@ -87,7 +87,7 @@ class DatabaseIntrospectorFactoryTest {
                 .createProfile(connection("HIGHGO", "jdbc:highgo://localhost:5866/demo"));
 
         assertThat(profile.introspectorStrategy()).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
-        assertThat(profile.ddlDialect()).isNull();
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.HIGHGO);
     }
 
     @Test
@@ -96,7 +96,7 @@ class DatabaseIntrospectorFactoryTest {
                 .createProfile(connection("KingbaseES", "jdbc:kingbase8://localhost:54321/demo"));
 
         assertThat(profile.introspectorStrategy()).isInstanceOf(PostgreSqlIntrospectorStrategy.class);
-        assertThat(profile.ddlDialect()).isNull();
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.KINGBASE_ES);
     }
 
     @Test
@@ -105,7 +105,7 @@ class DatabaseIntrospectorFactoryTest {
                 .createProfile(connection("Xugu", "jdbc:xugu://localhost:5138/demo"));
 
         assertThat(profile.introspectorStrategy()).isInstanceOf(GenericIntrospectorStrategy.class);
-        assertThat(profile.ddlDialect()).isNull();
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.XU_GU);
     }
 
     @Test

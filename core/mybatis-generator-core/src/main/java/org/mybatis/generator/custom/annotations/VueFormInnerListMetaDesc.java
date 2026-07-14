@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
  * @author cen_c
  * @version 6.0
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 public class VueFormInnerListMetaDesc extends AbstractAnnotation {
 

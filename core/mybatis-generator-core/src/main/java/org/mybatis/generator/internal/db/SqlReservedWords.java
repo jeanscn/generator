@@ -11,7 +11,7 @@ import java.util.Set;
  * reserved in some databases.
  *
  * <p>This list is based on the list from Drupal Handbook:
- * http://drupal.org/node/141051 With additions for DB2
+ * <a href="http://drupal.org/node/141051">...</a> With additions for DB2
  *
  * @author Jeff Butler
  *
@@ -28,51 +28,51 @@ public class SqlReservedWords {
                 "ACCESS",
                 "ACTION",
                 "ADA",
-                "ADD", // DB2
+                "ADD",
                 "ADMIN",
-                "AFTER", // DB2
+                "AFTER",
                 "AGGREGATE",
-                "ALIAS", // DB2
-                "ALL", // DB2
-                "ALLOCATE", // DB2
-                "ALLOW", // DB2
+                "ALIAS",
+                "ALL",
+                "ALLOCATE",
+                "ALLOW",
                 "ALSO",
-                "ALTER", // DB2
+                "ALTER",
                 "ALWAYS",
                 "ANALYSE",
                 "ANALYZE",
-                "AND", // DB2
-                "ANY", // DB2
-                "APPLICATION", // DB2
+                "AND",
+                "ANY",
+                "APPLICATION",
                 "ARE",
                 "ARRAY",
-                "AS", // DB2
+                "AS",
                 "ASC",
                 "ASENSITIVE",
                 "ASSERTION",
                 "ASSIGNMENT",
-                "ASSOCIATE", // DB2
-                "ASUTIME", // DB2
+                "ASSOCIATE",
+                "ASUTIME",
                 "ASYMMETRIC",
                 "AT",
                 "ATOMIC",
                 "ATTRIBUTE",
                 "ATTRIBUTES",
-                "AUDIT", // DB2
-                "AUTHORIZATION", // DB2
+                "AUDIT",
+                "AUTHORIZATION",
                 "AUTO_INCREMENT",
-                "AUX", // DB2
-                "AUXILIARY", // DB2
+                "AUX",
+                "AUXILIARY",
                 "AVG",
                 "AVG_ROW_LENGTH",
                 "BACKUP",
                 "BACKWARD",
-                "BEFORE", // DB2
-                "BEGIN", // DB2
+                "BEFORE",
+                "BEGIN",
                 "BERNOULLI",
-                "BETWEEN", // DB2
+                "BETWEEN",
                 "BIGINT",
-                "BINARY", // DB2
+                "BINARY",
                 "BIT",
                 "BIT_LENGTH",
                 "BITVAR",
@@ -83,44 +83,44 @@ public class SqlReservedWords {
                 "BREADTH",
                 "BREAK",
                 "BROWSE",
-                "BUFFERPOOL", // DB2
+                "BUFFERPOOL",
                 "BULK",
-                "BY", // DB2
+                "BY",
                 "C",
-                "CACHE", // DB2
-                "CALL", // DB2
-                "CALLED", // DB2
-                "CAPTURE", // DB2
-                "CARDINALITY", // DB2
+                "CACHE",
+                "CALL",
+                "CALLED",
+                "CAPTURE",
+                "CARDINALITY",
                 "CASCADE",
-                "CASCADED", // DB2
-                "CASE", // DB2
-                "CAST", // DB2
+                "CASCADED",
+                "CASE",
+                "CAST",
                 "CATALOG",
                 "CATALOG_NAME",
-                "CCSID", // DB2
+                "CCSID",
                 "CEIL",
                 "CEILING",
                 "CHAIN",
                 "CHANGE",
-                "CHAR", // DB2
+                "CHAR",
                 "CHAR_LENGTH",
-                "CHARACTER", // DB2
+                "CHARACTER",
                 "CHARACTER_LENGTH",
                 "CHARACTER_SET_CATALOG",
                 "CHARACTER_SET_NAME",
                 "CHARACTER_SET_SCHEMA",
                 "CHARACTERISTICS",
                 "CHARACTERS",
-                "CHECK", // DB2
+                "CHECK",
                 "CHECKED",
                 "CHECKPOINT",
                 "CHECKSUM",
                 "CLASS",
                 "CLASS_ORIGIN",
                 "CLOB",
-                "CLOSE", // DB2
-                "CLUSTER", // DB2
+                "CLOSE",
+                "CLUSTER",
                 "CLUSTERED",
                 "COALESCE",
                 "COBOL",
@@ -130,74 +130,74 @@ public class SqlReservedWords {
                 "COLLATION_NAME",
                 "COLLATION_SCHEMA",
                 "COLLECT",
-                "COLLECTION", // DB2
-                "COLLID", // DB2
-                "COLUMN", // DB2
+                "COLLECTION",
+                "COLLID",
+                "COLUMN",
                 "COLUMN_NAME",
                 "COLUMNS",
                 "COMMAND_FUNCTION",
                 "COMMAND_FUNCTION_CODE",
-                "COMMENT", // DB2
-                "COMMIT", // DB2
+                "COMMENT",
+                "COMMIT",
                 "COMMITTED",
                 "COMPLETION",
                 "COMPRESS",
                 "COMPUTE",
-                "CONCAT", // DB2
-                "CONDITION", // DB2
+                "CONCAT",
+                "CONDITION",
                 "CONDITION_NUMBER",
-                "CONNECT", // DB2
-                "CONNECTION", // DB2
+                "CONNECT",
+                "CONNECTION",
                 "CONNECTION_NAME",
-                "CONSTRAINT", // DB2
+                "CONSTRAINT",
                 "CONSTRAINT_CATALOG",
                 "CONSTRAINT_NAME",
                 "CONSTRAINT_SCHEMA",
                 "CONSTRAINTS",
                 "CONSTRUCTOR",
-                "CONTAINS", // DB2
+                "CONTAINS",
                 "CONTAINSTABLE",
-                "CONTINUE", // DB2
+                "CONTINUE",
                 "CONVERSION",
                 "CONVERT",
                 "COPY",
                 "CORR",
                 "CORRESPONDING",
-                "COUNT", // DB2
-                "COUNT_BIG", // DB2
+                "COUNT",
+                "COUNT_BIG",
                 "COVAR_POP",
                 "COVAR_SAMP",
-                "CREATE", // DB2
+                "CREATE",
                 "CREATEDB",
                 "CREATEROLE",
                 "CREATEUSER",
-                "CROSS", // DB2
+                "CROSS",
                 "CSV",
                 "CUBE",
                 "CUME_DIST",
-                "CURRENT", // DB2
-                "CURRENT_DATE", // DB2
+                "CURRENT",
+                "CURRENT_DATE",
                 "CURRENT_DEFAULT_TRANSFORM_GROUP",
-                "CURRENT_LC_CTYPE", // DB2
-                "CURRENT_PATH", // DB2
+                "CURRENT_LC_CTYPE",
+                "CURRENT_PATH",
                 "CURRENT_ROLE",
-                "CURRENT_SERVER", // DB2
-                "CURRENT_TIME", // DB2
-                "CURRENT_TIMESTAMP", // DB2
-                "CURRENT_TIMEZONE", // DB2
+                "CURRENT_SERVER",
+                "CURRENT_TIME",
+                "CURRENT_TIMESTAMP",
+                "CURRENT_TIMEZONE",
                 "CURRENT_TRANSFORM_GROUP_FOR_TYPE",
-                "CURRENT_USER", // DB2
-                "CURSOR", // DB2
+                "CURRENT_USER",
+                "CURSOR",
                 "CURSOR_NAME",
-                "CYCLE", // DB2
-                "DATA", // DB2
-                "DATABASE", // DB2
+                "CYCLE",
+                "DATA",
+                "DATABASE",
                 "DATABASES",
                 "DATE",
                 "DATETIME",
                 "DATETIME_INTERVAL_CODE",
                 "DATETIME_INTERVAL_PRECISION",
-                "DAY", // DB2
+                "DAY",
                 "DAY_HOUR",
                 "DAY_MICROSECOND",
                 "DAY_MINUTE",
@@ -205,27 +205,27 @@ public class SqlReservedWords {
                 "DAYOFMONTH",
                 "DAYOFWEEK",
                 "DAYOFYEAR",
-                "DAYS", // DB2
-                "DB2GENERAL", // DB2
-                "DB2GNRL", // DB2
-                "DB2SQL", // DB2
+                "DAYS",
+                "DB2GENERAL",
+                "DB2GNRL",
+                "DB2SQL",
                 "DBCC",
-                "DBINFO", // DB2
+                "DBINFO",
                 "DEALLOCATE",
                 "DEC",
                 "DECIMAL",
-                "DECLARE", // DB2
-                "DEFAULT", // DB2
-                "DEFAULTS", // DB2
+                "DECLARE",
+                "DEFAULT",
+                "DEFAULTS",
                 "DEFERRABLE",
                 "DEFERRED",
                 "DEFINED",
                 "DEFINER",
-                "DEFINITION", // DB2
+                "DEFINITION",
                 "DEGREE",
                 "DELAY_KEY_WRITE",
                 "DELAYED",
-                "DELETE", // DB2
+                "DELETE",
                 "DELIMITER",
                 "DELIMITERS",
                 "DENSE_RANK",
@@ -235,75 +235,75 @@ public class SqlReservedWords {
                 "DERIVED",
                 "DESC",
                 "DESCRIBE",
-                "DESCRIPTOR", // DB2
+                "DESCRIPTOR",
                 "DESTROY",
                 "DESTRUCTOR",
-                "DETERMINISTIC", // DB2
+                "DETERMINISTIC",
                 "DIAGNOSTICS",
                 "DICTIONARY",
                 "DISABLE",
-                "DISALLOW", // DB2
-                "DISCONNECT", // DB2
+                "DISALLOW",
+                "DISCONNECT",
                 "DISK",
                 "DISPATCH",
-                "DISTINCT", // DB2
+                "DISTINCT",
                 "DISTINCTROW",
                 "DISTRIBUTED",
                 "DIV",
-                "DO", // DB2
+                "DO",
                 "DOMAIN",
-                "DOUBLE", // DB2
-                "DROP", // DB2
-                "DSNHATTR", // DB2
-                "DSSIZE", // DB2
+                "DOUBLE",
+                "DROP",
+                "DSNHATTR",
+                "DSSIZE",
                 "DUAL",
                 "DUMMY",
                 "DUMP",
-                "DYNAMIC", // DB2
+                "DYNAMIC",
                 "DYNAMIC_FUNCTION",
                 "DYNAMIC_FUNCTION_CODE",
-                "EACH", // DB2
-                "EDITPROC", // DB2
+                "EACH",
+                "EDITPROC",
                 "ELEMENT",
-                "ELSE", // DB2
-                "ELSEIF", // DB2
+                "ELSE",
+                "ELSEIF",
                 "ENABLE",
                 "ENCLOSED",
-                "ENCODING", // DB2
+                "ENCODING",
                 "ENCRYPTED",
-                "END", // DB2
-                "END-EXEC", // DB2
-                "END-EXEC1", // DB2
+                "END",
+                "END-EXEC",
+                "END-EXEC1",
                 "ENUM",
                 "EQUALS",
-                "ERASE", // DB2
+                "ERASE",
                 "ERRLVL",
-                "ESCAPE", // DB2
+                "ESCAPE",
                 "ESCAPED",
                 "EVERY",
-                "EXCEPT", // DB2
-                "EXCEPTION", // DB2
+                "EXCEPT",
+                "EXCEPTION",
                 "EXCLUDE",
-                "EXCLUDING", // DB2
+                "EXCLUDING",
                 "EXCLUSIVE",
                 "EXEC",
-                "EXECUTE", // DB2
+                "EXECUTE",
                 "EXISTING",
-                "EXISTS", // DB2
-                "EXIT", // DB2
+                "EXISTS",
+                "EXIT",
                 "EXP",
                 "EXPLAIN",
-                "EXTERNAL", // DB2
+                "EXTERNAL",
                 "EXTRACT",
                 "FALSE",
-                "FENCED", // DB2
-                "FETCH", // DB2
-                "FIELDPROC", // DB2
+                "FENCED",
+                "FETCH",
+                "FIELDPROC",
                 "FIELDS",
-                "FILE", // DB2
+                "FILE",
                 "FILLFACTOR",
                 "FILTER",
-                "FINAL", // DB2
+                "FINAL",
                 "FIRST",
                 "FLOAT",
                 "FLOAT4",
@@ -311,79 +311,79 @@ public class SqlReservedWords {
                 "FLOOR",
                 "FLUSH",
                 "FOLLOWING",
-                "FOR", // DB2
+                "FOR",
                 "FORCE",
-                "FOREIGN", // DB2
+                "FOREIGN",
                 "FORTRAN",
                 "FORWARD",
                 "FOUND",
-                "FREE", // DB2
+                "FREE",
                 "FREETEXT",
                 "FREETEXTTABLE",
                 "FREEZE",
-                "FROM", // DB2
-                "FULL", // DB2
+                "FROM",
+                "FULL",
                 "FULLTEXT",
-                "FUNCTION", // DB2
+                "FUNCTION",
                 "FUSION",
                 "G",
-                "GENERAL", // DB2
-                "GENERATED", // DB2
-                "GET", // DB2
-                "GLOBAL", // DB2
-                "GO", // DB2
-                "GOTO", // DB2
-                "GRANT", // DB2
+                "GENERAL",
+                "GENERATED",
+                "GET",
+                "GLOBAL",
+                "GO",
+                "GOTO",
+                "GRANT",
                 "GRANTED",
                 "GRANTS",
-                "GRAPHIC", // DB2
+                "GRAPHIC",
                 "GREATEST",
-                "GROUP", // DB2
+                "GROUP",
                 "GROUPING",
-                "HANDLER", // DB2
-                "HAVING", // DB2
+                "HANDLER",
+                "HAVING",
                 "HEADER",
                 "HEAP",
                 "HIERARCHY",
                 "HIGH_PRIORITY",
-                "HOLD", // DB2
+                "HOLD",
                 "HOLDLOCK",
                 "HOST",
                 "HOSTS",
-                "HOUR", // DB2
+                "HOUR",
                 "HOUR_MICROSECOND",
                 "HOUR_MINUTE",
                 "HOUR_SECOND",
-                "HOURS", // DB2
+                "HOURS",
                 "IDENTIFIED",
-                "IDENTITY", // DB2
+                "IDENTITY",
                 "IDENTITY_INSERT",
                 "IDENTITYCOL",
-                "IF", // DB2
+                "IF",
                 "IGNORE",
                 "ILIKE",
-                "IMMEDIATE", // DB2
+                "IMMEDIATE",
                 "IMMUTABLE",
                 "IMPLEMENTATION",
                 "IMPLICIT",
-                "IN", // DB2
+                "IN",
                 "INCLUDE",
-                "INCLUDING", // DB2
-                "INCREMENT", // DB2
-                "INDEX", // DB2
-                "INDICATOR", // DB2
+                "INCLUDING",
+                "INCREMENT",
+                "INDEX",
+                "INDICATOR",
                 "INFILE",
                 "INFIX",
-                "INHERIT", // DB2
+                "INHERIT",
                 "INHERITS",
                 "INITIAL",
                 "INITIALIZE",
                 "INITIALLY",
-                "INNER", // DB2
-                "INOUT", // DB2
+                "INNER",
+                "INOUT",
                 "INPUT",
-                "INSENSITIVE", // DB2
-                "INSERT", // DB2
+                "INSENSITIVE",
+                "INSERT",
                 "INSERT_ID",
                 "INSTANCE",
                 "INSTANTIABLE",
@@ -395,66 +395,66 @@ public class SqlReservedWords {
                 "INT4",
                 "INT8",
                 "INTEGER",
-                "INTEGRITY", // DB2
+                "INTEGRITY",
                 "INTERSECT",
                 "INTERSECTION",
                 "INTERVAL",
-                "INTO", // DB2
+                "INTO",
                 "INVOKER",
-                "IS", // DB2
+                "IS",
                 "ISAM",
                 "ISNULL",
-                "ISOBID", // DB2
-                "ISOLATION", // DB2
-                "ITERATE", // DB2
-                "JAR", // DB2
-                "JAVA", // DB2
-                "JOIN", // DB2
+                "ISOBID",
+                "ISOLATION",
+                "ITERATE",
+                "JAR",
+                "JAVA",
+                "JOIN",
                 "K",
-                "KEY", // DB2
+                "KEY",
                 "KEY_MEMBER",
                 "KEY_TYPE",
                 "KEYS",
                 "KILL",
-                "LABEL", // DB2
+                "LABEL",
                 "LANCOMPILER",
-                "LANGUAGE", // DB2
+                "LANGUAGE",
                 "LARGE",
                 "LAST",
                 "LAST_INSERT_ID",
                 "LATERAL",
-                "LC_CTYPE", // DB2
+                "LC_CTYPE",
                 "LEADING",
                 "LEAST",
-                "LEAVE", // DB2
-                "LEFT", // DB2
+                "LEAVE",
+                "LEFT",
                 "LENGTH",
                 "LESS",
                 "LEVEL",
-                "LIKE", // DB2
+                "LIKE",
                 "LIMIT",
                 "LINENO",
                 "LINES",
-                "LINKTYPE", // DB2
+                "LINKTYPE",
                 "LISTEN",
                 "LN",
                 "LOAD",
-                "LOCAL", // DB2
-                "LOCALE", // DB2
+                "LOCAL",
+                "LOCALE",
                 "LOCALTIME",
                 "LOCALTIMESTAMP",
                 "LOCATION",
-                "LOCATOR", // DB2
-                "LOCATORS", // DB2
-                "LOCK", // DB2
-                "LOCKMAX", // DB2
-                "LOCKSIZE", // DB2
+                "LOCATOR",
+                "LOCATORS",
+                "LOCK",
+                "LOCKMAX",
+                "LOCKSIZE",
                 "LOGIN",
                 "LOGS",
-                "LONG", // DB2
+                "LONG",
                 "LONGBLOB",
                 "LONGTEXT",
-                "LOOP", // DB2
+                "LOOP",
                 "LOW_PRIORITY",
                 "LOWER",
                 "M",
@@ -464,7 +464,7 @@ public class SqlReservedWords {
                 "MAX",
                 "MAX_ROWS",
                 "MAXEXTENTS",
-                "MAXVALUE", // DB2
+                "MAXVALUE",
                 "MEDIUMBLOB",
                 "MEDIUMINT",
                 "MEDIUMTEXT",
@@ -474,26 +474,26 @@ public class SqlReservedWords {
                 "MESSAGE_OCTET_LENGTH",
                 "MESSAGE_TEXT",
                 "METHOD",
-                "MICROSECOND", // DB2
-                "MICROSECONDS", // DB2
+                "MICROSECOND",
+                "MICROSECONDS",
                 "MIDDLEINT",
                 "MIN",
                 "MIN_ROWS",
                 "MINUS",
-                "MINUTE", // DB2
+                "MINUTE",
                 "MINUTE_MICROSECOND",
                 "MINUTE_SECOND",
-                "MINUTES", // DB2
-                "MINVALUE", // DB2
+                "MINUTES",
+                "MINVALUE",
                 "MLSLABEL",
                 "MOD",
-                "MODE", // DB2
-                "MODIFIES", // DB2
+                "MODE",
+                "MODIFIES",
                 "MODIFY",
                 "MODULE",
-                "MONTH", // DB2
+                "MONTH",
                 "MONTHNAME",
-                "MONTHS", // DB2
+                "MONTHS",
                 "MORE",
                 "MOVE",
                 "MULTISET",
@@ -506,88 +506,88 @@ public class SqlReservedWords {
                 "NCHAR",
                 "NCLOB",
                 "NESTING",
-                "NEW", // DB2
-                "NEW_TABLE", // DB2
+                "NEW",
+                "NEW_TABLE",
                 "NEXT",
-                "NO", // DB2
+                "NO",
                 "NO_WRITE_TO_BINLOG",
                 "NOAUDIT",
-                "NOCACHE", // DB2
+                "NOCACHE",
                 "NOCHECK",
                 "NOCOMPRESS",
                 "NOCREATEDB",
                 "NOCREATEROLE",
                 "NOCREATEUSER",
-                "NOCYCLE", // DB2
-                "NODENAME", // DB2
-                "NODENUMBER", // DB2
+                "NOCYCLE",
+                "NODENAME",
+                "NODENUMBER",
                 "NOINHERIT",
                 "NOLOGIN",
-                "NOMAXVALUE", // DB2
-                "NOMINVALUE", // DB2
+                "NOMAXVALUE",
+                "NOMINVALUE",
                 "NONCLUSTERED",
                 "NONE",
-                "NOORDER", // DB2
+                "NOORDER",
                 "NORMALIZE",
                 "NORMALIZED",
                 "NOSUPERUSER",
-                "NOT", // DB2
+                "NOT",
                 "NOTHING",
                 "NOTIFY",
                 "NOTNULL",
                 "NOWAIT",
-                "NULL", // DB2
+                "NULL",
                 "NULLABLE",
                 "NULLIF",
-                "NULLS", // DB2
+                "NULLS",
                 "NUMBER",
                 "NUMERIC",
-                "NUMPARTS", // DB2
-                "OBID", // DB2
+                "NUMPARTS",
+                "OBID",
                 "OBJECT",
                 "OCTET_LENGTH",
                 "OCTETS",
-                "OF", // DB2
+                "OF",
                 "OFF",
                 "OFFLINE",
                 "OFFSET",
                 "OFFSETS",
                 "OIDS",
-                "OLD", // DB2
-                "OLD_TABLE", // DB2
-                "ON", // DB2
+                "OLD",
+                "OLD_TABLE",
+                "ON",
                 "ONLINE",
                 "ONLY",
-                "OPEN", // DB2
+                "OPEN",
                 "OPENDATASOURCE",
                 "OPENQUERY",
                 "OPENROWSET",
                 "OPENXML",
                 "OPERATION",
                 "OPERATOR",
-                "OPTIMIZATION", // DB2
-                "OPTIMIZE", // DB2
-                "OPTION", // DB2
+                "OPTIMIZATION",
+                "OPTIMIZE",
+                "OPTION",
                 "OPTIONALLY",
                 "OPTIONS",
-                "OR", // DB2
-                "ORDER", // DB2
+                "OR",
+                "ORDER",
                 "ORDERING",
                 "ORDINALITY",
                 "OTHERS",
-                "OUT", // DB2
-                "OUTER", // DB2
+                "OUT",
+                "OUTER",
                 "OUTFILE",
                 "OUTPUT",
                 "OVER",
                 "OVERLAPS",
                 "OVERLAY",
-                "OVERRIDING", // DB2
+                "OVERRIDING",
                 "OWNER",
                 "PACK_KEYS",
-                "PACKAGE", // DB2
+                "PACKAGE",
                 "PAD",
-                "PARAMETER", // DB2
+                "PARAMETER",
                 "PARAMETER_MODE",
                 "PARAMETER_NAME",
                 "PARAMETER_ORDINAL_POSITION",
@@ -595,63 +595,63 @@ public class SqlReservedWords {
                 "PARAMETER_SPECIFIC_NAME",
                 "PARAMETER_SPECIFIC_SCHEMA",
                 "PARAMETERS",
-                "PART", // DB2
+                "PART",
                 "PARTIAL",
-                "PARTITION", // DB2
+                "PARTITION",
                 "PASCAL",
                 "PASSWORD",
-                "PATH", // DB2
+                "PATH",
                 "PCTFREE",
                 "PERCENT",
                 "PERCENT_RANK",
                 "PERCENTILE_CONT",
                 "PERCENTILE_DISC",
-                "PIECESIZE", // DB2
+                "PIECESIZE",
                 "PLACING",
-                "PLAN", // DB2
+                "PLAN",
                 "PLI",
-                "POSITION", // DB2
+                "POSITION",
                 "POSTFIX",
                 "POWER",
                 "PRECEDING",
-                "PRECISION", // DB2
+                "PRECISION",
                 "PREFIX",
                 "PREORDER",
-                "PREPARE", // DB2
+                "PREPARE",
                 "PREPARED",
                 "PRESERVE",
-                "PRIMARY", // DB2
+                "PRIMARY",
                 "PRINT",
                 "PRIOR",
-                "PRIQTY", // DB2
-                "PRIVILEGES", // DB2
+                "PRIQTY",
+                "PRIVILEGES",
                 "PROC",
                 "PROCEDURAL",
-                "PROCEDURE", // DB2
+                "PROCEDURE",
                 "PROCESS",
                 "PROCESSLIST",
-                "PROGRAM", // DB2
-                "PSID", // DB2
+                "PROGRAM",
+                "PSID",
                 "PUBLIC",
                 "PURGE",
-                "QUERYNO", // DB2
+                "QUERYNO",
                 "QUOTE",
                 "RAID0",
                 "RAISERROR",
                 "RANGE",
                 "RANK",
                 "RAW",
-                "READ", // DB2
-                "READS", // DB2
+                "READ",
+                "READS",
                 "READTEXT",
                 "REAL",
                 "RECHECK",
                 "RECONFIGURE",
-                "RECOVERY", // DB2
+                "RECOVERY",
                 "RECURSIVE",
                 "REF",
-                "REFERENCES", // DB2
-                "REFERENCING", // DB2
+                "REFERENCES",
+                "REFERENCING",
                 "REGEXP",
                 "REGR_AVGX",
                 "REGR_AVGY",
@@ -664,98 +664,98 @@ public class SqlReservedWords {
                 "REGR_SYY",
                 "REINDEX",
                 "RELATIVE",
-                "RELEASE", // DB2
+                "RELEASE",
                 "RELOAD",
-                "RENAME", // DB2
-                "REPEAT", // DB2
+                "RENAME",
+                "REPEAT",
                 "REPEATABLE",
                 "REPLACE",
                 "REPLICATION",
                 "REQUIRE",
-                "RESET", // DB2
-                "RESIGNAL", // DB2
+                "RESET",
+                "RESIGNAL",
                 "RESOURCE",
-                "RESTART", // DB2
+                "RESTART",
                 "RESTORE",
-                "RESTRICT", // DB2
-                "RESULT", // DB2
-                "RESULT_SET_LOCATOR", // DB2
-                "RETURN", // DB2
+                "RESTRICT",
+                "RESULT",
+                "RESULT_SET_LOCATOR",
+                "RETURN",
                 "RETURNED_CARDINALITY",
                 "RETURNED_LENGTH",
                 "RETURNED_OCTET_LENGTH",
                 "RETURNED_SQLSTATE",
-                "RETURNS", // DB2
-                "REVOKE", // DB2
-                "RIGHT", // DB2
+                "RETURNS",
+                "REVOKE",
+                "RIGHT",
                 "RLIKE",
                 "ROLE",
-                "ROLLBACK", // DB2
+                "ROLLBACK",
                 "ROLLUP",
-                "ROUTINE", // DB2
+                "ROUTINE",
                 "ROUTINE_CATALOG",
                 "ROUTINE_NAME",
                 "ROUTINE_SCHEMA",
-                "ROW", // DB2
+                "ROW",
                 "ROW_COUNT",
                 "ROW_NUMBER",
                 "ROWCOUNT",
                 "ROWGUIDCOL",
                 "ROWID",
                 "ROWNUM",
-                "ROWS", // DB2
-                "RRN", // DB2
+                "ROWS",
+                "RRN",
                 "RULE",
-                "RUN", // DB2
+                "RUN",
                 "SAVE",
-                "SAVEPOINT", // DB2
+                "SAVEPOINT",
                 "SCALE",
-                "SCHEMA", // DB2
+                "SCHEMA",
                 "SCHEMA_NAME",
                 "SCHEMAS",
                 "SCOPE",
                 "SCOPE_CATALOG",
                 "SCOPE_NAME",
                 "SCOPE_SCHEMA",
-                "SCRATCHPAD", // DB2
+                "SCRATCHPAD",
                 "SCROLL",
                 "SEARCH",
-                "SECOND", // DB2
+                "SECOND",
                 "SECOND_MICROSECOND",
-                "SECONDS", // DB2
-                "SECQTY", // DB2
+                "SECONDS",
+                "SECQTY",
                 "SECTION",
-                "SECURITY", // DB2
-                "SELECT", // DB2
+                "SECURITY",
+                "SELECT",
                 "SELF",
-                "SENSITIVE", // DB2
+                "SENSITIVE",
                 "SEPARATOR",
                 "SEQUENCE",
                 "SERIALIZABLE",
                 "SERVER_NAME",
                 "SESSION",
                 "SESSION_USER",
-                "SET", // DB2
+                "SET",
                 "SETOF",
                 "SETS",
                 "SETUSER",
                 "SHARE",
                 "SHOW",
                 "SHUTDOWN",
-                "SIGNAL", // DB2
+                "SIGNAL",
                 "SIMILAR",
-                "SIMPLE", // DB2
+                "SIMPLE",
                 "SIZE",
                 "SMALLINT",
-                "SOME", // DB2
+                "SOME",
                 "SONAME",
-                "SOURCE", // DB2
+                "SOURCE",
                 "SPACE",
                 "SPATIAL",
-                "SPECIFIC", // DB2
+                "SPECIFIC",
                 "SPECIFIC_NAME",
                 "SPECIFICTYPE",
-                "SQL", // DB2
+                "SQL",
                 "SQL_BIG_RESULT",
                 "SQL_BIG_SELECTS",
                 "SQL_BIG_TABLES",
@@ -770,55 +770,55 @@ public class SqlReservedWords {
                 "SQLCODE",
                 "SQLERROR",
                 "SQLEXCEPTION",
-                "SQLID", // DB2
+                "SQLID",
                 "SQLSTATE",
                 "SQLWARNING",
                 "SQRT",
                 "SSL",
                 "STABLE",
-                "STANDARD", // DB2
-                "START", // DB2
+                "STANDARD",
+                "START",
                 "STARTING",
                 "STATE",
                 "STATEMENT",
-                "STATIC", // DB2
+                "STATIC",
                 "STATISTICS",
                 "STATUS",
-                "STAY", // DB2
+                "STAY",
                 "STDDEV_POP",
                 "STDDEV_SAMP",
                 "STDIN",
                 "STDOUT",
-                "STOGROUP", // DB2
+                "STOGROUP",
                 "STORAGE",
-                "STORES", // DB2
+                "STORES",
                 "STRAIGHT_JOIN",
                 "STRICT",
                 "STRING",
                 "STRUCTURE",
-                "STYLE", // DB2
+                "STYLE",
                 "SUBCLASS_ORIGIN",
                 "SUBLIST",
                 "SUBMULTISET",
-                "SUBPAGES", // DB2
-                "SUBSTRING", // DB2
+                "SUBPAGES",
+                "SUBSTRING",
                 "SUCCESSFUL",
                 "SUM",
                 "SUPERUSER",
                 "SYMMETRIC",
-                "SYNONYM", // DB2
+                "SYNONYM",
                 "SYSDATE",
-                "SYSFUN", // DB2
-                "SYSIBM", // DB2
+                "SYSFUN",
+                "SYSIBM",
                 "SYSID",
-                "SYSPROC", // DB2
-                "SYSTEM", // DB2
+                "SYSPROC",
+                "SYSTEM",
                 "SYSTEM_USER",
-                "TABLE", // DB2
+                "TABLE",
                 "TABLE_NAME",
                 "TABLES",
                 "TABLESAMPLE",
-                "TABLESPACE", // DB2
+                "TABLESPACE",
                 "TEMP",
                 "TEMPLATE",
                 "TEMPORARY",
@@ -827,7 +827,7 @@ public class SqlReservedWords {
                 "TEXT",
                 "TEXTSIZE",
                 "THAN",
-                "THEN", // DB2
+                "THEN",
                 "TIES",
                 "TIME",
                 "TIMESTAMP",
@@ -836,13 +836,13 @@ public class SqlReservedWords {
                 "TINYBLOB",
                 "TINYINT",
                 "TINYTEXT",
-                "TO", // DB2
+                "TO",
                 "TOAST",
                 "TOP",
                 "TOP_LEVEL_COUNT",
                 "TRAILING",
                 "TRAN",
-                "TRANSACTION", // DB2
+                "TRANSACTION",
                 "TRANSACTION_ACTIVE",
                 "TRANSACTIONS_COMMITTED",
                 "TRANSACTIONS_ROLLED_BACK",
@@ -851,43 +851,43 @@ public class SqlReservedWords {
                 "TRANSLATE",
                 "TRANSLATION",
                 "TREAT",
-                "TRIGGER", // DB2
+                "TRIGGER",
                 "TRIGGER_CATALOG",
                 "TRIGGER_NAME",
                 "TRIGGER_SCHEMA",
-                "TRIM", // DB2
+                "TRIM",
                 "TRUE",
                 "TRUNCATE",
                 "TRUSTED",
                 "TSEQUAL",
-                "TYPE", // DB2
+                "TYPE",
                 "UESCAPE",
                 "UID",
                 "UNBOUNDED",
                 "UNCOMMITTED",
                 "UNDER",
-                "UNDO", // DB2
+                "UNDO",
                 "UNENCRYPTED",
-                "UNION", // DB2
-                "UNIQUE", // DB2
+                "UNION",
+                "UNIQUE",
                 "UNKNOWN",
                 "UNLISTEN",
                 "UNLOCK",
                 "UNNAMED",
                 "UNNEST",
                 "UNSIGNED",
-                "UNTIL", // DB2
-                "UPDATE", // DB2
+                "UNTIL",
+                "UPDATE",
                 "UPDATETEXT",
                 "UPPER",
-                "USAGE", // DB2
+                "USAGE",
                 "USE",
-                "USER", // DB2
+                "USER",
                 "USER_DEFINED_TYPE_CATALOG",
                 "USER_DEFINED_TYPE_CODE",
                 "USER_DEFINED_TYPE_NAME",
                 "USER_DEFINED_TYPE_SCHEMA",
-                "USING", // DB2
+                "USING",
                 "UTC_DATE",
                 "UTC_TIME",
                 "UTC_TIMESTAMP",
@@ -895,43 +895,43 @@ public class SqlReservedWords {
                 "VALID",
                 "VALIDATE",
                 "VALIDATOR",
-                "VALIDPROC", // DB2
+                "VALIDPROC",
                 "VALUE",
-                "VALUES", // DB2
+                "VALUES",
                 "VAR_POP",
                 "VAR_SAMP",
                 "VARBINARY",
                 "VARCHAR",
                 "VARCHAR2",
                 "VARCHARACTER",
-                "VARIABLE", // DB2
+                "VARIABLE",
                 "VARIABLES",
-                "VARIANT", // DB2
+                "VARIANT",
                 "VARYING",
-                "VCAT", // DB2
+                "VCAT",
                 "VERBOSE",
-                "VIEW", // DB2
+                "VIEW",
                 "VOLATILE",
-                "VOLUMES", // DB2
+                "VOLUMES",
                 "WAITFOR",
-                "WHEN", // DB2
+                "WHEN",
                 "WHENEVER",
-                "WHERE", // DB2
-                "WHILE", // DB2
+                "WHERE",
+                "WHILE",
                 "WIDTH_BUCKET",
                 "WINDOW",
-                "WITH", // DB2
+                "WITH",
                 "WITHIN",
                 "WITHOUT",
-                "WLM", // DB2
+                "WLM",
                 "WORK",
-                "WRITE", // DB2
+                "WRITE",
                 "WRITETEXT",
                 "X509",
                 "XOR",
-                "YEAR", // DB2
+                "YEAR",
                 "YEAR_MONTH",
-                "YEARS", // DB2
+                "YEARS",
                 "ZEROFILL",
                 "ZONE"
         };

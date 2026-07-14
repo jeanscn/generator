@@ -66,18 +66,17 @@ public class DatabaseIntrospectorFactory {
         profiles.put(DatabaseType.SQL_SERVER, sqlServerProfile);
         profiles.put(DatabaseType.SQL_SERVER2005, sqlServerProfile);
 
-        profiles.put(DatabaseType.ORACLE, new DatabaseProfile(new OracleIntrospectorStrategy(), null));
+        profiles.put(DatabaseType.ORACLE, new DatabaseProfile(new OracleIntrospectorStrategy(), DatabaseDDLDialects.ORACLE));
         DatabaseIntrospectorStrategy postgreSqlStrategy = new PostgreSqlIntrospectorStrategy();
-        DatabaseProfile postgreSqlProfile = new DatabaseProfile(postgreSqlStrategy, null);
-        profiles.put(DatabaseType.POSTGRE_SQL, postgreSqlProfile);
-        profiles.put(DatabaseType.HIGHGO, postgreSqlProfile);
-        profiles.put(DatabaseType.KINGBASE_ES, postgreSqlProfile);
+        profiles.put(DatabaseType.POSTGRE_SQL, new DatabaseProfile(postgreSqlStrategy, DatabaseDDLDialects.POSTGRE_SQL));
+        profiles.put(DatabaseType.HIGHGO, new DatabaseProfile(postgreSqlStrategy, DatabaseDDLDialects.HIGHGO));
+        profiles.put(DatabaseType.KINGBASE_ES, new DatabaseProfile(postgreSqlStrategy, DatabaseDDLDialects.KINGBASE_ES));
 
         profiles.put(DatabaseType.DM, new DatabaseProfile(new DamengIntrospectorStrategy(), DatabaseDDLDialects.DM));
         profiles.put(DatabaseType.H2, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.H2));
         profiles.put(DatabaseType.HSQL, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.HSQL));
         profiles.put(DatabaseType.DB2, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.DB2));
-        profiles.put(DatabaseType.XU_GU, GENERIC_PROFILE);
+        profiles.put(DatabaseType.XU_GU, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.XU_GU));
         return profiles;
     }
 }

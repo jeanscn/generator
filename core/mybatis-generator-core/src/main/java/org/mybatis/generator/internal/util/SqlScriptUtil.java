@@ -34,18 +34,26 @@ public class SqlScriptUtil {
                 throw new IllegalArgumentException("Unsupported database dialect: " + databaseProductName);
             }
             String columnStatement = databaseDialect.getColumnModifyStatement();
-            String character = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
-            String position = stringHasValue(col.getPosition()) ? " " + col.getPosition() : "";
+            if (!stringHasValue(columnStatement)) {
+                throw new IllegalArgumentException("Column modify statement is not configured for dialect: " + databaseDialect.name());
+            }
+            String character = " ";
+            if ((isMysqlOrMariadbDatabase(databaseDialect))
+                    && JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)) {
+                character = " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ";
+            }
+            String position = (isMysqlOrMariadbDatabase(databaseDialect))
+                    && stringHasValue(col.getPosition()) ? " " + col.getPosition() : "";
             String onAddRow = VStringUtil.format(columnStatement,
                     actionKey,
-                    col.getActualColumnName(),
+                    databaseDialect.quoteIdentifier(col.getActualColumnName()),
                     col.getActualTypeName(),
                     col.getSqlFragmentLength(),
                     character,
                     SqlScriptUtil.getSqlFragmentNotNull(col),
-                    col.getRemarks(false),
+                    databaseDialect.escapeSqlLiteral(col.getRemarks(false)),
                     position);
-            if (sb.length()>0) {
+            if (!sb.isEmpty()) {
                 sb.append(",").append("\n");
             }
             sb.append(onAddRow);
@@ -102,6 +110,10 @@ public class SqlScriptUtil {
                 return " ";
             }
         }
+    }
+
+    public static boolean isMysqlOrMariadbDatabase(DatabaseDDLDialects databaseDialect) {
+        return databaseDialect.equals(DatabaseDDLDialects.MYSQL) || databaseDialect.equals(DatabaseDDLDialects.MARIADB);
     }
 
 }

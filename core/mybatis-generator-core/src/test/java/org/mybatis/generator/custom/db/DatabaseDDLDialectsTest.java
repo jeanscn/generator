@@ -1,0 +1,24 @@
+package org.mybatis.generator.custom.db;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DatabaseDDLDialectsTest {
+
+    @Test
+    void shouldQuoteIdentifierByDialect() {
+        assertThat(DatabaseDDLDialects.MYSQL.quoteIdentifier("user")).isEqualTo("`user`");
+        assertThat(DatabaseDDLDialects.ORACLE.quoteIdentifier("user")).isEqualTo("\"user\"");
+        assertThat(DatabaseDDLDialects.SQL_SERVER.quoteIdentifier("user")).isEqualTo("[user]");
+    }
+
+    @Test
+    void shouldDefineCommentSupportByDialect() {
+        assertThat(DatabaseDDLDialects.MYSQL.supportsInlineColumnComment()).isTrue();
+        assertThat(DatabaseDDLDialects.ORACLE.supportsInlineColumnComment()).isFalse();
+        assertThat(DatabaseDDLDialects.ORACLE.supportsCommentOnStatement()).isTrue();
+        assertThat(DatabaseDDLDialects.SQLITE.supportsCommentOnStatement()).isFalse();
+    }
+}
+

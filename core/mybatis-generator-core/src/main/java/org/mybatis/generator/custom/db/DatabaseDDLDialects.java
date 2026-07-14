@@ -133,7 +133,10 @@ public enum DatabaseDDLDialects {
     }
 
     public boolean supportsCommentOnStatement() {
-        return !supportsInlineColumnComment();
+        return switch (this) {
+            case ORACLE, DB2, POSTGRE_SQL, HIGHGO, KINGBASE_ES, DM, XU_GU -> true;
+            default -> false;
+        };
     }
 
     public boolean supportsIndexUsingClause() {

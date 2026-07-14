@@ -15,6 +15,9 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.StringUtility;
 
+/**
+ * @author cen_c
+ */
 public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
 
     protected List<String> warnings;
@@ -90,7 +93,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
                 .get(introspectedColumn.getJdbcType());
 
         if (jdbcTypeInformation != null) {
-            answer = jdbcTypeInformation.getFullyQualifiedJavaType();
+            answer = jdbcTypeInformation.fullyQualifiedJavaType();
             answer = overrideDefaultType(introspectedColumn, answer);
         }
 
@@ -198,7 +201,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         JdbcTypeInformation jdbcTypeInformation = typeMap.get(introspectedColumn.getJdbcType());
 
         if (jdbcTypeInformation != null) {
-            answer = jdbcTypeInformation.getJdbcTypeName();
+            answer = jdbcTypeInformation.jdbcTypeName();
         }
 
         return answer;
@@ -214,23 +217,7 @@ public class JavaTypeResolverDefaultImpl implements JavaTypeResolver {
         this.context = context;
     }
 
-    public static class JdbcTypeInformation {
-        private final String jdbcTypeName;
+    public record JdbcTypeInformation(String jdbcTypeName, FullyQualifiedJavaType fullyQualifiedJavaType) {
 
-        private final FullyQualifiedJavaType fullyQualifiedJavaType;
-
-        public JdbcTypeInformation(String jdbcTypeName,
-                FullyQualifiedJavaType fullyQualifiedJavaType) {
-            this.jdbcTypeName = jdbcTypeName;
-            this.fullyQualifiedJavaType = fullyQualifiedJavaType;
-        }
-
-        public String getJdbcTypeName() {
-            return jdbcTypeName;
-        }
-
-        public FullyQualifiedJavaType getFullyQualifiedJavaType() {
-            return fullyQualifiedJavaType;
-        }
     }
 }
