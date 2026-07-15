@@ -1,7 +1,6 @@
 package org.mybatis.generator.custom.db;
 
 import com.vgosoft.core.annotation.ColumnMeta;
-import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.core.db.types.JavaTypeResolver;
 import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
@@ -72,7 +71,7 @@ public class ValidateDatabaseTable {
                 //成功后更新List<IntrospectedTable>
                 updateTableIntrospectedTables();
             } catch (SQLException e) {
-                warnings.add("更新数据库时发生错误：(" + e.getMessage()+") " + sql);
+                warnings.add("更新数据库时发生错误：(" + e.getMessage() + ") " + sql);
             }
         }
     }
@@ -136,7 +135,7 @@ public class ValidateDatabaseTable {
     }
 
     private void checkTable() {
-        JavaTypeResolverDefaultImpl javaTypeResolverDefault = new JavaTypeResolverDefaultImpl(JdbcUtils.getDbType(databaseProductName,""));
+        JavaTypeResolverDefaultImpl javaTypeResolverDefault = new JavaTypeResolverDefaultImpl(JdbcUtils.getDbType(databaseProductName, ""));
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         String rootClassName = tc.getProperty(PropertyRegistry.ROOT_CLASS);
         if (!stringHasValue(rootClassName)) {
@@ -150,41 +149,32 @@ public class ValidateDatabaseTable {
             if (columnOpt.isPresent()) {
                 // 比较是否需要更新，使用 orElseThrow 以符合 prefer Optional.orElseThrow 的实践
                 IntrospectedColumn introspectedColumn = columnOpt.orElseThrow(() -> new IllegalStateException("配置列在表中未找到: " + columnMeta.value()));
-                JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault
-                        .getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+                JdbcTypeInformation jdbcTypeInformation = javaTypeResolverDefault.getJdbcTypeInformation(JDBCType.valueOf(introspectedColumn.getJdbcType()));
                 //字段完整注释
                 String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();
                 if (!introspectedColumn.isBlobColumn()) {
                     jdbcTypeInformation.setColumnLength(columnMeta.size());
                     //字段长度
                     int columnLength = jdbcTypeInformation.getColumnLength();
-                    if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
-                            || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber()
-                            || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
-                            || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale()))
-                            || !introspectedColumn.getRemarks(false).equals(remark)
-                            || isPk != columnMeta.pkid()
-                            || (introspectedColumn.isNullable() != columnMeta.nullable())
-                            || (!columnMeta.pkid() && VStringUtil.stringHasValue(columnMeta.defaultValue()) && (!columnMeta.defaultValue().equalsIgnoreCase(introspectedColumn.getDefaultValue()) && !columnMeta.defaultValue().replace("'", "").equalsIgnoreCase(introspectedColumn.getDefaultValue())))
-                    ) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,introspectedColumn);
+                    if (isModifyColumn(introspectedColumn, columnMeta, columnLength, remark, isPk)) {
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable, introspectedColumn);
                         newColumn.setIntrospectedTable(introspectedTable);
                         updateColumns.add(newColumn);
                     }
-                }else{
+                } else {
                     if (!introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
                             || !introspectedColumn.getRemarks(false).equals(remark)
                             || isPk != columnMeta.pkid()
                             || (introspectedColumn.isNullable() != columnMeta.nullable())
                     ) {
-                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,introspectedColumn);
+                        IntrospectedColumn newColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable, introspectedColumn);
                         newColumn.setIntrospectedTable(introspectedTable);
                         updateColumns.add(newColumn);
                     }
                 }
             } else {
                 //需要创建的列
-                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable,null);
+                IntrospectedColumn introspectedColumn = columnBuilder(columnMeta, javaTypeResolverDefault, declaredField, introspectedTable, null);
                 introspectedColumn.setIntrospectedTable(introspectedTable);
                 addColumns.add(introspectedColumn);
             }
@@ -272,10 +262,14 @@ public class ValidateDatabaseTable {
                     .toList();
             if (!collect.isEmpty()) {
                 warnings.add(VStringUtil.format("需要设置为主键的字段：{0}->{1}", tc.getTableName(), String.join(",", collect)));
-                if (!sb.isEmpty()) sb.append(",\n");
+                if (!sb.isEmpty()) {
+                    sb.append(",\n");
+                }
                 sb.append("ADD PRIMARY KEY (");
                 for (int i = 0; i < collect.size(); i++) {
-                    if (i > 0) sb.append(",");
+                    if (i > 0) {
+                        sb.append(",");
+                    }
                     sb.append("`").append(collect.get(i)).append("`");
                 }
                 sb.append(")");
@@ -310,5 +304,17 @@ public class ValidateDatabaseTable {
             warnings.add(VStringUtil.format("类{0}不存在", className));
         }
         return new Field[0];
+    }
+
+    private boolean isModifyColumn(IntrospectedColumn introspectedColumn, ColumnMeta columnMeta, int columnLength, String remark, boolean isPk) {
+       return  !introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
+                || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber()
+                || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
+                || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale()))
+                || !introspectedColumn.getRemarks(false).equals(remark)
+                || isPk != columnMeta.pkid()
+                || (introspectedColumn.isNullable() != columnMeta.nullable())
+                || (!columnMeta.pkid() && VStringUtil.stringHasValue(columnMeta.defaultValue()) && (!columnMeta.defaultValue().equalsIgnoreCase(introspectedColumn.getDefaultValue()) && !columnMeta.defaultValue().replace("'", "").equalsIgnoreCase(introspectedColumn.getDefaultValue())));
+
     }
 }

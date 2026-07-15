@@ -1,7 +1,8 @@
 package org.mybatis.generator.internal.types;
 
 import com.vgosoft.core.db.query.DatabaseType;
-                            import com.vgosoft.core.db.types.JdbcTypeInformation;
+import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
+import com.vgosoft.core.db.types.JdbcTypeInformation;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -26,12 +27,12 @@ public class MbgJavaTypeResolverDefaultImpl implements JavaTypeResolver {
     protected boolean forceBigDecimals;
     protected boolean useJSR310Types;
 
-    protected final com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl coreTypeResolver;
+    protected final JavaTypeResolverDefaultImpl coreTypeResolver;
 
     public MbgJavaTypeResolverDefaultImpl() {
         super();
         properties = new Properties();
-        coreTypeResolver = new com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl(DatabaseType.OTHER);
+        coreTypeResolver = new JavaTypeResolverDefaultImpl(DatabaseType.OTHER);
     }
 
     @Override

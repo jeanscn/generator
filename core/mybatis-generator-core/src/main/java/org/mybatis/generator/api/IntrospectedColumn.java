@@ -232,6 +232,10 @@ public class IntrospectedColumn {
                 || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.time.LocalTime"));
     }
 
+    public boolean isIntegerColumn() {
+        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.lang.Integer"));
+    }
+
     public String getJdbcTypeName() {
         if (jdbcTypeName == null) {
             return "OTHER";
@@ -297,7 +301,8 @@ public class IntrospectedColumn {
             return "";
         }
         StringBuilder sbLength = new StringBuilder();
-        if (!(this.isJdbcDateColumn() || this.isJdbcTimeColumn() || this.isJdbcTimeStampColumn() || this.isBlobColumn() || this.isJava8TimeColumn() || this.isLongVarchar())) {
+        if (!(this.isJdbcDateColumn() || this.isJdbcTimeColumn() || this.isJdbcTimeStampColumn() || this.isBlobColumn()
+                || this.isJava8TimeColumn() || this.isLongVarchar() || this.isIntegerColumn())) {
             sbLength.append("(");
             sbLength.append(this.length);
             if (this.scale > 0) {

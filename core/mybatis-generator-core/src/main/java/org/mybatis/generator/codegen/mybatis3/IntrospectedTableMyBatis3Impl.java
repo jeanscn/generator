@@ -405,7 +405,7 @@ public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
                         databaseType.name().toLowerCase(Locale.ROOT),
                         sqlSchemaGeneratorConfiguration.getTargetProject(),
                         this,
-                        new SqlSchemaScriptGenerator(this, ddlDialects));
+                        new SqlSchemaScriptGenerator(this, databaseType));
                 answer.add(generatedSqlSchemaFile);
             }
         }
