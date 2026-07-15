@@ -148,8 +148,8 @@ public enum DatabaseDDLDialects {
 
     public boolean supportsInlineIndexDefinition() {
         return switch (this) {
-            case ORACLE, POSTGRE_SQL, HIGHGO, KINGBASE_ES, SQL_SERVER, SQL_SERVER2005, SQLITE -> false;
-            default -> true;
+            case MYSQL, MARIADB -> true;
+            default -> false;
         };
     }
 

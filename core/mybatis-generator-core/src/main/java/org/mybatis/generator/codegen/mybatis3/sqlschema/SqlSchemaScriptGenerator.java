@@ -96,8 +96,10 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                         .collect(Collectors.joining(","));
                 String indexName = databaseDdlDialects.quoteIdentifier(index.getName());
                 String indexType = VStringUtil.stringHasValue(index.getType()) ? index.getType() : "BTREE";
+                String uniqueKeyword = index.isUnique() ? "UNIQUE " : "";
                 if (databaseDdlDialects.supportsInlineIndexDefinition()) {
-                    String indexSql = VStringUtil.format("    INDEX {0} ({1})",
+                    String indexSql = VStringUtil.format("    {0}INDEX {1} ({2})",
+                            uniqueKeyword,
                             indexName,
                             indexColumns);
                     if (databaseDdlDialects.supportsIndexUsingClause()) {
@@ -108,12 +110,16 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                     }
                     columnSql.add(indexSql);
                 } else {
-                    String indexSql = VStringUtil.format("CREATE INDEX {0} ON {1} ({2})",
+                    String indexSql = VStringUtil.format("CREATE {0}INDEX {1} ON {2} ({3})",
+                            uniqueKeyword,
                             indexName,
                             quotedTableName,
                             indexColumns);
                     if (databaseDdlDialects.supportsIndexUsingClause()) {
                         indexSql = VStringUtil.format("{0} USING {1}", indexSql, indexType);
+                    }
+                    if (databaseDdlDialects.supportsIndexCommentClause() && VStringUtil.stringHasValue(index.getComments())) {
+                        indexSql = VStringUtil.format("{0} COMMENT {1}", indexSql, "'" + databaseDdlDialects.escapeSqlLiteral(index.getComments()) + "'");
                     }
                     postStatements.add(indexSql + ";");
                 }
