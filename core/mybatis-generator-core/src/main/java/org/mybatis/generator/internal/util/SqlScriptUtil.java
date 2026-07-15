@@ -1,6 +1,5 @@
 package org.mybatis.generator.internal.util;
 
-import com.vgosoft.core.constant.enums.db.DDLDefaultValueEnum;
 import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -50,7 +49,7 @@ public class SqlScriptUtil {
                     col.getActualTypeName(),
                     col.getSqlFragmentLength(),
                     character,
-                    SqlScriptUtil.getSqlFragmentNotNull(col),
+                    SqlScriptUtil.getSqlFragmentNotNull(col, databaseDialect),
                     databaseDialect.escapeSqlLiteral(col.getRemarks(false)),
                     position);
             if (!sb.isEmpty()) {
@@ -62,37 +61,40 @@ public class SqlScriptUtil {
     }
 
     public static String getSqlFragmentNotNull(IntrospectedColumn introspectedColumn) {
+        return getSqlFragmentNotNull(introspectedColumn, DatabaseDDLDialects.OTHER);
+    }
+
+    public static String getSqlFragmentNotNull(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect) {
         JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+        DatabaseDDLDialects dialect = databaseDialect == null ? DatabaseDDLDialects.OTHER : databaseDialect;
         StringBuilder notNull = new StringBuilder();
         if (!introspectedColumn.isNullable()) {
             notNull.append("NOT NULL ");
-            notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue()));
+            notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue(), dialect));
         } else {
             notNull.append("NULL ");
             if (introspectedColumn.getDefaultValue()!=null) {
-                notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue()));
+                notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue(), dialect));
             }
         }
         return notNull.toString();
     }
 
-    private static String getDefaultValueString(JDBCTypeTypeEnum jdbcTypeType, String defaultValue) {
+    private static String getDefaultValueString(JDBCTypeTypeEnum jdbcTypeType, String defaultValue, DatabaseDDLDialects databaseDialect) {
         if (VStringUtil.stringHasValue(defaultValue)) {
             if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
                 if (defaultValue.startsWith("'") && defaultValue.endsWith("'")) {
                     return " DEFAULT " + defaultValue + " ";
                 } else {
-                    return " DEFAULT '" + defaultValue + "' ";
+                    return " DEFAULT '" + databaseDialect.escapeSqlLiteral(defaultValue) + "' ";
                 }
             } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
-                if (defaultValue.startsWith("CURRENT_")) {
-                    return " DEFAULT (" + defaultValue + ") ";
-                } else if (defaultValue.startsWith("'now")) {
-                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_DATETIME_EXPR.code() +" ";
-                } else if (defaultValue.startsWith("'curdate")) {
-                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_DATE_EXPR.code() +" ";
-                } else if (defaultValue.startsWith("'curtime")) {
-                    return " DEFAULT "+ DDLDefaultValueEnum.CURRENT_TIME_EXPR.code() +" ";
+                String normalizedExpr = resolveCurrentDateTimeExpression(defaultValue, databaseDialect);
+                if (normalizedExpr != null) {
+                    return " DEFAULT " + normalizedExpr + " ";
+                }
+                if (defaultValue.startsWith("'") && defaultValue.endsWith("'")) {
+                    return " DEFAULT " + defaultValue + " ";
                 } else {
                     return " DEFAULT '" + defaultValue + "' ";
                 }
@@ -103,13 +105,43 @@ public class SqlScriptUtil {
             if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
                 return " DEFAULT '' ";
             } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
-                return " DEFAULT " + DDLDefaultValueEnum.CURRENT_DATETIME_EXPR.code() + " ";
+                return " DEFAULT " + databaseDialect.currentDateTimeExpression() + " ";
             } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.NUMERIC)) {
                 return " DEFAULT 0 ";
             } else {
                 return " ";
             }
         }
+    }
+
+    private static String resolveCurrentDateTimeExpression(String defaultValue, DatabaseDDLDialects databaseDialect) {
+        if (!VStringUtil.stringHasValue(defaultValue)) {
+            return null;
+        }
+        String trimmed = defaultValue.trim();
+        if (trimmed.startsWith("(") && trimmed.endsWith(")") && trimmed.length() > 2) {
+            trimmed = trimmed.substring(1, trimmed.length() - 1).trim();
+        }
+        String token = trimmed;
+        if (token.startsWith("'") && token.endsWith("'") && token.length() > 1) {
+            token = token.substring(1, token.length() - 1).trim();
+        }
+        String normalized = token.toUpperCase();
+        if (normalized.endsWith("()")) {
+            normalized = normalized.substring(0, normalized.length() - 2);
+        }
+
+        if ("NOW".equals(normalized) || "CURRENT_TIMESTAMP".equals(normalized) || "LOCALTIMESTAMP".equals(normalized)
+                || "CURRENT_DATETIME".equals(normalized)) {
+            return databaseDialect.currentDateTimeExpression();
+        }
+        if ("CURDATE".equals(normalized) || "CURRENT_DATE".equals(normalized) || "TODAY".equals(normalized)) {
+            return databaseDialect.currentDateExpression();
+        }
+        if ("CURTIME".equals(normalized) || "CURRENT_TIME".equals(normalized)) {
+            return databaseDialect.currentTimeExpression();
+        }
+        return normalized.startsWith("CURRENT_") ? token : null;
     }
 
     public static boolean isMysqlOrMariadbDatabase(DatabaseDDLDialects databaseDialect) {

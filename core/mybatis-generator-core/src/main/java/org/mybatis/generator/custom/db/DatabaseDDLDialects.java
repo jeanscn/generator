@@ -168,4 +168,23 @@ public enum DatabaseDDLDialects {
             default -> "";
         };
     }
+
+    public String currentDateTimeExpression() {
+        return "CURRENT_TIMESTAMP";
+    }
+
+    public String currentDateExpression() {
+        return switch (this) {
+            case SQL_SERVER, SQL_SERVER2005 -> "CAST(CURRENT_TIMESTAMP AS DATE)";
+            default -> "CURRENT_DATE";
+        };
+    }
+
+    public String currentTimeExpression() {
+        return switch (this) {
+            case SQL_SERVER, SQL_SERVER2005 -> "CAST(CURRENT_TIMESTAMP AS TIME)";
+            case ORACLE -> "CURRENT_TIMESTAMP";
+            default -> "CURRENT_TIME";
+        };
+    }
 }

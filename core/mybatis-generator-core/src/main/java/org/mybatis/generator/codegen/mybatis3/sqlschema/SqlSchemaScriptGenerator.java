@@ -73,7 +73,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                     VStringUtil.toUpperCase(jdbcTypeInformation.getActualTypeName()),
                     col.getSqlFragmentLength(),
                     character,
-                    SqlScriptUtil.getSqlFragmentNotNull(col),
+                    SqlScriptUtil.getSqlFragmentNotNull(col, databaseDdlDialects),
                     remarks);
             columnSql.add(rowSql);
         }

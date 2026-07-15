@@ -20,5 +20,12 @@ class DatabaseDDLDialectsTest {
         assertThat(DatabaseDDLDialects.ORACLE.supportsCommentOnStatement()).isTrue();
         assertThat(DatabaseDDLDialects.SQLITE.supportsCommentOnStatement()).isFalse();
     }
-}
 
+    @Test
+    void shouldProvideDefaultDateTimeExpressionsByDialect() {
+        assertThat(DatabaseDDLDialects.MYSQL.currentDateTimeExpression()).isEqualTo("CURRENT_TIMESTAMP");
+        assertThat(DatabaseDDLDialects.SQL_SERVER.currentDateExpression()).isEqualTo("CAST(CURRENT_TIMESTAMP AS DATE)");
+        assertThat(DatabaseDDLDialects.SQL_SERVER2005.currentTimeExpression()).isEqualTo("CAST(CURRENT_TIMESTAMP AS TIME)");
+        assertThat(DatabaseDDLDialects.ORACLE.currentTimeExpression()).isEqualTo("CURRENT_TIMESTAMP");
+    }
+}
