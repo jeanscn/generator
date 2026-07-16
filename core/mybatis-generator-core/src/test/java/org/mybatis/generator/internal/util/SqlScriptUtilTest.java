@@ -55,6 +55,24 @@ class SqlScriptUtilTest {
         assertTrue(fragment.contains("DEFAULT 'O''Reilly' "));
     }
 
+    @Test
+    void shouldMapMysqlStyleBitDefaultForDm() {
+        IntrospectedColumn column = column(JDBCType.BIT, false, "b(1)");
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.DM);
+        assertTrue(fragment.startsWith("NOT NULL "));
+        assertTrue(fragment.contains("DEFAULT 1 "));
+    }
+
+    @Test
+    void shouldKeepMysqlStyleBitDefaultForMysql() {
+        IntrospectedColumn column = column(JDBCType.BIT, false, "b(0)");
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.MYSQL);
+        assertTrue(fragment.startsWith("NOT NULL "));
+        assertTrue(fragment.contains("DEFAULT b(0) "));
+    }
+
     private IntrospectedColumn column(JDBCType jdbcType, boolean nullable, String defaultValue) {
         IntrospectedColumn column = new IntrospectedColumn();
         column.setJdbcType(jdbcType.getVendorTypeNumber());

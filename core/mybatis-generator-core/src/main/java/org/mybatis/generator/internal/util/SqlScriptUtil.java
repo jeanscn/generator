@@ -67,14 +67,17 @@ public class SqlScriptUtil {
     public static String getSqlFragmentNotNull(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect) {
         JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(introspectedColumn.getJdbcType()));
         DatabaseDDLDialects dialect = databaseDialect == null ? DatabaseDDLDialects.OTHER : databaseDialect;
+        String compatibleDefaultValue = isMysqlOrMariadbDatabase(dialect)
+                ? introspectedColumn.getDefaultValue()
+                : introspectedColumn.getDialectCompatibleDefaultValue();
         StringBuilder notNull = new StringBuilder();
         if (!introspectedColumn.isNullable()) {
             notNull.append("NOT NULL ");
-            notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue(), dialect));
+            notNull.append(getDefaultValueString(jdbcTypeType, compatibleDefaultValue, dialect));
         } else {
             notNull.append("NULL ");
             if (introspectedColumn.getDefaultValue()!=null) {
-                notNull.append(getDefaultValueString(jdbcTypeType, introspectedColumn.getDefaultValue(), dialect));
+                notNull.append(getDefaultValueString(jdbcTypeType, compatibleDefaultValue, dialect));
             }
         }
         return notNull.toString();

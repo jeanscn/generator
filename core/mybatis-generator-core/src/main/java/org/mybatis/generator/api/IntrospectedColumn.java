@@ -10,6 +10,8 @@ import org.mybatis.generator.internal.util.StringUtility;
 import java.sql.JDBCType;
 import java.sql.Types;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -21,6 +23,8 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 @Getter
 @Setter
 public class IntrospectedColumn {
+    private static final Pattern BIT_DEFAULT_PAREN_PATTERN = Pattern.compile("(?i)^b\\s*\\(\\s*([01])\\s*\\)$");
+    private static final Pattern BIT_DEFAULT_QUOTE_PATTERN = Pattern.compile("(?i)^b\\s*'\\s*([01])\\s*'$");
 
     protected String actualColumnName;
 
@@ -233,7 +237,9 @@ public class IntrospectedColumn {
     }
 
     public boolean isIntegerColumn() {
-        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.lang.Integer"));
+        return fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.lang.Integer"))
+                || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.lang.Long"))
+                || fullyQualifiedJavaType.equals(new FullyQualifiedJavaType("java.lang.Short"));
     }
 
     public String getJdbcTypeName() {
@@ -297,22 +303,40 @@ public class IntrospectedColumn {
     }
 
     public String getSqlFragmentLength() {
-        if (this.getActualTypeName().toUpperCase().contains("UNSIGNED")) {
-            return "";
+        if (stringHasValue(this.getActualTypeName()) && this.getActualTypeName().toUpperCase().contains("UNSIGNED")) {
+            return " ";
         }
-        StringBuilder sbLength = new StringBuilder();
-        if (!(this.isJdbcDateColumn() || this.isJdbcTimeColumn() || this.isJdbcTimeStampColumn() || this.isBlobColumn()
-                || this.isJava8TimeColumn() || this.isLongVarchar() || this.isIntegerColumn())) {
-            sbLength.append("(");
-            sbLength.append(this.length);
-            if (this.scale > 0) {
-                sbLength.append(",").append(this.scale);
+        if (this.length <= 0) {
+            return " ";
+        }
+
+        return switch (this.jdbcType) {
+            case Types.DECIMAL, Types.NUMERIC -> {
+                if (this.scale > 0) {
+                    yield "(" + this.length + ", " + this.scale + ") ";
+                }
+                yield "(" + this.length + ") ";
             }
-            sbLength.append(") ");
-        } else {
-            sbLength.append(" ");
+            case Types.CHAR, Types.VARCHAR, Types.NCHAR, Types.NVARCHAR, Types.BINARY, Types.VARBINARY, Types.BIT ->
+                    "(" + this.length + ") ";
+            default -> " ";
+        };
+    }
+
+    public String getDialectCompatibleDefaultValue() {
+        if (!stringHasValue(this.defaultValue) || (this.jdbcType != Types.BIT && this.jdbcType != Types.BOOLEAN)) {
+            return this.defaultValue;
         }
-        return sbLength.toString();
+        String normalized = this.defaultValue.trim();
+        Matcher parenMatcher = BIT_DEFAULT_PAREN_PATTERN.matcher(normalized);
+        if (parenMatcher.matches()) {
+            return parenMatcher.group(1);
+        }
+        Matcher quoteMatcher = BIT_DEFAULT_QUOTE_PATTERN.matcher(normalized);
+        if (quoteMatcher.matches()) {
+            return quoteMatcher.group(1);
+        }
+        return this.defaultValue;
     }
 
     public boolean isRequired() {
