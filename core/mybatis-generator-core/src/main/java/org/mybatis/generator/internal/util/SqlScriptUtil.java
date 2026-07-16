@@ -5,6 +5,7 @@ import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
+import org.mybatis.generator.dbstrategy.DatabaseProfile;
 
 import java.sql.JDBCType;
 import java.util.List;
@@ -26,9 +27,8 @@ public class SqlScriptUtil {
              * sql模板
              * 如：ADD COLUMN `col_varchar` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'varchar字段' AFTER `parent_id`;
              * */
-            DatabaseDDLDialects databaseDialect = DatabaseIntrospectorFactory
-                    .createProfile(databaseProductName, null)
-                    .ddlDialect();
+            DatabaseProfile databaseProfile = DatabaseIntrospectorFactory.createProfile(databaseProductName, null);
+            DatabaseDDLDialects databaseDialect = databaseProfile.ddlDialect();
             if (databaseDialect == null) {
                 throw new IllegalArgumentException("Unsupported database dialect: " + databaseProductName);
             }
@@ -47,7 +47,7 @@ public class SqlScriptUtil {
                     actionKey,
                     databaseDialect.quoteIdentifier(col.getActualColumnName()),
                     col.getActualTypeName(),
-                    col.getSqlFragmentLength(),
+                    col.getSqlFragmentLength(col.getActualColumnName()),
                     character,
                     SqlScriptUtil.getSqlFragmentNotNull(col, databaseDialect),
                     databaseDialect.escapeSqlLiteral(col.getRemarks(false)),

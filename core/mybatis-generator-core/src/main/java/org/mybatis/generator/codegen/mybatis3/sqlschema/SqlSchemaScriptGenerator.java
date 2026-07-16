@@ -68,10 +68,11 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
             }
             String remarks = databaseDdlDialects.escapeSqlLiteral(col.getRemarks(false));
             JdbcTypeInformation jdbcTypeInformation = coreJavaTypeResolver.getJdbcTypeInformation(JDBCType.valueOf(col.getJdbcType()));
+            String actualTypeName = VStringUtil.toUpperCase(jdbcTypeInformation.getActualTypeName());
             String rowSql = VStringUtil.format(createStatement,
                     databaseDdlDialects.quoteIdentifier(col.getActualColumnName()),
-                    VStringUtil.toUpperCase(jdbcTypeInformation.getActualTypeName()),
-                    col.getSqlFragmentLength(),
+                    actualTypeName,
+                    col.getSqlFragmentLength(actualTypeName),
                     character,
                     SqlScriptUtil.getSqlFragmentNotNull(col, databaseDdlDialects),
                     remarks);

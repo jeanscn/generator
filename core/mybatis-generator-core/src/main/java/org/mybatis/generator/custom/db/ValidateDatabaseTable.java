@@ -1,6 +1,7 @@
 package org.mybatis.generator.custom.db;
 
 import com.vgosoft.core.annotation.ColumnMeta;
+import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.core.db.types.JavaTypeResolver;
 import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
@@ -12,6 +13,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.dbstrategy.DatabaseProfile;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.SqlScriptUtil;
 import org.mybatis.generator.internal.util.StringUtility;

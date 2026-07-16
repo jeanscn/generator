@@ -14,7 +14,7 @@ class IntrospectedColumnTest {
         column.setJdbcType(Types.VARCHAR);
         column.setLength(255);
 
-        assertThat(column.getSqlFragmentLength()).isEqualTo("(255) ");
+        assertThat(column.getSqlFragmentLength(null)).isEqualTo("(255) ");
     }
 
     @Test
@@ -24,7 +24,7 @@ class IntrospectedColumnTest {
         column.setLength(10);
         column.setScale(2);
 
-        assertThat(column.getSqlFragmentLength()).isEqualTo("(10, 2) ");
+        assertThat(column.getSqlFragmentLength(null)).isEqualTo("(10, 2) ");
     }
 
     @Test
@@ -34,7 +34,7 @@ class IntrospectedColumnTest {
         column.setLength(10);
         column.setScale(0);
 
-        assertThat(column.getSqlFragmentLength()).isEqualTo("(10) ");
+        assertThat(column.getSqlFragmentLength(null)).isEqualTo("(10) ");
     }
 
     @Test
@@ -43,7 +43,7 @@ class IntrospectedColumnTest {
         column.setJdbcType(Types.TIMESTAMP);
         column.setLength(6);
 
-        assertThat(column.getSqlFragmentLength()).isEqualTo(" ");
+        assertThat(column.getSqlFragmentLength(null)).isEqualTo(" ");
     }
 
     @Test
@@ -53,6 +53,6 @@ class IntrospectedColumnTest {
         column.setLength(11);
         column.setActualTypeName("INT UNSIGNED");
 
-        assertThat(column.getSqlFragmentLength()).isEqualTo(" ");
+        assertThat(column.getSqlFragmentLength(null)).isEqualTo(" ");
     }
 }

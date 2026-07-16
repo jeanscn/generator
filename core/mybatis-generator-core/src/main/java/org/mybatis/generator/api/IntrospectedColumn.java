@@ -302,22 +302,23 @@ public class IntrospectedColumn {
         }
     }
 
-    public String getSqlFragmentLength() {
-        if (stringHasValue(this.getActualTypeName()) && this.getActualTypeName().toUpperCase().contains("UNSIGNED")) {
+    public String getSqlFragmentLength(String actualTypeName) {
+        String actualType = actualTypeName!=null ? actualTypeName : this.getActualTypeName();
+        if (stringHasValue(actualType) && actualType.toUpperCase().contains("UNSIGNED")) {
             return " ";
         }
         if (this.length <= 0) {
             return " ";
         }
 
-        return switch (this.jdbcType) {
-            case Types.DECIMAL, Types.NUMERIC -> {
+        return switch (actualType.toUpperCase()) {
+            case "DECIMAL", "NUMERIC" -> {
                 if (this.scale > 0) {
                     yield "(" + this.length + ", " + this.scale + ") ";
                 }
                 yield "(" + this.length + ") ";
             }
-            case Types.CHAR, Types.VARCHAR, Types.NCHAR, Types.NVARCHAR, Types.BINARY, Types.VARBINARY, Types.BIT ->
+            case "CHAR", "VARCHAR", "NCHAR", "NVARCHAR", "BINARY", "VARBINARY", "BIT" ->
                     "(" + this.length + ") ";
             default -> " ";
         };
