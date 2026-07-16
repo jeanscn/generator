@@ -50,6 +50,7 @@
           5、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           6、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           7、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
+          8、additionalDbTypes 数据库类型包括：mysql,oracle,PostgreSql,sqlserver,sqlServer2005,dm,highgo,xugu,kingbasees,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase
           特别说明：
           1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
@@ -1387,13 +1388,14 @@
             SqlSchema sql schema文件生成描述
             属性信息：
             1、generate 是否生成,true生成（生成H2\Mysql数据库对应的ddl）,false忽略。缺省值true
-            2、additionalDbTypes 额外生成的数据库类型，多个数据库类型用逗号分隔。缺省值为空
-               数据库类型包括：mysql,oracle,PostgreSql,sqlserver,sqlServer2005,dm,highgo,xugu,kingbasees,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase
+            3、可能的属性name值：
+                - additionalDbTypes 额外生成的数据库类型，多个数据库类型用逗号分隔。缺省值为空。
+                  （数据库类型包括：mysql,oracle,PostgreSql,sqlserver,sqlServer2005,dm,highgo,xugu,kingbasees,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase）
+
         -->
         <!ELEMENT generateSqlSchema (property*)>
         <!ATTLIST generateSqlSchema
-                generate (true|false) #REQUIRED
-                additionalDbTypes CDATA #IMPLIED>
+                generate (true|false) #REQUIRED>
 
         <!--
             所有Vo类的父级配置，用于配置vo的通用属性

@@ -64,13 +64,16 @@ public class PropertyRegistry {
     public static final String COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION = "useLegacyGeneratedAnnotation";
     public static final String COLUMN_OVERRIDE_FORCE_JAVA_TYPE = "forceJavaTypeIntoMapping";
 
-    //定制属性
+    /**
+     * 定制属性
+     */
     public static final String CONTEXT_HTML_TARGET_PROJECT = "htmlTargetProject";
     public static final String CONTEXT_HTML_TARGET_PACKAGE = "htmlTargetPackage";
     public static final String CONTEXT_HTML_UI_FRAME = "htmlUiFrame";
     public static final String CONTEXT_HTML_BAR_POSITION = "htmlBarPosition";
     public static final String CONTEXT_HTML_PAGE_COLUMNS_NUM = "htmlPageColumnsNum";
     public static final String CONTEXT_HTML_LOADING_FRAME_TYPE = "htmlLoadingFrameType";
+    public static final String ANY_PROPERTY_ADDITIONAL_DB_TYPES = "additionalDbTypes";
 
     public static final String ELEMENT_HTML_BUTTON = "htmlButton";
     public static final String CONTEXT_ROOT_MODULE_NAME = "rootModuleName";
@@ -83,6 +86,7 @@ public class PropertyRegistry {
     public static final String CONTEXT_INTEGRATE_SPRING_SECURITY = "integrateSpringSecurity";
     public static final String CONTEXT_FORCE_UPDATE_SCALABLE_ELEMENT = "forceUpdateScalableElement";
     public static final String CONTEXT_FORCE_UPDATE_ELEMENT_LIST = "forceUpdateElementList";
+
 
     public static final String ANY_GENERATE = "generate";
     public static final String ANY_TARGET_PROJECT = "targetProject";

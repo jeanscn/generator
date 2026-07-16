@@ -1,6 +1,7 @@
 package org.mybatis.generator.config.xml;
 
 import com.vgosoft.core.constant.GlobalConstant;
+import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.core.constant.enums.core.QueryModesEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.db.FieldTypeEnum;
@@ -50,11 +51,7 @@ public class MyBatisGeneratorConfigurationParser {
 
     public MyBatisGeneratorConfigurationParser(Properties extraProperties,List<String> warnings) {
         super();
-        if (extraProperties == null) {
-            this.extraProperties = new Properties();
-        } else {
-            this.extraProperties = extraProperties;
-        }
+        this.extraProperties = Objects.requireNonNullElseGet(extraProperties, Properties::new);
         configurationProperties = new Properties();
         this.warnings = warnings;
     }
@@ -170,7 +167,7 @@ public class MyBatisGeneratorConfigurationParser {
         context.setIntegrateSpringSecurity(!stringHasValue(integrateSpringSecurity) || Boolean.parseBoolean(integrateSpringSecurity));
         String forceUpdateScalableElement = attributes.getProperty(PropertyRegistry.CONTEXT_FORCE_UPDATE_SCALABLE_ELEMENT);
         context.setForceUpdateScalableElement(stringHasValue(forceUpdateScalableElement) && Boolean.parseBoolean(forceUpdateScalableElement));
-        String jdkVersion = attributes.getProperty("jdkVersion", "8");
+        String jdkVersion = attributes.getProperty("jdkVersion", "11");
         context.setJdkVersion(Integer.parseInt(jdkVersion));
 
         String vueEndProjectPath = attributes.getProperty("vueEndProjectPath");
@@ -618,25 +615,13 @@ public class MyBatisGeneratorConfigurationParser {
         }
         //如果未指定，则设置JavaModelGenerator默认值
         if (tc.getJavaModelGeneratorConfiguration() == null) {
-            JavaModelGeneratorConfiguration modelConfiguration = new JavaModelGeneratorConfiguration();
-            //继承context的配置
-            JavaModelGeneratorConfiguration contextConfiguration = context.getJavaModelGeneratorConfiguration();
-            modelConfiguration.setTargetPackage(contextConfiguration.getTargetPackage());
-            modelConfiguration.setTargetProject(contextConfiguration.getTargetProject());
-            modelConfiguration.setBaseTargetPackage(contextConfiguration.getBaseTargetPackage());
-            modelConfiguration.setTargetPackageGen(contextConfiguration.getTargetPackageGen());
-            modelConfiguration.setGenerate(true);
-            modelConfiguration.setBaseTargetPackage(context.getJavaModelGeneratorConfiguration().getBaseTargetPackage());
+            JavaModelGeneratorConfiguration modelConfiguration = getJavaModelGeneratorConfiguration(context);
             tc.setJavaModelGeneratorConfiguration(modelConfiguration);
         }
 
         //如果未指定，则设置JavaClientGenerator默认值
         if (tc.getSqlMapGeneratorConfiguration() == null) {
-            SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
-            sqlMapGeneratorConfiguration.setGenerate(true);
-            sqlMapGeneratorConfiguration.setTargetPackage(context.getSqlMapGeneratorConfiguration().getTargetPackage());
-            sqlMapGeneratorConfiguration.setTargetProject(context.getSqlMapGeneratorConfiguration().getTargetProject());
-            sqlMapGeneratorConfiguration.setBaseTargetPackage(context.getJavaModelGeneratorConfiguration().getBaseTargetPackage());
+            SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = getSqlMapGeneratorConfiguration(context);
             tc.setSqlMapGeneratorConfiguration(sqlMapGeneratorConfiguration);
         }
 
@@ -697,6 +682,28 @@ public class MyBatisGeneratorConfigurationParser {
             configuration.setGenerate(false);
             tc.setVoCacheGeneratorConfiguration(configuration);
         }
+    }
+
+    private static SqlMapGeneratorConfiguration getSqlMapGeneratorConfiguration(Context context) {
+        SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
+        sqlMapGeneratorConfiguration.setGenerate(true);
+        sqlMapGeneratorConfiguration.setTargetPackage(context.getSqlMapGeneratorConfiguration().getTargetPackage());
+        sqlMapGeneratorConfiguration.setTargetProject(context.getSqlMapGeneratorConfiguration().getTargetProject());
+        sqlMapGeneratorConfiguration.setBaseTargetPackage(context.getJavaModelGeneratorConfiguration().getBaseTargetPackage());
+        return sqlMapGeneratorConfiguration;
+    }
+
+    private static JavaModelGeneratorConfiguration getJavaModelGeneratorConfiguration(Context context) {
+        JavaModelGeneratorConfiguration modelConfiguration = new JavaModelGeneratorConfiguration();
+        //继承context的配置
+        JavaModelGeneratorConfiguration contextConfiguration = context.getJavaModelGeneratorConfiguration();
+        modelConfiguration.setTargetPackage(contextConfiguration.getTargetPackage());
+        modelConfiguration.setTargetProject(contextConfiguration.getTargetProject());
+        modelConfiguration.setBaseTargetPackage(contextConfiguration.getBaseTargetPackage());
+        modelConfiguration.setTargetPackageGen(contextConfiguration.getTargetPackageGen());
+        modelConfiguration.setGenerate(true);
+        modelConfiguration.setBaseTargetPackage(context.getJavaModelGeneratorConfiguration().getBaseTargetPackage());
+        return modelConfiguration;
     }
 
     private void parseColumnOverride(TableConfiguration tc, Node node) {
@@ -2368,13 +2375,14 @@ public class MyBatisGeneratorConfigurationParser {
         SqlSchemaGeneratorConfiguration sqlSchemaGeneratorConfiguration = new SqlSchemaGeneratorConfiguration(context, tc);
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
         sqlSchemaGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
+        parseChildNodeOnlyProperty(sqlSchemaGeneratorConfiguration, node);
 
-        String additionalDbTypes = attributes.getProperty("additionalDbTypes");
-        if (stringHasValue(additionalDbTypes)) {
-            Set<String> dbTypes = splitToSet(additionalDbTypes);
+        String contextProperty = context.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
+        String currenProperty = sqlSchemaGeneratorConfiguration.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
+        if (VStringUtil.stringHasValue(contextProperty)|| VStringUtil.stringHasValue(currenProperty)) {
+            Set<String> dbTypes = splitToSet(currenProperty + SymbolConstants.COMMA + contextProperty);
             sqlSchemaGeneratorConfiguration.setAdditionalDbTypes(dbTypes);
         }
-        parseChildNodeOnlyProperty(sqlSchemaGeneratorConfiguration, node);
         tc.setSqlSchemaGeneratorConfiguration(sqlSchemaGeneratorConfiguration);
     }
 
