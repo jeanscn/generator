@@ -175,6 +175,7 @@ public enum DatabaseDDLDialects {
 
     public String currentDateExpression() {
         return switch (this) {
+            case MYSQL, MARIADB -> "(CURRENT_DATE)";
             case SQL_SERVER, SQL_SERVER2005 -> "CAST(CURRENT_TIMESTAMP AS DATE)";
             default -> "CURRENT_DATE";
         };
@@ -182,6 +183,7 @@ public enum DatabaseDDLDialects {
 
     public String currentTimeExpression() {
         return switch (this) {
+            case MYSQL, MARIADB -> "(CURRENT_TIME)";
             case SQL_SERVER, SQL_SERVER2005 -> "CAST(CURRENT_TIMESTAMP AS TIME)";
             case ORACLE -> "CURRENT_TIMESTAMP";
             default -> "CURRENT_TIME";

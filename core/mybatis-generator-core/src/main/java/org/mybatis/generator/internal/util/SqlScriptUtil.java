@@ -8,7 +8,11 @@ import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 import org.mybatis.generator.dbstrategy.DatabaseProfile;
 
 import java.sql.JDBCType;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -16,6 +20,16 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  * @author cen_c
  */
 public class SqlScriptUtil {
+    private static final Set<String> MYSQL_UNSUPPORTED_DEFAULT_TYPES = Set.of(
+            "TINYBLOB", "BLOB", "MEDIUMBLOB", "LONGBLOB",
+            "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT",
+            "JSON",
+            "GEOMETRY", "POINT", "LINESTRING", "POLYGON",
+            "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION"
+    );
+    private static final Set<String> SQL_SERVER_UNSUPPORTED_DEFAULT_TYPES = Set.of("TEXT", "NTEXT", "IMAGE");
+    private static final Set<String> ORACLE_UNSUPPORTED_DEFAULT_TYPES = Set.of("BLOB", "CLOB", "NCLOB", "BFILE", "LONG", "LONG RAW");
+    private static final Set<String> DB2_UNSUPPORTED_DEFAULT_TYPES = Set.of("BLOB", "CLOB", "DBCLOB", "XML");
 
     private SqlScriptUtil() {}
 
@@ -73,17 +87,21 @@ public class SqlScriptUtil {
         StringBuilder notNull = new StringBuilder();
         if (!introspectedColumn.isNullable()) {
             notNull.append("NOT NULL ");
-            notNull.append(getDefaultValueString(jdbcTypeType, compatibleDefaultValue, dialect));
+            notNull.append(getDefaultValueString(introspectedColumn, jdbcTypeType, compatibleDefaultValue, dialect));
         } else {
             notNull.append("NULL ");
             if (introspectedColumn.getDefaultValue()!=null) {
-                notNull.append(getDefaultValueString(jdbcTypeType, compatibleDefaultValue, dialect));
+                notNull.append(getDefaultValueString(introspectedColumn, jdbcTypeType, compatibleDefaultValue, dialect));
             }
         }
         return notNull.toString();
     }
 
-    private static String getDefaultValueString(JDBCTypeTypeEnum jdbcTypeType, String defaultValue, DatabaseDDLDialects databaseDialect) {
+    private static String getDefaultValueString(IntrospectedColumn introspectedColumn, JDBCTypeTypeEnum jdbcTypeType,
+                                                String defaultValue, DatabaseDDLDialects databaseDialect) {
+        if (!supportsDefaultValue(introspectedColumn, databaseDialect)) {
+            return " ";
+        }
         if (VStringUtil.stringHasValue(defaultValue)) {
             if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
                 if (defaultValue.startsWith("'") && defaultValue.endsWith("'")) {
@@ -108,13 +126,50 @@ public class SqlScriptUtil {
             if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
                 return " DEFAULT '' ";
             } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
-                return " DEFAULT " + databaseDialect.currentDateTimeExpression() + " ";
+                return " DEFAULT " + resolveCurrentTemporalExpression(introspectedColumn, databaseDialect) + " ";
             } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.NUMERIC)) {
                 return " DEFAULT 0 ";
             } else {
                 return " ";
             }
         }
+    }
+
+    private static boolean supportsDefaultValue(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect) {
+        String typeName = normalizeTypeName(introspectedColumn.getActualTypeName());
+        if (!VStringUtil.stringHasValue(typeName)) {
+            return true;
+        }
+        Set<String> unsupportedTypes = switch (databaseDialect) {
+            case MYSQL, MARIADB -> MYSQL_UNSUPPORTED_DEFAULT_TYPES;
+            case SQL_SERVER, SQL_SERVER2005 -> SQL_SERVER_UNSUPPORTED_DEFAULT_TYPES;
+            case ORACLE, DM -> ORACLE_UNSUPPORTED_DEFAULT_TYPES;
+            case DB2 -> DB2_UNSUPPORTED_DEFAULT_TYPES;
+            default -> Set.of();
+        };
+        if (unsupportedTypes.isEmpty()) {
+            return true;
+        }
+        return unsupportedTypes.stream().noneMatch(type -> typeName.equals(type) || typeName.startsWith(type + " "));
+    }
+
+    private static String normalizeTypeName(String actualTypeName) {
+        if (!VStringUtil.stringHasValue(actualTypeName)) {
+            return "";
+        }
+        String normalized = actualTypeName
+                .toUpperCase(Locale.ROOT)
+                .replace('`', ' ')
+                .replace('"', ' ')
+                .trim()
+                .replaceAll("\\s+", " ");
+        int leftParen = normalized.indexOf('(');
+        if (leftParen >= 0) {
+            normalized = normalized.substring(0, leftParen).trim();
+        }
+        return Arrays.stream(normalized.split(" "))
+                .filter(VStringUtil::stringHasValue)
+                .collect(Collectors.joining(" "));
     }
 
     private static String resolveCurrentDateTimeExpression(String defaultValue, DatabaseDDLDialects databaseDialect) {
@@ -134,17 +189,22 @@ public class SqlScriptUtil {
             normalized = normalized.substring(0, normalized.length() - 2);
         }
 
-        if ("NOW".equals(normalized) || "CURRENT_TIMESTAMP".equals(normalized) || "LOCALTIMESTAMP".equals(normalized)
-                || "CURRENT_DATETIME".equals(normalized)) {
-            return databaseDialect.currentDateTimeExpression();
-        }
-        if ("CURDATE".equals(normalized) || "CURRENT_DATE".equals(normalized) || "TODAY".equals(normalized)) {
-            return databaseDialect.currentDateExpression();
-        }
-        if ("CURTIME".equals(normalized) || "CURRENT_TIME".equals(normalized)) {
-            return databaseDialect.currentTimeExpression();
-        }
-        return normalized.startsWith("CURRENT_") ? token : null;
+        return switch (normalized) {
+            case "NOW", "CURRENT_TIMESTAMP", "LOCALTIMESTAMP", "CURRENT_DATETIME" ->
+                    databaseDialect.currentDateTimeExpression();
+            case "CURDATE", "CURRENT_DATE", "TODAY" -> databaseDialect.currentDateExpression();
+            case "CURTIME", "CURRENT_TIME" -> databaseDialect.currentTimeExpression();
+            default -> normalized.startsWith("CURRENT_") ? token : null;
+        };
+    }
+
+    private static String resolveCurrentTemporalExpression(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect) {
+        JDBCType jdbcType = JDBCType.valueOf(introspectedColumn.getJdbcType());
+        return switch (jdbcType) {
+            case DATE -> databaseDialect.currentDateExpression();
+            case TIME, TIME_WITH_TIMEZONE -> databaseDialect.currentTimeExpression();
+            default -> databaseDialect.currentDateTimeExpression();
+        };
     }
 
     public static boolean isMysqlOrMariadbDatabase(DatabaseDDLDialects databaseDialect) {
