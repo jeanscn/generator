@@ -18,7 +18,6 @@ public class SqlDataSysMenuScriptGenerator extends AbstractSqlScriptGenerator {
         this.context = context;
         lines.add("-- ----------------------------");
         lines.add(VStringUtil.format("-- SysMenu Data for {0}", this.context.getModuleKeyword()));
-        lines.add("-- "+ databaseDdlDialects.name());
         lines.add("-- ----------------------------");
         lines.add("");
     }

@@ -17,7 +17,6 @@ public class SqlDataSysModuleScriptGenerator extends AbstractSqlScriptGenerator 
         this.context = context;
         lines.add("-- ----------------------------");
         lines.add(VStringUtil.format("-- Module Data for {0}", this.context.getModuleKeyword()));
-        lines.add("-- "+ databaseDdlDialects.name());
         lines.add("-- ----------------------------");
         lines.add("");
     }

@@ -20,7 +20,6 @@ public class SqlDataWfProcTypeScriptGenerator extends AbstractSqlScriptGenerator
         this.databaseDDLDialects = databaseDDLDialects;
         lines.add("-- ----------------------------");
         lines.add(VStringUtil.format("-- WfProcType Data for {0}", this.context.getModuleKeyword()));
-        lines.add("-- "+this.databaseDDLDialects.name());
         lines.add("-- ----------------------------");
         lines.add("");
     }
