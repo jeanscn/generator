@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
  * 2023-04-06 15:44
+ * @author cen_cn
  * @version 3.0
  */
 public class JQueryPlugin extends PluginAdapter {
@@ -26,7 +27,7 @@ public class JQueryPlugin extends PluginAdapter {
         String project = this.properties.getProperty("targetProject", "src/main/resources/static/js");
 
         //生成jquery file
-        if (htmlGeneratorConfiguration != null && VStringUtil.stringHasValue(htmlGeneratorConfiguration.getViewPath())) {
+        if (htmlGeneratorConfiguration != null && htmlGeneratorConfiguration.isGenerate() && VStringUtil.stringHasValue(htmlGeneratorConfiguration.getViewPath())) {
             String jqueryFileName = Arrays.stream(htmlGeneratorConfiguration.getViewPath().split("[/\\\\]"))
                     .reduce((first, second) -> second)
                     .orElse("");
@@ -38,7 +39,7 @@ public class JQueryPlugin extends PluginAdapter {
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
-                        "app_main_js.js.ftl",htmlGeneratorConfiguration);
+                        "app_main_js.js.ftl", htmlGeneratorConfiguration);
                 generatedJqueryFile.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFile);
 
@@ -49,7 +50,7 @@ public class JQueryPlugin extends PluginAdapter {
                         project,
                         introspectedTable.getContext().getModuleKeyword(),
                         introspectedTable,
-                        "app_main_js.js.ftl",htmlGeneratorConfiguration);
+                        "app_main_js.js.ftl", htmlGeneratorConfiguration);
                 generatedJqueryFileMin.setOverWriteFile(htmlGeneratorConfiguration.isOverWriteJsFile());
                 answer.add(generatedJqueryFileMin);
             }
