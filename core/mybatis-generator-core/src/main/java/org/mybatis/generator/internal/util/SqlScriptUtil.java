@@ -1,6 +1,5 @@
 package org.mybatis.generator.internal.util;
 
-import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
@@ -8,12 +7,10 @@ import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
 import org.mybatis.generator.dbstrategy.DatabaseProfile;
 
 import java.sql.JDBCType;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static com.vgosoft.core.db.enums.JDBCTypeTypeEnum.*;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
@@ -51,8 +48,8 @@ public class SqlScriptUtil {
                 throw new IllegalArgumentException("Column modify statement is not configured for dialect: " + databaseDialect.name());
             }
             String character = " ";
-            if ((isMysqlOrMariadbDatabase(databaseDialect))
-                    && JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER)) {
+            String typeName = normalizeTypeName(col.getActualTypeName());
+            if ((isMysqlOrMariadbDatabase(databaseDialect))  && isCharacterType(resolveJdbcType(typeName))) {
                 character = " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ";
             }
             String position = (isMysqlOrMariadbDatabase(databaseDialect))
@@ -60,8 +57,8 @@ public class SqlScriptUtil {
             String onAddRow = VStringUtil.format(columnStatement,
                     actionKey,
                     databaseDialect.quoteIdentifier(col.getActualColumnName()),
-                    col.getActualTypeName(),
-                    col.getSqlFragmentLength(col.getActualColumnName()),
+                    typeName,
+                    col.getSqlFragmentLength(typeName),
                     character,
                     SqlScriptUtil.getSqlFragmentNotNull(col, databaseDialect),
                     databaseDialect.escapeSqlLiteral(col.getRemarks(false)),
@@ -79,37 +76,49 @@ public class SqlScriptUtil {
     }
 
     public static String getSqlFragmentNotNull(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect) {
-        JDBCTypeTypeEnum jdbcTypeType = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+        return getSqlFragmentNotNull(introspectedColumn, databaseDialect, introspectedColumn.getActualTypeName());
+    }
+
+    public static String getSqlFragmentNotNull(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect, String actualTypeName) {
+        JDBCType jdbcType = JDBCType.valueOf(introspectedColumn.getJdbcType());
         DatabaseDDLDialects dialect = databaseDialect == null ? DatabaseDDLDialects.OTHER : databaseDialect;
         String compatibleDefaultValue = isMysqlOrMariadbDatabase(dialect)
                 ? introspectedColumn.getDefaultValue()
                 : introspectedColumn.getDialectCompatibleDefaultValue();
+        String normalizedTypeName = normalizeTypeName(actualTypeName);
         StringBuilder notNull = new StringBuilder();
         if (!introspectedColumn.isNullable()) {
             notNull.append("NOT NULL ");
-            notNull.append(getDefaultValueString(introspectedColumn, jdbcTypeType, compatibleDefaultValue, dialect));
+            notNull.append(getDefaultValueString(introspectedColumn, jdbcType, compatibleDefaultValue, dialect, normalizedTypeName));
         } else {
             notNull.append("NULL ");
             if (introspectedColumn.getDefaultValue()!=null) {
-                notNull.append(getDefaultValueString(introspectedColumn, jdbcTypeType, compatibleDefaultValue, dialect));
+                notNull.append(getDefaultValueString(introspectedColumn, jdbcType, compatibleDefaultValue, dialect, normalizedTypeName));
             }
         }
         return notNull.toString();
     }
 
-    private static String getDefaultValueString(IntrospectedColumn introspectedColumn, JDBCTypeTypeEnum jdbcTypeType,
-                                                String defaultValue, DatabaseDDLDialects databaseDialect) {
-        if (!supportsDefaultValue(introspectedColumn, databaseDialect)) {
+    private static String getDefaultValueString(IntrospectedColumn introspectedColumn, JDBCType jdbcType,
+                                                String defaultValue, DatabaseDDLDialects databaseDialect, String normalizedTypeName) {
+        if (!supportsDefaultValue(normalizedTypeName, databaseDialect)) {
             return " ";
         }
         if (VStringUtil.stringHasValue(defaultValue)) {
-            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
+            if (isSqlNullToken(defaultValue)) {
+                return introspectedColumn.isNullable() ? " DEFAULT NULL " : " ";
+            }
+            String booleanExpression = resolveBooleanDefaultExpression(defaultValue, normalizedTypeName);
+            if (booleanExpression != null) {
+                return " DEFAULT " + booleanExpression + " ";
+            }
+            if (isCharacterType(jdbcType)) {
                 if (defaultValue.startsWith("'") && defaultValue.endsWith("'")) {
                     return " DEFAULT " + defaultValue + " ";
                 } else {
                     return " DEFAULT '" + databaseDialect.escapeSqlLiteral(defaultValue) + "' ";
                 }
-            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
+            } else if (isDateTimeType(jdbcType)) {
                 String normalizedExpr = resolveCurrentDateTimeExpression(defaultValue, databaseDialect);
                 if (normalizedExpr != null) {
                     return " DEFAULT " + normalizedExpr + " ";
@@ -123,20 +132,24 @@ public class SqlScriptUtil {
                 return " DEFAULT " + defaultValue + " ";
             }
         } else {
-            if (jdbcTypeType.equals(JDBCTypeTypeEnum.CHARACTER)) {
-                return " DEFAULT '' ";
-            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.DATETIME)) {
-                return " DEFAULT " + resolveCurrentTemporalExpression(introspectedColumn, databaseDialect) + " ";
-            } else if (jdbcTypeType.equals(JDBCTypeTypeEnum.NUMERIC)) {
-                return " DEFAULT 0 ";
-            } else {
-                return " ";
-            }
+//            if (isCharacterType(jdbcType)) {
+//                return " DEFAULT '' ";
+//            } else if (isDateTimeType(jdbcType)) {
+//                return " DEFAULT " + resolveCurrentTemporalExpression(introspectedColumn, databaseDialect) + " ";
+//            } else if (isNumericType(jdbcType)) {
+//                return " DEFAULT 0 ";
+//            } else {
+//                return " ";
+//            }
+            return " ";
         }
     }
 
-    private static boolean supportsDefaultValue(IntrospectedColumn introspectedColumn, DatabaseDDLDialects databaseDialect) {
-        String typeName = normalizeTypeName(introspectedColumn.getActualTypeName());
+    private static boolean isSqlNullToken(String defaultValue) {
+        return "NULL".equalsIgnoreCase(defaultValue.trim());
+    }
+
+    private static boolean supportsDefaultValue(String typeName, DatabaseDDLDialects databaseDialect) {
         if (!VStringUtil.stringHasValue(typeName)) {
             return true;
         }
@@ -153,23 +166,30 @@ public class SqlScriptUtil {
         return unsupportedTypes.stream().noneMatch(type -> typeName.equals(type) || typeName.startsWith(type + " "));
     }
 
-    private static String normalizeTypeName(String actualTypeName) {
-        if (!VStringUtil.stringHasValue(actualTypeName)) {
-            return "";
+    private static String resolveBooleanDefaultExpression(String defaultValue, String normalizedTypeName) {
+        if (!"BOOLEAN".equalsIgnoreCase(normalizedTypeName) && !"BOOL".equalsIgnoreCase(normalizedTypeName)) {
+            return null;
         }
-        String normalized = actualTypeName
-                .toUpperCase(Locale.ROOT)
-                .replace('`', ' ')
-                .replace('"', ' ')
-                .trim()
-                .replaceAll("\\s+", " ");
-        int leftParen = normalized.indexOf('(');
-        if (leftParen >= 0) {
-            normalized = normalized.substring(0, leftParen).trim();
+        String normalizedToken = normalizeDefaultToken(defaultValue);
+        return switch (normalizedToken) {
+            case "1", "TRUE", "T", "YES", "Y", "ON" -> "TRUE";
+            case "0", "FALSE", "F", "NO", "N", "OFF" -> "FALSE";
+            default -> null;
+        };
+    }
+
+    private static String normalizeDefaultToken(String defaultValue) {
+        String token = defaultValue.trim();
+        if (token.startsWith("(") && token.endsWith(")") && token.length() > 2) {
+            token = token.substring(1, token.length() - 1).trim();
         }
-        return Arrays.stream(normalized.split(" "))
-                .filter(VStringUtil::stringHasValue)
-                .collect(Collectors.joining(" "));
+        if (token.startsWith("'") && token.endsWith("'") && token.length() > 1) {
+            token = token.substring(1, token.length() - 1).trim();
+        }
+        if (token.endsWith("()") && token.length() > 2) {
+            token = token.substring(0, token.length() - 2).trim();
+        }
+        return token.toUpperCase();
     }
 
     private static String resolveCurrentDateTimeExpression(String defaultValue, DatabaseDDLDialects databaseDialect) {

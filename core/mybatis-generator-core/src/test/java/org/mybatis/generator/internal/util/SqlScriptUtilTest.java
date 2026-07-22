@@ -1,13 +1,16 @@
 package org.mybatis.generator.internal.util;
 
+import com.vgosoft.core.db.enums.JDBCTypeTypeEnum;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 
 import java.sql.JDBCType;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SqlScriptUtilTest {
 
@@ -60,6 +63,16 @@ class SqlScriptUtilTest {
     }
 
     @Test
+    void shouldTreatTimestampWithTimezoneAsDatetime() {
+        IntrospectedColumn column = column(JDBCType.TIMESTAMP_WITH_TIMEZONE, false, null);
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.OTHER);
+
+        assertTrue(fragment.startsWith("NOT NULL "));
+        assertTrue(fragment.contains("DEFAULT CURRENT_TIMESTAMP "));
+    }
+
+    @Test
     void shouldEscapeCharacterDefaultValue() {
         IntrospectedColumn column = column(JDBCType.VARCHAR, false, "O'Reilly");
 
@@ -84,6 +97,42 @@ class SqlScriptUtilTest {
         String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.MYSQL);
         assertTrue(fragment.startsWith("NOT NULL "));
         assertTrue(fragment.contains("DEFAULT b(0) "));
+    }
+
+    @Test
+    void shouldRenderBooleanLiteralDefaultForPostgreSqlBooleanColumn() {
+        IntrospectedColumn column = column(JDBCType.BIT, true, "0", "BOOLEAN");
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.POSTGRE_SQL, "BOOLEAN");
+
+        assertTrue(fragment.startsWith("NULL "));
+        assertTrue(fragment.contains("DEFAULT FALSE "));
+    }
+
+    @Test
+    void shouldKeepNumericDefaultForSqlServerBitColumn() {
+        IntrospectedColumn column = column(JDBCType.BIT, true, "0", "BIT");
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.SQL_SERVER, "BIT");
+
+        assertTrue(fragment.startsWith("NULL "));
+        assertTrue(fragment.contains("DEFAULT 0 "));
+    }
+
+    @Test
+    void shouldRenderBooleanLiteralsForBooleanTypedDialects() {
+        IntrospectedColumn column = column(JDBCType.BIT, true, "1", "BOOLEAN");
+
+        for (DatabaseDDLDialects dialect : List.of(
+                DatabaseDDLDialects.POSTGRE_SQL,
+                DatabaseDDLDialects.HIGHGO,
+                DatabaseDDLDialects.KINGBASE_ES,
+                DatabaseDDLDialects.H2,
+                DatabaseDDLDialects.HSQL
+        )) {
+            String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, dialect, "BOOLEAN");
+            assertTrue(fragment.contains("DEFAULT TRUE "));
+        }
     }
 
     @Test
@@ -132,6 +181,47 @@ class SqlScriptUtilTest {
 
         assertTrue(fragment.startsWith("NOT NULL "));
         assertTrue(fragment.contains("DEFAULT 'hello' "));
+    }
+
+    @Test
+    void shouldResolveJdbcTypeAliases() {
+        assertEquals(JDBCType.INTEGER, JDBCTypeTypeEnum.resolveJdbcType("INT"));
+        assertEquals(JDBCType.TIMESTAMP, JDBCTypeTypeEnum.resolveJdbcType("DATETIME"));
+        assertEquals(JDBCType.BOOLEAN, JDBCTypeTypeEnum.resolveJdbcType("BOOL"));
+        assertEquals(JDBCType.VARCHAR, JDBCTypeTypeEnum.resolveJdbcType("VARCHAR2"));
+    }
+
+    @Test
+    void shouldRenderSqlNullDefaultForNullableColumn() {
+        IntrospectedColumn column = column(JDBCType.VARCHAR, true, "NULL");
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.MYSQL);
+
+        assertTrue(fragment.startsWith("NULL "));
+        assertTrue(fragment.contains("DEFAULT NULL "));
+        assertFalse(fragment.contains("DEFAULT 'NULL'"));
+    }
+
+    @Test
+    void shouldSkipSqlNullDefaultForNotNullColumn() {
+        IntrospectedColumn column = column(JDBCType.VARCHAR, false, "NULL");
+
+        String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.MYSQL);
+
+        assertTrue(fragment.startsWith("NOT NULL "));
+        assertFalse(fragment.contains("DEFAULT "));
+    }
+
+    @Test
+    void shouldRenderMysqlVarcharLengthInAlterSql() {
+        IntrospectedColumn column = column(JDBCType.VARCHAR, false, null, "VARCHAR");
+        column.setActualColumnName("name_");
+        column.setLength(64);
+        column.setRemarks("name");
+
+        String sql = SqlScriptUtil.getColumnSql(List.of(column), "MODIFY", "MySQL");
+
+        assertTrue(sql.contains("VARCHAR(64)"));
     }
 
     private IntrospectedColumn column(JDBCType jdbcType, boolean nullable, String defaultValue) {

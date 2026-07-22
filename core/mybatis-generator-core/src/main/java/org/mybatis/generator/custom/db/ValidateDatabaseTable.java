@@ -1,7 +1,6 @@
 package org.mybatis.generator.custom.db;
 
 import com.vgosoft.core.annotation.ColumnMeta;
-import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.core.db.types.JavaTypeResolver;
 import com.vgosoft.core.db.types.JavaTypeResolverDefaultImpl;
 import com.vgosoft.core.db.types.JdbcTypeInformation;
@@ -13,7 +12,6 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
-import org.mybatis.generator.dbstrategy.DatabaseProfile;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.SqlScriptUtil;
 import org.mybatis.generator.internal.util.StringUtility;
@@ -185,13 +183,15 @@ public class ValidateDatabaseTable {
     }
 
     private IntrospectedColumn columnBuilder(ColumnMeta columnMeta, JavaTypeResolver javaTypeResolver, Field declaredField, AbstractIntrospectedTable table, IntrospectedColumn originalColumn) {
-        //JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
-        //jdbcTypeInformation.setColumnLength(columnMeta.size());
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();
         introspectedColumn.setActualColumnName(columnMeta.value());
         introspectedColumn.setJdbcType(columnMeta.type().getVendorTypeNumber());
-        //introspectedColumn.setActualTypeName(jdbcTypeInformation.getActualTypeName());
-        introspectedColumn.setActualTypeName(columnMeta.type().getName());
+        JdbcTypeInformation jdbcTypeInformation = javaTypeResolver.getJdbcTypeInformation(columnMeta.type());
+        if (jdbcTypeInformation != null && stringHasValue(jdbcTypeInformation.getActualTypeName())) {
+            introspectedColumn.setActualTypeName(jdbcTypeInformation.getActualTypeName());
+        } else {
+            introspectedColumn.setActualTypeName(columnMeta.type().getName());
+        }
         introspectedColumn.setLength(columnMeta.size());
         introspectedColumn.setScale(columnMeta.scale());
         String remark = stringHasValue(columnMeta.remarks()) ? columnMeta.remarks() : columnMeta.description();
@@ -309,7 +309,7 @@ public class ValidateDatabaseTable {
     }
 
     private boolean isModifyColumn(IntrospectedColumn introspectedColumn, ColumnMeta columnMeta, int columnLength, String remark, boolean isPk) {
-       return  !introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
+        return !introspectedColumn.getActualColumnName().equalsIgnoreCase(columnMeta.value())
                 || introspectedColumn.getJdbcType() != columnMeta.type().getVendorTypeNumber()
                 || (columnMeta.size() > 0 && (introspectedColumn.getLength() != columnLength))
                 || (columnMeta.scale() > 0 && (columnMeta.scale() != introspectedColumn.getScale()))

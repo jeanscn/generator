@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.vgosoft.core.db.enums.JDBCTypeTypeEnum.isCharacterType;
+import static com.vgosoft.core.db.enums.JDBCTypeTypeEnum.normalizeTypeName;
+
 /**
  * sql脚本生成器
  *
@@ -64,8 +67,9 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
         for (IntrospectedColumn col : this.introspectedTable.getAllColumns()) {
 
             String character = BaseEmpty.EMPTY_STRING;
+            String typeName = normalizeTypeName(col.getActualTypeName());
             if ((SqlScriptUtil.isMysqlOrMariadbDatabase(databaseDdlDialects)) && !"JSON".equalsIgnoreCase(VStringUtil.toCamelCase(col.getActualTypeName()))) {
-                character = JDBCTypeTypeEnum.getJdbcTypeType(JDBCType.valueOf(col.getJdbcType())).equals(JDBCTypeTypeEnum.CHARACTER) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
+                character = isCharacterType(JDBCTypeTypeEnum.resolveJdbcType(typeName)) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
             }
             String remarks = databaseDdlDialects.escapeSqlLiteral(col.getRemarks(false));
             JdbcTypeInformation jdbcTypeInformation = coreJavaTypeResolver.getJdbcTypeInformation(JDBCType.valueOf(col.getJdbcType()));
@@ -75,7 +79,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
                     actualTypeName,
                     col.getSqlFragmentLength(actualTypeName),
                     character,
-                    SqlScriptUtil.getSqlFragmentNotNull(col, databaseDdlDialects),
+                    SqlScriptUtil.getSqlFragmentNotNull(col, databaseDdlDialects, actualTypeName),
                     remarks);
             columnSql.add(rowSql);
         }
