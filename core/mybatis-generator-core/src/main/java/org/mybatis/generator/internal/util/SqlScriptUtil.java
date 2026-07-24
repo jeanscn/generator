@@ -118,7 +118,7 @@ public class SqlScriptUtil {
                 } else {
                     return " DEFAULT '" + databaseDialect.escapeSqlLiteral(defaultValue) + "' ";
                 }
-            } else if (isDateTimeType(jdbcType)) {
+            } else if (isDateTimeType(jdbcType) || isDateType(jdbcType) || isTimeType(jdbcType)) {
                 String normalizedExpr = resolveCurrentDateTimeExpression(defaultValue, databaseDialect);
                 if (normalizedExpr != null) {
                     return " DEFAULT " + normalizedExpr + " ";
