@@ -402,7 +402,7 @@ public class IntrospectedTableMyBatis3Impl extends AbstractIntrospectedTable {
                 }
                 GeneratedSqlSchemaFile generatedSqlSchemaFile = new GeneratedSqlSchemaFile(
                         fileName + ".sql",
-                        databaseType.name().toLowerCase(Locale.ROOT),
+                        databaseType.getCode().toLowerCase(Locale.ROOT),
                         sqlSchemaGeneratorConfiguration.getTargetProject(),
                         this,
                         new SqlSchemaScriptGenerator(this, databaseType));

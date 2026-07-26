@@ -47,7 +47,7 @@ public enum DatabaseDialects {
         this.identityRetrievalStatement = identityRetrievalStatement;
         Set<String> keys = new LinkedHashSet<>();
         keys.add(databaseType.name());
-        keys.add(normalizeKey(databaseType.getName()));
+        keys.add(normalizeKey(databaseType.getCode()));
         for (String mappingKey : aliases) {
             keys.add(normalizeKey(mappingKey));
         }

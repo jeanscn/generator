@@ -1189,16 +1189,14 @@ public abstract class AbstractIntrospectedTable {
     }
 
     private String propertyRegistryDefaultValue(String propertyRegistry) {
-        switch (propertyRegistry) {
-            case PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT:
-                return "src/main/resources/templates";
-            case PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE:
+        return switch (propertyRegistry) {
+            case PropertyRegistry.CONTEXT_HTML_TARGET_PROJECT -> "src/main/resources/templates";
+            case PropertyRegistry.CONTEXT_HTML_TARGET_PACKAGE -> {
                 String modelTarget = context.getJavaModelGeneratorConfiguration().getTargetProject();
-                return StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."), ".");
-            case PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE:
-                return "bytes";
-            default:
-                return null;
-        }
+                yield StringUtility.substringAfterLast(StringUtility.substringBeforeLast(modelTarget, "."), ".");
+            }
+            case PropertyRegistry.TABLE_JAVA_MODEL_BYTE_STREAM_OUTPUT_MODE -> "bytes";
+            default -> null;
+        };
     }
 }

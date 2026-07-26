@@ -61,7 +61,7 @@ public enum DatabaseDDLDialects {
         this.createStatement = createStatement;
         Set<String> keys = new LinkedHashSet<>();
         keys.add(databaseType.name());
-        keys.add(normalizeKey(databaseType.getName()));
+        keys.add(normalizeKey(databaseType.getCode()));
         for (String alias : aliases) {
             keys.add(normalizeKey(alias));
         }
