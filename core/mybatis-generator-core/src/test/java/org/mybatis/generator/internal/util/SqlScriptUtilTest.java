@@ -59,7 +59,7 @@ class SqlScriptUtilTest {
         String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.DM);
         assertTrue(fragment.startsWith("NOT NULL "));
         assertTrue(fragment.contains("DEFAULT CURRENT_TIMESTAMP "));
-        assertTrue(!fragment.contains("DEFAULT (CURRENT_TIMESTAMP)"));
+        assertFalse(fragment.contains("DEFAULT (CURRENT_TIMESTAMP)"));
     }
 
     @Test

@@ -96,7 +96,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
                     ztreeDataSimpleCateType,
                     parentElement));
             methodCate.setReturnRemark("treeCate对象集合结果封装对象");
-            //methodCate.addAnnotation(new SystemLog("查询分类树结果数据", introspectedTable), parentElement);
+            // methodCate.addAnnotation(new SystemLog("查询分类树结果数据", introspectedTable), parentElement);
             String hyphenCase = VStringUtil.toHyphenCase(cateTreeConfig.getPathKeyWord());
             methodCate.addAnnotation(new RequestMappingDesc(hyphenCase, RequestMethodEnum.GET), parentElement);
             methodCate.addAnnotation(new OperationDesc("树形分类数据查询", "获取指定根或所有的树形分类结构数据"), parentElement);
@@ -123,7 +123,6 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             parentElement.addMethod(methodCate);
         });
 
-        //异步 asyncFetchTreeData方法定义
         final String asyncMethodPrefix = "asyncFetchTreeData";
         Method aMethod = createMethod(asyncMethodPrefix);
         Parameter parameter4 = new Parameter(new FullyQualifiedJavaType("java.lang.Boolean"), "returnPath");
