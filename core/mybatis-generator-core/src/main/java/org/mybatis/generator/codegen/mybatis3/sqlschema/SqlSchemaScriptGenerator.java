@@ -52,7 +52,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
         List<String> columnSql = new ArrayList<>();
         List<String> postStatements = new ArrayList<>();
-        ret.add("/*");
+        ret.add("/**");
         ret.add(VStringUtil.format(" * Database Type    :{0}  {1}", databaseType.getCode().toUpperCase(), databaseType.getDesc()));
         ret.add(VStringUtil.format(" * Table structure for {0}", tableName));
         ret.add("*/");

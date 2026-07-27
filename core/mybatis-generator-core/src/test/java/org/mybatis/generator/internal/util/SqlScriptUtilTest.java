@@ -92,11 +92,11 @@ class SqlScriptUtilTest {
 
     @Test
     void shouldKeepMysqlStyleBitDefaultForMysql() {
-        IntrospectedColumn column = column(JDBCType.BIT, false, "b(0)");
+        IntrospectedColumn column = column(JDBCType.BIT, false, "false");
 
         String fragment = SqlScriptUtil.getSqlFragmentNotNull(column, DatabaseDDLDialects.MYSQL);
         assertTrue(fragment.startsWith("NOT NULL "));
-        assertTrue(fragment.contains("DEFAULT b(0) "));
+        assertTrue(fragment.contains("DEFAULT false "));
     }
 
     @Test

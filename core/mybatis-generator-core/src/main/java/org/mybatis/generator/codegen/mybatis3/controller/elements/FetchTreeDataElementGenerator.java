@@ -19,6 +19,9 @@ import java.util.List;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class FetchTreeDataElementGenerator extends AbstractControllerElementGenerator {
 
     public FetchTreeDataElementGenerator() {
@@ -120,10 +123,7 @@ public class FetchTreeDataElementGenerator extends AbstractControllerElementGene
             parentElement.addMethod(methodCate);
         });
 
-
-        /*
-         * 异步 asyncFetchTreeData方法定义
-         */
+        //异步 asyncFetchTreeData方法定义
         final String asyncMethodPrefix = "asyncFetchTreeData";
         Method aMethod = createMethod(asyncMethodPrefix);
         Parameter parameter4 = new Parameter(new FullyQualifiedJavaType("java.lang.Boolean"), "returnPath");

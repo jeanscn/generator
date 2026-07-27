@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
+import com.vgosoft.core.constant.SymbolConstants;
 import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -18,7 +19,9 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         String fqjt = introspectedTable.getExampleType();
-        String aliasPrefix = VStringUtil.stringHasValue(introspectedTable.getTableConfiguration().getAlias())? introspectedTable.getTableConfiguration().getAlias()+"_":"";
+        String tableNameAtRuntime = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();
+        String alias = introspectedTable.getTableConfiguration().getAlias();
+        String aliasPrefix = VStringUtil.stringHasValue(alias)? introspectedTable.getTableConfiguration().getAlias()+"_":"";
         XmlElement answer = new XmlElement("select");
         answer.addAttribute(new Attribute("id", introspectedTable.getSelectByExampleWithChildrenCountStatementId()));
         answer.addAttribute(new Attribute("resultMap", "ResultMapChildrenCount"));
@@ -37,13 +40,14 @@ public class SelectByExampleWithChildrenCountElementGenerator extends
         sb.append(introspectedTable.getTableConfiguration().getTableName());
         sb.append(" t WHERE ");
         sb.append("t.parent_id = ");
-        sb.append(aliasPrefix).append(introspectedTable.getPrimaryKeyColumns().get(0).getActualColumnName());
+        sb.append(alias).append(SymbolConstants.DOT);
+        sb.append(introspectedTable.getPrimaryKeyColumns().get(0).getActualColumnName());
         sb.append(") as ").append(aliasPrefix).append("children_count");
         answer.addElement(new TextElement(sb.toString()));
 
         sb.setLength(0);
         sb.append("from ");
-        sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
+        sb.append(tableNameAtRuntime);
         answer.addElement(new TextElement(sb.toString()));
         answer.addElement(getExampleIncludeElement());
 
