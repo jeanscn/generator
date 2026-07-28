@@ -28,7 +28,7 @@ public class InsertBatchElementGenerator extends AbstractXmlElementGenerator {
         } else {
             parameterType = introspectedTable.getRules().calculateAllFieldsClass();
         }
-        XmlElement answer = buildInitialInsert(introspectedTable.getInsertBatchStatementId(), parameterType);
+        XmlElement answer = buildInitialInsert(introspectedTable.getInsertBatchStatementId(), parameterType, null);
 
         StringBuilder insertClause = new StringBuilder();
         insertClause.append("insert into ");

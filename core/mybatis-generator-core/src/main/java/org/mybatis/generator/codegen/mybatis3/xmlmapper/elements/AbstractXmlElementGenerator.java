@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.vgosoft.core.db.query.DatabaseType;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.OutputUtilities;
@@ -18,6 +19,8 @@ import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.internal.util.StringUtility;
+
+import javax.annotation.Nullable;
 
 public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     public abstract void addElements(XmlElement parentElement);
@@ -155,12 +158,16 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         return answer;
     }
 
-    protected XmlElement buildInitialInsert(String statementId, FullyQualifiedJavaType parameterType) {
+    protected XmlElement buildInitialInsert(String statementId, FullyQualifiedJavaType parameterType, @Nullable DatabaseType databaseType) {
         XmlElement answer = new XmlElement("insert");
 
         answer.addAttribute(new Attribute("id", statementId));
 
         answer.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
+
+        if (databaseType != null) {
+            answer.addAttribute(new Attribute("databaseId", databaseType.getCode()));
+        }
 
         context.getCommentGenerator().addComment(answer);
 

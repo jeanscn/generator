@@ -100,8 +100,7 @@ public class ConfigurationParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
             builder.setEntityResolver(new ParserEntityResolver());
 
-            ParserErrorHandler handler = new ParserErrorHandler(warnings,
-                    parseErrors);
+            ParserErrorHandler handler = new ParserErrorHandler(warnings,parseErrors);
             builder.setErrorHandler(handler);
 
             Document document = null;

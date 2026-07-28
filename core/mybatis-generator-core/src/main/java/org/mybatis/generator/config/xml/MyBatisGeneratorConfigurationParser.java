@@ -9,6 +9,7 @@ import com.vgosoft.core.constant.enums.view.HtmlDocumentTypeEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataFormat;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.tool.core.VBigDecimalUtil;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
@@ -609,6 +610,20 @@ public class MyBatisGeneratorConfigurationParser {
                     break;
             }
         }
+        // 计算目标数据方言配置
+        String contextProperty = context.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
+        String currentProperty = tc.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
+        if (VStringUtil.stringHasValue(contextProperty)|| VStringUtil.stringHasValue(currentProperty)) {
+            Set<String> dbTypes = splitToSet(currentProperty + SymbolConstants.COMMA + contextProperty);
+            dbTypes.forEach(dbType -> {
+                if (VStringUtil.stringHasValue(dbType)) {
+                    DatabaseType type = DatabaseType.getType(dbType);
+                    if (type != null) {
+                        tc.getAdditionalDbTypes().add(type);
+                    }
+                }
+            });
+        }
         //如果未指定，则设置缺省父类
         if (tc.getProperty("rootClass") == null) {
             tc.addProperty("rootClass", "com.vgosoft.core.entity.abs.AbstractEntity");
@@ -618,7 +633,6 @@ public class MyBatisGeneratorConfigurationParser {
             JavaModelGeneratorConfiguration modelConfiguration = getJavaModelGeneratorConfiguration(context);
             tc.setJavaModelGeneratorConfiguration(modelConfiguration);
         }
-
         //如果未指定，则设置JavaClientGenerator默认值
         if (tc.getSqlMapGeneratorConfiguration() == null) {
             SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = getSqlMapGeneratorConfiguration(context);
@@ -2376,13 +2390,6 @@ public class MyBatisGeneratorConfigurationParser {
         String generate = attributes.getProperty(PropertyRegistry.ANY_GENERATE);
         sqlSchemaGeneratorConfiguration.setGenerate(Boolean.parseBoolean(generate));
         parseChildNodeOnlyProperty(sqlSchemaGeneratorConfiguration, node);
-
-        String contextProperty = context.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
-        String currenProperty = sqlSchemaGeneratorConfiguration.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
-        if (VStringUtil.stringHasValue(contextProperty)|| VStringUtil.stringHasValue(currenProperty)) {
-            Set<String> dbTypes = splitToSet(currenProperty + SymbolConstants.COMMA + contextProperty);
-            sqlSchemaGeneratorConfiguration.setAdditionalDbTypes(dbTypes);
-        }
         tc.setSqlSchemaGeneratorConfiguration(sqlSchemaGeneratorConfiguration);
     }
 

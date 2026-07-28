@@ -77,8 +77,7 @@ public class DatabaseIntrospector {
         Map<ActualTableName, List<IntrospectedColumn>> columns = getColumns(tc);
 
         if (columns.isEmpty()) {
-            warnings.add(getString("Warning.19", tc.getCatalog(),
-                    tc.getSchema(), tc.getTableName()));
+            warnings.add(getString("Warning.19", tc.getCatalog(),tc.getSchema(), tc.getTableName()));
             return Collections.emptyList();
         }
 
@@ -987,7 +986,13 @@ public class DatabaseIntrospector {
             String productName = this.databaseMetaData.getDatabaseProductName();
             String jdbcUrl = this.databaseMetaData.getURL();
             DatabaseType dbType = JdbcUtils.getDbType(productName, jdbcUrl);
-            introspectedTable.setDbType(dbType == null ? DatabaseType.OTHER : dbType);
+            if (dbType != null) {
+                introspectedTable.setDbType(dbType);
+                tc.getAdditionalDbTypes().add(dbType);
+            } else {
+                introspectedTable.setDbType(DatabaseType.OTHER);
+                tc.getAdditionalDbTypes().add(DatabaseType.OTHER);
+            }
 
             for (IntrospectedColumn introspectedColumn : entry.getValue()) {
                 introspectedTable.addColumn(introspectedColumn);

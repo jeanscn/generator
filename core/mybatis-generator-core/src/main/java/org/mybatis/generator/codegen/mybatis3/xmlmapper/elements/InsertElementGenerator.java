@@ -29,7 +29,7 @@ public class InsertElementGenerator extends AbstractXmlElementGenerator {
             parameterType = introspectedTable.getRules().calculateAllFieldsClass();
         }
 
-        XmlElement answer = buildInitialInsert(introspectedTable.getInsertStatementId(), parameterType);
+        XmlElement answer = buildInitialInsert(introspectedTable.getInsertStatementId(), parameterType, null);
 
         StringBuilder insertClause = new StringBuilder();
 

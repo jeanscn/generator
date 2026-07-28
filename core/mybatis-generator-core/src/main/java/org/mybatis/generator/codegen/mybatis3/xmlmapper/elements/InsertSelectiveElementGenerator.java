@@ -19,7 +19,7 @@ public class InsertSelectiveElementGenerator extends AbstractXmlElementGenerator
     @Override
     public void addElements(XmlElement parentElement) {
         XmlElement answer = buildInitialInsert(introspectedTable.getInsertSelectiveStatementId(),
-                introspectedTable.getRules().calculateAllFieldsClass());
+                introspectedTable.getRules().calculateAllFieldsClass(), null);
 
         StringBuilder sb = new StringBuilder();
 

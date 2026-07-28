@@ -19,14 +19,11 @@ public class SqlSchemaGeneratorConfiguration extends AbstractGeneratorConfigurat
 
     public String filePrefix;
 
-    public Set<String> additionalDbTypes;
-
     public SqlSchemaGeneratorConfiguration(Context context, TableConfiguration tc) {
         super();
         this.targetProject = "src/main/resources/sql";
         this.filePrefix = "schema_";
         this.targetPackage = "schema";
-        this.additionalDbTypes = Set.of();
     }
 
 

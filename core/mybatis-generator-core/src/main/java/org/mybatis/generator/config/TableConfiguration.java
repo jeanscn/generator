@@ -4,6 +4,7 @@ import com.vgosoft.core.constant.enums.core.*;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementDataSourceEnum;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
+import com.vgosoft.core.db.query.DatabaseType;
 import com.vgosoft.tool.core.VArrayUtil;
 import com.vgosoft.tool.core.VCollectionUtil;
 import com.vgosoft.tool.core.VStringUtil;
@@ -151,12 +152,14 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean cleanAllGeneratedElements = false;
 
+    public Set<DatabaseType> additionalDbTypes = new  HashSet<>();
+
     private List<String> warnings;
 
-    public TableConfiguration(Context context, List<String> warings) {
+    public TableConfiguration(Context context, List<String> warnings) {
         super();
         this.modelType = context.getDefaultModelType();
-        this.warnings = warings;
+        this.warnings = warnings;
         // initialize properties
         ignoredColumns = new HashMap<>();
 
@@ -213,11 +216,9 @@ public class TableConfiguration extends PropertyHolder {
             return true;
         }
 
-        if (!(obj instanceof TableConfiguration)) {
+        if (!(obj instanceof TableConfiguration other)) {
             return false;
         }
-
-        TableConfiguration other = (TableConfiguration) obj;
 
         return Objects.equals(this.catalog, other.catalog) && Objects.equals(this.schema, other.schema) && Objects.equals(this.tableName, other.tableName);
     }
@@ -735,13 +736,11 @@ public class TableConfiguration extends PropertyHolder {
             }
 
             //3、设置是否需要验证的属性
-            introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> {
-                htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
-                    if (elementDescriptor.getName().equals(column.getActualColumnName()) && elementDescriptor.getVerify().contains("required")) {
-                        column.setBeValidated(true);
-                    }
-                });
-            });
+            introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations().forEach(htmlGeneratorConfiguration -> htmlGeneratorConfiguration.getElementDescriptors().forEach(elementDescriptor -> {
+                if (elementDescriptor.getName().equals(column.getActualColumnName()) && elementDescriptor.getVerify().contains("required")) {
+                    column.setBeValidated(true);
+                }
+            }));
             if (isFieldNeedValidate(column, introspectedTable.getTableConfiguration().getHtmlGeneratorConfigurations())) {
                 column.setBeValidated(true);
             }
