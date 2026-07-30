@@ -5,11 +5,14 @@ import org.mybatis.generator.SqlScriptRunner;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.JavaTypeResolver;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.ModelType;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.types.MbgJavaTypeResolverDefaultImpl;
 
+import java.sql.Types;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
@@ -54,11 +57,44 @@ class DatabaseIntrospectorTypeResolutionTest {
         }
     }
 
+    @Test
+    void shouldNormalizeBinaryJdbcTypesToBlob() {
+        assertThat(resolveJdbcTypeName(Types.BINARY)).isEqualTo("BLOB");
+        assertThat(resolveJdbcTypeName(Types.VARBINARY)).isEqualTo("BLOB");
+        assertThat(resolveJdbcTypeName(Types.LONGVARBINARY)).isEqualTo("BLOB");
+    }
+
+    @Test
+    void shouldApplyByteArrayTypeHandlerOnlyWhenNotOverridden() {
+        IntrospectedColumn column = new IntrospectedColumn();
+        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType("byte[]"));
+
+        DatabaseIntrospector.applyDefaultTypeHandler(column);
+
+        assertThat(column.getTypeHandler())
+                .isEqualTo("org.apache.ibatis.type.ByteArrayTypeHandler");
+
+        IntrospectedColumn overriddenColumn = new IntrospectedColumn();
+        overriddenColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("byte[]"));
+        overriddenColumn.setTypeHandler("custom.TypeHandler");
+
+        DatabaseIntrospector.applyDefaultTypeHandler(overriddenColumn);
+
+        assertThat(overriddenColumn.getTypeHandler()).isEqualTo("custom.TypeHandler");
+    }
+
     private IntrospectedColumn findColumn(AbstractIntrospectedTable table, String columnName) {
         return table.getAllColumns().stream()
                 .filter(column -> columnName.equalsIgnoreCase(column.getActualColumnName()))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    private String resolveJdbcTypeName(int jdbcType) {
+        MbgJavaTypeResolverDefaultImpl resolver = new MbgJavaTypeResolverDefaultImpl();
+        IntrospectedColumn column = new IntrospectedColumn();
+        column.setJdbcType(jdbcType);
+        return resolver.calculateJdbcTypeName(column);
     }
 
     private void createDatabase() throws Exception {

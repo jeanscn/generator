@@ -155,7 +155,16 @@ public class MbgJavaTypeResolverDefaultImpl implements JavaTypeResolver {
     @Override
     public String calculateJdbcTypeName(IntrospectedColumn introspectedColumn) {
         JDBCType jdbcType = resolveJdbcType(introspectedColumn.getJdbcType());
+        if (isBinaryJdbcType(jdbcType)) {
+            return JDBCType.BLOB.getName();
+        }
         return jdbcType == null ? null : jdbcType.getName();
+    }
+
+    protected boolean isBinaryJdbcType(JDBCType jdbcType) {
+        return jdbcType == JDBCType.BINARY
+                || jdbcType == JDBCType.VARBINARY
+                || jdbcType == JDBCType.LONGVARBINARY;
     }
 
     @Override

@@ -87,6 +87,7 @@ public class DatabaseIntrospector {
         calculateExtraColumnInformation(tc, columns);
         //override
         applyColumnOverrides(tc, columns);
+        applyDefaultTypeHandlers(columns);
         //主键
         calculateIdentityColumns(tc, columns);
 
@@ -598,6 +599,26 @@ public class DatabaseIntrospector {
                 }
             }
         }
+    }
+
+    private void applyDefaultTypeHandlers(Map<ActualTableName, List<IntrospectedColumn>> columns) {
+        for (List<IntrospectedColumn> introspectedColumns : columns.values()) {
+            for (IntrospectedColumn introspectedColumn : introspectedColumns) {
+                applyDefaultTypeHandler(introspectedColumn);
+            }
+        }
+    }
+
+    static void applyDefaultTypeHandler(IntrospectedColumn introspectedColumn) {
+        if (introspectedColumn == null
+                || stringHasValue(introspectedColumn.getTypeHandler())
+                || introspectedColumn.getFullyQualifiedJavaType() == null
+                || !introspectedColumn.getFullyQualifiedJavaType().isArray()
+                || !"byte[]".equals(introspectedColumn.getFullyQualifiedJavaType().getFullyQualifiedName())) {
+            return;
+        }
+
+        introspectedColumn.setTypeHandler("org.apache.ibatis.type.ByteArrayTypeHandler");
     }
 
     private Map<ActualTableName, List<IntrospectedColumn>> getColumns(TableConfiguration tc) throws SQLException {
