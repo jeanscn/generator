@@ -10,6 +10,9 @@ import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.List;
 
+/**
+ * @author cen_c
+ */
 public class DeleteByTableElementGenerator extends
         AbstractXmlElementGenerator {
 
@@ -20,7 +23,7 @@ public class DeleteByTableElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         final List<SelectByTableGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
-        if (configurations.stream().noneMatch(SelectByTableGeneratorConfiguration::isEnableSplit)) return;
+        if (configurations.stream().noneMatch(SelectByTableGeneratorConfiguration::isEnableSplit)) {return;}
         for (SelectByTableGeneratorConfiguration configuration : configurations) {
             if (ObjectUtils.anyNull(configuration.getTableName(), configuration.getPrimaryKeyColumn(), configuration.getOtherPrimaryKeyColumn())) {
                 continue;

@@ -2,6 +2,9 @@ package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
+/**
+ * @author cen_c
+ */
 public class UpdateByPrimaryKeyWithBLOBsElementGenerator extends
         AbstractXmlElementGenerator {
 

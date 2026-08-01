@@ -79,7 +79,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
     protected XmlElement getUpdateByExampleIncludeElement() {
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter != null and _parameter.oredCriteria != null and _parameter.oredCriteria.size() > 0"));
+        ifElement.addAttribute(new Attribute("test", "example != null and example.oredCriteria != null and example.oredCriteria.size() > 0"));
 
         XmlElement includeElement = new XmlElement("include");
         includeElement.addAttribute(new Attribute("refid",
@@ -191,7 +191,13 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     }
 
     protected enum ResultElementType {
+        /**
+         * id
+         */
         ID("id"),
+        /**
+         * result
+         */
         RESULT("result");
 
         private final String value;

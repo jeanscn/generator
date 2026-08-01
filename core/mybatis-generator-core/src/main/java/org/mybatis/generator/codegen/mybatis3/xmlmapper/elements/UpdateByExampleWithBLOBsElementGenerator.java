@@ -20,54 +20,35 @@ public class UpdateByExampleWithBLOBsElementGenerator extends AbstractXmlElement
     public void addElements(XmlElement parentElement) {
         XmlElement answer = new XmlElement("update");
 
-        answer.addAttribute(new Attribute("id",
-                introspectedTable.getUpdateByExampleWithBlobsStatementId()));
-
+        answer.addAttribute(new Attribute("id",introspectedTable.getUpdateByExampleWithBlobsStatementId()));
         answer.addAttribute(new Attribute("parameterType", "map"));
         context.getCommentGenerator().addComment(answer);
-
         StringBuilder sb = new StringBuilder();
         sb.append("update ");
-        /*sb.append(introspectedTable
-                .getAliasedFullyQualifiedTableNameAtRuntime());*/
-        //addUpdateAliasedFullyQualifiedTableName(introspectedTable,sb);
-        sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
+        sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
-
         // set up for first column
         sb.setLength(0);
         sb.append("set ");
-
-        Iterator<IntrospectedColumn> iter =
-                ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getAllColumns()).iterator();
+        Iterator<IntrospectedColumn> iter = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getAllColumns()).iterator();
         while (iter.hasNext()) {
             IntrospectedColumn introspectedColumn = iter.next();
-
-            //sb.append(MyBatis3FormattingUtilities
-            //        .getAliasedEscapedColumnName(introspectedColumn));
-            sb.append(MyBatis3FormattingUtilities
-                    .getEscapedColumnName(introspectedColumn));
+            sb.append(introspectedColumn.getActualColumnName());
             sb.append(" = ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(
-                    introspectedColumn, "record."));
-
+            sb.append(MyBatis3FormattingUtilities.getParameterClause( introspectedColumn, "record."));
             if (iter.hasNext()) {
                 sb.append(',');
             }
-
             answer.addElement(new TextElement(sb.toString()));
-
-            // set up for the next column
             if (iter.hasNext()) {
                 sb.setLength(0);
                 OutputUtilities.xmlIndent(sb, 1);
             }
         }
-        //addUpdateAliasedFullyQualifiedTableNameFrom(introspectedTable,answer);
         answer.addElement(getUpdateByExampleIncludeElement());
         // 增加if判断，防止传入的参数为null或空
         XmlElement ifElement = new XmlElement("if");
-        ifElement.addAttribute(new Attribute("test", "_parameter == null or _parameter.oredCriteria == null or _parameter.oredCriteria.size() == 0"));
+        ifElement.addAttribute(new Attribute("test", "example == null or example.oredCriteria == null or example.oredCriteria.size() == 0"));
         ifElement.addElement(new TextElement("-- 防止无条件删除，返回影响0行"));
         XmlElement where = new XmlElement("where");
         where.addElement(new TextElement("1 = 0"));

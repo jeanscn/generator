@@ -152,7 +152,7 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean cleanAllGeneratedElements = false;
 
-    public Set<DatabaseType> additionalDbTypes = new  HashSet<>();
+    public TreeSet<DatabaseType> additionalDbTypes = new  TreeSet<>();
 
     private List<String> warnings;
 
