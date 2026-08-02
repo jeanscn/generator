@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
-import org.mybatis.generator.config.PropertyRegistry;
 
 import java.util.List;
 
@@ -15,6 +14,18 @@ import java.util.List;
  * @author cen_c
  */
 public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementGenerator {
+    private enum UpsertDialectGroup {
+        /** MySQL/MariaDB: INSERT ... ON DUPLICATE KEY UPDATE */
+        MYSQL_ON_DUPLICATE_KEY,
+        /** PostgreSQL family: INSERT ... ON CONFLICT ... DO UPDATE */
+        POSTGRES_ON_CONFLICT,
+        /** Oracle-like: MERGE ... USING (SELECT ... FROM dual) */
+        MERGE_USING_DUAL,
+        /** SQLServer/DB2-like: MERGE ... USING (VALUES (...)) */
+        MERGE_USING_VALUES,
+        /** Phoenix: UPSERT INTO ... */
+        PHOENIX_UPSERT
+    }
 
     public InsertOrUpdateSelectiveElementGenerator() {
         super();
@@ -27,8 +38,9 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
             List<IntrospectedColumn> insertColumns = ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());
             List<IntrospectedColumn> updateColumns = ListUtilities.removeGeneratedAlwaysColumns(introspectedTable.getNonPrimaryKeyColumns());
             List<IntrospectedColumn> primaryKeyColumns = introspectedTable.getPrimaryKeyColumns();
-            switch (dbType) {
-                case MYSQL, MARIADB:
+            UpsertDialectGroup dialectGroup = resolveDialectGroup(dbType);
+            switch (dialectGroup) {
+                case MYSQL_ON_DUPLICATE_KEY:
                     addInsertHeader(answer);
                     XmlElement mysqlInsertTrimElement = buildColumnsTrimElement();
                     answer.addElement(mysqlInsertTrimElement);
@@ -40,7 +52,7 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
                     answer.addElement(mysqlUpdateTrimElement);
                     addSelectiveUpdateAssignments(mysqlUpdateTrimElement, updateColumns, null, null);
                     break;
-                case POSTGRE_SQL, KINGBASE_ES, HIGHGO, SQLITE:
+                case POSTGRES_ON_CONFLICT:
                     addInsertHeader(answer);
                     XmlElement pgInsertTrimElement = buildColumnsTrimElement();
                     answer.addElement(pgInsertTrimElement);
@@ -54,13 +66,13 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
                         addSelectiveUpdateAssignments(pgUpdateTrimElement, updateColumns, null, null);
                     }
                     break;
-                case ORACLE, DM, XU_GU, CACHEDB, OTHER:
+                case MERGE_USING_DUAL:
                     addMergeByDual(answer, primaryKeyColumns, insertColumns, updateColumns);
                     break;
-                case DB2, SQL_SERVER, SQL_SERVER2005, H2, HSQL:
+                case MERGE_USING_VALUES:
                     addMergeByValues(answer, primaryKeyColumns, insertColumns, updateColumns);
                     break;
-                case PHOENIX:
+                case PHOENIX_UPSERT:
                     answer.addElement(new TextElement("upsert into " + introspectedTable.getFullyQualifiedTableNameAtRuntime()));
                     XmlElement phoenixInsertTrimElement = buildColumnsTrimElement();
                     answer.addElement(phoenixInsertTrimElement);
@@ -69,12 +81,23 @@ public class InsertOrUpdateSelectiveElementGenerator extends AbstractXmlElementG
                     addSelectiveInsertColumnsAndValues(phoenixInsertTrimElement, phoenixValuesTrimElement, insertColumns, false);
                     break;
                 default:
-                    break;
+                    throw new IllegalStateException("Unexpected upsert dialect group: " + dialectGroup.name());
             }
             if (context.getPlugins().sqlMapInsertOrUpdateSelectiveElementGenerated(answer, introspectedTable)) {
                 parentElement.addElement(answer);
             }
         });
+    }
+
+    private UpsertDialectGroup resolveDialectGroup(DatabaseType dbType) {
+        return switch (dbType) {
+            case MYSQL, MARIADB -> UpsertDialectGroup.MYSQL_ON_DUPLICATE_KEY;
+            case POSTGRE_SQL, KINGBASE_ES, HIGHGO, SQLITE -> UpsertDialectGroup.POSTGRES_ON_CONFLICT;
+            case ORACLE, DM, XU_GU, CACHEDB, OTHER -> UpsertDialectGroup.MERGE_USING_DUAL;
+            case DB2, SQL_SERVER, SQL_SERVER2005, H2, HSQL -> UpsertDialectGroup.MERGE_USING_VALUES;
+            case PHOENIX -> UpsertDialectGroup.PHOENIX_UPSERT;
+            default -> throw new IllegalStateException("insertOrUpdateSelective is not supported for database type: " + dbType.getCode());
+        };
     }
 
     private void addInsertHeader(XmlElement answer) {
