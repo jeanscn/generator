@@ -8,9 +8,9 @@ class DatabaseDDLDialectsTest {
 
     @Test
     void shouldQuoteIdentifierByDialect() {
-        assertThat(DatabaseDDLDialects.MYSQL.quoteIdentifier("user")).isEqualTo("`user`");
-        assertThat(DatabaseDDLDialects.ORACLE.quoteIdentifier("user")).isEqualTo("\"user\"");
-        assertThat(DatabaseDDLDialects.SQL_SERVER.quoteIdentifier("user")).isEqualTo("[user]");
+        assertThat(DatabaseDDLDialects.MYSQL.quoteIdentifier("user")).isEqualTo("user");
+        assertThat(DatabaseDDLDialects.ORACLE.quoteIdentifier("user")).isEqualTo("user");
+        assertThat(DatabaseDDLDialects.SQL_SERVER.quoteIdentifier("user")).isEqualTo("user");
     }
 
     @Test

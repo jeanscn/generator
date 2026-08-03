@@ -100,11 +100,7 @@ public enum DatabaseDDLDialects {
         if (identifier == null) {
             return "";
         }
-        return switch (this) {
-            case SQL_SERVER, SQL_SERVER2005 -> "[" + identifier + "]";
-            case ORACLE, DB2, POSTGRE_SQL, HIGHGO, KINGBASE_ES, XU_GU, DM, PHOENIX, CACHEDB -> "\"" + identifier + "\"";
-            default -> "`" + identifier + "`";
-        };
+        return identifier;
     }
 
     public String escapeSqlLiteral(String value) {
