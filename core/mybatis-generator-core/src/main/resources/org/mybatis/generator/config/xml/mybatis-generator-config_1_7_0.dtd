@@ -182,7 +182,7 @@
                 - listColumnDescriptor
                 - filterColumn
             属性信息：
-            1、excludedTable 排除的表名称，多个”,“分隔。指定后，当前reusableElements中的元素不会应用到指定的表中。
+            1、excludedTables 排除的表名称，多个”,“分隔。指定后，当前reusableElements中的元素不会应用到指定的表中。
         -->
         <!ELEMENT reusableElements (property*, htmlElementDescriptor*, htmlSwitchDescriptor*, htmlTableSelectDescriptor*, overridePropertyValue*, listColumnDescriptor*,fieldOverrides*,filterColumn*)>
         <!ATTLIST reusableElements
@@ -402,7 +402,7 @@
           2、thisColumn 当前表主键在关系表中的字段名
           3、otherColumn 另一关联表的主键在关系表中的字段名
           4、methodSuffix 方法名关键字，最终生成方法名为：selectByTable+方法名关键字
-          5、sortColumn 结果排序语句 如：SORT_ desc，默认为SORT_
+          5、orderByClause 结果排序语句 如：SORT_ desc，默认为SORT_
           6、additionClause 附加where条件，将与otherColumn=otherKey并且，用于中间表有多条件的场景，比如部门人员表中的是否管理员（MANAGER_ = 1）等。
           7、returnType 返回（泛型参数）类型（primaryKey或model,默认model）
           8、parameterType 参数类型。single-单值，list-多值列表
@@ -665,16 +665,16 @@
             4、dataFormat 数据格式：  启停|有无|是否|性别，可应用在radio、switch、dropdownlist；
                                     缓急|级别，仅在radio、dropdownlist时有效；
                                     年|年月，仅在date时有效。
-            5、dataSource 数据来源：  DictData-来自sys_dict_data
+            5、dataSource 数据来源：  DictData-来自“sys_dict_data”表缓存数据
                                     Dict-来自指定beanName对应的表，如果该bean的SelectByKeysDict方法存在，则使用该方法,否则使用SelectByPrimaryKey方法。
                                         建议使用SelectByKeysDict方法，该方法是缓存数据，SelectByPrimaryKey存在性能问题。
-                                    DictSys-来自sys_cfg-dict表缓存数据
-                                    DictUser-来自sys_dict_content表缓存数据
-                                    Department-部门选择，来自org_department表缓存数据
-                                    User-来自org_department表缓存数据
-                                    Organization-来自org_organization表缓存数据
+                                    DictSys-来自“sys_cfg-dict”表缓存数据
+                                    DictUser-来自“sys_dict_content”表缓存数据
+                                    Department-部门选择，来自“org_department”表缓存数据
+                                    User-来自“org_user”表缓存数据
+                                    Organization-来自“org_organization”表缓存数据
                                     DictEnum-来自枚举类型
-                                    DictModule-来自sys_cfg_module表缓存数据
+                                    DictModule-来自“sys_cfg_module”表缓存数据
                                     InnerList - 引用内嵌列表，用于基于内嵌列表的选择，如：选择业务关联数据等
                                                 当指定为InnerList时，需要指定listKey（内嵌列表的标识）、listViewClass（内嵌列表的基类）。
             6、beanName 数据来源为dict时，指定bean的完整类名（在dataSource为Dict时必须指定此属性）。
@@ -1303,8 +1303,8 @@
             property配置：
             1、enableSysLogAnnotation:true|false,是否启用操作日志。不指定该属性则不启用。注意：启用会同时增加@Transactional注解
             说明：
-                1、enableSelectByIds属性用于控制是否生成批量查询接口SelectByPrimaryKeys，默认启用。
-                  enableSelectByIds启用时，会创建一个SelectByColumn主键的配置项目，同时会生成一个DeleteByColumn主键的配置项。如果单独配置了SelectByColumn主键，则以SelectByColumn主键为准。
+                1、enableSelectByPrimaryKeys属性用于控制是否生成批量查询接口SelectByPrimaryKeys，默认启用。
+                   enableSelectByPrimaryKeys启用时，会创建一个SelectByColumn主键的配置项目，同时会生成一个DeleteByColumn主键的配置项。如果单独配置了SelectByColumn主键，则以SelectByColumn主键为准。
         -->
         <!ELEMENT generateController (property*, generateTreeViewCate*,generateOptions*)>
         <!ATTLIST generateController
@@ -1387,7 +1387,7 @@
         <!--
             SqlSchema sql schema文件生成描述
             属性信息：
-            1、generate 是否生成,true生成（生成H2\Mysql数据库对应的ddl）,false忽略。缺省值true
+            1、generate 是否生成,true生成（生成默认数据库方言及在context及table的additionalDbTypes属性中指定的数据库类型）,false忽略。缺省值true
             3、可能的属性name值：
                 - additionalDbTypes 额外生成的数据库类型，多个数据库类型用逗号分隔。缺省值为空。
                   （数据库类型包括：mysql,oracle,PostgreSql,sqlserver,sqlServer2005,dm,highgo,xugu,kingbasees,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase）
@@ -1487,7 +1487,7 @@
                       当父类的generateVo的generate属性为false时，该属性始终false。
                  2、includePageParam 可选 是否包含分页参数。true包含。缺省值true
                  3、excludeColumns 可选 RequestVo(父类)排除的字段名，多值使用",";
-                       当不配置该属性时，默认忽略eAbstractPersistenceLockEntity抽象类属性对应的字段。
+                       当不配置该属性时，默认忽略AbstractPersistenceLockEntity抽象类属性对应的字段。
                  4、includeColumns 可选 RequestVo(父类)包含的字段名，多值使用",";
                  5、equalsAndHashCodeColumns：可选，指定生成equals和HashCode方法的列名。默认为hashCode为id属性，如果根据需要指定为其他列，则需要配置该属性，此处指定后会覆盖generateVo的指定；
                  property配置：无
@@ -1957,8 +1957,7 @@
             8、dataSource 可选，数据来源
             9、enumClassFullName 可选，枚举类的全类名
             10、dictCode 可选，字典编码
-            11、switchText 可选，开关按钮的文本
-            12、dataUrl 可选，数据来源url
+            11、dataUrl 可选，数据来源url
         -->
         <!ELEMENT queryColumn (property*)>
         <!ATTLIST queryColumn

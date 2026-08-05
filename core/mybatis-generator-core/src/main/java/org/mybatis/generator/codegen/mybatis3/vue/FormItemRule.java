@@ -6,9 +6,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 
+import java.io.Serial;
+
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public class FormItemRule implements IBaseDTO {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String type;

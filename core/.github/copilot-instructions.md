@@ -53,3 +53,13 @@
 - 若改动涉及方言名或可选值，同步检查 DTD/配置解析/SQL 生成三处一致性。
 - 枚举定义要求：枚举字段（常量）必须有语义注释，说明其用途/对应 SQL 能力。
 - `switch` 语句要求：必须包含 `default` 分支，且 `default` 不允许静默 `break/return`，应显式抛错或给出明确失败信号。
+
+## 7. 数据库建设规范（必须遵守）
+
+- 规范来源：依赖包 `com.vgosoft:vgosoft-core-db`。
+- 参考文档：`docs/databaseConstructionSpec.md`（位于 `vgosoft-core-db` 源码包内）。
+- 版本规则：以当前项目实际依赖的 `vgosoft-core-db` 版本内文档为准。
+- 列名约束：列名必须至少包含一个 `_`；单个单词的列名必须在末尾补 `_`，例如 `name_`、`sort_`。
+- 方言覆盖：支持的数据库方言必须覆盖 `DatabaseType` （包名：com.vgosoft.core.db.query）枚举所有项；新增枚举项时，必须同步补齐解析、DDL、SQL 生成和文档约束。
+- 默认字段：必须优先使用 `DefaultColumnNameEnum`（包名：com.vgosoft.core.constant.enums.db），不得随意更名或用自定义字段替代其语义。
+- 生成约束：涉及 SQL 生成时必须先判断是否需要方言分组，并按 SQL 语义而不是类名进行分组。
