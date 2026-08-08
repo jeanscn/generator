@@ -19,7 +19,7 @@
     </el-tag>
     </#if>
     <#if blobFieldsCondition?has_content>
-    <div v-else-if="${ blobFieldsCondition }" v-html="scope.row[slotName]"></div>
+    <div v-else-if="${ blobFieldsCondition }" v-safe-html="scope.row[slotName]"></div>
     </#if>
     <span v-else>{{ scope.row[slotName] }}</span>
 </template>
