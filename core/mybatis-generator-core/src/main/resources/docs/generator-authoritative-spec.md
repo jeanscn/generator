@@ -52,7 +52,7 @@
 |---|---|---|
 | `bytes_` 字段 | VO 默认排除 `bytes_`（避免大字段直接进入常规 VO） | 需要前端显示时，优先走附件/下载链路，不直接暴露原始二进制字段 |
 | 上传/下载接口 | 仅当 table 启用 `enableFileUpload` 时生成 upload/download 接口；若存在 `bytes_` 且为 blob 列走字节流分支，否则走磁盘路径分支 | 设计时先判定“库内存储”还是“文件路径存储”，再决定接口与页面方案 |
-| 大字段展示 | Vue 列表模板对 blob/long text 字段提供 `v-html` 展示插槽条件 | “富文本编辑”不是纯自动推断，需在 `htmlElementDescriptor` 明确控件类型/插件 |
+| 大字段展示 | Vue 列表模板对 blob/long text 字段提供 `v-safe-html` 展示插槽条件 | “富文本编辑”不是纯自动推断，需在 `htmlElementDescriptor` 明确控件类型/插件 |
 | 默认值注入 | `new-instance` 与 VO 初始化会读取列默认值；`CURRENT_*` 与 `DbFiledDefaultValueEnum` 标记可触发自动赋值 | `*_user_id`、`tenant_id`、`org_id` 等请以“默认值标记”驱动，不要仅靠列名假设 |
 | 字典/枚举复用 | `DictSys/DictData/DictEnum/DictUser` 可通过 `overridePropertyValue` 与 `dataSource` 复用；部分场景可自动补 dataUrl | 先建统一字典策略，再按字段批量套用，避免每表重复定义 |
 | 可复用配置池 | `reusableElements` 可复用 `htmlElementDescriptor`、`overridePropertyValue`、`listColumnDescriptor`、`fieldOverrides`、`filterColumn` | 跨模块一致规则一律先放 `reusableElements`，表内只放差异项 |
