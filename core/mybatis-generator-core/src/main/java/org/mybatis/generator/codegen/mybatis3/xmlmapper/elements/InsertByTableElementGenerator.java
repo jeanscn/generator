@@ -1,6 +1,7 @@
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import com.vgosoft.core.db.query.DatabaseType;
 import org.apache.commons.lang3.ObjectUtils;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.xml.Attribute;
@@ -11,8 +12,7 @@ import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
 import java.util.List;
 
-public class InsertByTableElementGenerator extends
-        AbstractXmlElementGenerator {
+public class InsertByTableElementGenerator extends AbstractXmlElementGenerator {
 
     public InsertByTableElementGenerator() {
         super();
@@ -21,7 +21,9 @@ public class InsertByTableElementGenerator extends
     @Override
     public void addElements(XmlElement parentElement) {
         final List<SelectByTableGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
-        if (configurations.stream().noneMatch(SelectByTableGeneratorConfiguration::isEnableUnion)) return;
+        if (configurations.stream().noneMatch(SelectByTableGeneratorConfiguration::isEnableUnion)) {
+            return;
+        }
         for (SelectByTableGeneratorConfiguration configuration : configurations) {
             if (ObjectUtils.anyNull(configuration.getTableName(), configuration.getPrimaryKeyColumn(), configuration.getOtherPrimaryKeyColumn())) {
                 continue;
@@ -30,9 +32,18 @@ public class InsertByTableElementGenerator extends
             answer.addAttribute(new Attribute("id", configuration.getUnionMethodName()));
             answer.addAttribute(new Attribute("parameterType", FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName()));
             context.getCommentGenerator().addComment(answer);
-            answer.addElement(new TextElement("insert ignore into " + configuration.getTableName()));
+            if (isPostgreLikeDatabase()) {
+                answer.addElement(new TextElement("insert into " + configuration.getTableName()));
+            } else {
+                answer.addElement(new TextElement("insert ignore into " + configuration.getTableName()));
+            }
+
             StringBuilder sb = new StringBuilder("(");
-            sb.append(DefaultColumnNameEnum.ID.columnName()).append(",").append(configuration.getPrimaryKeyColumn()).append(",").append(configuration.getOtherPrimaryKeyColumn());
+            sb.append(DefaultColumnNameEnum.ID.columnName())
+                    .append(",")
+                    .append(configuration.getPrimaryKeyColumn())
+                    .append(",")
+                    .append(configuration.getOtherPrimaryKeyColumn());
             sb.append(")");
             answer.addElement(new TextElement(sb.toString()));
             answer.addElement(new TextElement("values"));
@@ -56,7 +67,18 @@ public class InsertByTableElementGenerator extends
             sb.append(")");
             foreachListField.addElement(new TextElement(sb.toString()));
             answer.addElement(foreachListField);
+            if (isPostgreLikeDatabase()) {
+                answer.addElement(new TextElement("on conflict do nothing"));
+            }
             parentElement.addElement(answer);
         }
+    }
+
+    private boolean isPostgreLikeDatabase() {
+        DatabaseType dbType = introspectedTable.getDbType();
+        return dbType == DatabaseType.POSTGRE_SQL
+                || dbType == DatabaseType.KINGBASE_ES
+                || dbType == DatabaseType.HIGHGO
+                || dbType == DatabaseType.SQLITE;
     }
 }
