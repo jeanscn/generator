@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 /**
  * @author cen_c
@@ -61,10 +62,22 @@ public class UpdateBatchByPrimaryKeySelectiveElementGenerator extends AbstractXm
             testItemIf.addAttribute(new Attribute("test", "item != null and item."+introspectedColumn.getJavaProperty()+" != null"));
             foreachListField.addElement(testItemIf);
 
-            sb.setLength(0);
-            sb.append("when #{item.id} then ");
-            sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn,"item."));
-            testItemIf.addElement(new TextElement(sb.toString()));
+            String parameterClause = MyBatis3FormattingUtilities.getParameterClause(introspectedColumn,"item.");
+            if (Mb3GenUtil.requiresPostgreCaseCast(introspectedColumn)) {
+                XmlElement chooseElement = new XmlElement("choose");
+                testItemIf.addElement(chooseElement);
+
+                XmlElement postgreWhenElement = new XmlElement("when");
+                postgreWhenElement.addAttribute(new Attribute("test", "_databaseId == 'postgresql'"));
+                postgreWhenElement.addElement(new TextElement("when #{item.id} then cast(" + parameterClause + " as " + Mb3GenUtil.resolvePostgreCaseCastType(introspectedColumn) + ")"));
+                chooseElement.addElement(postgreWhenElement);
+
+                XmlElement otherwiseElement = new XmlElement("otherwise");
+                otherwiseElement.addElement(new TextElement("when #{item.id} then " + parameterClause));
+                chooseElement.addElement(otherwiseElement);
+            } else {
+                testItemIf.addElement(new TextElement("when #{item.id} then " + parameterClause));
+            }
         }
 
         answer.addElement(new TextElement("where id_ in"));

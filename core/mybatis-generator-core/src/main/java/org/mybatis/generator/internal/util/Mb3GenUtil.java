@@ -179,6 +179,28 @@ public class Mb3GenUtil {
         }
     }
 
+    /**
+     * PostgreSQL CASE 表达式下，部分时间类型参数需要显式 cast，避免驱动按 text 推断导致类型不匹配。
+     */
+    public static boolean requiresPostgreCaseCast(IntrospectedColumn introspectedColumn) {
+        String jdbcTypeName = introspectedColumn.getJdbcTypeName();
+        return "TIMESTAMP".equalsIgnoreCase(jdbcTypeName)
+                || "DATETIME".equalsIgnoreCase(jdbcTypeName)
+                || "DATE".equalsIgnoreCase(jdbcTypeName)
+                || "TIME".equalsIgnoreCase(jdbcTypeName);
+    }
+
+    public static String resolvePostgreCaseCastType(IntrospectedColumn introspectedColumn) {
+        String jdbcTypeName = introspectedColumn.getJdbcTypeName();
+        if ("DATE".equalsIgnoreCase(jdbcTypeName)) {
+            return "date";
+        }
+        if ("TIME".equalsIgnoreCase(jdbcTypeName)) {
+            return "time";
+        }
+        return "timestamp";
+    }
+
     public static String getEnumClassNameByDataFmt(String dataFormat) {
         switch (dataFormat) {
             case "exist":
