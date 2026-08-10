@@ -22,7 +22,15 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import javax.annotation.Nullable;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
+
+    /**
+     * 添加当前元素到父元素
+     * @param parentElement 父元素
+     */
     public abstract void addElements(XmlElement parentElement);
 
     protected AbstractXmlElementGenerator() {
@@ -109,7 +117,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
             }
         }
 
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             answer.add(new TextElement(sb.toString()));
         }
 
@@ -165,8 +173,9 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
         answer.addAttribute(new Attribute("parameterType", parameterType.getFullyQualifiedName()));
 
-        if (databaseType != null) {
-            answer.addAttribute(new Attribute("databaseId", databaseType.getCode()));
+        String databaseId = resolveDatabaseId(databaseType);
+        if (databaseId != null) {
+            answer.addAttribute(new Attribute("databaseId", databaseId));
         }
 
         context.getCommentGenerator().addComment(answer);
@@ -188,6 +197,14 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
         );
 
         return answer;
+    }
+
+    @Nullable
+    protected String resolveDatabaseId(@Nullable DatabaseType databaseType) {
+        if (databaseType == null || databaseType == DatabaseType.OTHER) {
+            return null;
+        }
+        return databaseType.getCode();
     }
 
     protected enum ResultElementType {
@@ -401,14 +418,14 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
     protected TextElement buildOrderByDefault() {
         StringBuilder sb = new StringBuilder();
         introspectedTable.getColumn("sort_").ifPresent(introspectedColumn -> {
-            if (sb.length() > 0) sb.append(", ");
+            if (!sb.isEmpty()) { sb.append(", "); }
             sb.append("sort_");
         });
         introspectedTable.getColumn("created_").ifPresent(introspectedColumn -> {
-            if (sb.length() > 0) sb.append(", ");
+            if (!sb.isEmpty()) { sb.append(", ");}
             sb.append("created_ ");
         });
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             return new TextElement("ORDER BY " + sb);
         } else {
             return null;
