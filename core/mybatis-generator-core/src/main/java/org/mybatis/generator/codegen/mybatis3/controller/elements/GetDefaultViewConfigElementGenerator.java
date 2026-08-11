@@ -11,6 +11,9 @@ import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class GetDefaultViewConfigElementGenerator extends AbstractControllerElementGenerator {
 
     public GetDefaultViewConfigElementGenerator() {

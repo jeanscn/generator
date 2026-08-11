@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class DeleteElementGenerator extends AbstractControllerElementGenerator {
 
     public DeleteElementGenerator() {
@@ -31,7 +34,7 @@ public class DeleteElementGenerator extends AbstractControllerElementGenerator {
             parameter.setRemark(c.getRemarks(false));
             parameter.addAnnotation("@PathVariable");
             return parameter;
-        }).collect(Collectors.toList());
+        }).toList();
         String pathVariable = parameters.stream().map(p -> "{" + p.getName() + "}").collect(Collectors.joining("/"));
         parameters.forEach(method::addParameter);
         FullyQualifiedJavaType response = new FullyQualifiedJavaType(RESPONSE_RESULT);

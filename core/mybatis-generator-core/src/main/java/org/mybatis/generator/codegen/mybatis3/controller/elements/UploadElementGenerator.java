@@ -80,10 +80,10 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
             method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));
             method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKeyWithBLOBs({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));
         } else {
-            method.addBodyLine("String uuid = StringUtils.defaultIfEmpty({0}.getId(), StringUtils.defaultIfEmpty({0}.getModelTempId(), UUID.nextUUID()));",entityType.getShortNameFirstLowCase());
+            method.addBodyLine("String uuid = StringUtils.defaultIfEmpty({0}.getId(), StringUtils.defaultIfEmpty({0}.getModelTempId(), UuidUtil.nextUuid()));",entityType.getShortNameFirstLowCase());
             method.addBodyLine(format("initDiskFileEntityFromMultipartFile({0},file,uuid);", entityType.getShortNameFirstLowCase()));
             method.addBodyLine("{0}.setModelTempId(uuid);", entityType.getShortNameFirstLowCase());
-            parentElement.addImportedType("com.vgosoft.core.util.UUID");
+            parentElement.addImportedType("com.vgosoft.core.util.UuidUtil");
             method.addBodyLine(format("ServiceResult<{0}> serviceResult;", entityType.getShortName()));
             method.addBodyLine(format("if (VStringUtil.stringHasValue({0}.getId())) '{'", entityType.getShortNameFirstLowCase()));
             method.addBodyLine(format("serviceResult = {0}.updateByPrimaryKey({1});", serviceBeanName, entityType.getShortNameFirstLowCase()));

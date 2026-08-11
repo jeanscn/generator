@@ -1,7 +1,8 @@
 package org.mybatis.generator.codegen.mybatis3.controller.elements;
 
-import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
-import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
+import static com.vgosoft.tool.core.VStringUtil.format;
+import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
@@ -11,8 +12,8 @@ import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
-import static com.vgosoft.tool.core.VStringUtil.format;
-import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
+import com.vgosoft.core.constant.enums.core.RequestMethodEnum;
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 
 /**
  * @author cen_c
@@ -27,6 +28,7 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType(entityType);
+        parentElement.addImportedType("com.vgosoft.tool.core.VBooleanUtil");
         parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
         parentElement.addImportedType("org.springframework.util.Assert");
 
@@ -64,11 +66,10 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
             parentElement.addImportedType("java.io.File");
             parentElement.addImportedType("org.apache.commons.io.FileUtils");
         }
-        method.addBodyLine(format("HttpHeaders headers = getHeaders({0}, Boolean.parseBoolean(type),bytes);", entityType.getShortNameFirstLowCase()));
+        method.addBodyLine(format("HttpHeaders headers = getHeaders({0}, VBooleanUtil.toBool(type),bytes);", entityType.getShortNameFirstLowCase()));
         method.addBodyLine("return new ResponseEntity<>(bytes, headers, HttpStatus.OK);");
-        method.addBodyLine("} else {");
-        method.addBodyLine("return new ResponseEntity<>(HttpStatus.NOT_FOUND);");
         method.addBodyLine("}");
+        method.addBodyLine("return new ResponseEntity<>(HttpStatus.NOT_FOUND);");
         parentElement.addMethod(method);
         parentElement.addImportedType("org.springframework.http.HttpHeaders");
         parentElement.addImportedType("org.springframework.http.HttpStatus");

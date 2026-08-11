@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
 
     public DeleteByTableGenerator() {

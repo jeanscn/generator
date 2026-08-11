@@ -50,7 +50,7 @@
           5、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           6、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
           7、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响context内所有的生成表的默认列表，列表字段范围和页面编辑时的表单
-          8、additionalDbTypes 数据库类型包括：mysql,oracle,PostgreSql,sqlserver,sqlServer2005,dm,highgo,xugu,kingbasees,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase
+          8、additionalDbTypes 数据库类型包括：mysql,oracle,postgresql,sqlserver,sqlserver2005,dm,highgo,xugu,kingbasees,gbase,gaussdb,uxdb,tidb,polardb,tdsql,mariadb,db2,h2,hsql,sqlite,phoenix,cachedb,informix,cloudscape,sybase
           特别说明：
           1、forceUpdateElementList 当forceUpdateScalableElement设置为true可以进一步指定要删除的元素类型，多个”,“分隔
             类型包括：dao,service,controller,modelVo,createVo,excelVo,requestVo,updateVo,viewVo,maps
