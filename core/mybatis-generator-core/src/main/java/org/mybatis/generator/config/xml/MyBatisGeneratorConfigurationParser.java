@@ -614,6 +614,16 @@ public class MyBatisGeneratorConfigurationParser {
         String contextProperty = context.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
         String currentProperty = tc.getProperty(PropertyRegistry.ANY_PROPERTY_ADDITIONAL_DB_TYPES);
         if (VStringUtil.stringHasValue(contextProperty)|| VStringUtil.stringHasValue(currentProperty)) {
+            if (VStringUtil.stringHasValue(contextProperty)) {
+                contextProperty = contextProperty.toLowerCase();
+            } else {
+                contextProperty = "";
+            }
+            if (VStringUtil.stringHasValue(currentProperty)) {
+                currentProperty = currentProperty.toLowerCase();
+            } else {
+                currentProperty = "";
+            }
             Set<String> dbTypes = splitToSet(currentProperty + SymbolConstants.COMMA + contextProperty);
             dbTypes.forEach(dbType -> {
                 if (VStringUtil.stringHasValue(dbType)) {

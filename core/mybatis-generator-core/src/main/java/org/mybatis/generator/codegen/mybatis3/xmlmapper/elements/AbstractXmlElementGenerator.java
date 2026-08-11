@@ -201,7 +201,7 @@ public abstract class AbstractXmlElementGenerator extends AbstractGenerator {
 
     @Nullable
     protected String resolveDatabaseId(@Nullable DatabaseType databaseType) {
-        if (databaseType == null || databaseType == DatabaseType.OTHER) {
+        if (databaseType == null) {
             return null;
         }
         return databaseType.getCode();
