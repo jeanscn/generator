@@ -31,7 +31,7 @@ public class InsertByTableElement extends AbstractServiceElementGenerator {
                 .filter(SelectByTableGeneratorConfiguration::isEnableUnion)
                 .forEach(c -> {
                     Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,true);
-
+                    method.addAnnotation("@Override");
                     final List<String> annotations = new ArrayList<>();
                     //是否需要缓存
                     List<EnableCacheConfiguration> cacheConfigurationList =  c.getCacheConfigurationList();

@@ -19,6 +19,9 @@ import java.util.List;
 import static org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator.SUFFIX_INSERT_UPDATE_BATCH;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractServiceElementGenerator extends AbstractGenerator {
 
     protected JavaServiceImplGeneratorConfiguration serviceImplConfiguration;
@@ -53,6 +56,10 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
 
     protected ServiceMethods serviceMethods;
 
+    /**
+     * 添加到父元素
+     * @param parentElement 父元素
+     */
     public abstract void addElements(TopLevelClass parentElement);
 
     public AbstractServiceElementGenerator() {
@@ -136,9 +143,9 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
     }
 
     protected String generateSelectByTableCacheNames(SelectByTableGeneratorConfiguration configuration, String cacheType) {
-        if (cacheType.equals("cache")) {
+        if ("cache".equalsIgnoreCase(cacheType)) {
             return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
-        } else if (cacheType.equals("evict")) {
+        } else if ("evict".equalsIgnoreCase(cacheType)) {
             return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
         } else {
             return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
