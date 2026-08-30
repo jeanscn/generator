@@ -17,7 +17,7 @@ public class Max  extends AbstractAnnotation {
 
     public Max() {
         super();
-        this.addImports("javax.validation.constraints.Max");
+        this.addImports("jakarta.validation.constraints.Max");
     }
 
     public Max(long value, String message, String[] groups) {
@@ -25,7 +25,7 @@ public class Max  extends AbstractAnnotation {
         this.value = value;
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.Max");
+        this.addImports("jakarta.validation.constraints.Max");
     }
 
     @Override

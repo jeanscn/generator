@@ -26,7 +26,7 @@ public class DecimalMin extends AbstractAnnotation {
 
     public DecimalMin() {
         super();
-        this.addImports("javax.validation.constraints.DecimalMin");
+        this.addImports("jakarta.validation.constraints.DecimalMin");
     }
 
     public DecimalMin(String value, String message, String[] groups) {
@@ -34,7 +34,7 @@ public class DecimalMin extends AbstractAnnotation {
         this.value = value;
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.DecimalMin");
+        this.addImports("jakarta.validation.constraints.DecimalMin");
     }
 
     @Override

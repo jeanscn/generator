@@ -13,7 +13,7 @@
 
 import { Ref } from "vue";
 import { T${ modelName } } from "./types/T${ modelName }";
-import { TPrivateHooksParams } from "@/framework/components/vgoForm/types";
+import { TPrivateHooksParams } from "@vgosoft/framework/components/vgoForm/types";
 
 export default {
     /*

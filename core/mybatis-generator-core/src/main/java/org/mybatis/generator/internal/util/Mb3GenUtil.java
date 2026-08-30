@@ -23,7 +23,7 @@ import org.mybatis.generator.custom.annotations.HtmlButtonDesc;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -424,7 +424,7 @@ public class Mb3GenUtil {
                 mappings.setVisibility(JavaVisibility.PROTECTED);
                 mappings.addAnnotation("@Resource");
                 parentElement.addImportedType(mappingsInterface);
-                parentElement.addImportedType("javax.annotation.Resource");
+                parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Resource"));
                 mappings.addJavaDocLine("/**");
                 mappings.addJavaDocLine(" * 注入" + mappingsInterface.getShortName() + " 实例");
                 mappings.addJavaDocLine(" */");

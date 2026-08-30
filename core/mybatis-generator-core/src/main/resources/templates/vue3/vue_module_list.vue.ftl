@@ -46,9 +46,9 @@
 
 <#-- language=TypeScript -->
 <script lang="ts" setup name="${ componentName }">
-import { TColumn } from '@/framework/components/vgoTable/types';
-import VgoTableView from '@/framework/components/vgoTable/vgoTableView.vue';
-import { useTableConfigStore } from '@/store/tableConfig';
+import { TColumn } from '@vgosoft/framework/components/vgoTable/types';
+import VgoTableView from '@vgosoft/framework/components/vgoTable/vgoTableView';
+import { useTableConfigStore } from '@vgosoft/framework/store/tableConfig';
 import { onMounted, provide, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';

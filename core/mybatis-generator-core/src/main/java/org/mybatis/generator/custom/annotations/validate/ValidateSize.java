@@ -29,7 +29,7 @@ public class ValidateSize extends AbstractAnnotation {
 
     public ValidateSize() {
         super();
-        this.addImports("javax.validation.constraints.Size");
+        this.addImports("jakarta.validation.constraints.Size");
     }
 
     public ValidateSize(String min, String max, String message, String[] groups) {
@@ -38,7 +38,7 @@ public class ValidateSize extends AbstractAnnotation {
         this.max = max;
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.Size");
+        this.addImports("jakarta.validation.constraints.Size");
     }
 
     @Override

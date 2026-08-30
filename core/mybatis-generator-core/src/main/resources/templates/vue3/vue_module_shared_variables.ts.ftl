@@ -3,7 +3,7 @@
 * @description ${ tableRemark }-${ modelPath }-共享变量定义
 * @version: shared variables version 1.0.5
 */
-import { TLoadModalProps } from '@/modules/components/loadModals/types'
+import { TLoadModalProps } from '@vgosoft/framework/types/loadModals'
 import { reactive } from 'vue'
 
 // 动态弹窗共享参数

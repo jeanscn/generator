@@ -50,7 +50,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
         //添加注解
         method.addAnnotation("@PermitAll");
-        parentElement.addImportedType("javax.annotation.security.PermitAll");
+        parentElement.addImportedType("jakarta.annotation.security.PermitAll");
         method.addAnnotation(new SystemLogDesc("通过表单查看或创建记录", introspectedTable), parentElement);
         method.addAnnotation(new RequestMappingDesc("view", RequestMethodEnum.GET), parentElement);
         method.addAnnotation(new OperationDesc("获得数据并返回页面视图（可用于普通业务在列表中新建接口）",
@@ -73,7 +73,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         //如果是流程实例
         if (GenerateUtils.isWorkflowInstance(introspectedTable)) {
             //为父元素添加当前方法的使用的属性
-            parentElement.addImportedType("javax.annotation.Resource");
+            parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Resource"));
             FullyQualifiedJavaType qualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
             qualifiedJavaType.addTypeArgument(entityType);
             Field workflowTraceInfoImpl = new Field("workflowTraceInfoImpl", qualifiedJavaType);
@@ -188,7 +188,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
     private void addAttachmentToModel(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Method method, TopLevelClass parentElement) {
         if (!htmlGeneratorConfiguration.getHtmlFileAttachmentConfiguration().isEmpty()) {
             //为父元素添加当前方法的使用的属性
-            parentElement.addImportedType("javax.annotation.Resource");
+            parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Resource"));
             Field vbizFileAttachment = new Field("vbizFileAttachmentImpl", new FullyQualifiedJavaType("com.vgosoft.bizcore.service.IVbizFileAttachment"));
             vbizFileAttachment.addAnnotation("@Resource");
             vbizFileAttachment.setVisibility(JavaVisibility.PROTECTED);
@@ -203,7 +203,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
     private void addBusCommentsToMethod(HtmlGeneratorConfiguration htmlGeneratorConfiguration, Method method, TopLevelClass parentElement) {
         if (!htmlGeneratorConfiguration.getHtmlApprovalCommentConfigurations().isEmpty()) {
             //为父元素添加当前方法的使用的属性
-            parentElement.addImportedType("javax.annotation.Resource");
+            parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Resource"));
             FullyQualifiedJavaType qualifiedJavaType = new FullyQualifiedJavaType("com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo");
             qualifiedJavaType.addTypeArgument(entityType);
             Field workflowTraceInfoImpl = new Field("workflowTraceInfoImpl", qualifiedJavaType);

@@ -20,7 +20,7 @@ public class Min  extends AbstractAnnotation {
 
     public Min() {
         super();
-        this.addImports("javax.validation.constraints.Min");
+        this.addImports("jakarta.validation.constraints.Min");
     }
 
     public Min(long value, String message, String[] groups) {
@@ -28,7 +28,7 @@ public class Min  extends AbstractAnnotation {
         this.value = value;
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.Min");
+        this.addImports("jakarta.validation.constraints.Min");
     }
 
     @Override

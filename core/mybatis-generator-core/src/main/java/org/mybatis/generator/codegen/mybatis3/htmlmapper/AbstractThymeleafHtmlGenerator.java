@@ -14,7 +14,7 @@ import org.mybatis.generator.config.HtmlHrefElementConfiguration;
 import com.vgosoft.core.constant.enums.view.HtmlElementTagTypeEnum;
 import org.mybatis.generator.custom.enums.ThymeleafValueScopeEnum;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.List;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;

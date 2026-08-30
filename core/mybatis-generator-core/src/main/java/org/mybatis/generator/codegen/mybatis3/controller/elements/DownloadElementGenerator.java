@@ -74,6 +74,6 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         parentElement.addImportedType("org.springframework.http.HttpHeaders");
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType("org.springframework.http.ResponseEntity");
-        parentElement.addImportedType("javax.annotation.security.PermitAll");
+        parentElement.addImportedType("jakarta.annotation.security.PermitAll");
     }
 }

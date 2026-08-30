@@ -25,9 +25,9 @@
 </template>
 <script lang="ts" setup name="PrivateTableColumnSlots">
     import { computed, PropType } from 'vue'
-    import textMaps from '@/framework/utils/maps'
-    import { EMPTY_OBJECT } from '@/framework/utils/constant'
-    import { TColumn } from '@/framework/components/vgoTable/types'
+    import textMaps from '@vgosoft/framework/utils/maps'
+    import { EMPTY_OBJECT } from '@vgosoft/framework/utils/constant'
+    import { TColumn } from '@vgosoft/framework/components/vgoTable/types'
 
     const props = defineProps({
         slotName: { type: String as PropType<string>, default: '' },

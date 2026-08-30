@@ -21,17 +21,17 @@
 
 <script lang="ts" setup name="${ modelName }Detail">
     import { onMounted, onUnmounted, PropType, <#if workflowEnabled >provide,</#if> ref, Ref, watch } from 'vue';
-    import { EMPTY_OBJECT } from '@/framework/utils/constant';
-    import { TFormConfig } from '@/framework/components/vgoForm/types';
+    import { EMPTY_OBJECT } from '@vgosoft/framework/utils/constant';
+    import { TFormConfig } from '@vgosoft/framework/components/vgoForm/types';
     import { T${ modelName } } from '../types/T${ modelName }';
-    import { useFormConfigStore } from '@/store/formConfig';
+    import { useFormConfigStore } from '@vgosoft/framework/store/formConfig';
     <#if hasInnerList>
     import * as extMethod from '@/hooks/useCustomHandle';
     import * as useExtentHooks from '../PrivateUseFormHooks';
-    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
+    import { TVxeTableActionsParams } from '@vgosoft/framework/components/VgoVxeTable/types';
     </#if>
     <#if workflowEnabled >
-    import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
+    import { useCurrentTaskAttributesStore } from '@vgosoft/framework/workflow/store/currentTaskAttributes';
 
     const currentTaskAttributesStore = useCurrentTaskAttributesStore();
     </#if>

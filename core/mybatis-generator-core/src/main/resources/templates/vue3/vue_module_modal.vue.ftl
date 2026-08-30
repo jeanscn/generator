@@ -51,26 +51,26 @@
 
 <script lang="ts" setup name="${ componentName }Modal">
     import { onMounted, watch, PropType, ref, inject, Ref, provide  } from 'vue';
-    import { TFormConfig } from '@/framework/components/vgoForm/types';
-    import { IButtonProps } from '@/framework/types/core';
+    import { TFormConfig } from '@vgosoft/framework/components/vgoForm/types';
+    import { IButtonProps } from '@vgosoft/framework/types/core';
     import { TFormButtonActionParam } from '@/hooks/types';
-    import { ServiceApi } from '@/api/service';
-    import { TVgoTableInstance } from '@/framework/components/vgoTable/types';
+    import { ServiceApi } from '@vgosoft/framework/api/service';
+    import { TVgoTableInstance } from '@vgosoft/framework/components/vgoTable/types';
     import { useI18n } from 'vue-i18n';
     import * as extMethod from '@/hooks/useCustomHandle';
-    import { EMPTY_OBJECT } from '@/framework/utils/constant';
+    import { EMPTY_OBJECT } from '@vgosoft/framework/utils/constant';
     import _ from 'lodash';
 
     import { T${ modelName } } from '../${ modelPath }/types/T${ modelName }';
     import ${ componentName }Edit from '../${ modelPath }/components/${ componentName }Edit.vue';
     import ${ componentName }Detail from '../${ modelPath }/components/${ componentName }Detail.vue';
-    import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
+    import { TGlobalDialog } from '@vgosoft/framework/layout/components/GlobalDialog';
 
-    import FormButtonsBar from '@/framework/workflow/components/FormButtonsBar.vue';
-    import { TElDialogProps } from '@/framework/components/vgoDialog/types';
-    import VgoFormDrawer from '@/framework/components/vgoDrawer/VgoFormDrawer.vue';
-    import { TElDrawerProps } from '@/framework/components/vgoDrawer/types';
-    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
+    import FormButtonsBar from '@vgosoft/framework/workflow/components/FormButtonsBar';
+    import { TElDialogProps } from '@vgosoft/framework/components/vgoDialog/types';
+    import VgoFormDrawer from '@vgosoft/framework/components/vgoDrawer/VgoFormDrawer';
+    import { TElDrawerProps } from '@vgosoft/framework/components/vgoDrawer/types';
+    import { TVxeTableActionsParams } from '@vgosoft/framework/components/VgoVxeTable/types';
 
     const emit = defineEmits(['update:modelValue',
         'onSubmit' , 'open', 'opened', 'close', 'closed',

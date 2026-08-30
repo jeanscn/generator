@@ -107,7 +107,7 @@ public class DefaultCommentGenerator implements CommentGenerator {
         addRemarkComments = isTrue(properties.getProperty(PropertyRegistry.COMMENT_GENERATOR_ADD_REMARK_COMMENTS));
 
         if (isTrue(properties.getProperty(PropertyRegistry.COMMENT_GENERATOR_USE_LEGACY_GENERATED_ANNOTATION))) {
-            generatedImport = new FullyQualifiedJavaType("javax.annotation.Generated");
+            generatedImport = new FullyQualifiedJavaType("jakarta.annotation.Generated");
         }
 
         String dateFormatString = properties.getProperty(PropertyRegistry.COMMENT_GENERATOR_DATE_FORMAT);

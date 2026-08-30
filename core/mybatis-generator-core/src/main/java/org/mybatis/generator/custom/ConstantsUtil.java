@@ -157,7 +157,7 @@ public class ConstantsUtil {
     public static final String MAPSTRUCT_FACTORY_MAPPERS = "org.mapstruct.factory.Mappers";
     public static final String MAPSTRUCT_REPORTING_POLICY = "org.mapstruct.ReportingPolicy";
 
-    public static final String ANNOTATION_NULLABLE = "javax.annotation.Nullable";
+    public static final String ANNOTATION_NULLABLE = "jakarta.annotation.Nullable";
 
     public static final String SUFFIX_INNER_LIST_FRAGMENTS = "inner_list_fragments";
 

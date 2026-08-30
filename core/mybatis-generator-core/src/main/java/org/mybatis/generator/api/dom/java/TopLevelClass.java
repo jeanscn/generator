@@ -151,7 +151,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                     this.addImportedType("com.baomidou.mybatisplus.annotation.TableField");
                     break;
                 case "Valid":
-                    this.addImportedType("javax.validation.Valid");
+                    this.addImportedType("jakarta.validation.Valid");
                     break;
                 case "ResponseResult":
                     this.addStaticImport("com.vgosoft.core.adapter.web.respone.ResponseResult.*");

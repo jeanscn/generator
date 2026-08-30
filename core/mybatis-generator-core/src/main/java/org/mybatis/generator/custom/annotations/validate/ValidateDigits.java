@@ -26,7 +26,7 @@ public class ValidateDigits extends AbstractAnnotation {
 
     public ValidateDigits() {
         super();
-        this.addImports("javax.validation.constraints.Digits");
+        this.addImports("jakarta.validation.constraints.Digits");
     }
 
     public ValidateDigits(String integer, String fraction, String message, String[] groups) {
@@ -35,7 +35,7 @@ public class ValidateDigits extends AbstractAnnotation {
         this.fraction = fraction;
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.Digits");
+        this.addImports("jakarta.validation.constraints.Digits");
     }
 
     @Override

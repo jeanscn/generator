@@ -384,7 +384,7 @@ public class ServiceMethods {
             parentElement.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
         }
         minDimension.addAnnotation("@Nullable");
-        parentElement.addImportedType(new FullyQualifiedJavaType("javax.annotation.Nullable"));
+        parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Nullable"));
         method.addParameter(startDate);
         method.addParameter(endDate);
         method.addParameter(minDimension);

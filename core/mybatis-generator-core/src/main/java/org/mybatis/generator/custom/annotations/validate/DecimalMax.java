@@ -25,7 +25,7 @@ public class DecimalMax extends AbstractAnnotation {
 
     public DecimalMax() {
         super();
-        this.addImports("javax.validation.constraints.DecimalMax");
+        this.addImports("jakarta.validation.constraints.DecimalMax");
     }
 
     public DecimalMax(String value, String message, String[] groups) {
@@ -33,7 +33,7 @@ public class DecimalMax extends AbstractAnnotation {
         this.value = value;
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.DecimalMax");
+        this.addImports("jakarta.validation.constraints.DecimalMax");
     }
 
     @Override

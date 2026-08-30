@@ -12,7 +12,7 @@ import org.mybatis.generator.config.InnerListViewConfiguration;
 import org.mybatis.generator.custom.annotations.VueFormItemMetaDesc;
 import org.mybatis.generator.custom.annotations.VueFormItemRuleDesc;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 

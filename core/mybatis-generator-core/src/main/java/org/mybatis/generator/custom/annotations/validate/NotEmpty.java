@@ -23,14 +23,14 @@ public class NotEmpty extends AbstractAnnotation {
 
     public NotEmpty() {
         super();
-        this.addImports("javax.validation.constraints.NotEmpty");
+        this.addImports("jakarta.validation.constraints.NotEmpty");
     }
 
     public NotEmpty(String message, String[] groups) {
         super();
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.NotEmpty");
+        this.addImports("jakarta.validation.constraints.NotEmpty");
     }
 
     @Override

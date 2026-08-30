@@ -4,6 +4,7 @@ import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
+import jakarta.annotation.Resource;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
@@ -87,10 +88,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         if (!javaServiceImplGeneratorConfiguration.getEntityEvent().isEmpty()) {
             Field publisher = new Field(PUBLISHER_FIELD_NAME, new FullyQualifiedJavaType(APPLICATION_EVENT_PUBLISHER));
             publisher.setVisibility(JavaVisibility.PROTECTED);
-            publisher.addAnnotation("@Autowired");
+            publisher.addAnnotation("@Resource");
             bizGenClazzImpl.addField(publisher);
             bizGenClazzImpl.addImportedType(publisher.getType());
-            bizGenClazzImpl.addImportedType(Autowired.class.getCanonicalName());
+            bizGenClazzImpl.addImportedType("jakarta.annotation.Resource");
         }
 
         //增加构造器

@@ -87,30 +87,30 @@
 
     import { Ref, watch, onMounted, ref, inject, provide, nextTick } from 'vue';
     import { useRoute } from 'vue-router';
-    import { TTableConfigProps, TTableApiObj, TVgoTableInstance, TColumn, ExtendedSort } from "@/framework/components/vgoTable/types";
+    import { TTableConfigProps, TTableApiObj, TVgoTableInstance, TColumn, ExtendedSort } from "@vgosoft/framework/components/vgoTable/types";
     import API from '@/api';
-    import { ServiceApi } from '@/api/service';
-    import { isEmpty, isNullOrUnDef } from '@/framework/utils/is';
+    import { ServiceApi } from '@vgosoft/framework/api/service';
+    import { isEmpty, isNullOrUnDef } from '@vgosoft/framework/utils/is';
     import * as extMethod from '@/hooks/useCustomHandle';
-    import TreePanel from '@/framework/components/vgoTree/TreePanel.vue';
-    import { TFormConfig } from '@/framework/components/vgoForm/types';
+    import TreePanel from '@vgosoft/framework/components/vgoTree/TreePanel';
+    import { TFormConfig } from '@vgosoft/framework/components/vgoForm/types';
     import { T${ componentName } } from '../${ modelPath }/types/T${ componentName }';
-    import VgoTreeDrawer from '@/framework/components/vgoDrawer/VgoTreeDrawer.vue';
+    import VgoTreeDrawer from '@vgosoft/framework/components/vgoDrawer/VgoTreeDrawer';
     import PrivateTableColumnSlots from '../${ modelPath }/PrivateTableColumnSlots.vue';
-    import { useTableConfigStore } from '@/store/tableConfig';
-    import { useFormConfigStore } from '@/store/formConfig';
+    import { useTableConfigStore } from '@vgosoft/framework/store/tableConfig';
+    import { useFormConfigStore } from '@vgosoft/framework/store/formConfig';
     import { TDtCustomButtonActionParam, TViewRowActionParam, } from '@/hooks/types';
-    import { TTreeApiObj, TTreeCheckDataParams, TTreePanelButtons, TTreePanelProps, TTreeSaveDataParams, TVgoTreeProps } from '@/framework/components/vgoTree/types';
+    import { TTreeApiObj, TTreeCheckDataParams, TTreePanelButtons, TTreePanelProps, TTreeSaveDataParams, TVgoTreeProps } from '@vgosoft/framework/components/vgoTree/types';
     import { TApi } from '@/api/types';
     import { useI18n } from 'vue-i18n';
-    import { TGlobalDialog } from '@/framework/layout/components/GlobalDialog.vue';
-    import { TGlobalDrawer } from '@/framework/layout/components/GlobalDrawer.vue';
-    import { IButtonProps } from '@/framework/types/core';
-    import vgoFileImport from '@/framework/components/vgoFileImport/index.vue';
+    import { TGlobalDialog } from '@vgosoft/framework/layout/components/GlobalDialog';
+    import { TGlobalDrawer } from '@vgosoft/framework/layout/components/GlobalDrawer';
+    import { IButtonProps } from '@vgosoft/framework/types/core';
+    import vgoFileImport from '@vgosoft/framework/components/vgoFileImport';
     import ${ componentName }Modal from '../modals/${ componentName }Modal.vue';
     import LoadModals from '@/modules/components/loadModals/index.vue';
     import { loadModalsProps } from '../${ modelPath }/sharedVariables';
-    import { TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
+    import { TVxeTableActionsParams } from '@vgosoft/framework/components/VgoVxeTable/types';
 
     const i18n = useI18n();
 

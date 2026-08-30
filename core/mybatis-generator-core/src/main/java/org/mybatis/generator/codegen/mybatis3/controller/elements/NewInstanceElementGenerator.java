@@ -33,7 +33,7 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
             parentElement.addField(field);
             parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.event.entity.EntityEventPublisher"));
             parentElement.addImportedType(new FullyQualifiedJavaType("com.vgosoft.core.constant.enums.core.EntityEventEnum"));
-            parentElement.addImportedType(new FullyQualifiedJavaType("javax.annotation.Resource"));
+            parentElement.addImportedType(new FullyQualifiedJavaType("jakarta.annotation.Resource"));
         }
 
         FullyQualifiedJavaType type;

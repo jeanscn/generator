@@ -25,21 +25,21 @@
 
 <script lang="ts" setup name="${ modelName }Edit">
     import { onMounted, onUnmounted, PropType, Ref, <#if workflowEnabled >provide,</#if> ref, unref, watch } from 'vue';
-    import { EMPTY_OBJECT } from '@/framework/utils/constant';
-    import tool from '@/framework/utils/tool';
-    import { ServiceApi } from '@/api/service';
+    import { EMPTY_OBJECT } from '@vgosoft/framework/utils/constant';
+    import tool from '@vgosoft/framework/utils/tool';
+    import { ServiceApi } from '@vgosoft/framework/api/service';
     import { loadNewInstance } from '@/hooks/useCustomHandle';
     import { T${ modelName } } from '../types/T${ modelName }';
-    import { TFormConfig,TPrivateHooksParams } from '@/framework/components/vgoForm/types';
-    import { useFormConfigStore } from '@/store/formConfig';
+    import { TFormConfig,TPrivateHooksParams } from '@vgosoft/framework/components/vgoForm/types';
+    import { useFormConfigStore } from '@vgosoft/framework/store/formConfig';
     import * as useExtentHooks from '../PrivateUseFormHooks';
     import { useI18n } from 'vue-i18n';
     <#if hasInnerList>
     import * as extMethod from '@/hooks/useCustomHandle';
-    import { TVgoVxeTableRowDeletedParams, TVxeTableActionsParams } from '@/framework/components/VgoVxeTable/types';
+    import { TVgoVxeTableRowDeletedParams, TVxeTableActionsParams } from '@vgosoft/framework/components/VgoVxeTable/types';
     </#if>
     <#if workflowEnabled >
-    import { useCurrentTaskAttributesStore } from '@/framework/workflow/store/currentTaskAttributes';
+    import { useCurrentTaskAttributesStore } from '@vgosoft/framework/workflow/store/currentTaskAttributes';
 
     const currentTaskAttributesStore = useCurrentTaskAttributesStore();
     </#if>

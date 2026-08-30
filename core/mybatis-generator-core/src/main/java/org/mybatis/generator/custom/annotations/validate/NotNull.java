@@ -23,14 +23,14 @@ public class NotNull extends AbstractAnnotation {
 
     public NotNull() {
         super();
-        this.addImports("javax.validation.constraints.NotNull");
+        this.addImports("jakarta.validation.constraints.NotNull");
     }
 
     public NotNull(String message, String[] groups) {
         super();
         this.message = message;
         this.groups = groups;
-        this.addImports("javax.validation.constraints.NotNull");
+        this.addImports("jakarta.validation.constraints.NotNull");
     }
 
     @Override
