@@ -206,3 +206,78 @@
 1. 先用本文件判定“是否可生成、可生成到什么程度”
 2. 再用 `generator-config-guide.md` 编写 `generatorConfig.xml`
 3. 若能力仍不足，再进入 `.github\generator-core-dev-spec.md` 做内核改造
+
+---
+
+## 8. 标准模块结构约定（生成优先版）
+
+本节用于规范“一个业务模块在落地时应该长什么样”。新模块设计必须先按本结构划分生成区与扩展区，再讨论生成器配置。
+
+### 8.1 标准模块目录
+
+```text
+vgosoft-<domain>
+├─ src/main/java/com/vgosoft/<domain>
+│  ├─ codegen
+│  │  ├─ controller
+│  │  ├─ dao
+│  │  └─ service
+│  │      └─ impl
+│  ├─ config
+│  ├─ controller
+│  ├─ dao
+│  ├─ entity
+│  ├─ listener
+│  ├─ pojo
+│  │  ├─ abs
+│  │  ├─ maps
+│  │  └─ vo
+│  └─ service
+│     └─ impl
+└─ src/main/resources
+   ├─ mappers
+   ├─ sql
+   └─ generatorConfig.xml
+```
+
+### 8.2 目录职责
+
+| 目录 | 性质 | 约束 |
+|---|---|---|
+| `codegen/` | 生成区 | `controller/dao/service` 的生成实现，允许每次重新生成覆盖 |
+| `entity/` | 生成区 | 数据实体，每次重新生成覆盖 |
+| `pojo/abs` | 生成区 | 抽象 VO/POJO 基类，每次重新生成覆盖 |
+| `pojo/maps` | 生成区 | MapStruct/映射实现，每次重新生成覆盖 |
+| `pojo/vo` | 生成区 | 对外 VO、Create/Update/View/Request/Excel 等，每次重新生成覆盖 |
+| `mappers/` | 生成区 | Mapper XML，每次重新生成覆盖 |
+| `sql/` | 生成区 | 生成的 DDL 与初始化数据脚本，每次重新生成覆盖 |
+| `controller/` | 扩展区 | 首次生成空类，后续只允许添加项目个性化定制代码 |
+| `dao/` | 扩展区 | 首次生成空接口或扩展接口，后续只允许补充个性化方法 |
+| `service/impl/` | 扩展区 | 首次生成空实现或继承实现，后续只允许补充个性化逻辑 |
+| `listener/` | 扩展区 | 生命周期消息处理类，首次生成空方法，后续补充事件处理逻辑 |
+| `config/` | 扩展区 | 配置装配 |
+| `dto/`、`enums/`、其他 | 按需新增 | 仅在生成器现有模型无法覆盖时新增 |
+
+### 8.3 生成与扩展边界
+
+1. `codegen/`、`entity/`、`pojo/`、`mappers/`、`sql/` 属于**可覆写生成产物**，设计时不得把人工维护内容放入其中。
+2. `controller/`、`dao/`、`service/`、`listener/` 属于**扩展子类层**，只做个性化增强，不承担生成器应产出的基础 CRUD。
+3. 如果生成器已能输出某个能力，优先把能力放回生成器配置，不在扩展层重复实现。
+4. 如果生成器暂时无法覆盖，先在扩展层止血，再回到生成器补能力，形成“生成器改造 + 重新生成”闭环。
+
+### 8.4 新模块设计顺序
+
+1. 先定数据库表和字段语义。
+2. 再定生成器输入，包括模块名、实体名、VO 划分、是否需要 listener、是否需要 DDL/初始化脚本。
+3. 再定生成区与扩展区边界。
+4. 最后才补充 controller/service 的个性化接口。
+
+### 8.5 设计判定模板
+
+新模块设计评审时，必须明确回答以下问题：
+
+1. 哪些目录由生成器覆盖？
+2. 哪些目录只允许首次生成空壳？
+3. 哪些能力必须落在扩展层？
+4. 哪些能力需要回到生成器补齐？
+5. 是否存在 `dto`、`enums`、`config` 等额外目录需求？
