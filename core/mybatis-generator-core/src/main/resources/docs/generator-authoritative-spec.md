@@ -281,3 +281,23 @@ vgosoft-<domain>
 3. 哪些能力必须落在扩展层？
 4. 哪些能力需要回到生成器补齐？
 5. 是否存在 `dto`、`enums`、`config` 等额外目录需求？
+
+### 8.6 Maven 插件强制约定（可生成模块）
+
+如果模块需要使用 MyBatis Generator 生成代码，则该模块 `pom.xml` 必须包含以下构建插件配置：
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+```
+
+约束：
+
+1. 该配置属于可生成模块的必选项，禁止省略。
+2. 未配置该插件的模块，不得标记为“生成器可落地模块”。

@@ -437,15 +437,24 @@ public class JavaBeansUtil {
     public static String getColumnExampleValue(IntrospectedColumn introspectedColumn) {
         String defaultValue;
         String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
-        try {
-            defaultValue = JdbcUtil.getJdbcTypeExample(ObjectFactory.internalClassForName(javaTypeName));
-        } catch (ClassNotFoundException e) {
-            defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-        }
+        String javaTypeFullName = introspectedColumn.getFullyQualifiedJavaType()
+                .getFullyQualifiedNameWithoutTypeParameters();
+       if (introspectedColumn.isJdbcDateColumn()
+               || introspectedColumn.isJdbcTimeColumn()
+               || introspectedColumn.isJdbcTimeStampColumn()
+               || introspectedColumn.isJava8TimeColumn()) {
+           defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+       } else {
+           try {
+               defaultValue = JdbcUtil.getJdbcTypeExample(ObjectFactory.internalClassForName(javaTypeFullName));
+           } catch (ClassNotFoundException e) {
+               defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+           }
+       }
        if ("String".equals(javaTypeName)) {
-            return "\"" + introspectedColumn.getJavaProperty() + "\"";
-        } else {
-            return defaultValue;
+           return "\"" + introspectedColumn.getJavaProperty() + "\"";
+       } else {
+           return JavaLiteralUtil.normalizeLiteralForJavaType(introspectedColumn.getFullyQualifiedJavaType(), defaultValue);
         }
     }
 

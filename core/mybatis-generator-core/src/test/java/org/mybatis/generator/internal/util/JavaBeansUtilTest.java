@@ -6,7 +6,10 @@ import static org.mybatis.generator.internal.util.JavaBeansUtil.getSetterMethodN
 import static org.mybatis.generator.internal.util.JavaBeansUtil.getValidPropertyName;
 
 import org.junit.jupiter.api.Test;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+
+import java.sql.JDBCType;
 
 /**
  * @author Jeff Butler
@@ -51,5 +54,56 @@ class JavaBeansUtilTest {
         assertEquals("setI_PARAM_INT_1", getSetterMethodName("i_PARAM_INT_1"));
         assertEquals("set_fred", getSetterMethodName("_fred"));
         assertEquals("setAccountType", getSetterMethodName("AccountType"));
+    }
+
+    @Test
+    void testGetColumnExampleValueForTinyIntByte() {
+        IntrospectedColumn introspectedColumn = new IntrospectedColumn();
+        introspectedColumn.setJavaProperty("tinyFlag");
+        introspectedColumn.setJdbcType(JDBCType.TINYINT.getVendorTypeNumber());
+        introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Byte"));
+
+        assertEquals("(byte)0", JavaBeansUtil.getColumnExampleValue(introspectedColumn));
+    }
+
+    @Test
+    void testGetColumnExampleValueForLongWrapper() {
+        IntrospectedColumn introspectedColumn = new IntrospectedColumn();
+        introspectedColumn.setJavaProperty("fileSize");
+        introspectedColumn.setJdbcType(JDBCType.BIGINT.getVendorTypeNumber());
+        introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Long"));
+
+        assertEquals("0L", JavaBeansUtil.getColumnExampleValue(introspectedColumn));
+    }
+
+    @Test
+    void testGetColumnExampleValueForFloatWrapper() {
+        IntrospectedColumn introspectedColumn = new IntrospectedColumn();
+        introspectedColumn.setJavaProperty("ratio");
+        introspectedColumn.setJdbcType(JDBCType.FLOAT.getVendorTypeNumber());
+        introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Float"));
+
+        assertTrue(JavaBeansUtil.getColumnExampleValue(introspectedColumn).endsWith("F"));
+    }
+
+    @Test
+    void testGetColumnExampleValueForDoubleWrapper() {
+        IntrospectedColumn introspectedColumn = new IntrospectedColumn();
+        introspectedColumn.setJavaProperty("price");
+        introspectedColumn.setJdbcType(JDBCType.DOUBLE.getVendorTypeNumber());
+        introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Double"));
+
+        assertTrue(JavaBeansUtil.getColumnExampleValue(introspectedColumn).endsWith("D"));
+    }
+
+    @Test
+    void testGetColumnExampleValueForTimestampShouldKeepCurrentDatetimeExpression() {
+        IntrospectedColumn introspectedColumn = new IntrospectedColumn();
+        introspectedColumn.setJavaProperty("modified");
+        introspectedColumn.setJdbcType(JDBCType.TIMESTAMP.getVendorTypeNumber());
+        introspectedColumn.setJdbcTypeName(JDBCType.TIMESTAMP.getName());
+        introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.time.LocalDateTime"));
+
+        assertEquals("VDateUtils.getCurrentDatetime()", JavaBeansUtil.getColumnExampleValue(introspectedColumn));
     }
 }

@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.custom.annotations.swagger3.SchemaPropertyDesc;
+import org.mybatis.generator.internal.util.JavaLiteralUtil;
 
 import java.util.*;
 
@@ -210,7 +211,8 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.LocalTime"));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
                 } else {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(), defaultValue));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(),
+                            JavaLiteralUtil.normalizeLiteralForJavaType(c.getFullyQualifiedJavaType(), defaultValue)));
                 }
             }
         });
