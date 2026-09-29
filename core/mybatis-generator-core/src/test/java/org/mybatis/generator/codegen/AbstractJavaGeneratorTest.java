@@ -37,6 +37,13 @@ class AbstractJavaGeneratorTest {
     }
 
     @Test
+    void shouldGenerateBigDecimalValueOfLiteral() {
+        String normalized = JavaLiteralUtil.normalizeLiteralForJavaType(
+                new FullyQualifiedJavaType("java.math.BigDecimal"), "0.00");
+        assertEquals("BigDecimal.valueOf(0.00)", normalized);
+    }
+
+    @Test
     void shouldNormalizePostgreSqlCastLiteralForLong() {
         String normalized = JavaLiteralUtil.normalizeLiteralForJavaType(
                 new FullyQualifiedJavaType("java.lang.Long"), "('0'::bigint)");

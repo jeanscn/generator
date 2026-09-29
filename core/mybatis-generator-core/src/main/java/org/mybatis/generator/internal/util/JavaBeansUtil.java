@@ -435,27 +435,19 @@ public class JavaBeansUtil {
     }
 
     public static String getColumnExampleValue(IntrospectedColumn introspectedColumn) {
-        String defaultValue;
-        String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
-        String javaTypeFullName = introspectedColumn.getFullyQualifiedJavaType()
-                .getFullyQualifiedNameWithoutTypeParameters();
-       if (introspectedColumn.isJdbcDateColumn()
-               || introspectedColumn.isJdbcTimeColumn()
-               || introspectedColumn.isJdbcTimeStampColumn()
-               || introspectedColumn.isJava8TimeColumn()) {
-           defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-       } else {
-           try {
-               defaultValue = JdbcUtil.getJdbcTypeExample(ObjectFactory.internalClassForName(javaTypeFullName));
-           } catch (ClassNotFoundException e) {
-               defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
-           }
+       String defaultValue;
+       String javaTypeName = introspectedColumn.getFullyQualifiedJavaType().getShortName();
+       String javaTypeFullName = introspectedColumn.getFullyQualifiedJavaType()
+               .getFullyQualifiedNameWithoutTypeParameters();
+       defaultValue = JdbcUtil.getJdbcTypeExample(JDBCType.valueOf(introspectedColumn.getJdbcType()));
+       if ("java.lang.Byte".equals(javaTypeFullName) || "byte".equals(javaTypeFullName)) {
+           defaultValue = JdbcUtil.getJdbcTypeExample(Byte.class);
        }
        if ("String".equals(javaTypeName)) {
            return "\"" + introspectedColumn.getJavaProperty() + "\"";
        } else {
            return JavaLiteralUtil.normalizeLiteralForJavaType(introspectedColumn.getFullyQualifiedJavaType(), defaultValue);
-        }
+       }
     }
 
     public static boolean javaFileExist(String targetProject, String targetPackage, String fileName) {

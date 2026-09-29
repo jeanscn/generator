@@ -14,6 +14,7 @@ public final class JavaLiteralUtil {
     private static final Pattern INTEGER_WITH_SUFFIX_PATTERN = Pattern.compile("[-+]?\\d+[lL]");
     private static final Pattern FLOATING_PATTERN = Pattern.compile("[-+]?\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?");
     private static final Pattern FLOATING_WITH_SUFFIX_PATTERN = Pattern.compile("[-+]?\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?[fFdD]");
+    private static final Pattern NUMBER_WITH_SUFFIX_PATTERN = Pattern.compile("[-+]?\\d+(?:\\.\\d+)?(?:[eE][-+]?\\d+)?[fFdDlL]");
 
     private JavaLiteralUtil() {
     }
@@ -28,6 +29,7 @@ public final class JavaLiteralUtil {
             case "long", "java.lang.Long" -> normalizeLongLiteral(literal, defaultValue);
             case "float", "java.lang.Float" -> normalizeFloatingLiteral(literal, defaultValue, 'F');
             case "double", "java.lang.Double" -> normalizeFloatingLiteral(literal, defaultValue, 'D');
+            case "java.math.BigDecimal" -> normalizeBigDecimalLiteral(literal, defaultValue);
             default -> defaultValue;
         };
     }
@@ -48,6 +50,20 @@ public final class JavaLiteralUtil {
         }
         if (FLOATING_PATTERN.matcher(literal).matches()) {
             return literal + suffix;
+        }
+        return fallback;
+    }
+
+    private static String normalizeBigDecimalLiteral(String literal, String fallback) {
+        if (fallback.contains("BigDecimal.valueOf(") || fallback.contains("new BigDecimal(")) {
+            return fallback;
+        }
+        String numericLiteral = literal;
+        if (NUMBER_WITH_SUFFIX_PATTERN.matcher(numericLiteral).matches()) {
+            numericLiteral = numericLiteral.substring(0, numericLiteral.length() - 1);
+        }
+        if (FLOATING_PATTERN.matcher(numericLiteral).matches()) {
+            return "BigDecimal.valueOf(" + numericLiteral + ")";
         }
         return fallback;
     }

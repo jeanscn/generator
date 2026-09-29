@@ -122,10 +122,12 @@ public class ConstantsUtil {
     public static final String PROP_NAME_REST_BASE_PATH = "restBasePath";
     public static final String PROP_NAME_VIEW_PATH = "viewPath";
 
-    //参数名称
+    /**
+     *   参数名称
+     */
     public static final String PARAM_NAME_PERSISTENCE_STATUS = "persistenceStatus";
 
-    //测试类名
+    /** 测试类名 */
     public static final String TEST_ABSTRACT_MYBATIS_BG_SERVICE_TEST = "com.vgosoft.test.abs.service.AbstractMybatisBGServiceTest";
 
     public static final String TEST_MOCKITO_WHEN = "org.mockito.Mockito.when";
@@ -172,6 +174,6 @@ public class ConstantsUtil {
             ,"curProcessors","parentBusinessKey","branchCount","branchCompleteCount","sectionHidden","rootProcessInstanceId"
             ,"processInstanceId","isSubflow","subFlowElement","subFlowProcessInstanceId","taskDefinitionKey","taskId"
             ,"taskName","nodeExecNumber","actionList","sectionReadonly","sectionKeepEditable","sectionShow","assigneeType"
-            ,"assigmentType","assignee","enableEdit","addtionalSave","enableTransfer","enableTackback","enableSendback"
+            ,"assignmentType","assignee","enableEdit","addtionalSave","enableTransfer","enableTackback","enableSendback"
             ,"allowCancel","lastAssignee","lastTaskId");
 }

@@ -180,7 +180,8 @@ public abstract class AbstractJavaGenerator extends AbstractGenerator {
                 } else if (c.isJdbcCharacterColumn()) {
                     initializationBlock.addBodyLine(VStringUtil.format("this.{0} = \"{1}\";", c.getJavaProperty(), defaultValue));
                 } else if ("BigDecimal".equals(c.getFullyQualifiedJavaType().getShortName())) {
-                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = new BigDecimal(\"{1}\");", c.getJavaProperty(), defaultValue));
+                    initializationBlock.addBodyLine(VStringUtil.format("this.{0} = {1};", c.getJavaProperty(),
+                            JavaLiteralUtil.normalizeLiteralForJavaType(c.getFullyQualifiedJavaType(), defaultValue)));
                     topLevelClass.addImportedType(new FullyQualifiedJavaType("java.math.BigDecimal"));
                 } else if ("Boolean".equals(c.getFullyQualifiedJavaType().getShortName())) {
                     switch (defaultValue.toLowerCase()) {

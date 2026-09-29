@@ -97,6 +97,16 @@ class JavaBeansUtilTest {
     }
 
     @Test
+    void testGetColumnExampleValueForBigDecimalWrapper() {
+        IntrospectedColumn introspectedColumn = new IntrospectedColumn();
+        introspectedColumn.setJavaProperty("amount");
+        introspectedColumn.setJdbcType(JDBCType.DECIMAL.getVendorTypeNumber());
+        introspectedColumn.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.math.BigDecimal"));
+
+        assertEquals("BigDecimal.valueOf(0.00)", JavaBeansUtil.getColumnExampleValue(introspectedColumn));
+    }
+
+    @Test
     void testGetColumnExampleValueForTimestampShouldKeepCurrentDatetimeExpression() {
         IntrospectedColumn introspectedColumn = new IntrospectedColumn();
         introspectedColumn.setJavaProperty("modified");
