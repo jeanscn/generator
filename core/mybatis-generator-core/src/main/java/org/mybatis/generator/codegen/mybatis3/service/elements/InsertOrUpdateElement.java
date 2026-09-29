@@ -50,11 +50,15 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
         }
         method.addBodyLine("try {");
         if (containsPreUpdateEvent) {
-            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_UPDATE.name());
+            method.addBodyLine("if (publisher != null) {");
+            method.addBodyLine("    publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_UPDATE.name());
+            method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}({1});", introspectedTable.getInsertOrUpdateStatementId(), entityType.getShortNameFirstLowCase());
         if (containsUpdatedEvent) {
-            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.UPDATED.name());
+            method.addBodyLine("if (publisher != null) {");
+            method.addBodyLine("    publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.UPDATED.name());
+            method.addBodyLine("}");
         }
         method.addBodyLine("return ServiceResult.success({0},i);", entityType.getShortNameFirstLowCase());
         method.addBodyLine("} catch (Exception e) {");

@@ -51,15 +51,19 @@ public class InsertElement extends AbstractServiceElementGenerator {
             outSubBatchMethodBody(insertMethod, "INSERT", "record", parentElement, configs, false);
         }
         insertMethod.addBodyLine("try {");
-        //增加PRE_UPDATE事件发布
+        //增加PRE_INSERT事件发布
         if (containsPreInsertEvent) {
-            insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
+            insertMethod.addBodyLine("if (publisher != null) {");
+            insertMethod.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
+            insertMethod.addBodyLine("}");
         }
         insertMethod.addBodyLine("int i = mapper.insert(record);");
         insertMethod.addBodyLine("if (i > 0) {");
-        //增加UPDATED事件发布
+        //增加INSERTED事件发布
         if (containsInsertedEvent) {
-            insertMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
+            insertMethod.addBodyLine("if (publisher != null) {");
+            insertMethod.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
+            insertMethod.addBodyLine("}");
         }
         insertMethod.addBodyLine("return ServiceResult.success(record, i);");
         insertMethod.addBodyLine("} else {");

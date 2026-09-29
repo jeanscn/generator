@@ -42,11 +42,15 @@ public class DeleteByColumnElement extends AbstractServiceElementGenerator {
             methodByColumn.addBodyLine(" List<{0}> items = mapper.{1}({2});",entityType.getShortName(),configuration.getMethodName(),params);
             methodByColumn.addBodyLine("if (!items.isEmpty()) {");
             if (containPreDeleteEvent) {
+                methodByColumn.addBodyLine("if (publisher != null) {");
                 methodByColumn.addBodyLine("publisher.publishEvent(items,EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
+                methodByColumn.addBodyLine("}");
             }
             methodByColumn.addBodyLine("ret = mapper.{0}({1});",configuration.getDeleteMethodName(),params);
             if (containDeletedEvent) {
+                methodByColumn.addBodyLine("if (publisher != null) {");
                 methodByColumn.addBodyLine("publisher.publishEvent(items,EntityEventEnum.{0});",EntityEventEnum.DELETED.name());
+                methodByColumn.addBodyLine("}");
             }
             methodByColumn.addBodyLine("}");
             methodByColumn.addBodyLine("return ret;");

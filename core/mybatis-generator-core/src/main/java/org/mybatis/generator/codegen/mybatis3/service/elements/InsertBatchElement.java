@@ -46,7 +46,9 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
                 .collect(Collectors.toList());
         //增加PRE_INSERT事件发布
         if (containsPreInsertEvent) {
-            method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_INSERT.name());
+            method.addBodyLine("if (publisher != null) {");
+            method.addBodyLine("    publisher.publishEvent({0}s, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase(),EntityEventEnum.PRE_INSERT.name());
+            method.addBodyLine("}");
         }
         if (!configs.isEmpty()) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");
@@ -58,7 +60,9 @@ public class InsertBatchElement extends AbstractServiceElementGenerator {
         method.addBodyLine("if (i > 0) {");
         //增加INSERTED事件发布
         if (containsInsertedEvent) {
-            method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.INSERTED.name());
+            method.addBodyLine("    if (publisher != null) {");
+            method.addBodyLine("        publisher.publishEvent({0}, EntityEventEnum.{1});", entityType.getShortNameFirstLowCase() + "s",EntityEventEnum.INSERTED.name());
+            method.addBodyLine("    }");
         }
         method.addBodyLine("return ServiceResult.success({0},i);",entityType.getShortNameFirstLowCase() + "s");
         method.addBodyLine("}else{");

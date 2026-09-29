@@ -45,9 +45,11 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());
         deleteByExampleMethod.addBodyLine("ServiceResult<List<{0}>> result = this.selectByExample(example);", entityType.getShortName(), entityType.getShortNameFirstLowCase());
-        deleteByExampleMethod.addBodyLine("if (result.getResult().isEmpty()) { return ServiceResult.success(0, 0); }");
+        deleteByExampleMethod.addBodyLine("List<{0}> items = result.getResult();", entityType.getShortName());
         if (containPreDeleteEvent) {
-            deleteByExampleMethod.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
+            deleteByExampleMethod.addBodyLine("if (items != null && !items.isEmpty() && publisher != null) {");
+            deleteByExampleMethod.addBodyLine("publisher.publishEvent(items, EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
+            deleteByExampleMethod.addBodyLine("}");
         }
         if (!collect.isEmpty()) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,deleteByExampleMethod,"DEFAULT");
@@ -58,7 +60,9 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         deleteByExampleMethod.addBodyLine("int affectedRows = mapper.deleteByExample(example);");
         deleteByExampleMethod.addBodyLine("if (affectedRows > 0) {");
         if (containDeletedEvent) {
-            deleteByExampleMethod.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});", EntityEventEnum.DELETED.name());
+            deleteByExampleMethod.addBodyLine("if (items != null && !items.isEmpty() && publisher != null) {");
+            deleteByExampleMethod.addBodyLine("publisher.publishEvent(items, EntityEventEnum.{0});", EntityEventEnum.DELETED.name());
+            deleteByExampleMethod.addBodyLine("}");
         }
         deleteByExampleMethod.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
         deleteByExampleMethod.addBodyLine("}");

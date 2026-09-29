@@ -66,7 +66,9 @@ public class RecycleBatchElementGenerator extends AbstractControllerElementGener
         method.addBodyLine("ServiceResult<Integer> deleteResult = {0}Impl.deleteByExample(example);",entityVar);
         method.addBodyLine("if (deleteResult.hasResult() && deleteResult.getResult() > 0) {");
         method.addBodyLine("");
+        method.addBodyLine("if (publisher != null) {");
         method.addBodyLine("publisher.publishEvent({0}s, EntityEventEnum.RECYCLED);",entityVar);
+        method.addBodyLine("}");
         method.addBodyLine("");
         method.addBodyLine("return success((long) deleteResult.getResult(), deleteResult.getAffectedRows());");
         method.addBodyLine("} else {");

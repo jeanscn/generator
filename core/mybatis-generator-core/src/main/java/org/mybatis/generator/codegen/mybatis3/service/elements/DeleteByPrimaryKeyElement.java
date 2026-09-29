@@ -50,10 +50,13 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         if (!deleteConfigs.isEmpty()) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"DEFAULT");
             method.addBodyLine("ServiceResult<{0}> result = this.selectByPrimaryKey({1});", entityType.getShortName(), pks);
+            method.addBodyLine("{0} item = result.hasResult() ? result.getResult() : null;", entityType.getShortName());
             method.addBodyLine("if (result.hasResult()) {");
             //增加PRE_DELETE事件发布
             if (containPreDeleteEvent) {
-                method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{1});",entityType.getShortName(), EntityEventEnum.PRE_DELETE.name());
+                method.addBodyLine("if (item != null && publisher != null) {");
+                method.addBodyLine("publisher.publishEvent(result.getResult(), EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
+                method.addBodyLine("}");
             }
             method.addBodyLine("{0} {1} = result.getResult();", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(method, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, deleteConfigs, false);
@@ -61,7 +64,9 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             method.addBodyLine("if (affectedRows > 0) {");
             //增加DELETED事件发布
             if (containDeletedEvent) {
-                method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});",EntityEventEnum.DELETED.name());
+                method.addBodyLine("if (item != null && publisher != null) {");
+                method.addBodyLine("publisher.publishEvent(result.getResult(), EntityEventEnum.{0});", EntityEventEnum.DELETED.name());
+                method.addBodyLine("}");
             }
             method.addBodyLine("return ServiceResult.success(affectedRows,affectedRows);");
             method.addBodyLine("}}");
@@ -101,19 +106,20 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
         //增加PRE_DELETE事件发布
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name())) {
             method.addBodyLine("ServiceResult<{0}> result = selectByPrimaryKey({1});",entityType.getShortName(),ids);
-            method.addBodyLine("if (!result.hasResult())  { return ServiceResult.failure(ServiceCodeEnum.FAIL, result.getMessage()); }");
-            method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{2});",entityType.getShortName(), ids,EntityEventEnum.PRE_DELETE.name());
+            method.addBodyLine("{0} item = result.hasResult() ? result.getResult() : null;", entityType.getShortName());
+
+            method.addBodyLine("if (item != null && publisher != null) {");
+            method.addBodyLine("publisher.publishEvent(item, EntityEventEnum.{0});", EntityEventEnum.PRE_DELETE.name());
+            method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}({1});",methodName,ids);
-        method.addBodyLine("if (i > 0) {");
         //增加DELETED事件发布
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())) {
-            method.addBodyLine("publisher.publishEvent(result.getResult(),EntityEventEnum.{0});",EntityEventEnum.DELETED.name());
+            method.addBodyLine("if (i > 0 && item != null && publisher != null) {");
+            method.addBodyLine("publisher.publishEvent(item, EntityEventEnum.{0});", EntityEventEnum.DELETED.name());
+            method.addBodyLine("}");
         }
         method.addBodyLine("return ServiceResult.success(i, i);");
-        method.addBodyLine("} else {");
-        method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.FAIL);");
-        method.addBodyLine("}");
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("return ServiceResult.failure(ServiceCodeEnum.RUNTIME_ERROR, e.getMessage(), e);");
         method.addBodyLine("}");

@@ -55,13 +55,18 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
         insertSelectiveMethod.addBodyLine("try {");
         //增加PRE_UPDATE事件发布
         if (containsPreInsertEvent) {
-            insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
+
+            insertSelectiveMethod.addBodyLine("if (publisher != null) {");
+            insertSelectiveMethod.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_INSERT.name());
+            insertSelectiveMethod.addBodyLine("}");
         }
         insertSelectiveMethod.addBodyLine("int i = mapper.insertSelective(record);");
         insertSelectiveMethod.addBodyLine("if (i > 0) {");
-        //增加UPDATED事件发布
+        //增加INSERTED事件发布
         if (containsInsertedEvent) {
-            insertSelectiveMethod.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
+            insertSelectiveMethod.addBodyLine("if (publisher != null) {");
+            insertSelectiveMethod.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.INSERTED.name());
+            insertSelectiveMethod.addBodyLine("}");
         }
         insertSelectiveMethod.addBodyLine("return ServiceResult.success(record, i);");
         insertSelectiveMethod.addBodyLine("} else {");

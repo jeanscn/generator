@@ -101,13 +101,17 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
     private void  overwriteParentUpdate(Method method ,String methodName){
         method.addBodyLine("try {");
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
-            method.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
+            method.addBodyLine("if (publisher != null) {");
+            method.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.PRE_UPDATE.name());
+            method.addBodyLine("}");
         }
         method.addBodyLine("int i = mapper.{0}(record);",methodName);
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name())) {
-            method.addBodyLine("publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+            method.addBodyLine("if (publisher != null) {");
+            method.addBodyLine("    publisher.publishEvent(record, EntityEventEnum.{0});", EntityEventEnum.UPDATED.name());
+            method.addBodyLine("}");
         }
-        method.addBodyLine("return ServiceResult.success(record,i);");
+        method.addBodyLine("return ServiceResult.success(record, i);");
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         method.addBodyLine("}");

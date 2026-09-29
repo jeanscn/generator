@@ -137,6 +137,10 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         }
         method.addBodyLine("} else {");
         method.addBodyLine("mv.addObject(\"error\", serviceResult.getMessage());");
+        setViewName(method, htmlGeneratorConfiguration);
+        method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
+        method.addBodyLine("{0} = updateNewInstanceDefaultValue(new {1}());", entityVar, entityName);
+
         method.addBodyLine("}");
         method.addBodyLine("} else {");
         method.addBodyLine("{0} = updateNewInstanceDefaultValue(new {1}());", entityVar, entityName);
@@ -148,6 +152,12 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("}");
         method.addBodyLine("mv.addObject(\"{0}\", {1}View);", this.entityNameKey, entityType.getShortNameFirstLowCase());
         method.addBodyLine("}");
+
+        method.addBodyLine("if (!VStringUtil.stringHasValue(viewName)) {");
+        setViewName(method, htmlGeneratorConfiguration);
+        method.addBodyLine("mv.addObject(\"htmlFileName\", \"" + htmlGeneratorConfiguration.getHtmlFileName() + "\");");
+        method.addBodyLine("}");
+
         method.addBodyLine("mv.addAllObjects(getCurrentUserInfo());");
         method.addBodyLine("mv.setViewName(viewName);");
         method.addBodyLine("return mv;");

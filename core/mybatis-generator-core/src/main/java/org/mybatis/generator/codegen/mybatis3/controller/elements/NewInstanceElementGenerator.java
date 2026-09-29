@@ -68,7 +68,9 @@ public class NewInstanceElementGenerator extends AbstractControllerElementGenera
             addIocInitialDefaultValue(introspectedTable, method, type);
             method.addBodyLine("{0} {1} = mappings.from{2}({3});", entityType.getShortName(), entityType.getShortNameFirstLowCase(), type.getShortName(), type.getShortNameFirstLowCase());
             if (createdEvent) {
+                method.addBodyLine("if (publisher != null) {");
                 method.addBodyLine("publisher.publishEvent({0}, EntityEventEnum.CREATED);", entityType.getShortNameFirstLowCase());
+                method.addBodyLine("}");
             }
             method.addBodyLine("{0} object = mappings.to{0}({1});", entityVoType.getShortName(), entityType.getShortNameFirstLowCase());
             method.addBodyLine("return ResponseResult.success(updateNewInstanceDefaultValue(object));");
