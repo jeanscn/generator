@@ -4,16 +4,16 @@ import freemarker.template.Template;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.codegen.mybatis3.freemaker.AbstractFreemarkerGenerator;
-import org.mybatis.generator.config.HtmlButtonGeneratorConfiguration;
-import org.mybatis.generator.config.HtmlGeneratorConfiguration;
-import org.mybatis.generator.config.InnerListViewConfiguration;
-import org.mybatis.generator.config.VoViewGeneratorConfiguration;
+import org.mybatis.generator.config.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
@@ -120,8 +120,13 @@ public class HtmlFreemarkerGenerator extends AbstractFreemarkerGenerator {
     }
 
     private Map<String, HtmlButtonGeneratorConfiguration> getHtmlButtonGeneratorConfigurationMap() {
-        VoViewGeneratorConfiguration voViewConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoViewConfiguration();
-        return Stream.of(innerListViewConfiguration.getHtmlButtons().stream(),voViewConfiguration.getHtmlButtons().stream()).flatMap(s -> s)
+        VoViewGeneratorConfiguration voViewConfiguration = Optional.ofNullable(introspectedTable.getTableConfiguration().getVoGeneratorConfiguration())
+                .map(VoGeneratorConfiguration::getVoViewConfiguration)
+                .orElse(null);
+        Iterable<HtmlButtonGeneratorConfiguration> voViewButtons = voViewConfiguration == null
+                ? Collections.emptyList()
+                : voViewConfiguration.getHtmlButtons();
+        return Stream.of(innerListViewConfiguration.getHtmlButtons().stream(), StreamSupport.stream(voViewButtons.spliterator(), false)).flatMap(s -> s)
                 .collect(Collectors.toMap(HtmlButtonGeneratorConfiguration::getId, htmlButtonGeneratorConfiguration -> htmlButtonGeneratorConfiguration));
     }
 
