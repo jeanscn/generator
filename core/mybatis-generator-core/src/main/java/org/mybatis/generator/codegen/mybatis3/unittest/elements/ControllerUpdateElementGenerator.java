@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.unittest.elements;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -10,6 +9,9 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 
+/**
+ * @author cen_c
+ */
 public class ControllerUpdateElementGenerator extends AbstractUnitTestElementGenerator {
 
     public ControllerUpdateElementGenerator() {
@@ -21,7 +23,6 @@ public class ControllerUpdateElementGenerator extends AbstractUnitTestElementGen
         parentElement.addStaticImport("com.vgosoft.test.util.ResponseBodyMatchers.responseBody");
         parentElement.addStaticImport("org.assertj.core.api.Assertions.assertThat");
         parentElement.addImportedType(RESPONSE_RESULT);
-        parentElement.addImportedType(RESPONSE_RESULT);
         parentElement.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
@@ -29,13 +30,12 @@ public class ControllerUpdateElementGenerator extends AbstractUnitTestElementGen
         if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
-        }else{
+        } else {
             parentElement.addImportedType(entityType);
         }
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
 
-        //updateXXX，预期返回测试方法
-        String requestUri = VStringUtil.format("put(\"/{0}\")", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+        String requestUri = "put(\"/" + Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "\")";
         String methodName = "update" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "更新数据-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
@@ -46,6 +46,9 @@ public class ControllerUpdateElementGenerator extends AbstractUnitTestElementGen
                 entityType.getShortName(), entityType.getShortName() + ".class", mockServiceImpl, entityInstanceVar);
         if (isGenerateVoModel) {
             method.addBodyLine("{0} {1} = mappings.to{0}({2});", entityVoType.getShortName(), entityVoInstanceVar, entityInstanceVar);
+            if (useSpringBootTest) {
+                addNormalizedVoAssertions(method, entityInstanceVar, entityVoInstanceVar);
+            }
         }
         method.addBodyLine("mockMvc.perform({0}\n" +
                 "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
@@ -56,7 +59,6 @@ public class ControllerUpdateElementGenerator extends AbstractUnitTestElementGen
                 isGenerateVoModel ? entityVoType.getShortName() : entityType.getShortName());
         parentElement.addMethod(method);
 
-        //updateXXX，服务返回失败的测试方法
         methodName = "update" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, parentElement, "更新数据-服务层返回失败结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));

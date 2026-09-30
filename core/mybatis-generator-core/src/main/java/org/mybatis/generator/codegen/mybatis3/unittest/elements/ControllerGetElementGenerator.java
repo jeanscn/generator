@@ -1,6 +1,5 @@
 package org.mybatis.generator.codegen.mybatis3.unittest.elements;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
@@ -9,6 +8,9 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class ControllerGetElementGenerator extends AbstractUnitTestElementGenerator {
 
     public ControllerGetElementGenerator() {
@@ -27,7 +29,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
         if (isGenerateVoModel) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
-        }else{
+        } else {
             parentElement.addImportedType(entityType);
         }
         parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
@@ -38,8 +40,7 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
             returnEntityType = entityVoType;
         }
 
-        //getXXX，预期返回测试方法
-        String requestUri = VStringUtil.format("get(\"/{0}/'{id}'\", id)", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
+        String requestUri = "get(\"/" + Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/{id}\", id)";
         String methodName = "get" + entityType.getShortName();
         Method method = createMethod(methodName, parentElement, "获取记录-服务层返回预期结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));
@@ -52,9 +53,12 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
                     entityType.getShortName() + "Vo",
                     entityType.getShortNameFirstLowCase() + "Vo",
                     entityType.getShortNameFirstLowCase());
-        }else{
-            method.addBodyLine("{0} {1} = serviceResult.getResult();"
-                    ,returnEntityType.getShortName(),returnEntityType.getShortNameFirstLowCase());
+            if (useSpringBootTest) {
+                addNormalizedVoAssertions(method, entityInstanceVar, entityType.getShortNameFirstLowCase() + "Vo");
+            }
+        } else {
+            method.addBodyLine("{0} {1} = serviceResult.getResult();",
+                    returnEntityType.getShortName(), returnEntityType.getShortNameFirstLowCase());
         }
         method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
                 mockServiceImpl);
@@ -65,7 +69,6 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
                 requestUri, returnEntityType.getShortNameFirstLowCase(), returnEntityType.getShortName());
         parentElement.addMethod(method);
 
-        //getXXX，服务返回失败的测试方法
         methodName = "get" + entityType.getShortName() + "_ReturnsFailure";
         method = createMethod(methodName, parentElement, "获取记录-服务层返回失败结果");
         method.addException(new FullyQualifiedJavaType("java.lang.Exception"));

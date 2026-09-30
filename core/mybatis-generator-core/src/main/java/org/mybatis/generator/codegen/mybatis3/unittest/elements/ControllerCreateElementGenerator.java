@@ -61,6 +61,9 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         }
         if (isGenerateVoModel) {
             method.addBodyLine("{0} {1} = mappings.to{0}({2});", entityVoType.getShortName(), entityVoInstanceVar, entityInstanceVar);
+            if (useSpringBootTest) {
+                addNormalizedVoAssertions(method, entityInstanceVar, entityVoInstanceVar);
+            }
         }
         method.addBodyLine("mockMvc.perform({0}\n" +
                 "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +

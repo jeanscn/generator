@@ -1,18 +1,31 @@
 package org.mybatis.generator.codegen.mybatis3.unittest;
 
-import com.vgosoft.tool.core.VStringUtil;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.codegen.mybatis3.unittest.elements.*;
-import org.mybatis.generator.config.*;
+import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.ControllerCreateElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.ControllerDeleteElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.ControllerGetElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.ControllerListElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.ControllerUpdateElementGenerator;
+import org.mybatis.generator.codegen.mybatis3.unittest.elements.ControllerViewElementGenerator;
+import org.mybatis.generator.config.JavaControllerGeneratorConfiguration;
+import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
+import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
@@ -34,7 +47,6 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         TableConfiguration tc = introspectedTable.getTableConfiguration();
         JavaControllerGeneratorConfiguration configuration = tc.getJavaControllerGeneratorConfiguration();
-        JavaServiceGeneratorConfiguration serviceGeneratorConfiguration = tc.getJavaServiceGeneratorConfiguration();
         progressCallback.startTask(getString("Progress.68", table.toString()));
         Plugin plugins = context.getPlugins();
 
@@ -44,37 +56,149 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
 
         String mockServiceImpl = "mock" + serviceImplType.getShortName();
         String entityInstanceVar = JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName());
+        boolean springBootTest = configuration != null && stringHasValue(configuration.getSpringBootApplicationClass());
+        boolean workflowInstance = GenerateUtils.isWorkflowInstance(introspectedTable);
+        boolean hasFileAttachment = tc.getHtmlMapGeneratorConfigurations().stream()
+                .anyMatch(html -> html.getHtmlFileAttachmentConfiguration().stream().anyMatch(htmlAttachment -> htmlAttachment.isGenerate()));
+        boolean hasHideListBin = introspectedTable.getRules().isGenerateHideListBin();
         String viewpath = null;
         if (!introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().isEmpty()) {
-            HtmlGeneratorConfiguration htmlGeneratorConfiguration = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0);
-            viewpath = htmlGeneratorConfiguration.getViewPath();
+            viewpath = introspectedTable.getTableConfiguration().getHtmlMapGeneratorConfigurations().get(0).getViewPath();
         }
 
         FullyQualifiedJavaType topClassType = new FullyQualifiedJavaType(controllerType.getFullyQualifiedName() + "Test");
         TopLevelClass testClazz = new TopLevelClass(topClassType);
         testClazz.setVisibility(JavaVisibility.PUBLIC);
-        testClazz.addAnnotation("@ExtendWith(MockitoExtension.class)");
-        testClazz.addImportedType("org.junit.jupiter.api.extension.ExtendWith");
-        testClazz.addImportedType("org.mockito.junit.jupiter.MockitoExtension");
-
-        //添加属性
-        testClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
-        testClazz.addImportedType("org.mockito.Mock");
-        addField(WEB_APPLICATION_CONTEXT,
-                "org.springframework.web.context.WebApplicationContext",
-                "@Autowired", testClazz);
-        if (introspectedTable.getRules().isGenerateVo()) {
-            String voTargetPackage = tc.getJavaModelGeneratorConfiguration().getBaseTargetPackage()+".pojo";
-            FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage,"maps",entityType.getShortName()+"Mappings"));
-            addField("mappings",
-                    entityMappings.getFullyQualifiedName(),
-                    "@Autowired", testClazz);
-            testClazz.addImportedType(entityMappings);
+        if (springBootTest) {
+            testClazz.addImportedType(new FullyQualifiedJavaType(configuration.getSpringBootApplicationClass()));
+            testClazz.addAnnotation("@ExtendWith(SpringExtension.class)");
+            testClazz.addAnnotation("@SpringBootTest(classes = " + new FullyQualifiedJavaType(configuration.getSpringBootApplicationClass()).getShortName() + ".class)");
+            testClazz.addImportedType("org.junit.jupiter.api.extension.ExtendWith");
+            testClazz.addImportedType("org.springframework.boot.test.context.SpringBootTest");
+            testClazz.addImportedType("org.springframework.test.context.junit.jupiter.SpringExtension");
+            testClazz.addImportedType("org.springframework.test.context.bean.override.mockito.MockitoBean");
+        } else {
+            testClazz.addAnnotation("@ExtendWith(MockitoExtension.class)");
+            testClazz.addImportedType("org.junit.jupiter.api.extension.ExtendWith");
+            testClazz.addImportedType("org.mockito.junit.jupiter.MockitoExtension");
+            testClazz.addImportedType("org.mockito.Mock");
         }
 
-        addField(MOCK_MVC_PROPERTY_NAME,
-                "org.springframework.test.web.servlet.MockMvc",
-                null, testClazz);
+        testClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
+        if (springBootTest && hasDateColumn()) {
+            testClazz.addImportedType("java.time.format.DateTimeFormatter");
+            Field formatterField = new Field("DATETIME_FORMATTER", new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
+            formatterField.setVisibility(JavaVisibility.PRIVATE);
+            formatterField.setStatic(true);
+            formatterField.setFinal(true);
+            formatterField.setInitializationString("DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\")");
+            testClazz.addField(formatterField);
+        }
+        addField(WEB_APPLICATION_CONTEXT, "org.springframework.web.context.WebApplicationContext", "@Autowired", testClazz);
+        if (introspectedTable.getRules().isGenerateVo()) {
+            String voTargetPackage = tc.getJavaModelGeneratorConfiguration().getBaseTargetPackage() + ".pojo";
+            FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
+            addField("mappings", entityMappings.getFullyQualifiedName(), "@Autowired", testClazz);
+            testClazz.addImportedType(entityMappings);
+        }
+        addField(MOCK_MVC_PROPERTY_NAME, "org.springframework.test.web.servlet.MockMvc", null, testClazz);
+
+        if (springBootTest) {
+            addSpringBootMockFields(testClazz, serviceImplType, entityType, workflowInstance, hasFileAttachment, hasHideListBin);
+        } else {
+            addLegacyMockFields(testClazz, serviceImplType, entityType);
+        }
+
+        addSetupMethod(testClazz, springBootTest, entityType, entityInstanceVar, viewpath);
+
+        testClazz.addStaticImport("org.mockito.Mockito.when");
+        testClazz.addStaticImport("org.mockito.ArgumentMatchers.any");
+        testClazz.addStaticImport("org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*");
+        testClazz.addImportedType("org.junit.jupiter.api.Test");
+        testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
+        testClazz.addImportedType("com.vgosoft.tool.core.JsonUtil");
+        testClazz.addImportedType("org.springframework.http.MediaType");
+
+        if (viewpath != null) {
+            addControllerViewElement(testClazz);
+        }
+        addControllerGetElement(testClazz);
+        addControllerListElement(testClazz);
+        addControllerCreateElement(testClazz);
+        addControllerUpdateElement(testClazz);
+        addControllerDeleteElement(testClazz);
+
+        List<CompilationUnit> answer = new ArrayList<>();
+        if (plugins.serviceImplGenerated(testClazz, introspectedTable)) {
+            answer.add(testClazz);
+        }
+        return answer;
+    }
+
+    private void addSpringBootMockFields(TopLevelClass testClazz,
+                                         FullyQualifiedJavaType serviceImplType,
+                                         FullyQualifiedJavaType entityType,
+                                         boolean workflowInstance,
+                                         boolean fileAttachment,
+                                         boolean hideListBin) {
+        testClazz.addImportedType("com.vgosoft.system.service.impl.SysLogExceptionImpl");
+        testClazz.addImportedType("com.vgosoft.system.service.impl.SysLogInfoImpl");
+        testClazz.addImportedType("com.vgosoft.core.adapter.organization.OrganizationMgr");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooDepartment");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooOrganization");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooUserInfo");
+
+        addField("mockSysLogExceptionImpl",
+                "com.vgosoft.system.service.impl.SysLogExceptionImpl",
+                "@MockitoBean", testClazz);
+        addField("mockSysLogInfoImpl",
+                "com.vgosoft.system.service.impl.SysLogInfoImpl",
+                "@MockitoBean", testClazz);
+        addField("mockOrganizationMgr",
+                "com.vgosoft.core.adapter.organization.OrganizationMgr<FooUserInfo, ?, ?, FooDepartment, FooOrganization>",
+                "@MockitoBean", testClazz);
+        addField("mock" + serviceImplType.getShortName(),
+                serviceImplType.getFullyQualifiedName(),
+                "@MockitoBean", testClazz);
+
+        if (workflowInstance) {
+            addField("mockWorkflowTraceInfoImpl",
+                    "com.vgosoft.workflow.adapter.service.IWorkflowTraceInfo<" + entityType.getShortName() + ">",
+                    "@MockitoBean", testClazz);
+        }
+        if (fileAttachment) {
+            addField("mockVbizFileAttachmentImpl",
+                    "com.vgosoft.bizcore.service.IVbizFileAttachment",
+                    "@MockitoBean", testClazz);
+        }
+        if (hideListBin) {
+            addField("mockSysPerFilterOutBinImpl",
+                    "com.vgosoft.system.service.ISysPerFilterOutBin",
+                    "@MockitoBean", testClazz);
+            addField("mockSysPerFilterOutBinMappingsImpl",
+                    "com.vgosoft.system.pojo.maps.SysPerFilterOutBinMappings",
+                    "@MockitoBean", testClazz);
+        }
+
+        addField(JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()),
+                entityType.getFullyQualifiedName(),
+                "", testClazz);
+        addField("id",
+                FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName(),
+                "", testClazz);
+        addField("requestBody",
+                FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName(),
+                "", testClazz);
+    }
+
+    private void addLegacyMockFields(TopLevelClass testClazz, FullyQualifiedJavaType serviceImplType, FullyQualifiedJavaType entityType) {
+        testClazz.addImportedType("com.vgosoft.system.service.impl.SysLogExceptionImpl");
+        testClazz.addImportedType("com.vgosoft.system.service.impl.SysLogInfoImpl");
+        testClazz.addImportedType("com.vgosoft.core.adapter.organization.OrganizationMgr");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooDepartment");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooOrganization");
+        testClazz.addImportedType("com.vgosoft.organ.foo.FooUserInfo");
+
         addField("mockSysLogExceptionImpl",
                 "com.vgosoft.system.service.impl.SysLogExceptionImpl",
                 "@Mock", testClazz);
@@ -82,34 +206,26 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 "com.vgosoft.system.service.impl.SysLogInfoImpl",
                 "@Mock", testClazz);
         addField("mockOrganizationMgr",
-                "com.vgosoft.core.adapter.organization.OrganizationMgr<FooUserInfo,?,?,FooDepartment,FooOrganization>",
+                "com.vgosoft.core.adapter.organization.OrganizationMgr<FooUserInfo, ?, ?, FooDepartment, FooOrganization>",
                 "@Mock", testClazz);
-        addField(mockServiceImpl,
-                serviceGeneratorConfiguration.getTargetPackage() + ".I" + entityType.getShortName(),
+        addField("mock" + serviceImplType.getShortName(),
+                serviceImplType.getFullyQualifiedName(),
                 "@Mock", testClazz);
-        addField(entityInstanceVar,
-                entityType.getFullyQualifiedName(),
-                null, testClazz);
-        addField("id",
-                "java.lang.String",
-                null, testClazz);
-        addField("requestBody",
-                "java.lang.String",
-                null, testClazz);
-        //增加测试配置方法
+    }
+
+    private void addSetupMethod(TopLevelClass testClazz, boolean springBootTest, FullyQualifiedJavaType entityType, String entityInstanceVar, String viewpath) {
         testClazz.addImportedType("org.junit.jupiter.api.BeforeEach");
         testClazz.addImportedType("org.springframework.test.web.servlet.setup.MockMvcBuilders");
         Method setup = new Method("setUp");
         setup.addAnnotation("@BeforeEach");
         setup.addBodyLine("mockMvc = MockMvcBuilders.webAppContextSetup({0}).build();", WEB_APPLICATION_CONTEXT);
-        //创建测试实例对象实例
         setup.addBodyLine("");
         setup.addBodyLine("{0}= new {1}(0);", entityInstanceVar, entityType.getShortName());
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
             if (column.getJdbcType() == Types.DECIMAL) {
                 testClazz.addImportedType("java.math.BigDecimal");
             }
-            if (column.isJava8TimeColumn() || column.isJdbcDateColumn() || column.isJdbcTimeColumn() || column.isJdbcTimeStampColumn()) {
+            if (isDateColumn(column)) {
                 testClazz.addImportedType("com.vgosoft.tool.core.VDateUtils");
             }
             setup.addBodyLine("{0}.set{1}({2});", entityInstanceVar,
@@ -118,20 +234,37 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         }
         if (viewpath != null) {
             setup.addBodyLine("{0}.setViewPath(\"{1}\");", entityInstanceVar, viewpath);
-            setup.addBodyLine("//{0} = RandomUtils.randomPojo({1}.class,o->'{'o.setViewPath(\"{2}\");'}');", entityInstanceVar,entityType.getShortName(), viewpath);
-        }else{
-            setup.addBodyLine("//{0} = RandomUtils.randomPojo();", entityInstanceVar,entityType.getShortName());
         }
-
         setup.addBodyLine("");
         setup.addBodyLine("id = {0}.getId();", entityInstanceVar);
         setup.addBodyLine("");
-        setup.addBodyLine("requestBody = JsonUtil.toJsonString({0});", JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()));
+
+        if (springBootTest) {
+            testClazz.addImportedType("java.util.LinkedHashMap");
+            testClazz.addImportedType("java.util.Map");
+            setup.addBodyLine("Map<String, Object> requestBodyMap = new LinkedHashMap<>();");
+            for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+                if (isDateColumn(column)) {
+                    setup.addBodyLine("requestBodyMap.put(\"{0}\", {1}.get{2}().format(DATETIME_FORMATTER));",
+                            column.getJavaProperty(),
+                            entityInstanceVar,
+                            JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()));
+                } else {
+                    setup.addBodyLine("requestBodyMap.put(\"{0}\", {1}.get{2}());",
+                            column.getJavaProperty(),
+                            entityInstanceVar,
+                            JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()));
+                }
+            }
+            if (viewpath != null) {
+                setup.addBodyLine("requestBodyMap.put(\"viewPath\", {0}.getViewPath());", entityInstanceVar);
+            }
+            setup.addBodyLine("requestBody = JsonUtil.toJsonString(requestBodyMap);");
+        } else {
+            setup.addBodyLine("requestBody = JsonUtil.toJsonString({0});", entityInstanceVar);
+        }
         setup.addBodyLine("");
-        //组织机构相关mock
-        /*testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IUser");
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IOrganization");
-        testClazz.addImportedType("com.vgosoft.core.adapter.organization.entity.IDepartment");*/
+
         testClazz.addImportedType("com.vgosoft.organ.foo.FooDepartment");
         testClazz.addImportedType("com.vgosoft.organ.foo.FooOrganization");
         testClazz.addImportedType("com.vgosoft.organ.foo.FooUserInfo");
@@ -142,41 +275,25 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 "        when(mockOrganizationMgr.getOrganization(any())).thenReturn(fooOrganization);\n" +
                 "        when(mockOrganizationMgr.getDepartment(any())).thenReturn(fooDepartment);");
         testClazz.addMethod(setup);
+    }
 
-        //各方法通用引入内容
-        testClazz.addStaticImport("org.mockito.Mockito.when");
-        testClazz.addStaticImport("org.mockito.ArgumentMatchers.any");
-        testClazz.addStaticImport("org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*");
-        testClazz.addImportedType("org.junit.jupiter.api.Test");
-        testClazz.addImportedType("org.junit.jupiter.api.DisplayName");
-        testClazz.addImportedType("com.vgosoft.tool.core.JsonUtil");
-        testClazz.addImportedType("org.springframework.http.MediaType");
-
-        if (viewpath != null) {
-            /* 1、viewXXX，预期返回测试方法 2、viewXXX，服务返回失败的测试方法 */
-            addControllerViewElement(testClazz);
+    private boolean hasDateColumn() {
+        for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+            if (isDateColumn(column)) {
+                return true;
+            }
         }
+        return false;
+    }
 
-        /* 1、getXXX，预期返回测试方法  2、getXXX，服务返回失败的测试方法 */
-        addControllerGetElement(testClazz);
-
-        /*listXXX，预期返回测试方法*/
-        addControllerListElement(testClazz);
-
-        /*1、createXXX，预期返回测试方法  2、createXXX，服务返回失败的测试方法*/
-        addControllerCreateElement(testClazz);
-
-        /*1、updateXXX，预期返回测试方法   2、updateXXX，服务返回失败的测试方法*/
-        addControllerUpdateElement(testClazz);
-
-        /*1、deleteXXX，预期返回测试方法   2、deleteBatchXXX，预期返回测试方法*/
-        addControllerDeleteElement(testClazz);
-
-        List<CompilationUnit> answer = new ArrayList<>();
-        if (plugins.serviceImplGenerated(testClazz, introspectedTable)) {
-            answer.add(testClazz);
-        }
-        return answer;
+    private boolean isDateColumn(IntrospectedColumn column) {
+        return column.isJava8TimeColumn()
+                || column.isJdbcDateColumn()
+                || column.isJdbcTimeColumn()
+                || column.isJdbcTimeStampColumn()
+                || column.getJdbcType() == Types.DATE
+                || column.getJdbcType() == Types.TIME
+                || column.getJdbcType() == Types.TIMESTAMP;
     }
 
     private void addControllerViewElement(TopLevelClass testClazz) {
@@ -187,7 +304,6 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
     private void addControllerGetElement(TopLevelClass testClazz) {
         AbstractUnitTestElementGenerator elementGenerator = new ControllerGetElementGenerator();
         initializeAndExecuteGenerator(elementGenerator, testClazz);
-
     }
 
     private void addControllerListElement(TopLevelClass testClazz) {
