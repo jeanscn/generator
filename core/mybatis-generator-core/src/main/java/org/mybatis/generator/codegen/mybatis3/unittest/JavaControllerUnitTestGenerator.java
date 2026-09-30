@@ -174,15 +174,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                     "@MockitoBean", testClazz);
         }
 
-        addField(JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()),
-                entityType.getFullyQualifiedName(),
-                "", testClazz);
-        addField("id",
-                FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName(),
-                "", testClazz);
-        addField("requestBody",
-                FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName(),
-                "", testClazz);
+        addCommonMockFields(testClazz, serviceImplType, entityType);
     }
 
     private void addLegacyMockFields(TopLevelClass testClazz, FullyQualifiedJavaType serviceImplType, FullyQualifiedJavaType entityType) {
@@ -205,7 +197,24 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         addField("mock" + serviceImplType.getShortName(),
                 serviceImplType.getFullyQualifiedName(),
                 "@Mock", testClazz);
+        addCommonMockFields(testClazz, serviceImplType, entityType);
     }
+
+    /**
+     * 添加共用的MockFiled方法
+     */
+    private void addCommonMockFields(TopLevelClass testClazz, FullyQualifiedJavaType serviceImplType, FullyQualifiedJavaType entityType) {
+        addField(JavaBeansUtil.getFirstCharacterLowercase(entityType.getShortName()),
+                entityType.getFullyQualifiedName(),
+                "", testClazz);
+        addField("id",
+                FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName(),
+                "", testClazz);
+        addField("requestBody",
+                FullyQualifiedJavaType.getStringInstance().getFullyQualifiedName(),
+                "", testClazz);
+    }
+
 
     private void addSetupMethod(TopLevelClass testClazz, boolean springBootTest, FullyQualifiedJavaType entityType, String entityInstanceVar, String viewpath) {
         testClazz.addImportedType("org.junit.jupiter.api.BeforeEach");
