@@ -17,7 +17,6 @@ import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import java.sql.Types;
 import java.util.List;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
@@ -179,11 +178,8 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
     }
 
     private boolean isDateTimeColumn(IntrospectedColumn column) {
-        return column.isJava8TimeColumn()
-                || column.isJdbcTimeColumn()
-                || column.isJdbcTimeStampColumn()
-                || column.getJdbcType() == Types.TIME
-                || column.getJdbcType() == Types.TIMESTAMP;
+        return column.isJavaLocalDateTimeColumn()
+                || column.isJavaLocalTimeColumn();
     }
 
     private String resolveSourceProperty(List<String> annotations) {
