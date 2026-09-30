@@ -177,6 +177,11 @@ public abstract class AbstractUnitTestElementGenerator extends AbstractGenerator
         }
     }
 
+    protected void addMinimalRecordAssertions(Method method) {
+        method.addBodyLine("{0} record = new {0}();", entityType.getShortName());
+        method.addBodyLine("record.setId(id);");
+    }
+
     private boolean isDateTimeColumn(IntrospectedColumn column) {
         return column.isJavaLocalDateTimeColumn()
                 || column.isJavaLocalTimeColumn();

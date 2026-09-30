@@ -132,15 +132,9 @@ public class SqlScriptUtil {
                 return " DEFAULT " + defaultValue + " ";
             }
         } else {
-//            if (isCharacterType(jdbcType)) {
-//                return " DEFAULT '' ";
-//            } else if (isDateTimeType(jdbcType)) {
-//                return " DEFAULT " + resolveCurrentTemporalExpression(introspectedColumn, databaseDialect) + " ";
-//            } else if (isNumericType(jdbcType)) {
-//                return " DEFAULT 0 ";
-//            } else {
-//                return " ";
-//            }
+            if (isTemporalJdbcType(jdbcType)) {
+                return " DEFAULT " + resolveCurrentTemporalExpression(introspectedColumn, databaseDialect) + " ";
+            }
             return " ";
         }
     }
@@ -222,9 +216,16 @@ public class SqlScriptUtil {
         JDBCType jdbcType = JDBCType.valueOf(introspectedColumn.getJdbcType());
         return switch (jdbcType) {
             case DATE -> databaseDialect.currentDateExpression();
-            case TIME, TIME_WITH_TIMEZONE -> databaseDialect.currentTimeExpression();
+            case TIME -> databaseDialect.currentTimeExpression();
+            case TIME_WITH_TIMEZONE -> databaseDialect.currentTimeExpression();
+            case TIMESTAMP_WITH_TIMEZONE -> databaseDialect.currentDateTimeExpression();
             default -> databaseDialect.currentDateTimeExpression();
         };
+    }
+
+    private static boolean isTemporalJdbcType(JDBCType jdbcType) {
+        return isDateTimeType(jdbcType) || isDateType(jdbcType) || isTimeType(jdbcType)
+                || jdbcType == JDBCType.TIMESTAMP_WITH_TIMEZONE || jdbcType == JDBCType.TIME_WITH_TIMEZONE;
     }
 
     public static boolean isMysqlOrMariadbDatabase(DatabaseDDLDialects databaseDialect) {

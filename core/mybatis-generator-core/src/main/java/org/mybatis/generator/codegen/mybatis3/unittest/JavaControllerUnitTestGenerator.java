@@ -95,12 +95,6 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
             testClazz.addField(formatterField);
         }
         addField(WEB_APPLICATION_CONTEXT, "org.springframework.web.context.WebApplicationContext", "@Autowired", testClazz);
-        if (introspectedTable.getRules().isGenerateVo()) {
-            String voTargetPackage = tc.getJavaModelGeneratorConfiguration().getBaseTargetPackage() + ".pojo";
-            FullyQualifiedJavaType entityMappings = new FullyQualifiedJavaType(String.join(".", voTargetPackage, "maps", entityType.getShortName() + "Mappings"));
-            addField("mappings", entityMappings.getFullyQualifiedName(), "@Autowired", testClazz);
-            testClazz.addImportedType(entityMappings);
-        }
         addField(MOCK_MVC_PROPERTY_NAME, "org.springframework.test.web.servlet.MockMvc", null, testClazz);
 
         if (springBootTest) {
@@ -230,7 +224,7 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
             }
             setup.addBodyLine("{0}.set{1}({2});", entityInstanceVar,
                     JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()),
-                    JavaBeansUtil.getColumnExampleValue(column));
+                    getSetupExampleValue(column));
         }
         if (viewpath != null) {
             setup.addBodyLine("{0}.setViewPath(\"{1}\");", entityInstanceVar, viewpath);
@@ -275,6 +269,21 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 "        when(mockOrganizationMgr.getOrganization(any())).thenReturn(fooOrganization);\n" +
                 "        when(mockOrganizationMgr.getDepartment(any())).thenReturn(fooDepartment);");
         testClazz.addMethod(setup);
+    }
+
+    private String getSetupExampleValue(IntrospectedColumn column) {
+        if (column.isStringColumn()) {
+            int maxLength = column.getLength();
+            String example = column.getJavaProperty();
+            if (maxLength > 0 && example.length() > maxLength) {
+                example = example.substring(0, maxLength);
+            }
+            if (example.isEmpty()) {
+                example = "a";
+            }
+            return "\"" + example + "\"";
+        }
+        return JavaBeansUtil.getColumnExampleValue(column);
     }
 
     private boolean hasDateColumn() {

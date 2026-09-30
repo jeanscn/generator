@@ -19,26 +19,17 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addStaticImport("com.vgosoft.test.util.ResponseBodyMatchers.responseBody");
         parentElement.addStaticImport("org.assertj.core.api.Assertions.assertThat");
+        parentElement.addStaticImport("org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath");
+        parentElement.addStaticImport("org.springframework.test.web.servlet.result.MockMvcResultMatchers.status");
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
         parentElement.addImportedType("org.springframework.http.HttpStatus");
         parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");
         parentElement.addImportedType(SERVICE_CODE_ENUM);
-        if (isGenerateVoModel) {
-            parentElement.addImportedType(entityVoType);
-            parentElement.addImportedType(entityMappings);
-        } else {
-            parentElement.addImportedType(entityType);
-        }
+        parentElement.addImportedType(entityType);
         parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
-
-        FullyQualifiedJavaType returnEntityType = entityType;
-        if (introspectedTable.getRules().isGenerateVoModel()) {
-            returnEntityType = entityVoType;
-        }
 
         String requestUri = "get(\"/" + Mb3GenUtil.getControllerBaseMappingPath(introspectedTable) + "/{id}\", id)";
         String methodName = "get" + entityType.getShortName();
@@ -49,24 +40,18 @@ public class ControllerGetElementGenerator extends AbstractUnitTestElementGenera
                 entityType.getShortName(),
                 entityInstanceVar);
         if (introspectedTable.getRules().isGenerateVoModel()) {
-            method.addBodyLine("{0} {1} = mappings.to{0}({2});",
-                    entityType.getShortName() + "Vo",
-                    entityType.getShortNameFirstLowCase() + "Vo",
-                    entityType.getShortNameFirstLowCase());
-            if (useSpringBootTest) {
-                addNormalizedVoAssertions(method, entityInstanceVar, entityType.getShortNameFirstLowCase() + "Vo");
-            }
+            addMinimalRecordAssertions(method);
         } else {
             method.addBodyLine("{0} {1} = serviceResult.getResult();",
-                    returnEntityType.getShortName(), returnEntityType.getShortNameFirstLowCase());
+                    entityType.getShortName(), entityType.getShortNameFirstLowCase());
         }
         method.addBodyLine("when({0}.selectByPrimaryKey(id)).thenReturn(serviceResult);",
                 mockServiceImpl);
         method.addBodyLine("mockMvc.perform({0}\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n" +
-                        "                .andExpect(responseBody()\n" +
-                        "                        .containsObjectAsJson({1}, {2}.class, ResponseResult.class));",
-                requestUri, returnEntityType.getShortNameFirstLowCase(), returnEntityType.getShortName());
+                        "                .andExpect(status().isOk())\n" +
+                        "                .andExpect(jsonPath(\"$.data.id\").value(\"id\"));",
+                requestUri);
         parentElement.addMethod(method);
 
         methodName = "get" + entityType.getShortName() + "_ReturnsFailure";

@@ -10,6 +10,9 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_CODE_ENUM;
 import static org.mybatis.generator.custom.ConstantsUtil.SERVICE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class ControllerViewElementGenerator extends AbstractUnitTestElementGenerator {
 
     public ControllerViewElementGenerator() {
@@ -25,11 +28,6 @@ public class ControllerViewElementGenerator extends AbstractUnitTestElementGener
         parentElement.addImportedType(SERVICE_CODE_ENUM);
 
         parentElement.addImportedType(entityType);
-
-        if (isGenerateVoModel) {
-            parentElement.addImportedType(entityVoType);
-            parentElement.addImportedType(entityMappings);
-        }
 
         //viewXXX，预期返回测试方法
         String requestUri = VStringUtil.format("get(\"/{0}/view\")", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));

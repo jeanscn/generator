@@ -304,7 +304,10 @@ public class IntrospectedColumn {
 
     public String getSqlFragmentLength(String actualTypeName) {
         String actualType = actualTypeName!=null ? actualTypeName : this.getActualTypeName();
-        if (stringHasValue(actualType) && actualType.toUpperCase().contains("UNSIGNED")) {
+        if (!stringHasValue(actualType)) {
+            actualType = JDBCType.valueOf(this.jdbcType).getName();
+        }
+        if (actualType.toUpperCase().contains("UNSIGNED")) {
             return " ";
         }
         if (this.length <= 0) {

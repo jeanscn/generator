@@ -9,6 +9,9 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class ControllerCreateElementGenerator extends AbstractUnitTestElementGenerator {
 
     public ControllerCreateElementGenerator() {
@@ -17,8 +20,9 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        parentElement.addStaticImport("com.vgosoft.test.util.ResponseBodyMatchers.responseBody");
         parentElement.addStaticImport("org.assertj.core.api.Assertions.assertThat");
+        parentElement.addStaticImport("org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath");
+        parentElement.addStaticImport("org.springframework.test.web.servlet.result.MockMvcResultMatchers.status");
         parentElement.addImportedType(RESPONSE_RESULT);
         parentElement.addImportedType(SERVICE_RESULT);
         parentElement.addImportedType("org.springframework.mock.web.MockHttpServletResponse");
@@ -26,12 +30,7 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         parentElement.addImportedType(SERVICE_CODE_ENUM);
         parentElement.addImportedType("java.nio.charset.StandardCharsets");
         parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");
-        if (isGenerateVoModel) {
-            parentElement.addImportedType(entityVoType);
-            parentElement.addImportedType(entityMappings);
-        }else{
-            parentElement.addImportedType(entityType);
-        }
+        parentElement.addImportedType(entityType);
 
         //createXXX，预期返回测试方法
         String requestUri = VStringUtil.format("post(\"/{0}\")", Mb3GenUtil.getControllerBaseMappingPath(introspectedTable));
@@ -42,6 +41,21 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
 
         if (introspectedTable.getRules().generateInsertOrUpdate()) {
             method.addBodyLine("ServiceResult<{0}> serviceResult;",entityType.getShortName());
+            method.addBodyLine("serviceResult = ServiceResult.success({1});\n" +
+                            "        when({2}.updateByPrimaryKeySelective(any({0}.class)))\n" +
+                            "                .thenReturn(serviceResult);",
+                    entityType.getShortName(),
+                    entityInstanceVar, mockServiceImpl);
+            method.addBodyLine("serviceResult = ServiceResult.success({1});\n" +
+                            "        when({2}.insertSelective(any({0}.class)))\n" +
+                            "                .thenReturn(serviceResult);",
+                    entityType.getShortName(),
+                    entityInstanceVar, mockServiceImpl);
+            method.addBodyLine("serviceResult = ServiceResult.success({1});\n" +
+                            "        when({2}.updateByPrimaryKey(any({0}.class)))\n" +
+                            "                .thenReturn(serviceResult);",
+                    entityType.getShortName(),
+                    entityInstanceVar, mockServiceImpl);
             method.addBodyLine("serviceResult = ServiceResult.success({1});\n" +
                             "        when({2}.insertOrUpdate(any({0}.class)))\n" +
                             "                .thenReturn(serviceResult);",
@@ -59,19 +73,12 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
                     entityType.getShortName(),
                     entityInstanceVar, mockServiceImpl);
         }
-        if (isGenerateVoModel) {
-            method.addBodyLine("{0} {1} = mappings.to{0}({2});", entityVoType.getShortName(), entityVoInstanceVar, entityInstanceVar);
-            if (useSpringBootTest) {
-                addNormalizedVoAssertions(method, entityInstanceVar, entityVoInstanceVar);
-            }
-        }
         method.addBodyLine("mockMvc.perform({0}\n" +
                 "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
-                "                        .accept(MediaType.APPLICATION_JSON))", requestUri);
-        method.addBodyLine(".andExpect(responseBody()\n" +
-                        "                        .containsObjectAsJson({0}, {1}.class, ResponseResult.class));",
-                isGenerateVoModel ? entityVoInstanceVar : entityInstanceVar,
-                isGenerateVoModel ? entityVoType.getShortName() : entityType.getShortName());
+                "                        .accept(MediaType.APPLICATION_JSON))\n" +
+                "                .andExpect(status().isOk())\n" +
+                "                .andExpect(jsonPath(\"$.data.id\").value(\"id\"));",
+                requestUri);
         parentElement.addMethod(method);
 
         //createXXX，服务返回失败的测试方法
@@ -82,7 +89,11 @@ public class ControllerCreateElementGenerator extends AbstractUnitTestElementGen
         method.addBodyLine("final ServiceResult<{0}> serviceResult = ServiceResult.failure(ServiceCodeEnum.FAIL,\n" +
                         "                \"error message\");",
                 entityType.getShortName());
-        method.addBodyLine("when({0}.insert(any({1}))).thenReturn(serviceResult);\n" +
+        method.addBodyLine("when({0}.updateByPrimaryKeySelective(any({1}))).thenReturn(serviceResult);\n" +
+                        "        when({0}.insertSelective(any({1}))).thenReturn(serviceResult);\n" +
+                        "        when({0}.updateByPrimaryKey(any({1}))).thenReturn(serviceResult);\n" +
+                        "        when({0}.insertOrUpdate(any({1}))).thenReturn(serviceResult);\n" +
+                        "        when({0}.insert(any({1}))).thenReturn(serviceResult);\n" +
                         "        final MockHttpServletResponse response = mockMvc.perform({2}\n" +
                         "                        .content(requestBody).contentType(MediaType.APPLICATION_JSON)\n" +
                         "                        .accept(MediaType.APPLICATION_JSON))\n" +
