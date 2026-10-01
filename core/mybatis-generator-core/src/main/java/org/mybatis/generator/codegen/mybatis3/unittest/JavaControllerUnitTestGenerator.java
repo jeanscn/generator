@@ -24,6 +24,7 @@ import org.mybatis.generator.internal.util.JavaBeansUtil;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
@@ -85,14 +86,20 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         }
 
         testClazz.addImportedType("org.springframework.beans.factory.annotation.Autowired");
-        if (springBootTest && hasDateColumn()) {
+        if (springBootTest && hasJava8DateColumn()) {
             testClazz.addImportedType("java.time.format.DateTimeFormatter");
-            Field formatterField = new Field("DATETIME_FORMATTER", new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
-            formatterField.setVisibility(JavaVisibility.PRIVATE);
-            formatterField.setStatic(true);
-            formatterField.setFinal(true);
-            formatterField.setInitializationString("DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\")");
-            testClazz.addField(formatterField);
+            for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
+                if (column.isJavaLocalDateTimeColumn()) {
+                    addDateFormatterField(testClazz, "DATETIME_FORMATTER", "yyyy-MM-dd HH:mm:ss");
+                }
+                if (column.isJavaLocalDateColumn()) {
+                    addDateFormatterField(testClazz, "DATE_FORMATTER", "yyyy-MM-dd");
+                }
+                if (column.isJavaLocalTimeColumn()) {
+                    addDateFormatterField(testClazz, "TIME_FORMATTER", "HH:mm:ss");
+                }
+            }
+
         }
         addField(WEB_APPLICATION_CONTEXT, "org.springframework.web.context.WebApplicationContext", "@Autowired", testClazz);
         addField(MOCK_MVC_PROPERTY_NAME, "org.springframework.test.web.servlet.MockMvc", null, testClazz);
@@ -248,10 +255,9 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
             setup.addBodyLine("Map<String, Object> requestBodyMap = new LinkedHashMap<>();");
             for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
                 if (isDateColumn(column)) {
-                    setup.addBodyLine("requestBodyMap.put(\"{0}\", {1}.get{2}().format(DATETIME_FORMATTER));",
+                    setup.addBodyLine("requestBodyMap.put(\"{0}\", {1});",
                             column.getJavaProperty(),
-                            entityInstanceVar,
-                            JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()));
+                            getRequestBodyDateValueExpression(column, entityInstanceVar));
                 } else {
                     setup.addBodyLine("requestBodyMap.put(\"{0}\", {1}.get{2}());",
                             column.getJavaProperty(),
@@ -295,9 +301,9 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
         return JavaBeansUtil.getColumnExampleValue(column);
     }
 
-    private boolean hasDateColumn() {
+    private boolean hasJava8DateColumn() {
         for (IntrospectedColumn column : introspectedTable.getAllColumns()) {
-            if (isDateColumn(column)) {
+            if (column.isJava8TimeColumn()) {
                 return true;
             }
         }
@@ -312,6 +318,48 @@ public class JavaControllerUnitTestGenerator extends AbstractUnitTestGenerator {
                 || column.getJdbcType() == Types.DATE
                 || column.getJdbcType() == Types.TIME
                 || column.getJdbcType() == Types.TIMESTAMP;
+    }
+
+    private void addDateFormatterField(TopLevelClass testClazz, String fieldName, String pattern) {
+        Objects.requireNonNull(testClazz, "testClazz");
+        Objects.requireNonNull(fieldName, "fieldName");
+        Objects.requireNonNull(pattern, "pattern");
+
+        boolean fieldExists = testClazz.getFields().stream()
+                .anyMatch(field -> fieldName.equals(field.getName()));
+        if (fieldExists) {
+            return;
+        }
+
+        Field formatterField = new Field(fieldName, new FullyQualifiedJavaType("java.time.format.DateTimeFormatter"));
+        formatterField.setVisibility(JavaVisibility.PRIVATE);
+        formatterField.setStatic(true);
+        formatterField.setFinal(true);
+        formatterField.setInitializationString("DateTimeFormatter.ofPattern(\"" + pattern + "\")");
+        testClazz.addField(formatterField);
+    }
+
+    static String getRequestBodyDateValueExpression(IntrospectedColumn column, String entityInstanceVar) {
+        String getter = entityInstanceVar + ".get" + JavaBeansUtil.getFirstCharacterUppercase(column.getJavaProperty()) + "()";
+        if (column.isJavaLocalDateTimeColumn()) {
+            return getter + ".format(DATETIME_FORMATTER)";
+        }
+        if (column.isJavaLocalDateColumn()) {
+            return getter + ".format(DATE_FORMATTER)";
+        }
+        if (column.isJavaLocalTimeColumn()) {
+            return getter + ".format(TIME_FORMATTER)";
+        }
+        if (column.isJdbcTimeStampColumn() || column.getJdbcType() == Types.TIMESTAMP) {
+            return "new java.text.SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\").format(" + getter + ")";
+        }
+        if (column.isJdbcDateColumn() || column.getJdbcType() == Types.DATE) {
+            return "new java.text.SimpleDateFormat(\"yyyy-MM-dd\").format(" + getter + ")";
+        }
+        if (column.isJdbcTimeColumn() || column.getJdbcType() == Types.TIME) {
+            return "new java.text.SimpleDateFormat(\"HH:mm:ss\").format(" + getter + ")";
+        }
+        return getter;
     }
 
     private void addControllerViewElement(TopLevelClass testClazz) {
