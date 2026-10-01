@@ -19,3 +19,4 @@
 - 历史上“生成器权威文档”中偏内核实现/耦合/边界的内容，已迁移并汇总到 `copilot-instructions.md` 统一管理。
 - 新增“内核再开发规范”优先修改 `copilot-instructions.md`，本文件只做补充说明，避免双份规范漂移。
 - 关于“多方言动态 SQL 兜底”的新增约束：以 `copilot-instructions.md` 的“6.1 动态 SQL 多方言统一兜底策略”为准（原生语法优先，不支持时实现可跨方言执行的等价兜底 SQL；重复冲突忽略语义可使用 `INSERT ... SELECT ... WHERE NOT EXISTS (...)` 作为典型方案）。
+- 当前 Windows/PowerShell/Maven 的命令环境约束，也以 `copilot-instructions.md` 的“11. 当前环境与命令约束”为准。

@@ -102,3 +102,13 @@
 - 核心再开发补充说明：`.github/generator-core-dev-spec.md`
 - 下游业务项目设计阶段（本项目定位：能力说明）：`src/main/resources/docs/generator-authoritative-spec.md`
 - 下游业务项目实现阶段（本项目定位：使用手册）：`src/main/resources/docs/generator-config-guide.md`
+
+## 11. 当前环境与命令约束（必须遵守）
+
+- 当前运行环境为 Windows；路径统一使用反斜杠 `\`。
+- 当前 PowerShell 不支持 PowerShell 7 专属语法；命令编写时避免 `&&`、`||`、`??`、`?.` 等语法。
+- Maven 构建时要优先使用显式参数并给 `-D` 属性值加引号，避免 PowerShell 将参数误拆，例如：
+  - 正确：`mvn -q -pl mybatis-generator-core "-DskipTests" "-Denforcer.skip=true" compile`
+  - 不要直接假设裸写 `-Dxxx=yyy` 在当前 shell 下总是会被原样传递。
+- 仓库存在 Maven 版本门槛校验；若构建被 `maven-enforcer-plugin` 拦截，不要重复尝试同一条命令，先判断是环境版本问题还是代码问题。
+- Git 命令使用非交互模式，并显式禁用分页，例如 `git --no-pager diff`。
