@@ -1,7 +1,7 @@
 <!--
 * ${ OVERRIDABLE_FLAG }
 * @description ${ tableRemark }列表组件
-* @version: list template version 1.0.35
+* @version: list template version 1.0.36
 -->
 <#-- language=Vue3 -->
 <template>
@@ -39,7 +39,7 @@
                     @update:modelValue="(val) => modalCtx.updateShowDialog(val)"
                     @vxe-button-click="modalCtx.defaultInnerListButtonActionHandler"
                     @form-submit="modalCtx.onSubmit"
-                    @close="modalCtx.destroyForm" />
+                    @closed="modalCtx.destroyForm" />
         </template>
     </VgoTableView>
 </template>

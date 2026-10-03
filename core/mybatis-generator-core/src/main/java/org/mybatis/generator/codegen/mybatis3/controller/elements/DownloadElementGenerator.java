@@ -45,7 +45,6 @@ public class DownloadElementGenerator extends AbstractControllerElementGenerator
         method.addParameter(typeParameter);
         method.setReturnType(new FullyQualifiedJavaType("ResponseEntity<byte[]>"));
         method.addAnnotation("@PermitAll");
-        method.addAnnotation(new SystemLogDesc("下载（预览）", introspectedTable),parentElement);
         RequestMappingDesc requestMappingDesc = new RequestMappingDesc("download/{type}/{id}", RequestMethodEnum.GET);
         method.addAnnotation(requestMappingDesc,parentElement);
         method.addAnnotation(new OperationDesc("单个文件下载（预览）", "单个文件下载(预览)接口"),parentElement);

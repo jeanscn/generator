@@ -1,7 +1,7 @@
 <!--
 * ${ OVERRIDABLE_FLAG }
 * @description DialogForm component for ${ componentName } module
-* @version: modal template version 1.0.13
+* @version: modal template version 1.0.14
 -->
 <template>
     <div class="form-modal-container">
@@ -151,10 +151,6 @@
         showDialog.value = val;
     });
 
-    watch(() => showDialog.value, (val) => {
-        emit('update:modelValue', val);
-    });
-
     const updateVisibility = (val) => {
         if (!val) {
             showDialog.value = false;
@@ -217,6 +213,7 @@
             _formData.value = EMPTY_OBJECT as any;
             buttonRef.value = undefined;
             bizFormRef.value = undefined;
+            emit('update:modelValue', false);
             emit('closed')
         },
     };

@@ -70,7 +70,7 @@ public class UploadElementGenerator extends AbstractControllerElementGenerator {
         addSecurityPreAuthorize(method,methodPrefix,"上传");
         method.addAnnotation(new OperationDesc("单个文件上传", "单个文件上传接口"),parentElement);
         commentGenerator.addMethodJavaDocLine(method, "单个文件上传");
-        method.addBodyLine("if (file.isEmpty()) return ResponseResult.failure(ApiCodeEnum.FAIL_CUSTOM, \"上传文件为空\");");
+        method.addBodyLine("if (file.isEmpty()) { return ResponseResult.failure(ApiCodeEnum.FAIL_CUSTOM, \"上传文件为空\"); }");
         if (introspectedTable.getRules().isGenerateVoModel() || introspectedTable.getRules().isGenerateCreateVo()) {
             method.addBodyLine(format("{0} {1} = mappings.from{2}({3});", entityType.getShortName(),entityType.getShortNameFirstLowCase(),parameter.getType().getShortName(),parameter.getType().getShortNameFirstLowCase()));
         }
