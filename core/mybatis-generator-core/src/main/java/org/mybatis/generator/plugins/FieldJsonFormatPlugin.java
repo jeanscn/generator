@@ -20,6 +20,8 @@ import java.util.List;
 public class FieldJsonFormatPlugin extends PluginAdapter {
 
     public static final String LOGICAL_TYPE_PROPERTY = "logicalType";
+    public static final String JSON_NODE_TYPE = "tools.jackson.databind.JsonNode";
+    public static final String JSON_TYPE_HANDLER = "com.vgosoft.mybatis.typehandler.JacksonJsonTypeHandler";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -104,17 +106,42 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
             throw new IllegalArgumentException("Unsupported logicalType for column "
                     + introspectedColumn.getActualColumnName() + ": " + logicalType);
         }
-        if (!"JSON".equalsIgnoreCase(logicalType)
-                && !"JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName())) {
+        boolean logicalJson = "JSON".equalsIgnoreCase(logicalType)
+                || "JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName());
+        if (!logicalJson) {
             return;
         }
-        if (StringUtility.stringHasValue(logicalType)
-                && !FullyQualifiedJavaType.getStringInstance().equals(introspectedColumn.getFullyQualifiedJavaType())) {
-            throw new IllegalArgumentException("logicalType=JSON requires a String column: "
-                    + introspectedColumn.getActualColumnName());
+        if (!FullyQualifiedJavaType.getStringInstance().equals(introspectedColumn.getFullyQualifiedJavaType())) {
+            ensureJsonTypeHandler(introspectedColumn);
+            return;
         }
         topLevelClass.addImportedType("tools.jackson.databind.annotation.JsonSerialize");
         topLevelClass.addImportedType("com.vgosoft.system.parser.JsonRecordSerializer");
         field.addAnnotation("@JsonSerialize(using = JsonRecordSerializer.class)");
+    }
+
+    public static void ensureJsonTypeHandler(IntrospectedColumn introspectedColumn) {
+        if (introspectedColumn == null
+                || introspectedColumn.getFullyQualifiedJavaType() == null
+                || FullyQualifiedJavaType.getStringInstance().equals(introspectedColumn.getFullyQualifiedJavaType())) {
+            return;
+        }
+        if (!StringUtility.stringHasValue(introspectedColumn.getTypeHandler())) {
+            introspectedColumn.setTypeHandler(JSON_TYPE_HANDLER);
+        }
+        if (JSON_TYPE_HANDLER.equals(introspectedColumn.getTypeHandler())
+                && !isTextJdbcType(introspectedColumn.getJdbcTypeName())) {
+            introspectedColumn.setJdbcTypeName("LONGVARCHAR");
+        }
+    }
+
+    private static boolean isTextJdbcType(String jdbcType) {
+        if (jdbcType == null) {
+            return false;
+        }
+        return switch (jdbcType.toUpperCase(java.util.Locale.ROOT)) {
+            case "CHAR", "VARCHAR", "LONGVARCHAR", "NCHAR", "NVARCHAR", "LONGNVARCHAR", "CLOB", "NCLOB" -> true;
+            default -> false;
+        };
     }
 }

@@ -109,12 +109,22 @@ class DatabaseIntrospectorFactoryTest {
     }
 
     @Test
-    void shouldFallbackToGenericStrategyForUnsupportedDatabase() throws SQLException {
+    void shouldUseGenericDdlProfileForOtherDatabaseTypes() throws SQLException {
         DatabaseProfile profile = DatabaseIntrospectorFactory
                 .createProfile(connection("Firebird", "jdbc:firebirdsql://localhost:3050/demo"));
 
         assertThat(profile.introspectorStrategy()).isInstanceOf(GenericIntrospectorStrategy.class);
-        assertThat(profile.ddlDialect()).isNull();
+        assertThat(profile.ddlDialect()).isEqualTo(DatabaseDDLDialects.OTHER);
+    }
+
+    @Test
+    void shouldProvideDdlProfilesForEveryDatabaseType() {
+        for (com.vgosoft.core.db.query.DatabaseType databaseType
+                : com.vgosoft.core.db.query.DatabaseType.values()) {
+            assertThat(DatabaseIntrospectorFactory.createProfile(databaseType).ddlDialect())
+                    .as(databaseType.name())
+                    .isNotNull();
+        }
     }
 
     private Connection connection(String productName, String jdbcUrl) {

@@ -18,6 +18,7 @@ import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
+import org.mybatis.generator.plugins.FieldJsonFormatPlugin;
 
 import java.sql.JDBCType;
 import java.sql.*;
@@ -596,6 +597,12 @@ public class DatabaseIntrospector {
 
                     introspectedColumn.setProperties(columnOverride.getProperties());
 
+                }
+                String logicalType = introspectedColumn.getProperties()
+                        .getProperty(FieldJsonFormatPlugin.LOGICAL_TYPE_PROPERTY);
+                if ("JSON".equalsIgnoreCase(logicalType)
+                        || "JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName())) {
+                    FieldJsonFormatPlugin.ensureJsonTypeHandler(introspectedColumn);
                 }
             }
         }

@@ -77,6 +77,20 @@ public class DatabaseIntrospectorFactory {
         profiles.put(DatabaseType.HSQL, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.HSQL));
         profiles.put(DatabaseType.DB2, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.DB2));
         profiles.put(DatabaseType.XU_GU, new DatabaseProfile(GENERIC_STRATEGY, DatabaseDDLDialects.XU_GU));
+        for (DatabaseType databaseType : DatabaseType.values()) {
+            if (profiles.containsKey(databaseType)) {
+                continue;
+            }
+            DatabaseDDLDialects ddlDialect = switch (databaseType) {
+                case TIDB, POLARDB, TDSQL -> DatabaseDDLDialects.MYSQL;
+                case GAUSS_DB, UXDB -> DatabaseDDLDialects.POSTGRE_SQL;
+                case SQLITE -> DatabaseDDLDialects.SQLITE;
+                case PHOENIX -> DatabaseDDLDialects.PHOENIX;
+                case CACHEDB -> DatabaseDDLDialects.CACHEDB;
+                default -> DatabaseDDLDialects.OTHER;
+            };
+            profiles.put(databaseType, new DatabaseProfile(GENERIC_STRATEGY, ddlDialect));
+        }
         return profiles;
     }
 }

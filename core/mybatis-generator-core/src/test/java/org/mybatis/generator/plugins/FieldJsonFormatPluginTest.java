@@ -87,6 +87,24 @@ class FieldJsonFormatPluginTest {
     }
 
     @Test
+    void shouldUseJacksonTreeAndDatabaseHandlerForStructuredJson() {
+        IntrospectedColumn column = column("TEXT", FieldJsonFormatPlugin.JSON_NODE_TYPE);
+        column.getProperties().setProperty(FieldJsonFormatPlugin.LOGICAL_TYPE_PROPERTY, "JSON");
+        Field field = new Field("jsonRecord", new FullyQualifiedJavaType(FieldJsonFormatPlugin.JSON_NODE_TYPE));
+        TopLevelClass type = new TopLevelClass("example.RecordVo");
+        type.addField(field);
+
+        new FieldJsonFormatPlugin().voAbstractFieldGenerated(field, type, column, null);
+
+        assertThat(column.getTypeHandler()).isEqualTo(FieldJsonFormatPlugin.JSON_TYPE_HANDLER);
+        assertThat(column.getJdbcTypeName()).isEqualTo("LONGVARCHAR");
+        assertThat(new DefaultJavaFormatter().getFormattedContent(type))
+                .contains("tools.jackson.databind.JsonNode")
+                .doesNotContain("JsonRecordSerializer")
+                .doesNotContain("JsonSerialize");
+    }
+
+    @Test
     void shouldNotSerializeOrdinaryText() {
         Field field = new Field("notes", FullyQualifiedJavaType.getStringInstance());
         TopLevelClass type = new TopLevelClass("example.RecordVo");
@@ -99,19 +117,36 @@ class FieldJsonFormatPluginTest {
     }
 
     @Test
-    void shouldRejectUnknownLogicalTypeAndNonStringJson() {
+    void shouldRejectUnknownLogicalTypeAndHandleStructuredJson() {
         IntrospectedColumn unknown = column("TEXT", "java.lang.String");
         unknown.getProperties().setProperty(FieldJsonFormatPlugin.LOGICAL_TYPE_PROPERTY, "JSNO");
-        IntrospectedColumn nonString = column("INTEGER", "java.lang.Integer");
-        nonString.getProperties().setProperty(FieldJsonFormatPlugin.LOGICAL_TYPE_PROPERTY, "JSON");
+        IntrospectedColumn structured = column("TEXT", FieldJsonFormatPlugin.JSON_NODE_TYPE);
+        structured.getProperties().setProperty(FieldJsonFormatPlugin.LOGICAL_TYPE_PROPERTY, "JSON");
         FieldJsonFormatPlugin plugin = new FieldJsonFormatPlugin();
         Field field = new Field("value", FullyQualifiedJavaType.getStringInstance());
         TopLevelClass type = new TopLevelClass("example.RecordVo");
 
         assertThatThrownBy(() -> plugin.voAbstractFieldGenerated(field, type, unknown, null))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Unsupported logicalType");
-        assertThatThrownBy(() -> plugin.voAbstractFieldGenerated(field, type, nonString, null))
-                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("requires a String");
+        plugin.voAbstractFieldGenerated(field, type, structured, null);
+
+        assertThat(structured.getTypeHandler()).isEqualTo(FieldJsonFormatPlugin.JSON_TYPE_HANDLER);
+        assertThat(structured.getJdbcTypeName()).isEqualTo("LONGVARCHAR");
+    }
+
+    @Test
+    void shouldPreserveExplicitJsonTypeHandlerAndJdbcType() {
+        IntrospectedColumn column = column("JSON", FieldJsonFormatPlugin.JSON_NODE_TYPE);
+        column.setTypeHandler("example.CustomJsonTypeHandler");
+        column.setJdbcTypeName("OTHER");
+        Field field = new Field("jsonRecord", new FullyQualifiedJavaType(FieldJsonFormatPlugin.JSON_NODE_TYPE));
+        TopLevelClass type = new TopLevelClass("example.RecordVo");
+        type.addField(field);
+
+        new FieldJsonFormatPlugin().voAbstractFieldGenerated(field, type, column, null);
+
+        assertThat(column.getTypeHandler()).isEqualTo("example.CustomJsonTypeHandler");
+        assertThat(column.getJdbcTypeName()).isEqualTo("OTHER");
     }
 
     @Test

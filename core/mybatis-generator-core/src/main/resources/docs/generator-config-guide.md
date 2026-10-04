@@ -101,7 +101,32 @@
 </columnOverride>
 ```
 
-`logicalType` 当前仅接受 `JSON`（大小写不敏感），且对应 Java 类型必须为 `String`；其他非空值明确报错。`FieldJsonFormatPlugin` 对这些列生成 `tools.jackson.databind.annotation.JsonSerialize(using = JsonRecordSerializer.class)`，不改变物理类型、JDBC 类型、数据库结构或长度验证。未配置的普通 TEXT 列不自动视为 JSON；物理 JSON 列保留原有自动识别。日期格式注解仍使用官方 `com.fasterxml.jackson.annotation.JsonFormat`。
+`logicalType` 当前仅接受 `JSON`（大小写不敏感），其他非空值明确报错。若 Java 类型为 `String`，保留现有 `JsonRecordSerializer` 序列化契约，不增加数据库 TypeHandler；若 Java 类型为 Jackson 3 `JsonNode` 或 DTO，生成器配置 `JacksonJsonTypeHandler`，由 MyBatis 按类型读写 JSON 文本。未配置的普通 TEXT 列不自动视为 JSON；物理 JSON 列保留自动识别。日期格式注解仍使用官方 `com.fasterxml.jackson.annotation.JsonFormat`。
+
+### 4.1.1 跨方言结构化 JSON 字段
+
+结构化 JSON 使用明确的 Java 类型和 JDBC 文本类型，并通过 columnOverride 现有属性接入生成器：
+
+```xml
+<columnOverride column="payload"
+                javaType="tools.jackson.databind.JsonNode"
+                jdbcType="LONGVARCHAR">
+    <property name="logicalType" value="JSON"/>
+</columnOverride>
+```
+
+非 `String` JSON 列缺省绑定 `com.vgosoft.mybatis.typehandler.JacksonJsonTypeHandler`；显式 `typeHandler` 可覆盖默认值。该 Handler 通过 Jackson 3 编解码，并将畸形 JSON 作为 JDBC 映射错误抛出。`String` 字段保持既有行为，不会自动转换为树对象。
+
+JSON Schema 输出按目标 `DatabaseType` 将逻辑 JSON 映射到文本型列，例如 MySQL 系列 `LONGTEXT`、PostgreSQL 系列 `TEXT`、SQL Server `NVARCHAR(MAX)`、Oracle/DM/DB2 系列 `CLOB`。其他未能分类的 `OTHER` 必须配置 `jsonStorageType`，例如：
+
+```xml
+<columnOverride column="payload" javaType="tools.jackson.databind.JsonNode" jdbcType="LONGVARCHAR">
+    <property name="logicalType" value="JSON"/>
+    <property name="jsonStorageType" value="CLOB"/>
+</columnOverride>
+```
+
+`DatabaseIntrospectorFactory` 为全部枚举 `DatabaseType` 提供 DDL profile；未具备专用 SQL 方言实现的类型使用通用 DDL 模板，目标数据库仍须以其厂商文档/隔离环境验证输出脚本。文本存储的基础读写不代表具备原生 JSON 运算符、路径查询或索引支持；这些能力需另行按方言验证。
 
 对于保留既有字段/注解及业务扩展的局部迁移，测试源码中的 `org.mybatis.generator.codegen.mybatis3.vo.OfflineJsonVoGenerator` 提供无连接的离线 bootstrap 入口：
 

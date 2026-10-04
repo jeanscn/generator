@@ -13,6 +13,7 @@ import org.mybatis.generator.api.IndexInfo;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.custom.db.DatabaseDDLDialects;
 import org.mybatis.generator.dbstrategy.DatabaseIntrospectorFactory;
+import org.mybatis.generator.dbstrategy.JsonStorageTypeResolver;
 import org.mybatis.generator.internal.util.SqlScriptUtil;
 
 import java.sql.JDBCType;
@@ -68,12 +69,19 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
             String character = BaseEmpty.EMPTY_STRING;
             String typeName = normalizeTypeName(col.getActualTypeName());
-            if ((SqlScriptUtil.isMysqlOrMariadbDatabase(databaseDdlDialects)) && !"JSON".equalsIgnoreCase(VStringUtil.toCamelCase(col.getActualTypeName()))) {
+            boolean jsonColumn = "JSON".equalsIgnoreCase(col.getProperties().getProperty("logicalType"))
+                    || "JSON".equalsIgnoreCase(col.getActualTypeName());
+            if (jsonColumn) {
+                typeName = JsonStorageTypeResolver.resolve(databaseType,
+                        col.getProperties().getProperty("jsonStorageType"));
+            }
+            if ((SqlScriptUtil.isMysqlOrMariadbDatabase(databaseDdlDialects)) && !"JSON".equalsIgnoreCase(typeName)) {
                 character = isCharacterType(JDBCTypeTypeEnum.resolveJdbcType(typeName)) ? " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci " : " ";
             }
             String remarks = databaseDdlDialects.escapeSqlLiteral(col.getRemarks(false));
             JdbcTypeInformation jdbcTypeInformation = coreJavaTypeResolver.getJdbcTypeInformation(JDBCType.valueOf(col.getJdbcType()));
-            String actualTypeName = VStringUtil.toUpperCase(jdbcTypeInformation.getActualTypeName());
+            String actualTypeName = jsonColumn ? VStringUtil.toUpperCase(typeName)
+                    : VStringUtil.toUpperCase(jdbcTypeInformation.getActualTypeName());
             String rowSql = VStringUtil.format(createStatement,
                     databaseDdlDialects.quoteIdentifier(col.getActualColumnName()),
                     actualTypeName,
