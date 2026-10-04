@@ -91,6 +91,39 @@
 | `ignoreColumnsByRegex` | 正则忽略列 | 支持 `except` 白名单。 |
 | `generatedKey` | 生成列策略 | 适合序列/identity。 |
 
+### 4.1 文本列的逻辑 JSON 契约（Jackson 3）
+
+物理 TEXT/VARCHAR 列如承载现有 JSON 展示契约，使用已有 `columnOverride/property` 扩展配置：
+
+```xml
+<columnOverride column="json_content">
+    <property name="logicalType" value="JSON"/>
+</columnOverride>
+```
+
+`logicalType` 当前仅接受 `JSON`（大小写不敏感），且对应 Java 类型必须为 `String`；其他非空值明确报错。`FieldJsonFormatPlugin` 对这些列生成 `tools.jackson.databind.annotation.JsonSerialize(using = JsonRecordSerializer.class)`，不改变物理类型、JDBC 类型、数据库结构或长度验证。未配置的普通 TEXT 列不自动视为 JSON；物理 JSON 列保留原有自动识别。日期格式注解仍使用官方 `com.fasterxml.jackson.annotation.JsonFormat`。
+
+对于保留既有字段/注解及业务扩展的局部迁移，测试源码中的 `org.mybatis.generator.codegen.mybatis3.vo.OfflineJsonVoGenerator` 提供无连接的离线 bootstrap 入口：
+
+```text
+java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.OfflineJsonVoGenerator <generatorConfig.xml> <schema.sql> <existingVo.java> <stagingVo.java>
+```
+
+它只读取单表 `CREATE TABLE IF NOT EXISTS` schema 文本及列级配置，以带生成标记的已有 VO 作为扩展模板，通过同一插件重新生成 JSON 序列化注解。它不调用 JDBC，不执行 SQL，不解析外部 DTD，不执行配置中的前端/SQL/其他生成开关。模板字段必须能匹配 schema，配置的逻辑 JSON 列必须全部匹配单独声明的 String 字段及已有 `JsonRecordSerializer` 契约；自定义序列化器、缺列、未匹配配置均拒绝覆盖。
+
+输出必须使用不同于输入的 staging 文件。应用前必须比较差异并检查源文件未被并发修改；非序列化注解、字段、方法、长度/展示规则、生成标记保持原样。此入口是局部契约再生成，不是全模型生成，也不能用于把历史 VO 元数据宣称为当前物理 schema；它不能重建缺失的业务扩展模板。
+
+### 4.2 授权业务扩展快照的 Jakarta 再生成
+
+只有明确授权当前完整业务实现作为离线模板时，才可使用测试源码入口 `org.mybatis.generator.codegen.mybatis3.vo.OfflineJakartaTemplateGenerator`。它使用 JavaParser 保留词法布局、Java DOM 类型输出，仅支持显式 `javax.annotation.Resource`、`javax.validation.constraints.AssertTrue` import 迁移到对应 Jakarta 类型；保留方法体、注解参数和生成标记，不改 JDK javax 类型、JSR305、字符串或注释。
+
+```text
+java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.OfflineJakartaTemplateGenerator stage <businessRoot> <snapshotRoot> <stagingRoot> <manifest.properties>
+java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.OfflineJakartaTemplateGenerator apply <manifest.properties>
+```
+
+`stage` 只处理 `src/main/java` 下具有生成标记且引用上述类型的源码，创建完整快照、生成结果及 SHA-256 manifest；输出目录必须与业务目录隔离，不覆盖已有快照。检查 staging diff 后才能运行 `apply`：它重新验证整个批次的源文件、快照、结果哈希，并重新执行生成验证后受控复制。源文件被其他流程修改时拒绝覆盖。此流程不连接数据库、不执行 XML 配置、不生成 Mapper/SQL/前端；普通生成模板继续采用现有 Jakarta 类型输出。
+
 ## 5. Java 模型 / VO
 
 | 节点 | 含义 | 备注 |

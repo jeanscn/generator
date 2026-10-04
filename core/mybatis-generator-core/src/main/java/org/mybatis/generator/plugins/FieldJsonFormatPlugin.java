@@ -4,6 +4,7 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.StringUtility;
 
@@ -17,6 +18,8 @@ import java.util.List;
  * @version 3.0
  */
 public class FieldJsonFormatPlugin extends PluginAdapter {
+
+    public static final String LOGICAL_TYPE_PROPERTY = "logicalType";
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -93,10 +96,24 @@ public class FieldJsonFormatPlugin extends PluginAdapter {
     }
 
     private void addJsonSerialize(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn) {
-        if (introspectedColumn == null || !"JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName())) {
+        if (introspectedColumn == null) {
             return;
         }
-        topLevelClass.addImportedType("com.fasterxml.jackson.databind.annotation.JsonSerialize");
+        String logicalType = introspectedColumn.getProperties().getProperty(LOGICAL_TYPE_PROPERTY);
+        if (StringUtility.stringHasValue(logicalType) && !"JSON".equalsIgnoreCase(logicalType)) {
+            throw new IllegalArgumentException("Unsupported logicalType for column "
+                    + introspectedColumn.getActualColumnName() + ": " + logicalType);
+        }
+        if (!"JSON".equalsIgnoreCase(logicalType)
+                && !"JSON".equalsIgnoreCase(introspectedColumn.getActualTypeName())) {
+            return;
+        }
+        if (StringUtility.stringHasValue(logicalType)
+                && !FullyQualifiedJavaType.getStringInstance().equals(introspectedColumn.getFullyQualifiedJavaType())) {
+            throw new IllegalArgumentException("logicalType=JSON requires a String column: "
+                    + introspectedColumn.getActualColumnName());
+        }
+        topLevelClass.addImportedType("tools.jackson.databind.annotation.JsonSerialize");
         topLevelClass.addImportedType("com.vgosoft.system.parser.JsonRecordSerializer");
         field.addAnnotation("@JsonSerialize(using = JsonRecordSerializer.class)");
     }
