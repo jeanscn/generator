@@ -5,9 +5,9 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.AbstractGenerator;
+import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.JavaServiceImplGeneratorConfiguration;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -117,12 +117,13 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
     }
 
     protected void addCacheEnableAnnotations(List<String> cacheAnnotationList, Method method, TopLevelClass parentElement) {
-        if (cacheAnnotationList.size() == 1) {
-            method.addAnnotation(cacheAnnotationList.get(0));
+        List<String> uniqueAnnotations = cacheAnnotationList.stream().distinct().toList();
+        if (uniqueAnnotations.size() == 1) {
+            method.addAnnotation(uniqueAnnotations.get(0));
             parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
-        } else if (cacheAnnotationList.size() > 1) {
+        } else if (uniqueAnnotations.size() > 1) {
             method.addAnnotation("@Caching(cacheable = {\n" +
-                    String.join(",\n", cacheAnnotationList) + "\n" +
+                    String.join(",\n", uniqueAnnotations) + "\n" +
                     "})");
             parentElement.addImportedType("org.springframework.cache.annotation.Caching");
             parentElement.addImportedType("org.springframework.cache.annotation.Cacheable");
@@ -130,26 +131,41 @@ public abstract class AbstractServiceElementGenerator extends AbstractGenerator 
     }
 
     protected void addCacheCacheEvictAnnotations(List<String> cacheAnnotationList, Method method, TopLevelClass parentElement) {
-        if (cacheAnnotationList.size() == 1) {
-            method.addAnnotation(cacheAnnotationList.get(0));
+        List<String> uniqueAnnotations = cacheAnnotationList.stream().distinct().toList();
+        if (uniqueAnnotations.size() == 1) {
+            method.addAnnotation(uniqueAnnotations.get(0));
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
-        } else if (cacheAnnotationList.size() > 1) {
+        } else if (uniqueAnnotations.size() > 1) {
             method.addAnnotation("@Caching(evict = {\n              " +
-                    String.join(",\n            ", cacheAnnotationList) + "\n" +
+                    String.join(",\n            ", uniqueAnnotations) + "\n" +
                     "   })");
             parentElement.addImportedType("org.springframework.cache.annotation.Caching");
             parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
         }
     }
 
-    protected String generateSelectByTableCacheNames(SelectByTableGeneratorConfiguration configuration, String cacheType) {
-        if ("cache".equalsIgnoreCase(cacheType)) {
-            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
-        } else if ("evict".equalsIgnoreCase(cacheType)) {
-            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
-        } else {
-            return configuration.getOtherColumn().getJavaProperty() + configuration.getThisColumn().getJavaProperty() + "sCache";
+    protected List<String> mutationCacheNames() {
+        return CacheConfigurationResolver.mutationCacheNames(context, tc, entityType.getShortName(),
+                introspectedTable.getRules().isGenerateCachePo());
+    }
+
+    protected void addMutationCacheEviction(Method method, TopLevelClass parentElement) {
+        addMutationCacheEviction(method, parentElement, null);
+    }
+
+    protected void addMutationCacheEviction(Method method, TopLevelClass parentElement, String condition) {
+        List<String> cacheNames = mutationCacheNames();
+        if (!cacheNames.isEmpty()) {
+            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc();
+            cacheAnnotationDesc.setCacheNames(cacheNames);
+            cacheAnnotationDesc.setCondition(condition);
+            method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
+            parentElement.addImportedType("org.springframework.cache.annotation.CacheEvict");
         }
+    }
+
+    protected String cacheMethodIdentity(String methodName) {
+        return entityType.getFullyQualifiedName() + "#" + methodName;
     }
 
     protected void injectionMappingsInstance(TopLevelClass parentElement) {

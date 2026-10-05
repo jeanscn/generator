@@ -14,6 +14,7 @@ public class CleanupInvalidRecordsElement extends AbstractServiceElementGenerato
     public void addElements(TopLevelClass parentElement) {
         Method method = serviceMethods.getCleanupInvalidRecordsMethod(parentElement, false);
         method.addAnnotation("@Override");
+        addMutationCacheEviction(method, parentElement);
         method.addBodyLine("{0} example = new {0}();",exampleType.getShortName());
         method.addBodyLine("example.createCriteria().andWfStateEqualTo(4);");
         method.addBodyLine("return this.deleteByExample(example);");

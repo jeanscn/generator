@@ -4,7 +4,6 @@ import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
@@ -29,15 +28,12 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
 
         /* updateByPrimaryKeySelective */
         Method updateByPrimaryKeySelective = serviceMethods.getUpdateByPrimaryKey(parentElement, false, true, true);
         updateByPrimaryKeySelective.addAnnotation("@Override");
         Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByPrimaryKeySelective,"READ_COMMITTED");
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            updateByPrimaryKeySelective.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(updateByPrimaryKeySelective, parentElement);
         if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)
@@ -65,10 +61,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         Method updateByPrimaryKey = serviceMethods.getUpdateByPrimaryKey(parentElement, false, false, true);
         updateByPrimaryKey.addAnnotation("@Override");
         parentElement.addImportedType(ANNOTATION_TRANSACTIONAL);
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            cacheAnnotationDesc.setKey("#record.id");
-            updateByPrimaryKey.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(updateByPrimaryKey, parentElement);
         if (introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)) {
             List<RelationGeneratorConfiguration> configs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .filter(RelationGeneratorConfiguration::isEnableUpdate)

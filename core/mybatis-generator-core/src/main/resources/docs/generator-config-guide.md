@@ -393,6 +393,20 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `returnType="primaryKey"` | 返回主键值而不是模型。 |
 | `<enableCache/>` | 生成缓存支持。 |
 
+`<enableCache>` 可用 `enableCache="false"` 禁用当前查询缓存，也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。未指定名称时按当前查询方向生成默认名称。关系新增/解除会清理同一关系表上所有已启用查询的实际缓存区，不要求反向查询配置存在。
+
+同一 `selectByTable` 可配置多个 `<enableCache>`；生成器去重后使用单个 `@Cacheable` 或 `@Caching` 组合注解，避免重复声明不可重复的注解。
+
+查询缓存键使用独立的方法标识、当前租户及带类型的参数结构化序列化；数组、集合和 `Optional` 也按值结构序列化，避免不同方法或不同参数边界相互命中。生成的实体写操作清理实体缓存（默认 `#8h`）及配置可识别的关系查询缓存；SQL builder 明确指定其它表时不会按当前实体推断并清理缓存。
+
+缓存键通过核心门面 `com.vgosoft.core.util.VCurrentUserUtil.getCurrentTenantId()` 获取租户，由已有 `CurrentUserProvider` 提供上下文，不直接依赖 `vgosoft-security`。
+
+关系 ResultMap 的已配置 Mapper 子查询依赖也参与失效解析，支持沿已知 Mapper 依赖传递；未配置的手写 Mapper SQL 不做推断。继承写方法的包装器保持 `public` 签名并调用原 `super` 实现；抽象实现类声明缓存管理器，使保留的扩展子类也能获得生成层配置。
+
+实体写操作清理自身全部已启用的关系查询缓存，包括仅返回主键的查询：实体删除或重新插入会改变经关系表连接返回的主键集合，即使没有 `CachePo` 也生成对应写包装器。
+
+`insertBySql` 和 `updateBySql` 共用目标表失效条件：同时识别调用前空表名、实体表名及基础服务填充的 `表名 as 配置别名`，确保调用后的条件判断仍清理默认目标缓存；明确指定无关表或其它别名时不匹配。
+
 ### 13.3 `htmlElementDescriptor` 的字典/组织/用户联动
 
 来自组织模块的用户编辑页：

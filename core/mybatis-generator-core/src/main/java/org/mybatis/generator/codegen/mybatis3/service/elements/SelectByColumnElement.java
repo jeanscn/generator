@@ -50,9 +50,12 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
             if (introspectedTable.getRules().isGenerateCachePo()) {
                 //添加缓存注解
                 CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-                cacheAnnotationDesc.setOtherKey(configuration.getMethodName());
+                cacheAnnotationDesc.setOtherKey(cacheMethodIdentity(configuration.getMethodName()));
                 cacheAnnotationDesc.setParameters(methodByColumn.getParameters());
-                cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
+                String unless = JavaBeansUtil.isSelectBaseByPrimaryKeyMethod(configuration.getMethodName())
+                        ? "#result==null || #result instanceof T(java.lang.Exception)"
+                        : "#result==null || #result instanceof T(java.lang.Exception) || (#result instanceof T(java.util.Collection) && #result.isEmpty())";
+                cacheAnnotationDesc.setUnless(unless);
                 methodByColumn.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
             }
 

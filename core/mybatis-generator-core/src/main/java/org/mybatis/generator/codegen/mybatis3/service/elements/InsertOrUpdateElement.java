@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
@@ -33,10 +32,7 @@ public class InsertOrUpdateElement extends AbstractServiceElementGenerator {
         boolean containsPreUpdateEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name());
         boolean containsUpdatedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name());
         Method method = serviceMethods.getInsertOrUpdateMethod(parentElement, false,true);
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-            method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(method, parentElement);
         method.addAnnotation("@Override");
         if (containsPreUpdateEvent || containsUpdatedEvent) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"READ_COMMITTED");

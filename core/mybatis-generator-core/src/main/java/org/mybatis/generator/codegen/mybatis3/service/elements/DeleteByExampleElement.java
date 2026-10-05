@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
@@ -37,10 +36,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
             parentElement.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
 
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-            deleteByExampleMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(deleteByExampleMethod, parentElement);
         List<RelationGeneratorConfiguration> collect = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableDelete)
                 .collect(Collectors.toList());

@@ -7,7 +7,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
@@ -38,10 +37,7 @@ public class DeleteByPrimaryKeyElement extends AbstractServiceElementGenerator {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,method,"DEFAULT");
             parentElement.addImportedType(new FullyQualifiedJavaType(EntityEventEnum.class.getCanonicalName()));
         }
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-            method.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(method, parentElement);
         String pks = introspectedTable.getPrimaryKeyColumns().stream().map(IntrospectedColumn::getJavaProperty).collect(Collectors.joining(","));
         List<RelationGeneratorConfiguration> deleteConfigs = introspectedTable.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                 .filter(RelationGeneratorConfiguration::isEnableDelete)

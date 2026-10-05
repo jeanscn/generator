@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.RelationGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import java.util.List;
@@ -35,10 +34,7 @@ public class InsertSelectiveElement extends AbstractServiceElementGenerator {
 
         Method insertSelectiveMethod = serviceMethods.getInsertMethod(parentElement, false, true,true);
 
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-            insertSelectiveMethod.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(insertSelectiveMethod, parentElement);
 
         insertSelectiveMethod.addAnnotation("@Override");
         if (containsPreInsertEvent || containsInsertedEvent) {

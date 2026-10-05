@@ -6,7 +6,6 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 
 import java.util.stream.Collectors;
 
@@ -61,10 +60,7 @@ public class DeleteByColumnElement extends AbstractServiceElementGenerator {
             methodByColumn.addBodyLine(sb);
         }
 
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-            methodByColumn.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(methodByColumn, parentElement);
 
         parentElement.addMethod(methodByColumn);
     }

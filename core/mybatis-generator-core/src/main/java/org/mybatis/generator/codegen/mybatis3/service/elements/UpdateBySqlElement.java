@@ -3,7 +3,7 @@ package org.mybatis.generator.codegen.mybatis3.service.elements;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
-import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
+import org.mybatis.generator.codegen.mybatis3.service.CacheConfigurationResolver;
 
 /**
  * selectByExampleWithRelation实现方法
@@ -20,13 +20,10 @@ public class UpdateBySqlElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
-        CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
-
         Method updateBySql = serviceMethods.getUpdateBySql(parentElement, false);
         updateBySql.addAnnotation("@Override");
-        if (introspectedTable.getRules().isGenerateCachePo()) {
-            updateBySql.addAnnotation(cacheAnnotationDesc.toCacheEvictAnnotation(true));
-        }
+        addMutationCacheEviction(updateBySql, parentElement,
+                CacheConfigurationResolver.sqlMutationCondition(tc));
         updateBySql.addBodyLine("return super.{0}(updateSqlBuilder);", introspectedTable.getUpdateBySqlStatementId());
         parentElement.addMethod(updateBySql);
     }

@@ -48,6 +48,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         final List<Parameter> parameters = serviceMethods.getSelectByKeysDictMethodParameters();
         //添加缓存注解
         CacheAnnotationDesc cacheAnnotationDesc = new CacheAnnotationDesc(entityType.getShortName());
+        cacheAnnotationDesc.setOtherKey(cacheMethodIdentity(selectByKeysDictMethod.getName()));
         cacheAnnotationDesc.setParameters(parameters);
         cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
         selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());

@@ -167,6 +167,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         addInnerMethodInsertUpdateElement(bizGenClazzImpl);
 
         addCleanupInvalidRecordsMethod(bizGenClazzImpl);
+        boolean cacheOperations = addCacheAwareBaseMethodsAndConfig(bizGenClazzImpl);
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizGenClazzImpl,
@@ -198,8 +199,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         bizClazzImpl.setVisibility(JavaVisibility.PUBLIC);
         bizClazzImpl.setSuperClass(bizGenClazzImpl.getType());
         bizClazzImpl.addSuperInterface(superInf.getType());
-        boolean match = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration().stream().anyMatch(c -> !c.getCacheConfigurationList().isEmpty());
-        if (introspectedTable.getRules().isGenerateCachePo() || match) {
+        if (cacheOperations) {
             addCacheConfig(bizClazzImpl);
         }
         StringBuilder sb = new StringBuilder();
@@ -367,7 +367,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
      */
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && (introspectedTable.getRules().isGenerateCachePo()
+                && (hasMutationCacheTargets()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -378,7 +378,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addInsertSelectiveElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
-                && (introspectedTable.getRules().isGenerateCachePo()
+                && (hasMutationCacheTargets()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -389,7 +389,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addDeleteByExampleElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByExample()
-                && (introspectedTable.getRules().isGenerateCachePo()
+                && (hasMutationCacheTargets()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name()))) {
             AbstractServiceElementGenerator elementGenerator = new DeleteByExampleElement();
@@ -399,7 +399,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addDeleteByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateDeleteByPrimaryKey()
-                && (introspectedTable.getRules().isGenerateCachePo()
+                && (hasMutationCacheTargets()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableDelete)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name()))) {
@@ -410,7 +410,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addUpdateByExampleElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByExampleSelective()
-                && (introspectedTable.getRules().isGenerateCachePo()
+                && (hasMutationCacheTargets()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate))) {
             AbstractServiceElementGenerator elementGenerator = new UpdateByExampleElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
@@ -419,7 +419,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
     private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
-                && (introspectedTable.getRules().isGenerateCachePo()
+                && (hasMutationCacheTargets()
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {
@@ -434,10 +434,29 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     }
 
     private void addUpdateBySqlElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateCachePo()) {
+        if (hasMutationCacheTargets()) {
             AbstractServiceElementGenerator elementGenerator = new UpdateBySqlElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
+    }
+
+    private boolean hasMutationCacheTargets() {
+        return introspectedTable.getRules().isGenerateCachePo()
+                || !CacheConfigurationResolver.mutationCacheNames(context, tc, entityType.getShortName(), false).isEmpty();
+    }
+
+    boolean addCacheAwareBaseMethodsAndConfig(TopLevelClass parentElement) {
+        boolean mutationCaches = hasMutationCacheTargets();
+        if (mutationCaches) {
+            initializeAndExecuteGenerator(new CacheAwareBaseMethodsElement(), parentElement);
+        }
+        boolean cacheOperations = introspectedTable.getRules().isGenerateCachePo()
+                || CacheConfigurationResolver.hasEnabledQueryCache(tc)
+                || mutationCaches;
+        if (cacheOperations) {
+            addCacheConfig(parentElement);
+        }
+        return cacheOperations;
     }
 
     protected void initializeAndExecuteGenerator(AbstractServiceElementGenerator elementGenerator, TopLevelClass parentElement) {
