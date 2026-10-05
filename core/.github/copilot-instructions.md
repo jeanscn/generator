@@ -82,6 +82,12 @@
   - 配置解析（`additionalDbTypes` -> `DatabaseType.getType(...)`）
   - SQL 生成分支（`databaseId = databaseType.getCode()`）
 
+### 7.1 配置 DTD 的版本维护规则
+
+1. 每次升级生成器版本时，复制一份新的配置 DTD 文件供 `generator.xml` 使用；文件名与生成器版本对应，例如 `1.8.0` 对应 `mybatis-generator-config_1_8_0.dtd`。
+2. 修改生成器代码涉及 DTD 调整时，只修改当前生成器版本对应的 DTD，不同步修改历史版本的 DTD；历史文件保留各自版本的配置契约。
+3. 修改 DTD 的元素、属性、默认值或约束时，必须同步更新该 DTD 中对应的注释说明，确保声明与说明一致。
+
 ## 8. 任务执行要求（给 Copilot 的硬约束）
 
 - 涉及 SQL 生成改动时，按以下顺序输出与实现：
