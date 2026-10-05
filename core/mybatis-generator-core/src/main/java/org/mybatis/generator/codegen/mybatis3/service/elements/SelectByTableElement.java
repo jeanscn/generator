@@ -36,7 +36,7 @@ public class SelectByTableElement extends AbstractServiceElementGenerator {
                 cacheAnnotationDesc.setCacheNames(cacheNames);
                 cacheAnnotationDesc.setOtherKey(cacheMethodIdentity(configuration.getMethodName()));
                 cacheAnnotationDesc.setParameters(selectByTable.getParameters());
-                cacheAnnotations.add(cacheAnnotationDesc.toCacheableAnnotation());
+                cacheAnnotations.add(cacheAnnotationDesc.toCacheableAnnotation(parentElement));
             }
             addCacheEnableAnnotations(cacheAnnotations, selectByTable, parentElement);
             String sb = "return mapper." + configuration.getMethodName() +

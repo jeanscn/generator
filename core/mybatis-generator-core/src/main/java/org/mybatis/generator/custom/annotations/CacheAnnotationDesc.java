@@ -2,7 +2,12 @@ package org.mybatis.generator.custom.annotations;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +27,8 @@ import static com.vgosoft.tool.core.VStringUtil.stringHasValue;
 @Getter
 public class CacheAnnotationDesc {
 
-    private static final String JSON_UTIL = "T(com.vgosoft.tool.core.JsonUtil)";
+    private static final String KEY_JSON_METHOD = "vgosoftCacheKeyJson";
+    private static final String KEY_JSON_MAPPER = "VGOSOFT_CACHE_KEY_MAPPER";
     private static final Pattern CACHE_TTL = Pattern.compile("[^#]+#[1-9][0-9]*[smhd]");
 
     private List<String> cacheNames = new ArrayList<>();
@@ -59,6 +65,40 @@ public class CacheAnnotationDesc {
         sb.append(",").append(formatKey());
         sb.append(")");
         return sb.toString();
+    }
+
+    public String toCacheableAnnotation(TopLevelClass parentElement) {
+        addKeySerializationSupport(parentElement);
+        return toCacheableAnnotation();
+    }
+
+    private static void addKeySerializationSupport(TopLevelClass parentElement) {
+        if (parentElement.getFields().stream().anyMatch(field -> KEY_JSON_MAPPER.equals(field.getName()))) {
+            return;
+        }
+        // Emit the serializer into the application: generator classes are not runtime dependencies.
+        FullyQualifiedJavaType mapperType = new FullyQualifiedJavaType("tools.jackson.databind.json.JsonMapper");
+        Field mapper = new Field(KEY_JSON_MAPPER, mapperType);
+        mapper.setVisibility(JavaVisibility.PRIVATE);
+        mapper.setStatic(true);
+        mapper.setFinal(true);
+        mapper.setInitializationString("JsonMapper.builder()"
+                + ".disable(SerializationFeature.INDENT_OUTPUT)"
+                + ".enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)"
+                + ".disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)"
+                + ".enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build()");
+        parentElement.addField(mapper);
+        parentElement.addImportedType(mapperType);
+        parentElement.addImportedType("tools.jackson.databind.SerializationFeature");
+        parentElement.addImportedType("tools.jackson.databind.MapperFeature");
+
+        Method serialize = new Method(KEY_JSON_METHOD);
+        serialize.setVisibility(JavaVisibility.PUBLIC);
+        serialize.setFinal(true);
+        serialize.setReturnType(FullyQualifiedJavaType.getStringInstance());
+        serialize.addParameter(new Parameter(FullyQualifiedJavaType.getObjectInstance(), "value"));
+        serialize.addBodyLine("return " + KEY_JSON_MAPPER + ".writeValueAsString(value);");
+        parentElement.addMethod(serialize);
     }
 
     private String formatCacheNames() {
@@ -115,6 +155,13 @@ public class CacheAnnotationDesc {
         return sb.toString();
     }
 
+    public String toCacheEvictAnnotation(boolean allEntries, TopLevelClass parentElement) {
+        if (!allEntries) {
+            addKeySerializationSupport(parentElement);
+        }
+        return toCacheEvictAnnotation(allEntries);
+    }
+
     private String formatKey() {
         if (parameters.isEmpty() && !stringHasValue(key) && !stringHasValue(serviceKey)
                 && !stringHasValue(otherKey) && (cacheNames == null || cacheNames.isEmpty())) {
@@ -122,31 +169,30 @@ public class CacheAnnotationDesc {
         }
 
         List<String> components = new ArrayList<>();
-        components.add("'vgosoft-cache-key-v2'");
+        components.add("'vgosoft-cache-key-v3'");
         String namespace = stringHasValue(serviceKey) ? serviceKey : "";
         components.add(spelStringLiteral(namespace));
         components.add(spelStringLiteral(stringHasValue(otherKey) ? otherKey : ""));
         components.add("T(com.vgosoft.core.util.VCurrentUserUtil).getCurrentTenantId()");
 
         if (stringHasValue(key)) {
-            components.add("'custom'");
-            components.add(JSON_UTIL + ".toJsonString((" + key + "))");
+            components.add("{'custom',(" + key + ")}");
         } else {
             for (int i = 0; i < parameters.size(); i++) {
                 Parameter parameter = parameters.get(i);
-                components.add(spelStringLiteral(parameter.getType().getFullyQualifiedName()));
+                String type = spelStringLiteral(parameter.getType().getFullyQualifiedName());
                 String value = "#p" + i;
                 if ("Optional".equals(parameter.getType().getShortNameWithoutTypeArguments())) {
-                    components.add("(" + value + " == null ? 'null' : (" + value
-                            + ".isPresent() ? 'present:' + " + JSON_UTIL + ".toJsonString(" + value
-                            + ".get()) : 'empty'))");
+                    components.add("{" + type + ",(" + value + " == null ? 'null' : ("
+                            + value + ".isPresent() ? 'present' : 'empty')),("
+                            + value + " != null && " + value + ".isPresent() ? " + value + ".get() : null)}");
                 } else {
-                    components.add(JSON_UTIL + ".toJsonString(" + value + ")");
+                    components.add("{" + type + "," + value + "}");
                 }
             }
         }
-        String expression = JSON_UTIL + ".toJsonString(T(java.util.Arrays).asList("
-                + String.join(",", components) + "))";
+        String expression = "#root.target." + KEY_JSON_METHOD + "({"
+                + String.join(",", components) + "})";
         return "key = " + javaStringLiteral(expression);
     }
 

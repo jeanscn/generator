@@ -64,8 +64,10 @@ class CacheAwareBaseMethodsElementTest {
         element.initialize();
         TopLevelClass generated = new TopLevelClass("sample.codegen.AbstractUserImpl");
         element.addElements(generated);
-        assertThat(generated.getMethods().get(0).getAnnotations().toString()).doesNotContain("#result.isEmpty()");
-        assertThat(generated.getMethods().get(1).getAnnotations().toString())
+        assertThat(generated.getMethods().stream().filter(method -> "selectBaseByPrimaryKey".equals(method.getName()))
+                .findFirst().orElseThrow().getAnnotations().toString()).doesNotContain("#result.isEmpty()");
+        assertThat(generated.getMethods().stream().filter(method -> "selectByName".equals(method.getName()))
+                .findFirst().orElseThrow().getAnnotations().toString())
                 .contains("#result instanceof T(java.util.Collection) && #result.isEmpty()");
     }
 

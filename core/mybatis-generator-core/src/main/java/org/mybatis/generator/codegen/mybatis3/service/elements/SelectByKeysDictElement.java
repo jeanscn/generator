@@ -51,7 +51,7 @@ public class SelectByKeysDictElement extends AbstractServiceElementGenerator {
         cacheAnnotationDesc.setOtherKey(cacheMethodIdentity(selectByKeysDictMethod.getName()));
         cacheAnnotationDesc.setParameters(parameters);
         cacheAnnotationDesc.setUnless("#result==null || #result instanceof T(java.lang.Exception) || #result.isEmpty()");
-        selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
+        selectByKeysDictMethod.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation(parentElement));
         //方法体
         selectByKeysDictMethod.addBodyLine("SelDictByKeysParam selDictByKeysParam = new SelDictByKeysParam();");
         String keyColumn = voCacheGeneratorConfiguration.getKeyColumn();

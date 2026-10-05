@@ -56,7 +56,7 @@ public class SelectByColumnElement extends AbstractServiceElementGenerator {
                         ? "#result==null || #result instanceof T(java.lang.Exception)"
                         : "#result==null || #result instanceof T(java.lang.Exception) || (#result instanceof T(java.util.Collection) && #result.isEmpty())";
                 cacheAnnotationDesc.setUnless(unless);
-                methodByColumn.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation());
+                methodByColumn.addAnnotation(cacheAnnotationDesc.toCacheableAnnotation(parentElement));
             }
 
             parentElement.addMethod(methodByColumn);

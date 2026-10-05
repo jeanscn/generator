@@ -399,6 +399,12 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 
 查询缓存键使用独立的方法标识、当前租户及带类型的参数结构化序列化；数组、集合和 `Optional` 也按值结构序列化，避免不同方法或不同参数边界相互命中。生成的实体写操作清理实体缓存（默认 `#8h`）及配置可识别的关系查询缓存；SQL builder 明确指定其它表时不会按当前实体推断并清理缓存。
 
+当前缓存键采用 v3 嵌套类型元组，例如 `["vgosoft-cache-key-v3","SysDictData","com.vgosoft.system.entity.SysDictData#selectByKeysDict","10000",["java.util.Optional<java.lang.String>","present","idCardType"],["java.lang.String","1"]]`。普通参数使用 `[声明类型,原始值]`，`Optional` 使用 `[声明类型,"null"|"empty"|"present",原始值或null]`，自定义 SpEL key 使用 `["custom",表达式原始结果]`；字符串不预先编码为 JSON 字符串。
+
+生成的缓存查询类包含一个静态复用的独立 Jackson 3 `JsonMapper` 及序列化方法，SpEL 通过 `#root.target` 调用；整个元组仅序列化一次，输出紧凑 JSON，并固定 Map 键及对象属性排序。不读取应用共享 ObjectMapper、缩进配置或默认类型信息配置，不依赖生成器运行时类，也不逐参数或逐查询新建 mapper。应用特有的共享 mapper 模块/序列化器不会用于缓存键；参数必须能由独立 Jackson 3 mapper 序列化。
+
+迁移时须重新生成对应缓存查询类（保留人工扩展的覆盖保护规则），v3 不读取 v2/更早格式的键；建议发布时清理受影响缓存区，或等待原 TTL 自然淘汰。混合版本部署期间不同版本分别建键；已有写操作的全缓存区失效语义及 TTL 保持不变。
+
 缓存键通过核心门面 `com.vgosoft.core.util.VCurrentUserUtil.getCurrentTenantId()` 获取租户，由已有 `CurrentUserProvider` 提供上下文，不直接依赖 `vgosoft-security`。
 
 关系 ResultMap 的已配置 Mapper 子查询依赖也参与失效解析，支持沿已知 Mapper 依赖传递；未配置的手写 Mapper SQL 不做推断。继承写方法的包装器保持 `public` 签名并调用原 `super` 实现；抽象实现类声明缓存管理器，使保留的扩展子类也能获得生成层配置。
