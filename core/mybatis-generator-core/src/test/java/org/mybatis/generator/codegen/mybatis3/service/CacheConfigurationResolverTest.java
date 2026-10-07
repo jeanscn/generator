@@ -87,6 +87,27 @@ class CacheConfigurationResolverTest {
     }
 
     @Test
+    void shouldUseManagedRelationIdAsTheDefaultCacheNameWhenCachingIsEnabled() {
+        SelectByTableGeneratorConfiguration query = query("roleIds", "userId", "user_role");
+        query.setRelationIdKey("shared_user_role");
+        query.getCacheConfigurationList().add(cache(List.of(), true));
+
+        assertThat(CacheConfigurationResolver.queryCacheNameGroups(query))
+                .containsExactly(List.of("shared_user_role"));
+        assertThat(CacheConfigurationResolver.queryCacheNames(query))
+                .containsExactly("shared_user_role");
+    }
+
+    @Test
+    void shouldLeaveQueryCachingDisabledWithoutEnableCacheConfiguration() {
+        SelectByTableGeneratorConfiguration query = query("roleIds", "userId", "user_role");
+        query.setRelationIdKey("shared_user_role");
+
+        assertThat(CacheConfigurationResolver.queryCacheNameGroups(query)).isEmpty();
+        assertThat(CacheConfigurationResolver.queryCacheNames(query)).isEmpty();
+    }
+
+    @Test
     void shouldIncludeOwnPrimaryKeyOnlyQueriesWithoutCachePo() {
         Context context = new Context(ModelType.CONDITIONAL);
         TableConfiguration role = table(context, "org_role");

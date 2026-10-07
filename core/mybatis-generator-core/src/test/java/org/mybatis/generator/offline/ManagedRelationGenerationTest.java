@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -80,12 +81,20 @@ class ManagedRelationGenerationTest {
     }
 
     @Test
-    void rejectsMissingSharedCacheUnsupportedPrimaryKeyAndInvalidColumnMappings() {
+    void permitsManagedRelationsWithoutQueryCachingAndRejectsInvalidPrimaryKeyOrMappings() {
         SelectByTableGeneratorConfiguration relation = relation(false);
         IntrospectedTableMyBatis3Impl fixture = fixture(relation);
         relation.getCacheConfigurationList().clear();
-        assertThatThrownBy(() -> ManagedRelationGeneration.validate(fixture, relation))
-                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("explicit enabled cacheNames");
+        assertThatCode(() -> ManagedRelationGeneration.validate(fixture, relation)).doesNotThrowAnyException();
+        assertThat(ManagedRelationGeneration.queryCacheNames(relation)).isEmpty();
+
+        EnableCacheConfiguration enabledWithoutName = new EnableCacheConfiguration();
+        relation.getCacheConfigurationList().add(enabledWithoutName);
+        assertThat(ManagedRelationGeneration.queryCacheNames(relation))
+                .containsExactly("org_role_menu#72h");
+        assertThatCode(() -> ManagedRelationGeneration.validate(fixture, relation)).doesNotThrowAnyException();
+
+        relation.getCacheConfigurationList().clear();
         SelectByTableGeneratorConfiguration validRelation = relation(false);
         fixture.getPrimaryKeyColumns().clear();
         assertThatThrownBy(() -> ManagedRelationGeneration.validate(fixture, validRelation))
@@ -124,6 +133,21 @@ class ManagedRelationGenerationTest {
         assertThat(parsed.isManagedRelation()).isTrue();
         assertThat(parsed.getRelationIdKey()).isEqualTo("org_role_menu");
         assertThat(parsed.getCacheConfigurationList().get(0).getCacheNames()).containsExactly("orgRoleMenuRelations#72h");
+
+        relationParser.invoke(parser, configuration, element("""
+                <selectByTable table="org_role_menu" thisColumn="role_id" otherColumn="menu_id"
+                  methodSuffix="ForMenu" relationIdKey="org_role_menu"/>
+                """));
+        parsed = configuration.getSelectByTableGeneratorConfiguration().get(2);
+        assertThat(parsed.getCacheConfigurationList()).isEmpty();
+        assertThat(ManagedRelationGeneration.queryCacheNames(parsed)).isEmpty();
+
+        relationParser.invoke(parser, configuration, element("""
+                <selectByTable table="org_role_menu" thisColumn="role_id" otherColumn="menu_id"
+                  methodSuffix="ForMenu" relationIdKey="org_role_menu"><enableCache/></selectByTable>
+                """));
+        parsed = configuration.getSelectByTableGeneratorConfiguration().get(3);
+        assertThat(ManagedRelationGeneration.queryCacheNames(parsed)).containsExactly("org_role_menu#72h");
     }
 
     private static org.w3c.dom.Element element(String xml) throws Exception {
@@ -155,6 +179,17 @@ class ManagedRelationGenerationTest {
                 .getTableConfigurations().get(0).getSelectByTableGeneratorConfiguration().get(0);
         assertThat(parsed.getRelationIdKey()).isEqualTo("org_role_menu");
         assertThat(parsed.isManagedRelation()).isTrue();
+        String withoutCache = configuration.replace(
+                "<enableCache cacheNames=\"orgRoleMenuRelations#72h\"/>", "");
+        var uncached = parser.parseConfiguration(new StringReader(withoutCache)).getContexts().get(0)
+                .getTableConfigurations().get(0).getSelectByTableGeneratorConfiguration().get(0);
+        assertThat(uncached.getCacheConfigurationList()).isEmpty();
+        String implicitCache = configuration.replace(
+                "cacheNames=\"orgRoleMenuRelations#72h\"", "");
+        var cacheWithDefaultName = parser.parseConfiguration(new StringReader(implicitCache)).getContexts().get(0)
+                .getTableConfigurations().get(0).getSelectByTableGeneratorConfiguration().get(0);
+        assertThat(ManagedRelationGeneration.queryCacheNames(cacheWithDefaultName))
+                .containsExactly("org_role_menu#72h");
         assertThatThrownBy(() -> parser.parseConfiguration(new StringReader(
                 configuration.replace("relationIdKey=", "relationId="))))
                 .isInstanceOf(XMLParserException.class);
@@ -289,6 +324,33 @@ class ManagedRelationGenerationTest {
         fixture.getTableConfiguration().setRelationKeyColumns(List.of("role_id", "role_id"));
         assertThatThrownBy(() -> new SqlSchemaScriptGenerator(fixture, DatabaseType.MYSQL).getSqlScript())
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void selectByTableCachingIsOptInAndDefaultsToTheManagedRelationKey() throws Exception {
+        SelectByTableGeneratorConfiguration relation = relation(false);
+        relation.getCacheConfigurationList().clear();
+        TopLevelClass uncachedService = service(fixture(relation));
+        Method uncachedSelect = uncachedService.getMethods().stream()
+                .filter(method -> method.getName().equals(relation.getMethodName())).findFirst().orElseThrow();
+        assertThat(uncachedSelect.getAnnotations()).noneMatch(annotation -> annotation.startsWith("@Cacheable"));
+        Method uncachedUnion = uncachedService.getMethods().stream()
+                .filter(method -> method.getName().equals(relation.getUnionMethodName())).findFirst().orElseThrow();
+        assertThat(uncachedUnion.getAnnotations())
+                .anyMatch(annotation -> annotation.contains("@RelationMutation")
+                        && annotation.contains("cacheNames = {}"));
+
+        relation.getCacheConfigurationList().add(new EnableCacheConfiguration());
+        TopLevelClass cachedService = service(fixture(relation));
+        Method cachedSelect = cachedService.getMethods().stream()
+                .filter(method -> method.getName().equals(relation.getMethodName())).findFirst().orElseThrow();
+        assertThat(cachedSelect.getAnnotations()).anySatisfy(annotation ->
+                assertThat(annotation).startsWith("@Cacheable").contains("org_role_menu#72h"));
+        SelectByTableGeneratorConfiguration reverse = relation(true);
+        reverse.getCacheConfigurationList().clear();
+        reverse.getCacheConfigurationList().add(new EnableCacheConfiguration());
+        assertThat(ManagedRelationGeneration.queryCacheNames(reverse))
+                .containsExactlyElementsOf(ManagedRelationGeneration.queryCacheNames(relation));
     }
 
     @Test

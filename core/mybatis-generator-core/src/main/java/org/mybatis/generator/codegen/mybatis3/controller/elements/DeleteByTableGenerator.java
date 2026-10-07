@@ -64,8 +64,11 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     method.addBodyLine("int rows =  {0}.{1}({2});",serviceBeanName
                             ,c.getSplitMethodName()
                             ,Stream.of(p1,p2).map(Parameter::getName).collect(Collectors.joining(",")));
-                    method.addBodyLine("if (rows > 0) return success((long) rows,rows);");
-                    method.addBodyLine("else return success(null,0);");
+                    method.addBodyLine("if (rows > 0) {");
+                    method.addBodyLine("return success((long) rows,rows);");
+                    method.addBodyLine("} else {");
+                    method.addBodyLine("return success(null,0);");
+                    method.addBodyLine("}");
                     parentElement.addMethod(method);
                     parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
                     parentElement.addImportedType(new FullyQualifiedJavaType(RESPONSE_RESULT));

@@ -153,6 +153,9 @@ public final class CacheConfigurationResolver {
     }
 
     static String defaultQueryCacheName(SelectByTableGeneratorConfiguration configuration) {
+        if (configuration.getRelationIdKey() != null && !configuration.getRelationIdKey().isBlank()) {
+            return configuration.getRelationIdKey();
+        }
         if (configuration.getParameterName() == null || configuration.getThisColumn() == null
                 || configuration.getThisColumn().getJavaProperty() == null) {
             throw new IllegalStateException("A selectByTable cache needs parameterName and thisColumn");

@@ -458,7 +458,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `returnType="primaryKey"` | 查询时返回当前实体主键字符串列表，而不是实体列表。 |
 | `<enableCache/>` | 生成缓存支持。 |
 
-`<enableCache>` 可用 `enable="false"` 禁用当前查询缓存（兼容别名 `enableCache="false"`，同时指定时别名优先），也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。未指定名称时按当前查询方向生成默认名称。关系新增/解除所生成的缓存清理仅能覆盖当前生成器 Context 中可发现的查询配置；分属不同模块/Context 时，不会自动发现并清理另一侧的查询缓存。跨模块双侧查询可能因此短暂不一致，需要由业务层明确处理对侧缓存失效。角色—菜单样例的实际缓存名和调用方向见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)；当前 HTTP 请求的 query 参数、JSON body 及返回值契约见[前后端接口契约第 6.5 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\frontend-business-capabilities-spec.md)。
+`<enableCache>` 可用 `enable="false"` 禁用当前查询缓存（兼容别名 `enableCache="false"`，同时指定时别名优先），也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。完全省略 `<enableCache>` 时不生成查询缓存，也不为该查询增加缓存失效目标。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。启用缓存但未指定 `cacheNames` 时，配置了 `relationIdKey` 的受管关系使用 `<relationIdKey>#72h` 作为默认缓存名，双侧配置相同 `relationIdKey` 即共享缓存区；未配置 `relationIdKey` 的旧模式仍按当前查询方向生成默认名称。受管关系省略缓存配置后，关系写入仍保留事务与幂等处理，但不执行缓存失效。关系新增/解除所生成的缓存清理仅能覆盖当前生成器 Context 中可发现的查询配置；分属不同模块/Context 时，不会自动发现并清理另一侧的查询缓存。跨模块启用双侧查询缓存时，两端必须配置相同 `relationIdKey`；若指定 `cacheNames`，两端还必须确保缓存名称一致，否则可能短暂不一致。角色—菜单样例的实际缓存名和调用方向见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)；当前 HTTP 请求的 query 参数、JSON body 及返回值契约见[前后端接口契约第 6.5 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\frontend-business-capabilities-spec.md)。
 
 同一 `selectByTable` 可配置多个 `<enableCache>`；生成器去重后使用单个 `@Cacheable` 或 `@Caching` 组合注解，避免重复声明不可重复的注解。
 
@@ -496,7 +496,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | 配置/产物 | 受管模式契约 |
 |---|---|
 | `relationIdKey` | 两端相同的稳定逻辑关系标识，不是关系行随机主键；不包含租户，不跨 Context 自动发现。实体要求单 String 主键，两关系列也是不同的 String 列。 |
-| `cacheNames` | 两端显式声明同一共享缓存；使用同进程、同缓存管理器。关系读与提交后失效仅使用该共享区域，不生成旧区域兼容失效。 |
+| `cacheNames` | 启用缓存时，两端显式声明同一共享缓存；若省略名称，则按相同 `relationIdKey` 推导 `<relationIdKey>#72h`。关系读与提交后失效仅使用该共享区域，不生成旧区域兼容失效。省略 `<enableCache>` 时不缓存且不执行缓存失效。 |
 | Service union | 保留原公开签名及返回计数，调用 `RelationWriteSupport.union`；随机 UUID 由基础包生成，逐行普通 INSERT 由运行时 NESTED 保存点保护。仅唯一键冲突且回滚后确认同一关系已存在时算作幂等重复；其它失败抛出并回滚。 |
 | Mapper / XML | 新增 `int insertByTable<Suffix>Row(thisId,otherId,relationId)` 和 `String selectRelationIdByTable<Suffix>(thisId,otherId)`；插入参数 `relationId` 是随机关系行主键，与配置 `relationIdKey` 不同。后者当前/锁定读取关系 `id_`，不存在返回 null，Service predicate 为 `!= null`。受管关系不保留旧危险批量 Mapper 插入入口。普通 INSERT 使用通用 `INSERT ... VALUES`，无 MD5、函数依赖或忽略错误语法。 |
 | Service split | 保留增量删除；调用 `RelationWriteSupport.normalize` 校验当前 ID 和非空/非空白列表并去重；空数组绝非清空指令。 |

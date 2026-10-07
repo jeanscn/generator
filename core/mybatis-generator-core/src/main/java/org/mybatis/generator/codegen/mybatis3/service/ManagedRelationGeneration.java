@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 
+/**
+ * @author cen_c
+ */
 public final class ManagedRelationGeneration {
     private ManagedRelationGeneration() {
     }
@@ -30,17 +33,13 @@ public final class ManagedRelationGeneration {
                 || relation.getPrimaryKeyColumn().equals(relation.getOtherPrimaryKeyColumn())) {
             throw new IllegalArgumentException("Managed relation requires a single String primary key and distinct String key columns: " + relation.getRelationIdKey());
         }
-        if (queryCacheNames(relation).isEmpty()) {
-            throw new IllegalArgumentException("Managed relation requires explicit enabled cacheNames: " + relation.getRelationIdKey());
-        }
         if (!relation.getRelationIdKey().matches("[A-Za-z0-9_.:-]+")) {
             throw new IllegalArgumentException("Managed relationIdKey must be a stable identifier: " + relation.getRelationIdKey());
         }
     }
 
     public static List<String> queryCacheNames(SelectByTableGeneratorConfiguration relation) {
-        return relation.getCacheConfigurationList().stream().filter(c -> c.isEnableCache())
-                .flatMap(c -> c.getCacheNames().stream())
+        return CacheConfigurationResolver.queryCacheNames(relation).stream()
                 .map(CacheAnnotationDesc::normalizeRelationCacheName).distinct().toList();
     }
 
@@ -90,6 +89,9 @@ public final class ManagedRelationGeneration {
             }
             SelectByTableGeneratorConfiguration relation = managed.get(0);
             validate(table, relation);
+            if (queryCacheNames(relation).isEmpty()) {
+                continue;
+            }
             for (int i = 0; i < method.getAnnotations().size(); i++) {
                 String annotation = method.getAnnotations().get(i);
                 if (!annotation.startsWith("@CacheEvict")) {
