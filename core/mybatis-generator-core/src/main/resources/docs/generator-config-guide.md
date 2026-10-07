@@ -626,3 +626,44 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 1. 先按 DTD 确认“节点是否允许、属性名是否存在、属性值枚举是否合法”。
 2. 再按本指南确认“实际生成行为、默认值、联动影响、已知歧义修正”。
 3. DTD 注释与生成结果冲突时，以源码实现为准，并在配置中采用已校准字段名（例如 `excludedTables`、`orderByClause`、`enableSelectByPrimaryKeys`）。
+
+## 18. 生成物命名规则
+
+本节列出生成代码、页面及辅助文件中的主要默认命名。表中的“可配置”包含直接配置名称、配置派生名称，以及由目标包/输出路径配置影响的情况；“条件生成”表示仅在相应生成器启用或满足列、关联等条件时出现。自定义插件、模板或配置中直接填写的名称无法在此穷举。
+
+| 类型 | 默认命名 | 是否可配置 | 命名依据说明 | 主要源码 |
+|---|---|---|---|---|
+| 实体类名 | 表名转 PascalCase，如 `sys_user` → `SysUser` | 是 | 优先使用 `domainObjectName`；未配置时从运行时表名或数据库表名转换。未配置实体名时可应用 `domainObjectRenamingRule`。 | `api\FullyQualifiedTable.java` |
+| 主键模型类 | `<Entity>Key` | 间接可配置 | 实体名后追加 `Key`；是否生成取决于模型规则及主键列。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\model\PrimaryKeyGenerator.java` |
+| 普通模型类 | `<Entity>` | 间接可配置 | 使用实体名作为基础记录类名；目标包受 Java model 配置及子包规则影响。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\model\BaseRecordGenerator.java` |
+| BLOB 模型类 | `<Entity>WithBLOBs` | 间接可配置 | 实体名后追加 `WithBLOBs`；有 BLOB 列且相应生成规则开启时生成。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\model\RecordWithBLOBsGenerator.java` |
+| Example 类 | `<Entity>Example` | 间接可配置 | 实体名后追加 `Example`；Example 目标包可单独配置。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\model\ExampleGenerator.java` |
+| Java 字段及访问器 | 字段使用 `javaProperty`；访问器为 `get<Property>` / `set<Property>` | 是 | 属性名由列名转换及 `columnOverride.property` 等配置决定；布尔属性 getter 可能使用 `is<Property>`。 | `internal\db\DatabaseIntrospector.java`、`internal\util\JavaBeansUtil.java` |
+| Mapper 接口 | `<Entity>Mapper` | 是 | 默认由实体名加 `Mapper`；`mapperName` 可覆盖，包名受 Java client target package 和子包规则影响。 | `api\AbstractIntrospectedTable.java` |
+| SQL Provider 类 | `<Entity>SqlProvider` | 是 | 默认由实体名加 `SqlProvider`；可由 `sqlProviderName` 覆盖。 | `api\AbstractIntrospectedTable.java` |
+| Dynamic SQL 支持类 / 表对象 | `<Entity>DynamicSqlSupport` / `<Entity>` | 是 | 默认分别由实体名加 `DynamicSqlSupport`、实体名构成；类名和表对象名均有配置覆盖入口。 | `api\AbstractIntrospectedTable.java` |
+| Mapper XML 文件及命名空间 | `<Entity>Mapper.xml`；namespace 默认优先使用 Mapper 全限定名 | 是 | 默认 Mapper 文件名由 Mapper 名称确定；`mapperName` 可覆盖文件名及 Mapper 类型。包和 namespace 还受 target package、表子包及实体子包影响。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\IntrospectedTableMyBatis3Impl.java` |
+| 标准 Mapper statement / resultMap ID | 如 `selectByPrimaryKey`、`insertSelective`、`BaseResultMap`、`Base_Column_List` | 名称固定；生成项有条件 | ID 由生成器设定；具体语句是否生成仍受模型类型、列类型和生成规则影响。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\xmlmapper\elements\*` |
+| 扩展 Mapper statement ID | 如 `insertBatch`、`updateBatchByPrimaryKey`、`selectByKeysDict`、`selectByExampleWithChildrenCount` | 部分可配置 | 部分 ID 固定，部分由自定义 generator 配置提供；批量、关系、子表等功能决定是否生成。 | `api\AbstractIntrospectedTable.java`、`codegen\mybatis3\xmlmapper\elements\*` |
+| Service 接口 | `IGen<Entity>`、`I<Entity>` | 间接可配置 | 分别生成在 gen 包和普通包；类名由实体名拼出，目标包可配置。 | `codegen\mybatis3\service\AbstractServiceGenerator.java`、`JavaServiceGenerator.java` |
+| Service 实现类 | `Abstract<Entity>Impl`、`<Entity>Impl` | 间接可配置 | 抽象实现类由实体名拼成；具体实现类由 Service Bean 名首字母大写得到。生成包可配置。 | `codegen\mybatis3\service\JavaServiceImplGenerator.java` |
+| Controller / Service Bean 名 | 表名转 lowerCamelCase + `Impl`，如 `sys_user` → `sysUserImpl` | 间接可配置 | 配置 `domainObjectName` 时取其首字母小写后加 `Impl`；否则表名转 lowerCamelCase 后加 `Impl`。 | `config\ConfigUtil.java`、`api\AbstractIntrospectedTable.java` |
+| Controller 类 | `Abstract<Entity>Controller`、`<Entity>Controller` | 间接可配置 | 抽象类在 gen 包，具体类在普通包；类名由实体名拼接固定前后缀，包路径可配置。 | `codegen\mybatis3\controller\JavaControllerGenerator.java` |
+| Controller 基础请求路径 | `<serviceApiBasePath>/<Bean名转中划线>`，如 `sysUserImpl` → `sys-user-impl` | 是 | 前缀默认取 `moduleKeyword`；缺省时回退到 HTML target package 或 `app`。`appKeyword` 用于包名构造，不是此路径前缀。 | `config\xml\MyBatisGeneratorConfigurationParser.java`、`internal\util\Mb3GenUtil.java`、`codegen\mybatis3\controller\JavaControllerGenerator.java` |
+| Controller 固定端点 / 方法 | 如 `list`、`get`、`create`、`update`、`delete`、`upload`、`download`、`import`、`export`、`dict`、`tree` | 部分条件生成 | 端点名由对应生成器固定；回收站、Excel、视图、树等端点取决于配置和列/关联条件。 | `codegen\mybatis3\controller\JavaControllerGenerator.java`、`codegen\mybatis3\controller\elements\*` |
+| Controller 配置型端点 | 配置方法名转中划线；URL 可带 `select/`、`split/`、`union/`、`option/` 前缀 | 是 | 列查询、删除、统计、表拆分/合并等端点会使用配置的方法名或后缀；URL 前缀及字段名由相应生成器决定。 | `codegen\mybatis3\controller\elements\SelectByColumnGenerator.java`、`DeleteByColumnGenerator.java`、`SelectByTableGenerator.java`、`OptionElementGenerator.java` |
+| Service 扩展方法 | 如 `insertBatch`、`updateBatch`、`insertOrUpdate`、`selectByColumn`、`selectByTable`、`selectBySqlMethod` | 部分可配置 | 基础方法名固定；SQL 方法、列/表查询和统计方法可由配置生成，部分方法名直接来自配置。 | `codegen\mybatis3\service\ServiceMethods.java`、`codegen\mybatis3\service\JavaServiceGenerator.java` |
+| VO / PO 类名 | `<Entity>Vo`、`<Entity>RequestVo`、`<Entity>CreateVo`、`<Entity>UpdateVo`、`<Entity>ViewVo`、`<Entity>ExcelVo`、`<Entity>ExcelImportVo`、`<Entity>CachePo` | 条件生成；后缀固定 | 由实体名加固定后缀生成；是否生成由各 VO 配置及生成规则决定。 | `codegen\mybatis3\vo\*Generator.java`、`codegen\mybatis3\controller\AbstractControllerElementGenerator.java` |
+| VO 字段及转换属性 | 数据列字段使用 `javaProperty`；默认文本属性为 `...Text`，如 `userId` → `userText` | 是 | 属性以 `Id` 结尾时去掉 `Id` 再加 `Text`，否则直接加 `Text`。HTML 元素的 `otherFieldName` 可覆盖；部分元素类型沿用原属性名。 | `config\ConfigUtil.java`、`internal\util\VoGenService.java` |
+| VO 附加 / 覆盖属性 | 附加属性使用配置的 `name`；覆盖属性使用配置的目标属性名 | 是 | `additionalProperty`、`overridePropertyValue` 等配置可自定义属性名和类型；否则转换属性按默认规则推导。 | `config\ConfigUtil.java`、`internal\util\VoGenService.java` |
+| VO 映射方法 | `from<X>`、`to<Y>`、`from<X>To<Y>`；列表映射通常追加 `s` | 由类型关系推导 | 方法名根据源、目标类型与实体类型的关系确定；列表映射会改变参数/返回类型并可能追加 `s`。 | `codegen\mybatis3\vo\VoGeneratorUtil.java` |
+| Vue 文件名 | `<Entity>.vue`、`<Entity>Edit.vue`、`<Entity>Detail.vue`、`<Entity>Modal.vue`、`T<Entity>.ts` | 条件生成；输出路径可配置 | 文件名以实体名为基础；按列表、编辑、详情、表单等生成功能决定生成哪些文件。 | `plugins\vue3\Vue3OtherFilesPlugin.java`、`Vue3FormFilesPlugin.java` |
+| Vue 固定文件名 | `PrivateTableColumnSlots.vue`、`sharedVariables.ts`、`PrivateUseFormHooks.ts` | 条件生成 | 文件名固定；是否生成取决于 Vue 页面、编辑功能和 VO 配置。 | `plugins\vue3\Vue3OtherFilesPlugin.java` |
+| Vue 模块目录与 key | 模块目录名为实体名小写；REST path 使用 Controller 基础路径 | 间接可配置 | 目录和路径由实体名、Bean 名及模块配置派生；permission key 则由小写 Bean 名计算哈希值。 | `plugins\vue3\Vue3OtherFilesPlugin.java`、`Vue3FormFilesPlugin.java`、`internal\util\Mb3GenUtil.java` |
+| Layui 内嵌列表文件名 | `<sourceViewPath>[_<listKey>]_inner_list_fragments.html`；缺省为 `<tableName>_inner_list_fragments.html` | 是 | `sourceViewPath`、`listKey` 可改变文件名；引用的片段名和模块名由配置或 context 提供。 | `internal\util\Mb3GenUtil.java`、`codegen\mybatis3\htmlmapper\document\LayuiDocumentGenerated.java` |
+| Layui JS / CSS 文件名 | `<viewPath最后一段>.js`、`.min.js`、`.css`、`.min.css` | 间接可配置 | 基名取 `viewPath` 最后一段；是否生成取决于视图类型、生成开关和布局设置。 | `plugins\html\JQueryPlugin.java`、`StyleFileGeneratePlugin.java` |
+| Layui HTML / JS 标识符 | 固定片段 ID 如 `TPL-inner-list-row-toolbar`；列模板及输入 ID 使用 `fieldName` | 部分可配置 | 固定模板 ID 写在模板中；列相关 ID 由字段名拼接得到。 | `resources\templates\layui\app_html_fragments.html.ftl`、`app_main_wf_js.js.ftl` |
+| 数据库 schema SQL 文件 | `<tableName小写>.sql`，可加 `filePrefix` | 是 | 表名转小写作为基础文件名；可配置前缀，并可为额外数据库类型生成方言文件。 | `codegen\mybatis3\IntrospectedTableMyBatis3Impl.java` |
+| 权限 SQL 文件 | `data-permission-<tableName小写>.sql`、`data-permission-action-<tableName小写>.sql` | 表名派生；条件生成 | 有相应权限数据时生成，固定前缀后追加小写表名。 | `codegen\mybatis3\IntrospectedTableMyBatis3Impl.java` |
+
+常见命名依赖链为：**表名 → `domainObjectName` → 实体派生类名、Bean 名、请求路径及前端文件名**；列相关名称以数据库列名转换得到的 **`javaProperty`** 为基础，并可受列覆盖、VO 属性配置或 HTML 元素配置影响。
