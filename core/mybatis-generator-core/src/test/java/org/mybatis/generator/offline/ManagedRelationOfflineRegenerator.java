@@ -126,7 +126,7 @@ public final class ManagedRelationOfflineRegenerator {
             }
         }
         for (Field generatedField : service.getFields()) {
-            if (Pattern.compile("\\b" + Pattern.quote(generatedField.getName()) + "\\s*(?:=|;)").matcher(serviceText).find()) {
+            if (Pattern.compile("\\b" + Pattern.quote(generatedField.getName()) + "\\s*[=;]").matcher(serviceText).find()) {
                 continue;
             }
             String field = new FieldRenderer().render(generatedField, service).stream()
@@ -170,11 +170,11 @@ public final class ManagedRelationOfflineRegenerator {
                 .map(line -> "  " + line).collect(Collectors.joining("\n"));
         Set<String> statementIds = Set.of(query.getUnionMethodName(), query.getRowInsertMethodName(),
                 query.getExistsMethodName(), "existsByTable" + suffix);
-        Pattern statement = Pattern.compile("(?ms)^  <(insert|select)\\b[^>]*\\bid=\"(" +
-                statementIds.stream().map(Pattern::quote).collect(Collectors.joining("|")) + ")\"[^>]*>.*?^  </\\1>\\r?\\n?");
+        Pattern statement = Pattern.compile("(?ms)^ {2}<(insert|select)\\b[^>]*\\bid=\"(" +
+                statementIds.stream().map(Pattern::quote).collect(Collectors.joining("|")) + ")\"[^>]*>.*?^ {2}</\\1>\\r?\\n?");
         Matcher matches = statement.matcher(xml);
         int count = 0;
-        StringBuffer retained = new StringBuffer();
+        StringBuilder retained = new StringBuilder();
         while (matches.find()) {
             if (!matches.group().contains("@mbg.generated")) {
                 throw new IllegalArgumentException("Refusing to replace an unprotected/manual statement in " + xmlPath);
@@ -329,8 +329,8 @@ public final class ManagedRelationOfflineRegenerator {
     }
 
     private static Pattern methodSignature(String name) {
-        return Pattern.compile("(?m)^    (?:(?:public|protected|private|abstract|default|static|final)\\s+)*"
-                + "[\\w.$]+(?:<[^\\n]+>)?(?:\\[\\])?\\s+" + Pattern.quote(name) + "\\(");
+        return Pattern.compile("(?m)^ {4}(?:(?:public|protected|private|abstract|default|static|final)\\s+)*"
+                + "[\\w.$]+(?:<[^\\n]+>)?(?:\\[])?\\s+" + Pattern.quote(name) + "\\(");
     }
 
     public static String spliceMethod(String text, String name, String replacement, boolean required) {
@@ -453,11 +453,12 @@ public final class ManagedRelationOfflineRegenerator {
             if (generated.isEmpty()) {
                 continue;
             }
+            String generatedMutation = generated.orElseThrow();
             if (existing.getAnnotationByName("RelationMutation").isPresent()) {
                 var mutation = existing.getAnnotationByName("RelationMutation").orElseThrow();
                 int start = lineStart(text, mutation.getBegin().orElseThrow().line) + mutation.getBegin().orElseThrow().column - 1;
                 int end = lineStart(text, mutation.getEnd().orElseThrow().line) + mutation.getEnd().orElseThrow().column;
-                text = text.substring(0, start) + generated.get() + text.substring(end);
+                text = text.substring(0, start) + generatedMutation + text.substring(end);
             }
             var cache = existing.getAnnotationByName("CacheEvict").orElseThrow();
             int start = lineStart(text, cache.getBegin().orElseThrow().line) + cache.getBegin().orElseThrow().column - 1;
@@ -465,7 +466,7 @@ public final class ManagedRelationOfflineRegenerator {
             String replacement = method.getAnnotations().stream()
                     .filter(annotation -> annotation.startsWith("@CacheEvict")).findFirst().orElseThrow();
             if (existing.getAnnotationByName("RelationMutation").isEmpty()) {
-                replacement += newline(text) + "    " + generated.get();
+                replacement += newline(text) + "    " + generatedMutation;
             }
             text = text.substring(0, start) + replacement + text.substring(end);
             parent.addImportedType("com.vgosoft.mybatis.relation.RelationMutation");
