@@ -51,7 +51,7 @@
 | `tableType` | `dataTable` / `relationTable` | 影响关联/关系表语义。 |
 | `isModules` | 是否模块主表 | `true` 时可生成模块数据。 |
 | `validateIgnoreColumns` | 免校验列 | 为空有默认忽略列。空字符串表示不忽略。 |
-| `enableInsert` 等 | CRUD/批量/upsert 开关 | 对应 `insert/select/update/delete/count/batch`。 |
+| `enableInsert` 等 | 基础 CRUD/批量/upsert 开关 | 控制普通表方法；与 `selectByTable` 的 `enableSplit` / `enableUnion` 关系维护开关无关。 |
 | `enableDropTables` | 可清除业务表 | 需放在主模块表。 |
 | `cleanAllGeneratedElements` | 清理所有生成元素 | 适合重建。 |
 | `generatedKey` | 主键生成策略 | 序列/identity 等。 |
@@ -60,7 +60,7 @@
 | `columnOverride*` | 列覆盖 | 改类型、注释、长度、必填、属性名等。 |
 | `ignoreColumn*` | 忽略列 | 不生成 SQL/属性。 |
 | `selectByColumn*` | 按列查询 | 可生成 controller 方法。 |
-| `selectByTable*` | 中间表查询 | 用于多对多。 |
+| `selectByTable*` | 中间表查询及可选关系维护 | 用于多对多；两端分别配置，列方向、生成方法及幂等边界见第 8、13.2 节。 |
 | `selectBySqlMethod*` | SQL 函数查询 | 主要用于父子层级 ids。 |
 | `javaModelAssociation*` | 一对一关联 | 级联 insert/update/delete。 |
 | `javaModelCollection*` | 一对多关联 | 子查询 / 级联。 |
@@ -305,7 +305,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | 节点 | 含义 | 备注 |
 |---|---|---|
 | `selectByColumn` | 按列查询 | `column` 支持多列，`genControllerMethod` 可生成接口。 |
-| `selectByTable` | 中间表查询 | 适合多对多。 |
+| `selectByTable` | 中间表查询及可选关系维护 | 适合多对多；配置语义与 `javaModelCollection` 不同，详见本节下文及第 13.2 节。 |
 | `selectBySqlMethod` | SQL 方法查询 | 适合树/祖先/后代。 |
 | `javaModelAssociation` | 一对一 | 级联行为需配 `relationProperty` / `beanClassFullName`。 |
 | `javaModelCollection` | 一对多 | 常用于 `children` / 子查询。 |
@@ -314,6 +314,10 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `generateDateDimStatistics` | 时间维度统计 | `total/yoy/mom`。 |
 | `generateCustomStatistics` | 自定义统计 | 支持 `joinTableClause`。 |
 | `joinTableClause` | 统计关联表 | 连接表达式必须是 SQL 表达式。 |
+
+`selectByTable` 的 `thisColumn` 是关系表中属于当前 table 主键的一侧，`otherColumn` 是对端主键的一侧。查询当前实体时，以一个或多个对端 ID 过滤关系表；双向查询需在另一实体下使用相同关系表并交换两列。`javaModelCollection` 是实体上的一对多集合/子查询/级联配置，不会由 `selectByTable` 自动创建或填充关系集合属性。
+
+该节点不接受 `genControllerMethod`、`enableInsert` 或 `enableDelete`。配置后生成 Service/Mapper/XML 查询；`enableSplit` 和 `enableUnion`（默认均为 `true`）分别控制关系删除/插入方法及对应 Controller 端点。只要其中任一开关为真，也会生成该配置的 select Controller 端点；两者都为假时，查询 Service/Mapper/XML 仍生成，但不生成这些 Controller 端点。普通 CRUD 开关与这组关系开关互不替代。
 
 ## 9. 其他辅助配置
 
@@ -371,29 +375,88 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 
 ### 13.2 多对多 `selectByTable`
 
-来自组织模块的角色-用户关系配置：
+下面以 `sys_menu` 通过 `org_role_menu` 关联角色为例。该配置放在 `sys_menu` 的 table 下；反向查询配置放在 `org_role` 下并交换两列。以下为两侧配置片段，分别合入各自项目的生成配置，不是完整可运行的配置文件：
 
 ```xml
-<selectByTable table="org_r_user_role" thisColumn="role_id" otherColumn="user_id"
-               methodSuffix="ForUser" enableSplit="true" enableUnion="true">
+<table tableName="sys_menu">
+    <selectByTable table="org_role_menu"
+                   thisColumn="menu_id" otherColumn="role_id"
+                   methodSuffix="ForRole"
+                   orderByClause="sort_"
+                   enableSplit="true" enableUnion="true"/>
+</table>
+
+<table tableName="org_role">
+    <selectByTable table="org_role_menu"
+                   thisColumn="role_id" otherColumn="menu_id"
+                   methodSuffix="ForMenu"
+                   returnType="primaryKey"
+                   enableSplit="true" enableUnion="true"/>
+</table>
+```
+
+`sys_menu` 侧的方向和生成结果：
+
+| 配置/调用 | 方向与结果 |
+|---|---|
+| `thisColumn="menu_id"` | 关系表中指向当前菜单（当前 table）的键。 |
+| `otherColumn="role_id"` | 关系表中指向角色（对端）的键。 |
+| `selectByTableForRole(roleId)` | 按 `org_role_menu.role_id` 查菜单；默认 `parameterType="single"`，Service 返回菜单实体列表并按 `sort_` 排序。Controller 是单个 ID 查询参数。 |
+| `split/for-role(menuId, roleIds)` | 接收当前菜单 ID 和 `@RequestBody List<String>`；只删除 `menu_id = menuId` 且 `role_id` 属于 `roleIds` 的关系行。 |
+| `union/for-role(menuId, roleIds)` | 接收当前菜单 ID 和 `@RequestBody List<String>`；为该菜单新增与 `roleIds` 中角色的关系，只做增量添加，不删除未提交的其他关系，也不是全量替换。 |
+| `selectByTableForMenu(menuId)`（角色侧） | 按菜单 ID 查询角色主键字符串列表；`returnType="primaryKey"` 改为返回当前实体 ID，而不是角色实体。Controller 查询仍是单个 ID 参数。 |
+
+列名会转换为 Java 参数属性名：维护方法的第一个参数是当前侧 ID，第二个参数是对端 ID 列表。查询的 `parameterType="list"` 可将对端查询键改为列表；`returnType="primaryKey"` 将查询结果改为当前实体主键值列表（Java 类型为 `String`），默认 `returnType="model"` 返回实体列表。DTD 允许的 `returnType` 为 `model|primaryKey`，`parameterType` 为 `single|list`。当前生成实现按字符串 ID 处理关系键，查询 join 也使用当前表的首个主键列；因此应按单列字符串主键使用，不能假设复合主键可被正确映射。
+
+`methodSuffix` 生成 `selectByTable` / `deleteByTable` / `insertByTable` 方法名后缀，同时用于 Controller 的 `select/`、`split/`、`union/` 路径片段（如 `ForRole` 对应 `for-role`）。Controller 中 select 端点受 `enableSplit` 或 `enableUnion` 控制，不使用 `genControllerMethod`；该属性属于其他节点（如 `selectByColumn`），不是 `selectByTable` 的 DTD 属性。table 的普通 CRUD 开关（如 `enableInsert`、`enableDeleteByPrimaryKey`）也不控制关系维护方法。
+
+可选 SQL 属性的边界：
+
+| 属性 | 生成位置与限制 |
+|---|---|
+| `additionClause` | 作为静态 SQL 片段追加到查询的关系表 JOIN `ON` 条件；不是参数化动态筛选，不作用于 split/union。只应配置可信、适用于目标方言的 SQL 片段。 |
+| `orderByClause` | 直接追加到查询 SQL 的 `order by`；不作用于 split/union。 |
+
+维护关系依赖关系表键和标识列的数据库约束。`split` 使用当前 ID 相等条件加对端 ID `IN` 列表，split/union 调用均须提供有效的当前 ID 和有效且非空的对端 ID 列表；空数组不是清空全部关系指令，现有 SQL 未为其生成无操作分支。`union` 生成关系行标识时使用 `MD5(CONCAT(thisId, otherId))`，多个数据库类型按 `additionalDbTypes` 生成相应 SQL：
+
+| 方言组 | 插入形式 |
+|---|---|
+| MySQL / MariaDB | `INSERT IGNORE`。 |
+| PostgreSQL / KingbaseES / HighGo / SQLite | `ON CONFLICT DO NOTHING`。 |
+| Oracle / DM / Xugu / CacheDB | `INSERT ... SELECT ... FROM dual WHERE NOT EXISTS`。 |
+| DB2 | `INSERT ... SELECT ... FROM SYSIBM.SYSDUMMY1 WHERE NOT EXISTS`。 |
+| 其他方言 | 通用 `INSERT ... SELECT ... WHERE NOT EXISTS`。 |
+
+关系写入的重复与并发边界应分别评估：
+
+| 场景 | 生成行为与边界 |
+|---|---|
+| 同一方向重复提交 | 对相同的非空两侧键和拼接顺序，重复关系得到相同 `id_`。原生冲突语法按数据库唯一/冲突约束处理；兜底 SQL 对本次来源用 `SELECT DISTINCT` 去重，并按两侧键检查已有关系。MySQL `INSERT IGNORE` 还可能忽略非重复键错误。 |
+| 从反向配置写入同一关系 | 两端 `thisColumn` / `otherColumn` 顺序相反，`MD5(CONCAT(...))` 的输入顺序也相反，因此不能保证生成相同 `id_`；仅有 `PRIMARY KEY(id_)` 不能去重同一业务关系。 |
+| 并发写入 | `NOT EXISTS` 检查与插入不是原子操作；无数据库联合唯一约束时，并发调用仍可能插入重复关系。 |
+
+**建设建议**：关系表两侧键按业务语义设为非空，并建立两侧键的联合唯一约束；清理存量重复关系并使约束生效后，才能据此阻止重复关系并避免查询返回重复实体。**生成物与现状边界**：`selectByTable` 配置不会自动推导或添加上述非空/联合唯一约束；Schema 生成器输出内省得到的主键、索引和外键，不能因为配置了关系查询就假设生成 DDL 已含关系两侧联合唯一或非空约束。须检查实际数据库结构、内省输入和生成 DDL，不能把建设建议当作现状。组织项目角色—菜单样例的 MySQL、PostgreSQL、DM DDL 仅声明 `PRIMARY KEY(id_)`，两侧关系列允许 NULL，未声明联合唯一；详见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)。当前 SQL 固定使用 `MD5(CONCAT(...))`，目标数据库需支持相应函数；该拼接哈希也不等同于无歧义的复合键编码，需评估键值格式和标识策略。
+
+完整配置可按实际缓存需要添加 `<enableCache>`：
+
+```xml
+<selectByTable table="org_role_menu"
+               thisColumn="menu_id" otherColumn="role_id"
+               methodSuffix="ForRole" enableSplit="true" enableUnion="true">
     <enableCache/>
 </selectByTable>
-
-<selectByTable table="org_r_user_role" thisColumn="role_id" otherColumn="user_id"
-               methodSuffix="IdsForUser" enableSplit="false" enableUnion="false"
-               returnType="primaryKey"/>
 ```
 
 用途：
 
 | 配置 | 作用 |
 |---|---|
-| `enableSplit="true"` | 允许解除关联。 |
-| `enableUnion="true"` | 允许新增关联。 |
-| `returnType="primaryKey"` | 返回主键值而不是模型。 |
+| `enableSplit="true"` | 生成关系解除方法和 split Controller 端点。 |
+| `enableUnion="true"` | 生成关系新增方法和 union Controller 端点。 |
+| `returnType="primaryKey"` | 查询时返回当前实体主键字符串列表，而不是实体列表。 |
 | `<enableCache/>` | 生成缓存支持。 |
 
-`<enableCache>` 可用 `enableCache="false"` 禁用当前查询缓存，也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。未指定名称时按当前查询方向生成默认名称。关系新增/解除会清理同一关系表上所有已启用查询的实际缓存区，不要求反向查询配置存在。
+`<enableCache>` 可用 `enableCache="false"` 禁用当前查询缓存，也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。未指定名称时按当前查询方向生成默认名称。关系新增/解除所生成的缓存清理仅能覆盖当前生成器 Context 中可发现的查询配置；分属不同模块/Context 时，不会自动发现并清理另一侧的查询缓存。跨模块双侧查询可能因此短暂不一致，需要由业务层明确处理对侧缓存失效。角色—菜单样例的实际缓存名和调用方向见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)；当前 HTTP 请求的 query 参数、JSON body 及返回值契约见[前后端接口契约第 6.5 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\frontend-business-capabilities-spec.md)。
 
 同一 `selectByTable` 可配置多个 `<enableCache>`；生成器去重后使用单个 `@Cacheable` 或 `@Caching` 组合注解，避免重复声明不可重复的注解。
 
@@ -526,7 +589,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | 模块主表  | 是否 `isModules=true`。 需要显示在菜单中则为true,  parentMenuId不为空             |
 | 别名    | `alias` 是否统一（影响 SQL/filter 拼接）。                                   |
 | 上传下载  | 是否启用 `enableFileUpLoad`。 没有指定，则默认为false                           |
-| 关系设计  | 是否需要 `selectByTable`（多对多）、`selectByColumn`、`javaModelCollection`。 |
+| 关系设计  | 是否需要双侧 `selectByTable`（多对多）、`selectByColumn` 或独立的一对多 `javaModelCollection`；确定关系表两侧键和维护方向。 |
 | 校验忽略列 | `validateIgnoreColumns` 是否按项目规范统一。                                |
 | 清理策略  | 是否需要 `cleanAllGeneratedElements=true`（重建场景）。                      |
 
@@ -597,13 +660,13 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 2. `rootClass` 一旦确定，VO/页面默认字段、校验、查询能力都会受影响。
 3. 涉及流程、附件、大字段时，优先用能表达该语义的父类，避免后续大量补丁配置。
 
-## 17. 补充：与 `mybatis-generator-config_1_7_0.dtd` 的对照关系
+## 17. 补充：与 `mybatis-generator-config_1_8_0.dtd` 的对照关系
 
 本指南是“可执行解释”，DTD 是“结构定义源”。两者配套使用时，建议按“先 DTD 定位节点，再回本指南看行为与案例”的顺序。
 
 ### 17.1 DTD 文件位置
 
-- `mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_7_0.dtd`
+- `mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_8_0.dtd`
 
 ### 17.2 本文章节与 DTD 节点映射
 

@@ -66,18 +66,20 @@
 
 ## 3.1 多对多关系（`selectByTable + selectByTable`）
 
-可通过中间表能力实现双向查询与关系维护：
+通过中间表分别从两端生成查询和关系维护。每个 `selectByTable` 配置挂在“查询结果所属实体”的 table 下：
 
-1. A -> B：在 A 的 table 下配置 `selectByTable`（中间表 + 另一侧主键列）
-2. B -> A：在 B 的 table 下对称配置 `selectByTable`
-3. 如需关系维护接口：启用 `enableSplit` / `enableUnion` 生成 deleteByTable / insertByTable 系列
+1. `thisColumn` 是关系表中存放当前实体主键的列；`otherColumn` 是关系表中存放对端实体主键的列。
+2. A 的配置以 `otherColumn` 上的 B 主键查询 A；在 B 的 table 下交换两列并配置同一关系表，即可反向查询。
+3. `enableSplit` / `enableUnion` 分别生成按当前 A 主键和一组 B 主键解除/新增关系的方法；它们操作的是所选关系行，不是全量替换关系集合。
 
 | 维度 | 设计判定 |
 |---|---|
-| 最小可行输入 | 双侧实体 + 中间表键列映射（主键列/对端主键列） |
-| 直接产物 | Service 查询方法；可选生成关系维护方法（split/union） |
+| 最小可行输入 | 双侧实体 + 关系表 + 两侧主键列映射；设计上建议关系表两侧键非空并建立联合唯一约束，且须核对实际 DDL 是否已落实 |
+| 直接产物 | 双侧 Service/Mapper 查询方法；可选生成关系维护方法和 Controller 端点 |
 | 常见低估 | 误以为“多对多都要手写 Mapper” |
-| 常见高估 | 未建清晰中间表键语义，却期望自动推断 |
+| 常见高估 | 把 `javaModelCollection` 当作多对多关系自动映射，或未定义关系表两侧键语义却期望自动推断 |
+
+例如，`sys_menu` 与 `org_role` 可在各自 table 下对同一关系表交换 `thisColumn` / `otherColumn` 配置查询与关系维护。`selectByTable` 不自动生成关系两侧非空/联合唯一约束，也不保证反向配置产生相同的关系行 `id_`；两侧缓存位于不同生成模块/Context 时也不会自动互相失效。通用配置与生成边界见 [`generator-config-guide.md`](generator-config-guide.md)；组织项目的[角色—菜单关系设计详文](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)记录实际配置、DDL 与缓存证据，[前后端接口契约第 6.5 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\frontend-business-capabilities-spec.md)记录当前 HTTP 参数及返回契约。
 
 **设计结论**：中后台常见“角色-菜单”“用户-岗位”“组织-标签”等多对多，通常无需手写 DAO 基础代码。
 
