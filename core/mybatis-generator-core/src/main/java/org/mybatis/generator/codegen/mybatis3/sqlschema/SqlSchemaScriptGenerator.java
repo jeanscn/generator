@@ -43,6 +43,7 @@ public class SqlSchemaScriptGenerator extends AbstractSqlScriptGenerator {
 
     @Override
     public String getSqlScript() {
+        RelationSchemaOverlay.apply(introspectedTable);
         List<String> ret = new ArrayList<>();
         String tableName = introspectedTable.getTableConfiguration().getTableName();
         JavaTypeResolver coreJavaTypeResolver = new JavaTypeResolverDefaultImpl(databaseType);

@@ -314,6 +314,10 @@ public class MyBatisGeneratorConfigurationParser {
         TableConfiguration tc = new TableConfiguration(context,warnings);
         Properties attributes = parseAttributes(node);
         String tableName = attributes.getProperty("tableName");
+        String relationKeyColumns = attributes.getProperty("relationKeyColumns");
+        if (stringHasValue(relationKeyColumns)) {
+            tc.setRelationKeyColumns(splitToList(relationKeyColumns));
+        }
         if (stringHasValue(tableName)) {
             tableName = removeSpaces(tableName);
         } else {
@@ -904,6 +908,7 @@ public class MyBatisGeneratorConfigurationParser {
         selectByTableGeneratorConfiguration.setPrimaryKeyColumn(thisColumn);
         selectByTableGeneratorConfiguration.setOtherPrimaryKeyColumn(otherColumn);
         selectByTableGeneratorConfiguration.setMethodSuffix(methodSuffix);
+        selectByTableGeneratorConfiguration.setRelationIdKey(attributes.getProperty("relationIdKey"));
 
         String orderByClause = attributes.getProperty("orderByClause");
         if (stringHasValue(orderByClause)) {
@@ -948,7 +953,7 @@ public class MyBatisGeneratorConfigurationParser {
     private EnableCacheConfiguration parseEnableCache(Node node) {
         EnableCacheConfiguration enableCacheConfiguration = new EnableCacheConfiguration();
         Properties attributes = parseAttributes(node);
-        String enableCache = attributes.getProperty("enableCache");
+        String enableCache = attributes.getProperty("enableCache", attributes.getProperty("enable"));
         if (stringHasValue(enableCache)) {
             enableCacheConfiguration.setEnableCache(Boolean.parseBoolean(enableCache));
         }

@@ -261,12 +261,15 @@
             6、com.vgosoft.core.entity.abs.AbstractBlobPersistenceLockEntity，包含以上及：version_
             7、com.vgosoft.core.entity.abs.AbstractBlobBusinessEntity，包含以上及：subject_,priority_,module_name,file_category,fld_doc_code,author_
         -->
+        <!-- relationKeyColumns: 可选的两列逗号分隔关系键；仅用于显式 DDL 建模覆盖。
+             生成两列 NOT NULL、联合唯一与反向索引；要求单 String 代理主键，不连接或迁移数据库。 -->
         <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,overridePropertyValue*,additionalProperty*,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVo?,generateCachePo?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
         <!ATTLIST table
                 ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
                 schema CDATA #IMPLIED
                 tableName CDATA #REQUIRED
+                relationKeyColumns CDATA #IMPLIED
                 alias CDATA #IMPLIED
                 domainObjectName CDATA #IMPLIED
                 isModules (false|true) #IMPLIED
@@ -408,6 +411,7 @@
           8、parameterType 参数类型。single-单值，list-多值列表
           9、enableSplit 允许取消关联（中间表删除数据）
           10、enableUnion 允许新建关联（中间表插入数据）
+          11、relationIdKey 显式启用受管关系：两端一致的逻辑关系标识，非随机关系行主键；事务写入后仅失效显式共享缓存
         -->
         <!ELEMENT selectByTable (enableCache*)>
         <!ATTLIST selectByTable
@@ -420,6 +424,7 @@
                 returnType (model|primaryKey) #IMPLIED
                 parameterType (single|list) #IMPLIED
                 enableSplit (true|false) #IMPLIED
+                relationIdKey CDATA #IMPLIED
                 enableUnion (true|false) #IMPLIED>
         <!--
             是否启用缓存的配置
@@ -427,11 +432,13 @@
             说明：如果启用缓存，需要在启动类上增加@EnableCaching注解
             属性信息：
             1、enable 是否启用缓存，true-启用，false-不启用
+               enableCache 是兼容别名；同时配置时 enableCache 优先
             2、cacheNames 缓存名称，多个”,“分隔。如果不指定，则会自动根据方法进行计算。
         -->
         <!ELEMENT enableCache EMPTY>
         <!ATTLIST enableCache
                 enable (true|false) #IMPLIED
+                enableCache (true|false) #IMPLIED
                 cacheNames CDATA #IMPLIED>
 
         <!--

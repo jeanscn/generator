@@ -4,6 +4,7 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.CacheConfigurationResolver;
+import org.mybatis.generator.codegen.mybatis3.service.ManagedRelationGeneration;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 
@@ -30,6 +31,17 @@ public class DeleteByTableElement extends AbstractServiceElementGenerator {
                 .forEach(c -> {
                     Method method = serviceMethods.getSplitUnionByTableMethod(parentElement, c, false,false);
                     method.addAnnotation("@Override");
+                    if (c.isManagedRelation()) {
+                        ManagedRelationGeneration.validate(introspectedTable, c);
+                        ManagedRelationGeneration.addMutation(method, parentElement, c);
+                        parentElement.addImportedType("com.vgosoft.mybatis.relation.RelationWriteSupport");
+                        method.addBodyLine("return mapper." + c.getSplitMethodName() + "("
+                                + method.getParameters().get(0).getName() + ", RelationWriteSupport.normalize("
+                                + method.getParameters().get(0).getName() + ", "
+                                + method.getParameters().get(1).getName() + "));");
+                        parentElement.addMethod(method);
+                        return;
+                    }
                     final List<String> annotations = new ArrayList<>();
                     List<String> cacheNames = CacheConfigurationResolver.relationTableCacheNames(context, c.getTableName());
                     if (!cacheNames.isEmpty()) {

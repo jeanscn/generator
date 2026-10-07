@@ -16,6 +16,25 @@ import java.util.List;
  * @author cen_c
  */
 public class InsertByTableElementGenerator extends AbstractXmlElementGenerator {
+    private enum ManagedRelationReadGroup {
+        /** Row locking reads that bypass old transaction snapshots. */
+        FOR_UPDATE,
+        /** SQL Server update/range locks, including snapshot-enabled installations. */
+        SQL_SERVER_LOCK_HINT,
+        /** SQLite's preceding insert establishes a serialized writer transaction. */
+        SQLITE_WRITER
+    }
+
+    private ManagedRelationReadGroup managedReadGroup(DatabaseType database) {
+        return switch (database) {
+            case MYSQL, MARIADB, ORACLE, POSTGRE_SQL, DM, HIGHGO, KINGBASE_ES, GAUSS_DB, UXDB, H2, HSQL ->
+                    ManagedRelationReadGroup.FOR_UPDATE;
+            case SQL_SERVER, SQL_SERVER2005 -> ManagedRelationReadGroup.SQL_SERVER_LOCK_HINT;
+            case SQLITE -> ManagedRelationReadGroup.SQLITE_WRITER;
+            default -> throw new IllegalArgumentException("Managed relation current-read/savepoint semantics are not verified for database: "
+                    + database.getCode());
+        };
+    }
     private enum InsertByTableDialectGroup {
         /** MySQL family: INSERT IGNORE INTO ... */
         MYSQL_INSERT_IGNORE,
@@ -39,11 +58,56 @@ public class InsertByTableElementGenerator extends AbstractXmlElementGenerator {
         if (configurations.stream().noneMatch(SelectByTableGeneratorConfiguration::isEnableUnion)) {
             return;
         }
+        if (configurations.stream().anyMatch(configuration -> configuration.isEnableUnion() && configuration.isManagedRelation())) {
+            introspectedTable.getTableConfiguration().getAdditionalDbTypes().forEach(this::managedReadGroup);
+        }
         for (SelectByTableGeneratorConfiguration configuration : configurations) {
+            if (!configuration.isEnableUnion()) {
+                continue;
+            }
             if (ObjectUtils.anyNull(configuration.getTableName(), configuration.getPrimaryKeyColumn(), configuration.getOtherPrimaryKeyColumn())) {
                 continue;
             }
             for (DatabaseType dbType : introspectedTable.getTableConfiguration().getAdditionalDbTypes()) {
+                if (configuration.isManagedRelation()) {
+                    XmlElement row = new XmlElement("insert");
+                    row.addAttribute(new Attribute("id", configuration.getRowInsertMethodName()));
+                    row.addAttribute(new Attribute("parameterType", "java.util.Map"));
+                    row.addAttribute(new Attribute("databaseId", dbType.getCode()));
+                    context.getCommentGenerator().addComment(row);
+                    row.addElement(new TextElement("insert into " + configuration.getTableName() + " ("
+                            + DefaultColumnNameEnum.ID.columnName() + ", " + configuration.getPrimaryKeyColumn()
+                            + ", " + configuration.getOtherPrimaryKeyColumn() + ")"));
+                    row.addElement(new TextElement("values (#{relationId,jdbcType=VARCHAR}, "
+                            + MyBatis3FormattingUtilities.getParameterClause(configuration.getThisColumn()) + ", "
+                            + MyBatis3FormattingUtilities.getParameterClause(configuration.getOtherColumn()) + ")"));
+                    parentElement.addElement(row);
+                    XmlElement exists = new XmlElement("select");
+                    exists.addAttribute(new Attribute("id", configuration.getExistsMethodName()));
+                    exists.addAttribute(new Attribute("databaseId", dbType.getCode()));
+                    exists.addAttribute(new Attribute("resultType", "java.lang.String"));
+                    exists.addAttribute(new Attribute("useCache", "false"));
+                    exists.addAttribute(new Attribute("flushCache", "true"));
+                    context.getCommentGenerator().addComment(exists);
+                    ManagedRelationReadGroup readGroup = managedReadGroup(dbType);
+                    String lockHint = readGroup == ManagedRelationReadGroup.SQL_SERVER_LOCK_HINT
+                            ? " with (updlock, holdlock)" : "";
+                    exists.addElement(new TextElement("select " + DefaultColumnNameEnum.ID.columnName()
+                            + " from " + configuration.getTableName() + lockHint
+                            + " where " + configuration.getPrimaryKeyColumn() + " = "
+                            + MyBatis3FormattingUtilities.getParameterClause(configuration.getThisColumn())
+                            + " and " + configuration.getOtherPrimaryKeyColumn() + " = "
+                            + MyBatis3FormattingUtilities.getParameterClause(configuration.getOtherColumn())));
+                    switch (readGroup) {
+                        case FOR_UPDATE -> exists.addElement(new TextElement("for update"));
+                        case SQL_SERVER_LOCK_HINT, SQLITE_WRITER -> {
+                            // The table hint or preceding SQLite write supplies current-read semantics.
+                        }
+                        default -> throw new IllegalStateException("Unknown managed relation read group: " + readGroup);
+                    }
+                    parentElement.addElement(exists);
+                    continue;
+                }
                 XmlElement answer = buildInitialInsert(configuration.getUnionMethodName(), FullyQualifiedJavaType.getStringInstance(), dbType);
                 InsertByTableDialectGroup dialectGroup = resolveDialectGroup(dbType);
                 switch (dialectGroup) {

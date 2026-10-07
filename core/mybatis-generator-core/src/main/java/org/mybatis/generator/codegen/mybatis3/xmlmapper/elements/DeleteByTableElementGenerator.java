@@ -25,6 +25,9 @@ public class DeleteByTableElementGenerator extends
         final List<SelectByTableGeneratorConfiguration> configurations = introspectedTable.getTableConfiguration().getSelectByTableGeneratorConfiguration();
         if (configurations.stream().noneMatch(SelectByTableGeneratorConfiguration::isEnableSplit)) {return;}
         for (SelectByTableGeneratorConfiguration configuration : configurations) {
+            if (!configuration.isEnableSplit()) {
+                continue;
+            }
             if (ObjectUtils.anyNull(configuration.getTableName(), configuration.getPrimaryKeyColumn(), configuration.getOtherPrimaryKeyColumn())) {
                 continue;
             }

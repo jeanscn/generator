@@ -74,6 +74,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private String tableName;
 
+    private List<String> relationKeyColumns = new ArrayList<>();
+
     private String domainObjectName;
 
     private boolean isModules;

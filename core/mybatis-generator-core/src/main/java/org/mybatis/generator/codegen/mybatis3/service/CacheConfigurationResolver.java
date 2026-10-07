@@ -77,7 +77,7 @@ public final class CacheConfigurationResolver {
         return new ArrayList<>(names);
     }
 
-    static List<String> mutationCacheNames(Context context, TableConfiguration table, String entityCacheName,
+    public static List<String> mutationCacheNames(Context context, TableConfiguration table, String entityCacheName,
                                            boolean includeEntityCache) {
         Set<String> names = new LinkedHashSet<>();
         if (includeEntityCache) {

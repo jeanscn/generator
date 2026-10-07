@@ -63,6 +63,9 @@ public class CacheAnnotationDesc {
             sb.append(",unless = \"").append(unless).append("\"");
         }
         sb.append(",").append(formatKey());
+        if (stringHasValue(condition)) {
+            sb.append(",condition = ").append(javaStringLiteral(condition));
+        }
         sb.append(")");
         return sb.toString();
     }
@@ -72,7 +75,7 @@ public class CacheAnnotationDesc {
         return toCacheableAnnotation();
     }
 
-    private static void addKeySerializationSupport(TopLevelClass parentElement) {
+    public static void addKeySerializationSupport(TopLevelClass parentElement) {
         if (parentElement.getFields().stream().anyMatch(field -> KEY_JSON_MAPPER.equals(field.getName()))) {
             return;
         }
@@ -119,7 +122,11 @@ public class CacheAnnotationDesc {
                 .collect(Collectors.joining(",")) + "}";
     }
 
-    private String formatName(String name, String defaultTtl) {
+    public static String normalizeRelationCacheName(String name) {
+        return formatName(name, "72h");
+    }
+
+    private static String formatName(String name, String defaultTtl) {
         if (!stringHasValue(name)) {
             throw new IllegalArgumentException("Cache names must not be blank");
         }

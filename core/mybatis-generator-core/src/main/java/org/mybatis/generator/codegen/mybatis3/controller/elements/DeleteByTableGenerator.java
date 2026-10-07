@@ -38,8 +38,10 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     FullyQualifiedJavaType listInstance = FullyQualifiedJavaType.getNewListInstance();
                     listInstance.addTypeArgument(c.getOtherColumn().getFullyQualifiedJavaType());
                     Parameter p2 = new Parameter(listInstance, c.getOtherColumn().getJavaProperty()+"s");
-                    if (introspectedTable.getRules().isGenerateVueEnd()) {
+                    if (c.isManagedRelation() || introspectedTable.getRules().isGenerateVueEnd()) {
                         p2.addAnnotation("@RequestBody");
+                        parentElement.addImportedType(listInstance);
+                        parentElement.addImportedType("org.springframework.web.bind.annotation.RequestBody");
                     }else{
                         p2.addAnnotation("@RequestParam");
                         p2.addAnnotation("@RequestParamSplit");

@@ -317,6 +317,8 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 
 `selectByTable` 的 `thisColumn` 是关系表中属于当前 table 主键的一侧，`otherColumn` 是对端主键的一侧。查询当前实体时，以一个或多个对端 ID 过滤关系表；双向查询需在另一实体下使用相同关系表并交换两列。`javaModelCollection` 是实体上的一对多集合/子查询/级联配置，不会由 `selectByTable` 自动创建或填充关系集合属性。
 
+可选 `relationIdKey` 显式启用受管关系生成；两侧都必须配置相同稳定逻辑关系标识和显式共享 `<enableCache cacheNames="..."/>`。关系表 table 的 `relationKeyColumns` 单独声明 DDL 约束覆盖。未选择该模式的关系保持旧行为；完整契约与离线再生成见第 13.2.1 节。
+
 该节点不接受 `genControllerMethod`、`enableInsert` 或 `enableDelete`。配置后生成 Service/Mapper/XML 查询；`enableSplit` 和 `enableUnion`（默认均为 `true`）分别控制关系删除/插入方法及对应 Controller 端点。只要其中任一开关为真，也会生成该配置的 select Controller 端点；两者都为假时，查询 Service/Mapper/XML 仍生成，但不生成这些 Controller 端点。普通 CRUD 开关与这组关系开关互不替代。
 
 ## 9. 其他辅助配置
@@ -417,7 +419,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `additionClause` | 作为静态 SQL 片段追加到查询的关系表 JOIN `ON` 条件；不是参数化动态筛选，不作用于 split/union。只应配置可信、适用于目标方言的 SQL 片段。 |
 | `orderByClause` | 直接追加到查询 SQL 的 `order by`；不作用于 split/union。 |
 
-维护关系依赖关系表键和标识列的数据库约束。`split` 使用当前 ID 相等条件加对端 ID `IN` 列表，split/union 调用均须提供有效的当前 ID 和有效且非空的对端 ID 列表；空数组不是清空全部关系指令，现有 SQL 未为其生成无操作分支。`union` 生成关系行标识时使用 `MD5(CONCAT(thisId, otherId))`，多个数据库类型按 `additionalDbTypes` 生成相应 SQL：
+以下 SQL 和缓存描述适用于**未配置 `relationIdKey` 的旧模式**；受管模式见第 13.2.1 节。维护关系依赖关系表键和标识列的数据库约束。`split` 使用当前 ID 相等条件加对端 ID `IN` 列表，split/union 调用均须提供有效的当前 ID 和有效且非空的对端 ID 列表；空数组不是清空全部关系指令，现有 SQL 未为其生成无操作分支。旧模式 `union` 生成关系行标识时使用 `MD5(CONCAT(thisId, otherId))`，多个数据库类型按 `additionalDbTypes` 生成相应 SQL：
 
 | 方言组 | 插入形式 |
 |---|---|
@@ -435,7 +437,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | 从反向配置写入同一关系 | 两端 `thisColumn` / `otherColumn` 顺序相反，`MD5(CONCAT(...))` 的输入顺序也相反，因此不能保证生成相同 `id_`；仅有 `PRIMARY KEY(id_)` 不能去重同一业务关系。 |
 | 并发写入 | `NOT EXISTS` 检查与插入不是原子操作；无数据库联合唯一约束时，并发调用仍可能插入重复关系。 |
 
-**建设建议**：关系表两侧键按业务语义设为非空，并建立两侧键的联合唯一约束；清理存量重复关系并使约束生效后，才能据此阻止重复关系并避免查询返回重复实体。**生成物与现状边界**：`selectByTable` 配置不会自动推导或添加上述非空/联合唯一约束；Schema 生成器输出内省得到的主键、索引和外键，不能因为配置了关系查询就假设生成 DDL 已含关系两侧联合唯一或非空约束。须检查实际数据库结构、内省输入和生成 DDL，不能把建设建议当作现状。组织项目角色—菜单样例的 MySQL、PostgreSQL、DM DDL 仅声明 `PRIMARY KEY(id_)`，两侧关系列允许 NULL，未声明联合唯一；详见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)。当前 SQL 固定使用 `MD5(CONCAT(...))`，目标数据库需支持相应函数；该拼接哈希也不等同于无歧义的复合键编码，需评估键值格式和标识策略。
+**建设建议**：关系表两侧键按业务语义设为非空，并建立两侧键的联合唯一约束；清理存量重复关系并使约束生效后，才能据此阻止重复关系并避免查询返回重复实体。**生成物与现状边界**：仅配置 `selectByTable` 不会自动推导上述约束；须显式建模 `relationKeyColumns`，或提供已有约束的内省元数据。组织项目角色—菜单样例现已选择受管模式并离线生成 MySQL/PostgreSQL/DM 新建表 DDL，不代表存量数据库已完成迁移；详见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)。旧模式仍固定使用 `MD5(CONCAT(...))`，不能把拼接哈希当作无歧义的复合键编码。
 
 完整配置可按实际缓存需要添加 `<enableCache>`：
 
@@ -456,7 +458,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `returnType="primaryKey"` | 查询时返回当前实体主键字符串列表，而不是实体列表。 |
 | `<enableCache/>` | 生成缓存支持。 |
 
-`<enableCache>` 可用 `enableCache="false"` 禁用当前查询缓存，也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。未指定名称时按当前查询方向生成默认名称。关系新增/解除所生成的缓存清理仅能覆盖当前生成器 Context 中可发现的查询配置；分属不同模块/Context 时，不会自动发现并清理另一侧的查询缓存。跨模块双侧查询可能因此短暂不一致，需要由业务层明确处理对侧缓存失效。角色—菜单样例的实际缓存名和调用方向见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)；当前 HTTP 请求的 query 参数、JSON body 及返回值契约见[前后端接口契约第 6.5 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\frontend-business-capabilities-spec.md)。
+`<enableCache>` 可用 `enable="false"` 禁用当前查询缓存（兼容别名 `enableCache="false"`，同时指定时别名优先），也可用 `cacheNames="nameA,nameB"` 指定一个或多个缓存区。显式缓存名可带 `#<正整数><s|m|h|d>` TTL（如 `userRole#12h`），数值不超过 `Integer.MAX_VALUE`，只允许一个 `#`；毫秒、零、负数及重复后缀均报错。带合法后缀时按原值输出；未指定 TTL 的显式名称默认追加 `#72h`。未指定名称时按当前查询方向生成默认名称。关系新增/解除所生成的缓存清理仅能覆盖当前生成器 Context 中可发现的查询配置；分属不同模块/Context 时，不会自动发现并清理另一侧的查询缓存。跨模块双侧查询可能因此短暂不一致，需要由业务层明确处理对侧缓存失效。角色—菜单样例的实际缓存名和调用方向见[组织项目关系设计 3.6](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\vgosoft-organization-design-overview.md)；当前 HTTP 请求的 query 参数、JSON body 及返回值契约见[前后端接口契约第 6.5 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-web2\src\main\resources\docs\frontend-business-capabilities-spec.md)。
 
 同一 `selectByTable` 可配置多个 `<enableCache>`；生成器去重后使用单个 `@Cacheable` 或 `@Caching` 组合注解，避免重复声明不可重复的注解。
 
@@ -475,6 +477,63 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 实体写操作清理自身全部已启用的关系查询缓存，包括仅返回主键的查询：实体删除或重新插入会改变经关系表连接返回的主键集合，即使没有 `CachePo` 也生成对应写包装器。
 
 `insertBySql` 和 `updateBySql` 共用目标表失效条件：同时识别调用前空表名、实体表名及基础服务填充的 `表名 as 配置别名`，确保调用后的条件判断仍清理默认目标缓存；明确指定无关表或其它别名时不匹配。
+
+### 13.2.1 显式受管关系与离线再生成
+
+```xml
+<!-- 菜单侧；角色侧交换 thisColumn/otherColumn，并改为 ForMenu、returnType="primaryKey" -->
+<selectByTable table="org_role_menu" thisColumn="menu_id" otherColumn="role_id"
+               methodSuffix="ForRole" relationIdKey="org_role_menu"
+               enableSplit="true" enableUnion="true">
+    <enableCache cacheNames="orgRoleMenuRelations#72h"/>
+</selectByTable>
+<!-- 放在生成关系表 DDL 的 table 上；不自动从 selectByTable 推断 -->
+<table tableName="org_role_menu" relationKeyColumns="role_id,menu_id">
+    <!-- 原有 generateSqlSchema 及其它开关保持不变 -->
+</table>
+```
+
+| 配置/产物 | 受管模式契约 |
+|---|---|
+| `relationIdKey` | 两端相同的稳定逻辑关系标识，不是关系行随机主键；不包含租户，不跨 Context 自动发现。实体要求单 String 主键，两关系列也是不同的 String 列。 |
+| `cacheNames` | 两端显式声明同一共享缓存；使用同进程、同缓存管理器。关系读与提交后失效仅使用该共享区域，不生成旧区域兼容失效。 |
+| Service union | 保留原公开签名及返回计数，调用 `RelationWriteSupport.union`；随机 UUID 由基础包生成，逐行普通 INSERT 由运行时 NESTED 保存点保护。仅唯一键冲突且回滚后确认同一关系已存在时算作幂等重复；其它失败抛出并回滚。 |
+| Mapper / XML | 新增 `int insertByTable<Suffix>Row(thisId,otherId,relationId)` 和 `String selectRelationIdByTable<Suffix>(thisId,otherId)`；插入参数 `relationId` 是随机关系行主键，与配置 `relationIdKey` 不同。后者当前/锁定读取关系 `id_`，不存在返回 null，Service predicate 为 `!= null`。受管关系不保留旧危险批量 Mapper 插入入口。普通 INSERT 使用通用 `INSERT ... VALUES`，无 MD5、函数依赖或忽略错误语法。 |
+| Service split | 保留增量删除；调用 `RelationWriteSupport.normalize` 校验当前 ID 和非空/非空白列表并去重；空数组绝非清空指令。 |
+| `RelationMutation` | `relation` 字段仍使用逻辑关系标识，并仅声明共享关系缓存；基础包负责 REQUIRED 事务、提交前登记持久 outbox 与提交后失效，零行写入也登记失效。不生成普通关系写 `CacheEvict`。 |
+| 受管实体 CRUD | 当前实体已有 CacheEvict 的 CRUD/批量/SQL 写包装器另标注同一 `RelationMutation`，保留实体普通缓存和非受管关系各自缓存清理，并在外层提交后再次失效共享关系缓存。SQL builder 指向其它表时允许保守多清理；不改变方法体、异常返回或增加主表删除后的关系清理。非受管关系写方法不自动标注。当前注解仅表达单关系，实体影响多个不同受管关系标识时显式报错，不静默漏掉其它关系。 |
+| `Cacheable` | 复用 `CacheAnnotationDesc` 原有完整 v3 key，保留实体、方法、当前租户及带类型的参数；无租户业务键不代表查询上下文无租户。`condition` 在事务内绕过缓存读和填充，不引入额外读注解。实体写入通过现有缓存解析器包含共享缓存，并声明同一 `RelationMutation` 提交后失效，不执行关系数据自动清理。提交后即时清理及延迟补清只降低并发旧查询晚填风险，不保证线性一致。共享 TTL 保持 `#72h`。 |
+| Controller | 保留 select/split/union 路由与返回类型；当前 ID 为 query 参数，对端列表只能是 JSON body，与是否生成 Vue 无关。不生成全量原子 save 入口或 form 兼容入口。 |
+| `relationKeyColumns` | 显式两列模型覆盖；Schema 生成器复用 `IndexInfo` 生成 NOT NULL、联合唯一索引和反向索引。保留代理主键和已有其它元数据，不添加租户、外键或执行迁移。 |
+
+部署前必须人工清理无效/重复关系并使联合唯一、非空约束生效；保留有效旧行 ID，无需批量换成 UUID。部署基础包的 outbox 表及事务能力验证后再启用双侧写入。目标数据库必须提供关系表事务和 JDBC 保存点，不支持时由运行时显式报错，不能退化为忽略错误。主表删除后的关系清理不在本次模式内。
+
+冲突保存点回滚后的关系验证不能使用普通 COUNT：MySQL 默认 REPEATABLE_READ 可能沿用旧快照。按两侧键读取 `id_`，仅在重复键异常发生后调用，不预先探测；验证语句声明 `useCache="false"` / `flushCache="true"`，避免 MyBatis 查询缓存绕过实际读取。
+
+| 当前读取方言组 | SQL / 边界 |
+|---|---|
+| MySQL、MariaDB、Oracle、PostgreSQL、DM、HighGo、KingbaseES、GaussDB、UXDB、H2、HSQL | `SELECT id_ FROM ... WHERE pair FOR UPDATE`；事务/保存点与隔离能力仍须由运行时验证。 |
+| SQL Server / SQL Server 2005 | `SELECT id_ FROM table WITH (UPDLOCK,HOLDLOCK) WHERE pair`。 |
+| SQLite | 不生成 FOR UPDATE；前一 INSERT 已建立单写者事务，冲突回滚后的读取在同一事务内执行。 |
+| 其它 DatabaseType | 受管 union 生成显式报错，整个目标方言集合预检后再输出，绝不退化为普通快照 COUNT。未选择受管模式的旧生成行为不变。 |
+
+TiDB、PolarDB、TDSQL、DB2、Xugu、GBase、Phoenix、CacheDB、Informix、Cloudscape、Sybase、OTHER 尚未证明当前读与保存点组合语义，不宣称受管 union 支持；补充等价能力及测试后才能加入。`additionalDbTypes` 包含这些类型时失败提示对应 code；本实例只生成 MySQL/PostgreSQL/DM。目标数据库必须提供关系表事务和 JDBC 保存点，不支持时由运行时显式报错，不能退化为忽略错误。主表删除后的关系清理不在本次模式内。
+
+基础包 `vgosoft.relation.enabled=true` 仅可在人工创建 outbox 结构后开启；缺少配置时受管服务所需写支持不能静默降级。重试与延迟补清的实际调度及故障语义以基础包运行时文档为准；不可把默认约 30 秒的延迟补清当成陈旧数据上界，晚完成的并发读仍可能回填旧值，健康 TTL 淘汰机制下通常以最后一次旧值填充后的 `#72h` 到期为最终边界。目标数据库必须提供关系表事务和 JDBC 保存点，不支持时由运行时显式报错，不能退化为忽略错误。主表删除后的关系清理不在本次模式内。
+运行时部署入口为[基础包关系维护指南](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\relation-maintenance-guide.md)；角色—菜单的备份映射、最小有效旧 ID 去重和约束补齐见[组织迁移手册](D:\java\idea_projs7\project-vgosoft\vgosoft-organization\src\main\resources\docs\org-role-menu-migration-runbook.md)。仅维护引用，不复制运行时权威正文。
+
+禁止为了更新这组保护产物运行会连接业务库的普通内省流程。已提供 `src\test\java\org\mybatis\generator\offline\ManagedRelationOfflineRegenerator.java`：读取两份配置中的选定关系，使用人工快照元数据直接调用现有 Service/Mapper/XML/Controller DOM 与 Schema 生成器；先把选定文件写到 `target\offline-relations`，再机械替换生成方法/语句块，保留其它内容和换行。不会执行 `DatabaseIntrospector`、`ValidateDatabaseTable` 或更新 init 数据。
+
+在生成器根目录、JDK 21 / Maven 3.9.12 下执行（PowerShell 每个 `-D` 参数加引号）：
+
+```powershell
+mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
+  "-Dtest=ManagedRelationGenerationTest,PrimaryKeyRelationCacheGenerationTest" `
+  "-Doffline.basicRoot=D:\java\idea_projs0\trunk\vgosoft-basic" `
+  "-Doffline.organizationModule=D:\java\idea_projs7\project-vgosoft\vgosoft-organization" test
+```
+
+上述命令仅生成待审文件；审查差异后在同一命令增加 `"-Doffline.write=true"` 才落地。快照只覆盖当前角色—菜单两侧和三种 DDL，不应将其当作任意业务表的完整离线内省替代。扩展到其它关系必须补充相应已验证元数据与保护边界测试。
 
 ### 13.3 `htmlElementDescriptor` 的字典/组织/用户联动
 

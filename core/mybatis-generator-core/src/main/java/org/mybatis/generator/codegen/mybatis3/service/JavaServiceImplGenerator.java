@@ -168,6 +168,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         addCleanupInvalidRecordsMethod(bizGenClazzImpl);
         boolean cacheOperations = addCacheAwareBaseMethodsAndConfig(bizGenClazzImpl);
+        ManagedRelationGeneration.addEntityMutationAnnotations(bizGenClazzImpl, introspectedTable);
 
         // 增加类的javaDoc注释
         commentGenerator.addModelClassComment(bizGenClazzImpl,

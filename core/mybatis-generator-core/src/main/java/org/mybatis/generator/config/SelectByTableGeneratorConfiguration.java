@@ -26,6 +26,8 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     private String additionCondition;
 
+    private String relationIdKey;
+
     private String returnTypeParam;
 
     private boolean enableSplit;
@@ -62,6 +64,18 @@ public class SelectByTableGeneratorConfiguration extends PropertyHolder {
 
     public String getUnionMethodName() {
         return "insertByTable"+JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
+    }
+
+    public boolean isManagedRelation() {
+        return relationIdKey != null && !relationIdKey.isBlank();
+    }
+
+    public String getRowInsertMethodName() {
+        return getUnionMethodName() + "Row";
+    }
+
+    public String getExistsMethodName() {
+        return "selectRelationIdByTable" + JavaBeansUtil.getFirstCharacterUppercase(this.getMethodSuffix());
     }
 
     public String getSelectByTableMethodName() {
