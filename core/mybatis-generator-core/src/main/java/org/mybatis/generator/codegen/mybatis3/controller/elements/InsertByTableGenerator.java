@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 import static com.vgosoft.tool.core.VStringUtil.toHyphenCase;
 import static org.mybatis.generator.custom.ConstantsUtil.*;
 
+/**
+ * @author cen_c
+ */
 public class InsertByTableGenerator extends AbstractControllerElementGenerator {
 
     public InsertByTableGenerator() {
@@ -60,8 +63,11 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     method.addBodyLine("int rows =  {0}.{1}({2});", serviceBeanName
                             , c.getUnionMethodName()
                             , Stream.of(p1, p2).map(Parameter::getName).collect(Collectors.joining(",")));
-                    method.addBodyLine("if (rows > 0) return success((long) rows,rows);");
-                    method.addBodyLine("else return success(null,0);");
+                    method.addBodyLine("if (rows > 0) {");
+                    method.addBodyLine("return success((long) rows, rows);");
+                    method.addBodyLine("} else {");
+                    method.addBodyLine("return success(null,0);");
+                    method.addBodyLine("}");
                     parentElement.addMethod(method);
                     parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
                     parentElement.addImportedType(new FullyQualifiedJavaType(RESPONSE_RESULT));

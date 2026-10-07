@@ -30,11 +30,12 @@ public class SelectBySqlMethodElement extends AbstractServiceElementGenerator {
                 ,entityType.getShortName()
                 ,configuration.getMethodName()
                 ,configuration.getParentIdColumn().getJavaProperty());
-        method.addBodyLine("if (result.size() > 0) {\n" +
-                "            return ServiceResult.success(result,result.size());\n" +
-                "        }else{\n" +
-                "            return ServiceResult.failure(ServiceCodeEnum.WARN);\n" +
-                "        }");
+        method.addBodyLine("""
+                if (!result.isEmpty()) {\s
+                            return ServiceResult.success(result,result.size());
+                        }else{
+                            return ServiceResult.failure(ServiceCodeEnum.WARN);
+                        }""");
         parentElement.addMethod(method);
         parentElement.addImportedType(configuration.getParentIdColumn().getFullyQualifiedJavaType());
     }

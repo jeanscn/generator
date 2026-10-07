@@ -6,6 +6,9 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.config.SelectBySqlMethodGeneratorConfiguration;
 
+/**
+ * @author cen_c
+ */
 public class SelectBySqlMethodElementGenerator extends AbstractXmlElementGenerator {
 
     private final SelectBySqlMethodGeneratorConfiguration configuration;

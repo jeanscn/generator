@@ -63,7 +63,7 @@ public class ViewElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("response.addHeader(\"X-Frame-Options\", \"SAMEORIGIN\");");
         method.addBodyLine("ModelAndView mv = new ModelAndView();");
         method.addBodyLine("String viewName = null;");
-        method.addBodyLine("{0} {1} = null;", entityName, entityVar);
+        method.addBodyLine("{0} {1};", entityName, entityVar);
         method.addBodyLine("if (viewParam.getId() != null) {");
         method.addBodyLine(format("ServiceResult<{0}> serviceResult = {1}.selectByPrimaryKey(viewParam.getId());", entityType.getShortName(), serviceBeanName));
         method.addBodyLine("if (serviceResult.hasResult()) {");

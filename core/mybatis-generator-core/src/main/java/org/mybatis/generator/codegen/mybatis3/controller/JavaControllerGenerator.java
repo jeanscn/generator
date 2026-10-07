@@ -330,7 +330,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 } else {
                     if (column.isJdbcCharacterColumn()) {
                         buildExample.addBodyLine("if (VStringUtil.indexOf({0}.{1}(), SymbolConstants.COMMA.charAt(0)) > -1) '{'", type.getShortNameFirstLowCase(), getterMethodName);
-                        buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replaceAll(SymbolConstants.COMMA, SymbolConstants.PIPE) + \")(,|$)''\" );"
+                        buildExample.addBodyLine("criteria.{0}AnyCondition(\"regexp ''(^|,)(\" + {1}.{2}().replace(SymbolConstants.COMMA, SymbolConstants.PIPE) + \")(,|$)''\" );"
                                 , initializeAndMethodName(column)
                                 , type.getShortNameFirstLowCase()
                                 , getterMethodName);

@@ -297,7 +297,6 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         introspectedTable.getTableConfiguration().getSelectBySqlMethodGeneratorConfigurations()
                 .forEach(config -> {
                     Method method = serviceMethods.getSelectBySqlMethodMethod(interfaze, config, true, false);
-                    context.getCommentGenerator().addMethodJavaDocLine(method, "基于sql函数[" + config.getSqlMethod() + "]的查询");
                     interfaze.addMethod(method);
                 });
     }
