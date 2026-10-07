@@ -49,7 +49,7 @@ public class DeleteByExampleElement extends AbstractServiceElementGenerator {
         }
         if (!collect.isEmpty()) {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,deleteByExampleMethod,"DEFAULT");
-            deleteByExampleMethod.addBodyLine("if (result.getResult() != null && !result.getResult().isEmpty()) '{'");
+            deleteByExampleMethod.addBodyLine("if (result.getResult() != null && !result.getResult().isEmpty()) {");
             deleteByExampleMethod.addBodyLine("for ({0} {1} : result.getResult()) '{'", entityType.getShortName(), entityType.getShortNameFirstLowCase());
             outSubBatchMethodBody(deleteByExampleMethod, "DELETE", entityType.getShortNameFirstLowCase(), parentElement, collect, false);
             deleteByExampleMethod.addBodyLine("}");
