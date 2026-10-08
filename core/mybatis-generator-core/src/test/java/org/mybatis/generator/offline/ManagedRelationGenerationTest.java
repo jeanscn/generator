@@ -5,6 +5,9 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mybatis.generator.api.dom.DefaultJavaFormatter;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.XmlElement;
@@ -29,6 +32,7 @@ import org.mybatis.generator.exception.XMLParserException;
 import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.tools.ToolProvider;
 import org.xml.sax.InputSource;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -46,6 +50,107 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class ManagedRelationGenerationTest {
+    @TempDir
+    Path temporaryDirectory;
+
+    @Test
+    void compilesEntityWriteWithFourManagedRelationsAgainstRuntimeApi() throws Exception {
+        IntrospectedTableMyBatis3Impl fixture = fixture(relation(false));
+        fixture.getTableConfiguration().getSelectByTableGeneratorConfiguration().clear();
+        for (String key : List.of("org_r_user_department", "org_r_user_group",
+                "org_r_user_team", "org_r_user_role")) {
+            SelectByTableGeneratorConfiguration query = relation(false);
+            query.setRelationIdKey(key);
+            query.setTableName(key);
+            query.getCacheConfigurationList().get(0).setCacheNames(List.of(key + "#72h"));
+            fixture.getTableConfiguration().getSelectByTableGeneratorConfiguration().add(query);
+        }
+        TopLevelClass parent = new TopLevelClass("sample.Fixture");
+        parent.setVisibility(JavaVisibility.PUBLIC);
+        parent.addImportedType("org.springframework.cache.annotation.CacheEvict");
+        Method update = new Method("update");
+        update.setVisibility(JavaVisibility.PUBLIC);
+        update.addAnnotation("@CacheEvict(cacheNames = {\"SysMenu#8h\"}, allEntries = true)");
+        parent.addMethod(update);
+        ManagedRelationGeneration.addEntityMutationAnnotations(parent, fixture);
+        String source = new DefaultJavaFormatter().getFormattedContent(parent);
+        var mutations = StaticJavaParser.parse(source).findAll(MethodDeclaration.class).get(0)
+                .getAnnotationByName("RelationMutations").orElseThrow()
+                .asSingleMemberAnnotationExpr().getMemberValue().asArrayInitializerExpr().getValues();
+        assertThat(mutations).hasSize(4);
+        Path generated = temporaryDirectory.resolve("Fixture.java");
+        Files.writeString(generated, source);
+        assertThat(ToolProvider.getSystemJavaCompiler().run(null, null, null, "-proc:none",
+                "-classpath", System.getProperty("java.class.path"),
+                "-d", temporaryDirectory.toString(), generated.toString())).isZero();
+    }
+
+    @Test
+    void declaresEveryManagedRelationAndMergesDuplicateDescriptorsWithoutChangingWrites() {
+        SelectByTableGeneratorConfiguration first = relation(false);
+        first.getCacheConfigurationList().clear();
+        IntrospectedTableMyBatis3Impl fixture = fixture(first);
+        SelectByTableGeneratorConfiguration cachedDuplicate = relation(false);
+        SelectByTableGeneratorConfiguration second = relation(false);
+        second.setRelationIdKey("org_r_user_role");
+        second.setTableName("org_r_user_role");
+        second.getCacheConfigurationList().get(0).setCacheNames(List.of("userRoles#72h"));
+        SelectByTableGeneratorConfiguration anotherDuplicate = relation(false);
+        anotherDuplicate.getCacheConfigurationList().get(0).setCacheNames(List.of("extraMenuCache#12h"));
+        SelectByTableGeneratorConfiguration uncached = relation(false);
+        uncached.setRelationIdKey("uncached_relation");
+        uncached.getCacheConfigurationList().clear();
+        fixture.getTableConfiguration().getSelectByTableGeneratorConfiguration()
+                .addAll(List.of(cachedDuplicate, second, anotherDuplicate, uncached));
+        String input = """
+                class Fixture {
+                    @CacheEvict(cacheNames={"SysMenu#8h"},allEntries=true)
+                    public int update(String id) { return mapper.update(id); }
+
+                    @CacheEvict(cacheNames={"userRoles#72h"},allEntries=true)
+                    public int insertByTableForUser(String id) { return mapper.union(id); }
+                }
+                """;
+        TopLevelClass parent = new TopLevelClass("Fixture");
+        String output = ManagedRelationOfflineRegenerator.regenerateEntityMutationAnnotations(input, fixture, parent);
+        MethodDeclaration update = StaticJavaParser.parse(output).findAll(MethodDeclaration.class).stream()
+                .filter(method -> method.getNameAsString().equals("update")).findFirst().orElseThrow();
+        var mutations = update.getAnnotationByName("RelationMutations").orElseThrow()
+                .asSingleMemberAnnotationExpr().getMemberValue().asArrayInitializerExpr().getValues();
+        assertThat(mutations).hasSize(3);
+        assertThat(mutations.get(0).toString()).contains("org_role_menu", "orgRoleMenuRelations#72h", "extraMenuCache#12h")
+                .doesNotContain("userRoles#72h");
+        assertThat(mutations.get(1).toString()).contains("org_r_user_role", "userRoles#72h")
+                .doesNotContain("orgRoleMenuRelations");
+        assertThat(mutations.get(2).toString()).contains("uncached_relation", "{}");
+        assertThat(update.getAnnotationByName("CacheEvict").orElseThrow().toString())
+                .contains("SysMenu#8h", "orgRoleMenuRelations#72h", "userRoles#72h", "extraMenuCache#12h");
+        assertThat(output).contains("public int update(String id) { return mapper.update(id); }");
+        assertThat(output.substring(output.indexOf("@CacheEvict(cacheNames={\"userRoles")))
+                .isEqualTo(input.substring(input.indexOf("@CacheEvict(cacheNames={\"userRoles")));
+        assertThat(parent.getImportedTypes()).contains(
+                new org.mybatis.generator.api.dom.java.FullyQualifiedJavaType(
+                        "com.vgosoft.core.annotation.relation.RelationMutations"));
+        assertThat(ManagedRelationOfflineRegenerator.regenerateEntityMutationAnnotations(output, fixture, parent))
+                .isEqualTo(output);
+    }
+
+    @Test
+    void keepsSingleDeclarationWhenMultipleDescriptorsShareOneRelationKey() {
+        SelectByTableGeneratorConfiguration uncached = relation(false);
+        uncached.getCacheConfigurationList().clear();
+        IntrospectedTableMyBatis3Impl fixture = fixture(uncached);
+        fixture.getTableConfiguration().getSelectByTableGeneratorConfiguration().add(relation(false));
+        TopLevelClass parent = new TopLevelClass("Fixture");
+        Method update = new Method("update");
+        update.addAnnotation("@CacheEvict(cacheNames = {\"SysMenu#8h\"}, allEntries = true)");
+        parent.addMethod(update);
+        ManagedRelationGeneration.addEntityMutationAnnotations(parent, fixture);
+        assertThat(update.getAnnotations()).anySatisfy(annotation ->
+                assertThat(annotation).startsWith("@RelationMutation(").contains("orgRoleMenuRelations#72h"))
+                .noneMatch(annotation -> annotation.startsWith("@RelationMutations("));
+    }
+
     @Test
     void addsDeferredInvalidationToEntityWritesWithoutChangingBodiesOrLegacyRelationWrites() {
         IntrospectedTableMyBatis3Impl fixture = fixture(relation(false));

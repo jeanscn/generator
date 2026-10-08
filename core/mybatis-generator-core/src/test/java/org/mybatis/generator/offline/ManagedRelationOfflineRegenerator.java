@@ -454,8 +454,10 @@ public final class ManagedRelationOfflineRegenerator {
                 continue;
             }
             String generatedMutation = generated.orElseThrow();
-            if (existing.getAnnotationByName("RelationMutation").isPresent()) {
-                var mutation = existing.getAnnotationByName("RelationMutation").orElseThrow();
+            var existingMutation = existing.getAnnotationByName("RelationMutations")
+                    .or(() -> existing.getAnnotationByName("RelationMutation"));
+            if (existingMutation.isPresent()) {
+                var mutation = existingMutation.orElseThrow();
                 int start = lineStart(text, mutation.getBegin().orElseThrow().line) + mutation.getBegin().orElseThrow().column - 1;
                 int end = lineStart(text, mutation.getEnd().orElseThrow().line) + mutation.getEnd().orElseThrow().column;
                 text = text.substring(0, start) + generatedMutation + text.substring(end);
@@ -465,11 +467,11 @@ public final class ManagedRelationOfflineRegenerator {
             int end = lineStart(text, cache.getEnd().orElseThrow().line) + cache.getEnd().orElseThrow().column;
             String replacement = method.getAnnotations().stream()
                     .filter(annotation -> annotation.startsWith("@CacheEvict")).findFirst().orElseThrow();
-            if (existing.getAnnotationByName("RelationMutation").isEmpty()) {
+            if (existingMutation.isEmpty()) {
                 replacement += newline(text) + "    " + generatedMutation;
             }
             text = text.substring(0, start) + replacement + text.substring(end);
-            parent.addImportedType("com.vgosoft.mybatis.relation.RelationMutation");
+            snapshot.getImportedTypes().forEach(parent::addImportedType);
         }
         return text;
     }

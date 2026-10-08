@@ -10,7 +10,9 @@ import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 import org.mybatis.generator.custom.annotations.CacheAnnotationDesc;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.regex.Pattern;
@@ -44,13 +46,16 @@ public final class ManagedRelationGeneration {
     }
 
     public static String cacheNames(SelectByTableGeneratorConfiguration relation) {
-        Set<String> names = new LinkedHashSet<>(queryCacheNames(relation));
+        return cacheNames(new LinkedHashSet<>(queryCacheNames(relation)));
+    }
+
+    private static String cacheNames(Set<String> names) {
         return names.stream().map(name -> "\"" + name.replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
                 .collect(Collectors.joining(", "));
     }
 
     public static void addMutation(Method method, TopLevelClass parent, SelectByTableGeneratorConfiguration relation) {
-        parent.addImportedType("com.vgosoft.mybatis.relation.RelationMutation");
+        parent.addImportedType("com.vgosoft.core.annotation.relation.RelationMutation");
         method.addAnnotation("@RelationMutation(relation = \"" + relation.getRelationIdKey()
                 + "\", cacheNames = {" + cacheNames(relation) + "})");
     }
@@ -75,6 +80,15 @@ public final class ManagedRelationGeneration {
         if (managed.isEmpty()) {
             return;
         }
+        Map<String, Set<String>> relations = new LinkedHashMap<>();
+        for (SelectByTableGeneratorConfiguration relation : managed) {
+            validate(table, relation);
+            relations.computeIfAbsent(relation.getRelationIdKey(), key -> new LinkedHashSet<>())
+                    .addAll(queryCacheNames(relation));
+        }
+        if (relations.values().stream().allMatch(Set::isEmpty)) {
+            return;
+        }
         for (Method method : parent.getMethods()) {
             if (method.getAnnotations().stream().noneMatch(annotation -> annotation.startsWith("@CacheEvict"))) {
                 continue;
@@ -82,14 +96,6 @@ public final class ManagedRelationGeneration {
             boolean relationshipWrite = method.getName().startsWith("insertByTable")
                     || method.getName().startsWith("deleteByTable");
             if (relationshipWrite) {
-                continue;
-            }
-            if (managed.stream().map(SelectByTableGeneratorConfiguration::getRelationIdKey).distinct().count() != 1) {
-                throw new IllegalArgumentException("Entity writes affecting multiple managed relation descriptors require explicit runtime support");
-            }
-            SelectByTableGeneratorConfiguration relation = managed.get(0);
-            validate(table, relation);
-            if (queryCacheNames(relation).isEmpty()) {
                 continue;
             }
             for (int i = 0; i < method.getAnnotations().size(); i++) {
@@ -114,7 +120,17 @@ public final class ManagedRelationGeneration {
                         "cacheNames = {" + cacheNames + "}")));
             }
             method.getAnnotations().removeIf(annotation -> annotation.startsWith("@RelationMutation"));
-            addMutation(method, parent, relation);
+            parent.addImportedType("com.vgosoft.core.annotation.relation.RelationMutation");
+            List<String> mutations = relations.entrySet().stream()
+                    .map(entry -> "@RelationMutation(relation = \"" + entry.getKey()
+                            + "\", cacheNames = {" + cacheNames(entry.getValue()) + "})")
+                    .toList();
+            if (mutations.size() == 1) {
+                method.addAnnotation(mutations.get(0));
+            } else {
+                parent.addImportedType("com.vgosoft.core.annotation.relation.RelationMutations");
+                method.addAnnotation("@RelationMutations({" + String.join(", ", mutations) + "})");
+            }
         }
     }
 }

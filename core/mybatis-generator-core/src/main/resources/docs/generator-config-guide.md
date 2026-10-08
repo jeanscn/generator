@@ -501,7 +501,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | Mapper / XML | 新增 `int insertByTable<Suffix>Row(thisId,otherId,relationId)` 和 `String selectRelationIdByTable<Suffix>(thisId,otherId)`；插入参数 `relationId` 是随机关系行主键，与配置 `relationIdKey` 不同。后者当前/锁定读取关系 `id_`，不存在返回 null，Service predicate 为 `!= null`。受管关系不保留旧危险批量 Mapper 插入入口。普通 INSERT 使用通用 `INSERT ... VALUES`，无 MD5、函数依赖或忽略错误语法。 |
 | Service split | 保留增量删除；调用 `RelationWriteSupport.normalize` 校验当前 ID 和非空/非空白列表并去重；空数组绝非清空指令。 |
 | `RelationMutation` | `relation` 字段仍使用逻辑关系标识，并仅声明共享关系缓存；基础包负责 REQUIRED 事务、提交前登记持久 outbox 与提交后失效，零行写入也登记失效。不生成普通关系写 `CacheEvict`。 |
-| 受管实体 CRUD | 当前实体已有 CacheEvict 的 CRUD/批量/SQL 写包装器另标注同一 `RelationMutation`，保留实体普通缓存和非受管关系各自缓存清理，并在外层提交后再次失效共享关系缓存。SQL builder 指向其它表时允许保守多清理；不改变方法体、异常返回或增加主表删除后的关系清理。非受管关系写方法不自动标注。当前注解仅表达单关系，实体影响多个不同受管关系标识时显式报错，不静默漏掉其它关系。 |
+| 受管实体 CRUD | 当前实体已有 CacheEvict 的 CRUD/批量/SQL 写包装器另声明全部受管关系：单个逻辑关系仍使用 `RelationMutation`，多个逻辑关系使用 `RelationMutations` 容器。相同 `relationIdKey` 的描述合并缓存范围，各关系的缓存范围保持独立；同一关系首个描述未启用缓存时，也会合并后续描述的缓存。全部关系均未启用缓存时不增加实体失效注解。保留实体普通缓存和非受管关系各自缓存清理，并在外层提交后再次失效共享关系缓存。SQL builder 指向其它表时允许保守多清理；不改变方法体、异常返回或增加主表删除后的关系清理。非受管关系写方法不自动标注。 |
 | `Cacheable` | 复用 `CacheAnnotationDesc` 原有完整 v3 key，保留实体、方法、当前租户及带类型的参数；无租户业务键不代表查询上下文无租户。`condition` 在事务内绕过缓存读和填充，不引入额外读注解。实体写入通过现有缓存解析器包含共享缓存，并声明同一 `RelationMutation` 提交后失效，不执行关系数据自动清理。提交后即时清理及延迟补清只降低并发旧查询晚填风险，不保证线性一致。共享 TTL 保持 `#72h`。 |
 | Controller | 保留 select/split/union 路由与返回类型；当前 ID 为 query 参数，对端列表只能是 JSON body，与是否生成 Vue 无关。不生成全量原子 save 入口或 form 兼容入口。 |
 | `relationKeyColumns` | 显式两列模型覆盖；Schema 生成器复用 `IndexInfo` 生成 NOT NULL、联合唯一索引和反向索引。保留代理主键和已有其它元数据，不添加租户、外键或执行迁移。 |
