@@ -424,7 +424,7 @@
                 returnType (model|primaryKey) #IMPLIED
                 parameterType (single|list) #IMPLIED
                 enableSplit (true|false) #IMPLIED
-                relationIdKey CDATA #REQUIRED
+                relationIdKey CDATA #IMPLIED
                 enableUnion (true|false) #IMPLIED>
         <!--
             是否启用缓存的配置

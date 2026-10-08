@@ -10,6 +10,8 @@ import org.mybatis.generator.custom.annotations.RequestMappingDesc;
 import org.mybatis.generator.custom.annotations.SystemLogDesc;
 import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 
+import static org.mybatis.generator.custom.ConstantsUtil.ANNOTATION_REQUEST_PARAM_SPLIT;
+
 /**
  * @author cen_c
  */
@@ -41,15 +43,15 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
         idsParam.setRemark("需要导出的数据id列表");
         idsParam.addAnnotation("@RequestParam");
         idsParam.addAnnotation("@RequestParamSplit");
-        parentElement.addImportedType("com.vgosoft.web.resolver.annotation.RequestParamSplit");
+        parentElement.addImportedType(ANNOTATION_REQUEST_PARAM_SPLIT);
         method.addParameter(idsParam);
         method.addException(new FullyQualifiedJavaType("java.io.IOException"));
         method.setExceptionRemark("IO读写异常");
 
-        method.addAnnotation(new SystemLogDesc("数据导出", introspectedTable),parentElement);
-        method.addAnnotation(new RequestMappingDesc("export", RequestMethodEnum.GET),parentElement);
-        addSecurityPreAuthorize(method,methodPrefix,"导出");
-        method.addAnnotation(new OperationDesc("Excel数据导出", "Excel数据导出接口"),parentElement);
+        method.addAnnotation(new SystemLogDesc("数据导出", introspectedTable), parentElement);
+        method.addAnnotation(new RequestMappingDesc("export", RequestMethodEnum.GET), parentElement);
+        addSecurityPreAuthorize(method, methodPrefix, "导出");
+        method.addAnnotation(new OperationDesc("Excel数据导出", "Excel数据导出接口"), parentElement);
 
         commentGenerator.addMethodJavaDocLine(method, "Excel数据导出");
 

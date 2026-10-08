@@ -43,9 +43,10 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                         p2.addAnnotation("@RequestBody");
                         parentElement.addImportedType(listInstance);
                         parentElement.addImportedType("org.springframework.web.bind.annotation.RequestBody");
-                    }else{
+                    } else {
                         p2.addAnnotation("@RequestParam");
                         p2.addAnnotation("@RequestParamSplit");
+                        parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_REQUEST_PARAM_SPLIT));
                     }
                     p2.setRemark(c.getOtherColumn().getRemarks(false));
                     method.addParameter(p2);
@@ -54,11 +55,11 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     method.setReturnType(response);
                     method.setReturnRemark("成功添加的记录数");
 
-                    method.addAnnotation(new SystemLogDesc("添加数据关联", introspectedTable),parentElement);
-                    method.addAnnotation(new RequestMappingDesc("union/"+ toHyphenCase(c.getMethodSuffix())
-                            , RequestMethodEnum.POST),parentElement);
-                    addSecurityPreAuthorize(method,c.getUnionMethodName(),"添加关系");
-                    method.addAnnotation(new OperationDesc("添加数据关联关系", "添加中间表数据"),parentElement);
+                    method.addAnnotation(new SystemLogDesc("添加数据关联", introspectedTable), parentElement);
+                    method.addAnnotation(new RequestMappingDesc("union/" + toHyphenCase(c.getMethodSuffix())
+                            , RequestMethodEnum.POST), parentElement);
+                    addSecurityPreAuthorize(method, c.getUnionMethodName(), "添加关系");
+                    method.addAnnotation(new OperationDesc("添加数据关联关系", "添加中间表数据"), parentElement);
 
                     commentGenerator.addMethodJavaDocLine(method, "添加中间关系表数据（添加数据关联）");
 
@@ -73,9 +74,6 @@ public class InsertByTableGenerator extends AbstractControllerElementGenerator {
                     parentElement.addMethod(method);
                     parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
                     parentElement.addImportedType(new FullyQualifiedJavaType(RESPONSE_RESULT));
-                    parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_REQUEST_PARAM_SPLIT));
                 });
-
-
     }
 }

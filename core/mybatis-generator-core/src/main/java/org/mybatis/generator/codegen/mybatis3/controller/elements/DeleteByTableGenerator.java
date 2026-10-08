@@ -45,6 +45,7 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     }else{
                         p2.addAnnotation("@RequestParam");
                         p2.addAnnotation("@RequestParamSplit");
+                        parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_REQUEST_PARAM_SPLIT));
                     }
                     p2.setRemark(c.getOtherColumn().getRemarks(false));
                     method.addParameter(p2);
@@ -72,7 +73,6 @@ public class DeleteByTableGenerator extends AbstractControllerElementGenerator {
                     parentElement.addMethod(method);
                     parentElement.addImportedType(new FullyQualifiedJavaType(API_CODE_ENUM));
                     parentElement.addImportedType(new FullyQualifiedJavaType(RESPONSE_RESULT));
-                    parentElement.addImportedType(new FullyQualifiedJavaType(ANNOTATION_REQUEST_PARAM_SPLIT));
 
                 });
 
