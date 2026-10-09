@@ -139,7 +139,7 @@ public class TopLevelClass extends InnerClass implements CompilationUnit {
                     this.addImportedType("io.swagger.v3.oas.annotations.media.Schema");
                     break;
                 case "ExcelProperty":
-                    this.addImportedType("com.alibaba.excel.annotation.ExcelProperty");
+                    this.addImportedType("org.apache.fesod.sheet.annotation.ExcelProperty");
                     break;
                 case "ViewTableMeta":
                     this.addImportedType("com.vgosoft.core.annotation.ViewTableMeta");

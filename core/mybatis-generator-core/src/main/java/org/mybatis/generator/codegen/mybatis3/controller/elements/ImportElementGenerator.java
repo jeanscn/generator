@@ -26,7 +26,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
     public void addElements(TopLevelClass parentElement) {
         FullyQualifiedJavaType responseResult = new FullyQualifiedJavaType(RESPONSE_RESULT);
         FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType(MULTIPART_FILE);
-        parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoEasyExcel");
+        parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoFesodSheet");
         parentElement.addImportedType(entityExcelImportVoType);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
         parentElement.addImportedType(multipartFile);
@@ -63,7 +63,7 @@ public class ImportElementGenerator extends AbstractControllerElementGenerator {
         method.addBodyLine("DefaultReadListener<{0}> readListener = getImportReadListener(param);",entityExcelImportVoType.getShortName());
         method.addBodyLine("try (InputStream inputStream = file.getInputStream()) {");
         method.addBodyLine("saveMultipartFileToLocal(\"upload\",file);");
-        method.addBodyLine("List<{0}> excelVos = VgoEasyExcel.read(inputStream, {0}.class, readListener);",entityExcelImportVoType.getShortName());
+        method.addBodyLine("List<{0}> excelVos = VgoFesodSheet.read(inputStream, {0}.class, readListener);",entityExcelImportVoType.getShortName());
         method.addBodyLine("if (!readListener.isSaved()) {");
         method.addBodyLine("List<{0}> {1} = mappings.from{2}s(excelVos);",entityType.getShortName(),listEntityVar,entityExcelImportVoType.getShortName());
         method.addBodyLine("for ({0} {1} : {1}s) '{'",entityType.getShortName(),entityType.getShortNameFirstLowCase());

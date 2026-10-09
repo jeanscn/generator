@@ -7,6 +7,9 @@ import org.mybatis.generator.custom.annotations.IAnnotation;
 import java.text.MessageFormat;
 import java.util.*;
 
+/**
+ * @author cen_c
+ */
 @Getter
 @Setter
 public class Method extends JavaElement {
@@ -109,46 +112,6 @@ public class Method extends JavaElement {
 
     public void addException(FullyQualifiedJavaType exception) {
         exceptions.add(exception);
-    }
-
-    public boolean isSynchronized() {
-        return isSynchronized;
-    }
-
-    public void setSynchronized(boolean isSynchronized) {
-        this.isSynchronized = isSynchronized;
-    }
-
-    public boolean isNative() {
-        return isNative;
-    }
-
-    public void setNative(boolean isNative) {
-        this.isNative = isNative;
-    }
-
-    public boolean isDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(boolean isDefault) {
-        this.isDefault = isDefault;
-    }
-
-    public boolean isAbstract() {
-        return isAbstract;
-    }
-
-    public void setAbstract(boolean isAbstract) {
-        this.isAbstract = isAbstract;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
-    }
-
-    public void setFinal(boolean isFinal) {
-        this.isFinal = isFinal;
     }
 
     public Optional<String> getExceptionRemark() {

@@ -24,7 +24,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
-        parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoEasyExcel");
+        parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoFesodSheet");
         parentElement.addImportedType("java.io.IOException");
         parentElement.addImportedType(entityExcelVoType);
         parentElement.addImportedType(entityType);
@@ -63,7 +63,7 @@ public class ExportElementGenerator extends AbstractControllerElementGenerator {
                 entityExcelVoType.getShortName());
         method.addBodyLine("        .map(JsonUtil::serializeObject)\n" +
                 "                .collect(Collectors.toList());");
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}数据\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"export\"));",entityExcelVoType.getShortName(), introspectedTable.getRemarks(true));
+        method.addBodyLine("VgoFesodSheet.write(response, \"{1}数据\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"export\"));",entityExcelVoType.getShortName(), introspectedTable.getRemarks(true));
         parentElement.addMethod(method);
         parentElement.addImportedType("java.util.stream.Collectors");
         parentElement.addImportedType("com.vgosoft.tool.core.JsonUtil");

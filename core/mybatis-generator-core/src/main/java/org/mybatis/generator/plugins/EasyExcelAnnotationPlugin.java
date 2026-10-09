@@ -7,6 +7,12 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.custom.annotations.ExcelPropertyDesc;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +36,7 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         Set<String> ignoreFields = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getExportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
-            topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");
+            topLevelClass.addImportedType("org.apache.fesod.sheet.annotation.ExcelIgnore");
         }
         return true;
     }
@@ -44,7 +50,7 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         Set<String> ignoreFields = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getImportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
-            topLevelClass.addImportedType("com.alibaba.excel.annotation.ExcelIgnore");
+            topLevelClass.addImportedType("org.apache.fesod.sheet.annotation.ExcelIgnore");
         }
         return true;
     }
@@ -56,26 +62,26 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         if (field.getAnnotations().stream()
                 .anyMatch(annotation -> annotation.contains("@Dict"))) {
             excelPropertyDesc.setConverter("ExportDictConverter.class");
-            excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.ExportDictConverter");
-        }else if(field.getType().getShortName().equals("LocalDateTime")){
+            excelPropertyDesc.addImports("com.vgosoft.system.excel.ExportDictConverter");
+        }else if(field.getType().getShortName().equals(LocalDateTime.class.getSimpleName())){
             excelPropertyDesc.setConverter("LocalDateTimeConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.LocalDateTimeConverter");
-        }else if (field.getType().getShortName().equals("LocalDate")){
+        }else if (field.getType().getShortName().equals(LocalDate.class.getSimpleName())){
             excelPropertyDesc.setConverter("LocalDateConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.LocalDateConverter");
-        }else if (field.getType().getShortName().equals("LocalTime")){
+        }else if (field.getType().getShortName().equals(LocalTime.class.getSimpleName())){
             excelPropertyDesc.setConverter("LocalTimeConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.LocalTimeConverter");
-        }else if (field.getType().getShortName().equals("Instant")){
+        }else if (field.getType().getShortName().equals(Instant.class.getSimpleName())){
             excelPropertyDesc.setConverter("InstantConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.InstantConverter");
-        }else if (field.getType().getShortName().equals("Date")){
+        }else if (field.getType().getShortName().equals(Date.class.getSimpleName())){
             excelPropertyDesc.setConverter("DateConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.DateConverter");
-        }else if (field.getType().getShortName().equals("BigDecimal")){
+        }else if (field.getType().getShortName().equals(BigDecimal.class.getSimpleName())){
             excelPropertyDesc.setConverter("BigDecimalConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.BigDecimalConverter");
-        }else if (field.getType().getShortName().equals("Integer")){
+        }else if (field.getType().getShortName().equals(Integer.class.getSimpleName())){
             excelPropertyDesc.setConverter("IntegerConverter.class");
             excelPropertyDesc.addImports("com.vgosoft.plugins.excel.converter.IntegerConverter");
         }

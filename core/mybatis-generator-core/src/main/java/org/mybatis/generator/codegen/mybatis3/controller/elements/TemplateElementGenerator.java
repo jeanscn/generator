@@ -22,7 +22,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
     @Override
     public void addElements(TopLevelClass parentElement) {
         parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
-        parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoEasyExcel");
+        parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoFesodSheet");
         parentElement.addImportedType("java.io.IOException");
         parentElement.addImportedType(entityExcelVoType);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
@@ -48,7 +48,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         commentGenerator.addMethodJavaDocLine(method, "下载数据导入模板");
 
         method.addBodyLine("List<{0}> list = buildTemplateSampleData();",entityExcelImportVoType.getShortName());
-        method.addBodyLine("VgoEasyExcel.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"template\"));",entityExcelImportVoType.getShortName(), introspectedTable.getRemarks(true));
+        method.addBodyLine("VgoFesodSheet.write(response, \"{1}导入模板\", \"{1}\", {0}.class, list, getDefaultColumnWidthStyleStrategy(\"template\"));",entityExcelImportVoType.getShortName(), introspectedTable.getRemarks(true));
 
         parentElement.addMethod(method);
     }

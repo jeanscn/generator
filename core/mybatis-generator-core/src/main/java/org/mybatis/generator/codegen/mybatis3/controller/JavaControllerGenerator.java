@@ -210,13 +210,13 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             //追加一个导出的样式方法
             Method getDefaultColumnWidthStyleStrategy = new Method("getDefaultColumnWidthStyleStrategy");
             getDefaultColumnWidthStyleStrategy.setVisibility(JavaVisibility.PROTECTED);
-            FullyQualifiedJavaType retCellWriteHandler = new FullyQualifiedJavaType("com.alibaba.excel.write.handler.CellWriteHandler");
+            FullyQualifiedJavaType retCellWriteHandler = new FullyQualifiedJavaType("org.apache.fesod.sheet.write.handler.CellWriteHandler");
             getDefaultColumnWidthStyleStrategy.setReturnType(retCellWriteHandler);
             getDefaultColumnWidthStyleStrategy.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "type"));
             getDefaultColumnWidthStyleStrategy.addBodyLine("return new DefaultColumnWidthStyleStrategy();");
             conTopClazz.addMethod(getDefaultColumnWidthStyleStrategy);
             conTopClazz.addImportedType("com.vgosoft.plugins.excel.listener.DefaultColumnWidthStyleStrategy");
-            conTopClazz.addImportedType("com.alibaba.excel.write.handler.CellWriteHandler");
+            conTopClazz.addImportedType("org.apache.fesod.sheet.write.handler.CellWriteHandler");
 
             //追加一个构造导入Excel模板的样例数据方法
             Method buildTemplateSampleData = new Method("buildTemplateSampleData");

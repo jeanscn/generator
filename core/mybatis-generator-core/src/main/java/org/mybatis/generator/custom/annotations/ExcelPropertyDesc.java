@@ -13,7 +13,7 @@ import lombok.Setter;
 public class ExcelPropertyDesc extends AbstractAnnotation {
 
     public static final String ANNOTATION_NAME = "@ExcelProperty";
-    public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
+    public static final String EXCEL_PROPERTY = "org.apache.fesod.sheet.annotation.ExcelProperty";
 
     private final String[] value;
 

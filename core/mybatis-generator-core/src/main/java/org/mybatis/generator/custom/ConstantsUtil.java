@@ -133,9 +133,6 @@ public class ConstantsUtil {
     public static final String TEST_MOCKITO_WHEN = "org.mockito.Mockito.when";
     public static final String TEST_ASSERTIONS_ASSERT_THAT = "org.assertj.core.api.Assertions.assertThat";
 
-    //easyExcel
-    //public static final String EXCEL_PROPERTY = "com.alibaba.excel.annotation.ExcelProperty";
-
     public static final Map<String,String> childrenGenericClasses = new HashMap<>();
 
     public static final String HTML_BORDER_COLOR_DEFAULT = "#eee";

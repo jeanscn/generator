@@ -8,6 +8,9 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
+/**
+ * @author cen_c
+ */
 public class InsertByTableMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     private final boolean isSimple;
@@ -46,14 +49,16 @@ public class InsertByTableMethodGenerator extends AbstractJavaMapperMethodGenera
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setAbstract(true);
         method.setReturnType(insert ? FullyQualifiedJavaType.getIntInstance() : FullyQualifiedJavaType.getStringInstance());
-        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(),
-                configuration.getThisColumn().getJavaProperty(),
-                "@Param(\"" + configuration.getThisColumn().getJavaProperty() + "\")"));
-        method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(),
-                configuration.getOtherColumn().getJavaProperty(),
-                "@Param(\"" + configuration.getOtherColumn().getJavaProperty() + "\")"));
+        Parameter p1 = new Parameter(configuration.getThisColumn());
+        p1.addAnnotation("@Param(\"" + configuration.getThisColumn().getJavaProperty() + "\")");
+        method.addParameter(p1);
+        Parameter p2 = new Parameter(configuration.getOtherColumn());
+        p2.addAnnotation("@Param(\"" + configuration.getOtherColumn().getJavaProperty() + "\")");
+        method.addParameter(p2);
         if (insert) {
-            method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "relationId", "@Param(\"relationId\")"));
+            Parameter p3 = new Parameter(FullyQualifiedJavaType.getStringInstance(), "relationId", "@Param(\"relationId\")");
+            p3.setRemark("关系行主键，写入关系表的 id_ 列；由关系维护逻辑生成。");
+            method.addParameter(p3);
         }
         method.setReturnRemark(insert ? "新增关系行数" : "锁定读取的关系行标识，关系不存在时为null");
         context.getCommentGenerator().addMethodJavaDocLine(method, insert
