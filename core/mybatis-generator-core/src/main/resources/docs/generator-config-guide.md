@@ -343,6 +343,77 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `defaultSort` | 默认排序。 |
 | `totalRow` / `totalFields` | 合计行配置。 |
 
+### Vue3 页面生成与配置（区别于 HTML 页面）
+
+Vue3 文件由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 生成；对应源码和模板分别位于 `src/main/java/org/mybatis/generator/plugins/vue3/` 与 `src/main/resources/templates/vue3/`。与 `generateHtml` 相关的规则共用表级页面配置：**至少配置一个已启用的 editable 页面才能触发编辑型 Vue3 页面**，只读页面配置则可触发详情组件。除此以外，必须在 Context 设置非空 `vueEndProjectPath`，且 model-only 表不会生成页面。
+
+当前版本的生成条件及输出如下。`{Domain}` 为解析后的 `domainObjectName`，`{domainLower}` 为其小写形式：
+
+| 文件（相对于 `src/modules/{moduleKeyword}/`） | 生成条件 |
+|---|---|
+| `views/{Domain}.vue` | 至少一个 editable 页面配置启用，且 `generateVo/viewVo` 启用 |
+| `{domainLower}/components/{Domain}Edit.vue` | 至少一个 editable 页面配置启用 |
+| `{domainLower}/components/{Domain}Detail.vue` | editable 或 viewOnly 页面配置启用 |
+| `modals/{Domain}Modal.vue` | 至少一个 editable 页面配置启用 |
+| `{domainLower}/types/T{Domain}.ts` | editable 页面配置启用或任一 VO 生成规则启用，且有收集到的 VO 字段 |
+| `{domainLower}/PrivateUseFormHooks.ts`、`{domainLower}/sharedVariables.ts` | 至少一个 editable 页面配置启用 |
+| `{domainLower}/PrivateTableColumnSlots.vue` | editable 页面配置启用，且 `viewVo` 启用 |
+
+以上 Vue3 产物的完整清单与权威设计边界见[生成器权威说明第 2.2 节](generator-authoritative-spec.md#22-vue3-前端可生成能力)。在多 `generateHtml` 配置场景下，检查是否存在有效 `generate="true"` 且 `type="editable"` / `type="viewOnly"` 的配置；不要只看 XML 中是否出现了 `generateHtml` 节点。
+
+#### Vue3 与 `generateHtml` 的职责边界
+
+1. `generateHtml` 是表级页面配置节点。它配置的 `type`（`editable`、`viewOnly`、`print`）及 `generate` 值参与 HTML 页面规则判断，也参与 Vue3 editable/viewOnly 产物规则判断；`generate="false"` 或 model-only 不能触发相应页面。
+2. `generateHtml` 下的 `layout`、`htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、附件和打印属性，首先是对应 HTML 模板/生成路径的配置。Vue3 模板使用 Framework `VgoTableView` / `vgoForm`，部分数据来自后端视图/表单配置服务；不能把 HTML 的布局属性直接解释为 Vue3 布局属性。需要 Vue3 页面采用特定字段、控件或行为时，核对实际 Vue 模板、生成配置数据流和宿主运行时契约。
+3. Vue3 列表需要 `viewVo`，其视图标识、标题、列/查询/过滤、工具栏、默认排序和菜单元数据等配置按第 5 节 `viewVo` 配置及当前 DTD 生效。`generateVo` 父级必须启用，`viewVo` 子项必须实际启用；仅启用 `generateHtml` 不会生成列表页。
+4. Vue3 编辑/详情模板本身是组件骨架；表单字段定义、数据源和控件如何装配，应通过已生成的 VO/表单元数据及服务端返回的配置确认。不要仅因某列存在于 Entity 或 TypeScript 类型中，就假定它会出现在查询区、表格列或表单中。
+
+Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm-ui\packages\framework\docs\framework-capability-overview.md)和[组件开发与复用能力指南](D:\vscode\mpmm-ui\packages\framework\docs\components-reuse-capability-overview.md)为复用依据；mpmm-ui 的[OrgRole 列表页](D:\vscode\mpmm-ui\src\modules\organization\views\OrgRole.vue)及其[编辑组件](D:\vscode\mpmm-ui\src\modules\organization\orgrole\components\OrgRoleEdit.vue)、[Hooks](D:\vscode\mpmm-ui\src\modules\organization\orgrole\PrivateUseFormHooks.ts)、[列插槽](D:\vscode\mpmm-ui\src\modules\organization\orgrole\PrivateTableColumnSlots.vue)仅用于核对真实宿主接入方式。示例项目的业务实现不能取代本生成器的 DTD、配置解析、插件/模板源码，也不构成其他宿主必须照搬的方案。
+
+#### 最小配置片段
+
+下面是放入既有 `<context>` 的 `<table>` 配置片段，不是完整可执行的 `generatorConfig.xml`。`vueEndProjectPath` 应配置在 `<context>` 上，值为 Vue 项目根目录（不含 `src`）；表配置顺序遵循当前 DTD：
+
+```xml
+<table tableName="biz_example" domainObjectName="BizExample">
+    <generateHtml generate="true" type="editable"/>
+    <generateVo generate="true">
+        <viewVo generate="true"
+                title="示例管理"
+                queryColumns="name_"
+                fuzzyColumns="name_"
+                filterColumns="state_"
+                defaultSort="created_ desc"
+                defaultDisplayFields="name_,state_,created_"
+                enablePager="true"/>
+        <requestVo generate="true"/>
+        <createVo generate="true"/>
+        <updateVo generate="true"/>
+    </generateVo>
+</table>
+```
+
+这是启动 Vue3 列表、编辑、详情及弹窗骨架的配置起点，不代表页面功能完整。根据需求补齐 VO 字段范围、必填/忽略校验、`queryColumn` / `filterColumn` 细项、`fieldOverrides`、列表按钮、值转换、附件和 innerList 等；每项均以当前 DTD 可接受的节点/属性及解析源码为准。仅需要只读详情时可配置启用的 `type="viewOnly"` 页面，但不会因此得到列表页或编辑/弹窗文件。`generateHtml` 的 `layout` 及其文件覆盖属性不能作为 Vue3 文件布局/覆盖配置使用。
+
+#### 页面与配置项对应关系
+
+| 设计目标 | 优先检查的配置 | 说明 |
+|---|---|---|
+| 列表字段、默认显示和排序 | `generateVo/viewVo` 的 `includeColumns` / `excludeColumns`、`defaultDisplayFields` / `defaultHiddenFields`、`defaultSort`、`fieldOverrides` | ViewVo 是列表页面视图的主要配置入口；核对属性名与数据库列名的转换关系 |
+| 复合查询和模糊查询 | `viewVo.queryColumns`、`fuzzyColumns`、`queryColumn` | 查询字段必须与 RequestVo、接口查询实现相匹配 |
+| 过滤器 | `viewVo.filterColumns`、`filterColumn` | 明确字段、控件/操作和值域；需要跨表共用时可评估 `reusableElements` |
+| 列表和行操作 | `viewVo.toolbar`、`actionColumn`、`htmlButton` | 确认按钮 ID 对应已生成动作或已实现的业务扩展，不可只配置前端按钮 |
+| 新增/编辑/详情数据模型 | `generateVo` 及 `modelVo`、`createVo`、`updateVo`、`viewVo` | 列表/表单用途不同，分别核对字段白名单、必填项与校验忽略项 |
+| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、`htmlFileAttachment`、`htmlElementInnerList` | 先辨别目标是 HTML 生成输出还是 Vue3/宿主运行时表单配置；共享节点名不意味着模板行为完全相同 |
+| 多表复用 | `reusableElements` 中受支持的字段、控件、列和过滤器描述 | 仅复用指南和当前 DTD/源码实际支持的描述，表级配置保留差异项 |
+| 页面菜单及权限 | `viewVo.parentMenuId`、ViewVo 菜单属性，以及 Context/Table 的模块和菜单数据配置 | 确认初始化 SQL 纳入部署链路、父节点和权限数据正确；具体生成条件见项目菜单规范及生成器菜单配置说明 |
+
+#### Vue3 产物覆盖策略
+
+Vue3 列表、编辑、详情、Hooks 和列插槽文件，仅当既有目标文件前 10 行包含完整 `@VCF.overridable` 标记时才被插件标记为可覆盖；没有该标记的既有文件会保留。`T{Domain}.ts`、`{Domain}Modal.vue` 和 `sharedVariables.ts` 在当前插件中显式设为覆盖，不能依赖标记保护人工内容。最终写盘还受运行时 `ShellCallback` 覆盖模式影响。
+
+开始人工维护之前，逐文件核实生成策略，并遵守 `.github/copilot-instructions.md` 第 2.1 节：对于允许扩展且按标记控制的文件，开始人工扩展时先将完整标记改为无法严格匹配的形式，确认标记不再存在；恢复标记前须确认扩展已迁出或可以丢弃。对显式覆盖文件应将必要扩展放入已验证的 Hooks、列插槽或宿主模块扩展点，不应直接依赖文件标记保留内容。生成器升级或修改插件后，重新核验本节条件和生成物差异。
+
 ## 8. 查询 / 关联 / 统计
 
 | 节点 | 含义 | 备注 |
