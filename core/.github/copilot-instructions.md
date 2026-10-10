@@ -84,9 +84,10 @@
 
 ### 7.1 配置 DTD 的版本维护规则
 
-1. 每次升级生成器版本时，复制一份新的配置 DTD 文件供 `generator.xml` 使用；文件名与生成器版本对应，例如 `1.8.0` 对应 `mybatis-generator-config_1_8_0.dtd`。
+1. 每次升级生成器版本时，复制一份新的配置 DTD 文件供 `generatorConfig.xml`、`generator.xml` 等配置使用；文件名与实际执行的 core 版本对应，例如 `1.8.0-SNAPSHOT` 去掉快照后缀后对应 `mybatis-generator-config_1_8_0.dtd`。同步配置 DOCTYPE、配置说明及相关设计文档，核实 Maven 插件或调用入口实际加载的 core 版本、JAR 内置资源和 parser 解析，不以旧 DTD 的兼容回退代替版本一致。
 2. 修改生成器代码涉及 DTD 调整时，只修改当前生成器版本对应的 DTD，不同步修改历史版本的 DTD；历史文件保留各自版本的配置契约。
 3. 修改 DTD 的元素、属性、默认值或约束时，必须同步更新该 DTD 中对应的注释说明，确保声明与说明一致。
+4. 面向业务消费者的版本一致规则统一维护于 `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` 第 1.1 节；能力文档与消费项目规范/索引引用该入口，避免通用正文多份漂移。
 
 ## 8. 任务执行要求（给 Copilot 的硬约束）
 

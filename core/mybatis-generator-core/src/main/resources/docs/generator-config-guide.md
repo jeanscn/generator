@@ -4,6 +4,24 @@
 
 ## 1. 根结构
 
+### 1.1 生成器与配置 DTD 版本一致规则
+
+`generatorConfig.xml`、`generator.xml` 等生成配置必须引用与**实际执行的生成器 core 版本**一致的 DTD，不能仅因旧 DTD 仍可解析而继续使用旧版本。当前版本 `1.8.0-SNAPSHOT` 对应 `mybatis-generator-config_1_8_0.dtd`：去掉 `-SNAPSHOT` 后，将版本号中的点号替换为下划线。其他版本须核实发布包内的实际文件，不凭命名规则假定资源存在。
+
+```xml
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "mybatis-generator-config_1_8_0.dtd">
+```
+
+PUBLIC 标识保持既有值，版本由 SYSTEM 文件名表达。执行前核对 Maven 插件实际加载的 core 版本或直接调用入口的运行 classpath，而非只看业务 POM 中声明的依赖；确认对应 DTD 位于生成器 JAR 的 `org\mybatis\generator\config\xml` 下，并使用该 DTD 校验结构。
+
+升级时同步生成器版本、配置 DOCTYPE、配置说明和相关设计文档，复核 parser 的资源解析及新增配置行为。当前 `ParserEntityResolver` 对 `mybatis-generator-config_1_8_0.dtd` 选择对应资源，其他文件名走历史 `1_7_0` 分支；这种兼容行为不是版本一致校验，也不保证任意未来版本会被正确解析。不得通过只改文件名、沿用旧 core 或依赖兼容回退声称升级完成。
+
+DTD 维护只修改当前版本文件，保留历史版本契约；元素、属性、默认值或约束变更同时更新对应注释。生成器维护者按 `.github\copilot-instructions.md` 第 7.1 节维护发布资源；业务项目引用本节，不复制通用规则正文。
+
+### 1.2 根节点配置
+
 | 节点 | 作用 | 关键点 |
 |---|---|---|
 | `generatorConfiguration` | 根节点 | 包含 `properties?`、`classPathEntry*`、`context+`。 |
@@ -751,6 +769,8 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 ### 17.1 DTD 文件位置
 
 - `mybatis-generator-core/src/main/resources/org/mybatis/generator/config/xml/mybatis-generator-config_1_8_0.dtd`
+
+该路径对应当前 `1.8.0-SNAPSHOT`，不是所有版本通用的固定文件；配置版本选择与升级门禁见第 1.1 节。
 
 ### 17.2 本文章节与 DTD 节点映射
 

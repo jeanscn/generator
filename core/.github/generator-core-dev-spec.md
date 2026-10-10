@@ -20,3 +20,4 @@
 - 新增“内核再开发规范”优先修改 `copilot-instructions.md`，本文件只做补充说明，避免双份规范漂移。
 - 关于“多方言动态 SQL 兜底”的新增约束：以 `copilot-instructions.md` 的“6.1 动态 SQL 多方言统一兜底策略”为准（原生语法优先，不支持时实现可跨方言执行的等价兜底 SQL；重复冲突忽略语义可使用 `INSERT ... SELECT ... WHERE NOT EXISTS (...)` 作为典型方案）。
 - 当前 Windows/PowerShell/Maven 的命令环境约束，也以 `copilot-instructions.md` 的“11. 当前环境与命令约束”为准。
+- DTD 发布维护遵守 `copilot-instructions.md` 第 7.1 节；业务配置的版本一致及升级门禁统一见 [生成器配置指南第 1.1 节](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#11-生成器与配置-dtd-版本一致规则)，不在本补充说明复制规则正文。
