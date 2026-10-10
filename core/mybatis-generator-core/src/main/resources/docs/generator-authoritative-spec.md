@@ -37,10 +37,33 @@
 | 能力域 | 可直接生成内容 | 设计含义 |
 |---|---|---|
 | 页面骨架 | 列表页、编辑页、详情页、弹窗页 | Vue3 模板使用 Framework 的 `VgoTableView` / `vgoForm`；结构化业务页可先生成骨架 |
-| 列表视图元数据 | ViewVo 字段、列表标识、查询/过滤字段、默认排序、列显示及工具栏等配置 | 页面骨架依赖视图配置；具体配置及运行时数据来源须与宿主应用联调 |
+| 列表视图元数据 | `viewVo` 生成的 Java VO 与视图注解元数据：列表标识、查询/过滤字段、默认排序、列显示及工具栏等 | Vue3 列表依赖 ViewVo 配置和宿主运行时；元数据生成不等同于页面布局、服务端过滤或按钮权限实现 |
 | 表单视图元数据 | 新增/编辑/只读表单的 VO 类型与配置化表单装配 | 编辑/详情模板通过 Framework 表单配置能力装配；复杂联动仍须评估扩展点 |
 | 复杂部件 | 内嵌列表相关接入、附件/审批相关模板能力 | 可生成主干或提供接入位置，不表示任意业务交互均自动完成 |
 | 类型与扩展 | TypeScript 类型、共享变量、Hooks 和列表列插槽文件 | 部分文件是扩展入口；其生成条件与覆盖策略并不相同，见下文 |
+
+### 2.2.1 `viewVo` 视图元数据
+
+当前 1.8.0 配置解析中，`viewVo` 默认 `generate=false`，并且需要父级 `generateVo` 启用才会参与生成。启用后生成 ViewVo Java 类及 `ViewMetaAnnotationPlugin` 添加的字段/类视图元数据；列表模板将其作为运行时视图信息来源之一。它不是 Vue 页面布局描述，也不自动实现自定义查询、服务端业务操作或权限控制。
+
+生成的 `@ViewTableMeta.value` 默认由 `Mb3GenUtil.getDefaultViewId(...)` 计算，即 controller bean 名与默认视图后缀拼接后转小写并取 `MD5_15`。XML `viewVo.listKey` 与该默认 ID 不同；当前 `ViewMetaAnnotationPlugin` 不会将 `listKey`、`title` 或 `size` 传入默认 `ViewTableMeta`，不可将 DTD 注释对 listKey 的旧描述误作 `value` 的算法或假定这些属性已进入默认视图注解。`title` 会作为生成菜单标题，未配置时回退到表备注。视图数据 URL 由生成器按 controller 基础路由构造为 `{controllerBasePath}/getdtdata`；实际路由、数据查询和元数据消费仍由宿主运行时提供。
+
+`viewVo` 的配置能力包括：
+
+| 能力 | 配置来源 | 设计边界 |
+|---|---|---|
+| 列表字段与列元数据 | `includeColumns` / `excludeColumns`、`defaultDisplayFields` / `defaultHiddenFields`、`fieldOverrides`、`overridePropertyValue`、`columnRenderFun` | 字段范围还受父级 VO 与公共抽象 VO 字段规则影响；`defaultDisplayFields` 以 ViewVo 属性名控制列顺序/默认显示；显式检查生成的 ViewVo 字段及列注解 |
+| 复合查询与过滤 | `queryColumns`、`fuzzyColumns`、`filterColumns`、子节点 `queryColumn` / `filterColumn` | 生成查询/过滤描述，不替代 RequestVo 字段、查询接口及服务端条件实现；显式 query/filter 列配置应与字段集合对齐。无显式 query 描述时，不存在的 query 列会被忽略；不存在的 filter 列会抛出异常 |
+| 工具栏与行操作 | `toolbar`、`actionColumn`、子节点 `htmlButton` | 能配置标准动作或自定义按钮元数据；自定义 handler、服务端动作和权限由宿主/业务提供，前端显示条件不是授权边界 |
+| 表格及展示行为 | `size`、`indexColumn`、固定列、默认排序、总计、`tableType`、`uiFrameType`、分类树及表单展示模式等 | 以当前 DTD 与解析/消费链路为准；并非每个属性都由 `@ViewTableMeta` 或所有前端表格实现消费 |
+| 菜单期初数据 | ViewVo 标题、图标、`enableShortcut`、table/context 菜单设置 | 只有 ViewVo 实际生成、`updateMenuData=true`、table `isModules=true` 且有效父菜单 ID 非空时才追加默认视图菜单；父节点优先采用 ViewVo 配置，否则采用 Context。局部生成、既有文件跳过及 SQL 部署都需单独核对 |
+| 附加视图结构 | `additionalProperty`、`innerListView` 及其他 DTD 允许的 `viewVo` 子节点 | 按实际插件和模板验证各子配置的效果；配置存在不代表跨宿主统一的交互承诺 |
+
+DTD/Parser 接受属性并不代表它会进入默认 `@ViewTableMeta`。当前插件显式传递 `tableType`、合计行、表单打开方式、`showActionColumn`、`defaultSort`、`indexColumn`、查询/过滤及按钮描述、`categoryTreeUrl`、包含/排除列、类名和路由等；列默认显示及顺序写入字段级 `@ViewColumnMeta`。例如 `listKey`、`title`、`size`、`enablePager`、固定列属性和 `showRowNumber` 并未由该插件传入默认视图注解；其中 `title` 另用于菜单。详见配置指南第 5.2 节的版本限制与源码入口。
+
+版本注意：当前 DTD 对 `viewVo.enablePager` 接受 `true|false|simple|auto`，但当前 Parser 将其交给 `Boolean.parseBoolean`，因此只有文本 `true` 会解析为真，`simple` / `auto` 实际解析为假。`enablePager` 也不是 `ViewTableMeta` 注解成员，不应把它描述为 Vue3 运行时分页模式配置。依赖分页显示模式的项目须先核对实际模板/宿主契约；若要改变通用生成语义，应修正并测试生成器，而不是依赖 DTD 允许值推测效果。
+
+配置细目、XML 片段及生成前检查见[配置指南第 5.2 节](generator-config-guide.md#52-viewvo-默认列表视图配置)；Context 菜单开关见配置指南第 2 节，ViewVo 生成菜单条件与脚本执行边界另见项目[菜单构建规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-menu-construction-standard.md)。
 
 ### Vue3 产物与生成条件（当前 1.8.0 源码）
 

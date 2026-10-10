@@ -177,7 +177,7 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `createVo` | 新增参数 VO | 可指定必填列、选择性创建。 |
 | `updateVo` | 更新参数 VO | 可指定必填列、选择性编辑。 |
 | `requestVo` | 查询参数 VO | 支持分页参数和查询片段。 |
-| `viewVo` | 列表/详情 VO | 控制列表列、查询列、默认排序。 |
+| `viewVo` | 列表/详情 VO 与视图元数据 | 控制 ViewVo 字段及列表列、查询/过滤、默认排序和菜单元数据；详见第 5.2 节。 |
 | `excelVo` | 导入导出 VO | 支持 include/exclude/ignore/import 配置。 |
 | `generateCachePo` | 缓存 PO | 常用于字典值映射。 |
 | `overridePropertyValue` | 值转换字段 | 生成 `Text`/展示字段或注解映射。 |
@@ -207,6 +207,85 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 回归入口：`mvn -pl mybatis-generator-core "-Dtest=ExportElementGeneratorTest" "-Denforcer.skip=true" test`，覆盖类型回退、主键边界、SQL/权限清理、批次与实际渲染 Java 的内存编译。
 
 跨项目 API 兼容验证可为同一测试传入 `-Dexport.contract.classes=<Excel 模块已编译 classes 目录>` 与 `-Dexport.contract.classpath-file=<Excel dependency:build-classpath 输出文件>`。此模式移除插件契约替身，将实际渲染 Controller 直接对当前编译的 `VgoExportRequestVo/OptionsVo/OptionsViewVo`、`ExportSupport` 与 `VgoFesodSheet` 类型检查；常规独立运行仍使用内存契约替身，不要求另一仓库存在。
+
+### 5.2 `viewVo` 默认列表视图配置
+
+`viewVo` 必须放在 `<generateVo>` 内。当前配置构造器默认关闭它；要生成 ViewVo，必须显式写 `generate="true"`，并同时启用父级 `<generateVo generate="true">`。启用后生成的是后端 ViewVo 和视图元数据，不等同于 Vue 页面布局，也不会单独实现自定义查询、按钮服务端逻辑或权限。
+
+#### 5.2.1 主要属性
+
+| 属性 | 配置作用 | 设计/使用要点 |
+|---|---|---|
+| `generate` | 启用 ViewVo；缺省为 `false` | 必须同时满足父级 `generateVo` 启用；既有文件是否跳过/强制更新还受生成策略影响 |
+| `includeColumns` / `excludeColumns` | ViewVo 可用字段范围 | 与父级 `generateVo` 及其他 VO 字段规则共同影响最终字段；显式检查生成类，不从 Entity 或其他 VO 的字段列表推断 |
+| `listKey` | 列表配置标识 | 当前 `ViewMetaAnnotationPlugin` 不会将它写入默认 `ViewTableMeta`，也不改变默认 `value` 视图 ID；只有确认具体消费方支持时才配置 |
+| `title` | 生成菜单标题 | 未配置时菜单标题回退到表备注；`ViewMetaAnnotationPlugin` 不会将其写入默认 `ViewTableMeta` |
+| `size` | 列表大小 | DTD/Parser 接受此属性，但当前 `ViewMetaAnnotationPlugin` 不会将其传入默认 `ViewTableMeta`；确认具体消费方后再依赖其效果 |
+| `indexColumn`、`indexColumnFixed` | 行选择/序号列及固定方式 | `indexColumn` 会进入视图元数据；固定方式以当前 DTD 和目标 UI 框架消费逻辑核验 |
+| `toolbar`、`actionColumn`、`actionColumnFixed`、`actionColumnWidth` | 工具栏及行操作列 | 标准动作需与生成接口匹配；自定义 ID 需有按钮描述、前端 handler、服务端动作和权限实现 |
+| `queryColumns`、`fuzzyColumns`、`filterColumns` | 复合查询、模糊查询和过滤字段集合 | 与 RequestVo 和后端列表查询实现一致；需细配的字段使用对应子节点 |
+| `defaultDisplayFields`、`defaultHiddenFields` | 默认显示/隐藏字段 | 使用 ViewVo 属性名；控制列元数据的顺序/默认显示标志，核验生成注解和运行时实际可见性 |
+| `defaultSort`、`totalRow`、`totalFields`、`totalText` | 默认排序及合计行 | 排序字段应映射为支持的列；合计字段需为适合聚合的字段 |
+| `tableType`、`uiFrameType` | 表格类型与 UI 框架类型 | 使用当前 DTD 枚举值；不能只因某个示例设置就推定其他宿主具备相同组件 |
+| `categoryTreeUrl`、`categoryTreeMultiple` | 分类树接口及多选 | 确认接口、参数、权限及宿主对分类树元数据的消费方式 |
+| `defaultFilterExpr` | 默认过滤表达式 | 属于生成器/后端查询表达式，不是可信客户端权限条件；核验别名、列名、占位符及方言 |
+| `parentMenuId`、`viewMenuIcon`、`viewMenuElIcon`、`enableShortcut` | 默认视图菜单元数据 | 菜单只在完整菜单生成条件满足时追加；父节点必须已存在并纳入初始化链路 |
+| `editFormIn`、`detailFormIn` | 编辑和详情的打开方式元数据 | 按 DTD 的 `inner` / `dialog` / `drawer` 配置，并与宿主组件支持方式一致 |
+
+属性解析成功不等于进入默认视图注解。当前 `ViewMetaAnnotationPlugin` 显式传递 `tableType`、合计行、表单打开方式、`showActionColumn`、`defaultSort`、`indexColumn`、查询/过滤与按钮描述、分类树 URL、包含/排除列、类名及路由；默认显示及列顺序写入字段级 `@ViewColumnMeta`。`listKey`、`title`、`size`、`enablePager`、固定列属性、`showRowNumber` 等没有被该插件传入默认 `ViewTableMeta`；`title` 会独立用于生成菜单标题。不要只依据 DTD 声明推断实际产物。
+
+默认视图 ID 由生成器根据 controller bean 名计算：小写的 bean 名与默认视图后缀拼接后取 `MD5_15`，生成在 `ViewTableMeta.value` 中。XML `listKey` 与该 ID 相互独立，且当前 ViewMetaAnnotationPlugin 不将 `listKey` 写入默认 `ViewTableMeta`；不要按 DTD 中过期的 listKey 描述手工设置或覆盖默认视图 ID。视图数据 URL 按生成器 controller 基础路由构造为 `{controllerBasePath}/getdtdata`，路由及数据查询由宿主运行时提供。
+
+#### 5.2.2 子节点与列级元数据
+
+| 子节点 | 作用 | 关键约束 |
+|---|---|---|
+| `fieldOverrides` | 覆盖指定 ViewVo 字段的标签、宽度、对齐、固定、排序、隐藏及编辑标记 | `fields` 必填，按 VO 属性名匹配；优先核对生成的 `ViewColumnMeta` |
+| `queryColumn` | 补充查询字段描述 | `column` 必填；可配置 tag/query mode、类型、顺序、格式、数据源、枚举/字典或 dataUrl。该描述不自动添加 RequestVo 字段或服务端筛选 |
+| `filterColumn` | 补充过滤字段描述 | `column` 必填；可配置控件、query mode、顺序、重复/多选/范围及 `operators`；操作符和值域必须与后端解析支持一致 |
+| `htmlButton` | 描述自定义工具栏/行操作按钮 | 用 `toolbar` / `actionColumn` 引用相应按钮 ID；描述按钮不等于实现 handler、服务端动作或授权 |
+| `overridePropertyValue` / `columnRenderFun` | 配置显示值转换/列表渲染 | 核对来源字段、目标 ViewVo 属性、值来源及实际前端渲染支持 |
+| `additionalProperty` | 增加展示属性 | 新字段需核验类型、赋值来源和 ViewVo 生成结果 |
+| `innerListView` | 配置关联/内嵌列表视图 | 需单独设计关系键、数据来源及保存行为；具体生成行为按内嵌列表配置规则检查 |
+
+DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn`、`filterColumn`、`fieldOverrides` 等分别解析。`queryColumn` / `filterColumn` 描述只有同时列入 `queryColumns` / `filterColumns` 时才参与对应元数据；无显式 `queryColumn` 描述时，不存在的 query 字段会被忽略，显式描述须匹配真实列；不存在的 filter 字段会抛出异常。子节点合法仅表示可被配置解析，不表示宿主页面一定消费或服务端已有对应行为。
+
+#### 5.2.3 最小视图配置示例
+
+以下片段放在既有 `<table>` 的 `<generateVo>` 中，字段名必须替换为真实表列/VO 属性：
+
+```xml
+<generateVo generate="true">
+    <createVo generate="true"/>
+    <updateVo generate="true"/>
+    <viewVo generate="true"
+            title="示例管理"
+            includeColumns="name_,state_,created_"
+            queryColumns="name_"
+            fuzzyColumns="name_"
+            filterColumns="state_"
+            toolbar="CREATE,REMOVE"
+            actionColumn="ROW_VIEW,ROW_EDIT"
+            defaultDisplayFields="name_,state_,created_"
+            defaultSort="created_ desc">
+        <queryColumn column="name_" remark="名称"/>
+        <fieldOverrides fields="name_" label="名称" minWidth="140"/>
+        <filterColumn column="state_" remark="状态"
+                      operators="EqualTo,NotEqualTo"/>
+    </viewVo>
+    <requestVo generate="true"/>
+</generateVo>
+```
+
+本示例只建立 VO/视图元数据的配置起点。生成前后都应核对目标字段是否在 ViewVo 中、查询是否由 RequestVo/后端消费、过滤操作符是否受支持、工具栏和行操作是否有实现及权限、列元数据是否被目标宿主消费。
+
+#### 5.2.4 分页属性与菜单数据限制
+
+当前 1.8.0 DTD 的 `viewVo.enablePager` 声明接受 `true`、`false`、`simple`、`auto`，而 Parser 使用 `Boolean.parseBoolean` 解析，且配置对象默认值为 `true`；因此只有 `true` 会解析为真，`simple` 和 `auto` 都会变成假。它也不是 `ViewTableMeta` 注解成员，不可将其当作 Vue3 表格分页模式的可靠配置。需使用分页显示模式时，先按实际模板和宿主运行时核验；不要依赖 DTD 的枚举声明推断行为。
+
+ViewVo 默认菜单数据仅在全部满足下列条件时追加：ViewVo 实际生成（含文件存在时强制生成等策略）、Context `updateMenuData="true"`、Table `isModules="true"`、ViewVo 优先级高于 Context 的有效 `parentMenuId` 非空，且插件允许生成。默认菜单 ID 使用默认视图 ID；父菜单不会由生成器创建。菜单初始化 SQL 输出和局部生成风险遵守[项目菜单构建规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-menu-construction-standard.md)，须确认脚本部署链路与父节点数据。
+
+配置前依据完整属性与子节点结构核对当前版本 `mybatis-generator-config_1_8_0.dtd` 的 `<viewVo>` 声明及 `MyBatisGeneratorConfigurationParser.parseVoView`、`parseTableListCommon`；生成结果则检查 `ViewObjectClassGenerator`、`ViewMetaAnnotationPlugin` 与目标宿主运行时，不得把旧 DTD 注释或 mpmm-ui 单一实现当成通用契约。
 
 ## 6. 值转换 / 渲染
 
@@ -378,17 +457,16 @@ Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm
 <table tableName="biz_example" domainObjectName="BizExample">
     <generateHtml generate="true" type="editable"/>
     <generateVo generate="true">
+        <createVo generate="true"/>
+        <updateVo generate="true"/>
         <viewVo generate="true"
                 title="示例管理"
                 queryColumns="name_"
                 fuzzyColumns="name_"
                 filterColumns="state_"
                 defaultSort="created_ desc"
-                defaultDisplayFields="name_,state_,created_"
-                enablePager="true"/>
+                defaultDisplayFields="name_,state_,created_"/>
         <requestVo generate="true"/>
-        <createVo generate="true"/>
-        <updateVo generate="true"/>
     </generateVo>
 </table>
 ```
