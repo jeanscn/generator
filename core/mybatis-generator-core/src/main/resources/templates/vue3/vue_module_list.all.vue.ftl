@@ -14,6 +14,7 @@
             <el-main class="nopadding">
                 <vgo-table v-if="tableConfigReady" ref="tableRef" tableName="${ tableName }"  modelType="${ modelType!'default' }"
                            :apiObj="tableApiObj.fetchTableData"
+                           :exportBasePath="restBasePath"
                            :tableConfigProps="_tableConfigProps"
                            :defaultSort = "defaultSort"
                            @view-row-button-click="defaultViewRowActionHandler"

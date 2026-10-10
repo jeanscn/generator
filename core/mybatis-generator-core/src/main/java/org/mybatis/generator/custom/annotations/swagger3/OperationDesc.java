@@ -29,7 +29,7 @@ public class OperationDesc extends AbstractAnnotation {
         return new OperationDesc(summary,description);
     }
 
-    public OperationDesc(String summary, String notes) {
+    public OperationDesc(String summary, String description) {
         super();
         this.summary = summary;
         this.description = description;
@@ -42,7 +42,7 @@ public class OperationDesc extends AbstractAnnotation {
             this.items.add(VStringUtil.format("summary = \"{0}\"", this.summary));
         }
         if (VStringUtil.isNotBlank(description)) {
-            this.items.add(VStringUtil.format("notes = \"{0}\"", this.description));
+            this.items.add(VStringUtil.format("description = \"{0}\"", this.description));
         }
         return ANNOTATION_NAME+"("+ String.join(", ",items.toArray(new String[0])) +")";
     }

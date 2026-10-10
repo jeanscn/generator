@@ -165,6 +165,31 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `overridePropertyValue` | 值转换字段 | 生成 `Text`/展示字段或注解映射。 |
 | `additionalProperty` | 附加属性 | 给 VO 增加新字段。 |
 
+### 5.1 个性化导出接口与接入
+
+当规则启用 `excelVo` 时，`ExportElementGenerator` 为单列 `String` 主键表生成以下端点（均相对于 Controller 基础路由）：
+
+| 方法/路径 | 输入/输出 | 兼容性 |
+|---|---|---|
+| `GET export` | 原 `ids` 列表，旧 Excel 下载 | 保留原调用；主键属性从内省获取，不写死 `id` |
+| `GET export/options` | `ResponseResult<VgoExportOptionsViewVo>`，包含 columns、sortFields、formats、maxRowsByFormat、defaultMaxRows、scopes、maxScopeIds（500） | 与 POST 共享原 `export` 权限、系统日志和 OpenAPI 声明 |
+| `POST export` | `VgoExportRequestVo<该表实际列表查询类型>`；响应为文件流 | 同时验证 Default/ValidateQuery 组并沿公共 VO 的 `@Valid` 级联；`query` 和 `options` 必填且再次显式判空；新增接口，不改变列表接口 |
+
+宿主须升级到提供 `com.vgosoft.plugins.excel.pojo.vo` 导出 VO、`ExportSupport` 与 `VgoFesodSheet.export(response, options, ExcelVo.class, Iterable<List<ExcelVo>>)` 的 Excel 插件。生成器只组装查询、内省白名单与批次，不实现格式编码；格式与列 schema 以[Excel 插件权威说明](D:\java\idea_projs6\vgosoft-plugins\vgosoft-excel\src\main\resources\docs\vgosoft-excel-authoritative-spec.md)为准。
+
+- `query` 按 RequestVo → modelVo → entity 的现有列表规则选择；存在 `filterParam` 时沿用 POST 列表的解析入口。执行 `buildExample` 前清除 `anyWhereCondition/orderByClause`，并将已有权限/删除绕过字段设为 `false`；构造后的 Example 也强制设为 `false`。业务子类重写 `buildExample` 必须继续维护授权与逻辑删除语义。
+- 个性化导出继续使用不含 BLOB 列的 `selectByExample`；内省归类为 BLOB 的列（包含 LONGVARCHAR）及 Excel 配置中以其为来源的派生字段从接口元数据中排除，请求这些字段会在查询前报错。实际允许列是公共 Excel schema 与生成的可查询字段限制的交集；不得仅依据 ExcelVo 注解承诺大字段已查询。旧 GET Excel 接口不扩展为大字段加载接口。
+- `options.scope` 为 `all/page/selected`；页面、选中范围分别传 `pageIds/selectedIds`。元数据 `maxScopeIds=500` 明确约束 ID 范围为 1–500 个不重复主键（还须满足格式配置上限），客户端不能用 `maxRowsByFormat` 推导选中 ID 上限；全部 OR 分支追加同一主键约束。在同一数据库查询内执行白名单排序，不分块后用 Java 排序，避免改变数据库排序规则。先查询并核对全部 ID，缺失、删除或不可见记录直接报错，不导出剩余子集；无自定义排序时恢复客户端 ID 顺序，再应用 `maxRows`。该 ID 上限限制单次 IN 参数量，不代替宿主对其他复杂筛选参数总量的数据库限制。
+- 多个 OR 分支会重复绑定 ID 参数；生成器额外检查 `ID 数 × OR 分支数 <= 1000`，超出则在查询前明确报错，不通过截断 ID 或改变条件范围降级。任意自定义复杂筛选仍须由宿主约束其他参数数量。
+- `options.sorts` 只接收属性名和方向，不接收 SQL。属性映射到内省获得的物理列（保留别名与配置分隔符），由公共 helper 验证方向和生成 ORDER BY；默认顺序取 sort/create_time/update_time 列，并追加主键，保证分页稳定。
+- `maxRows` 默认值由公共 VO 提供（10000）；PDF 请求必须主动设为不超过 5000，其他格式不超过 50000。校验发生在查询前。`all` 每批最多 500 行，通过 PageHelper 分页，不生成方言专属 LIMIT；输出必须在当前请求同步消费批次。查询异常向外抛出，每次查询与输出退出均清理 PageHelper 线程上下文。此机制不是异步导出任务，也不承诺并发修改期间的数据库快照一致性。
+- 无主键、复合或非字符串主键表不会生成这些导出端点，生成日志给出警告；不得用固定 `id` 回退。现有 Vue3 主列表模板使用框架 `VgoTableView`，导出上下文由框架统一收集；不手改已生成的 UI 或新增旧版 `ServiceApi.exportSelect` 调用。
+- 旧完整列表模板 `vue_module_list.all.vue.ftl` 给 `vgo-table` 显式绑定 `exportBasePath=restBasePath`；该路径来自表配置，不能从 `apiObj` 函数反推。框架处理 `top-custom-export` 时通过 `tableRef.openExport(basePath?)` 打开选择器，空选择仍能打开并选择全量/当前页范围，模板不添加“必须选中行”的前置判断。框架统一收集当前 query、pageIds、selectedIds；导出计划资源键使用去掉首尾斜杠的标准资源路径。
+
+回归入口：`mvn -pl mybatis-generator-core "-Dtest=ExportElementGeneratorTest" "-Denforcer.skip=true" test`，覆盖类型回退、主键边界、SQL/权限清理、批次与实际渲染 Java 的内存编译。
+
+跨项目 API 兼容验证可为同一测试传入 `-Dexport.contract.classes=<Excel 模块已编译 classes 目录>` 与 `-Dexport.contract.classpath-file=<Excel dependency:build-classpath 输出文件>`。此模式移除插件契约替身，将实际渲染 Controller 直接对当前编译的 `VgoExportRequestVo/OptionsVo/OptionsViewVo`、`ExportSupport` 与 `VgoFesodSheet` 类型检查；常规独立运行仍使用内存契约替身，不要求另一仓库存在。
+
 ## 6. 值转换 / 渲染
 
 | 节点 | 用途 | 说明 |

@@ -28,6 +28,10 @@
 | 统计 | `generateDateDimStatistics` / `generateCustomStatistics` | 常规统计口径可配置化 |
 | 值转换 | `overridePropertyValue` / `columnRenderFun` | “存值-显文案”与展示态渲染可配置 |
 
+启用 `excelVo` 时，单列字符串主键表的 Controller 保留旧 `GET export?ids=...`，并生成 `GET export/options` 元数据及 `POST export` 个性化导出。POST 的 `query` 使用该表实际列表查询类型，复用 `buildExample` 与 `filterParam`；强制恢复权限/逻辑删除约束，清除客户端原始 SQL 条件及排序，仅允许内省列白名单排序并追加主键稳定排序。`all` 用 PageHelper 每批最多 500 行同步消费，不把全部结果集合驻留内存；`page/selected` 最多 500 个不同字符串主键，验证全部记录可见后按请求顺序或白名单排序导出，再截取 `maxRows`。PDF 上限 5000 行，其他格式 50000 行；格式、列选择和文件输出复用插件公共契约，不由生成器实现。无主键、复合或非字符串主键表跳过导出端点并输出生成警告。接入要求见[配置指南](generator-config-guide.md)第 5.1 节。
+
+个性化导出通过生成列限制排除内省 BLOB/LONGVARCHAR 字段及配置的相关派生字段；元数据不广告未被 `selectByExample` 填充的大字段，客户端请求这些字段在查询前失败，不静默输出空值。
+
 ## 2.2 Vue3 前端可生成能力
 
 | 能力域 | 可直接生成内容 | 设计含义 |
