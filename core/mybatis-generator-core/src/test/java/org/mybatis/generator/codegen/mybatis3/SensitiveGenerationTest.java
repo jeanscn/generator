@@ -174,7 +174,7 @@ class SensitiveGenerationTest {
     }
 
     @Test
-    void preservesUnconfiguredAndDisabledServiceOutput() throws Exception {
+    void ignoresUnconfiguredAndDisabledSensitiveOutput() throws Exception {
         IntrospectedTableMyBatis3Impl plain = fixture("");
         TopLevelClass model = model(plain);
         TopLevelClass service = service(plain);
@@ -185,8 +185,12 @@ class SensitiveGenerationTest {
         assertThat(format(model)).isEqualTo(modelBefore).doesNotContain("Sensitive");
         assertThat(format(service)).isEqualTo(serviceBefore).doesNotContain("Sensitive");
         IntrospectedTableMyBatis3Impl disabled = fixture("<sensitiveCheck columns=\"content_\" enable=\"false\" strategy=\"WARN\"/>");
-        assertThat(format(model(disabled))).contains("@SensitiveCheck(enable = false", "SensitiveCheckStrategy.WARN");
-        assertThat(format(service(disabled))).isEqualTo(serviceBefore);
+        TopLevelClass disabledModel = model(disabled);
+        TopLevelClass disabledService = service(disabled);
+        SensitiveGeneration.addModelAnnotations(disabledModel, disabled);
+        SensitiveGeneration.addWriteAnnotations(disabledService, disabled);
+        assertThat(format(disabledModel)).doesNotContain("Sensitive");
+        assertThat(format(disabledService)).doesNotContain("Sensitive");
     }
 
     @Test

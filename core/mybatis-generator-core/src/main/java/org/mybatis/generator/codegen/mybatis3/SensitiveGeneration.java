@@ -36,14 +36,19 @@ public final class SensitiveGeneration {
     private SensitiveGeneration() {
     }
 
-    public static boolean isEnabled(AbstractIntrospectedTable table) {
+    private static List<SensitiveCheckConfiguration> enabledConfigurations(AbstractIntrospectedTable table) {
         return table.getTableConfiguration().getSensitiveCheckConfigurations().stream()
-                .anyMatch(SensitiveCheckConfiguration::isEnable);
+                .filter(SensitiveCheckConfiguration::isEnable)
+                .toList();
+    }
+
+    public static boolean isEnabled(AbstractIntrospectedTable table) {
+        return !enabledConfigurations(table).isEmpty();
     }
 
     public static Map<IntrospectedColumn, SensitiveCheckConfiguration> resolve(AbstractIntrospectedTable table) {
         Map<IntrospectedColumn, SensitiveCheckConfiguration> result = new LinkedHashMap<>();
-        for (SensitiveCheckConfiguration configuration : table.getTableConfiguration().getSensitiveCheckConfigurations()) {
+        for (SensitiveCheckConfiguration configuration : enabledConfigurations(table)) {
             for (String name : configuration.getColumns()) {
                 List<IntrospectedColumn> matches = table.getAllColumns().stream()
                         .filter(column -> name.equals(column.getActualColumnName())).toList();
@@ -80,7 +85,7 @@ public final class SensitiveGeneration {
     }
 
     public static void validate(AbstractIntrospectedTable table) {
-        if (table.getTableConfiguration().getSensitiveCheckConfigurations().isEmpty()) {
+        if (enabledConfigurations(table).isEmpty()) {
             return;
         }
         Map<IntrospectedColumn, SensitiveCheckConfiguration> fields = resolve(table);
@@ -130,6 +135,9 @@ public final class SensitiveGeneration {
     }
 
     public static void addModelAnnotations(TopLevelClass model, AbstractIntrospectedTable table) {
+        if (!isEnabled(table)) {
+            return;
+        }
         validate(table);
         for (Map.Entry<IntrospectedColumn, SensitiveCheckConfiguration> entry : resolve(table).entrySet()) {
             IntrospectedColumn column = entry.getKey();
@@ -247,7 +255,7 @@ public final class SensitiveGeneration {
     }
 
     public static void requireModelGenerated(AbstractIntrospectedTable table) {
-        if (!table.getTableConfiguration().getSensitiveCheckConfigurations().isEmpty()) {
+        if (!enabledConfigurations(table).isEmpty()) {
             throw failure(table, "*", "插件禁止生成实体，无法落地敏感字段元数据");
         }
     }
