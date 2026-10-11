@@ -117,11 +117,34 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | 配置 | 默认值 | 契约 |
 |---|---|---|
 | `columns` | 必填 | 非空、逗号分隔的物理列名；内省后必须唯一存在且未忽略 |
-| `enable` | `true` | `false` 仍生成禁用字段注解，但不因该声明启用写方法标记 |
+| `enable` | `true` | 仅 `enable=true` 参与敏感生成；`enable=false` 或未配置 `sensitiveCheck` 时完全忽略敏感生成，不改变原有输出 |
 | `strategy` | `INHERIT` | `INHERIT/BLOCK/CONFIRM/REPLACE/WARN`，区分大小写 |
 | `contentType` | `PLAIN_TEXT` | 本期仅支持纯文本，未知类型明确失败 |
 
 内省后验证最终 Java 类型为 `java.lang.String`、可写列、唯一属性和实际实体字段。支持单实体模型中的 VARCHAR/LONGVARCHAR String 及列重命名；父类持有字段、分层主键/BLOB 模型、不可变模型、其他 runtime、逻辑 JSON/派生双表示字段、被插件删除/改为静态或 final 的字段均明确报表/列错误，不静默漏标。启用声明要求同时生成实体和 Service，不能配置 `modelOnly=true`。未确认全部子实体写前检测的级联写入不支持。
+
+#### 3.1.1 生成阻止提示（配置向导）
+
+以下条件一旦命中，生成器会直接失败并提示“表/列/方法”原因；建议在向导中逐项预检：
+
+| 阻止类别 | 命中条件 | 配置建议 |
+|---|---|---|
+| 列定位失败 | `columns` 对应列不存在、被忽略或匹配不唯一 | 只填真实物理列名；先确认未被 `ignoreColumn`/正则忽略 |
+| 列声明冲突 | 同一列被多个 `sensitiveCheck` 重复声明 | 合并为一次声明，避免策略冲突 |
+| 列类型不支持 | 最终 Java 类型不是 `String`，或列为 generated-always | 仅对可写纯文本列启用敏感检测 |
+| 逻辑类型冲突 | 配置了 `columnOverride.logicalType` 且非空 | 先移除逻辑 JSON/双表示，或暂不启用敏感检测 |
+| 双表示/派生映射 | 命中 `overridePropertyConfigurations` 的源列 | 先完成“持久值=检测文本”一致性方案 |
+| Java 属性异常 | 属性名缺失、非法、关键字或重名 | 先修复列到属性映射，再启用敏感检测 |
+| 模型形态不支持 | 非 MyBatis3 可变单实体，或分层主键/BLOB/immutable | 切回单实体可变模型，或暂不启用 |
+| 父类字段承载 | 目标字段在 rootClass 父类中 | 将字段留在当前实体类，确保可落注解 |
+| Service 不可落地 | 未生成 ServiceImpl 或 `modelOnly=true` | 启用 Service 生成并关闭 `modelOnly` |
+| 写入口未受控 | 开启 `enableUpdateByExample` | 关闭后再启用敏感检测 |
+| 多实体级联写 | relation 开启 insert/update/upsert | 先拆分为可受控单实体写，或补齐多实体检测方案 |
+| 方法签名异常 | 写方法重复/不可代理/参数不是实体或 `List<Entity>` | 保持标准方法签名，避免自定义破坏参数角色 |
+| 事务声明不在白名单 | 已有 `@Transactional` 非已验证模板 | 统一为受支持事务模板后再启用 |
+| 方法矩阵不完整 | 标准写方法未完整装配 | 保证标准写方法生成开关与规则一致 |
+
+> 开关语义：未配置 `sensitiveCheck`，或所有声明均为 `enable=false`，不会触发上述阻止检查，也不会生成任何敏感相关内容。
 
 实体生成 `com.vgosoft.core.annotation.sensitive` 包的 `SensitiveCheck`/策略/内容类型 import；仅实体字段生成规则注解，不在 VO 中复制可被客户端覆盖的策略。
 
