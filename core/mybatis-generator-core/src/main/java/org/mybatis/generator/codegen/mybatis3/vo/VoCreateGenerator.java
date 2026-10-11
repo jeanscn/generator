@@ -1,5 +1,6 @@
 package org.mybatis.generator.codegen.mybatis3.vo;
 
+import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VCollectionUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
@@ -102,12 +103,12 @@ public class VoCreateGenerator extends AbstractVoGenerator {
         //在静态代码块中添加默认值
         Set<String> initializationColumns = addInitialization(columns, initializationBlock, createVoClass);
         //额外添加createId和modifiedId
-        IntrospectedColumn createdId = introspectedTable.getColumn("created_id").orElse(null);
-        if (createdId!=null && !initializationColumns.contains(createdId.getActualColumnName())) {
+        boolean createdIdExist = columns.stream().anyMatch(c -> c.getJavaProperty().equalsIgnoreCase(DefaultColumnNameEnum.CREATE_BY.fieldName()));
+        if (createdIdExist && !initializationColumns.contains(DefaultColumnNameEnum.CREATE_BY.columnName())) {
             initializationBlock.addBodyLine("this.createdId = \"\";");
         }
-        IntrospectedColumn modifiedId = introspectedTable.getColumn("modified_id").orElse(null);
-        if (modifiedId!=null && !initializationColumns.contains(modifiedId.getActualColumnName())) {
+        boolean modifiedIdExist = columns.stream().anyMatch(c -> c.getJavaProperty().equalsIgnoreCase(DefaultColumnNameEnum.UPDATE_BY.fieldName()));
+        if (modifiedIdExist && !initializationColumns.contains(DefaultColumnNameEnum.UPDATE_BY.columnName())) {
             initializationBlock.addBodyLine("this.modifiedId = \"\";");
         }
         createVoClass.addInitializationBlock(initializationBlock);

@@ -316,12 +316,22 @@ public abstract class AbstractControllerElementGenerator extends AbstractGenerat
         }
     }
 
+    /**
+     * 添加ioc注入的默认值到方法体中
+     * @param abstractIntrospectedTable 内省表对象
+     * @param method 方法对象
+     * @param type 类型对象
+     * @deprecated 该方法已弃用，默认值的注入应该在service层进行处理，而不是在controller层进行处理
+     * 该方法在controller层中注入默认值可能会导致一些问题
+     */
+    @Deprecated(since = "1.8.0")
     protected static void addIocInitialDefaultValue(AbstractIntrospectedTable abstractIntrospectedTable, Method method, FullyQualifiedJavaType type) {
         List<IntrospectedColumn> initialColumns = abstractIntrospectedTable.getAllColumns().stream()
                 .filter(column -> VStringUtil.stringHasValue(column.getDefaultValue()) && DbFiledDefaultValueEnum.ofCode(column.getDefaultValue()) != null)
-                .collect(Collectors.toList());
+                .toList();
         if (!initialColumns.isEmpty()) {
             for (IntrospectedColumn initialColumn : initialColumns) {
+
                 String propertyName = initialColumn.getJavaProperty();
                 DbFiledDefaultValueEnum defaultValueEnum = DbFiledDefaultValueEnum.ofCode(initialColumn.getDefaultValue());
                 if (defaultValueEnum != null) {
