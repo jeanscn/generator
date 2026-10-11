@@ -10,6 +10,8 @@
 - 新增数据库方言或调整 SQL 方言分支
 - 调整扩展点（plugin hook、生成流程接入）
 
+跨阶段过程资产、项目文档归属和 AI 辅助开发入口遵守 [AI 辅助跨项目开发过程规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md)。本文件继续作为生成器源码、DTD、方言与生成产物保护的仓库指令；生成器专属规则以本文件及生成器能力文档为准。
+
 ## 2. 核心链路与关注点
 
 1. 生成链路：解析 -> 内省 -> 规则 -> 渲染 -> 写盘
