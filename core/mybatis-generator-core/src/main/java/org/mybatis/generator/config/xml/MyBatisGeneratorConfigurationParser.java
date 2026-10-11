@@ -545,6 +545,18 @@ public class MyBatisGeneratorConfigurationParser {
                 case "columnOverride":
                     parseColumnOverride(tc, childNode);
                     break;
+                case "sensitiveCheck":
+                    Properties sensitiveAttributes = parseAttributes(childNode);
+                    try {
+                        tc.getSensitiveCheckConfigurations().add(new SensitiveCheckConfiguration(
+                                sensitiveAttributes.getProperty("columns"),
+                                sensitiveAttributes.getProperty("enable"),
+                                sensitiveAttributes.getProperty("strategy"),
+                                sensitiveAttributes.getProperty("contentType")));
+                    } catch (IllegalArgumentException exception) {
+                        throw new IllegalArgumentException("表 " + tc.getTableName() + "：" + exception.getMessage(), exception);
+                    }
+                    break;
                 case "ignoreColumn":
                     parseIgnoreColumn(tc, childNode);
                     break;

@@ -4,7 +4,6 @@ import com.vgosoft.core.constant.enums.core.EntityEventEnum;
 import com.vgosoft.core.constant.enums.data.StatTypeEnum;
 import com.vgosoft.core.constant.enums.db.DefaultColumnNameEnum;
 import com.vgosoft.tool.core.VStringUtil;
-import jakarta.annotation.Resource;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
@@ -15,8 +14,6 @@ import org.mybatis.generator.codegen.mybatis3.service.elements.*;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -168,6 +165,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         addCleanupInvalidRecordsMethod(bizGenClazzImpl);
         boolean cacheOperations = addCacheAwareBaseMethodsAndConfig(bizGenClazzImpl);
+        org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.addInheritedWriteMethods(bizGenClazzImpl, introspectedTable);
         ManagedRelationGeneration.addEntityMutationAnnotations(bizGenClazzImpl, introspectedTable);
 
         // 增加类的javaDoc注释
@@ -178,7 +176,10 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable)) {
+            org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.addWriteAnnotations(bizGenClazzImpl, introspectedTable);
             answer.add(bizGenClazzImpl);
+        } else {
+            org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.requireServiceGenerated(introspectedTable);
         }
 
         //生成子类
@@ -369,6 +370,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
                 && (hasMutationCacheTargets()
+                || org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -380,6 +382,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addInsertSelectiveElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
                 && (hasMutationCacheTargets()
+                || org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -421,6 +424,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
                 && (hasMutationCacheTargets()
+                || org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {

@@ -58,6 +58,8 @@ public class TableConfiguration extends PropertyHolder {
 
     private final List<ColumnOverride> columnOverrides = new ArrayList<>();
 
+    private final List<SensitiveCheckConfiguration> sensitiveCheckConfigurations = new ArrayList<>();
+
     private final Map<IgnoredColumn, Boolean> ignoredColumns;
 
     private GeneratedKey generatedKey;

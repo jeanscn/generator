@@ -285,7 +285,7 @@ public abstract class AbstractIntrospectedTable {
     }
 
     /**
-     * Gets the record with blo bs type.
+     * Gets the record with blobs type.
      *
      * @return the type for the record with BLOBs class. Note that the value will be calculated regardless of whether
      * the table has BLOB columns or not.
@@ -380,6 +380,7 @@ public abstract class AbstractIntrospectedTable {
         }
 
         context.getPlugins().initialized(this);
+        org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.validate(this);
     }
 
     protected void calculateControllerAttributes() {

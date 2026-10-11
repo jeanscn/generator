@@ -269,7 +269,10 @@ public class BaseRecordGenerator extends AbstractJavaGenerator {
         addGetViewObject(topLevelClass, introspectedTable);
 
         if (context.getPlugins().modelBaseRecordClassGenerated(topLevelClass, introspectedTable)) {
+            org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.addModelAnnotations(topLevelClass, introspectedTable);
             answer.add(topLevelClass);
+        } else {
+            org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.requireModelGenerated(introspectedTable);
         }
         return answer;
     }

@@ -100,6 +100,60 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | `enableSelectByIds` | 实际属性是 `enableSelectByPrimaryKeys`。 |
 | `excludedTable` | 实际属性是 `excludedTables`。 |
 
+### 3.1 敏感字段与受管写方法（1.8.0）
+
+`table` 末尾的可重复 `sensitiveCheck` 子节点按**精确物理列名**声明字段；不接受 Java 属性名、别名、通配符或大小写模糊匹配。节点与 `columnOverride`/忽略列节点共享末尾位置，字段重命名仍由 `columnOverride.property` 完成。不同声明不得重复引用同一列，包括 enable 值不同的声明。
+
+```xml
+<table tableName="article_" domainObjectName="Article" enableUpdateByExample="false">
+    <generateModel generate="true"/>
+    <generateService generate="true"/>
+    <columnOverride column="content_" property="bodyText"/>
+    <sensitiveCheck columns="content_,description_"
+                    enable="true" strategy="INHERIT" contentType="PLAIN_TEXT"/>
+</table>
+```
+
+| 配置 | 默认值 | 契约 |
+|---|---|---|
+| `columns` | 必填 | 非空、逗号分隔的物理列名；内省后必须唯一存在且未忽略 |
+| `enable` | `true` | `false` 仍生成禁用字段注解，但不因该声明启用写方法标记 |
+| `strategy` | `INHERIT` | `INHERIT/BLOCK/CONFIRM/REPLACE/WARN`，区分大小写 |
+| `contentType` | `PLAIN_TEXT` | 本期仅支持纯文本，未知类型明确失败 |
+
+内省后验证最终 Java 类型为 `java.lang.String`、可写列、唯一属性和实际实体字段。支持单实体模型中的 VARCHAR/LONGVARCHAR String 及列重命名；父类持有字段、分层主键/BLOB 模型、不可变模型、其他 runtime、逻辑 JSON/派生双表示字段、被插件删除/改为静态或 final 的字段均明确报表/列错误，不静默漏标。启用声明要求同时生成实体和 Service，不能配置 `modelOnly=true`。未确认全部子实体写前检测的级联写入不支持。
+
+实体生成 `com.vgosoft.core.annotation.sensitive` 包的 `SensitiveCheck`/策略/内容类型 import；仅实体字段生成规则注解，不在 VO 中复制可被客户端覆盖的策略。
+
+具体 Service 写方法按实际源码生成矩阵标记：
+
+| 方法 | 实体参数索引 | 生成行为 |
+|---|---:|---|
+| `insert`、`insertSelective` | 0 | 为 opt-in 表装配具体 override 并标记 |
+| `updateByPrimaryKey`、`updateByPrimaryKeySelective` | 0 | 为 opt-in 表装配具体 override 并标记 |
+| `insertBatch`、`updateBatchByPrimaryKey` | 0 | 配置启用时标记；仅同类型有序 `List<Entity>` |
+| `insertOrUpdate` | 0 | 配置启用时标记 |
+| `insertOrUpdateSelective` | 0 | 将原继承方法显式 override 后标记，沿用基础方法语义 |
+| `updateByExample*` | — | 未证实受限影响范围，生成期拒绝启用该配置；须关闭 `enableUpdateByExample` 后单独评审接入 |
+| select/delete/纯关系维护、SQL builder、直接 Mapper/JDBC | — | 不生成敏感标记；非标准内容写入口必须显式适配或限制入口 |
+
+`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对操作注册和未过期确认凭证。`entityArgumentIndex=0`。不支持混合实体、参数角色不明、重复写方法或不能被 Spring 代理的写方法，已启用方法未装配则生成失败。当前 opt-in 基线要求标准新增和主键更新方法均可生成。
+
+每个受标记方法在没有已有事务声明时添加 `@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)`；已有 REQUIRED/Exception 回滚模板事务声明保留，不重复添加，其他自定义事务声明明确失败并要求评审。既有缓存失效、关系元数据和事件语句保留，标记只加在具体方法而不是仅接口。事务 Advisor 必须在检测 Aspect 外层，批次原子性、失败结果、缓存提交时序和事件处理仍须宿主集成验收；生成元数据不是已安装敏感运行时。
+
+满足既有 Vue3 TypeScript 类型生成条件时，在 `T{Domain}.ts` 附加只读 `T{Domain}SensitiveFields` 常量，包含 `table/entity/property/label/contentType`，字符串采用 JS 转义。映射仅辅助显示，不授权客户端覆盖后端策略；没有 Vue 目标路径/VO 类型产物时不强行创建前端项目。没有敏感配置的表不改变输出；全部 disabled 时 Service/前端映射保持无配置输出。增量/强制覆盖仍遵守原覆盖规则，标记重建由生成器完成，不能手改受保护产物。
+
+源码入口：`SensitiveCheckConfiguration`、`MyBatisGeneratorConfigurationParser`、`SensitiveGeneration`、`BaseRecordGenerator`、`JavaServiceImplGenerator`、`Vue3OtherFilesPlugin` 和 `vue_module_type.ts.ftl`。只修改当前 `mybatis-generator-config_1_8_0.dtd`，不回写历史 DTD。
+
+无数据库定向回归入口：
+
+```powershell
+Set-Location 'D:\java\idea_projs14\generator\core'
+mvn -q -pl mybatis-generator-core "-Dtest=SensitiveGenerationTest,CacheConfigurationResolverTest,CacheEnableAnnotationTest,JavaBeansUtilTest" "-Denforcer.skip=true" test
+```
+
+测试使用内存列元数据、实际 Model/Service 渲染、当前 DTD 和 TS 模板；注解消费编译也在内存完成。不运行业务生成器、不连接数据库、不写业务产物。业务受控再生成及宿主拦截/事务验证另行授权。
+
 ## 4. 列级配置
 
 | 节点 | 含义 | 真实行为 |

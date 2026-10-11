@@ -27,6 +27,9 @@
 | 关系查询 | `selectByColumn` / `selectByTable` / `selectBySqlMethod` | 可覆盖按列、经中间表、多层级 SQL 方法查询 |
 | 统计 | `generateDateDimStatistics` / `generateCustomStatistics` | 常规统计口径可配置化 |
 | 值转换 | `overridePropertyValue` / `columnRenderFun` | “存值-显文案”与展示态渲染可配置 |
+| 敏感检测元数据 | table `sensitiveCheck`、实体字段注解、具体 Service 写方法/事务标记、TS 字段映射 | 当前 1.8.0 源码已实现并通过无数据库回归；只有 opt-in 表改变输出，检测运行时与业务受控再生成须独立接入/验收 |
+
+敏感元数据使用基础 `com.vgosoft.core.annotation.sensitive` 注解，不反向依赖敏感业务模块。支持单实体可变 MyBatis3 模型的 String/LONGVARCHAR 字段、重命名和标准新增/主键更新/批量/upsert；父类持有字段、分层模型、JSON/双表示、级联多实体和未受控 `updateByExample*` 明确失败，不静默漏检。SQL builder、直接 Mapper/JDBC、自调用与宿主 Aspect/事务顺序不属于生成自动保证范围。配置语法、实际方法矩阵和限制见[配置指南第 3.1 节](generator-config-guide.md#31-敏感字段与受管写方法180)。
 
 启用 `excelVo` 时，单列字符串主键表的 Controller 保留旧 `GET export?ids=...`，并生成 `GET export/options` 元数据及 `POST export` 个性化导出。POST 的 `query` 使用该表实际列表查询类型，复用 `buildExample` 与 `filterParam`；强制恢复权限/逻辑删除约束，清除客户端原始 SQL 条件及排序，仅允许内省列白名单排序并追加主键稳定排序。`all` 用 PageHelper 每批最多 500 行同步消费，不把全部结果集合驻留内存；`page/selected` 最多 500 个不同字符串主键，验证全部记录可见后按请求顺序或白名单排序导出，再截取 `maxRows`。PDF 上限 5000 行，其他格式 50000 行；格式、列选择和文件输出复用插件公共契约，不由生成器实现。无主键、复合或非字符串主键表跳过导出端点并输出生成警告。接入要求见[配置指南](generator-config-guide.md)第 5.1 节。
 

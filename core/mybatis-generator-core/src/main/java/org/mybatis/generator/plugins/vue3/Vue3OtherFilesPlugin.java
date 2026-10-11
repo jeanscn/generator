@@ -114,6 +114,8 @@ public class Vue3OtherFilesPlugin extends PluginAdapter {
                     }
                 }
                 freeMakerContext.put("tsTypeDescriptors", introspectedTable.getTypeScriptTypeDescriptors());
+                freeMakerContext.put("sensitiveFields",
+                        org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.frontendFields(introspectedTable));
 
                 if (stringHasValue(fileNameType)) {
                     String vueTypeFileName = fileNameType + ".ts";

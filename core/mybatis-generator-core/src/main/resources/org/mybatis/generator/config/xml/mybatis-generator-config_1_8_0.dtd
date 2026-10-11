@@ -263,7 +263,7 @@
         -->
         <!-- relationKeyColumns: 可选的两列逗号分隔关系键；仅用于显式 DDL 建模覆盖。
              生成两列 NOT NULL、联合唯一与反向索引；要求单 String 代理主键，不连接或迁移数据库。 -->
-        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,overridePropertyValue*,additionalProperty*,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVo?,generateCachePo?,(columnOverride | ignoreColumn | ignoreColumnsByRegex)*) >
+        <!ELEMENT table (property*, generatedKey?, domainObjectRenamingRule?, columnRenamingRule?,overridePropertyValue*,additionalProperty*,selectByColumn*,selectByTable*,selectBySqlMethod*,javaModelAssociation*,javaModelCollection*,generateModel?,generateSqlMap?,generateDao?,generateService?,generateController?,generateHtml*,generateSqlSchema?,generateVo?,generateCachePo?,(columnOverride | ignoreColumn | ignoreColumnsByRegex | sensitiveCheck)*) >
         <!ATTLIST table
                 ignore (true|false) #IMPLIED
                 catalog CDATA #IMPLIED
@@ -315,6 +315,19 @@
             11、columnComment 列的注释，用于生成字段的label、注释等。
             12、columnSubComment 列的子注释，用于生成字段的子标签、html中的元素title等。
         -->
+        <!--
+          敏感检测仅按精确物理列名配置，逗号分隔，不接受 Java 属性名或通配符。
+          enable 默认 true；strategy 默认 INHERIT；本期 contentType 仅支持 PLAIN_TEXT。
+          内省后验证列存在、未忽略、最终类型 String、实际实体字段可生成。
+          无此节点时保持既有输出；词库管理字段不得配置检测。
+        -->
+        <!ELEMENT sensitiveCheck EMPTY>
+        <!ATTLIST sensitiveCheck
+                columns CDATA #REQUIRED
+                enable (true|false) "true"
+                strategy (INHERIT|BLOCK|CONFIRM|REPLACE|WARN) "INHERIT"
+                contentType (PLAIN_TEXT) "PLAIN_TEXT">
+
         <!ELEMENT columnOverride (property*)>
         <!ATTLIST columnOverride
                 column CDATA #REQUIRED

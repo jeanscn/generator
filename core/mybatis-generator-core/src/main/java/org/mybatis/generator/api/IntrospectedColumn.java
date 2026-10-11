@@ -284,22 +284,15 @@ public class IntrospectedColumn {
      */
 
     public String getDatePattern() {
-        switch (this.fullyQualifiedJavaType.getShortName()) {
-            case "LocalDate":
-                return "yyyy-MM-dd";
-            case "LocalDateTime":
-                return "yyyy-MM-dd HH:mm:ss";
-            case "Instant":
-                return "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-            case "ZonedDateTime":
-                return "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-            case "LocalTime":
-                return "HH:mm:ss";
-            case "Date":
-                return "yyyy-MM-dd HH:mm:ss.SSS";
-            default:
-                return "";
-        }
+        return switch (this.fullyQualifiedJavaType.getShortName()) {
+            case "LocalDate" -> "yyyy-MM-dd";
+            case "LocalDateTime" -> "yyyy-MM-dd HH:mm:ss";
+            case "Instant" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+            case "ZonedDateTime" -> "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+            case "LocalTime" -> "HH:mm:ss";
+            case "Date" -> "yyyy-MM-dd HH:mm:ss.SSS";
+            default -> "";
+        };
     }
 
     public String getSqlFragmentLength(String actualTypeName) {
