@@ -144,6 +144,16 @@ public abstract class BaseRules implements Rules {
     }
 
     @Override
+    public boolean generateAtomicIncrement() {
+        if (isModelOnly) {
+            return false;
+        }
+        return tc.isAtomicIncrementStatementEnabled()
+                && introspectedTable.hasPrimaryKeyColumns()
+                && !tc.getAtomicIncrementColumns().isEmpty();
+    }
+
+    @Override
     public boolean createEnableSelective() {
         return tc.getVoGeneratorConfiguration().getVoCreateConfiguration().isEnableSelective();
     }

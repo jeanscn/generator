@@ -42,6 +42,12 @@ public class TableConfiguration extends PropertyHolder {
 
     private boolean fileUploadStatementEnabled;
 
+    private boolean atomicIncrementStatementEnabled;
+
+    private String atomicIncrementStatementId;
+
+    private final List<String> atomicIncrementColumns = new ArrayList<>();
+
     private boolean selectByPrimaryKeyStatementEnabled;
 
     private boolean selectByExampleStatementEnabled;
@@ -172,6 +178,7 @@ public class TableConfiguration extends PropertyHolder {
         insertBatchStatementEnabled = true;
         insertOrUpdateStatementEnabled = true;
         fileUploadStatementEnabled = false;
+        atomicIncrementStatementEnabled = false;
 
         selectByPrimaryKeyStatementEnabled = true;
         selectByExampleStatementEnabled = true;
@@ -419,8 +426,97 @@ public class TableConfiguration extends PropertyHolder {
         calculateChildrenRelationConfig(introspectedTable);
         //计算selectBySql配置
         calculateSelectBySqlMethodProperty(introspectedTable);
+        //计算原子递增配置
+        calculateAtomicIncrementConfiguration(introspectedTable);
         //计算附件属性，把全局配置分配到model和vo的配置上。
         calculateAdditionalProperty();
+    }
+
+    /**
+     * 计算原子递增配置。
+     *
+     * @param introspectedTable 表结构信息
+     */
+    private void calculateAtomicIncrementConfiguration(AbstractIntrospectedTable introspectedTable) {
+        atomicIncrementColumns.clear();
+        atomicIncrementStatementId = null;
+        if (!atomicIncrementStatementEnabled) {
+            return;
+        }
+
+        String configuredColumns = getProperty(PropertyRegistry.TABLE_ATOMIC_INCREMENT_COLUMNS);
+        if (!stringHasValue(configuredColumns)) {
+            configuredColumns = getProperty(PropertyRegistry.TABLE_ATOMIC_INCREMENT_COLUMN);
+        }
+        if (!stringHasValue(configuredColumns)) {
+            configuredColumns = "revision_";
+        }
+
+        LinkedHashSet<String> requestedColumns = Arrays.stream(configuredColumns.split(","))
+                .map(String::trim)
+                .filter(column -> stringHasValue(column))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (requestedColumns.isEmpty()) {
+            requestedColumns.add("revision_");
+        }
+
+        List<IntrospectedColumn> resolvedColumns = new ArrayList<>();
+        for (String configuredColumn : requestedColumns) {
+            IntrospectedColumn introspectedColumn = introspectedTable.getColumn(configuredColumn).orElseThrow(() ->
+                    new IllegalArgumentException("表 " + introspectedTable.getFullyQualifiedTable()
+                            + " 原子递增配置无效：字段[" + configuredColumn + "]不存在。"));
+            if (!introspectedColumn.isNumericColumn()) {
+                throw new IllegalArgumentException("表 " + introspectedTable.getFullyQualifiedTable()
+                        + " 原子递增配置无效：字段[" + introspectedColumn.getActualColumnName() + "]不是数值类型。");
+            }
+            resolvedColumns.add(introspectedColumn);
+            atomicIncrementColumns.add(introspectedColumn.getActualColumnName());
+        }
+
+        String suffix = resolvedColumns.stream()
+                .map(IntrospectedColumn::getJavaProperty)
+                .map(JavaBeansUtil::getFirstCharacterUppercase)
+                .collect(Collectors.joining());
+        atomicIncrementStatementId = "increment" + suffix + "ByPrimaryKey";
+        if (isAtomicIncrementMethodNameConflict(introspectedTable, atomicIncrementStatementId)) {
+            throw new IllegalArgumentException("表 " + introspectedTable.getFullyQualifiedTable()
+                    + " 原子递增方法名冲突：[" + atomicIncrementStatementId + "]。请调整atomicIncrementColumns配置。");
+        }
+    }
+
+    /**
+     * 判断原子递增方法名是否与已有Mapper方法冲突。
+     *
+     * @param introspectedTable 表结构信息
+     * @param methodName 方法名
+     * @return true表示冲突
+     */
+    private boolean isAtomicIncrementMethodNameConflict(AbstractIntrospectedTable introspectedTable, String methodName) {
+        Set<String> reservedMethodNames = new HashSet<>();
+        reservedMethodNames.add(introspectedTable.getCountByExampleStatementId());
+        reservedMethodNames.add(introspectedTable.getDeleteByExampleStatementId());
+        reservedMethodNames.add(introspectedTable.getDeleteByPrimaryKeyStatementId());
+        reservedMethodNames.add(introspectedTable.getInsertStatementId());
+        reservedMethodNames.add(introspectedTable.getInsertSelectiveStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectAllStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByExampleStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByExampleWithBlobsStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByPrimaryKeyStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateByExampleStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateByExampleSelectiveStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateByExampleWithBlobsStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateByPrimaryKeyStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateByPrimaryKeyWithBlobsStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByExampleWithRelationStatementId());
+        reservedMethodNames.add(introspectedTable.getInsertBatchStatementId());
+        reservedMethodNames.add(introspectedTable.getInsertOrUpdateStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByKeysDictStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByPrimaryKeysStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateBatchStatementId());
+        reservedMethodNames.add(introspectedTable.getUpdateBySqlStatementId());
+        reservedMethodNames.add(introspectedTable.getSelectByExampleWithChildrenCountStatementId());
+        return reservedMethodNames.contains(methodName);
     }
 
     private void calculateReusableElementsConfiguration(AbstractIntrospectedTable introspectedTable, Context context, List<String> warnings) {

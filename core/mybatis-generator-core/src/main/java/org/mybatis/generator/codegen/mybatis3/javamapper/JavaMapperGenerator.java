@@ -99,6 +99,7 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addSelectByExampleWithRelationMethod(interfaze);
         addSelectByExampleWithChildrenCountMethod(interfaze);
         addUpdateBatchMethod(interfaze);
+        addAtomicIncrementMethod(interfaze);
         addSelectByColumnMethods(interfaze);
         addDeleteByColumnMethods(interfaze);
         addSelectBySqlMethodMethods(interfaze);
@@ -234,6 +235,13 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
     protected void addUpdateBatchMethod(Interface interfaze) {
         if (introspectedTable.getRules().generateUpdateBatch()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new UpdateBatchMethodGenerator(false);
+            initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    protected void addAtomicIncrementMethod(Interface interfaze) {
+        if (introspectedTable.getRules().generateAtomicIncrement()) {
+            AbstractJavaMapperMethodGenerator methodGenerator = new AtomicIncrementMethodGenerator();
             initializeAndExecuteGenerator(methodGenerator, interfaze);
         }
     }

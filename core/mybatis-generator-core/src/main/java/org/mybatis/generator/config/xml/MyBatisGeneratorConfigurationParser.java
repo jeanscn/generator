@@ -475,6 +475,11 @@ public class MyBatisGeneratorConfigurationParser {
             tc.setFileUploadStatementEnabled(Boolean.parseBoolean(enableFileUpload));
         }
 
+        String enableAtomicIncrement = attributes.getProperty(PropertyRegistry.TABLE_ENABLE_ATOMIC_INCREMENT);
+        if (stringHasValue(enableAtomicIncrement)) {
+            tc.setAtomicIncrementStatementEnabled(Boolean.parseBoolean(enableAtomicIncrement));
+        }
+
         String selectByPrimaryKeyQueryId = attributes
                 .getProperty("selectByPrimaryKeyQueryId");
         if (stringHasValue(selectByPrimaryKeyQueryId)) {

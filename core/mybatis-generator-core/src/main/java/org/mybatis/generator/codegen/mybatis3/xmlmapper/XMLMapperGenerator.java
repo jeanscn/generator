@@ -58,6 +58,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
 
         //定制追加
         addUpdateBatchByPrimaryKeyElement(answer);
+        addAtomicIncrementElement(answer);
         addInsertOrUpdateSelectiveElement(answer);
         addInsertBatchElement(answer);
         addBaseBySqlElement(answer);
@@ -333,6 +334,13 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
     protected void addUpdateBatchByPrimaryKeyElement(XmlElement parentElement) {
         if (introspectedTable.getRules().generateUpdateBatch()) {
             AbstractXmlElementGenerator elementGenerator = new UpdateBatchByPrimaryKeySelectiveElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    protected void addAtomicIncrementElement(XmlElement parentElement) {
+        if (introspectedTable.getRules().generateAtomicIncrement()) {
+            AbstractXmlElementGenerator elementGenerator = new AtomicIncrementByPrimaryKeyElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

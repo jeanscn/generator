@@ -167,6 +167,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean generateAtomicIncrement() {
+        return rules.generateAtomicIncrement();
+    }
+
+    @Override
     public boolean createEnableSelective() {
         return rules.createEnableSelective();
     }

@@ -465,6 +465,12 @@ public interface Rules {
     boolean generateInsertOrUpdate();
 
     /**
+     * 是否生成原子递增方法
+     * @return true if atomic increment methods should be generated
+     */
+    boolean generateAtomicIncrement();
+
+    /**
      * 是否生创建新对象时，使用Selective选择性插入
      * @return true if the method should be generated
      */
