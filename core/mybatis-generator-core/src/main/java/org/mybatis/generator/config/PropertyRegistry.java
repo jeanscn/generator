@@ -112,7 +112,6 @@ public class PropertyRegistry {
     public static final String TABLE_ENABLE_FILE_UPLOAD = "enableFileUpLoad";
     public static final String TABLE_ENABLE_ATOMIC_INCREMENT = "enableAtomicIncrement";
     public static final String TABLE_ATOMIC_INCREMENT_COLUMNS = "atomicIncrementColumns";
-    public static final String TABLE_ATOMIC_INCREMENT_COLUMN = "atomicIncrementColumn";
     public static final String ELEMENT_HTML_ELEMENT_DESCRIPTOR = "htmlElementDescriptor";
     public static final String ELEMENT_HTML_TABLE_SELECT_DESCRIPTOR = "htmlTableSelectDescriptor";
     public static final String HTML_FORM_EXTEND_DESCRIPTOR = "htmlFormExtendDescriptor";

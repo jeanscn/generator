@@ -109,6 +109,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
          * UpdateBatch
          * */
         addUpdateBatchElement(bizGenClazzImpl);
+        addAtomicIncrementElement(bizGenClazzImpl);
 
         addUpdateDeleteFlagElement(bizGenClazzImpl);
         /*
@@ -289,6 +290,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addUpdateBatchElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateBatch()) {
             AbstractServiceElementGenerator elementGenerator = new UpdateBatchElement();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addAtomicIncrementElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().generateAtomicIncrement()) {
+            AbstractServiceElementGenerator elementGenerator = new AtomicIncrementElement();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

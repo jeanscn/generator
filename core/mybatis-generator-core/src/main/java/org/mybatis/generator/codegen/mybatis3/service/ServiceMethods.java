@@ -206,6 +206,27 @@ public class ServiceMethods {
         return method;
     }
 
+    /**
+     * 生成原子递增方法。
+     */
+    public Method getAtomicIncrementMethod(CompilationUnit parentElement, boolean isAbstract) {
+        List<Parameter> parameters = introspectedTable.getPrimaryKeyColumns().stream()
+                .map(Parameter::new)
+                .collect(Collectors.toList());
+        Method method = getMethodByType(
+                introspectedTable.getTableConfiguration().getAtomicIncrementStatementId(),
+                ReturnTypeEnum.MODEL,
+                FullyQualifiedJavaType.getIntInstance(),
+                "成功更新的记录数",
+                parameters,
+                isAbstract,
+                parentElement);
+        if (isAbstract) {
+            context.getCommentGenerator().addMethodJavaDocLine(method, "按主键执行原子递增的方法");
+        }
+        return method;
+    }
+
     public Method getUpdateDeleteFlagMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService) {
         List<Parameter> parameters = new ArrayList<>();
         Parameter record = new Parameter(entityType, entityType.getShortNameFirstLowCase());

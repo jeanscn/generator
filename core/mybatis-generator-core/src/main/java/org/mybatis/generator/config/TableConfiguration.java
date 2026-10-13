@@ -17,6 +17,7 @@ import org.mybatis.generator.config.factory.*;
 import org.mybatis.generator.custom.enums.RelationTypeEnum;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.internal.util.Mb3GenUtil;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
 
 import java.util.*;
@@ -446,15 +447,12 @@ public class TableConfiguration extends PropertyHolder {
 
         String configuredColumns = getProperty(PropertyRegistry.TABLE_ATOMIC_INCREMENT_COLUMNS);
         if (!stringHasValue(configuredColumns)) {
-            configuredColumns = getProperty(PropertyRegistry.TABLE_ATOMIC_INCREMENT_COLUMN);
-        }
-        if (!stringHasValue(configuredColumns)) {
             configuredColumns = "revision_";
         }
 
         LinkedHashSet<String> requestedColumns = Arrays.stream(configuredColumns.split(","))
                 .map(String::trim)
-                .filter(column -> stringHasValue(column))
+                .filter(StringUtility::stringHasValue)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (requestedColumns.isEmpty()) {
             requestedColumns.add("revision_");

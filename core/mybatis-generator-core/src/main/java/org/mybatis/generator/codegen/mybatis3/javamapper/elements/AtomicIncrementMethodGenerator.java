@@ -1,34 +1,22 @@
 package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.mybatis.generator.codegen.mybatis3.service.ServiceMethods;
 
 /**
  * 生成按主键原子递增的方法声明。
  *
- * @author cen_c
+ * @author <a href="mailto:TechCenter@vgosoft.com">vgosoft</a>
+ * @version 3.0
  */
 public class AtomicIncrementMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     @Override
     public void addInterfaceElements(Interface interfaze) {
-        Method method = new Method(introspectedTable.getTableConfiguration().getAtomicIncrementStatementId());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.setReturnRemark("影响行数");
-
-        Set<FullyQualifiedJavaType> importedTypes = new HashSet<>();
-        addPrimaryKeyMethodParameters(false, method, importedTypes);
-        context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
-
-        if (context.getPlugins().clientUpdateBatchMethodGenerated(method, interfaze, introspectedTable)) {
-            interfaze.addImportedTypes(importedTypes);
+        ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        Method method = serviceMethods.getAtomicIncrementMethod(interfaze, true);
+        if (context.getPlugins().clientIncrementRevisionByPrimaryKeyGenerated(method, interfaze, introspectedTable)) {
             interfaze.addMethod(method);
         }
     }

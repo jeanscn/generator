@@ -68,7 +68,7 @@ public interface Plugin {
     /**
      * 设置运行此插件的上下文。
      *
-     * @param context the new context
+     * @param context 新的上下文
      */
     void setContext(Context context);
 
@@ -154,64 +154,52 @@ public interface Plugin {
     }
 
     /**
-     * This method can be used to generate any additional file needed by
-     * your implementation. This method is called once, after all other
-     * files have been generated.
+     * 此方法可用于生成您的实现所需的任何附加文件。此方法在所有其他
+     * 文件生成后调用一次。
      *
-     * @return a List of GeneratedFiles - these files will be saved
-     * with the other files from this run.
+     * @return GeneratedFiles 列表 - 这些文件将与本次运行中的其他文件一起保存。
      */
     default List<GeneratedFile> contextGenerateAdditionalFiles() {
         return Collections.emptyList();
     }
 
     /**
-     * This method can be used to generate additional files needed by your
-     * implementation that might be related to a specific table. This method is
-     * called once for every table in the configuration.
+     * 此方法可用于生成您的实现所需的附加文件，这些文件可能与特定表相关。
+     * 此方法对配置中的每个表调用一次。
      *
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return a List of GeneratedFiles - these files will be saved
-     * with the other files from this run.
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return GeneratedFiles 列表 - 这些文件将与本次运行中的其他文件一起保存。
      */
     default List<GeneratedFile> contextGenerateAdditionalFiles(AbstractIntrospectedTable introspectedTable) {
         return Collections.emptyList();
     }
 
     /**
-     * This method can be used to generate any additional XML file needed by
-     * your implementation. This method is called once, after all other XML
-     * files have been generated.
+     * 此方法可用于生成您的实现所需的任何附加 XML 文件。此方法在所有其他 XML
+     * 文件生成后调用一次。
      *
-     * @return a List of GeneratedXmlFiles - these files will be saved
-     * with the other files from this run.
+     * @return GeneratedXmlFiles 列表 - 这些文件将与本次运行中的其他文件一起保存。
      */
     default List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles() {
         return Collections.emptyList();
     }
 
     /**
-     * This method can be used to generate any additional HTML file needed by
-     * your implementation. This method is called once, after all other HTML
-     * files have been generated.
+     * 此方法可用于生成您的实现所需的任何附加 HTML 文件。此方法在所有其他 HTML
+     * 文件生成后调用一次。
      *
-     * @return a List of GeneratedHtmlFiles - these files will be saved
-     * with the other files from this run.
+     * @return GeneratedHtmlFiles 列表 - 这些文件将与本次运行中的其他文件一起保存。
      */
     default List<GeneratedHtmlFile> contextGenerateAdditionalHtmlFiles() {
         return Collections.emptyList();
     }
 
     /**
-     * This method can be used to generate additional XML files needed by your
-     * implementation that might be related to a specific table. This method is
-     * called once for every table in the configuration.
+     * 此方法可用于生成您的实现所需的附加 XML 文件，这些文件可能与特定表相关。
+     * 此方法对配置中的每个表调用一次。
      *
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return a List of GeneratedXmlFiles - these files will be saved
-     * with the other files from this run.
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return GeneratedXmlFiles 列表 - 这些文件将与本次运行中的其他文件一起保存。
      */
     default List<GeneratedXmlFile> contextGenerateAdditionalXmlFiles(
             AbstractIntrospectedTable introspectedTable) {
@@ -219,11 +207,11 @@ public interface Plugin {
     }
 
     /**
-     * This method can be used to generate additional HTML files needed by your
+     * 此方法可用于生成您的实现所需的附加 HTML 文件
      *
-     * @param introspectedTable          The class containing information about the table as
-     * @param htmlGeneratorConfiguration the configuration for HTML generation
-     * @return a List of GeneratedHtmlFiles - these files will be saved
+     * @param introspectedTable          包含从数据库内省的表信息的类
+     * @param htmlGeneratorConfiguration HTML 生成配置
+     * @return GeneratedHtmlFiles 列表 - 这些文件将被保存
      */
     default List<GeneratedFile> contextGenerateAdditionalWebFiles(
             AbstractIntrospectedTable introspectedTable, HtmlGeneratorConfiguration htmlGeneratorConfiguration) {
@@ -231,14 +219,11 @@ public interface Plugin {
     }
 
     /**
-     * This method can be used to generate additional Vue3 files needed by your
-     * implementation that might be related to a specific table. This method is
-     * called once for every table in the configuration.
+     * 此方法可用于生成您的实现所需的附加 Vue3 文件，这些文件可能与特定表相关。
+     * 此方法对配置中的每个表调用一次。
      *
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return a List of GeneratedFiles - these files will be saved
-     * with the other files from this run.
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return GeneratedFiles 列表 - 这些文件将与本次运行中的其他文件一起保存。
      */
     default List<GeneratedFile> contextGenerateVue3OtherFiles(
             AbstractIntrospectedTable introspectedTable) {
@@ -246,47 +231,41 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the entire client has been generated.
-     * Implement this method to add additional methods or fields to a generated
-     * client interface or implementation.
+     * 在生成整个客户端时调用此方法。
+     * 实现此方法可向生成的客户端接口或实现类添加其他方法或字段。
      *
-     * @param interfaze         the generated interface if any, may be null
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the interface should be generated, false if the generated
-     * interface should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param interfaze         生成的接口（如果存在），可能为 null
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该接口则返回 true，如果应忽略生成的接口则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientGenerated(Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         return true;
     }
 
     /**
-     * This method is called when the entire client has been generated.
+     * 在生成整个客户端时调用此方法。
      *
-     * @param interfaze         the generated interface if any, may be null
-     * @param introspectedTable The class containing information about the table as
-     * @return true if the interface should be generated
+     * @param interfaze         生成的接口（如果存在），可能为 null
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该接口则返回 true
      */
     default boolean subClientGenerated(Interface interfaze, AbstractIntrospectedTable introspectedTable) {
         return true;
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      * <p>
-     * This method is called when the count method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 count 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated count method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated this method is no longer called
+     * @param method            生成的 count 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 此方法已不再被调用
      */
     @Deprecated
     default boolean clientBasicCountMethodGenerated(Method method, Interface interfaze,
@@ -295,16 +274,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      *
-     * @param kotlinFunction    the generated function
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated this method is no longer called
+     * @param kotlinFunction    生成的函数
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 此方法已不再被调用
      */
     @Deprecated
     default boolean clientBasicCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
@@ -313,19 +290,17 @@ public interface Plugin {
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      * <p>
-     * This method is called when the delete method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 delete 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated delete method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated No longer called
+     * @param method            生成的 delete 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 不再被调用
      */
     @Deprecated
     default boolean clientBasicDeleteMethodGenerated(Method method, Interface interfaze,
@@ -334,16 +309,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      *
-     * @param kotlinFunction    the generated delete function
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated No longer called
+     * @param kotlinFunction    生成的 delete 函数
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 不再被调用
      */
     @Deprecated
     default boolean clientBasicDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
@@ -352,19 +325,16 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 insert 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      * <p>
-     * This method is only called in the MyBatis3DynamicSql runtime. This method is only
-     * called if the table has generated keys.
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。仅当表包含生成的主键时，才会调用此方法。
      *
-     * @param method            the generated insert method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insert 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicInsertMethodGenerated(Method method, Interface interfaze,
                                                      AbstractIntrospectedTable introspectedTable) {
@@ -372,17 +342,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert function has been generated for the mapper interface.
-     * This method is only called in the MyBatis3Kotlin runtime. This method is only
-     * called if the table has generated keys.
+     * 为 mapper 接口生成 insert 函数时调用此方法。
+     * 此方法仅在 MyBatis3Kotlin 运行时中被调用。仅当表包含生成的主键时，才会调用此方法。
      *
-     * @param kotlinFunction    the generated insert function
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the function should be generated, false if the generated
-     * function should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 insert 函数
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该函数则返回 true，如果应忽略生成的函数则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                      AbstractIntrospectedTable introspectedTable) {
@@ -390,19 +357,16 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert multiple method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 insert multiple 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      * <p>
-     * This method is only called in the MyBatis3DynamicSql runtime. This method is only
-     * called if the table has generated keys.
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。仅当表包含生成的主键时，才会调用此方法。
      *
-     * @param method            the generated insert method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insert 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicInsertMultipleMethodGenerated(Method method, Interface interfaze,
                                                              AbstractIntrospectedTable introspectedTable) {
@@ -410,17 +374,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert multiple method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime. This method is only
-     * called if the table has generated keys.
+     * 为 mapper 接口生成 insert multiple 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。仅当表包含生成的主键时，才会调用此方法。
      *
-     * @param kotlinFunction    the generated insert function
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * function should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 insert 函数
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该函数则返回 true，如果应忽略生成的函数则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicInsertMultipleMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                              AbstractIntrospectedTable introspectedTable) {
@@ -428,20 +389,18 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert multiple method helper has been generated for the mapper interface.
-     * The helper method is only created when a multiple row insert has a generated key.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 insert multiple 方法 helper 时调用此方法。
+     * 仅当多行插入包含生成的主键时才会创建 helper 方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      * <p>
-     * This method is no longer called.
+     * 此方法已不再被调用。
      *
-     * @param method            the generated insert method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated this method is no longer called
+     * @param method            生成的 insert 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 此方法已不再被调用
      */
     @Deprecated
     default boolean clientBasicInsertMultipleHelperMethodGenerated(Method method, Interface interfaze,
@@ -450,13 +409,13 @@ public interface Plugin {
     }
 
     /**
-     * Unused legacy method.
+     * 未使用的遗留方法。
      *
-     * @param kotlinFunction    generated function
-     * @param kotlinFile        generated file
-     * @param introspectedTable introspected table
+     * @param kotlinFunction    生成的函数
+     * @param kotlinFile        生成的文件
+     * @param introspectedTable 内省表
      * @return true
-     * @deprecated this method is no longer called
+     * @deprecated 此方法已不再被调用
      */
     @Deprecated
     default boolean clientBasicInsertMultipleHelperMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
@@ -465,16 +424,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectMany method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 selectMany 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated selectMany method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectMany 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicSelectManyMethodGenerated(Method method, Interface interfaze,
                                                          AbstractIntrospectedTable introspectedTable) {
@@ -482,16 +439,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectMany method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3Kotlin runtime.
+     * 为 mapper 接口生成 selectMany 方法时调用此方法。
+     * 此方法仅在 MyBatis3Kotlin 运行时中被调用。
      *
-     * @param kotlinFunction    the generated selectMany method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 selectMany 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicSelectManyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                          AbstractIntrospectedTable introspectedTable) {
@@ -499,16 +454,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectOne method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 为 mapper 接口生成 selectOne 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated selectOne method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectOne 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicSelectOneMethodGenerated(Method method, Interface interfaze,
                                                         AbstractIntrospectedTable introspectedTable) {
@@ -516,16 +469,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectOne method has been generated for the mapper interface.
-     * This method is only called in the MyBatis3Kotlin runtime.
+     * 为 mapper 接口生成 selectOne 方法时调用此方法。
+     * 此方法仅在 MyBatis3Kotlin 运行时中被调用。
      *
-     * @param kotlinFunction    the generated selectOne method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 selectOne 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientBasicSelectOneMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                         AbstractIntrospectedTable introspectedTable) {
@@ -533,16 +484,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      *
-     * @param method            the generated update method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated no longer called
+     * @param method            生成的 update 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 不再被调用
      */
     @Deprecated
     default boolean clientBasicUpdateMethodGenerated(Method method, Interface interfaze,
@@ -551,16 +500,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      *
-     * @param kotlinFunction    the generated update function
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated no longer called
+     * @param kotlinFunction    生成的 update 函数
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 不再被调用
      */
     @Deprecated
     default boolean clientBasicUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
@@ -569,19 +516,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the countByExample method has been generated
-     * in the client interface.
+     * 在客户端接口中生成 countByExample 方法时调用此方法。
      *
-     * @param method            the generated countByExample method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 countByExample 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientCountByExampleMethodGenerated(Method method,
                                                         Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -589,19 +530,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the deleteByExample method has been generated
-     * in the client interface.
+     * 在客户端接口中生成 deleteByExample 方法时调用此方法。
      *
-     * @param method            the generated deleteByExample method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 deleteByExample 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientDeleteByExampleMethodGenerated(Method method,
                                                          Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -609,19 +544,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the deleteByPrimaryKey method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 deleteByPrimaryKey 方法时调用此方法。
      *
-     * @param method            the generated deleteByPrimaryKey method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 deleteByPrimaryKey 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientDeleteByPrimaryKeyMethodGenerated(Method method,
                                                             Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -629,19 +558,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the countByExample method has been generated
-     * in the client interface.
+     * 在客户端接口中生成 countByExample 方法时调用此方法。
      *
-     * @param kotlinFunction    the generated countByExample method
-     * @param kotlinFile        the partially implemented client file. You can add
-     *                          additional imported classes to the file if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 countByExample 方法
+     * @param kotlinFile        部分实现的客户端文件。如有必要，您可以向该文件添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientDeleteByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                             AbstractIntrospectedTable introspectedTable) {
@@ -649,20 +572,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insertOrDeleteByTable method has been
-     * generated in the client interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 在客户端接口中生成 insertOrDeleteByTable 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated insertOrDeleteByTable method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insertOrDeleteByTable 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertOrDeleteByTableMethodGenerated(Method method,
                                                                Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -670,14 +587,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general count method has been generated. This is the replacement for countByExample
-     * in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 count 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代 countByExample。
      *
-     * @param method            the generated general count method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的通用 count 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralCountMethodGenerated(Method method, Interface interfaze,
                                                       AbstractIntrospectedTable introspectedTable) {
@@ -685,14 +600,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general count method has been generated. This is the replacement for countByExample
-     * in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 count 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代 countByExample。
      *
-     * @param kotlinFunction    the generated general count method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的通用 count 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                       AbstractIntrospectedTable introspectedTable) {
@@ -700,14 +613,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general delete method has been generated. This is the replacement for deleteByExample
-     * in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 delete 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代 deleteByExample。
      *
-     * @param method            the generated general delete method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的通用 delete 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralDeleteMethodGenerated(Method method, Interface interfaze,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -715,14 +626,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general delete method has been generated. This is the replacement for deleteByExample
-     * in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 delete 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代 deleteByExample。
      *
-     * @param kotlinFunction    the generated general delete method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的通用 delete 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -730,14 +639,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general select distinct method has been generated. This is the replacement for
-     * selectDistinctByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 select distinct 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代
+     * selectDistinctByExample。
      *
-     * @param method            the generated general select distinct method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的通用 select distinct 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralSelectDistinctMethodGenerated(Method method, Interface interfaze,
                                                                AbstractIntrospectedTable introspectedTable) {
@@ -745,14 +653,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general select distinct method has been generated. This is the replacement for
-     * selectDistinctByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 select distinct 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代
+     * selectDistinctByExample。
      *
-     * @param kotlinFunction    the generated general select distinct method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的通用 select distinct 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralSelectDistinctMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                                AbstractIntrospectedTable introspectedTable) {
@@ -760,14 +667,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general select method has been generated. This is the replacement for
-     * selectByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 select 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代
+     * selectByExample。
      *
-     * @param method            the generated general select method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的通用 select 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralSelectMethodGenerated(Method method, Interface interfaze,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -775,14 +681,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general select method has been generated. This is the replacement for
-     * selectByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 select 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代
+     * selectByExample。
      *
-     * @param kotlinFunction    the generated general select method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的通用 select 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralSelectMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -790,14 +695,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general update method has been generated. This is the replacement for
-     * updateByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 update 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代
+     * updateByExample。
      *
-     * @param method            the generated general update method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的通用 update 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralUpdateMethodGenerated(Method method, Interface interfaze,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -805,14 +709,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the general update method has been generated. This is the replacement for
-     * updateByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 生成通用 update 方法时调用。在 MyBatis Dynamic SQL V2 运行时中，用于替代
+     * updateByExample。
      *
-     * @param kotlinFunction    the generated general update method
-     * @param kotlinFile        the partially generated mapper file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的通用 update 方法
+     * @param kotlinFile        部分生成的 mapper 文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientGeneralUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -820,19 +723,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert method has been generated in the
-     * client interface.
+     * 在客户端接口中生成 insert 方法时调用此方法。
      *
-     * @param method            the generated insert method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insert 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertMethodGenerated(Method method, Interface interfaze,
                                                 AbstractIntrospectedTable introspectedTable) {
@@ -840,20 +737,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insertOrUpdate method has been generated in the
-     * client interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 在客户端接口中生成 insertOrUpdate 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated insertOrUpdate method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insertOrUpdate 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertOrUpdateMethodGenerated(Method method, Interface interfaze,
                                                         AbstractIntrospectedTable introspectedTable) {
@@ -861,19 +752,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert method has been generated in the
-     * client interface.
+     * 在客户端接口中生成 insert 方法时调用此方法。
      *
-     * @param kotlinFunction    the generated insert method
-     * @param kotlinFile        the partially implemented client file. You can add
-     *                          additional imported classes to the file if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 insert 方法
+     * @param kotlinFile        部分实现的客户端文件。如有必要，您可以向该文件添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                 AbstractIntrospectedTable introspectedTable) {
@@ -881,20 +766,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert multiple method has been generated in the
-     * client interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 在客户端接口中生成 insert multiple 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param method            the generated insert multiple method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insert multiple 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertMultipleMethodGenerated(Method method, Interface interfaze,
                                                         AbstractIntrospectedTable introspectedTable) {
@@ -902,20 +781,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert multiple method has been generated in the
-     * client interface.
-     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 在客户端接口中生成 insert multiple 方法时调用此方法。
+     * 此方法仅在 MyBatis3DynamicSql 运行时中被调用。
      *
-     * @param kotlinFunction    the generated insert multiple method
-     * @param kotlinFile        the partially implemented client file. You can add
-     *                          additional imported classes to the file if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 insert multiple 方法
+     * @param kotlinFile        部分实现的客户端文件。如有必要，您可以向该文件添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertMultipleMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                         AbstractIntrospectedTable introspectedTable) {
@@ -923,19 +796,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert selective method has been generated
-     * in the client interface.
+     * 在客户端接口中生成 insert selective 方法时调用此方法。
      *
-     * @param method            the generated insert method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insert 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertSelectiveMethodGenerated(Method method,
                                                          Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -943,19 +810,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert batch method has been generated
-     * in the client interface.
+     * 在客户端接口中生成 insert batch 方法时调用此方法。
      *
-     * @param method            the generated insert batch method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insert batch 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertBatchMethodGenerated(Method method,
                                                      Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -963,19 +824,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert selective method has been generated
-     * in the client interface.
+     * 在客户端接口中生成 insert selective 方法时调用此方法。
      *
-     * @param kotlinFunction    the generated insert method
-     * @param kotlinFile        the partially implemented client file. You can add
-     *                          additional imported classes to the file if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 insert 方法
+     * @param kotlinFile        部分实现的客户端文件。如有必要，您可以向该文件添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientInsertSelectiveMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                          AbstractIntrospectedTable introspectedTable) {
@@ -983,19 +838,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByExampleWithBLOBs method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 selectByExampleWithBLOBs 方法时调用此方法。
      *
-     * @param method            the generated selectByExampleWithBLOBs method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectByExampleWithBLOBs 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientSelectByExampleWithBlobsMethodGenerated(Method method,
                                                                   Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1003,19 +852,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByExampleWithoutBLOBs method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 selectByExampleWithoutBLOBs 方法时调用此方法。
      *
-     * @param method            the generated selectByExampleWithoutBLOBs method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectByExampleWithoutBLOBs 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientSelectByExampleWithoutBlobsMethodGenerated(Method method,
                                                                      Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1023,19 +866,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByPrimaryKey method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 selectByPrimaryKey 方法时调用此方法。
      *
-     * @param method            the generated selectByPrimaryKey method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectByPrimaryKey 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientSelectByPrimaryKeyMethodGenerated(Method method,
                                                             Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1043,19 +880,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByKeysDic method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 selectByKeysDic 方法时调用此方法。
      *
-     * @param method            the generated selectByKeysDic method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectByKeysDic 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientSelectByKeysDicMethodGenerated(Method method,
                                                          Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1063,19 +894,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByPrimaryKey method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 selectByPrimaryKey 方法时调用此方法。
      *
-     * @param kotlinFunction    the generated selectByPrimaryKey method
-     * @param kotlinFile        the partially implemented client file. You can add
-     *                          additional imported classes to the file if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 selectByPrimaryKey 方法
+     * @param kotlinFile        部分实现的客户端文件。如有必要，您可以向该文件添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientSelectByPrimaryKeyMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                             AbstractIntrospectedTable introspectedTable) {
@@ -1083,13 +908,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the selectList field is generated in a MyBatis Dynamic SQL V2 runtime.
+     * 在 MyBatis Dynamic SQL V2 运行时中生成 selectList 字段时调用。
      *
-     * @param field             the generated selectList field
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the field should be generated
+     * @param field             生成的 selectList 字段
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该字段则返回 true
      */
     default boolean clientSelectListFieldGenerated(Field field, Interface interfaze,
                                                    AbstractIntrospectedTable introspectedTable) {
@@ -1097,13 +921,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the selectOne method is generated. This is a new method in the MyBatis Dynamic SQL V2 runtime.
+     * 生成 selectOne 方法时调用。这是 MyBatis Dynamic SQL V2 运行时中的新方法。
      *
-     * @param method            the generated selectOne method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的 selectOne 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientSelectOneMethodGenerated(Method method, Interface interfaze,
                                                    AbstractIntrospectedTable introspectedTable) {
@@ -1111,13 +934,12 @@ public interface Plugin {
     }
 
     /**
-     * Called when the selectOne method is generated. This is a new method in the MyBatis Dynamic SQL V2 runtime.
+     * 生成 selectOne 方法时调用。这是 MyBatis Dynamic SQL V2 运行时中的新方法。
      *
-     * @param kotlinFunction    the generated selectOne method
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的 selectOne 方法
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientSelectOneMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                    AbstractIntrospectedTable introspectedTable) {
@@ -1125,19 +947,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleSelective method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 updateByExampleSelective 方法时调用此方法。
      *
-     * @param method            the generated updateByExampleSelective method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByExampleSelective 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByExampleSelectiveMethodGenerated(Method method,
                                                                   Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1145,14 +961,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the updateAllColumns method is generated. The generated method can be used with the general
-     * update method to mimic the function of the old updateByExample method.
+     * 生成 updateAllColumns 方法时调用。生成的方法可与通用
+     * update 方法结合使用，以模拟旧版 updateByExample 方法的功能。
      *
-     * @param method            the generated updateAllColumns method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的 updateAllColumns 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientUpdateAllColumnsMethodGenerated(Method method, Interface interfaze,
                                                           AbstractIntrospectedTable introspectedTable) {
@@ -1160,14 +975,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the updateAllColumns method is generated. The generated method can be used with the general
-     * update method to mimic the function of the old updateByExample method.
+     * 生成 updateAllColumns 方法时调用。生成的方法可与通用
+     * update 方法结合使用，以模拟旧版 updateByExample 方法的功能。
      *
-     * @param kotlinFunction    the generated updateAllColumns method
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的 updateAllColumns 方法
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientUpdateAllColumnsMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                           AbstractIntrospectedTable introspectedTable) {
@@ -1175,14 +989,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the updateSelectiveColumns method is generated. The generated method can be used with the general
-     * update method to mimic the function of the old updateByExampleSelective method.
+     * 生成 updateSelectiveColumns 方法时调用。生成的方法可与通用
+     * update 方法结合使用，以模拟旧版 updateByExampleSelective 方法的功能。
      *
-     * @param method            the generated updateSelectiveColumns method
-     * @param interfaze         the partially generated mapper interfaces
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param method            生成的 updateSelectiveColumns 方法
+     * @param interfaze         部分生成的 mapper 接口
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientUpdateSelectiveColumnsMethodGenerated(Method method, Interface interfaze,
                                                                 AbstractIntrospectedTable introspectedTable) {
@@ -1190,14 +1003,13 @@ public interface Plugin {
     }
 
     /**
-     * Called when the updateSelectiveColumns method is generated. The generated method can be used with the general
-     * update method to mimic the function of the old updateByExampleSelective method.
+     * 生成 updateSelectiveColumns 方法时调用。生成的方法可与通用
+     * update 方法结合使用，以模拟旧版 updateByExampleSelective 方法的功能。
      *
-     * @param kotlinFunction    the generated updateSelectiveColumns method
-     * @param kotlinFile        the partially generated file
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated
+     * @param kotlinFunction    生成的 updateSelectiveColumns 方法
+     * @param kotlinFile        部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true
      */
     default boolean clientUpdateSelectiveColumnsMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
                                                                 AbstractIntrospectedTable introspectedTable) {
@@ -1205,19 +1017,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleWithBLOBs method has been
-     * generated in the client interface.
+     * 在客户端接口中生成 updateByExampleWithBLOBs 方法时调用此方法。
      *
-     * @param method            the generated updateByExampleWithBLOBs method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByExampleWithBLOBs 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByExampleWithBlobsMethodGenerated(Method method,
                                                                   Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1225,19 +1031,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleWithoutBLOBs method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 updateByExampleWithoutBLOBs 方法时调用此方法。
      *
-     * @param method            the generated updateByExampleWithoutBLOBs method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByExampleWithoutBLOBs 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByExampleWithoutBlobsMethodGenerated(Method method,
                                                                      Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1245,19 +1045,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeySelective method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 updateByPrimaryKeySelective 方法时调用此方法。
      *
-     * @param method            the generated updateByPrimaryKeySelective method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByPrimaryKeySelective 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
                                                                      Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1265,19 +1059,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeySelective method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 updateByPrimaryKeySelective 方法时调用此方法。
      *
-     * @param method            the generated updateByPrimaryKeySelective method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByPrimaryKeySelective 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateBatchMethodGenerated(Method method,
                                                      Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1285,19 +1073,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeySelective method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 updateByPrimaryKeySelective 方法时调用此方法。
      *
-     * @param kotlinFunction    the generated updateByPrimaryKeySelective function
-     * @param kotlinFile        the partially implemented client file. You can add
-     *                          additional imported classes to the file if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the function should be generated, false if the generated
-     * function should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param kotlinFunction    生成的 updateByPrimaryKeySelective 函数
+     * @param kotlinFile        部分实现的客户端文件。如有必要，您可以向该文件添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该函数则返回 true，如果应忽略生成的函数则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(KotlinFunction kotlinFunction,
                                                                      KotlinFile kotlinFile, AbstractIntrospectedTable introspectedTable) {
@@ -1305,19 +1087,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeyWithBLOBs method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 updateByPrimaryKeyWithBLOBs 方法时调用此方法。
      *
-     * @param method            the generated updateByPrimaryKeyWithBLOBs method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByPrimaryKeyWithBLOBs 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByPrimaryKeyWithBlobsMethodGenerated(Method method,
                                                                      Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1325,19 +1101,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeyWithoutBLOBs method has
-     * been generated in the client interface.
+     * 在客户端接口中生成 updateByPrimaryKeyWithoutBLOBs 方法时调用此方法。
      *
-     * @param method            the generated updateByPrimaryKeyWithoutBLOBs method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByPrimaryKeyWithoutBLOBs 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientUpdateByPrimaryKeyWithoutBlobsMethodGenerated(Method method,
                                                                         Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1345,20 +1115,27 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectAll method has been
-     * generated in the client interface.  This method is only generated by
-     * the simple runtime.
+     * 在客户端接口中生成 incrementRevisionByPrimaryKey 方法时调用此方法。
+     * @param method           生成的 incrementRevisionByPrimaryKey 方法
+     * @param interfaze        部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     */
+    default boolean clientIncrementRevisionByPrimaryKeyGenerated(Method method,
+                                                                        Interface interfaze, AbstractIntrospectedTable introspectedTable) {
+        return true;
+    }
+
+    /**
+     * 在客户端接口中生成 selectAll 方法时调用此方法。此方法仅由
+     * simple 运行时生成。
      *
-     * @param method            the generated selectAll method
-     * @param interfaze         the partially implemented client interface. You can add
-     *                          additional imported classes to the interface if
-     *                          necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectAll 方法
+     * @param interfaze         部分实现的客户端接口。如有必要，您可以向该接口添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean clientSelectAllMethodGenerated(Method method,
                                                    Interface interfaze, AbstractIntrospectedTable introspectedTable) {
@@ -1366,21 +1143,15 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the field is generated for a specific column
-     * in a table.
+     * 在为表中的特定列生成字段后调用此方法。
      *
-     * @param field              the field generated for the specified column
-     * @param topLevelClass      the partially implemented model class. You can add additional
-     *                           imported classes to the implementation class if necessary.
-     * @param introspectedColumn The class containing information about the column related
-     *                           to this field as introspected from the database
-     * @param introspectedTable  The class containing information about the table as
-     *                           introspected from the database
-     * @param modelClassType     the type of class that the field is generated for
-     * @return true if the field should be generated, false if the generated
-     * field should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param field              为指定列生成的字段
+     * @param topLevelClass      部分实现的模型类。如有必要，您可以向该实现类添加额外的导入类。
+     * @param introspectedColumn 包含从数据库内省的与此字段相关的列信息的类
+     * @param introspectedTable  包含从数据库内省的表信息的类
+     * @param modelClassType     生成该字段的类的类型
+     * @return 如果应生成该字段则返回 true，如果应忽略生成的字段则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass,
                                         IntrospectedColumn introspectedColumn,
@@ -1556,22 +1327,15 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the getter, or accessor, method is generated
-     * for a specific column in a table.
+     * 在为表中的特定列生成 getter（或访问器）方法后调用此方法。
      *
-     * @param method             the getter, or accessor, method generated for the specified
-     *                           column
-     * @param topLevelClass      the partially implemented model class. You can add additional
-     *                           imported classes to the implementation class if necessary.
-     * @param introspectedColumn The class containing information about the column related
-     *                           to this field as introspected from the database
-     * @param introspectedTable  The class containing information about the table as
-     *                           introspected from the database
-     * @param modelClassType     the type of class that the field is generated for
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method             为指定列生成的 getter（或访问器）方法
+     * @param topLevelClass      部分实现的模型类。如有必要，您可以向该实现类添加额外的导入类。
+     * @param introspectedColumn 包含从数据库内省的与此字段相关的列信息的类
+     * @param introspectedTable  包含从数据库内省的表信息的类
+     * @param modelClassType     生成该字段的类的类型
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelGetterMethodGenerated(Method method,
                                                TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
@@ -1580,22 +1344,15 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the setter, or mutator, method is generated
-     * for a specific column in a table.
+     * 在为表中的特定列生成 setter（或修改器）方法后调用此方法。
      *
-     * @param method             the setter, or mutator, method generated for the specified
-     *                           column
-     * @param topLevelClass      the partially implemented model class. You can add additional
-     *                           imported classes to the implementation class if necessary.
-     * @param introspectedColumn The class containing information about the column related
-     *                           to this field as introspected from the database
-     * @param introspectedTable  The class containing information about the table as
-     *                           introspected from the database
-     * @param modelClassType     the type of class that the field is generated for
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method             为指定列生成的 setter（或修改器）方法
+     * @param topLevelClass      部分实现的模型类。如有必要，您可以向该实现类添加额外的导入类。
+     * @param introspectedColumn 包含从数据库内省的与此字段相关的列信息的类
+     * @param introspectedTable  包含从数据库内省的表信息的类
+     * @param modelClassType     生成该字段的类的类型
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelSetterMethodGenerated(Method method,
                                                TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
@@ -1604,21 +1361,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the primary key class is generated by the
-     * JavaModelGenerator. This method will only be called if
-     * the table rules call for generation of a primary key class.
+     * 在 JavaModelGenerator 生成主键类后调用此方法。仅当表规则要求生成主键类时才会调用此方法。
      * <br><br>
-     * This method is only guaranteed to be called by the Java
-     * model generators. Other user supplied generators may, or may not, call
-     * this method.
+     * 仅保证 Java 模型生成器会调用此方法。其他用户提供的生成器可能会或可能不会调用此方法。
      *
-     * @param topLevelClass     the generated primary key class
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the class should be generated, false if the generated
-     * class should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param topLevelClass     生成的主键类
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该类则返回 true，如果应忽略生成的类则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass,
                                                   AbstractIntrospectedTable introspectedTable) {
@@ -1626,21 +1376,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the base record class is generated by the
-     * JavaModelGenerator. This method will only be called if
-     * the table rules call for generation of a base record class.
+     * 在 JavaModelGenerator 生成基础记录类后调用此方法。仅当表规则要求生成基础记录类时才会调用此方法。
      * <br><br>
-     * This method is only guaranteed to be called by the default Java
-     * model generators. Other user supplied generators may, or may not, call
-     * this method.
+     * 仅保证默认的 Java 模型生成器会调用此方法。其他用户提供的生成器可能会或可能不会调用此方法。
      *
-     * @param topLevelClass     the generated base record class
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the class should be generated, false if the generated
-     * class should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param topLevelClass     生成的基础记录类
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该类则返回 true，如果应忽略生成的类则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
                                                   AbstractIntrospectedTable introspectedTable) {
@@ -1756,21 +1499,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the record with BLOBs class is generated by
-     * the JavaModelGenerator. This method will only be called
-     * if the table rules call for generation of a record with BLOBs class.
+     * 在 JavaModelGenerator 生成包含 BLOB 的记录类后调用此方法。仅当表规则要求生成包含 BLOB 的记录类时才会调用此方法。
      * <br><br>
-     * This method is only guaranteed to be called by the default Java
-     * model generators. Other user supplied generators may, or may not, call
-     * this method.
+     * 仅保证默认的 Java 模型生成器会调用此方法。其他用户提供的生成器可能会或可能不会调用此方法。
      *
-     * @param topLevelClass     the generated record with BLOBs class
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the class should be generated, false if the generated
-     * class should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param topLevelClass     生成的包含 BLOB 的记录类
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该类则返回 true，如果应忽略生成的类则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelRecordWithBlobsClassGenerated(TopLevelClass topLevelClass,
                                                        AbstractIntrospectedTable introspectedTable) {
@@ -1778,21 +1514,14 @@ public interface Plugin {
     }
 
     /**
-     * This method is called after the example class is generated by the
-     * JavaModelGenerator. This method will only be called if the table
-     * rules call for generation of an example class.
+     * 在 JavaModelGenerator 生成 Example 类后调用此方法。仅当表规则要求生成 Example 类时才会调用此方法。
      * <br><br>
-     * This method is only guaranteed to be called by the default Java
-     * model generators. Other user supplied generators may, or may not, call
-     * this method.
+     * 仅保证默认的 Java 模型生成器会调用此方法。其他用户提供的生成器可能会或可能不会调用此方法。
      *
-     * @param topLevelClass     the generated example class
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the class should be generated, false if the generated
-     * class should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param topLevelClass     生成的 Example 类
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该类则返回 true，如果应忽略生成的类则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean modelExampleClassGenerated(TopLevelClass topLevelClass,
                                                AbstractIntrospectedTable introspectedTable) {
@@ -1800,16 +1529,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the SqlMap file has been generated.
+     * 生成 SqlMap 文件时调用此方法。
      *
-     * @param sqlMap            the generated file (containing the file name, package name,
-     *                          and project name)
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the sqlMap should be generated, false if the generated
-     * sqlMap should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param sqlMap            生成的文件（包含文件名、包名和项目名）
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该 sqlMap 则返回 true，如果应忽略生成的 sqlMap 则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapGenerated(GeneratedXmlFile sqlMap,
                                     AbstractIntrospectedTable introspectedTable) {
@@ -1831,19 +1556,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the SqlMap document has been generated. This
-     * method can be used to add additional XML elements the generated
-     * document.
+     * 生成 SqlMap document 时调用此方法。此方法可用于向生成的 document 添加额外的 XML 元素。
      *
-     * @param document          the generated document (note that this is the MyBatis generator's internal
-     *                          Document class - not the w3c XML Document class)
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the document should be generated, false if the generated
-     * document should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins. Also, if any plugin returns false, then the
-     * <code>sqlMapGenerated</code> method will not be called.
+     * @param document          生成的 document（请注意，这是 MyBatis Generator 内部的 Document 类 - 而不是 w3c XML Document 类）
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该 document 则返回 true，如果应忽略生成的 document 则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。此外，如果有任何插件返回 false，
+     * 则不会调用 <code>sqlMapGenerated</code> 方法。
      */
     default boolean sqlMapDocumentGenerated(Document document,
                                             AbstractIntrospectedTable introspectedTable) {
@@ -1863,15 +1582,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the base resultMap is generated.
+     * 生成基础 resultMap 时调用此方法。
      *
-     * @param element           the generated &lt;resultMap&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;resultMap&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapResultMapWithoutBlobsElementGenerated(XmlElement element,
                                                                 AbstractIntrospectedTable introspectedTable) {
@@ -1879,15 +1595,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the countByExample element is generated.
+     * 生成 countByExample 元素时调用此方法。
      *
-     * @param element           the generated &lt;select&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;select&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapCountByExampleElementGenerated(XmlElement element,
                                                          AbstractIntrospectedTable introspectedTable) {
@@ -1895,15 +1608,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the deleteByExample element is generated.
+     * 生成 deleteByExample 元素时调用此方法。
      *
-     * @param element           the generated &lt;delete&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;delete&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapDeleteByExampleElementGenerated(XmlElement element,
                                                           AbstractIntrospectedTable introspectedTable) {
@@ -1911,15 +1621,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the deleteByPrimaryKey element is generated.
+     * 生成 deleteByPrimaryKey 元素时调用此方法。
      *
-     * @param element           the generated &lt;delete&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;delete&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element,
                                                              AbstractIntrospectedTable introspectedTable) {
@@ -1927,15 +1634,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the exampleWhereClause element is generated.
+     * 生成 exampleWhereClause 元素时调用此方法。
      *
-     * @param element           the generated &lt;sql&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;sql&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element,
                                                              AbstractIntrospectedTable introspectedTable) {
@@ -1943,15 +1647,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the baseColumnList element is generated.
+     * 生成 baseColumnList 元素时调用此方法。
      *
-     * @param element           the generated &lt;sql&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;sql&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapBaseColumnListElementGenerated(XmlElement element,
                                                          AbstractIntrospectedTable introspectedTable) {
@@ -1959,15 +1660,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the blobColumnList element is generated.
+     * 生成 blobColumnList 元素时调用此方法。
      *
-     * @param element           the generated &lt;sql&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;sql&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapBlobColumnListElementGenerated(XmlElement element,
                                                          AbstractIntrospectedTable introspectedTable) {
@@ -1975,15 +1673,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert element is generated.
+     * 生成 insert 元素时调用此方法。
      *
-     * @param element           the generated &lt;insert&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;insert&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapInsertElementGenerated(XmlElement element,
                                                  AbstractIntrospectedTable introspectedTable) {
@@ -1991,15 +1686,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insert selective element is generated.
+     * 生成 insert selective 元素时调用此方法。
      *
-     * @param element           the generated &lt;insert&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;insert&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapInsertSelectiveElementGenerated(XmlElement element,
                                                           AbstractIntrospectedTable introspectedTable) {
@@ -2007,11 +1699,11 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insertOrUpdate element is generated.
+     * 生成 insertOrUpdate 元素时调用此方法。
      *
-     * @param element           the generated &lt;insert&gt; element
-     * @param introspectedTable The class containing information about the table as
-     * @return true if the element should be generated, false if the generated
+     * @param element           生成的 &lt;insert&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成则返回 false
      */
     default boolean sqlMapInsertOrUpdateSelectiveElementGenerated(XmlElement element,
                                                                   AbstractIntrospectedTable introspectedTable) {
@@ -2019,16 +1711,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the resultMap with BLOBs element is generated
-     * - this resultMap will extend the base resultMap.
+     * 生成包含 BLOB 的 resultMap 元素时调用此方法 - 此 resultMap 将继承基础 resultMap。
      *
-     * @param element           the generated &lt;resultMap&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;resultMap&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapResultMapWithBlobsElementGenerated(XmlElement element,
                                                              AbstractIntrospectedTable introspectedTable) {
@@ -2036,15 +1724,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectAll element is generated.
+     * 生成 selectAll 元素时调用此方法。
      *
-     * @param element           the generated &lt;select&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;select&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapSelectAllElementGenerated(XmlElement element,
                                                     AbstractIntrospectedTable introspectedTable) {
@@ -2076,15 +1761,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByExample element is generated.
+     * 生成 selectByExample 元素时调用此方法。
      *
-     * @param element           the generated &lt;select&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;select&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapSelectByExampleWithoutBlobsElementGenerated(
             XmlElement element, AbstractIntrospectedTable introspectedTable) {
@@ -2092,16 +1774,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByExampleWithBLOBs element is
-     * generated.
+     * 生成 selectByExampleWithBLOBs 元素时调用此方法。
      *
-     * @param element           the generated &lt;select&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;select&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapSelectByExampleWithBlobsElementGenerated(XmlElement element,
                                                                    AbstractIntrospectedTable introspectedTable) {
@@ -2109,16 +1787,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleSelective element is
-     * generated.
+     * 生成 updateByExampleSelective 元素时调用此方法。
      *
-     * @param element           the generated &lt;update&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;update&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapUpdateByExampleSelectiveElementGenerated(XmlElement element,
                                                                    AbstractIntrospectedTable introspectedTable) {
@@ -2126,16 +1800,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleWithBLOBs element is
-     * generated.
+     * 生成 updateByExampleWithBLOBs 元素时调用此方法。
      *
-     * @param element           the generated &lt;update&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;update&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapUpdateByExampleWithBlobsElementGenerated(XmlElement element,
                                                                    AbstractIntrospectedTable introspectedTable) {
@@ -2143,16 +1813,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleWithoutBLOBs element is
-     * generated.
+     * 生成 updateByExampleWithoutBLOBs 元素时调用此方法。
      *
-     * @param element           the generated &lt;update&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;update&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapUpdateByExampleWithoutBlobsElementGenerated(
             XmlElement element, AbstractIntrospectedTable introspectedTable) {
@@ -2160,16 +1826,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeySelective element is
-     * generated.
+     * 生成 updateByPrimaryKeySelective 元素时调用此方法。
      *
-     * @param element           the generated &lt;update&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;update&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(
             XmlElement element, AbstractIntrospectedTable introspectedTable) {
@@ -2177,7 +1839,7 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateBatch element is generated.
+     * 生成 updateBatch 元素时调用此方法。
      *
      * @param element           xml元素
      * @param introspectedTable 表信息
@@ -2189,16 +1851,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeyWithBLOBs element is
-     * generated.
+     * 生成 updateByPrimaryKeyWithBLOBs 元素时调用此方法。
      *
-     * @param element           the generated &lt;update&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;update&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapUpdateByPrimaryKeyWithBlobsElementGenerated(
             XmlElement element, AbstractIntrospectedTable introspectedTable) {
@@ -2206,16 +1864,12 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeyWithoutBLOBs element is
-     * generated.
+     * 生成 updateByPrimaryKeyWithoutBLOBs 元素时调用此方法。
      *
-     * @param element           the generated &lt;update&gt; element
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the element should be generated, false if the generated
-     * element should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param element           生成的 &lt;update&gt; 元素
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该元素则返回 true，如果应忽略生成的元素则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean sqlMapUpdateByPrimaryKeyWithoutBlobsElementGenerated(
             XmlElement element, AbstractIntrospectedTable introspectedTable) {
@@ -2223,17 +1877,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the SQL provider has been generated.
-     * Implement this method to add additional methods or fields to a generated
-     * SQL provider.
+     * 生成 SQL provider 时调用此方法。
+     * 实现此方法可向生成的 SQL provider 添加其他方法或字段。
      *
-     * @param topLevelClass     the generated provider
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the provider should be generated, false if the generated
-     * provider should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param topLevelClass     生成的 provider
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该 provider 则返回 true，如果应忽略生成的 provider 则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerGenerated(TopLevelClass topLevelClass,
                                       AbstractIntrospectedTable introspectedTable) {
@@ -2241,19 +1891,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the applyWhere method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 applyWhere 方法时调用此方法。
      *
-     * @param method            the generated applyWhere method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 applyWhere 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerApplyWhereMethodGenerated(Method method,
                                                       TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2261,19 +1905,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the countByExample method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 countByExample 方法时调用此方法。
      *
-     * @param method            the generated countByExample method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 countByExample 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerCountByExampleMethodGenerated(Method method,
                                                           TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2281,19 +1919,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the deleteByExample method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 deleteByExample 方法时调用此方法。
      *
-     * @param method            the generated deleteByExample method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 deleteByExample 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerDeleteByExampleMethodGenerated(Method method,
                                                            TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2301,19 +1933,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the insertSelective method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 insertSelective 方法时调用此方法。
      *
-     * @param method            the generated insertSelective method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 insertSelective 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerInsertSelectiveMethodGenerated(Method method,
                                                            TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2321,19 +1947,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByExampleWithBLOBs method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 selectByExampleWithBLOBs 方法时调用此方法。
      *
-     * @param method            the generated selectByExampleWithBLOBs method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectByExampleWithBLOBs 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerSelectByExampleWithBlobsMethodGenerated(Method method,
                                                                     TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2341,19 +1961,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the selectByExampleWithoutBLOBs method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 selectByExampleWithoutBLOBs 方法时调用此方法。
      *
-     * @param method            the generated selectByExampleWithoutBLOBs method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 selectByExampleWithoutBLOBs 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerSelectByExampleWithoutBlobsMethodGenerated(Method method,
                                                                        TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2361,19 +1975,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleSelective method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 updateByExampleSelective 方法时调用此方法。
      *
-     * @param method            the generated updateByExampleSelective method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByExampleSelective 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerUpdateByExampleSelectiveMethodGenerated(Method method,
                                                                     TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2381,19 +1989,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleWithBLOBs method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 updateByExampleWithBLOBs 方法时调用此方法。
      *
-     * @param method            the generated updateByExampleWithBLOBs method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByExampleWithBLOBs 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerUpdateByExampleWithBlobsMethodGenerated(Method method,
                                                                     TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2401,19 +2003,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByExampleWithoutBLOBs method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 updateByExampleWithoutBLOBs 方法时调用此方法。
      *
-     * @param method            the generated updateByExampleWithoutBLOBs method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByExampleWithoutBLOBs 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerUpdateByExampleWithoutBlobsMethodGenerated(Method method,
                                                                        TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2421,19 +2017,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the updateByPrimaryKeySelective method has
-     * been generated in the SQL provider.
+     * 在 SQL provider 中生成 updateByPrimaryKeySelective 方法时调用此方法。
      *
-     * @param method            the generated updateByPrimaryKeySelective method
-     * @param topLevelClass     the partially generated provider class
-     *                          You can add additional imported classes to the class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the method should be generated, false if the generated
-     * method should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param method            生成的 updateByPrimaryKeySelective 方法
+     * @param topLevelClass     部分生成的 provider 类。如有必要，您可以向该类添加额外的导入类。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该方法则返回 true，如果应忽略生成的方法则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean providerUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
                                                                        TopLevelClass topLevelClass, AbstractIntrospectedTable introspectedTable) {
@@ -2441,35 +2031,26 @@ public interface Plugin {
     }
 
     /**
-     * This method is called when the MyBatis Dynamic SQL support class has
-     * been generated in the MyBatis Dynamic SQL runtime.
+     * 在 MyBatis Dynamic SQL 运行时中生成 MyBatis Dynamic SQL 支持类时调用此方法。
      *
-     * @param supportClass      the generated MyBatis Dynamic SQL support class
-     *                          You can add additional items to the generated class
-     *                          if necessary.
-     * @param introspectedTable The class containing information about the table as
-     *                          introspected from the database
-     * @return true if the class should be generated, false if the generated
-     * class should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
+     * @param supportClass      生成的 MyBatis Dynamic SQL 支持类。如有必要，您可以向生成的类添加额外的项。
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该类则返回 true，如果应忽略生成的类则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
      */
     default boolean dynamicSqlSupportGenerated(TopLevelClass supportClass, AbstractIntrospectedTable introspectedTable) {
         return true;
     }
 
     /**
-     * This method is called when the MyBatis Dynamic SQL support object has been generated. The format of the class
-     * is an outer object with an inner class. The inner class contains the table and column definitions. The outer
-     * (singleton) object contains a reference to an instance of the inner class, and shortcut properties that
-     * reference the columns of that instance.
+     * 生成 MyBatis Dynamic SQL 支持对象时调用此方法。该类的结构为一个外部对象（outer object）包含一个内部类（inner class）。
+     * 内部类包含表和列的定义。外部（单例）对象包含对内部类实例的引用，以及引用该实例各列的快捷属性。
      *
-     * @param kotlinFile         the generated Kotlin file containing the outer object and inner class
-     * @param outerSupportObject a reference to the outer object in the file
-     * @param innerSupportClass  a reference to the inner class
-     * @param introspectedTable  the class containing information about the table as
-     *                           introspected from the database
-     * @return true if the generated file should be kept
+     * @param kotlinFile         生成的包含外部对象和内部类的 Kotlin 文件
+     * @param outerSupportObject 文件中外部对象的引用
+     * @param innerSupportClass  内部类的引用
+     * @param introspectedTable  包含从数据库内省的表信息的类
+     * @return 如果应保留生成的文件则返回 true
      */
     default boolean dynamicSqlSupportGenerated(KotlinFile kotlinFile, KotlinType outerSupportObject,
                                                KotlinType innerSupportClass, AbstractIntrospectedTable introspectedTable) {
@@ -2477,15 +2058,13 @@ public interface Plugin {
     }
 
     /**
-     * This method is no longer called.
+     * 此方法已不再被调用。
      *
-     * @param extensionsFile    the partially generated file
-     * @param introspectedTable The class containing information about the table as introspected from the database
-     * @return true if the file should be generated, false if the generated
-     * file should be ignored. In the case of multiple plugins, the
-     * first plugin returning false will disable the calling of further
-     * plugins.
-     * @deprecated this method is no longer called
+     * @param extensionsFile    部分生成的文件
+     * @param introspectedTable 包含从数据库内省的表信息的类
+     * @return 如果应生成该文件则返回 true，如果应忽略生成的文件则返回 false。
+     * 在配置了多个插件的情况下，第一个返回 false 的插件将阻止调用后续插件。
+     * @deprecated 此方法已不再被调用
      */
     @Deprecated
     default boolean mapperExtensionsGenerated(KotlinFile extensionsFile, AbstractIntrospectedTable introspectedTable) {

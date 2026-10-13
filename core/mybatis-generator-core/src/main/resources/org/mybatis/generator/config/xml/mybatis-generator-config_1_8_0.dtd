@@ -225,7 +225,7 @@
             4、htmlHiddenFields 页面文件中隐藏的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             5、htmlReadonlyFields 页面文件中只读的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
             6、htmlDisplayOnlyFields 页面文件中只显示的列，多个”,“分隔。将影响当前表的默认列表，列表字段范围和页面编辑时的表单
-            7、atomicIncrementColumns 生成原子递增的字段名，多个字段使用逗号分隔；兼容旧属性atomicIncrementColumn
+            7、atomicIncrementColumns 生成原子递增的字段名，多个字段使用逗号分隔
             属性默认值：
                 isModules 默认值 false
                 enableInsert 默认值true

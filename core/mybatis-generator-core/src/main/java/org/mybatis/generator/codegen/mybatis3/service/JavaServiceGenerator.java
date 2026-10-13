@@ -75,6 +75,13 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         }
 
         /*
+         * atomicIncrement
+         * */
+        if (introspectedTable.getRules().generateAtomicIncrement()) {
+            bizInf.addMethod(serviceMethods.getAtomicIncrementMethod(bizInf, true));
+        }
+
+        /*
          * insertOrUpdate
          */
         introspectedTable.getColumn(DefaultColumnNameEnum.DELETE_FLAG.columnName()).ifPresent(column -> {

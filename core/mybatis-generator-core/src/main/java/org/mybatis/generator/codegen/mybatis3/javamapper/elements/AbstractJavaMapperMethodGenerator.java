@@ -27,13 +27,33 @@ import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.config.SelectByTableGeneratorConfiguration;
 
+/**
+ * @author cen_c
+ */
 public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerator {
+    /**
+     * 添加方法声明到接口中。
+     *
+     * @param interfaze 接口
+     */
     public abstract void addInterfaceElements(Interface interfaze);
 
+    /**
+     * 构造函数。
+     */
     protected AbstractJavaMapperMethodGenerator() {
         super();
     }
 
+    /**
+     * 获取结果映射注解。
+     *
+     * @param interfaze 接口
+     * @param introspectedColumn 列信息
+     * @param idColumn 是否为主键列
+     * @param constructorBased 是否基于构造函数
+     * @return 结果映射注解字符串
+     */
     protected static String getResultAnnotation(Interface interfaze, IntrospectedColumn introspectedColumn,
             boolean idColumn, boolean constructorBased) {
         StringBuilder sb = new StringBuilder();
@@ -70,14 +90,32 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         return sb.toString();
     }
 
+    /**
+     * 构建生成的主键注解。
+     *
+     * @return 生成的主键注解字符串的可选值
+     */
     protected Optional<String> buildGeneratedKeyAnnotation() {
         return introspectedTable.getGeneratedKey().flatMap(this::buildGeneratedKeyAnnotation);
     }
 
+    /**
+     * 构建生成的主键注解。
+     *
+     * @param gk 生成的主键
+     * @return 生成的主键注解字符串的可选值
+     */
     private Optional<String> buildGeneratedKeyAnnotation(GeneratedKey gk) {
         return introspectedTable.getColumn(gk.getColumn()).map(ic -> buildGeneratedKeyAnnotation(gk, ic));
     }
 
+    /**
+     * 构建生成的主键注解。
+     *
+     * @param gk 生成的主键
+     * @param introspectedColumn 列信息
+     * @return 生成的主键注解字符串
+     */
     private String buildGeneratedKeyAnnotation(GeneratedKey gk, IntrospectedColumn introspectedColumn) {
         StringBuilder sb = new StringBuilder();
         if (gk.isJdbcStandard()) {
@@ -103,11 +141,24 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
                 .orElseGet(Collections::emptySet);
     }
 
+    /**
+     * 构建生成的主键导入语句。
+     *
+     * @param gk 生成的主键
+     * @return 导入语句集合
+     */
     private Set<FullyQualifiedJavaType> buildGeneratedKeyImportsIfRequired(GeneratedKey gk) {
         return introspectedTable.getColumn(gk.getColumn()).map(ic -> buildGeneratedKeyImports(gk, ic))
                 .orElseGet(Collections::emptySet);
     }
 
+    /**
+     * 构建生成的主键导入语句。
+     *
+     * @param gk 生成的主键
+     * @param introspectedColumn 列信息
+     * @return 导入语句集合
+     */
     private Set<FullyQualifiedJavaType> buildGeneratedKeyImports(GeneratedKey gk,
                                                                  IntrospectedColumn introspectedColumn) {
         Set<FullyQualifiedJavaType> answer = new HashSet<>();
@@ -121,6 +172,11 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         return answer;
     }
 
+    /**
+     * 添加带注解的选择导入语句。
+     *
+     * @param interfaze 接口
+     */
     protected void addAnnotatedSelectImports(Interface interfaze) {
         interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.type.JdbcType"));
 
@@ -136,6 +192,11 @@ public abstract class AbstractJavaMapperMethodGenerator extends AbstractGenerato
         }
     }
 
+    /**
+     * 构建根据主键的 WHERE 子句。
+     *
+     * @return WHERE 子句字符串列表
+     */
     protected List<String> buildByPrimaryKeyWhereClause() {
         List<String> answer = new ArrayList<>();
         StringBuilder sb = new StringBuilder();

@@ -818,6 +818,16 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean clientIncrementRevisionByPrimaryKeyGenerated(Method method, Interface interfaze, AbstractIntrospectedTable abstractIntrospectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientIncrementRevisionByPrimaryKeyGenerated(method, interfaze, abstractIntrospectedTable)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean clientSelectAllMethodGenerated(Method method, Interface interfaze,
                                                   AbstractIntrospectedTable abstractIntrospectedTable) {
         for (Plugin plugin : plugins) {
