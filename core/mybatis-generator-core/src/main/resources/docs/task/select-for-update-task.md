@@ -176,3 +176,30 @@
 - 已检索本仓 Java/Markdown/XML/FTL 源码、测试与文档，无被替代类或旧方言包路径引用；规范、使用指南与架构入口均指向当前职责路径。
 - 未覆盖：真实数据库锁竞争、隔离/死锁/超时、驱动、宿主多数据源及自定义拦截器、敏感运行时 Aspect/业务端到端、受控业务再生成与产物保护、全仓测试。新增测试为人工元数据离线生成/真实插件调用，不提供业务 DB/DDL/部署或生成授权。
 - 清理：没有任务专用临时文件/脚本；真实 Vue3 用例仅在内存渲染，没有创建其测试目的路径 `mybatis-generator-core\target\sensitive-offline-unused`，最终存在性检查为 false；正式测试保留，报告在常规 target，不删除其他资产或 target 整体。未安装/发布依赖，未提交 commit，止于生成器职责重构。
+
+## 8. 敏感实体注解描述职责拆分（2026-10-14）
+
+- 用户已批准纯结构调整：新增 `custom.annotations.SensitiveCheckDesc`，仅从 `SensitiveCheckConfiguration` 提取注解值、维护 imports 并渲染；模型字段解析、验证、插件否决保护和去重继续由 `SensitiveModelAnnotations` 负责。描述对象的 `toAnnotation()` 必须无副作用且可重复调用。
+- 范围仅限生成器注解描述、模型装配、相关单测与职责文档；不修改生成配置、生成的业务 Java/XML、DTD 或其他生成器能力，不执行 Sensitive 再生成、数据库/DDL、依赖安装发布、部署或 commit。
+- 整体状态：完成；进度：3/3；更新时间及完成时间：2026-10-14。
+
+| 编号 | 子任务 | 依赖 | 状态 | 验收条件 |
+|---|---|---|---|---|
+| A01 | 新增无副作用的 SensitiveCheckDesc 并调整模型装配 | 无 | 完成 | 2026-10-14：描述类继承 `AbstractAnnotation`，只持有渲染值且不累积 items；模型层继续负责字段验证、插件否决和去重 |
+| A02 | 增加描述类边界测试并保留模型插件安全回归 | A01 | 完成 | 2026-10-14：3 项 `SensitiveCheckDescTest` 全部通过；`SensitiveGenerationTest` 插件顺序、变异、否决及去重回归通过 |
+| A03 | 更新职责文档并验证完整输出摘要不变 | A01、A02 | 完成 | 2026-10-14：更新 3 份生成器架构/配置文档及本任务书；12 项完整 Sensitive 输出 SHA-256 保持一致，定向测试、compile 和 diff check 通过 |
+
+### 8.1 实施与验证记录
+
+- 新增 `src\main\java\org\mybatis\generator\custom\annotations\SensitiveCheckDesc.java` 与对应 `SensitiveCheckDescTest.java`；修改 `codegen\mybatis3\model\SensitiveModelAnnotations.java`，保持字段解析、精确匹配、类型/可写校验、插件否决保护和注解去重在模型层。
+- `SensitiveCheckDesc` 只捕获 enable/strategy/contentType 并通过继承的 TreeSet 维护三个 imports；`toAnnotation()` 仅从不可变实例值拼接原注解文本，不修改 `items`，多次调用输出相同。模型装配统一加入描述类 imports，只有注解尚不存在时才添加文本。
+- 更新 `.github\generator-core-dev-spec.md`、`generator-authoritative-spec.md`、`generator-config-guide.md` 和本任务书，职责路径一致；无配置、生成业务产物、DTD、Java/XML 产物或其他生成器逻辑改动。
+- 定向命令（工作目录 `D:\java\idea_projs14\generator\core`）：
+
+```powershell
+mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,SensitiveCheckDescTest,ManagedRelationGenerationTest" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test
+```
+
+  结果：`SelectForUpdateGenerationTest` 15 项、`SensitiveGenerationTest` 18 项（1 项按未提供消费者配置路径的既有前置条件跳过）、`SensitiveCheckDescTest` 3 项、`ManagedRelationGenerationTest` 15 项（1 项按未提供业务再生成路径的既有授权门槛跳过）；合计 51 项，49 项通过、2 项跳过、失败/错误均为 0。`SensitiveGenerationTest.offlineOutputBaseline` 同时通过，既有四场景实体/Service/TS 完整输出共 12 个 SHA-256 均未变化。
+- 独立 `mvn -q -pl mybatis-generator-core "-DskipTests" "-Denforcer.skip=true" compile` 成功；针对本次文件执行 `git diff --check HEAD -- ...` 成功。
+- 未连接业务数据库、执行 DDL 或 Sensitive 生成，未安装/发布依赖或部署，未提交 commit。没有任务专用临时文件；Maven 报告仅位于常规 `target\surefire-reports`。

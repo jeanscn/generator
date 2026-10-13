@@ -19,6 +19,8 @@ import org.mybatis.generator.codegen.mybatis3.model.BaseRecordGenerator;
 import org.mybatis.generator.codegen.mybatis3.model.SensitiveModelAnnotations;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
 import org.mybatis.generator.codegen.mybatis3.service.elements.SensitiveWriteMethodsElement;
+import org.mybatis.generator.custom.annotations.AbstractAnnotation;
+import org.mybatis.generator.custom.annotations.SensitiveCheckDesc;
 import org.mybatis.generator.plugins.vue3.Vue3OtherFilesPlugin;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.SensitiveCheckConfiguration;
@@ -105,6 +107,8 @@ class SensitiveGenerationTest {
         assertThat(org.mybatis.generator.dbstrategy.SelectForUpdateDialect.class.getPackageName())
                 .isEqualTo("org.mybatis.generator.dbstrategy");
         assertThat(SensitiveModelAnnotations.class.getPackageName()).isEqualTo("org.mybatis.generator.codegen.mybatis3.model");
+        assertThat(SensitiveModelAnnotations.class.getSuperclass()).isEqualTo(Object.class);
+        assertThat(SensitiveCheckDesc.class.getSuperclass()).isEqualTo(AbstractAnnotation.class);
         assertThat(SensitiveWriteMethodsElement.class.getSuperclass())
                 .isEqualTo(org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator.class);
         assertThat(SensitiveWriteMethodsElement.class.getPackageName())

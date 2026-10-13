@@ -6,6 +6,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.SensitiveGenerationValidator;
+import org.mybatis.generator.custom.annotations.SensitiveCheckDesc;
 import org.mybatis.generator.config.SensitiveCheckConfiguration;
 
 import java.util.List;
@@ -20,8 +21,6 @@ import static org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.reso
  * @author vgosoft
  */
 public final class SensitiveModelAnnotations {
-    private static final String ANNOTATION_PACKAGE = "com.vgosoft.core.annotation.sensitive.";
-
     private SensitiveModelAnnotations() {
     }
 
@@ -41,12 +40,9 @@ public final class SensitiveModelAnnotations {
             if (!FullyQualifiedJavaType.getStringInstance().equals(field.getType()) || field.isStatic() || field.isFinal()) {
                 throw failure(table, column.getActualColumnName(), "实体字段类型或可写属性被插件改变");
             }
-            model.addImportedType(ANNOTATION_PACKAGE + "SensitiveCheck");
-            model.addImportedType(ANNOTATION_PACKAGE + "SensitiveCheckStrategy");
-            model.addImportedType(ANNOTATION_PACKAGE + "SensitiveContentType");
-            String annotation = "@SensitiveCheck(enable = " + configuration.isEnable()
-                    + ", strategy = SensitiveCheckStrategy." + configuration.getStrategy()
-                    + ", contentType = SensitiveContentType." + configuration.getContentType() + ")";
+            SensitiveCheckDesc description = new SensitiveCheckDesc(configuration);
+            model.addImportedTypes(description.getImportedTypes());
+            String annotation = description.toAnnotation();
             if (!field.getAnnotations().contains(annotation)) {
                 field.addAnnotation(annotation);
             }

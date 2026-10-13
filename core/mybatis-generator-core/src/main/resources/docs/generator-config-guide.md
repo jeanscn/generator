@@ -174,11 +174,12 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | 配置值及 XML 解析 | `config.SensitiveCheckConfiguration`、`config.xml.MyBatisGeneratorConfigurationParser`；配置对象不承担内省后预检或渲染 |
 | 内省后支持范围预检 | `codegen.mybatis3.SensitiveGenerationValidator.validate`，由 `api.AbstractIntrospectedTable.initialize` 调用；模型/Service 插件执行后的渲染再次预检 |
 | 唯一跨层共享字段解析 | `codegen.mybatis3.SensitiveFieldResolver`，仅解析启用配置、精确物理列及最终 Java 字段，保持配置顺序和原失败文本 |
-| 实体字段注解与插件否决保护 | `codegen.mybatis3.model.SensitiveModelAnnotations`，由 `BaseRecordGenerator` 的模型插件回调后执行 |
+| 注解文本和 imports 描述 | `custom.annotations.SensitiveCheckDesc`，从 `SensitiveCheckConfiguration` 读取注解属性；`toAnnotation()` 不修改实例状态，可重复渲染 |
+| 实体字段验证、注解装配与插件否决保护 | `codegen.mybatis3.model.SensitiveModelAnnotations`，由 `BaseRecordGenerator` 的模型插件回调后执行；负责匹配实际字段、校验类型和可写性并去重，不承担注解描述渲染 |
 | 受管写方法和注解 | `codegen.mybatis3.service.elements.SensitiveWriteMethodsElement`；`JavaServiceImplGenerator` 在关系注解/服务插件前补继承方法，插件通过后沿既有 elements 初始化流程验证实际方法并添加敏感及事务注解，否决时仍显式失败 |
 | 前端字段元数据 | `plugins.vue3.Vue3OtherFilesPlugin.frontendFields` 在既有 TS 生成入口填充模板上下文，交由 `vue_module_type.ts.ftl` 转义并渲染；不独立创建前端项目 |
 
-本次仅职责拆分，不改变配置、产物、方法签名、开关、执行顺序及插件安全门禁；不保留跨层兼容装配空壳。当前 DTD 仍为 `mybatis-generator-config_1_8_0.dtd`，历史 DTD 未修改。
+模型注解描述职责调整见[正式任务书第 8 节](task\select-for-update-task.md#8-敏感实体注解描述职责拆分2026-10-14)。仅拆分文本/imports 描述与字段验证/装配，不改变配置、生成产物、方法签名、开关、执行顺序及插件安全门禁；不保留兼容装配空壳。当前 DTD 仍为 `mybatis-generator-config_1_8_0.dtd`，历史 DTD 未修改。
 
 无数据库定向回归入口：
 
