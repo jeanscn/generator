@@ -24,6 +24,26 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         super();
     }
 
+    /**
+     * 按方言与 Rules 初始化两个锁定查询元素，保持原语句输出顺序。
+     *
+     * @param parentElement Mapper 根元素
+     */
+    protected void addSelectForUpdateElements(XmlElement parentElement) {
+        org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator.validate(introspectedTable);
+        if (!introspectedTable.getTableConfiguration().isSelectForUpdateEnabled()) {
+            return;
+        }
+        for (var database : introspectedTable.getTableConfiguration().getAdditionalDbTypes()) {
+            if (introspectedTable.getRules().generateSelectByPrimaryKeyForUpdate()) {
+                initializeAndExecuteGenerator(new SelectByPrimaryKeyForUpdateElementGenerator(database), parentElement);
+            }
+            if (introspectedTable.getRules().generateSelectByExampleForUpdate()) {
+                initializeAndExecuteGenerator(new SelectByExampleForUpdateElementGenerator(database), parentElement);
+            }
+        }
+    }
+
     protected XmlElement getSqlMapElement() {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
         progressCallback.startTask(getString("Progress.12", table.toString()));
@@ -59,6 +79,7 @@ public class XMLMapperGenerator extends AbstractXmlGenerator {
         //定制追加
         addUpdateBatchByPrimaryKeyElement(answer);
         addAtomicIncrementElement(answer);
+        addSelectForUpdateElements(answer);
         addInsertOrUpdateSelectiveElement(answer);
         addInsertBatchElement(answer);
         addBaseBySqlElement(answer);

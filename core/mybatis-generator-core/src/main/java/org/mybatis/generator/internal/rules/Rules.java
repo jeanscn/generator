@@ -157,6 +157,26 @@ public interface Rules {
     boolean generateSelectByPrimaryKey();
 
     /**
+     * 判断是否生成独立按主键锁定查询，默认实现兼容既有规则实现。
+     *
+     * @return 是否生成按主键锁定查询
+     */
+    default boolean generateSelectByPrimaryKeyForUpdate() {
+        return getIntrospectedTable().getTableConfiguration().isSelectForUpdateEnabled()
+                && generateSelectByPrimaryKey();
+    }
+
+    /**
+     * 判断是否生成独立按条件锁定查询，默认实现兼容既有规则实现。
+     *
+     * @return 是否生成按条件锁定查询
+     */
+    default boolean generateSelectByExampleForUpdate() {
+        return getIntrospectedTable().getTableConfiguration().isSelectForUpdateEnabled()
+                && (generateSelectByExampleWithoutBlobs() || generateSelectByExampleWithBlobs());
+    }
+
+    /**
      * Implements the rule for generating the select by example without BLOBs
      * SQL Map element and DAO method. If the selectByExample statement is
      * allowed, then generate the element and method.

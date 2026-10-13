@@ -49,6 +49,85 @@ public class ServiceMethods {
 
     }
 
+    /**
+     * 创建完整主键锁定查询签名，供 Mapper 与服务接口、实现共用。
+     *
+     * @param unit 目标编译单元
+     * @param isAbstract 是否为抽象方法
+     * @param isService 是否包装服务返回值
+     * @return 带锁查询契约的方法
+     */
+    public Method getSelectByPrimaryKeyForUpdateMethod(CompilationUnit unit, boolean isAbstract, boolean isService) {
+        return getSelectForUpdateMethod(unit, false, isService, isAbstract);
+    }
+
+    /**
+     * 创建条件锁定查询签名，供 Mapper 与服务接口、实现共用。
+     *
+     * @param unit 目标编译单元
+     * @param isAbstract 是否为抽象方法
+     * @param isService 是否包装服务返回值
+     * @return 带锁查询契约的方法
+     */
+    public Method getSelectByExampleForUpdateMethod(CompilationUnit unit, boolean isAbstract, boolean isService) {
+        return getSelectForUpdateMethod(unit, true, isService, isAbstract);
+    }
+
+    private Method getSelectForUpdateMethod(CompilationUnit unit, boolean byExample,
+                                           boolean service, boolean abstractMethod) {
+        var table = introspectedTable;
+        Method method = new Method(byExample ? "selectByExampleForUpdate" : "selectByPrimaryKeyForUpdate");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setAbstract(abstractMethod);
+        FullyQualifiedJavaType result = new FullyQualifiedJavaType(table.getRules().generateRecordWithBlobsClass()
+                ? table.getRecordWithBlobsType() : table.getRules().generateBaseRecordClass()
+                ? table.getBaseRecordType() : table.getPrimaryKeyType());
+        unit.addImportedType(result);
+        if (byExample) {
+            FullyQualifiedJavaType list = FullyQualifiedJavaType.getNewListInstance();
+            list.addTypeArgument(result);
+            result = list;
+            unit.addImportedType(list);
+            var type = new FullyQualifiedJavaType(table.getExampleType());
+            unit.addImportedType(type);
+            method.addParameter(new Parameter(type, "example"));
+        } else if (table.getRules().generatePrimaryKeyClass()) {
+            var type = new FullyQualifiedJavaType(table.getPrimaryKeyType());
+            unit.addImportedType(type);
+            method.addParameter(new Parameter(type, "key"));
+        } else {
+            for (IntrospectedColumn column : table.getPrimaryKeyColumns()) {
+                Parameter parameter = new Parameter(column);
+                if (!service && table.getPrimaryKeyColumns().size() > 1) {
+                    unit.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
+                    parameter.addAnnotation("@Param(\"" + parameter.getName() + "\")");
+                }
+                unit.addImportedType(parameter.getType());
+                method.addParameter(parameter);
+            }
+        }
+        if (service) {
+            FullyQualifiedJavaType wrapper = new FullyQualifiedJavaType(SERVICE_RESULT);
+            wrapper.addTypeArgument(result);
+            result = wrapper;
+            unit.addImportedType(wrapper);
+        }
+        method.setReturnType(result);
+        method.addJavaDocLine("/**");
+        method.addJavaDocLine(byExample ? " * 根据明确条件锁定并查询记录，禁止全表、去重、动态排序和分页。"
+                : " * 根据完整主键锁定并查询记录。");
+        method.addJavaDocLine(" * 必须在非只读既有事务中调用；锁持有至事务结束，数据库异常直接向外传播。");
+        method.addJavaDocLine(" * 不经过查询缓存；可见版本取决于数据库和事务隔离级别。");
+        for (Parameter parameter : method.getParameters()) {
+            method.addJavaDocLine(" * @param " + parameter.getName() + (byExample ? " 非空白名单查询条件" : " 完整主键值"));
+        }
+        method.addJavaDocLine(" * @return " + (service ? "锁定查询结果的服务包装" : "锁定查询的实体" + (byExample ? "列表" : "，不存在时为空")));
+        method.addJavaDocLine(" * @throws IllegalStateException 未开启事务、只读事务或存在分页上下文");
+        method.addJavaDocLine(" * @throws IllegalArgumentException 查询条件不符合锁定查询约束");
+        method.addJavaDocLine(" */");
+        return method;
+    }
+
     public Method getDeleteByExampleMethod(CompilationUnit parentElement,boolean isAbstract){
 
         Method method =  getMethodByType(introspectedTable.getDeleteByExampleStatementId(),

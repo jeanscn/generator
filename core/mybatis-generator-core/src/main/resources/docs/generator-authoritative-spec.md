@@ -22,6 +22,7 @@
 | 能力域 | 可直接生成内容 | 设计含义 |
 |---|---|---|
 | 基础数据访问 | Entity / PrimaryKey / Example / Mapper XML / Mapper 接口 | 标准 CRUD 与 Example 条件查询可直接落地 |
+| 独立锁定查询 | table `enableSelectForUpdate` 默认关闭；生成独立主键/Example Mapper、XML、Service 与执行门禁 | 用于非只读既有事务中的先锁后改；不改变普通查询，不承诺跨数据库隔离级别的“最新读” |
 | 应用层 | Service / ServiceImpl / Controller（含常用接口） | 列表、详情、新增、修改、删除、批量、导入导出等骨架统一 |
 | DTO/VO | modelVo/createVo/updateVo/requestVo/viewVo/excelVo | 读写分离、查询入参、展示出参可统一建模 |
 | 关系查询 | `selectByColumn` / `selectByTable` / `selectBySqlMethod` | 可覆盖按列、经中间表、多层级 SQL 方法查询 |
@@ -30,6 +31,8 @@
 | 敏感检测元数据 | table `sensitiveCheck`、实体字段注解、具体 Service 写方法/事务标记、TS 字段映射 | 当前 1.8.0 源码已实现并通过无数据库回归；只有 opt-in 表改变输出，检测运行时与业务受控再生成须独立接入/验收 |
 
 敏感元数据使用基础 `com.vgosoft.core.annotation.sensitive` 注解，不反向依赖敏感业务模块。支持单实体可变 MyBatis3 模型的 String/LONGVARCHAR 字段、重命名和标准新增/主键更新/批量/upsert；父类持有字段、分层模型、JSON/双表示、级联多实体和未受控 `updateByExample*` 明确失败，不静默漏检。SQL builder、直接 Mapper/JDBC、自调用与宿主 Aspect/事务顺序不属于生成自动保证范围。配置语法、实际方法矩阵和限制见[配置指南第 3.1 节](generator-config-guide.md#31-敏感字段与受管写方法180)。
+
+配置对象 `config.SensitiveCheckConfiguration` 与生成侧 `codegen.mybatis3.SensitiveGenerationValidator` 独立；唯一跨层共享解析由 `codegen.mybatis3.SensitiveFieldResolver` 提供。实体注解归 `codegen.mybatis3.model.SensitiveModelAnnotations`，Service 方法/注解归 `codegen.mybatis3.service.elements.SensitiveWriteMethodsElement`，前端映射归 `plugins.vue3.Vue3OtherFilesPlugin`（包前缀均为 `org.mybatis.generator`）。对应层仍在既有插件回调之后验证实际字段/方法，插件否决仍显式失败；职责调整不改变配置默认行为或生成契约。
 
 启用 `excelVo` 时，单列字符串主键表的 Controller 保留旧 `GET export?ids=...`，并生成 `GET export/options` 元数据及 `POST export` 个性化导出。POST 的 `query` 使用该表实际列表查询类型，复用 `buildExample` 与 `filterParam`；强制恢复权限/逻辑删除约束，清除客户端原始 SQL 条件及排序，仅允许内省列白名单排序并追加主键稳定排序。`all` 用 PageHelper 每批最多 500 行同步消费，不把全部结果集合驻留内存；`page/selected` 最多 500 个不同字符串主键，验证全部记录可见后按请求顺序或白名单排序导出，再截取 `maxRows`。PDF 上限 5000 行，其他格式 50000 行；格式、列选择和文件输出复用插件公共契约，不由生成器实现。无主键、复合或非字符串主键表跳过导出端点并输出生成警告。接入要求见[配置指南](generator-config-guide.md)第 5.1 节。
 
@@ -105,6 +108,18 @@ Vue3 生成模板与宿主 Framework 的复用依据见 mpmm-ui 的[Framework �
 |---|---|---|
 | 一套配置多方言生成 | 基于 `additionalDbTypes` 循环生成 `databaseId` 分支 SQL | 不能只按当前连接数据库设计 |
 | 语义分组 | 按 SQL 语义能力分组（如 upsert/分页/函数） | 不按历史模板机械分组 |
+
+### 2.3.1 独立锁定查询（1.8.0）
+
+已批准的 table `enableSelectForUpdate=true` 生成 `selectByPrimaryKeyForUpdate` 和/或 `selectByExampleForUpdate`，分别受对应普通查询开关及模型规则控制；支持复合主键、主键类和 BLOB 分层模型。Mapper 返回实际实体/实体列表；生成 Service 接口与实现返回对应 `ServiceResult`。实现使用 `MANDATORY` 及 `rollbackFor=Exception`，明确拒绝没有事务、只读事务和 PageHelper 分页/排序上下文；数据库异常直接抛出，不转换为失败返回。
+
+生成判断由 Rules 统一提供，两种查询分别经既有 Mapper/XML/Service 元素初始化流程执行；服务接口签名复用 `ServiceMethods`，内省后预检归 `org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator`，预检及 XML 共享方言能力归 `org.mybatis.generator.dbstrategy.SelectForUpdateDialect`，门禁生成机制独立维护，不再采用跨层集中装配。锁定 select 插件回调默认兼容既有插件，与普通 select 及 update/batch 回调隔离；具体源码入口和回调契约见[配置指南第 3.2.4 节](generator-config-guide.md#324-验证与再生成)。这是保持产物行为的结构调整，不新增业务能力。
+
+XML 与 Service 共用生成的 `Gen{Domain}MapperLockQueryGuard` 类。XML 执行前 bind 门禁覆盖直接 Mapper 调用，`useCache=false/flushCache=true` 避免二级缓存及既有一级缓存结果，Service 不生成缓存注解。Example 必须有实际非空标准条件，只接受内省非 BLOB 列的标准条件操作符；拒绝 DISTINCT、任何动态排序、原始 SQL 和空集合条件。条件非空不等于影响范围小，业务仍须验证索引、授权和预期锁范围。
+
+SQL 语法核对分组：MySQL/MariaDB/PostgreSQL/Oracle/H2 使用 `FOR UPDATE`；SQL Server/SQL Server 2005 使用 `WITH (UPDLOCK, HOLDLOCK)`。生成前遍历全部 `additionalDbTypes`，逐方言输出 `databaseId`；其他方言，包括 SQLite，显式拒绝通用锁定查询，不沿用依赖前置写入的受管关系特殊方案。此扩展不改变既有受管关系方法。
+
+这些分组是生成 SQL 语法契约，不是跨方言事务隔离等价承诺。MySQL/InnoDB 锁定读与 PostgreSQL REPEATABLE READ 的行为不同，后者可能因并发更新失败而非返回更新后的版本；调用方负责重试、死锁/超时处理与宿主隔离级别验收。离线回归覆盖 Java 产物编译、运行时门禁、MyBatis XML/databaseId/缓存设置解析；未连接业务数据库或验证真实跨数据库锁竞争。详细配置、运行边界及受控再生成要求见[配置指南第 3.2 节](generator-config-guide.md#32-独立锁定查询180)，验收记录见[实施任务书](task\select-for-update-task.md)。
 
 ## 2.4 AI 约定优先规则（Convention First）
 

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 生成按主键原子递增的XML语句。
  *
- * @author cen_c
+ * @author vgosoft-agent
  */
 public class AtomicIncrementByPrimaryKeyElementGenerator extends AbstractXmlElementGenerator {
 

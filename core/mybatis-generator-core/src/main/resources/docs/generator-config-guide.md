@@ -70,6 +70,7 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | `isModules` | 是否模块主表 | `true` 时可生成模块数据。 |
 | `validateIgnoreColumns` | 免校验列 | 为空有默认忽略列。空字符串表示不忽略。 |
 | `enableInsert` 等 | 基础 CRUD/批量/upsert 开关 | 控制普通表方法；与 `selectByTable` 的 `enableSplit` / `enableUnion` 关系维护开关无关。 |
+| `enableSelectForUpdate` | 独立主键/Example 锁定查询 | 默认 `false`，当前 1.8.0 DTD；事务、条件、分页及方言限制见第 3.2 节。 |
 | `enableDropTables` | 可清除业务表 | 需放在主模块表。 |
 | `cleanAllGeneratedElements` | 清理所有生成元素 | 适合重建。 |
 | `generatedKey` | 主键生成策略 | 序列/identity 等。 |
@@ -166,7 +167,18 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 
 满足既有 Vue3 TypeScript 类型生成条件时，在 `T{Domain}.ts` 附加只读 `T{Domain}SensitiveFields` 常量，包含 `table/entity/property/label/contentType`，字符串采用 JS 转义。映射仅辅助显示，不授权客户端覆盖后端策略；没有 Vue 目标路径/VO 类型产物时不强行创建前端项目。没有敏感配置的表不改变输出；全部 disabled 时 Service/前端映射保持无配置输出。增量/强制覆盖仍遵守原覆盖规则，标记重建由生成器完成，不能手改受保护产物。
 
-源码入口：`SensitiveCheckConfiguration`、`MyBatisGeneratorConfigurationParser`、`SensitiveGeneration`、`BaseRecordGenerator`、`JavaServiceImplGenerator`、`Vue3OtherFilesPlugin` 和 `vue_module_type.ts.ftl`。只修改当前 `mybatis-generator-config_1_8_0.dtd`，不回写历史 DTD。
+源码职责入口（包路径均相对 `org.mybatis.generator`）：
+
+| 职责 | 源码与调用入口 |
+|---|---|
+| 配置值及 XML 解析 | `config.SensitiveCheckConfiguration`、`config.xml.MyBatisGeneratorConfigurationParser`；配置对象不承担内省后预检或渲染 |
+| 内省后支持范围预检 | `codegen.mybatis3.SensitiveGenerationValidator.validate`，由 `api.AbstractIntrospectedTable.initialize` 调用；模型/Service 插件执行后的渲染再次预检 |
+| 唯一跨层共享字段解析 | `codegen.mybatis3.SensitiveFieldResolver`，仅解析启用配置、精确物理列及最终 Java 字段，保持配置顺序和原失败文本 |
+| 实体字段注解与插件否决保护 | `codegen.mybatis3.model.SensitiveModelAnnotations`，由 `BaseRecordGenerator` 的模型插件回调后执行 |
+| 受管写方法和注解 | `codegen.mybatis3.service.elements.SensitiveWriteMethodsElement`；`JavaServiceImplGenerator` 在关系注解/服务插件前补继承方法，插件通过后沿既有 elements 初始化流程验证实际方法并添加敏感及事务注解，否决时仍显式失败 |
+| 前端字段元数据 | `plugins.vue3.Vue3OtherFilesPlugin.frontendFields` 在既有 TS 生成入口填充模板上下文，交由 `vue_module_type.ts.ftl` 转义并渲染；不独立创建前端项目 |
+
+本次仅职责拆分，不改变配置、产物、方法签名、开关、执行顺序及插件安全门禁；不保留跨层兼容装配空壳。当前 DTD 仍为 `mybatis-generator-config_1_8_0.dtd`，历史 DTD 未修改。
 
 无数据库定向回归入口：
 
@@ -176,6 +188,74 @@ mvn -q -pl mybatis-generator-core "-Dtest=SensitiveGenerationTest,CacheConfigura
 ```
 
 测试使用内存列元数据、实际 Model/Service 渲染、当前 DTD 和 TS 模板；注解消费编译也在内存完成。不运行业务生成器、不连接数据库、不写业务产物。业务受控再生成及宿主拦截/事务验证另行授权。
+
+### 3.2 独立锁定查询（1.8.0）
+
+本节是 `enableSelectForUpdate` 配置及消费契约入口；按第 1.1 节匹配实际 core 与当前 DTD。该 table attribute 默认为 `false`，严格接受小写 `true/false`，不修改历史 DTD。
+
+```xml
+<table tableName="dictionary_" domainObjectName="Dictionary"
+       enableSelectForUpdate="true"
+       enableSelectByPrimaryKey="true" enableSelectByExample="true">
+    <generateModel generate="true"/>
+    <generateSqlMap generate="true"/>
+    <generateDao generate="true"/>
+    <generateService generate="true"/>
+</table>
+```
+
+Context 必须使用 `targetRuntime="MyBatis3"` 和 `javaClientGenerator type="XMLMAPPER"`，并配置模型、XML、DAO 和 Service 输出。支持可变 flat/conditional/hierarchical 模型，含复合主键、主键类和 BLOB 类；immutable、model-only、其他 runtime/Client 类型、缺失任一必需生成输出均失败。启用主键查询却无主键、启用 Example 查询却不能生成 Example、两个普通查询开关都关闭时也失败，不静默漏生成锁方法。
+
+#### 3.2.1 方法签名与产物
+
+设完整查询实体类型为 `Record`（生成 BLOB 类时使用实际 `RecordWithBLOBs`），Example 为 `RecordExample`，主键类型为 `K1/K2` 或 `RecordKey`：
+
+| 模型 | Mapper | 生成 Service 接口及实现 |
+|---|---|---|
+| 单主键 | `Record selectByPrimaryKeyForUpdate(K1 id)` | `ServiceResult<Record> selectByPrimaryKeyForUpdate(K1 id)` |
+| 复合主键，无主键类 | `Record selectByPrimaryKeyForUpdate(@Param("key1") K1 key1, @Param("key2") K2 key2)` | `ServiceResult<Record> selectByPrimaryKeyForUpdate(K1 key1, K2 key2)` |
+| 生成主键类 | `Record selectByPrimaryKeyForUpdate(RecordKey key)` | `ServiceResult<Record> selectByPrimaryKeyForUpdate(RecordKey key)` |
+| Example | `List<Record> selectByExampleForUpdate(RecordExample example)` | `ServiceResult<List<Record>> selectByExampleForUpdate(RecordExample example)` |
+
+实际参数名/类型以列内省结果为准。主键锁方法受普通 `enableSelectByPrimaryKey` 控制，Example 锁方法受普通 `enableSelectByExample` 控制；普通方法和 SQL 保持原样。独立 XML 返回普通基础/BLOB resultMap，不使用关联扩展 resultMap，避免通过关联查询隐含扩大锁查询范围。
+
+额外生成 DAO `codegen` 包中的 `Gen{Domain}MapperLockQueryGuard`，所有产物需要一起部署。Service 方法与 XML bind 均调用该门禁；它是生成器维护的产物，不得人工修改。具体方法带中文参数、返回、事务/异常和缓存说明。
+
+#### 3.2.2 事务、条件、缓存及分页
+
+- 具体 Service 方法声明 `@Transactional(propagation = Propagation.MANDATORY, rollbackFor = Exception.class)`；锁在调用方既有事务结束时释放，不新建事务、不改变其隔离级别。门禁同时检测实际事务是否开启以及 `isCurrentTransactionReadOnly`，无事务或 read-only 时抛 `IllegalStateException`。宿主必须通过 Spring 代理并将目标 Mapper 路由到该事务的同一数据源；线程事务标志不能验证跨数据源路由、连接真实事务及被代理方法的自调用。
+- Mapper 返回实体/列表，Service 仅以 `ServiceResult.success(...)` 包装正常返回；数据库异常直接向外传播并由事务处理，不能捕获后返回失败假装成功提交。
+- Example 必须非空且至少有一个有效非空条件组。不接受 `distinct=true`、任何非 null `orderByClause`（包括空字符串）、原始 SQL 条件或空列表 `IN/NOT IN`。条件仅接受内省非 BLOB 列与标准 `is null/is not null/=/<>/>/>=/</<=/like/not like/in/not in/between/not between` 的精确组合，列别名和分隔符按生成 Example 一致处理。业务使用标准生成 Criteria 方法；禁止通过自定义 Example/Criteria 子类、可变条件并发修改或插件替换 where 片段来规避门禁。
+- 非空条件不保证锁范围小，不自动添加租户、逻辑删除或数据权限约束；业务负责明确条件、授权、索引、行数上限与锁顺序。禁止以 `is not null` 等宽泛条件当作“已自动限制行数”。
+- XML `useCache=false` 禁用 MyBatis 二级查询缓存，`flushCache=true` 在每次执行前清理既有一级/二级缓存，防止普通查询缓存命中跳过数据库锁。Service 无 `Cacheable` 等缓存注解；宿主自定义缓存/查询替换拦截器须另行验收。
+- XML bind 也校验门禁，直接 Mapper 调用不能绕过事务或条件校验。`PageHelper.getLocalPage()!=null` 时明确拒绝，包括 `startPage` 与 `orderBy` 的线程状态，不自动清除调用方状态。调用方完成/清理原分页作用域后，才可调用锁定查询。生成方法不含分页参数，不生成 RowBounds 变体；使用原始 SqlSession 显式 RowBounds、其他分页插件/自定义拦截器不属于受支持调用契约，不得将此边界理解为通用插件安全保证。
+
+#### 3.2.3 方言与隔离边界
+
+| 方言 | 生成锁语法 | 已完成验证 |
+|---|---|---|
+| MySQL、MariaDB、PostgreSQL、Oracle、H2 | 查询末尾 `FOR UPDATE` | 离线生成字符串分支与 `databaseId` 检查；MySQL 分支完成实际 MyBatis XML/动态 SQL 解析 |
+| SQL Server、SQL Server 2005 | 表引用 `WITH (UPDLOCK, HOLDLOCK)` | 离线生成及 SQL Server 分支实际 MyBatis XML/动态 SQL 解析 |
+| 其他 `DatabaseType`，含 SQLite、OTHER | 无通用等价回退，明确拒绝 | 遍历枚举全部拒绝分支；不借用受管关系先 INSERT 获取 SQLite 写锁的特殊实现 |
+
+预检遍历 Context/table 合并并由内省加入当前连接方言后的完整 `additionalDbTypes`。每个受支持方言产生明确 `databaseId`，消费方须配置匹配 `DatabaseType.code` 的 MyBatis databaseIdProvider；不提供没有 databaseId 的危险默认分支。配置任一未核对方言会在生成前失败，并提示表及方言。
+
+此处验证的是生成语法与执行门禁，不是数据库服务器实测。MySQL/InnoDB 锁定读不能推广为所有方言 REPEATABLE READ 均返回最新提交版本；例如 PostgreSQL REPEATABLE READ 遇到并发版本变化可能抛序列化失败。SQL Server HOLDLOCK 也可能影响锁范围及隔离语义，不等同于其他数据库的行锁行为。业务必须在实际驱动、隔离级别、索引和数据源事务配置下验证竞争、超时、死锁、可见版本及重试策略。
+
+#### 3.2.4 验证与再生成
+
+正式离线 suite：`SelectForUpdateGenerationTest`，15 项用例覆盖 DTD/无 DTD Parser、默认关闭与普通产物不变、配置失败、所有方言预检、复合主键/主键类/BLOB、中文契约、JavaCompiler 内存编译、真实 Spring 代理的非只读既有事务、原始条件/分页拒绝、真实 PageInterceptor，以及 MyBatis XML/databaseId 和无数据库执行器的一级/二级缓存绕过。另验证 Rules 的全部模型实现、代理否决传递、独立元素接入、插件默认兼容及短路顺序，并以重构前真实输出的 15 个 SHA-256 验证三种模型的五层生成文本（仅统一换行）保持一致。过程与命令记录见[实施任务书](task\select-for-update-task.md)。
+
+升级实际执行 core 后，业务消费者先评审需要启用的表和方言，再用当前 DTD 受控重新生成 Model/Example（按需）、Mapper、XML、Service 和新增门禁类。不得只手改业务生成 XML 或遗漏门禁类；已取消完整覆盖标记的人工 Service 扩展仍需人工按新契约适配。该扩展不自动替换业务 revision 路径，不执行业务生成、DDL、权限、菜单或部署。
+
+架构入口：
+
+- `Rules.generateSelectByPrimaryKeyForUpdate/generateSelectByExampleForUpdate` 统一生成判断；接口默认实现保持既有 Rules 实现兼容，`RulesDelegate` 传递独立锁方法否决并尊重代理的普通查询限制。
+- `JavaMapperGenerator` 初始化并执行 `SelectByPrimaryKeyForUpdateMethodGenerator`、`SelectByExampleForUpdateMethodGenerator`；`XMLMapperGenerator` 按既有方言顺序初始化对应两个 `*ElementGenerator`，共用 `AbstractSelectForUpdateElementGenerator` 的 XML 结构。
+- `JavaServiceGenerator` 经 `ServiceMethods` 获取签名；`JavaServiceImplGenerator` 通过 `AbstractServiceElementGenerator` 的初始化流程执行 `SelectByPrimaryKeyForUpdateElement`、`SelectByExampleForUpdateElement`。服务实现仍只添加强制事务、门禁及 Mapper 调用，不复用写入或批处理回调。
+- `org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator` 仅负责内省后完整配置预检，保留生成侧而非配置模型层；`org.mybatis.generator.dbstrategy.SelectForUpdateDialect` 维护预检与 XML 共享的锁 SQL 分组；`SelectForUpdateGuardGenerator` 仅维护门禁产物及稳定命名。签名、实际模型和参数逻辑归 `ServiceMethods`，不存在跨层集中装配器。配置入口仍为 `TableConfiguration` 与 `MyBatisGeneratorConfigurationParser`。
+
+锁定查询专用插件回调为 `clientSelectByPrimaryKeyForUpdateMethodGenerated`、`clientSelectByExampleForUpdateMethodGenerated`、`sqlMapSelectByPrimaryKeyForUpdateElementGenerated`、`sqlMapSelectByExampleForUpdateElementGenerated`。均为 `Plugin` 默认返回 `true` 的方法，由 `CompositePlugin` 按配置顺序传播，首次 `false` 短路；两个 XML 回调逐方言执行。普通 select 回调不接收锁定方法，避免已有缓存/分页插件改变锁查询契约，也不借用 update/batch 回调；既有整接口/整文档/整服务生成回调不变。插件主动否决时需自行协调 Mapper/XML/Service 产物，保持事务、缓存、条件及分页门禁，不以单层删方法替代完整生成配置评审。
 
 ## 4. 列级配置
 

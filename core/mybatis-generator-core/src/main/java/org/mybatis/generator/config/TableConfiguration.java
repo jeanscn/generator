@@ -32,6 +32,25 @@ import static org.mybatis.generator.internal.util.StringUtility.*;
 @Setter
 @Getter
 public class TableConfiguration extends PropertyHolder {
+    private boolean selectForUpdateEnabled;
+
+    /**
+     * 返回是否生成独立锁定查询。
+     *
+     * @return 独立锁定查询开关
+     */
+    public boolean isSelectForUpdateEnabled() {
+        return selectForUpdateEnabled;
+    }
+
+    /**
+     * 设置独立锁定查询开关，默认关闭。
+     *
+     * @param enabled 是否启用独立锁定查询
+     */
+    public void setSelectForUpdateEnabled(boolean enabled) {
+        selectForUpdateEnabled = enabled;
+    }
 
     private boolean insertStatementEnabled;
 

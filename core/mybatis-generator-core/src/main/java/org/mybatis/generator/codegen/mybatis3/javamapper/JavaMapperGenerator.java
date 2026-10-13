@@ -100,6 +100,8 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         addSelectByExampleWithChildrenCountMethod(interfaze);
         addUpdateBatchMethod(interfaze);
         addAtomicIncrementMethod(interfaze);
+        addSelectByPrimaryKeyForUpdateMethod(interfaze);
+        addSelectByExampleForUpdateMethod(interfaze);
         addSelectByColumnMethods(interfaze);
         addDeleteByColumnMethods(interfaze);
         addSelectBySqlMethodMethods(interfaze);
@@ -118,6 +120,9 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
 
         if (context.getPlugins().clientGenerated(interfaze, introspectedTable)) {
             answer.add(interfaze);
+            if (introspectedTable.getTableConfiguration().isSelectForUpdateEnabled()) {
+                answer.add(SelectForUpdateGuardGenerator.createGuard(introspectedTable));
+            }
         }
 
         List<CompilationUnit> extraCompilationUnits = getExtraCompilationUnits();
@@ -382,6 +387,29 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (introspectedTable.getRules().generateSelectByPrimaryKey()) {
             AbstractJavaMapperMethodGenerator methodGenerator = new SelectByPrimaryKeyMethodGenerator(false);
             initializeAndExecuteGenerator(methodGenerator, interfaze);
+        }
+    }
+
+    /**
+     * 按 Rules 装配主键锁定查询的独立方法生成器。
+     *
+     * @param interfaze Mapper 接口
+     */
+    protected void addSelectByPrimaryKeyForUpdateMethod(Interface interfaze) {
+        org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator.validate(introspectedTable);
+        if (introspectedTable.getRules().generateSelectByPrimaryKeyForUpdate()) {
+            initializeAndExecuteGenerator(new SelectByPrimaryKeyForUpdateMethodGenerator(), interfaze);
+        }
+    }
+
+    /**
+     * 按 Rules 装配条件锁定查询的独立方法生成器。
+     *
+     * @param interfaze Mapper 接口
+     */
+    protected void addSelectByExampleForUpdateMethod(Interface interfaze) {
+        if (introspectedTable.getRules().generateSelectByExampleForUpdate()) {
+            initializeAndExecuteGenerator(new SelectByExampleForUpdateMethodGenerator(), interfaze);
         }
     }
 

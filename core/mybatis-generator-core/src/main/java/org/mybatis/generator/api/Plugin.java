@@ -56,6 +56,54 @@ import java.util.Properties;
  */
 public interface Plugin {
 
+    /**
+     * 独立主键锁定 Mapper 方法扩展点，不调用普通查询回调以免引入缓存或分页。
+     *
+     * @param method 锁定方法
+     * @param interfaze Mapper 接口
+     * @param table 内省表
+     * @return 是否保留方法，默认保留以兼容已有插件
+     */
+    default boolean clientSelectByPrimaryKeyForUpdateMethodGenerated(Method method, Interface interfaze,
+                                                                   AbstractIntrospectedTable table) {
+        return true;
+    }
+
+    /**
+     * 独立条件锁定 Mapper 方法扩展点。
+     *
+     * @param method 锁定方法
+     * @param interfaze Mapper 接口
+     * @param table 内省表
+     * @return 是否保留方法，默认保留以兼容已有插件
+     */
+    default boolean clientSelectByExampleForUpdateMethodGenerated(Method method, Interface interfaze,
+                                                                AbstractIntrospectedTable table) {
+        return true;
+    }
+
+    /**
+     * 独立主键锁定 XML 扩展点，每个目标方言执行一次。
+     *
+     * @param element 锁定查询元素
+     * @param table 内省表
+     * @return 是否保留元素，默认保留以兼容已有插件
+     */
+    default boolean sqlMapSelectByPrimaryKeyForUpdateElementGenerated(XmlElement element, AbstractIntrospectedTable table) {
+        return true;
+    }
+
+    /**
+     * 独立条件锁定 XML 扩展点，每个目标方言执行一次。
+     *
+     * @param element 锁定查询元素
+     * @param table 内省表
+     * @return 是否保留元素，默认保留以兼容已有插件
+     */
+    default boolean sqlMapSelectByExampleForUpdateElementGenerated(XmlElement element, AbstractIntrospectedTable table) {
+        return true;
+    }
+
     enum ModelClassType {
         /**
          * 类的类型

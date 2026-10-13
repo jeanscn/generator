@@ -415,6 +415,14 @@ public class MyBatisGeneratorConfigurationParser {
 
         String enableSelectByExample = attributes
                 .getProperty("enableSelectByExample");
+        String enableSelectForUpdate = attributes.getProperty("enableSelectForUpdate");
+        if (enableSelectForUpdate != null) {
+            if (!"true".equals(enableSelectForUpdate) && !"false".equals(enableSelectForUpdate)) {
+                throw new IllegalArgumentException("表 " + tc.getTableName()
+                        + " enableSelectForUpdate 仅允许 true 或 false");
+            }
+            tc.setSelectForUpdateEnabled(Boolean.parseBoolean(enableSelectForUpdate));
+        }
         if (stringHasValue(enableSelectByExample)) {
             tc.setSelectByExampleStatementEnabled(
                     isTrue(enableSelectByExample));

@@ -110,6 +110,13 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
          * */
         addUpdateBatchElement(bizGenClazzImpl);
         addAtomicIncrementElement(bizGenClazzImpl);
+        org.mybatis.generator.codegen.mybatis3.SelectForUpdateValidator.validate(introspectedTable);
+        if (introspectedTable.getRules().generateSelectByPrimaryKeyForUpdate()) {
+            initializeAndExecuteGenerator(new SelectByPrimaryKeyForUpdateElement(), bizGenClazzImpl);
+        }
+        if (introspectedTable.getRules().generateSelectByExampleForUpdate()) {
+            initializeAndExecuteGenerator(new SelectByExampleForUpdateElement(), bizGenClazzImpl);
+        }
 
         addUpdateDeleteFlagElement(bizGenClazzImpl);
         /*
@@ -166,7 +173,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         addCleanupInvalidRecordsMethod(bizGenClazzImpl);
         boolean cacheOperations = addCacheAwareBaseMethodsAndConfig(bizGenClazzImpl);
-        org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.addInheritedWriteMethods(bizGenClazzImpl, introspectedTable);
+        SensitiveWriteMethodsElement.addInheritedWriteMethods(bizGenClazzImpl, introspectedTable);
         ManagedRelationGeneration.addEntityMutationAnnotations(bizGenClazzImpl, introspectedTable);
 
         // 增加类的javaDoc注释
@@ -177,10 +184,12 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
 
         List<CompilationUnit> answer = new ArrayList<>();
         if (plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable)) {
-            org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.addWriteAnnotations(bizGenClazzImpl, introspectedTable);
+            if (org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)) {
+                initializeAndExecuteGenerator(new SensitiveWriteMethodsElement(), bizGenClazzImpl);
+            }
             answer.add(bizGenClazzImpl);
         } else {
-            org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.requireServiceGenerated(introspectedTable);
+            SensitiveWriteMethodsElement.requireServiceGenerated(introspectedTable);
         }
 
         //生成子类
@@ -378,7 +387,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addInsertElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
                 && (hasMutationCacheTargets()
-                || org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.isEnabled(introspectedTable)
+                || org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -390,7 +399,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addInsertSelectiveElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateInsert()
                 && (hasMutationCacheTargets()
-                || org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.isEnabled(introspectedTable)
+                || org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableInsert)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_INSERT.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.INSERTED.name()))) {
@@ -432,7 +441,7 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
     private void addUpdateByPrimaryKeyElement(TopLevelClass parentElement) {
         if (introspectedTable.getRules().generateUpdateByPrimaryKeySelective()
                 && (hasMutationCacheTargets()
-                || org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.isEnabled(introspectedTable)
+                || org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)
                 || relationConfigurations.stream().anyMatch(RelationGeneratorConfiguration::isEnableUpdate)
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())
                 || javaServiceImplGeneratorConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()))) {

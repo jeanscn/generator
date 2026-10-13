@@ -5,15 +5,21 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.FullyQualifiedTable;
+import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.DefaultJavaFormatter;
+import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.model.BaseRecordGenerator;
+import org.mybatis.generator.codegen.mybatis3.model.SensitiveModelAnnotations;
 import org.mybatis.generator.codegen.mybatis3.service.JavaServiceImplGenerator;
+import org.mybatis.generator.codegen.mybatis3.service.elements.SensitiveWriteMethodsElement;
+import org.mybatis.generator.plugins.vue3.Vue3OtherFilesPlugin;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.SensitiveCheckConfiguration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
@@ -64,6 +70,7 @@ class SensitiveGenerationTest {
             <generatorConfiguration>
               <context id="sensitive-test" defaultModelType="flat" targetRuntime="MyBatis3"
                 appKeyword="sample" moduleKeyword="sample" moduleName="测试" jdkVersion="17" integrateMybatisPlus="false">
+                <commentGenerator><property name="suppressDate" value="true"/></commentGenerator>
                 <jdbcConnection driverClass="must.not.connect.Driver" connectionURL="jdbc:must-not-connect:test"/>
                 <javaModelGenerator targetPackage="sample.entity" targetProject="src"/>
                 <sqlMapGenerator targetPackage="sample.mapper" targetProject="src"/>
@@ -81,6 +88,162 @@ class SensitiveGenerationTest {
             </generatorConfiguration>
             """;
     private static final String CHECK = "<sensitiveCheck columns=\"content_\"/>";
+
+    @Test
+    void keepsValidationAndFieldResolutionSeparateFromLayerRendering() {
+        for (Class<?> validator : List.of(SensitiveGenerationValidator.class, SelectForUpdateValidator.class)) {
+            assertThat(validator.getPackageName()).isEqualTo("org.mybatis.generator.codegen.mybatis3");
+            assertThat(java.util.Arrays.stream(validator.getDeclaredMethods()).filter(method ->
+                    java.lang.reflect.Modifier.isPublic(method.getModifiers())).map(java.lang.reflect.Method::getName))
+                    .containsExactly("validate");
+        }
+        assertThat(java.util.Arrays.stream(SensitiveFieldResolver.class.getDeclaredMethods()).filter(method ->
+                java.lang.reflect.Modifier.isPublic(method.getModifiers())).map(java.lang.reflect.Method::getName))
+                .containsExactlyInAnyOrder("resolve", "isEnabled");
+        assertThat(org.mybatis.generator.config.SensitiveCheckConfiguration.class.getPackageName())
+                .isEqualTo("org.mybatis.generator.config");
+        assertThat(org.mybatis.generator.dbstrategy.SelectForUpdateDialect.class.getPackageName())
+                .isEqualTo("org.mybatis.generator.dbstrategy");
+        assertThat(SensitiveModelAnnotations.class.getPackageName()).isEqualTo("org.mybatis.generator.codegen.mybatis3.model");
+        assertThat(SensitiveWriteMethodsElement.class.getSuperclass())
+                .isEqualTo(org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator.class);
+        assertThat(SensitiveWriteMethodsElement.class.getPackageName())
+                .isEqualTo("org.mybatis.generator.codegen.mybatis3.service.elements");
+        assertThat(Vue3OtherFilesPlugin.class.getPackageName()).isEqualTo("org.mybatis.generator.plugins.vue3");
+    }
+
+    @Test
+    void preservesRealPluginOrderingAndRejectsPostPluginMutations() throws Exception {
+        IntrospectedTableMyBatis3Impl table = fixture(CHECK);
+        SensitiveProbePlugin probe = new SensitiveProbePlugin();
+        ((PluginAggregator) table.getContext().getPlugins()).addPlugin(probe);
+        assertThat(format(model(table))).contains("@SensitiveCheck");
+        assertThat(format(service(table))).contains("@SensitiveWrite");
+        assertThat(probe.calls).containsExactly("model", "service");
+
+        IntrospectedTableMyBatis3Impl alteredModel = fixture(CHECK);
+        SensitiveProbePlugin modelPlugin = new SensitiveProbePlugin();
+        modelPlugin.modelChange = model -> model.getFields().stream()
+                .filter(field -> "bodyText".equals(field.getName())).findFirst().orElseThrow().setFinal(true);
+        ((PluginAggregator) alteredModel.getContext().getPlugins()).addPlugin(modelPlugin);
+        assertThatThrownBy(() -> model(alteredModel))
+                .hasMessage("表 article_，列/方法 content_：实体字段类型或可写属性被插件改变");
+
+        List<java.util.function.Consumer<Method>> mutations = List.of(
+                method -> method.setFinal(true),
+                method -> {
+                    method.getParameters().clear();
+                    method.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "record"));
+                },
+                method -> {
+                    method.getAnnotations().removeIf(value -> value.startsWith("@Transactional"));
+                    method.addAnnotation("@Transactional(propagation = Propagation.NOT_SUPPORTED)");
+                });
+        List<String> reasons = List.of("受管写方法必须是可代理的 public 非静态、非 final 具体方法",
+                "只支持单实体或同类型有序 List 参数",
+                "事务声明不是已验证的 REQUIRED/Exception 回滚模板，须单独评审");
+        for (int index = 0; index < mutations.size(); index++) {
+            IntrospectedTableMyBatis3Impl alteredService = fixture(CHECK);
+            SensitiveProbePlugin servicePlugin = new SensitiveProbePlugin();
+            var mutation = mutations.get(index);
+            servicePlugin.serviceChange = service -> mutation.accept(service.getMethods().stream()
+                    .filter(method -> "insert".equals(method.getName())).findFirst().orElseThrow());
+            ((PluginAggregator) alteredService.getContext().getPlugins()).addPlugin(servicePlugin);
+            assertThatThrownBy(() -> service(alteredService)).hasMessage("表 article_，列/方法 insert：" + reasons.get(index));
+        }
+    }
+
+    @Test
+    void preservesActualPluginVetoFailuresAndDisabledBypass() throws Exception {
+        IntrospectedTableMyBatis3Impl enabled = fixture(CHECK);
+        SensitiveProbePlugin veto = new SensitiveProbePlugin();
+        veto.approve = false;
+        ((PluginAggregator) enabled.getContext().getPlugins()).addPlugin(veto);
+        assertThatThrownBy(() -> modelOutput(enabled))
+                .hasMessage("表 article_，列/方法 *：插件禁止生成实体，无法落地敏感字段元数据");
+        assertThatThrownBy(() -> serviceOutput(enabled))
+                .hasMessage("表 article_，列/方法 *：插件禁止生成 Service，无法落地受管写方法标记");
+        for (String configuration : List.of("", "<sensitiveCheck columns=\"missing_\" enable=\"false\"/>")) {
+            IntrospectedTableMyBatis3Impl disabled = fixture(configuration);
+            SensitiveProbePlugin disabledVeto = new SensitiveProbePlugin();
+            disabledVeto.approve = false;
+            ((PluginAggregator) disabled.getContext().getPlugins()).addPlugin(disabledVeto);
+            assertThat(modelOutput(disabled)).isEmpty();
+            assertThat(serviceOutput(disabled)).allSatisfy(unit ->
+                    assertThat(new DefaultJavaFormatter().getFormattedContent(unit)).doesNotContain("@SensitiveWrite"));
+            assertThat(disabledVeto.calls).containsExactly("model", "service");
+            assertThat(Vue3OtherFilesPlugin.frontendFields(disabled)).isEmpty();
+        }
+    }
+
+    @Test
+    void rendersSensitiveMappingThroughActualVuePluginAndPreservesItsGates() throws Exception {
+        Vue3OtherFilesPlugin plugin = new Vue3OtherFilesPlugin();
+        for (String configuration : List.of(CHECK, "", "<sensitiveCheck columns=\"content_\" enable=\"false\"/>")) {
+            IntrospectedTableMyBatis3Impl table = fixture(configuration);
+            plugin.setContext(table.getContext());
+            assertThat(plugin.contextGenerateVue3OtherFiles(table)).isEmpty();
+            table.getContext().setVueEndProjectPath("mybatis-generator-core\\target\\sensitive-offline-unused");
+            assertThat(plugin.contextGenerateVue3OtherFiles(table)).isEmpty();
+            table.getTableConfiguration().getVoGeneratorConfiguration().setGenerate(true);
+            table.getTableConfiguration().getVoGeneratorConfiguration().setVoModelConfiguration(
+                    new org.mybatis.generator.config.VoModelGeneratorConfiguration(table.getContext(), table.getTableConfiguration()));
+            assertThat(plugin.contextGenerateVue3OtherFiles(table)).isEmpty();
+            var field = new org.mybatis.generator.custom.FieldItem("bodyText", "String");
+            field.setRemarks("内容");
+            table.getVoModelFields().add(field);
+            var files = plugin.contextGenerateVue3OtherFiles(table);
+            assertThat(files).hasSize(1);
+            assertThat(files.get(0).getFileName()).isEqualTo("TArticle.ts");
+            String output = files.get(0).getFormattedContent();
+            assertThat(output).contains("bodyText", "string");
+            if (SensitiveFieldResolver.isEnabled(table)) {
+                assertThat(output).contains("TArticleSensitiveFields", "article_", "sample.entity.Article", "PLAIN_TEXT");
+            } else {
+                assertThat(output).doesNotContain("SensitiveFields");
+            }
+        }
+    }
+
+    @Test
+    void offlineOutputBaseline() throws Exception {
+        // 摘要来自本轮重构前完整输出，固定日期配置并仅统一换行；顺序为实体、服务实现和 TS。
+        String[][] expected = {
+                {"74026c280c266dd956676cef0e76761a423fdb053085bff10f2b1191df84fd01",
+                 "771475078833aa35bf73362bc20f57547c0467d71d03548baf764661cb91f211",
+                 "a6eb9e4ebc39bd2853cc2dca923ff10f4466417c2dbb88d7d6d9ecf06ee24fd8"},
+                {"97d151e5249fb343d492d86a912667a6f206467a46220ffb7c8c9763ff2203a4",
+                 "628d52092059d592cbff08ccbf1611f10a219196190c4129393a6506e8db0dcb",
+                 "e452649e1a626f3f81460b3b036799ee647430c544f34225f0126dbd60788b75"},
+                {"97d151e5249fb343d492d86a912667a6f206467a46220ffb7c8c9763ff2203a4",
+                 "628d52092059d592cbff08ccbf1611f10a219196190c4129393a6506e8db0dcb",
+                 "e452649e1a626f3f81460b3b036799ee647430c544f34225f0126dbd60788b75"},
+                {"8a597a12b151f57431500184f0bf5cc0f589b6f60b91185f3943cfdc57638a90",
+                 "771475078833aa35bf73362bc20f57547c0467d71d03548baf764661cb91f211",
+                 "682ebf7f150cf5789d132804e39ea70626d5a510971bbbf28a5ad0e87a7349b7"}
+        };
+        List<String> configurations = List.of(CHECK, "",
+                "<sensitiveCheck columns=\"content_\" enable=\"false\" strategy=\"WARN\"/>",
+                "<sensitiveCheck columns=\"content_\" strategy=\"BLOCK\" contentType=\"PLAIN_TEXT\"/>"
+                        + "<sensitiveCheck columns=\"summary_\" strategy=\"WARN\"/>");
+        for (int variant = 0; variant < configurations.size(); variant++) {
+            IntrospectedTableMyBatis3Impl table = fixture(variant == 3 ? "" : configurations.get(variant));
+            if (variant == 3) {
+                table.addColumn(column("summary_", "summary"));
+                table.getTableConfiguration().getSensitiveCheckConfigurations().addAll(
+                        parse(configurations.get(variant)).getTableConfigurations().get(0).getSensitiveCheckConfigurations());
+                SensitiveGenerationValidator.validate(table);
+            }
+            List<String> outputs = List.of(format(model(table)), format(service(table)),
+                    render(Vue3OtherFilesPlugin.frontendFields(table)));
+            for (int layer = 0; layer < outputs.size(); layer++) {
+                String digest = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                        .digest(outputs.get(layer).replace("\r\n", "\n").getBytes(StandardCharsets.UTF_8)));
+                assertThat(digest).as("重构前完整敏感输出：场景 %s，层 %s", variant, layer)
+                        .isEqualTo(expected[variant][layer]);
+            }
+        }
+    }
 
     @Test
     void parsesCurrentDtdDefaultsAndRejectsInvalidValues() throws Exception {
@@ -105,22 +268,22 @@ class SensitiveGenerationTest {
         IntrospectedTableMyBatis3Impl table = fixture(CHECK);
         table.getAllColumns().stream().filter(column -> "content_".equals(column.getActualColumnName()))
                 .findFirst().orElseThrow().setJavaProperty("bodyText");
-        SensitiveGeneration.validate(table);
-        assertThat(SensitiveGeneration.frontendFields(table).get(0).get("property")).isEqualTo("bodyText");
+        SensitiveGenerationValidator.validate(table);
+        assertThat(Vue3OtherFilesPlugin.frontendFields(table).get(0).get("property")).isEqualTo("bodyText");
         for (String name : List.of("missing_", "ignored_", "bodyText")) {
             assertThatThrownBy(() -> fixture("<sensitiveCheck columns=\"" + name + "\"/>"))
                     .hasMessageContaining("article_").hasMessageContaining(name);
         }
         table.getBaseColumns().get(0).setFullyQualifiedJavaType(FullyQualifiedJavaType.getIntegerInstance());
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("String");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("String");
         IntrospectedTableMyBatis3Impl duplicate = fixture(CHECK);
         duplicate.getTableConfiguration().getSensitiveCheckConfigurations()
                 .add(new SensitiveCheckConfiguration("content_", null, "WARN", null));
-        assertThatThrownBy(() -> SensitiveGeneration.validate(duplicate)).hasMessageContaining("重复");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(duplicate)).hasMessageContaining("重复");
         for (String property : List.of("class", "id", "not-valid")) {
             IntrospectedTableMyBatis3Impl invalidProperty = fixture(CHECK);
             invalidProperty.getBaseColumns().get(0).setJavaProperty(property);
-            assertThatThrownBy(() -> SensitiveGeneration.validate(invalidProperty)).hasMessageContaining("Java 属性");
+            assertThatThrownBy(() -> SensitiveGenerationValidator.validate(invalidProperty)).hasMessageContaining("Java 属性");
         }
     }
 
@@ -130,16 +293,16 @@ class SensitiveGenerationTest {
                 .hasMessageContaining("父类").hasMessageContaining("id_");
         IntrospectedTableMyBatis3Impl table = fixture(CHECK);
         table.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().setGenerate(false);
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("Service");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("Service");
         table.getTableConfiguration().getJavaServiceImplGeneratorConfiguration().setGenerate(true);
         table.getTableConfiguration().setUpdateByExampleStatementEnabled(true);
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("updateByExample");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("updateByExample");
         table.getTableConfiguration().setUpdateByExampleStatementEnabled(false);
         table.getTableConfiguration().getJavaModelGeneratorConfiguration().setGenerate(false);
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("模型");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("模型");
         table.getTableConfiguration().getJavaModelGeneratorConfiguration().setGenerate(true);
         table.setRules(new HierarchicalModelRules(table));
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("分层模型");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("分层模型");
     }
 
     @Test
@@ -150,7 +313,7 @@ class SensitiveGenerationTest {
         assertThat(field.getAnnotations()).contains(
                 "@SensitiveCheck(enable = true, strategy = SensitiveCheckStrategy.INHERIT, contentType = SensitiveContentType.PLAIN_TEXT)");
         String before = format(model);
-        SensitiveGeneration.addModelAnnotations(model, table);
+        SensitiveModelAnnotations.addModelAnnotations(model, table);
         assertThat(format(model)).isEqualTo(before);
         StaticJavaParser.parse(before);
 
@@ -168,7 +331,7 @@ class SensitiveGenerationTest {
                 .flatMap(method -> method.getAnnotations().stream())).noneMatch(value -> value.startsWith("@SensitiveWrite"));
         String source = format(service);
         StaticJavaParser.parse(source);
-        SensitiveGeneration.addWriteAnnotations(service, table);
+        SensitiveWriteMethodsElement.addWriteAnnotations(service, table);
         assertThat(format(service)).isEqualTo(source);
         assertThat(format(service(fixture(CHECK)))).isEqualTo(source);
     }
@@ -180,15 +343,15 @@ class SensitiveGenerationTest {
         TopLevelClass service = service(plain);
         String modelBefore = format(model);
         String serviceBefore = format(service);
-        SensitiveGeneration.addModelAnnotations(model, plain);
-        SensitiveGeneration.addWriteAnnotations(service, plain);
+        SensitiveModelAnnotations.addModelAnnotations(model, plain);
+        SensitiveWriteMethodsElement.addWriteAnnotations(service, plain);
         assertThat(format(model)).isEqualTo(modelBefore).doesNotContain("Sensitive");
         assertThat(format(service)).isEqualTo(serviceBefore).doesNotContain("Sensitive");
         IntrospectedTableMyBatis3Impl disabled = fixture("<sensitiveCheck columns=\"content_\" enable=\"false\" strategy=\"WARN\"/>");
         TopLevelClass disabledModel = model(disabled);
         TopLevelClass disabledService = service(disabled);
-        SensitiveGeneration.addModelAnnotations(disabledModel, disabled);
-        SensitiveGeneration.addWriteAnnotations(disabledService, disabled);
+        SensitiveModelAnnotations.addModelAnnotations(disabledModel, disabled);
+        SensitiveWriteMethodsElement.addWriteAnnotations(disabledService, disabled);
         assertThat(format(disabledModel)).doesNotContain("Sensitive");
         assertThat(format(disabledService)).doesNotContain("Sensitive");
     }
@@ -196,15 +359,15 @@ class SensitiveGenerationTest {
     @Test
     void refusesSuppressedFieldsAndWrongBatchParameterRoles() throws Exception {
         IntrospectedTableMyBatis3Impl table = fixture(CHECK);
-        assertThatThrownBy(() -> SensitiveGeneration.addModelAnnotations(new TopLevelClass("sample.Article"), table))
+        assertThatThrownBy(() -> SensitiveModelAnnotations.addModelAnnotations(new TopLevelClass("sample.Article"), table))
                 .hasMessageContaining("content_").hasMessageContaining("未实际生成");
-        assertThatThrownBy(() -> SensitiveGeneration.requireModelGenerated(table)).hasMessageContaining("插件");
-        assertThatThrownBy(() -> SensitiveGeneration.requireServiceGenerated(table)).hasMessageContaining("插件");
+        assertThatThrownBy(() -> SensitiveModelAnnotations.requireModelGenerated(table)).hasMessageContaining("插件");
+        assertThatThrownBy(() -> SensitiveWriteMethodsElement.requireServiceGenerated(table)).hasMessageContaining("插件");
         TopLevelClass service = service(table);
         Method batch = service.getMethods().stream().filter(item -> "insertBatch".equals(item.getName())).findFirst().orElseThrow();
         batch.getParameters().clear();
         batch.addParameter(new Parameter(new FullyQualifiedJavaType("java.util.List<java.lang.String>"), "records"));
-        assertThatThrownBy(() -> SensitiveGeneration.addWriteAnnotations(service, table))
+        assertThatThrownBy(() -> SensitiveWriteMethodsElement.addWriteAnnotations(service, table))
                 .hasMessageContaining("insertBatch").hasMessageContaining("List");
     }
 
@@ -212,7 +375,7 @@ class SensitiveGenerationTest {
     void rendersEscapedFrontendMappingAndKeepsUnconfiguredTemplateBytes() throws Exception {
         IntrospectedTableMyBatis3Impl table = fixture(CHECK);
         table.getBaseColumns().get(0).setRemarks("内容\"\\\n标签");
-        List<Map<String, String>> mapping = SensitiveGeneration.frontendFields(table);
+        List<Map<String, String>> mapping = Vue3OtherFilesPlugin.frontendFields(table);
         assertThat(mapping).hasSize(1);
         assertThat(mapping.get(0)).containsEntry("table", "article_").containsEntry("entity", "sample.entity.Article")
                 .containsEntry("property", "bodyText").containsEntry("contentType", "PLAIN_TEXT");
@@ -227,10 +390,10 @@ class SensitiveGenerationTest {
         content.setJdbcType(Types.LONGVARCHAR);
         content.setJdbcTypeName("LONGVARCHAR");
         table.addColumn(content);
-        SensitiveGeneration.validate(table);
+        SensitiveGenerationValidator.validate(table);
         assertThat(format(model(table))).contains("@SensitiveCheck", "String bodyText");
         content.setFullyQualifiedJavaType(new FullyQualifiedJavaType("byte[]"));
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("String");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("String");
     }
 
     @Test
@@ -239,14 +402,14 @@ class SensitiveGenerationTest {
         ColumnOverride override = new ColumnOverride("content_");
         override.addProperty("logicalType", "JSON");
         table.getTableConfiguration().addColumnOverride(override);
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("适配器");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("适配器");
         table.getTableConfiguration().getColumnOverrides().clear();
         table.getTableConfiguration().getOverridePropertyConfigurations().add(
                 new OverridePropertyValueGeneratorConfiguration(table.getContext(), table.getTableConfiguration(), "content_"));
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("双表示");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("双表示");
         table.getTableConfiguration().getOverridePropertyConfigurations().clear();
         table.getBaseColumns().get(0).setGeneratedAlways(true);
-        assertThatThrownBy(() -> SensitiveGeneration.validate(table)).hasMessageContaining("可写列");
+        assertThatThrownBy(() -> SensitiveGenerationValidator.validate(table)).hasMessageContaining("可写列");
     }
 
     @Test
@@ -255,11 +418,11 @@ class SensitiveGenerationTest {
         TopLevelClass generated = service(table);
         Method insert = generated.getMethods().stream().filter(method -> "insert".equals(method.getName())).findFirst().orElseThrow();
         insert.setFinal(true);
-        assertThatThrownBy(() -> SensitiveGeneration.addWriteAnnotations(generated, table)).hasMessageContaining("可代理");
+        assertThatThrownBy(() -> SensitiveWriteMethodsElement.addWriteAnnotations(generated, table)).hasMessageContaining("可代理");
         insert.setFinal(false);
         insert.getAnnotations().removeIf(value -> value.startsWith("@Transactional"));
         insert.addAnnotation("@Transactional(propagation = Propagation.NOT_SUPPORTED)");
-        assertThatThrownBy(() -> SensitiveGeneration.addWriteAnnotations(generated, table)).hasMessageContaining("事务声明");
+        assertThatThrownBy(() -> SensitiveWriteMethodsElement.addWriteAnnotations(generated, table)).hasMessageContaining("事务声明");
     }
 
     @Test
@@ -379,21 +542,29 @@ class SensitiveGenerationTest {
     }
 
     private TopLevelClass model(IntrospectedTableMyBatis3Impl table) {
+        return (TopLevelClass) modelOutput(table).get(0);
+    }
+
+    private List<CompilationUnit> modelOutput(IntrospectedTableMyBatis3Impl table) {
         BaseRecordGenerator generator = new BaseRecordGenerator("src");
         generator.setContext(table.getContext());
         generator.setIntrospectedTable(table);
         generator.setProgressCallback(new SilentProgress());
         generator.setWarnings(new ArrayList<>());
-        return (TopLevelClass) generator.getCompilationUnits().get(0);
+        return generator.getCompilationUnits();
     }
 
     private TopLevelClass service(IntrospectedTableMyBatis3Impl table) {
+        return (TopLevelClass) serviceOutput(table).get(0);
+    }
+
+    private List<CompilationUnit> serviceOutput(IntrospectedTableMyBatis3Impl table) {
         JavaServiceImplGenerator generator = new JavaServiceImplGenerator("src");
         generator.setContext(table.getContext());
         generator.setIntrospectedTable(table);
         generator.setProgressCallback(new SilentProgress());
         generator.setWarnings(new ArrayList<>());
-        return (TopLevelClass) generator.getCompilationUnits().get(0);
+        return generator.getCompilationUnits();
     }
 
     private String format(TopLevelClass type) {
@@ -417,6 +588,44 @@ class SensitiveGenerationTest {
             StringWriter output = new StringWriter();
             template.process(data, output);
             return output.toString();
+        }
+    }
+
+    /**
+     * 在真实模型和服务回调中记录执行顺序，并模拟插件否决或修改。
+     *
+     * @author vgosoft
+     */
+    private static final class SensitiveProbePlugin extends PluginAdapter {
+        private final List<String> calls = new ArrayList<>();
+        private boolean approve = true;
+        private java.util.function.Consumer<TopLevelClass> modelChange = model -> { };
+        private java.util.function.Consumer<TopLevelClass> serviceChange = service -> { };
+
+        @Override
+        public boolean validate(List<String> warnings) {
+            return true;
+        }
+
+        @Override
+        public boolean modelBaseRecordClassGenerated(TopLevelClass model, AbstractIntrospectedTable table) {
+            calls.add("model");
+            assertThat(model.getFields().stream().flatMap(field -> field.getAnnotations().stream()))
+                    .noneMatch(annotation -> annotation.startsWith("@SensitiveCheck"));
+            modelChange.accept(model);
+            return approve;
+        }
+
+        @Override
+        public boolean serviceImplGenerated(TopLevelClass service, AbstractIntrospectedTable table) {
+            calls.add("service");
+            if (SensitiveFieldResolver.isEnabled(table)) {
+                assertThat(service.getMethods().stream().map(Method::getName)).contains("insertOrUpdateSelective");
+            }
+            assertThat(service.getMethods().stream().flatMap(method -> method.getAnnotations().stream()))
+                    .noneMatch(annotation -> annotation.startsWith("@SensitiveWrite"));
+            serviceChange.accept(service);
+            return approve;
         }
     }
 

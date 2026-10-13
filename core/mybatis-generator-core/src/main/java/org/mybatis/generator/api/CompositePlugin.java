@@ -39,6 +39,30 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
+    public boolean clientSelectByPrimaryKeyForUpdateMethodGenerated(Method method, Interface interfaze,
+                                                                   AbstractIntrospectedTable table) {
+        return plugins.stream().allMatch(plugin ->
+                plugin.clientSelectByPrimaryKeyForUpdateMethodGenerated(method, interfaze, table));
+    }
+
+    @Override
+    public boolean clientSelectByExampleForUpdateMethodGenerated(Method method, Interface interfaze,
+                                                                AbstractIntrospectedTable table) {
+        return plugins.stream().allMatch(plugin ->
+                plugin.clientSelectByExampleForUpdateMethodGenerated(method, interfaze, table));
+    }
+
+    @Override
+    public boolean sqlMapSelectByPrimaryKeyForUpdateElementGenerated(XmlElement element, AbstractIntrospectedTable table) {
+        return plugins.stream().allMatch(plugin -> plugin.sqlMapSelectByPrimaryKeyForUpdateElementGenerated(element, table));
+    }
+
+    @Override
+    public boolean sqlMapSelectByExampleForUpdateElementGenerated(XmlElement element, AbstractIntrospectedTable table) {
+        return plugins.stream().allMatch(plugin -> plugin.sqlMapSelectByExampleForUpdateElementGenerated(element, table));
+    }
+
+    @Override
     public void setContext(Context context) {
         for (Plugin plugin : plugins) {
             plugin.setContext(context);

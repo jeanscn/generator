@@ -51,6 +51,27 @@ public class RulesDelegate implements Rules {
         this.rules = rules;
     }
 
+    /**
+     * 同时尊重被代理规则与当前代理对普通主键查询的限制。
+     *
+     * @return 是否生成按主键锁定查询
+     */
+    @Override
+    public boolean generateSelectByPrimaryKeyForUpdate() {
+        return rules.generateSelectByPrimaryKeyForUpdate() && generateSelectByPrimaryKey();
+    }
+
+    /**
+     * 同时尊重被代理规则与当前代理对普通条件查询的限制。
+     *
+     * @return 是否生成按条件锁定查询
+     */
+    @Override
+    public boolean generateSelectByExampleForUpdate() {
+        return rules.generateSelectByExampleForUpdate()
+                && (generateSelectByExampleWithoutBlobs() || generateSelectByExampleWithBlobs());
+    }
+
     @Override
     public FullyQualifiedJavaType calculateAllFieldsClass() {
         return rules.calculateAllFieldsClass();

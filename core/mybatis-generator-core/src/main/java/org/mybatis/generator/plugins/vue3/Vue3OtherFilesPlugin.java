@@ -11,6 +11,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.freemaker.vue3.GeneratedVueFile;
 import org.mybatis.generator.codegen.mybatis3.htmlmapper.GenerateUtils;
+import org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver;
 import org.mybatis.generator.config.HtmlGeneratorConfiguration;
 import org.mybatis.generator.config.TypeScriptTypeDescriptor;
 import org.mybatis.generator.config.VoViewGeneratorConfiguration;
@@ -31,6 +32,28 @@ import static org.mybatis.generator.internal.util.Mb3GenUtil.isContainOverridabl
  * @version 3.0
  */
 public class Vue3OtherFilesPlugin extends PluginAdapter {
+
+    /**
+     * 将最终敏感字段映射为前端模板元数据，不改变字段解析和输出顺序。
+     *
+     * @param table 内省表信息
+     * @return 按配置顺序排列的敏感字段映射
+     */
+    public static List<Map<String, String>> frontendFields(AbstractIntrospectedTable table) {
+        List<Map<String, String>> fields = new ArrayList<>();
+        SensitiveFieldResolver.resolve(table).forEach((column, configuration) -> {
+            if (configuration.isEnable()) {
+                Map<String, String> field = new LinkedHashMap<>();
+                field.put("table", table.getTableConfiguration().getTableName());
+                field.put("entity", table.getBaseRecordType());
+                field.put("property", column.getJavaProperty());
+                field.put("label", column.getRemarks(true) == null ? column.getJavaProperty() : column.getRemarks(true));
+                field.put("contentType", configuration.getContentType());
+                fields.add(field);
+            }
+        });
+        return fields;
+    }
 
     @Override
     public List<GeneratedFile> contextGenerateVue3OtherFiles(AbstractIntrospectedTable introspectedTable) {
@@ -115,7 +138,7 @@ public class Vue3OtherFilesPlugin extends PluginAdapter {
                 }
                 freeMakerContext.put("tsTypeDescriptors", introspectedTable.getTypeScriptTypeDescriptors());
                 freeMakerContext.put("sensitiveFields",
-                        org.mybatis.generator.codegen.mybatis3.SensitiveGeneration.frontendFields(introspectedTable));
+                        frontendFields(introspectedTable));
 
                 if (stringHasValue(fileNameType)) {
                     String vueTypeFileName = fileNameType + ".ts";

@@ -202,6 +202,8 @@
             4、enableInsert 是否生成insert方法，默认true
             5、enableSelectByPrimaryKey 是否生成selectByPrimaryKey方法，默认true
             6、enableSelectByExample 是否生成selectByExample方法，默认true
+            enableSelectForUpdate 是否生成独立锁定查询，默认false；要求非只读既有事务，
+            不支持DISTINCT、无条件查询、动态排序、分页或未验证的锁语法方言。
             7、enableUpdateByPrimaryKey 是否生成updateByPrimaryKey方法，默认true
             8、enableDeleteByPrimaryKey 是否生成deleteByPrimaryKey方法，默认true
             9、enableDeleteByExample 是否生成deleteByExample方法，默认true
@@ -282,6 +284,7 @@
                 enableInsert (true|false) #IMPLIED
                 enableSelectByPrimaryKey (true|false) #IMPLIED
                 enableSelectByExample (true|false) #IMPLIED
+                enableSelectForUpdate (true|false) "false"
                 enableUpdateByPrimaryKey (true|false) #IMPLIED
                 enableDeleteByPrimaryKey (true|false) #IMPLIED
                 enableDeleteByExample (true|false) #IMPLIED
