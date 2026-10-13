@@ -3,6 +3,8 @@
 本文档用于**基于生成器的新项目设计阶段**：回答“能做什么、适合做什么、边界在哪里”。
 实现细节与具体 XML 写法请转到 `generator-config-guide.md`。
 
+当前 1.8.0 经用户批准，将省略、null、空字符串及纯空白 `targetRuntime` 的默认运行时从 DynamicSql 改为 MyBatis3。这是全局生成兼容性变化，不仅影响锁查询；需要原动态 SQL 行为时必须显式指定 `MyBatis3DynamicSql`。显式四种内置运行时及自定义实现类继续由同一工厂解析，未知值仍失败。缺省解析入口为 `Context.getEffectiveTargetRuntime()`，验证与实际内省共用工厂；锁查询按实际 MyBatis3 内省实现与各项输出配置分别校验。版本、历史 DTD 保留边界及迁移说明见[配置指南第 2.1 节](generator-config-guide.md#21-默认运行时兼容性变更180)。
+
 ---
 
 ## 1. 文档定位

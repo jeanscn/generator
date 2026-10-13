@@ -90,7 +90,7 @@ class SelectForUpdateGenerationTest {
             <!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
               "mybatis-generator-config_1_8_0.dtd">
             <generatorConfiguration>
-              <context id="lock-test" defaultModelType="flat" targetRuntime="MyBatis3"
+              <context id="lock-test" defaultModelType="flat"
                 appKeyword="sample" moduleKeyword="sample" moduleName="测试" jdkVersion="17" integrateMybatisPlus="false">
                 <commentGenerator><property name="suppressDate" value="true"/></commentGenerator>
                 <jdbcConnection driverClass="must.not.connect.Driver" connectionURL="jdbc:must-not-connect:test"/>
@@ -117,6 +117,69 @@ class SelectForUpdateGenerationTest {
             assertThatThrownBy(() -> parse("enableSelectForUpdate=\"" + value + "\""))
                     .isInstanceOfAny(XMLParserException.class, IllegalArgumentException.class);
         }
+
+    }
+
+    @Test
+    void omittedAndBlankRuntimeProduceCompleteLockOutputsLikeExplicitMyBatis3() throws Exception {
+        var defaults = fixture(true);
+        assertThat(defaults.getContext().getTargetRuntime()).isNull();
+        for (String runtime : java.util.Arrays.asList(null, "", " \t\r\n", "mYbAtIs3", "MyBatis3",
+                IntrospectedTableMyBatis3Impl.class.getName())) {
+            Context context = parse("enableSelectForUpdate=\"true\"");
+            context.setTargetRuntime(runtime);
+            var table = fixture(context);
+            SelectForUpdateValidator.validate(table);
+            var service = new JavaServiceGenerator("src");
+            setup(service, table);
+            var defaultService = new JavaServiceGenerator("src");
+            setup(defaultService, defaults);
+            assertThat(format(actualMapper(table))).isEqualTo(format(actualMapper(defaults)))
+                    .contains("selectByPrimaryKeyForUpdate", "selectByExampleForUpdate");
+            assertThat(format(sql(table))).isEqualTo(format(sql(defaults)))
+                    .contains("for update", "useCache=\"false\"");
+            assertThat(actualXml(table)).isEqualTo(actualXml(defaults))
+                    .contains("selectByPrimaryKeyForUpdate", "selectByExampleForUpdate", "for update");
+            assertThat(format(service.getCompilationUnits().get(0)))
+                    .isEqualTo(format(defaultService.getCompilationUnits().get(0))).contains("ForUpdate");
+            assertThat(format(actualService(table))).isEqualTo(format(actualService(defaults)))
+                    .contains("Propagation.MANDATORY", "ForUpdate");
+            assertThat(format(SelectForUpdateGuardGenerator.createGuard(table)))
+                    .isEqualTo(format(SelectForUpdateGuardGenerator.createGuard(defaults)));
+        }
+        Context explicit = parse("enableSelectForUpdate=\"false\"");
+        explicit.setTargetRuntime("MyBatis3");
+        assertThat(format(actualMapper(fixture(false)))).isEqualTo(format(actualMapper(fixture(explicit))));
+        assertThat(format(actualService(fixture(false)))).isEqualTo(format(actualService(fixture(explicit))));
+        assertThat(actualXml(fixture(false))).isEqualTo(actualXml(fixture(explicit))).doesNotContain("ForUpdate");
+    }
+
+    @Test
+    void missingOutputsAndUnknownRuntimeFailIndividuallyWithoutMaskingFactoryExceptions() throws Exception {
+        List<java.util.function.Consumer<TableConfiguration>> removeOutputs = List.of(
+                tc -> tc.setJavaModelGeneratorConfiguration(null),
+                tc -> tc.setJavaClientGeneratorConfiguration(null),
+                tc -> tc.setSqlMapGeneratorConfiguration(null),
+                tc -> tc.setJavaServiceGeneratorConfiguration(null),
+                tc -> tc.setJavaServiceImplGeneratorConfiguration(null));
+        List<String> reasons = List.of("Model 输出", "Mapper/DAO 输出", "XML 输出", "Service 接口输出", "Service 实现输出");
+        for (int i = 0; i < removeOutputs.size(); i++) {
+            var table = fixture(true);
+            removeOutputs.get(i).accept(table.getTableConfiguration());
+            String reason = reasons.get(i);
+            assertThatThrownBy(() -> SelectForUpdateValidator.validate(table))
+                    .hasMessageContaining("表 article_ enableSelectForUpdate：必须启用 " + reason)
+                    .hasMessageNotContaining("以及");
+        }
+        var noContextClient = fixture(true);
+        noContextClient.getContext().setJavaClientGeneratorConfiguration(null);
+        assertThatThrownBy(() -> SelectForUpdateValidator.validate(noContextClient))
+                .hasMessage("表 article_ enableSelectForUpdate：Context javaClientGenerator 必须配置为 XMLMAPPER");
+        var unknown = fixture(true);
+        unknown.getContext().setTargetRuntime("not.existing.Runtime");
+        assertThatThrownBy(() -> SelectForUpdateValidator.validate(unknown))
+                .isInstanceOf(RuntimeException.class).hasMessageContaining("Cannot instantiate")
+                .hasMessageContaining("not.existing.Runtime").hasCauseInstanceOf(ClassNotFoundException.class);
     }
 
     @Test
@@ -286,11 +349,22 @@ class SelectForUpdateGenerationTest {
         tc.getAdditionalDbTypes().clear();
         assertThatThrownBy(() -> SelectForUpdateValidator.validate(table)).hasMessageContaining("additionalDbTypes");
         tc.getAdditionalDbTypes().add(DatabaseType.MYSQL);
-        for (var output : List.of(tc.getJavaModelGeneratorConfiguration(), tc.getSqlMapGeneratorConfiguration(),
+        var outputs = List.of(tc.getJavaModelGeneratorConfiguration(), tc.getSqlMapGeneratorConfiguration(),
                 tc.getJavaClientGeneratorConfiguration(), tc.getJavaServiceGeneratorConfiguration(),
-                tc.getJavaServiceImplGeneratorConfiguration())) {
+                tc.getJavaServiceImplGeneratorConfiguration());
+        var reasons = List.of("Model 输出", "XML 输出", "Mapper/DAO 输出", "Service 接口输出", "Service 实现输出");
+        for (int i = 0; i < outputs.size(); i++) {
+            var output = outputs.get(i);
             output.setGenerate(false);
-            assertThatThrownBy(() -> SelectForUpdateValidator.validate(table)).hasMessageContaining("Service");
+            String reason = reasons.get(i);
+            assertThatThrownBy(() -> SelectForUpdateValidator.validate(table))
+                    .hasMessage("表 article_ enableSelectForUpdate：必须启用 " + reason + switch (i) {
+                        case 0 -> "（generateModel）";
+                        case 1 -> "（generateSqlMap）";
+                        case 2 -> "（generateDao）";
+                        case 3 -> "（generateService）";
+                        default -> "（generateService 的实现配置）";
+                    });
             output.setGenerate(true);
         }
         tc.addProperty("immutable", "true");
@@ -660,16 +734,17 @@ class SelectForUpdateGenerationTest {
     }
 
     private IntrospectedTableMyBatis3Impl fixture(boolean enabled) throws Exception {
-        Context context = parse("enableSelectForUpdate=\"" + enabled + "\"");
+        return fixture(parse("enableSelectForUpdate=\"" + enabled + "\""));
+    }
+
+    private IntrospectedTableMyBatis3Impl fixture(Context context) throws Exception {
         var field = Context.class.getDeclaredField("pluginAggregator");
         field.setAccessible(true);
         field.set(context, new PluginAggregator());
-        var table = new IntrospectedTableMyBatis3Impl();
-        table.setContext(context);
-        table.setTableConfiguration(context.getTableConfigurations().get(0));
+        var table = (IntrospectedTableMyBatis3Impl) org.mybatis.generator.internal.ObjectFactory.createIntrospectedTable(
+                context.getTableConfigurations().get(0), new FullyQualifiedTable(null, null, "article_", "Article", null,
+                        true, null, null, null, false, null, context), context);
         table.getTableConfiguration().getAdditionalDbTypes().add(DatabaseType.MYSQL);
-        table.setFullyQualifiedTable(new FullyQualifiedTable(null, null, "article_", "Article", null,
-                true, null, null, null, false, null, context));
         table.setRemarks("文章");
         table.addColumn(column("id_", "id", Types.VARCHAR));
         table.addPrimaryKeyColumn("id_");
@@ -824,6 +899,12 @@ class SelectForUpdateGenerationTest {
         var generator = new JavaMapperGenerator("src");
         setup(generator, table);
         return (Interface) generator.getCompilationUnits().get(0);
+    }
+
+    private String actualXml(IntrospectedTableMyBatis3Impl table) {
+        var generator = new XMLMapperGenerator();
+        setup(generator, table);
+        return new DefaultXmlFormatter().getFormattedContent(generator.getDocument());
     }
 
     private TopLevelClass actualService(IntrospectedTableMyBatis3Impl table) {

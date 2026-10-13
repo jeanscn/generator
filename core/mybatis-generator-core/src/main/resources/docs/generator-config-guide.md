@@ -37,6 +37,7 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | `moduleKeyword` | 模块标识 | 影响 controller 路由、页面路径、菜单。 |
 | `moduleName` | 模块中文名 | 用于展示/模块数据。 |
 | `jdkVersion` | JDK 版本 | 必填，取值 `8/9/11/17/21`。 |
+| `targetRuntime` | 生成运行时 | 当前 1.8.0：省略、null、空字符串或纯空白默认 `MyBatis3`；显式内置名称忽略大小写，其他非空值按实现类名解析。 |
 | `integrateMybatisPlus` | 是否集成 MP | 默认 `true`。 |
 | `integrateSpringSecurity` | 是否集成安全组件 | 默认 `true`。 |
 | `forceUpdateScalableElement` | 是否强制覆盖可扩展元素 | 配合 `forceUpdateElementList` 使用。 |
@@ -57,6 +58,14 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 - 这是 **表级/上下文级** 方言扩展集合。
 - 合法值以 `DatabaseType.code` 为准，DTD 中的枚举只是兼容提示。
 - 生成 SQL 时不能只写单方言分支，必须遍历 `additionalDbTypes`。
+
+### 2.1 默认运行时兼容性变更（1.8.0）
+
+经用户明确批准，当前 core 将缺省运行时从 `MyBatis3DynamicSql` 改为 `MyBatis3`。这是**全局默认变化**，不仅影响锁查询：未指定运行时的普通生成现在走 MyBatis3 的 Model/Example/Mapper/XML 链路，XMLMAPPER 配置需具备 `sqlMapGenerator`；即使 `enableSelectForUpdate=false` 也会受到默认运行时变更影响。需要保留动态 SQL 产物的消费者必须显式设置 `targetRuntime="MyBatis3DynamicSql"`。已有显式动态 SQL 示例无需修改。
+
+共享入口 `Context.getEffectiveTargetRuntime()` 只处理缺省；保留原始 `getTargetRuntime()` 值。验证及实际内省共用 `ObjectFactory.createIntrospectedTableForValidation(...)` 的别名/反射分支。四种内置运行时的大小写兼容、显式自定义实现类及其构造异常仍保持工厂原行为；未知非空值不回退，不修剪带前后空格的非空名称。当前 `StringUtility.stringHasValue` 仅处理 null/empty，因此有效运行时入口额外识别 `trim()` 后为空的值，不改变其他配置的字符串语义。
+
+DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增补说明，历史 DTD/版本契约不改；使用旧 core 的历史默认未被追溯改写。当前 core 解析旧配置资源时仍会使用当前代码默认，因此不能以旧 DOCTYPE 保留动态 SQL 行为，应保持 core/DTD 版本一致并显式选择运行时。
 
 ## 3. `table`
 
@@ -205,7 +214,7 @@ mvn -q -pl mybatis-generator-core "-Dtest=SensitiveGenerationTest,CacheConfigura
 </table>
 ```
 
-Context 必须使用 `targetRuntime="MyBatis3"` 和 `javaClientGenerator type="XMLMAPPER"`，并配置模型、XML、DAO 和 Service 输出。支持可变 flat/conditional/hierarchical 模型，含复合主键、主键类和 BLOB 类；immutable、model-only、其他 runtime/Client 类型、缺失任一必需生成输出均失败。启用主键查询却无主键、启用 Example 查询却不能生成 Example、两个普通查询开关都关闭时也失败，不静默漏生成锁方法。
+Context 的有效运行时必须由工厂解析为标准 `IntrospectedTableMyBatis3Impl`（可省略 `targetRuntime`，显式内置名称忽略大小写，也可直接指定该标准实现的完整类名），且使用 `javaClientGenerator type="XMLMAPPER"`，配置模型、XML、DAO 和 Service 输出。预检使用实际工厂解析而非原始字符串精确比较；Simple/DynamicSql/Kotlin 虽然继承该基类，其实际生成链路不同，仍拒绝锁查询。自定义派生实现继续可用于普通生成，但不自动授予锁查询输出契约。支持可变 flat/conditional/hierarchical 模型，含复合主键、主键类和 BLOB 类；immutable、model-only、其他 runtime/Client 类型、缺失任一必需生成输出均分别失败，例如 `必须启用 Mapper/DAO 输出（generateDao）`、`必须启用 Service 接口输出（generateService）`，错误均带表名及 `enableSelectForUpdate`。启用主键查询却无主键、启用 Example 查询却不能生成 Example、两个普通查询开关都关闭时也失败，不静默漏生成锁方法。
 
 #### 3.2.1 方法签名与产物
 

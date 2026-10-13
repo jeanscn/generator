@@ -11,6 +11,8 @@
 <p>MyBatis Generator (MBG) generates code in different styles depending on how it is configured. This is controlled
 by specifying the <code>targetRuntime</code> attribute on a <code>&lt;context&gt;</code> configuration element. The
 table below summarizes the different options.</p>
+<p>In the current 1.8.0 core, omitted, empty, and whitespace-only targetRuntime values select MyBatis3.
+To retain Dynamic SQL output, select MyBatis3DynamicSql explicitly; the sample below already does so.</p>
 
 <p>To get up and running quickly with MyBatis Generator (MBG), follow these steps:</p>
 <ol>
@@ -41,7 +43,7 @@ table below summarizes the different options.</p>
   </tr>
   <tr>
     <td valign="top">MyBatis3DynamicSql</td>
-    <td><i>This is the default value</i>
+    <td><i>Explicit selection is required in the current 1.8.0 core</i>
       <ul>
         <li>Generates Java code</li>
         <li>Does not generate XML - MyBatis3 annotations are used exclusively</li>

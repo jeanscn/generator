@@ -126,6 +126,17 @@ public class Context extends PropertyHolder {
     @Getter
     private String targetRuntime;
 
+    /**
+     * 获取工厂实际使用的运行时，未配置或仅含空白时使用 MyBatis3。
+     *
+     * @return 有效运行时名称或原样保留的自定义实现类名
+     */
+    public String getEffectiveTargetRuntime() {
+        String configuredRuntime = getTargetRuntime();
+        return stringHasValue(configuredRuntime) && stringHasValue(configuredRuntime.trim())
+                ? configuredRuntime : "MyBatis3";
+    }
+
     @Setter
     @Getter
     private String introspectedColumnImpl;

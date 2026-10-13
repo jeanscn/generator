@@ -3,6 +3,7 @@ package org.mybatis.generator.codegen.mybatis3;
 import com.vgosoft.core.db.query.DatabaseType;
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.dbstrategy.SelectForUpdateDialect;
+import org.mybatis.generator.internal.ObjectFactory;
 
 /**
  * 在输出之前预检锁定查询的完整配置与方言能力，不装配生成物。
@@ -23,19 +24,35 @@ public final class SelectForUpdateValidator {
         if (!tc.isSelectForUpdateEnabled()) {
             return;
         }
-        if (!"MyBatis3".equals(table.getContext().getTargetRuntime())
+        var runtime = ObjectFactory.createIntrospectedTableForValidation(table.getContext());
+        if (runtime.getClass() != IntrospectedTableMyBatis3Impl.class
                 || !(table instanceof IntrospectedTableMyBatis3Impl)
-                || tc.getJavaClientGeneratorConfiguration() == null
-                || table.getContext().getJavaClientGeneratorConfiguration() == null
-                || !"XMLMAPPER".equalsIgnoreCase(table.getContext().getJavaClientGeneratorConfiguration().getConfigurationType())
-                || !tc.getJavaClientGeneratorConfiguration().isGenerate()
-                || tc.getSqlMapGeneratorConfiguration() == null || !tc.getSqlMapGeneratorConfiguration().isGenerate()
-                || tc.getJavaModelGeneratorConfiguration() == null || !tc.getJavaModelGeneratorConfiguration().isGenerate()
-                || tc.getJavaServiceGeneratorConfiguration() == null || !tc.getJavaServiceGeneratorConfiguration().isGenerate()
-                || tc.getJavaServiceImplGeneratorConfiguration() == null || !tc.getJavaServiceImplGeneratorConfiguration().isGenerate()
-                || "true".equalsIgnoreCase(tc.getProperty("modelOnly"))
-                || table.isImmutable()) {
-            throw failure(table, "要求 MyBatis3/XMLMAPPER、可变模型以及 Mapper/XML/Service 接口和实现同时生成");
+                || table instanceof IntrospectedTableMyBatis3SimpleImpl
+                || table.getTargetRuntime() != AbstractIntrospectedTable.TargetRuntime.MYBATIS3) {
+            throw failure(table, "运行时 " + table.getContext().getEffectiveTargetRuntime()
+                    + " 不支持锁定查询，要求 MyBatis3 内省实现");
+        }
+        var client = table.getContext().getJavaClientGeneratorConfiguration();
+        if (client == null || !"XMLMAPPER".equalsIgnoreCase(client.getConfigurationType())) {
+            throw failure(table, "Context javaClientGenerator 必须配置为 XMLMAPPER");
+        }
+        if ("true".equalsIgnoreCase(tc.getProperty("modelOnly")) || table.isImmutable()) {
+            throw failure(table, "要求可变模型，禁止 immutable 或 modelOnly");
+        }
+        if (tc.getJavaModelGeneratorConfiguration() == null || !tc.getJavaModelGeneratorConfiguration().isGenerate()) {
+            throw failure(table, "必须启用 Model 输出（generateModel）");
+        }
+        if (tc.getJavaClientGeneratorConfiguration() == null || !tc.getJavaClientGeneratorConfiguration().isGenerate()) {
+            throw failure(table, "必须启用 Mapper/DAO 输出（generateDao）");
+        }
+        if (tc.getSqlMapGeneratorConfiguration() == null || !tc.getSqlMapGeneratorConfiguration().isGenerate()) {
+            throw failure(table, "必须启用 XML 输出（generateSqlMap）");
+        }
+        if (tc.getJavaServiceGeneratorConfiguration() == null || !tc.getJavaServiceGeneratorConfiguration().isGenerate()) {
+            throw failure(table, "必须启用 Service 接口输出（generateService）");
+        }
+        if (tc.getJavaServiceImplGeneratorConfiguration() == null || !tc.getJavaServiceImplGeneratorConfiguration().isGenerate()) {
+            throw failure(table, "必须启用 Service 实现输出（generateService 的实现配置）");
         }
         if (tc.isSelectByPrimaryKeyStatementEnabled() && !table.getRules().generateSelectByPrimaryKey()) {
             throw failure(table, "enableSelectByPrimaryKey 已开启但模型没有可查询主键");

@@ -41,6 +41,10 @@
           8、updateMenuData 是否更新该组数据库的ViewVo对应的菜单数据，默认为false，不更新
           9、onlyTables 仅生成指定的表，其它表无论是否ignore都会忽略，多值用”,“分隔
           10、vueEndProjectPath vue前端项目的项目所在路径，仅到项目路径，不包含src目录。如：d:/vscode/vgoui
+          11、targetRuntime 省略、空字符串或纯空白时由当前 core 按 MyBatis3 处理。
+          显式 MyBatis3、MyBatis3Simple、MyBatis3DynamicSql、MyBatis3Kotlin 忽略大小写匹配；
+          其他非空值按自定义内省实现类名解析，未知值显式失败，不回退默认运行时。
+          targetRuntime 保持 #IMPLIED，默认在代码中统一解析；需要动态 SQL 时必须显式配置 MyBatis3DynamicSql。
           可能的property配置：
           1、rootModuleName 根模块（运行模块）名称，用于生成controller单元测试位置
           2、springBootApplicationClass 项目启动类，用于生成controller单元测试构建上下文

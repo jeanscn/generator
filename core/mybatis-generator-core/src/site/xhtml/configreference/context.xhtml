@@ -73,11 +73,16 @@ databases, or with different generation parameters, in the same run of MyBatis G
     <td valign="top">targetRuntime</td>
     <td>
       This property is used to specify the runtime target for generated code.
+      In the current 1.8.0 core, an omitted, empty, or whitespace-only value selects MyBatis3.
+      This changes the previous Dynamic SQL default for all generation, not only locking queries.
+      Explicit built-in names remain case-insensitive; other nonempty values are implementation
+      class names and invalid names fail rather than falling back. Specify MyBatis3DynamicSql
+      explicitly to retain Dynamic SQL output.
       The property supports these special values:
       <table>
         <tr>
           <th valign="top">MyBatis3DynamicSql</th>
-          <td><i>This is the default value</i><br/>
+          <td>
             With the value, MBG will generate objects that are compatible
             with MyBatis versions 3.4.2 and higher, and Java 8 and higher (e.g. the
             Java model and mapper interfaces will use generic types and other Java 8
@@ -119,7 +124,8 @@ databases, or with different generation parameters, in the same run of MyBatis G
         </tr>
         <tr>
           <th valign="top">MyBatis3</th>
-          <td>With the value, MBG will generate objects that are compatible
+          <td><i>This is the default value in the current 1.8.0 core</i><br/>
+            With the value, MBG will generate objects that are compatible
             with MyBatis versions 3.0 and higher, and JSE 5.0 and higher (e.g. the
             Java model and mapper interfaces will use generic types).
             The "by example" methods in these generated objects support virtually

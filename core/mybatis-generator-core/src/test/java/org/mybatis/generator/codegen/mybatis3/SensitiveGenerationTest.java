@@ -70,7 +70,7 @@ class SensitiveGenerationTest {
             <!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
               "mybatis-generator-config_1_8_0.dtd">
             <generatorConfiguration>
-              <context id="sensitive-test" defaultModelType="flat" targetRuntime="MyBatis3"
+              <context id="sensitive-test" defaultModelType="flat"
                 appKeyword="sample" moduleKeyword="sample" moduleName="测试" jdkVersion="17" integrateMybatisPlus="false">
                 <commentGenerator><property name="suppressDate" value="true"/></commentGenerator>
                 <jdbcConnection driverClass="must.not.connect.Driver" connectionURL="jdbc:must-not-connect:test"/>
@@ -498,6 +498,10 @@ class SensitiveGenerationTest {
         assumeTrue(path != null, "仅在明确传入业务配置路径时校验消费者配置");
         try (var reader = Files.newBufferedReader(Path.of(path), StandardCharsets.UTF_8)) {
             Context context = new ConfigurationParser(new ArrayList<>()).parseConfiguration(reader).getContexts().get(0);
+            assertThat(context.getTargetRuntime()).isNull();
+            assertThat(context.getEffectiveTargetRuntime()).isEqualTo("MyBatis3");
+            assertThat(org.mybatis.generator.internal.ObjectFactory.createIntrospectedTableForValidation(context))
+                    .isExactlyInstanceOf(IntrospectedTableMyBatis3Impl.class);
             assertThat(context.getTableConfigurations()).hasSize(8).allSatisfy(table ->
                     assertThat(table.getSensitiveCheckConfigurations()).isEmpty());
             var word = context.getTableConfigurations().stream().filter(table -> "sensitive_word".equals(table.getTableName()))
@@ -519,11 +523,10 @@ class SensitiveGenerationTest {
         java.lang.reflect.Field plugins = Context.class.getDeclaredField("pluginAggregator");
         plugins.setAccessible(true);
         plugins.set(context, new PluginAggregator());
-        IntrospectedTableMyBatis3Impl table = new IntrospectedTableMyBatis3Impl();
-        table.setContext(context);
-        table.setTableConfiguration(context.getTableConfigurations().get(0));
-        table.setFullyQualifiedTable(new FullyQualifiedTable(null, null, "article_", "Article", null,
-                true, null, null, null, false, null, context));
+        IntrospectedTableMyBatis3Impl table = (IntrospectedTableMyBatis3Impl)
+                org.mybatis.generator.internal.ObjectFactory.createIntrospectedTable(
+                        context.getTableConfigurations().get(0), new FullyQualifiedTable(null, null, "article_", "Article", null,
+                                true, null, null, null, false, null, context), context);
         table.setRemarks("文章");
         table.addColumn(column("id_", "id"));
         table.addPrimaryKeyColumn("id_");

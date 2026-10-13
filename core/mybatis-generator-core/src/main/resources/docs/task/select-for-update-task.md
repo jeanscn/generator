@@ -203,3 +203,61 @@ mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,Sensitiv
   结果：`SelectForUpdateGenerationTest` 15 项、`SensitiveGenerationTest` 18 项（1 项按未提供消费者配置路径的既有前置条件跳过）、`SensitiveCheckDescTest` 3 项、`ManagedRelationGenerationTest` 15 项（1 项按未提供业务再生成路径的既有授权门槛跳过）；合计 51 项，49 项通过、2 项跳过、失败/错误均为 0。`SensitiveGenerationTest.offlineOutputBaseline` 同时通过，既有四场景实体/Service/TS 完整输出共 12 个 SHA-256 均未变化。
 - 独立 `mvn -q -pl mybatis-generator-core "-DskipTests" "-Denforcer.skip=true" compile` 成功；针对本次文件执行 `git diff --check HEAD -- ...` 成功。
 - 未连接业务数据库、执行 DDL 或 Sensitive 生成，未安装/发布依赖或部署，未提交 commit。没有任务专用临时文件；Maven 报告仅位于常规 `target\surefire-reports`。
+
+## 9. 已批准的默认运行时与锁查询分项预检修正（2026-10-14）
+
+- 用户明确批准改变生成器全局默认：省略、null、空字符串及纯空白 `targetRuntime` 均按 MyBatis3 处理，不以业务配置补属性绕过。显式 DynamicSql/Simple/Kotlin/自定义类仍走既有工厂分支，未知值必须失败。
+- 根因：之前锁查询与敏感正式 fixture 全部显式 MyBatis3，且直接构造内省表，遗漏真实工厂缺省 DynamicSql 的链路；锁查询预检又以原始精确字符串比较混合多个条件，导致未指定运行时的 Sensitive 配置失败且提示不准确。
+- 整体状态：完成；进度：3/3；更新时间及完成时间：2026-10-14。
+
+| 编号 | 子任务 | 依赖 | 状态 | 验收条件 |
+|---|---|---|---|---|
+| D01 | 共享有效运行时与分项预检 | 无 | 完成 | 2026-10-14：有效运行时由 Context 统一提供，实际内省/验证共用工厂；预检分项检查真实实现与必需输出；主源码编译通过 |
+| D02 | 工厂与未指定运行时离线生成回归 | D01 | 完成 | 2026-10-14：当前 DTD 缺省/空白、四种别名、自定义/未知/构造异常、锁查询与关闭开关回归通过；真实 Sensitive 配置安全离线解析通过 |
+| D03 | 当前 DTD/文档与验证归档 | D02 | 完成 | 2026-10-14：合并指定测试与相关默认配置回归、独立 compile、范围内 diff check 通过；默认兼容性变更及未验证边界已归档 |
+
+- 清理登记：不创建一次性脚本/临时资产；正式测试、任务书与文档保留，构建报告位于仓内 `mybatis-generator-core\target`。不安装/发布依赖、不连接数据库、不修改业务配置或生成业务产物、不提交 commit。
+
+### 9.1 实际实现与兼容边界
+
+- `Context.getEffectiveTargetRuntime()` 是唯一缺省入口；从原始 getter 读取配置，保留原配置值及 Context 子类重写 getter 的既有工厂选择行为，不改变全局字符串工具。已核实 `StringUtility.stringHasValue` 实际仅判 null/empty，因此在有效运行时入口单独补充 `trim()` 后为空的处理；非空且带前后空格的值不自动修剪，继续明确失败。
+- 实际内省 `ObjectFactory.createIntrospectedTable(...)` 与配置验证继续共用 `createIntrospectedTableForValidation(...)`；后者改读有效运行时，四种内置别名的忽略大小写分支、自定义类反射路径及构造异常不变。`RowBoundsPlugin` 是本仓另一处 Context 字符串分支，改读同一入口；其他 Rules/插件使用内省表运行时枚举，不新增另一套缺省解析。Parser 继续保留显式值并由工厂决定实际实现。
+- 锁查询预检由实际工厂实现判断，而不是比较原始字符串。已特别核实 Simple、DynamicSql、Kotlin 均继承 MyBatis3 基类，不能仅用 `instanceof` 放行；工厂必须得到标准 MyBatis3 实现，实际表不能是 Simple 或 DynamicSql 枚举。缺省、mixed-case MyBatis3 及标准实现完整类名可用；显式自定义派生类普通生成仍可反射构造，但与既有锁查询限制一致，不自动放行。未知值与自定义构造异常在工厂显式传播，Context 既有 invalid-runtime 错误收集行为保留。
+- Client XMLMAPPER、可变模型、Model、Mapper/DAO、XML、Service 接口、Service 实现分别检查；缺失或关闭均有精确错误。示例：`表 article_ enableSelectForUpdate：必须启用 Mapper/DAO 输出（generateDao）`；Service 接口关闭报告 `必须启用 Service 接口输出（generateService）`；Simple 报告 `运行时 MyBatis3Simple 不支持锁定查询，要求 MyBatis3 内省实现`。主键、Example、普通查询开关、全部方言预检和默认关闭短路保持原约束。
+- 锁查询和敏感正式 fixture 不再显式设置运行时，且经实际工厂创建内省表；未指定运行时的业务形状配置使用人工列元数据生成完整 Mapper、完整 XML、Service 接口/实现及 guard，缺省/empty/blank/mixed-case/显式 MyBatis3 输出相等。关闭锁开关的缺省普通 Mapper/XML/Service 与显式 MyBatis3 一致；既有 15 项锁查询输出摘要及 12 项敏感完整输出摘要均保持一致。
+- 这不是“所有未配置运行时的旧产物不变”：全局默认从 DynamicSql 切换至 MyBatis3 会改变普通生成链路。当前动态 SQL 测试资源 `scripts\generatorConfig_Dsql.xml` 的首个 context 改为显式 DynamicSql，以保留其原测试目的；其他已有显式示例不必修改。只更新当前 1.8.0 DTD 注释，保持 `#IMPLIED`，不修改历史 DTD；历史版本发布记录保留，新增当前版本说明。旧配置若交给当前 core 执行，也使用当前代码默认，不能以旧 DOCTYPE 保留旧 runtime。
+
+### 9.2 精确文件范围
+
+相对本轮开始工作树，共新增 1 个正式测试、修改 15 个既有文件，全部属于 `mybatis-generator-core`；不回退此前锁查询、敏感、原子递增或其他既有改动：
+
+- `src\main\java\org\mybatis\generator\config\Context.java`
+- `src\main\java\org\mybatis\generator\internal\ObjectFactory.java`
+- `src\main\java\org\mybatis\generator\codegen\mybatis3\SelectForUpdateValidator.java`
+- `src\main\java\org\mybatis\generator\plugins\RowBoundsPlugin.java`
+- `src\test\java\org\mybatis\generator\internal\ObjectFactoryRuntimeTest.java`（新增）
+- `src\test\java\org\mybatis\generator\codegen\mybatis3\SelectForUpdateGenerationTest.java`
+- `src\test\java\org\mybatis\generator\codegen\mybatis3\SensitiveGenerationTest.java`
+- `src\test\resources\scripts\generatorConfig_Dsql.xml`
+- `src\main\resources\org\mybatis\generator\config\xml\mybatis-generator-config_1_8_0.dtd`
+- `src\main\resources\docs\generator-authoritative-spec.md`
+- `src\main\resources\docs\generator-config-guide.md`
+- `src\main\resources\docs\task\select-for-update-task.md`
+- `src\site\xhtml\configreference\context.xhtml`
+- `src\site\xhtml\quickstart.xhtml`
+- `src\site\xhtml\generatedobjects\results.xhtml`
+- `src\site\xhtml\whatsNew.xhtml`
+
+### 9.3 最终验收记录
+
+工作目录：`D:\java\idea_projs14\generator\core`。用户授权的真实 Sensitive 配置只经 Reader/ConfigurationParser 安全离线解析，断言运行时省略及工厂选择为 MyBatis3；没有输出 JDBC 配置/凭据、加载 JDBC 驱动或进行数据库内省，也没有执行业务生成。
+
+```powershell
+mvn -q -pl mybatis-generator-core "-Dtest=SelectForUpdateGenerationTest,SensitiveGenerationTest,ManagedRelationGenerationTest,SensitiveCheckDescTest,ObjectFactoryRuntimeTest,StringUtilityTest,MyBatisGeneratorTest#testGenerateInvalidConfigWithNoConnectionSources+testGenerateInvalidConfigWithTwoConnectionSources" "-Dsensitive.consumer.config=D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\generatorConfig.xml" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" test
+mvn -q -pl mybatis-generator-core "-DskipTests" "-Djava.io.tmpdir=D:\java\idea_projs14\generator\core\mybatis-generator-core\target" "-Denforcer.skip=true" compile
+```
+
+- 最终全部成功：锁查询 17 项；敏感 18 项（真实配置离线解析已执行，不再跳过）；注解描述 3 项；工厂运行时 10 项；字符串工具 4 项；仅选无连接/双连接来源的非法配置 2 项；受管关系 15 项（1 项因未提供业务再生成授权路径跳过）。共 69 项，68 项通过、1 项跳过、0 失败/错误。独立 compile 成功，针对第 9.2 节文件的 `git diff --check HEAD -- ...` 成功。
+- 执行中修正了测试插入位置与 TableConfiguration 构造参数；首轮工厂负向回归揭示 Simple 派生于 MyBatis3，已加强实际实现预检并补 DynamicSql/Kotlin/自定义派生类拒绝回归。XML 需求测试同时配置 XMLMAPPER，避免将没有 Client 的场景误作 XML 必需条件。
+- 未运行全仓/完整数据库生成 suites；没有连接任何数据库、业务内省或真实锁竞争、部署、DDL、菜单操作、Sensitive 受控再生成、依赖安装/发布或 commit。工厂用例覆盖选择及失败机制，不声称任意第三方自定义实现覆盖方法、宿主插件或旧消费者产物全部兼容；消费者须按全局默认迁移说明评估。
+- 清理状态：完成。本轮未创建任务专用临时文件/脚本；正式测试与文档保留，构建产物仅在常规仓内 target，未删除其他工作树资产。

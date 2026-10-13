@@ -306,18 +306,15 @@ public class ObjectFactory {
     }
 
     /**
-     * Creates an introspected table implementation that is only usable for validation .
-     *
+     * 按有效运行时创建用于验证的内省表，实际内省同样复用此入口。
      *
      * @param context
-     *            the context
-     * @return the introspected table
+     *            生成上下文
+     * @return 对应运行时的内省表
      */
     public static AbstractIntrospectedTable createIntrospectedTableForValidation(Context context) {
-        String type = context.getTargetRuntime();
-        if (!stringHasValue(type)) {
-            type = IntrospectedTableMyBatis3DynamicSqlImpl.class.getName();
-        } else if ("MyBatis3".equalsIgnoreCase(type)) {
+        String type = context.getEffectiveTargetRuntime();
+        if ("MyBatis3".equalsIgnoreCase(type)) {
             type = IntrospectedTableMyBatis3Impl.class.getName();
         } else if ("MyBatis3Simple".equalsIgnoreCase(type)) {
             type = IntrospectedTableMyBatis3SimpleImpl.class.getName();

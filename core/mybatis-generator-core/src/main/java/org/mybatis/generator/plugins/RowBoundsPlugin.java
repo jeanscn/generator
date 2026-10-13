@@ -34,7 +34,7 @@ public class RowBoundsPlugin extends PluginAdapter {
 
     @Override
     public boolean validate(List<String> warnings) {
-        if ("MyBatis3DynamicSql".equalsIgnoreCase(context.getTargetRuntime())) {
+        if ("MyBatis3DynamicSql".equalsIgnoreCase(context.getEffectiveTargetRuntime())) {
             warnings.add(Messages.getString("Warning.30"));
             return false;
         }
