@@ -48,6 +48,12 @@ public class VoAbstractGenerator extends AbstractVoGenerator {
         for (IntrospectedColumn introspectedColumn : abstractVoColumns) {
             Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);
             field.setVisibility(JavaVisibility.PROTECTED);
+            if (introspectedTable.getTableConfiguration().isCasWriteContractEnabled()
+                    && "version_".equals(introspectedColumn.getActualColumnName())) {
+                field.addAnnotation("@NotNull(groups = ValidateUpdate.class)");
+                abstractVo.addImportedType("jakarta.validation.constraints.NotNull");
+                abstractVo.addImportedType("com.vgosoft.core.valid.ValidateUpdate");
+            }
             if (plugins.voAbstractFieldGenerated(field, abstractVo, introspectedColumn, introspectedTable)) {
                 abstractVo.addField(field);
                 abstractVo.addImportedType(field.getType());

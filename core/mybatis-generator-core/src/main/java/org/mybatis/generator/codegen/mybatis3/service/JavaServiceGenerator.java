@@ -58,6 +58,10 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizInf.addSuperInterface(infSuperType);
         classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",infSuperType.getShortNameWithoutTypeArguments()));
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        if (introspectedTable.getRules().generateCasWriteContract()) {
+            bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, false, true, true));
+            bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, true, true, true));
+        }
         if (introspectedTable.getRules().generateSelectByPrimaryKeyForUpdate()) {
             bizInf.addMethod(serviceMethods.getSelectByPrimaryKeyForUpdateMethod(bizInf, true, true));
         }

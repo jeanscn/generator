@@ -487,6 +487,11 @@ public class Context extends PropertyHolder {
         generatedHtmlFiles.addAll(pluginAggregator.contextGenerateAdditionalHtmlFiles());
         generatedKotlinFiles.addAll(pluginAggregator.contextGenerateAdditionalKotlinFiles());
         otherGeneratedFiles.addAll(pluginAggregator.contextGenerateAdditionalFiles());
+        var casTables = introspectedTables.stream().filter(t -> t.getTableConfiguration().isCasWriteContractEnabled()).toList();
+        if (!casTables.isEmpty()) {
+            otherGeneratedFiles.add(new org.mybatis.generator.codegen.mybatis3.CasWriteContractGeneratedFile(
+                    casTables, generatedJavaFiles, generatedXmlFiles));
+        }
 
     }
 

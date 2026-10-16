@@ -111,6 +111,8 @@
 
 - 规范来源：依赖包 `com.vgosoft:vgosoft-core-db`。
 - 参考文档：`docs/databaseConstructionSpec.md`（位于 `vgosoft-core-db` 源码包内）。
+- 当前本机依赖源码位置：`D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db`。排查数据库查询、元数据模型或方言实现问题时，需同时检查该源码包中的 `DatabaseQuery`、对应方言的 `*DataBaseQuery`、模型映射及 JDBC 元数据来源，不要只依据生成器内适配器的返回结果推断根因。
+- 列元数据异常排查入口：生成器 `DatabaseIntrospector` -> `DatabaseQueryMetadataAdapter` -> 依赖包的方言查询实现/列模型 -> JDBC `DatabaseMetaData`。例如 MySQL 列查询入口为 `src\main\java\com\vgosoft\core\db\query\mysql\MySqlDataBaseQuery.java`，其列字段映射模型为 `src\main\java\com\vgosoft\core\db\query\mysql\model\MySqlColumnModel.java`；确认异常值产生层后再修改对应实现。
 - 版本规则：以当前项目实际依赖的 `vgosoft-core-db` 版本内文档为准。
 - 列名约束：列名必须至少包含一个 `_`；单个单词的列名必须在末尾补 `_`，例如 `name_`、`sort_`。
 - 方言覆盖：支持的数据库方言必须覆盖 `DatabaseType`（包名：`com.vgosoft.core.db.query`）枚举所有项；新增枚举项时，必须同步补齐解析、DDL、SQL 生成和文档约束。

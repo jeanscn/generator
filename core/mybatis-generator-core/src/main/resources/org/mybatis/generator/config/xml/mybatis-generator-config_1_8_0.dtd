@@ -208,6 +208,8 @@
             6、enableSelectByExample 是否生成selectByExample方法，默认true
             enableSelectForUpdate 是否生成独立锁定查询，默认false；要求非只读既有事务，
             不支持DISTINCT、无条件查询、动态排序、分页或未验证的锁语法方言。
+            enableCasWriteContract 表级受管CAS输出，仅允许true/false；省略关闭。
+            仅支持已核验MyBatis3 XMLMAPPER可变继承版本模型、mysql/h2；必须显式加载契约和执行门禁。
             7、enableUpdateByPrimaryKey 是否生成updateByPrimaryKey方法，默认true
             8、enableDeleteByPrimaryKey 是否生成deleteByPrimaryKey方法，默认true
             9、enableDeleteByExample 是否生成deleteByExample方法，默认true
@@ -289,6 +291,7 @@
                 enableSelectByPrimaryKey (true|false) #IMPLIED
                 enableSelectByExample (true|false) #IMPLIED
                 enableSelectForUpdate (true|false) "false"
+                enableCasWriteContract (true|false) #IMPLIED
                 enableUpdateByPrimaryKey (true|false) #IMPLIED
                 enableDeleteByPrimaryKey (true|false) #IMPLIED
                 enableDeleteByExample (true|false) #IMPLIED

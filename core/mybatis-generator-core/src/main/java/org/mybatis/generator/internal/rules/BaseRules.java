@@ -134,6 +134,15 @@ public abstract class BaseRules implements Rules {
         return tc.isInsertBatchStatementEnabled();
     }
 
+
+    @Override
+    public boolean generateCasWriteContract() {
+        if (isModelOnly) {
+            return false;
+        }
+        return tc.isCasWriteContractEnabled();
+    }
+
     @Override
     public boolean generateInsertOrUpdate() {
         if (isModelOnly) {

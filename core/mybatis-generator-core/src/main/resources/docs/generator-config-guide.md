@@ -1,5 +1,15 @@
 # generatorConfig.xml 配置指南
 
+## 受管 CAS 输出（1.8.0）
+
+- 当前 DTD 的 table 属性 `enableCasWriteContract="true"` 为显式 opt-in；省略或 false 保持旧输出。DTD 空白归一化前再按统一表规则严格校验，空字符串、纯空白、`TRUE`、` true ` 均拒绝。该开关与 context Plus 生成开关及宿主工厂无控制关系。
+- 首期只接受可变 MyBatis3/XMLMAPPER、已核验的 `AbstractPersistenceLockEntity` / `AbstractPersistenceLockSortableEntity`、单非自增 String/VARCHAR id_、Integer/INTEGER 非空 version_、LocalDateTime/TIMESTAMP 审计时间、String/VARCHAR 审计身份，以及 mysql/h2。缺 Model/Mapper/XML/Service、generatedKey、未知父类、复合主键、关系级联、错误类型及其他方言预检失败，不静默修正配置。
+- 复用实际 Maven 入口调用的 `ConfigurationParser.customConfig`（既有插件、JSR310 等）；只调用原始 Parser 的输出不是完整 Maven 自定义链。测试分别保留这两条路径，不能临时补 runtime 或输出开关伪装消费者配置。
+- 增加 `updateByPrimaryKeyCas(record, expectedVersion)` / `updateByPrimaryKeySelectiveCas(record, expectedVersion)`；Mapper 返回 int 并使用两 `@Param`，Service 返回 `ServiceResult<T>`。旧版本从 Update VO 独立传入，不从 Entity 默认 1 推导。Update 校验组为 version 生成 `@NotNull`，Update 不初始化、Create 保留 1；完整 NULL/selective 非空语义不改。
+- insert/insertSelective/insertBatch 保留签名且 SQL 固定版本 1。CAS 服务用 MANDATORY 事务、不吞冲突；旧 Example/CASE/upsert/删除/无版本写服务显式拒绝，Mapper 所有其他写节点均变为受管固定 `ENTRY_DISABLED`。MyBatis BatchExecutor 仍不支持，insertBatch 是一条多值 SQL。
+- 按 context.moduleKeyword 聚合唯一 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议 `managed-cas-1`，不硬编码业务名。逐表和 context 插件回调之后验证必需 Java 文件/签名、服务事务与异常传播及全部非 SELECT SQL；插件否决、重复、未知写或语义篡改失败。资源须在原工厂显式装载，没有生产扫描或审计自动装配。
+- `CasWriteGenerationTest` 对比完整原始输出基线及默认/false 全输出，检验真实 metadata 替身和插件负例。`CasConsumerBaselineTest` 保留实际八表配置及开关形状，去敏替换连接/驱动、重定向输出，`generate(..., false)` 后仅捕获 target 产物。`sc03.cas=true`、`sc03.h2=true`、`sc03.baseline.name=sc03-final-generated` 用于两步跨仓测试；业务配置不加 H2、不运行业务生成入口。精确证据见 [Sensitive SC03 任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\sensitive-functional-implementation-task.md)；运行契约见 [basic 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
+
 > 读法约定：**DTD 定义结构**，**源码定义真实行为**。当两者不一致时，以源码行为为准。
 
 ## 1. 根结构
@@ -38,7 +48,7 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | `moduleName` | 模块中文名 | 用于展示/模块数据。 |
 | `jdkVersion` | JDK 版本 | 必填，取值 `8/9/11/17/21`。 |
 | `targetRuntime` | 生成运行时 | 当前 1.8.0：省略、null、空字符串或纯空白默认 `MyBatis3`；显式内置名称忽略大小写，其他非空值按实现类名解析。 |
-| `integrateMybatisPlus` | 是否集成 MP | 默认 `true`。 |
+| `integrateMybatisPlus` | 当前 `context` 下生成物是否包含 MyBatis-Plus 相关内容 | 默认 `true`；仅控制生成输出，不决定宿主工程是否集成 MyBatis-Plus。 |
 | `integrateSpringSecurity` | 是否集成安全组件 | 默认 `true`。 |
 | `forceUpdateScalableElement` | 是否强制覆盖可扩展元素 | 配合 `forceUpdateElementList` 使用。 |
 | `parentMenuId` | 菜单父级 | 生成 view 时可继承。 |
@@ -52,6 +62,8 @@ DTD 维护只修改当前版本文件，保留历史版本契约；元素、属�
 | `sqlMapGenerator` | XML Mapper 生成器 | Mapper XML 输出。 |
 | `javaClientGenerator` | Java Client 生成器 | Mapper/DAO 接口。 |
 | `reusableElements` | 可复用表配置 | 供多表共享的 UI / 值转换 / 列配置。 |
+
+`integrateMybatisPlus` 是 `context` 级生成选项，对该 context 下的表生成物生效。例如设为 `false` 时，不生成由该选项控制的 MyBatis-Plus 专属内容，如 Mapper 接口上的 Plus `Mapper<T>` 继承、模型/字段上的 Plus 注解。它不表示消费宿主未依赖或未启用 MyBatis-Plus，也不控制宿主的依赖、自动配置、`SqlSessionFactory` 或插件；宿主运行时集成情况须独立核对。DTD 接受该属性不等于切换或排除宿主运行框架。
 
 ### `additionalDbTypes` 说明
 

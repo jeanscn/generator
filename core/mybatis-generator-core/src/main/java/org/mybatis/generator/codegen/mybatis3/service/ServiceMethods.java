@@ -62,6 +62,48 @@ public class ServiceMethods {
     }
 
     /**
+     * 创建独立旧版本的主键 CAS 签名，不从实体初始版本推导更新前置条件。
+     *
+     * @param unit 目标编译单元
+     * @param selective 是否保持选择性非空更新语义
+     * @param service 是否返回服务结果
+     * @param abstractMethod 是否为接口方法
+     * @return 完整方法签名
+     */
+    public Method getCasWriteMethod(CompilationUnit unit, boolean selective, boolean service, boolean abstractMethod) {
+        Method method = new Method(selective ? "updateByPrimaryKeySelectiveCas" : "updateByPrimaryKeyCas");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setAbstract(abstractMethod);
+        FullyQualifiedJavaType model = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        unit.addImportedType(model);
+        var record = new Parameter(model, "record");
+        var version = new Parameter(FullyQualifiedJavaType.getIntegerInstance(), "expectedVersion");
+        if (!service) {
+            unit.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
+            record.addAnnotation("@Param(\"record\")");
+            version.addAnnotation("@Param(\"expectedVersion\")");
+        }
+        method.addParameter(record);
+        method.addParameter(version);
+        FullyQualifiedJavaType result = FullyQualifiedJavaType.getIntInstance();
+        if (service) {
+            result = new FullyQualifiedJavaType(SERVICE_RESULT);
+            result.addTypeArgument(model);
+            unit.addImportedType(result);
+        }
+        method.setReturnType(result);
+        method.addJavaDocLine("/**");
+        method.addJavaDocLine(selective ? " * 按独立旧版本更新非空业务字段，空业务选择拒绝。"
+                : " * 按独立旧版本完整更新业务字段，保留可空字段的 NULL 语义。");
+        method.addJavaDocLine(" * @param record 不被执行层回写的业务记录");
+        method.addJavaDocLine(" * @param expectedVersion 请求显式提供的正旧版本，禁止从实体默认值补齐");
+        method.addJavaDocLine(" * @return " + (service ? "更新成功的服务结果" : "严格为一的影响行数"));
+        method.addJavaDocLine(" * @throws RuntimeException 缺版本、冲突或受管执行条件不满足，异常必须传播以回滚");
+        method.addJavaDocLine(" */");
+        return method;
+    }
+
+    /**
      * 创建条件锁定查询签名，供 Mapper 与服务接口、实现共用。
      *
      * @param unit 目标编译单元

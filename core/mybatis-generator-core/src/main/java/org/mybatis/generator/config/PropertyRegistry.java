@@ -18,6 +18,8 @@ public class PropertyRegistry {
      * recognized by table and java model generator.
      */
     public static final String ROOT_CLASS = "rootClass";
+    /** 表级受管 CAS 开关，省略时关闭。 */
+    public static final String TABLE_ENABLE_CAS_WRITE_CONTRACT = "enableCasWriteContract";
     public static final String  ROOT_CLASS_TYPE_ARGUMENTS = "rootClassTypeArguments";
     public static final String  ROOT_SUPER_INTERFACE = "superInterface";
     public static final String ANY_IMMUTABLE = "immutable";

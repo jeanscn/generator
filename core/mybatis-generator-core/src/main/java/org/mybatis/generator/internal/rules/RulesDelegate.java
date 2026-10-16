@@ -118,6 +118,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean generateCasWriteContract() {
+        return rules.generateCasWriteContract();
+    }
+
+    @Override
     public boolean generateInsertSelective() {
         return rules.generateInsertSelective();
     }

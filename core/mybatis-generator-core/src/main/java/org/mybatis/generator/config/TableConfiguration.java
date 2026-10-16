@@ -32,25 +32,22 @@ import static org.mybatis.generator.internal.util.StringUtility.*;
 @Setter
 @Getter
 public class TableConfiguration extends PropertyHolder {
+    private boolean casWriteContractEnabled;
+
+    /**
+     * 严格解析表级受管 CAS 开关，省略时关闭，不归一化非法值。
+     *
+     * @param value 原始属性值，省略时为 null
+     */
+    public void parseEnableCasWriteContract(String value) {
+        if (value != null && !"true".equals(value) && !"false".equals(value)) {
+            throw new IllegalArgumentException("表 " + getTableName()
+                    + " enableCasWriteContract 仅允许 true 或 false，省略表示关闭");
+        }
+        casWriteContractEnabled = "true".equals(value);
+    }
+
     private boolean selectForUpdateEnabled;
-
-    /**
-     * 返回是否生成独立锁定查询。
-     *
-     * @return 独立锁定查询开关
-     */
-    public boolean isSelectForUpdateEnabled() {
-        return selectForUpdateEnabled;
-    }
-
-    /**
-     * 设置独立锁定查询开关，默认关闭。
-     *
-     * @param enabled 是否启用独立锁定查询
-     */
-    public void setSelectForUpdateEnabled(boolean enabled) {
-        selectForUpdateEnabled = enabled;
-    }
 
     private boolean insertStatementEnabled;
 

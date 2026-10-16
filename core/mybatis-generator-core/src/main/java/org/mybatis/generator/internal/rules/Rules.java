@@ -473,6 +473,14 @@ public interface Rules {
     boolean generateInsertBatch();
 
     /**
+     * 是否生成独立的CAS写入接口
+     * @return true if the method should be generated
+     */
+    default boolean generateCasWriteContract() {
+        return getIntrospectedTable().getTableConfiguration().isCasWriteContractEnabled();
+    }
+
+    /**
      * 是否生成UpdateBatch
      * @return true if the method should be generated
      */

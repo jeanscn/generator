@@ -7,6 +7,14 @@
 
 ---
 
+## 受管 CAS 生成能力（1.8.0，源码已实现，尚未发布）
+
+table 属性 `enableCasWriteContract` 省略默认关闭，仅字面 `true`/`false` 合法，空白和大小写变体拒绝。它不控制宿主是否使用 MyBatis-Plus，也不改变 `integrateMybatisPlus` 的现有生成行为。仅承诺可变 MyBatis3/XMLMAPPER、已核验的继承 Integer version 模型、单字符串 id_ 主键及 mysql/h2；缺输出、缺列、错误类型、关系级联、生成键及未知方言明确失败。
+
+启用表输出独立 `record + expectedVersion` 的完整/选择性主键 CAS Mapper/Service；新增固定 version=1，更新 version 自增并保持原 NULL 语义。旧无版本更新、CASE、Example、upsert、物理删除和原始 SQL 写入口显式拒绝；已有 insertBatch 是受控一条多值 SQL。服务异常传播以保留外层事务回滚，生产业务摘要/revision/墓碑不由通用生成器承担。
+
+每个 context 聚合一份 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议为 basic 的 `managed-cas-1`；必需 Model、Mapper、XML、Service、已配置 VO/MapStruct 输出在插件回调之后再核验，否决或篡改不得部分成功。资源需要在原工厂显式加载，不生成生产自动扫描或审计装配。详细配置及验证入口见[配置指南：受管 CAS](generator-config-guide.md#受管-cas-输出180)；运行契约唯一来源为 [basic MyBatis 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
+
 ## 1. 文档定位
 
 - **面向对象**：方案设计者、架构师、AI 生成代理
@@ -14,6 +22,16 @@
 - **核心目标**：减少两类误判
   1) 本可配置生成，却误判成“必须二开”
   2) 配置无法覆盖，却误判成“可直接生成”
+
+### 1.1 列标志内省契约（1.8.0）
+
+列适配路径通过 core-db `Column.getIsGeneratedColumn()`、`getIsAutoIncrement()` 读取标志，不再反射查找不存在的 `getGeneratedColumn`/`getAutoIncrement`。所有方言采用相同布尔标志解释（YES/Y/TRUE/1 为真；缺失为 false），默认值仍独立保存；false 在缺失标志时仅表示内省未取得真值，不代表数据库能力保证。
+
+MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db `JdbcUtils.getMySqlGeneratedColumns`，按结果集的实际 catalog/table 分组只读补充 EXTRA，并与适配路径共享识别规则，不能再次信任驱动把 `DEFAULT_GENERATED` 误报成 YES 的值。查询失败或实际列缺失显式抛出 SQLException；不允许以错误标志继续生成。其他方言保留 JDBC 标志语义。适配器失败后的部分结果清空后才开始 JDBC 兜底，避免重复列；兜底结果集异常时也会关闭。
+
+无需变更配置或 DTD；须先更新本地/供应仓的 `vgosoft-core-db:7.0.0-SNAPSHOT`，再构建/安装 `mybatis-generator-core:1.8.0-SNAPSHOT`，核实 Maven 插件实际加载的依赖，而非只核对业务主依赖。此修复可能使旧版本被静默置为 false 的真实生成列/自增列恢复真值；不自动批准业务再生成。
+
+正式回归入口：`internal.db.DatabaseIntrospectorColumnFlagsTest`（真实查询工厂/适配器及 JDBC 代理覆盖双路径、五种 MySQL 系方言、未知标志和异常），以及既有 `DatabaseIntrospectorTypeResolutionTest`、`DatabaseQueryMetadataAdapterTest`。元数据归一化权威语义见 [数据库规范 §1.1](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#11-列元数据标志契约)；离线结果不代替真实数据库、业务再生成或宿主验收。
 
 ---
 

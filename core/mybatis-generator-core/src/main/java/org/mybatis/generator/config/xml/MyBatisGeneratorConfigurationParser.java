@@ -415,6 +415,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         String enableSelectByExample = attributes
                 .getProperty("enableSelectByExample");
+        tc.parseEnableCasWriteContract(attributes.getProperty(PropertyRegistry.TABLE_ENABLE_CAS_WRITE_CONTRACT));
         String enableSelectForUpdate = attributes.getProperty("enableSelectForUpdate");
         if (enableSelectForUpdate != null) {
             if (!"true".equals(enableSelectForUpdate) && !"false".equals(enableSelectForUpdate)) {
