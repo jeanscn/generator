@@ -11,7 +11,7 @@
 
 table 属性 `enableCasWriteContract` 省略默认关闭，仅字面 `true`/`false` 合法，空白和大小写变体拒绝。它不控制宿主是否使用 MyBatis-Plus，也不改变 `integrateMybatisPlus` 的现有生成行为。仅承诺可变 MyBatis3/XMLMAPPER、已核验的继承 Integer version 模型、单字符串 id_ 主键及 mysql/h2；缺输出、缺列、错误类型、关系级联、生成键及未知方言明确失败。
 
-启用表输出独立 `record + expectedVersion` 的完整/选择性主键 CAS Mapper/Service；新增固定 version=1，更新 version 自增并保持原 NULL 语义。旧无版本更新、CASE、Example、upsert、物理删除和原始 SQL 写入口显式拒绝；已有 insertBatch 是受控一条多值 SQL。服务异常传播以保留外层事务回滚，生产业务摘要/revision/墓碑不由通用生成器承担。
+启用表输出独立 `record + expectedVersion` 的完整/选择性主键 CAS Mapper/Service；新增固定 version=1，更新 version 自增并保持原 NULL 语义。旧无版本更新、CASE、Example、upsert、物理删除和原始 SQL 写入口显式拒绝；已有 insertBatch 是受控一条多值 SQL。显式配置的按列逻辑删除可增加单值 id/version 的 `LOGICAL_DELETE`，不放开旧物理删除；必须同步更新支持该操作的 basic 运行工件。服务异常传播以保留外层事务回滚，生产业务摘要/revision/墓碑不由通用生成器承担。
 
 每个 context 聚合一份 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议为 basic 的 `managed-cas-1`；必需 Model、Mapper、XML、Service、已配置 VO/MapStruct 输出在插件回调之后再核验，否决或篡改不得部分成功。资源需要在原工厂显式加载，不生成生产自动扫描或审计装配。详细配置及验证入口见[配置指南：受管 CAS](generator-config-guide.md#受管-cas-输出180)；运行契约唯一来源为 [basic MyBatis 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
 
@@ -46,6 +46,7 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 | 应用层 | Service / ServiceImpl / Controller（含常用接口） | 列表、详情、新增、修改、删除、批量、导入导出等骨架统一 |
 | DTO/VO | modelVo/createVo/updateVo/requestVo/viewVo/excelVo | 读写分离、查询入参、展示出参可统一建模 |
 | 关系查询 | `selectByColumn` / `selectByTable` / `selectBySqlMethod` | 可覆盖按列、经中间表、多层级 SQL 方法查询 |
+| 按列逻辑删除 | `selectByColumn` 的显式 `property isLogicalDelete=true` | 默认仍物理删除；MyBatis3/XMLMAPPER 下原子更新 delete_flag 与可选版本；受管 CAS 保持可信审计、参数隔离及事务门禁，业务墓碑/revision/引用规则由服务重写；配置与边界见[指南 §8.1](generator-config-guide.md#81-按列逻辑删除) |
 | 统计 | `generateDateDimStatistics` / `generateCustomStatistics` | 常规统计口径可配置化 |
 | 值转换 | `overridePropertyValue` / `columnRenderFun` | “存值-显文案”与展示态渲染可配置 |
 | 敏感检测元数据 | table `sensitiveCheck`、实体字段注解、具体 Service 写方法/事务标记、TS 字段映射 | 当前 1.8.0 源码已实现并通过无数据库回归；只有 opt-in 表改变输出，检测运行时与业务受控再生成须独立接入/验收 |

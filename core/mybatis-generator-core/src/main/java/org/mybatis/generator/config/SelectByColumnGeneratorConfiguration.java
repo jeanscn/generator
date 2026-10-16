@@ -76,15 +76,32 @@ public class SelectByColumnGeneratorConfiguration extends PropertyHolder {
         return parameterList;
     }
 
+    /**
+     * 严格解释显式逻辑删除开关，不将拼写错误静默降级为物理删除。
+     *
+     * @return 是否生成逻辑删除
+     */
+    public boolean isLogicalDelete() {
+        String value = getProperty("isLogicalDelete");
+        if (value == null || "false".equals(value)) {
+            return false;
+        }
+        if ("true".equals(value)) {
+            return true;
+        }
+        throw new IllegalArgumentException("selectByColumn " + columnNames
+                + " 的 isLogicalDelete 仅允许 true 或 false");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) { return false; }
         SelectByColumnGeneratorConfiguration that = (SelectByColumnGeneratorConfiguration) o;
-        return enableDelete == that.enableDelete && returnType == that.returnType && Objects.equals(columnNames, that.columnNames) && Objects.equals(orderByClause, that.orderByClause) && Objects.equals(returnTypeParam, that.returnTypeParam) && Objects.equals(parameterType, that.parameterType) && Objects.equals(parameterList, that.parameterList);
+        return enableDelete == that.enableDelete && isLogicalDelete() == that.isLogicalDelete() && returnType == that.returnType && Objects.equals(columnNames, that.columnNames) && Objects.equals(orderByClause, that.orderByClause) && Objects.equals(returnTypeParam, that.returnTypeParam) && Objects.equals(parameterType, that.parameterType) && Objects.equals(parameterList, that.parameterList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(columnNames, orderByClause, returnTypeParam, parameterType, enableDelete, parameterList, returnType);
+        return Objects.hash(columnNames, orderByClause, returnTypeParam, parameterType, enableDelete, parameterList, returnType, isLogicalDelete());
     }
 }

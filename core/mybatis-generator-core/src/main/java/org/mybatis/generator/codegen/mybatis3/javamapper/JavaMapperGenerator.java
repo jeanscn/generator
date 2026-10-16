@@ -264,6 +264,10 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
                 .filter(SelectByColumnGeneratorConfiguration::isEnableDelete)
                 .forEach(c -> {
                     Method method = serviceMethods.getDeleteByColumnMethod(interfaze, c, true);
+                    if (c.isLogicalDelete()) {
+                        interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
+                        method.getParameters().forEach(p -> p.addAnnotation("@Param(\"" + p.getName() + "\")"));
+                    }
                     interfaze.addMethod(method);
                 });
     }
@@ -272,6 +276,10 @@ public class JavaMapperGenerator extends AbstractJavaClientGenerator {
         if (!introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration config : introspectedTable.getTableConfiguration().getSelectByColumnGeneratorConfigurations()) {
                 Method method = serviceMethods.getSelectByColumnMethod(entityType, interfaze, config, true);
+                if (config.isLogicalDelete()) {
+                    interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
+                    method.getParameters().forEach(p -> p.addAnnotation("@Param(\"" + p.getName() + "\")"));
+                }
                 interfaze.addMethod(method);
             }
         }

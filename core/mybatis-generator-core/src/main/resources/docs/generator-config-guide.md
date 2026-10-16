@@ -7,6 +7,7 @@
 - 复用实际 Maven 入口调用的 `ConfigurationParser.customConfig`（既有插件、JSR310 等）；只调用原始 Parser 的输出不是完整 Maven 自定义链。测试分别保留这两条路径，不能临时补 runtime 或输出开关伪装消费者配置。
 - 增加 `updateByPrimaryKeyCas(record, expectedVersion)` / `updateByPrimaryKeySelectiveCas(record, expectedVersion)`；Mapper 返回 int 并使用两 `@Param`，Service 返回 `ServiceResult<T>`。旧版本从 Update VO 独立传入，不从 Entity 默认 1 推导。Update 校验组为 version 生成 `@NotNull`，Update 不初始化、Create 保留 1；完整 NULL/selective 非空语义不改。
 - insert/insertSelective/insertBatch 保留签名且 SQL 固定版本 1。CAS 服务用 MANDATORY 事务、不吞冲突；旧 Example/CASE/upsert/删除/无版本写服务显式拒绝，Mapper 所有其他写节点均变为受管固定 `ENTRY_DISABLED`。MyBatis BatchExecutor 仍不支持，insertBatch 是一条多值 SQL。
+- 显式 `selectByColumn/property isLogicalDelete=true` 可增加受管 `LOGICAL_DELETE`，仅允许单值 id_/version_；其他删除仍拒绝。配置、Controller 参数形状、默认兼容和运行依赖要求见第 8.1 节。
 - 按 context.moduleKeyword 聚合唯一 `META-INF\vgosoft\write-contracts\<moduleKeyword>.xml`，协议 `managed-cas-1`，不硬编码业务名。逐表和 context 插件回调之后验证必需 Java 文件/签名、服务事务与异常传播及全部非 SELECT SQL；插件否决、重复、未知写或语义篡改失败。资源须在原工厂显式装载，没有生产扫描或审计自动装配。
 - `CasWriteGenerationTest` 对比完整原始输出基线及默认/false 全输出，检验真实 metadata 替身和插件负例。`CasConsumerBaselineTest` 保留实际八表配置及开关形状，去敏替换连接/驱动、重定向输出，`generate(..., false)` 后仅捕获 target 产物。`sc03.cas=true`、`sc03.h2=true`、`sc03.baseline.name=sc03-final-generated` 用于两步跨仓测试；业务配置不加 H2、不运行业务生成入口。精确证据见 [Sensitive SC03 任务书](D:\java\idea_projs7\project-vgosoft\vgosoft-sensitive\src\main\resources\docs\task\sensitive-functional-implementation-task.md)；运行契约见 [basic 能力 §6.4](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-mybatis\src\main\resources\docs\vgosoft-mybatis-capability-overview.md#64-生成器受管-cas-契约managed-cas-1未发布)。
 
@@ -685,6 +686,39 @@ Vue3 列表、编辑、详情、Hooks 和列插槽文件，仅当既有目标文
 | `generateDateDimStatistics` | 时间维度统计 | `total/yoy/mom`。 |
 | `generateCustomStatistics` | 自定义统计 | 支持 `joinTableClause`。 |
 | `joinTableClause` | 统计关联表 | 连接表达式必须是 SQL 表达式。 |
+
+### 8.1 按列逻辑删除
+
+1.8.0 源码已实现，尚未安装或发布。
+
+```xml
+<selectByColumn column="id_,version_" enableDelete="true"
+                parameterType="single" genControllerMethod="true">
+    <property name="isLogicalDelete" value="true"/>
+</selectByColumn>
+```
+
+当前 DTD 允许 `selectByColumn` 包含 `property*`，Parser 复用既有属性解析。`isLogicalDelete` 仅接受字面 `true` / `false`，省略或 false 保持原物理删除全部输出；空值、空白及大小写变体明确失败，不静默退回硬删除。使用旧版 core/DTD 不支持该配置，须同步供应当前生成器及运行依赖。
+
+| 项目 | 显式逻辑删除契约 |
+| --- | --- |
+| 适用范围 | MyBatis3/XMLMAPPER；实际表须含非空、可写的 Integer/INTEGER `delete_flag`，固定 0 有效、1 删除 |
+| 无版本表 | 按配置列等值或 IN 交集更新 `delete_flag=1`，附加 `delete_flag=0`；列表不是逐行条件配对 |
+| 有 `version_` 的表 | 必须提交完整主键及旧版本，单值参数；版本列须为非空可写 Integer/INTEGER 或 Long/BIGINT；同条 UPDATE 更新标志和版本加一，拒绝不完整条件、版本化列表及溢出 |
+| Controller | 仅 `genControllerMethod=true` 输出，示例为 `POST {basePath}/delete-by-column-id-and-version`；`@RequestParam` 接收 String id、Integer version，可用 query/form 传参，不是 JSON 请求体；复用既有 delete 权限及操作日志，未启用 Spring Security 时遵循现有开关 |
+| Service/Mapper | `int deleteByColumnIdAndVersion(String id, Integer version)`，Mapper 参数显式 `@Param`；Service 不捕获失败，版本表要求影响行数严格为 1，重复删除/旧版本抛出冲突，不伪装幂等成功 |
+| 事务/缓存/事件 | 普通逻辑删除 Service 为 REQUIRED、Exception 回滚；沿用 mutation cache eviction。新分支不发布旧物理 PRE_DELETE/DELETED 事件，业务如需要应在扩展层单独编排 |
+| 默认兼容 | 不修改普通删除、旧 GET/POST 物理删除、其他表及查询语义；历史 DTD 不变。不要以省略新开关误启用逻辑删除 |
+
+SQL 使用普通 UPDATE、等值/IN 和算术自增，无方言专属函数，不需新增方言分组；受管 CAS 仍按原有 mysql/h2 支持范围逐 `additionalDbTypes` 输出，不扩大运行支持矩阵。
+
+当 table 同时启用 `enableCasWriteContract=true` 时，仅允许 id_/version_ 两个单值条件（配置顺序可以调整），新方法输出明确的 `LOGICAL_DELETE` 声明、StaticWriteLanguageDriver 及 MANDATORY 服务事务；在既有工厂显式装载更新后的契约/门禁，审计由服务端 Provider 提供。SQL 固定 `delete_flag=1`、version 自增、可信修改信息，并以 id/旧 version/`delete_flag=0` 限定一行。原物理删除和其他危险写仍为 ENTRY_DISABLED；直接 Mapper/statementId 同样核验版本、参数隔离、行数及整事务回滚。**该组合需要包含 LOGICAL_DELETE 支持的当前 `vgosoft-mybatis` 工件**，旧 SNAPSHOT 运行包不支持新操作；不能只更新 generator。
+
+通用逻辑删除不计算墓碑摘要、不推进领域 revision、不检查业务引用。Sensitive 后续须在已接管覆盖标记的 Service 扩展壳重写同名方法：统一事务中先取得 revision 门禁、读取并校验，再构造含墓碑的记录，通过既有完整/选择性 CAS 一次写入摘要和删除状态；不能先调用通用逻辑删除再补第二条无版本摘要 UPDATE。Controller 调用的是服务接口，重写后仍可复用路由；业务墓碑/恢复、旧删除路由迁移、批量配对及权限部署另行验收。
+
+源码归属：`SelectByColumnGeneratorConfiguration` / Parser 负责配置，`LogicalDeleteGenerationValidator` 负责实际列/模型预检；沿用 `DeleteByColumnGenerator`、`DeleteByColumnElement`、`JavaMapperGenerator`、`DeleteByColumnElementGenerator` 的分层输出；受管声明与最终插件校验仍由既有 CAS classes 负责。正式回归为 `LogicalDeleteGenerationTest`、basic `LogicalDeleteContractTest` 及 Plus `GeneratedLogicalDeletePlusTest`；隔离生成不代表用户业务生成或宿主已经验收。
+
+### 8.2 关系查询说明
 
 `selectByTable` 的 `thisColumn` 是关系表中属于当前 table 主键的一侧，`otherColumn` 是对端主键的一侧。查询当前实体时，以一个或多个对端 ID 过滤关系表；双向查询需在另一实体下使用相同关系表并交换两列。`javaModelCollection` 是实体上的一对多集合/子查询/级联配置，不会由 `selectByTable` 自动创建或填充关系集合属性。
 

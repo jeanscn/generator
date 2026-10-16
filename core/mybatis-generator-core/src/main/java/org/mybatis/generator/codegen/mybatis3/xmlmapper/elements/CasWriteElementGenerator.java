@@ -25,14 +25,15 @@ public final class CasWriteElementGenerator extends AbstractXmlElementGenerator 
         List<XmlElement> old = parent.getElements().stream().filter(e -> e instanceof XmlElement)
                 .map(e -> (XmlElement) e).filter(e -> Set.of("insert", "update", "delete").contains(e.getName())).toList();
         parent.getElements().removeAll(old);
+        var operations = CasWriteGenerationValidator.operations(introspectedTable);
         for (var db : introspectedTable.getTableConfiguration().getAdditionalDbTypes()) {
             Set<String> ids = new java.util.HashSet<>();
             for (XmlElement element : old) {
                 String id = attribute(element, "id");
-                if (!ids.add(id) || CasWriteGenerationValidator.OPERATIONS.containsKey(id)) { continue; }
+                if (!ids.add(id) || operations.containsKey(id)) { continue; }
                 parent.addElement(statement(introspectedTable, id, db.getCode(), element.getName(), null));
             }
-            CasWriteGenerationValidator.OPERATIONS.entrySet().stream().sorted(java.util.Map.Entry.comparingByKey())
+            operations.entrySet().stream().sorted(java.util.Map.Entry.comparingByKey())
                     .forEach(e -> parent.addElement(statement(introspectedTable, e.getKey(), db.getCode(),
                             e.getValue().startsWith("INSERT") ? "insert" : "update", e.getValue())));
         }
@@ -66,7 +67,16 @@ public final class CasWriteElementGenerator extends AbstractXmlElementGenerator 
         }
         String name = table.getFullyQualifiedTableNameAtRuntime();
         var columns = CasWriteGenerationValidator.writes(table, operation);
-        if (operation.equals("INSERT_BATCH")) {
+        if (operation.equals("LOGICAL_DELETE")) {
+            text(result, "update " + name + " set " + columns.stream().map(c ->
+                    c.getActualColumnName() + " = " + (c.getActualColumnName().equals("delete_flag") ? "1"
+                            : role(c).equals("version") ? c.getActualColumnName() + " + 1" : parameter(c, "")))
+                    .collect(Collectors.joining(",")));
+            var key = table.getPrimaryKeyColumns().get(0);
+            var version = table.getColumn("version_").orElseThrow();
+            text(result, "where " + key.getActualColumnName() + " = " + parameter(key, "") + " and "
+                    + version.getActualColumnName() + " = " + parameter(version, "") + " and delete_flag = 0");
+        } else if (operation.equals("INSERT_BATCH")) {
             text(result, "insert into " + name + " (" + names(columns) + ") values");
             XmlElement loop = node(result, "foreach", "collection", "list", "item", "item", "index", "index", "separator", ",");
             text(loop, "(" + columns.stream().map(c -> role(c).equals("version") ? "1"

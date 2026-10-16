@@ -1302,6 +1302,11 @@ public class TableConfiguration extends PropertyHolder {
         if (!this.getSelectByColumnGeneratorConfigurations().isEmpty()) {
             for (SelectByColumnGeneratorConfiguration configuration : this.getSelectByColumnGeneratorConfigurations()) {
                 configuration.getColumnNames().forEach(n -> abstractIntrospectedTable.getColumn(n).ifPresent(configuration::addColumn));
+                if (configuration.isLogicalDelete() && (configuration.getColumns().isEmpty()
+                        || configuration.getColumnNames().size() != configuration.getColumns().size())) {
+                    throw new IllegalArgumentException("表 " + getTableName()
+                            + " selectByColumn isLogicalDelete 的条件列不存在：" + configuration.getColumnNames());
+                }
                 configuration.setMethodName(JavaBeansUtil.byColumnMethodName(configuration.getColumns(), configuration.getParameterList()));
                 configuration.setDeleteMethodName(JavaBeansUtil.deleteByColumnMethodName(configuration.getColumns(), configuration.getParameterList()));
             }

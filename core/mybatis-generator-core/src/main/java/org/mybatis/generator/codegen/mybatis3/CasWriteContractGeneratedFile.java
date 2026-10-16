@@ -39,6 +39,7 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
                 .append("<requires capability=\"managed-cas-1\"/>\n");
         for (var table : tables) {
             CasWriteGenerationValidator.validate(table);
+            LogicalDeleteGenerationValidator.validate(table);
             checkJava(table, javaFiles);
             appendMapper(xml, table, xmlFiles);
         }
@@ -78,6 +79,26 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
                         "return ServiceResult.success(record, affected);"))) {
                     throw failure(table, "插件后服务 CAS 实现不得捕获冲突或改变调用：" + name);
                 }
+            } else if (CasWriteGenerationValidator.operations(table).getOrDefault(name, "").equals("LOGICAL_DELETE")) {
+                var config = LogicalDeleteGenerationValidator.configurations(table).stream()
+                        .filter(c -> c.getDeleteMethodName().equals(name)).findFirst().orElseThrow();
+                if (!method.getAnnotations().contains("@org.springframework.transaction.annotation.Transactional("
+                        + "propagation = org.springframework.transaction.annotation.Propagation.MANDATORY, rollbackFor = Exception.class)")
+                        || !method.getBodyLines().equals(org.mybatis.generator.codegen.mybatis3.service.elements
+                        .DeleteByColumnElement.logicalBody(table, config))) {
+                    throw failure(table, "插件后逻辑删除实现、事务或冲突传播被改变：" + name);
+                }
+                String signature = config.getColumns().stream().map(c -> c.getFullyQualifiedJavaType().getShortName()
+                        + " " + c.getJavaProperty()).collect(java.util.stream.Collectors.joining(", "));
+                if (!service.contains(name + "(" + signature + ")")) {
+                    throw failure(table, "插件后逻辑删除服务签名缺失：" + name);
+                }
+                String mapperSignature = config.getColumns().stream().map(c -> "@Param(\"" + c.getJavaProperty()
+                        + "\") " + c.getFullyQualifiedJavaType().getShortName() + " " + c.getJavaProperty())
+                        .collect(java.util.stream.Collectors.joining(", "));
+                if (!mapper.contains(name + "(" + mapperSignature + ")")) {
+                    throw failure(table, "插件后逻辑删除 Mapper 签名缺失：" + name);
+                }
             } else if (name.startsWith("update") || name.startsWith("delete") || name.startsWith("insertOrUpdate")
                     || name.startsWith("cleanup") || name.contains("InsertUpdateBatch")) {
                 if (!method.getBodyLines().equals(List.of("throw new IllegalStateException(\"ENTRY_DISABLED\");"))) {
@@ -91,6 +112,11 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
                     || !impl.contains("mapper." + method + "(record, expectedVersion)")
                     || !impl.contains("Propagation.MANDATORY")) {
                 throw failure(table, "插件后 CAS Mapper/Service 签名或事务实现缺失：" + method);
+            }
+            for (var config : LogicalDeleteGenerationValidator.configurations(table)) {
+                if (implementation.getMethods().stream().noneMatch(m -> m.getName().equals(config.getDeleteMethodName()))) {
+                    throw failure(table, "必需逻辑删除服务实现缺失：" + config.getDeleteMethodName());
+                }
             }
         }
         if (entity.matches("(?s).*\\b(?:private|protected|public)\\s+Integer\\s+version\\s*[;=].*")
@@ -147,7 +173,7 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
             String key = id + "@" + db;
             if (!seen.add(key) || table.getTableConfiguration().getAdditionalDbTypes().stream()
                     .noneMatch(d -> d.getCode().equals(db))) { throw failure(table, "重复或未知方言写输出：" + key); }
-            String operation = CasWriteGenerationValidator.OPERATIONS.get(id);
+            String operation = CasWriteGenerationValidator.operations(table).get(id);
             var expected = CasWriteElementGenerator.statement(table, id, db,
                     operation == null ? element.getTagName() : operation.startsWith("INSERT") ? "insert" : "update", operation);
             Document expectedDocument = new Document();
@@ -169,7 +195,7 @@ public final class CasWriteContractGeneratedFile extends AbstractGeneratedFile {
             xml.append("</statement>\n");
         }
         for (var db : table.getTableConfiguration().getAdditionalDbTypes()) {
-            for (String id : CasWriteGenerationValidator.OPERATIONS.keySet()) {
+            for (String id : CasWriteGenerationValidator.operations(table).keySet()) {
                 if (!seen.contains(id + "@" + db.getCode())) { throw failure(table, "必需写输出缺失：" + id + "@" + db.getCode()); }
             }
         }

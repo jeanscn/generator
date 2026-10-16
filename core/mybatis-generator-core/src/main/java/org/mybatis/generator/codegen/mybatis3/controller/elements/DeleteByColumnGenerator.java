@@ -37,6 +37,10 @@ public class DeleteByColumnGenerator extends AbstractControllerElementGenerator 
         if (!config.getGenControllerMethod() || config.getColumns().isEmpty() || !config.isEnableDelete()) {
             return;
         }
+        if (config.isLogicalDelete()) {
+            addLogicalDelete(parentElement);
+            return;
+        }
         if (introspectedTable.getRules().isGenerateVoModel()) {
             parentElement.addImportedType(entityVoType);
             parentElement.addImportedType(entityMappings);
@@ -92,5 +96,38 @@ public class DeleteByColumnGenerator extends AbstractControllerElementGenerator 
         parentElement.addMethod(method);
     }
 
+    private void addLogicalDelete(TopLevelClass parentElement) {
+        Method method = createMethod(config.getDeleteMethodName());
+        method.setReturnType(getResponseResult(ReturnTypeEnum.RESPONSE_RESULT_MODEL,
+                FullyQualifiedJavaType.getIntegerInstance(), parentElement));
+        for (var column : config.getColumns()) {
+            FullyQualifiedJavaType type = column.getFullyQualifiedJavaType();
+            String name = column.getJavaProperty();
+            if (config.getParameterList()) {
+                FullyQualifiedJavaType list = FullyQualifiedJavaType.getNewListInstance();
+                list.addTypeArgument(type);
+                type = list;
+                name += "s";
+                parentElement.addImportedType("java.util.List");
+            }
+            parentElement.addImportedType(column.getFullyQualifiedJavaType());
+            Parameter parameter = new Parameter(type, name);
+            parameter.addAnnotation("@RequestParam(value = \"" + name + "\")");
+            parameter.setRemark(column.getRemarks(false));
+            method.addParameter(parameter);
+        }
+        parentElement.addImportedType("org.springframework.web.bind.annotation.RequestParam");
+        method.addAnnotation(new RequestMappingDesc(VStringUtil.toHyphenCase(config.getDeleteMethodName()),
+                RequestMethodEnum.POST), parentElement);
+        addSecurityPreAuthorize(method, "delete", "删除");
+        method.addAnnotation(new org.mybatis.generator.custom.annotations.SystemLogDesc("按条件逻辑删除记录", introspectedTable),
+                parentElement);
+        method.addAnnotation(new OperationDesc("按指定条件逻辑删除", "按指定条件逻辑删除，版本表须传入客户端旧版本"), parentElement);
+        commentGenerator.addMethodJavaDocLine(method, "按指定条件逻辑删除，冲突或校验失败由服务异常传播");
+        method.setReturnRemark("逻辑删除的记录数");
+        method.addBodyLine("return ResponseResult.success(" + serviceBeanName + "." + config.getDeleteMethodName()
+                + "(" + method.getParameters().stream().map(Parameter::getName).collect(Collectors.joining(", ")) + "));");
+        parentElement.addMethod(method);
+    }
 
 }

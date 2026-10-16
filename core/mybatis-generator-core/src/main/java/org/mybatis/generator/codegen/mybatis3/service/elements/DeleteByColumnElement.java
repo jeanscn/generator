@@ -27,6 +27,18 @@ public class DeleteByColumnElement extends AbstractServiceElementGenerator {
 
     @Override
     public void addElements(TopLevelClass parentElement) {
+        if (configuration.isLogicalDelete()) {
+            Method method = serviceMethods.getDeleteByColumnMethod(parentElement, configuration, false);
+            method.addAnnotation("@Override");
+            method.addAnnotation("@org.springframework.transaction.annotation.Transactional("
+                    + "propagation = org.springframework.transaction.annotation.Propagation."
+                    + (tc.isCasWriteContractEnabled() ? "MANDATORY" : "REQUIRED")
+                    + ", rollbackFor = Exception.class)");
+            method.getBodyLines().addAll(logicalBody(introspectedTable, configuration));
+            addMutationCacheEviction(method, parentElement);
+            parentElement.addMethod(method);
+            return;
+        }
 
         boolean containPreDeleteEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_DELETE.name());
         boolean containDeletedEvent = this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.DELETED.name());
@@ -63,5 +75,39 @@ public class DeleteByColumnElement extends AbstractServiceElementGenerator {
         addMutationCacheEviction(methodByColumn, parentElement);
 
         parentElement.addMethod(methodByColumn);
+    }
+
+    /**
+     * 提供逻辑删除的规范方法体，最终插件校验复用同一契约。
+     *
+     * @param table 已预检表
+     * @param configuration 按列删除配置
+     * @return 不捕获冲突的方法体
+     */
+    public static java.util.List<String> logicalBody(org.mybatis.generator.api.AbstractIntrospectedTable table,
+                                                     SelectByColumnGeneratorConfiguration configuration) {
+        Method method = new Method(configuration.getDeleteMethodName());
+        configuration.getColumns().forEach(column -> {
+            String argument = column.getJavaProperty() + (configuration.getParameterList() ? "s" : "");
+            method.addBodyLine("org.springframework.util.Assert.notNull(" + argument + ", \"删除条件不能为空：" + argument + "\");");
+            if (configuration.getParameterList()) {
+                method.addBodyLine("org.springframework.util.Assert.isTrue(!" + argument
+                        + ".isEmpty() && " + argument + ".stream().noneMatch(java.util.Objects::isNull), \"删除条件列表不能为空或包含空值\");");
+            }
+        });
+        table.getColumn("version_").ifPresent(column -> {
+            String argument = column.getJavaProperty();
+            String max = "BIGINT".equals(column.getJdbcTypeName()) ? "Long.MAX_VALUE" : "Integer.MAX_VALUE";
+            method.addBodyLine("org.springframework.util.Assert.isTrue(" + argument + " > 0 && "
+                    + argument + " < " + max + ", \"旧版本必须为可递增的正数\");");
+        });
+        method.addBodyLine("int affected = mapper." + configuration.getDeleteMethodName() + "("
+                + configuration.getColumns().stream().map(c -> c.getJavaProperty()
+                + (configuration.getParameterList() ? "s" : "")).collect(Collectors.joining(", ")) + ");");
+        method.addBodyLine("if (affected " + (table.getColumn("version_").isPresent() ? "!= 1" : "< 1") + ") {");
+        method.addBodyLine("throw new IllegalStateException(\"LOGICAL_DELETE_CONFLICT\");");
+        method.addBodyLine("}");
+        method.addBodyLine("return affected;");
+        return method.getBodyLines();
     }
 }

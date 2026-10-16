@@ -90,8 +90,23 @@ public final class CasWriteGenerationValidator {
     }
 
     public static List<IntrospectedColumn> writes(AbstractIntrospectedTable table, String operation) {
+        if ("LOGICAL_DELETE".equals(operation)) {
+            return table.getAllColumns().stream().filter(c -> "delete_flag".equals(c.getActualColumnName())
+                    || Set.of("version", "modified", "modified-id").contains(role(c))).toList();
+        }
         return table.getAllColumns().stream().filter(c -> operation.startsWith("INSERT")
                 || !Set.of("primary-key", "created", "created-id").contains(role(c))).toList();
+    }
+
+    /** 按表追加显式逻辑删除入口，不放开其他旧删除方法。 */
+    public static Map<String, String> operations(AbstractIntrospectedTable table) {
+        Map<String, String> operations = new java.util.TreeMap<>(OPERATIONS);
+        LogicalDeleteGenerationValidator.configurations(table).forEach(c -> {
+            if (operations.putIfAbsent(c.getDeleteMethodName(), "LOGICAL_DELETE") != null) {
+                throw failure(table, "受管逻辑删除方法重复：" + c.getDeleteMethodName());
+            }
+        });
+        return operations;
     }
 
     public static IllegalArgumentException failure(AbstractIntrospectedTable table, String reason) {

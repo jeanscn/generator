@@ -487,7 +487,12 @@
                 parameterType为single时“fieldName”，parameterType为list时“fieldName"+s，如：select-by-column-record-ids-and-record-name-and-record-types
                 parameterType为single时生产get方法，parameterType为list时生成post方法
         -->
-        <!ELEMENT selectByColumn EMPTY>
+        <!-- property isLogicalDelete：省略或 false 保持物理删除；仅字面 true/false 合法。
+             true 要求 enableDelete=true 和非空可写 INTEGER delete_flag（0有效、1删除）。
+             单值版本表必须包含完整主键及 version_ 条件，更新版本原子加一；暂不支持版本化多值列表。
+             genControllerMethod=true 时新逻辑删除接口使用 POST，物理删除既有路由不变。
+             受管 CAS 继续使用显式契约/事务门禁，不包含业务墓碑、revision 或引用检查。 -->
+        <!ELEMENT selectByColumn (property*)>
         <!ATTLIST selectByColumn
                 column CDATA #REQUIRED
                 orderByClause CDATA #IMPLIED

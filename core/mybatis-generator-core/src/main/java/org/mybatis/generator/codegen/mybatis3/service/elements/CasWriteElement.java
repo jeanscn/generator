@@ -4,6 +4,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.codegen.mybatis3.service.AbstractServiceElementGenerator;
 
 import java.util.Set;
+import org.mybatis.generator.codegen.mybatis3.LogicalDeleteGenerationValidator;
 
 /**
  * 生成不捕获冲突异常的 CAS 服务，并对旧危险写方法给出显式拒绝。
@@ -16,6 +17,10 @@ public final class CasWriteElement extends AbstractServiceElementGenerator {
         if (!introspectedTable.getTableConfiguration().isCasWriteContractEnabled()) { return; }
         for (var method : parent.getMethods()) {
             String name = method.getName();
+            if (LogicalDeleteGenerationValidator.configurations(introspectedTable).stream()
+                    .anyMatch(c -> c.getDeleteMethodName().equals(name))) {
+                continue;
+            }
             if (name.startsWith("update") || name.startsWith("delete") || name.startsWith("insertOrUpdate")
                     || name.startsWith("cleanup") || name.contains("InsertUpdateBatch")) {
                 method.getBodyLines().clear();

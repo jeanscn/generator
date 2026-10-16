@@ -1009,6 +1009,8 @@ public class MyBatisGeneratorConfigurationParser {
         selectByColumnGeneratorConfiguration.setEnableDelete(Boolean.parseBoolean(enableDelete));
         String genControllerMethod = attributes.getProperty("genControllerMethod", "false");
         selectByColumnGeneratorConfiguration.setGenControllerMethod(Boolean.parseBoolean(genControllerMethod));
+        parseChildNodeOnlyProperty(selectByColumnGeneratorConfiguration, node);
+        selectByColumnGeneratorConfiguration.isLogicalDelete();
         tc.addSelectByColumnGeneratorConfiguration(selectByColumnGeneratorConfiguration);
     }
 
