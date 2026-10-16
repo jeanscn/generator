@@ -715,8 +715,8 @@ public class DatabaseIntrospector {
                     String remark = remarks.get(introspectedColumn.getActualColumnName());
                     introspectedColumn.setRemarks(remark != null ? remark : column.getRemarks());
                     introspectedColumn.setDefaultValue(column.getColumnDef());
-                    introspectedColumn.setAutoIncrement(isTruthy(invokeGetter(column, "getAutoIncrement")));
-                    introspectedColumn.setGeneratedColumn(isTruthy(invokeGetter(column, "getGeneratedColumn")));
+                    introspectedColumn.setAutoIncrement(isTruthy(column.getIsAutoIncrement()));
+                    introspectedColumn.setGeneratedColumn(isTruthy(column.getIsGeneratedColumn()));
 
                     ActualTableName atn = new ActualTableName(
                             stringHasValue(invokeGetter(column, "getTableCat")) ? invokeGetter(column, "getTableCat") : localCatalog,
@@ -739,76 +739,101 @@ public class DatabaseIntrospector {
                 return handleMultipleTableWarning(tc, answer, localSchema, localTableName);
             } catch (RuntimeException e) {
                 warnings.add(getString("Warning.27", e.getMessage()));
+                answer.clear();
+                order = 10;
             }
         }
 
-        ResultSet rs = databaseMetaData.getColumns(localCatalog, localSchema, localTableName, "%");
-
-        boolean supportsIsAutoIncrement = false;
-        boolean supportsIsGeneratedColumn = false;
-        ResultSetMetaData rsmd = rs.getMetaData();
-        int colCount = rsmd.getColumnCount();
-        for (int i = 1; i <= colCount; i++) {
-            if ("IS_AUTOINCREMENT".equals(rsmd.getColumnName(i))) {
-                supportsIsAutoIncrement = true;
+        DatabaseType databaseType = JdbcUtils.getDbType(
+                databaseMetaData.getDatabaseProductName(), databaseMetaData.getURL());
+        boolean normalizeGeneratedColumns = switch (databaseType) {
+            case MYSQL, MARIADB, TIDB, POLARDB, TDSQL -> true;
+            default -> false;
+        };
+        Map<List<String>, Map<String, Boolean>> generatedColumns = new HashMap<>();
+        try (ResultSet rs = databaseMetaData.getColumns(localCatalog, localSchema, localTableName, "%")) {
+            boolean supportsIsAutoIncrement = false;
+            boolean supportsIsGeneratedColumn = false;
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int colCount = rsmd.getColumnCount();
+            for (int i = 1; i <= colCount; i++) {
+                if ("IS_AUTOINCREMENT".equalsIgnoreCase(rsmd.getColumnLabel(i))) {
+                    supportsIsAutoIncrement = true;
+                }
+                if ("IS_GENERATEDCOLUMN".equalsIgnoreCase(rsmd.getColumnLabel(i))) {
+                    supportsIsGeneratedColumn = true;
+                }
             }
-            if ("IS_GENERATEDCOLUMN".equals(rsmd.getColumnName(i))) {
-                supportsIsGeneratedColumn = true;
+
+            while (rs.next()) {
+                IntrospectedColumn introspectedColumn = ObjectFactory.createIntrospectedColumn(context);
+
+                introspectedColumn.setTableAlias(tc.getAlias());
+                introspectedColumn.setJdbcType(rs.getInt("DATA_TYPE"));
+                introspectedColumn.setActualTypeName(rs.getString("TYPE_NAME"));
+                introspectedColumn.setLength(rs.getInt("COLUMN_SIZE"));
+                introspectedColumn.setActualColumnName(rs.getString("COLUMN_NAME"));
+                introspectedColumn.setNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
+                introspectedColumn.setScale(rs.getInt("DECIMAL_DIGITS"));
+                if (fkColumnNames.contains(introspectedColumn.getActualColumnName())) {
+                    introspectedColumn.setForeignKey(true);
+                }
+                String remark = remarks.get(introspectedColumn.getActualColumnName());
+                if (remark != null) {
+                    introspectedColumn.setRemarks(remark);
+                } else {
+                    introspectedColumn.setRemarks(rs.getString("REMARKS"));
+                }
+                introspectedColumn.setDefaultValue(rs.getString("COLUMN_DEF"));
+
+                if (supportsIsAutoIncrement) {
+                    introspectedColumn.setAutoIncrement(isTruthy(rs.getString("IS_AUTOINCREMENT")));
+                }
+
+                if (normalizeGeneratedColumns) {
+                    String catalog = rs.getString("TABLE_CAT");
+                    if (!stringHasValue(catalog)) {
+                        catalog = stringHasValue(localCatalog) ? localCatalog : connection.getCatalog();
+                    }
+                    String table = rs.getString("TABLE_NAME");
+                    List<String> key = Arrays.asList(catalog, table);
+                    Map<String, Boolean> flags = generatedColumns.get(key);
+                    if (flags == null) {
+                        flags = JdbcUtils.getMySqlGeneratedColumns(connection, catalog, table);
+                        generatedColumns.put(key, flags);
+                    }
+                    Boolean generated = flags.get(introspectedColumn.getActualColumnName());
+                    if (generated == null) {
+                        throw new SQLException("Missing normalized generated-column metadata for "
+                                + table + "." + introspectedColumn.getActualColumnName());
+                    }
+                    introspectedColumn.setGeneratedColumn(generated);
+                } else if (supportsIsGeneratedColumn) {
+                    introspectedColumn.setGeneratedColumn(isTruthy(rs.getString("IS_GENERATEDCOLUMN")));
+                }
+
+                ActualTableName atn = new ActualTableName(
+                        rs.getString("TABLE_CAT"),
+                        rs.getString("TABLE_SCHEM"),
+                        rs.getString("TABLE_NAME"));
+
+                List<IntrospectedColumn> columns = answer.computeIfAbsent(atn, k -> new ArrayList<>());
+
+                introspectedColumn.setOrder(order);
+
+                columns.add(introspectedColumn);
+
+                order++;
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(getString(
+                            "Tracing.2",
+                            introspectedColumn.getActualColumnName(), Integer
+                                    .toString(introspectedColumn.getJdbcType()),
+                            atn.toString()));
+                }
             }
         }
-
-        while (rs.next()) {
-            IntrospectedColumn introspectedColumn = ObjectFactory.createIntrospectedColumn(context);
-
-            introspectedColumn.setTableAlias(tc.getAlias());
-            introspectedColumn.setJdbcType(rs.getInt("DATA_TYPE"));
-            introspectedColumn.setActualTypeName(rs.getString("TYPE_NAME"));
-            introspectedColumn.setLength(rs.getInt("COLUMN_SIZE"));
-            introspectedColumn.setActualColumnName(rs.getString("COLUMN_NAME"));
-            introspectedColumn.setNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
-            introspectedColumn.setScale(rs.getInt("DECIMAL_DIGITS"));
-            if (fkColumnNames.contains(introspectedColumn.getActualColumnName())) {
-                introspectedColumn.setForeignKey(true);
-            }
-            String remark = remarks.get(introspectedColumn.getActualColumnName());
-            if (remark != null) {
-                introspectedColumn.setRemarks(remark);
-            } else {
-                introspectedColumn.setRemarks(rs.getString("REMARKS"));
-            }
-            introspectedColumn.setDefaultValue(rs.getString("COLUMN_DEF"));
-
-            if (supportsIsAutoIncrement) {
-                introspectedColumn.setAutoIncrement("YES".equals(rs.getString("IS_AUTOINCREMENT")));
-            }
-
-            if (supportsIsGeneratedColumn) {
-                introspectedColumn.setGeneratedColumn("YES".equals(rs.getString("IS_GENERATEDCOLUMN")));
-            }
-
-            ActualTableName atn = new ActualTableName(
-                    rs.getString("TABLE_CAT"),
-                    rs.getString("TABLE_SCHEM"),
-                    rs.getString("TABLE_NAME"));
-
-            List<IntrospectedColumn> columns = answer.computeIfAbsent(atn, k -> new ArrayList<>());
-
-            introspectedColumn.setOrder(order);
-
-            columns.add(introspectedColumn);
-
-            order++;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug(getString(
-                        "Tracing.2",
-                        introspectedColumn.getActualColumnName(), Integer
-                                .toString(introspectedColumn.getJdbcType()),
-                        atn.toString()));
-            }
-        }
-
-        closeResultSet(rs);
 
         return handleMultipleTableWarning(tc, answer, localSchema, localTableName);
     }
