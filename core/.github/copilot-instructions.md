@@ -3,6 +3,8 @@
 本文档作为当前 MyBatis Generator 项目“再开发与完善”的 **Copilot 主指令文件**。  
 `generator-core-dev-spec.md` 作为补充说明文件，与本文件保持一致，不得冲突。
 
+每次会话必读本指令、[文档索引](doc-index.md)、[文档映射](doc-map.md)及[非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)。非主线问题只按规范登记、不擅自处理；归属模块首次发现需登记的问题时创建 `pending-issues.md`，不创建空台账。继续操作可能造成即时风险时，暂停受影响操作并沟通，不代表获准修复。
+
 ## 1. 适用范围
 
 - 修改/新增生成器能力（Java/XML/HTML/SQL 生成逻辑）
