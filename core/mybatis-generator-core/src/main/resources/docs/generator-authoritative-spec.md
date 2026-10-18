@@ -83,14 +83,14 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 | 复合查询与过滤 | `queryColumns`、`fuzzyColumns`、`filterColumns`、子节点 `queryColumn` / `filterColumn` | 生成查询/过滤描述，不替代 RequestVo 字段、查询接口及服务端条件实现；显式 query/filter 列配置应与字段集合对齐。无显式 query 描述时，不存在的 query 列会被忽略；不存在的 filter 列会抛出异常 |
 | 工具栏与行操作 | `toolbar`、`actionColumn`、子节点 `htmlButton` | 能配置标准动作或自定义按钮元数据；自定义 handler、服务端动作和权限由宿主/业务提供，前端显示条件不是授权边界 |
 | 表格及展示行为 | `size`、`indexColumn`、固定列、默认排序、总计、`tableType`、`uiFrameType`、分类树及表单展示模式等 | 以当前 DTD 与解析/消费链路为准；并非每个属性都由 `@ViewTableMeta` 或所有前端表格实现消费 |
-| 菜单期初数据 | ViewVo 标题、图标、`enableShortcut`、table/context 菜单设置 | 只有 ViewVo 实际生成、`updateMenuData=true`、table `isModules=true` 且有效父菜单 ID 非空时才追加默认视图菜单；父节点优先采用 ViewVo 配置，否则采用 Context。局部生成、既有文件跳过及 SQL 部署都需单独核对 |
+| 菜单期初数据 | ViewVo 标题、图标、`enableShortcut`、table/context 菜单设置 | 只有 ViewVo 本次实际生成且插件回调允许、Context `updateMenuData=true`、table `isModules=true`、有效 `parentMenuId` 非空时才收集默认视图菜单 INSERT；ViewVo 父 ID 优先，否则回退到 Context，无隐式父菜单默认值。两项布尔开关缺省均为 `false`；已有 ViewVo 被生成策略跳过时不会因其已存在而收集菜单行。 |
 | 附加视图结构 | `additionalProperty`、`innerListView` 及其他 DTD 允许的 `viewVo` 子节点 | 按实际插件和模板验证各子配置的效果；配置存在不代表跨宿主统一的交互承诺 |
 
 DTD/Parser 接受属性并不代表它会进入默认 `@ViewTableMeta`。当前插件显式传递 `tableType`、合计行、表单打开方式、`showActionColumn`、`defaultSort`、`indexColumn`、查询/过滤及按钮描述、`categoryTreeUrl`、包含/排除列、类名和路由等；列默认显示及顺序写入字段级 `@ViewColumnMeta`。例如 `listKey`、`title`、`size`、`enablePager`、固定列属性和 `showRowNumber` 并未由该插件传入默认视图注解；其中 `title` 另用于菜单。详见配置指南第 5.2 节的版本限制与源码入口。
 
 版本注意：当前 DTD 对 `viewVo.enablePager` 接受 `true|false|simple|auto`，但当前 Parser 将其交给 `Boolean.parseBoolean`，因此只有文本 `true` 会解析为真，`simple` / `auto` 实际解析为假。`enablePager` 也不是 `ViewTableMeta` 注解成员，不应把它描述为 Vue3 运行时分页模式配置。依赖分页显示模式的项目须先核对实际模板/宿主契约；若要改变通用生成语义，应修正并测试生成器，而不是依赖 DTD 允许值推测效果。
 
-配置细目、XML 片段及生成前检查见[配置指南第 5.2 节](generator-config-guide.md#52-viewvo-默认列表视图配置)；Context 菜单开关见配置指南第 2 节，ViewVo 生成菜单条件与脚本执行边界另见项目[菜单构建规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-menu-construction-standard.md)。
+菜单数据收集后，仅在数据集合非空且 `updateMenuData=true` 时输出 `src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql`；该产物只是 SQL，不创建父菜单、不写数据库，也不代表 Spring 已执行。局部生成可能使脚本不完整，必须核对最终部署资源集。配置示例与条件检查见[配置指南第 5.2.5 节](generator-config-guide.md#525-菜单期初数据生成)；涵盖 DDL、权限、菜单、存储过程等资源的首次 Spring 初始化步骤和 AI / 开发人员验收要求见[配置指南第 19 节](generator-config-guide.md#19-spring-首次初始化)。Context 菜单开关见配置指南第 2 节；项目级菜单构建规范另见[菜单构建规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-menu-construction-standard.md)。
 
 ### Vue3 产物与生成条件（当前 1.8.0 源码）
 
@@ -108,7 +108,24 @@ Vue3 产物由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 输出。共同�
 
 此处的 editable 页面规则表示至少有一个 `generateHtml generate="true" type="editable"` 配置；viewOnly 规则同理由 `type="viewOnly"` 配置触发。Vue3 列表不是只读页面开关的同义产物：列表还要求 `viewVo`。因此，仅配置 `vueEndProjectPath` 不会使所有页面都生成；仅启用 `viewVo` 也不保证生成 Vue3 页面。
 
-`generateHtml` 节点同时用于其所配置的 HTML 页面。其 `layout`、HTML 控件描述及 HTML 文件覆盖属性应按 HTML 生成路径理解；不要据此推断 Vue3 模板布局或 Vue 文件覆盖方式。Vue3 列表模板依赖 ViewVo/运行时表格配置，编辑和详情模板使用 Framework 表单及宿主提供的表单配置；字段、控件、字典和联动是否完整，仍需核对当前生成配置、服务端配置接口与宿主 Framework 契约。
+`generateHtml` 同时参与 HTML 输出与 Vue 表单元数据生成，不能将其所有子配置归为“仅 HTML”。`VueHtmMetaAnnotationPlugin` 会将默认页面的布局、字段控件和附加组件配置写入 Java VO 的 `VueForm*Meta` 注解；后端配置服务再将其交给 Framework 表单。Vue3 列表则主要依赖 ViewVo/运行时表格配置。HTML 文件路径/覆盖、旧 HTML 页面打开方式及打印设置，不是 Vue3 文件路径/覆盖或定制模板开关。
+
+### 2.2.2 页面配置的设计边界与阅读入口
+
+属性细表统一维护于[配置指南第 7 章](generator-config-guide.md#7-页面生成)，采用“属性、含义、默认值或值来源、影响、备注”五列。影响区分 vue3、html、vue3和html；vue3 包含 VO 注解的间接影响，不保证各宿主组件等效实现。设计阶段按下表定向阅读，不重复维护另一套默认值表。
+
+| 设计问题 | 配置入口 | 能力与边界 |
+|---|---|---|
+| 启用哪类页面、选哪个共用表单配置、输出到哪里 | [7.1 通用配置](generator-config-guide.md#71-通用配置) | 文件门控检查整表启用的 editable/viewOnly；表单注解却取第一个 default=true 的配置（全为 false 时取第一个），不按 generate/type 过滤。default 实际省略为 true，不能把 generate=false 当元数据总开关。 |
+| 字段列数、独占行、容器、标签及弹窗 | [7.2 页面布局](generator-config-guide.md#72-页面布局) | 字段 span 通常为 24/pageColumnsNum，独占列为 24，长文本/编辑器还可调整；容器由嵌套 XML 计算父键。groupContainer.columnNum 当前默认 1；HTML uiFrameType 当前默认 layui，并非选择 Vue3 技术栈的开关。 |
+| 控件、字典、引用选择、联动与自定义表单 | [7.3 输入组件配置](generator-config-guide.md#73-输入组件配置) | 普通描述器、TableSelect、FormExtend 可参与 Vue 字段注解；快捷格式/默认列规则会计算数据来源。页面直接子节点 htmlSwitchDescriptor 当前未解析，应使用普通 descriptor 的 tagType=switch。 |
+| 校验、字段链接与动作 | [7.4 校验、链接与按钮](generator-config-guide.md#74-校验链接与按钮) | Vue validator 与 HTML verify/hrefElement 不等效；动作元数据不自动实现业务 handler。当前 validator.max/enum 等存在传值偏差，设计不能依赖声明即生效。 |
+| 附件与审批意见 | [7.5 附件与审批意见](generator-config-guide.md#75-附件与审批意见) | 可生成组件元数据，不自动实现存储/审批业务；Vue 路径未以子项 generate 过滤，附件 order/隐藏条件等也未完整传递。 |
+| 子列表加载、编辑、汇总和打印 | [7.6 内嵌列表与打印](generator-config-guide.md#76-内嵌列表与打印) | 依赖来源 VO、关系字段和实际服务；dataField/dataUrl 的选择不由 Parser 强制校验。restBasePath 当前存在重算偏差，部分交互属性未传递；HTML 打印不等于 Vue3 打印。 |
+| Vue 文件条件、接入、覆盖与 HTML 附带输出 | [7.7 Vue3 页面生成、接入与覆盖边界](generator-config-guide.md#77-vue3-页面生成接入与覆盖边界) | Vue 文件使用独立模板与覆盖策略；启用 generateHtml 还需核对 HTML/静态资源输出范围。 |
+| 后续如何补充/核验文档 | [7.8 源码核对入口与补充规则](generator-config-guide.md#78-源码核对入口与补充规则) | 分别核对 DTD、解析、计算、传递和宿主消费；DTD 注释、配置对象初值、basic 注解缺省和前端运行时缺省不得混写。 |
+
+以上偏差是当前源码边界，不是本次新增能力或修复承诺。需要依赖这些行为的项目，应先评估生成器修正及回归，或选择受保护的业务扩展点；不能直接修改持续覆盖的生成物绕过。
 
 Vue3 生成模板与宿主 Framework 的复用依据见 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm-ui\packages\framework\docs\framework-capability-overview.md)和[组件开发与复用能力指南](D:\vscode\mpmm-ui\packages\framework\docs\components-reuse-capability-overview.md)。mpmm-ui 的[OrgRole 列表页](D:\vscode\mpmm-ui\src\modules\organization\views\OrgRole.vue)、[编辑组件](D:\vscode\mpmm-ui\src\modules\organization\orgrole\components\OrgRoleEdit.vue)、[表单 Hooks](D:\vscode\mpmm-ui\src\modules\organization\orgrole\PrivateUseFormHooks.ts)及[列表列插槽](D:\vscode\mpmm-ui\src\modules\organization\orgrole\PrivateTableColumnSlots.vue)仅是宿主接入示例，不是生成器对所有项目的页面实现承诺。
 

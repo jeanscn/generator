@@ -463,7 +463,53 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 当前 1.8.0 DTD 的 `viewVo.enablePager` 声明接受 `true`、`false`、`simple`、`auto`，而 Parser 使用 `Boolean.parseBoolean` 解析，且配置对象默认值为 `true`；因此只有 `true` 会解析为真，`simple` 和 `auto` 都会变成假。它也不是 `ViewTableMeta` 注解成员，不可将其当作 Vue3 表格分页模式的可靠配置。需使用分页显示模式时，先按实际模板和宿主运行时核验；不要依赖 DTD 的枚举声明推断行为。
 
-ViewVo 默认菜单数据仅在全部满足下列条件时追加：ViewVo 实际生成（含文件存在时强制生成等策略）、Context `updateMenuData="true"`、Table `isModules="true"`、ViewVo 优先级高于 Context 的有效 `parentMenuId` 非空，且插件允许生成。默认菜单 ID 使用默认视图 ID；父菜单不会由生成器创建。菜单初始化 SQL 输出和局部生成风险遵守[项目菜单构建规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-menu-construction-standard.md)，须确认脚本部署链路与父节点数据。
+#### 5.2.5 菜单期初数据生成
+
+本节只说明生成器能够保证的菜单配置与脚本边界。所有数据库期初资源（包括 DDL、权限数据、菜单数据和存储过程等）的汇总、执行顺序及 Spring 首次写库流程统一见[第 19 节「Spring 首次初始化」](#19-spring-首次初始化)。生成器本身只产出对应 SQL 资源，不连接应用数据库执行，也不自动触发 Spring 初始化。
+
+##### 生成前配置
+
+默认视图菜单 SQL 仅在以下条件全部满足时产生：
+
+| 条件 | 配置 / 判定 |
+|---|---|
+| ViewVo 启用 | `<generateVo generate="true">` 下配置 `<viewVo generate="true">`。 |
+| ViewVo 本次实际生成 | ViewVo 生成规则通过，且目标文件不存在或被强制重新生成；若已有 ViewVo 文件被跳过，则不会在该次生成路径中收集菜单数据。插件回调也必须允许生成。 |
+| 菜单数据开关启用 | Context 显式配置 `updateMenuData="true"`；缺省为 `false`。 |
+| 表参与模块菜单 | 对应 `<table>` 配置 `isModules="true"`；缺省为 `false`。 |
+| 父菜单 ID 有效 | ViewVo 的 `parentMenuId` 优先；未配置时使用 Context 的 `parentMenuId`。两处都未提供时没有隐式默认父菜单，菜单 SQL 不会生成。 |
+
+示例中的父菜单 ID、模块名及表名都应替换为目标项目已确认的值：
+
+```xml
+<context id="example"
+         moduleKeyword="example"
+         updateMenuData="true"
+         parentMenuId="EXISTING_PARENT_MENU_ID">
+    <!-- 其他 context 配置 -->
+    <table tableName="biz_example" domainObjectName="BizExample" isModules="true">
+        <!-- 其他 table 配置 -->
+        <generateVo generate="true">
+            <viewVo generate="true"
+                    title="示例管理"
+                    parentMenuId="EXISTING_PARENT_MENU_ID"
+                    enableShortcut="false"/>
+        </generateVo>
+    </table>
+</context>
+```
+
+如果所有表使用同一个父节点，可只在 Context 配置 `parentMenuId`，ViewVo 级配置可省略；需要将某个视图放到不同父节点时，在该 ViewVo 单独配置并覆盖 Context 值。`title` 未配置时回退到表备注；菜单 ID 使用生成器计算的默认视图 ID。菜单项记录的名称、图标、父 ID、排序、标题、组件、路径、URL、备注、审计和租户字段来自生成器模板；启用快捷入口时还会写入相应字段。生成器不会替项目创建 `EXISTING_PARENT_MENU_ID` 对应的菜单行。
+
+##### 生成结果检查
+
+生成成功后检查目标项目中的：
+
+```text
+src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
+```
+
+该文件只有在收集到菜单数据且 `updateMenuData="true"` 时才输出。逐条检查菜单 ID、父菜单 ID、标题、路径 / URL、数据库方言及项目必需的租户/审计字段；确认父菜单及其依赖数据会先于本脚本写入。按表或模块局部生成时，不能把本次输出误认为已包含其他 Context / 其他生成批次的菜单项；部署前应核对最终汇总脚本是否完整。文件存在只证明生成器输出了 SQL，不证明 SQL 已被打包、Spring 已执行或数据库已成功写入。
 
 配置前依据完整属性与子节点结构核对当前版本 `mybatis-generator-config_1_8_0.dtd` 的 `<viewVo>` 声明及 `MyBatisGeneratorConfigurationParser.parseVoView`、`parseTableListCommon`；生成结果则检查 `ViewObjectClassGenerator`、`ViewMetaAnnotationPlugin` 与目标宿主运行时，不得把旧 DTD 注释或 mpmm-ui 单一实现当成通用契约。
 
@@ -501,108 +547,330 @@ ViewVo 默认菜单数据仅在全部满足下列条件时追加：ViewVo 实际
 
 ## 7. 页面生成
 
-### `generateHtml`
+本章按当前 1.8.0 的 **DTD → Parser → 配置计算 → 生成消费点** 核对，不将 DTD 注释直接当作实际默认值。权威文档的能力边界见[第 2.2 节](generator-authoritative-spec.md#22-vue3-前端可生成能力)，具体属性统一在本章维护。
 
-| 属性 | 含义 |
-|---|---|
-| `generate` | 是否生成页面。 |
-| `type` | `editable` / `viewOnly` / `print`。 |
-| `viewPath` | 页面路径。 |
-| `title` | 页面标题。 |
-| `overWriteHtmlFile` / `overWriteJsFile` / `overWriteCssFile` | 覆盖策略。 |
-| `targetPackage` / `targetProject` | 页面包路径与项目路径。 |
-| `default` | 默认页面。 |
+表中“影响”使用 `vue3`、`html`、`vue3和html`：`vue3` 包括写入 Java VO 的 `VueForm*Meta` 注解，再由后端配置接口交给 Framework 表单消费的**间接影响**，不只指 `.vue` 文件文本；`html` 指 Thymeleaf/静态资源生成链路。`vue3和html` 不表示各框架、页面类型逐项等效支持。当前未解析、未传递的属性仍列在其配置归属范围下，但备注明确标为**未生效**，不可据“影响”列推断已实现。未设置的字符串一般为 `null`、集合一般为空；注解未输出的成员由所用 basic 版本的注解默认值及宿主运行时决定，不应把配置对象初值冒充运行时默认值。
 
-### `layout`
+### 7.1 通用配置
 
-| 属性 | 含义 |
-|---|---|
-| `loadingFrameType` | `pop` / `inner` / `full`。 |
-| `pageColumnsNum` | 页面列数。 |
-| `barPosition` | 工具条位置。 |
-| `uiFrameType` | `layui` / `zui` / `elPlus` / `antd`。 |
-| `exclusiveColumns` | 独占整行字段。 |
-| `labelWidth` | 标签宽度。 |
-| `labelPosition` | 左/右/上。 |
+#### 7.1.1 `generateHtml` 属性
 
-### `groupContainer`
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `generate` | 是否启用页面生成 | 必填，无 DTD 默认；Parser 用 `Boolean.parseBoolean` | vue3和html | 参与 editable/viewOnly 页面产物门控；并不是所有 VO 表单元数据的总开关，见下文。 |
+| `type` | 页面类型 | `editable`（配置对象构造值） | vue3和html | 可选 `editable` / `viewOnly` / `print`；print 不触发 Vue3 编辑或详情规则。 |
+| `viewPath` | HTML 相对视图路径及文件名主体 | 未填取数据库表名小写 | html | 完整路径为基础包路径 + `/` + viewPath，末段加 `.html`；可带子目录，不决定 Vue3 文件名。 |
+| `title` | HTML 页面标题 | 未填时由 HTML 文档生成器使用表简要备注 | html | `none` 不生成可见标题；不是 Vue3 列表标题，后者见 `viewVo.title`。 |
+| `targetProject` | HTML 输出根目录 | 本属性 → Context `htmlTargetProject` → `src/main/resources/templates` | html | 不代替 `vueEndProjectPath`，也不控制 JQuery 静态 JS 根目录。 |
+| `targetPackage` | HTML 基础包路径 | 本属性 → Context `htmlTargetPackage` → `moduleKeyword` → `html`（模块关键字为 null 时） | html | Parser 再按完整 viewPath 计算实际子目录。 |
+| `overWriteHtmlFile` | 已有 HTML 文件是否允许覆盖 | `false` | html | 不控制 Vue3；最终还受写盘回调影响。 |
+| `overWriteJsFile` | 已有静态 JS 文件是否允许覆盖 | `false` | html | 作用于 JQuery 插件的 JS/min.js。 |
+| `overWriteCssFile` | 已有 CSS 文件是否允许覆盖 | `false` | html | 仅在实际生成样式文件时有意义。 |
+| `default` | 选择共用表单元数据的页面配置 | **`true`**（`defaultConfig` 初值） | vue3和html | Vue 表单注解取第一个 default=true 的配置；若全为 false 则取第一个。多个页面应显式设定，不能按 DTD 注释推断省略为 false。 |
+| `key` | DTD 预留页面键 | 无；`parseHtml` 未读取 | vue3和html | **未生效**，不用于选择 Vue3 页面或表单。 |
 
-| 属性 | 含义 |
-|---|---|
-| `elementKey` | 容器唯一标识。 |
-| `type` | `border` / `tab` / `card` / `collapse`。 |
-| `includeElements` | 包含哪些元素。 |
-| `hideExpression` | 显隐表达式。 |
+**多页面配置的两个不同选择规则**：Vue3 文件是否生成按整张表“是否存在已启用的 editable/viewOnly”判断；`VueHtmMetaAnnotationPlugin` 则从所有页面配置中选择上述默认配置，**不按 generate/type 过滤**。因此 `generate="false"` 仍可能成为 VO 表单注解来源；改为 print 也不等于关闭表单元数据。表单注解还要求对应 VO/字段实际生成且插件生效，不能只看前端输出目录。
 
-### `htmlElementDescriptor`
+#### 7.1.2 `property` 与字段状态
 
-| 属性 | 含义 |
-|---|---|
-| `column` | 字段名。 |
-| `tagType` | 控件类型。 |
-| `dataSource` | 字典/枚举/用户/部门等数据源。 |
-| `dataFormat` | 快捷格式，如 `是否`、`启停`、`日期`。 |
-| `otherFieldName` | 回填中文值字段。 |
-| `beanName` | 数据源 bean。 |
-| `applyProperty` / `applyPropertyKey` | label/value 映射。 |
-| `dictCode` | 字典编码。 |
-| `callback` | 选择后回调。 |
-| `switchText` | 开关文案。 |
-| `verify` | 校验规则。 |
-| `renderHref` | 只读时转链接。 |
+`property` 使用必填属性 `name`（属性名）和 `value`（属性值），均无默认值；影响取决于具体 name。以下四项按逗号分隔，使用数据库列名，并由配置计算阶段转入相关字段集合；不要与 Java/TS 属性名混写。
 
-### 源码补充行为
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `name="htmlHiddenFields"` 的 `value` | 隐藏列 | 空；合并 Context、Table 及本页面集合 | vue3和html | 合并为集合而非子级替换；还可能影响列表字段计算。Vue 字段注解生成亦会筛选隐藏列，不保证仅产生一个前端 hidden 标志。 |
+| `name="requiredColumns"` 的 `value` | 表单必填列 | 空；另合并列必填标志及 descriptor.verify 中的 required | vue3和html | Vue 校验还读取列 nullable；前端校验不能代替服务端约束。 |
+| `name="htmlReadonlyFields"` 的 `value` | 只读列 | 空；合并 Context、Table 及本页面集合 | vue3和html | Vue 写入表单级 readonlyFields；并非后端禁止更新。 |
+| `name="htmlDisplayOnlyFields"` 的 `value` | 仅展示列 | 空；合并 Context、Table 及本页面集合 | vue3和html | 不等于隐藏或只读；需核对宿主表单提交行为。 |
 
-- `tagType` 缺失或 `column` 缺失时，元素通常不会被纳入生成。
-- `dataFormat` 可被解析成默认枚举/字典配置。
-- `DictSys` / `DictData` / `DictUser` 在未显式给 `dataUrl` 时，可由源码自动补齐数据源路径。
+### 7.2 页面布局
 
-### `htmlSwitchDescriptor`
+#### 7.2.1 `layout`
 
-| 属性 | 含义 |
-|---|---|
-| `column` | 字段名。 |
-| `dataSource` | 一般是 `DictEnum` / `DictSys` 等。 |
-| `dictCode` | 字典编码。 |
-| `switchText` | 开关显示文案。 |
+省略节点时 Parser 仍建立 `HtmlLayoutDescriptor`。Vue3 不是直接套用 HTML DOM，而是从布局配置生成表单/字段/容器注解。
 
-### `htmlTableSelectDescriptor`
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `loadingFrameType` | HTML 页面打开方式 | `pop` | html | `pop` / `inner` / `full`；不控制 Vue3 弹窗。 |
+| `pageColumnsNum` | 每行字段数 | `2` | vue3和html | `1,2,3,4,6,12`；Vue 普通字段 span=`24/列数`，长文本/编辑器还可调整为 24。 |
+| `barPosition` | HTML 工具条位置 | `bottom` | html | `bottom` / `top`。 |
+| `uiFrameType` | HTML 渲染分支 | **`layui`**（当前类初值） | html | DTD 接受 layui/zui/elPlus/antd；当前 `JavaClientGeneratePlugins` 的 HTML 文档分支仅实现 layui、zui，其余返回 false。不能按 DTD 旧注释认为默认 elPlus，或认为设置 elPlus 才生成 Vue3。 |
+| `exclusiveColumns` | 独占一行的数据库列 | 空列表 | vue3和html | 逗号分隔；Vue 字段 span=24。 |
+| `borderWidth` | HTML 内容边框宽度 | `1`（`ConstantsUtil.HTML_BORDER_WIDTH`） | html | Parser 用整数解析，填 `1` 而非 `1px`；偏离默认边框配置会触发样式文件生成。 |
+| `borderColor` | HTML 边框颜色 | `#eee` | html | 与宽度共同决定是否输出 CSS。 |
+| `labelWidth` | 表单标签宽度 | `120px` | vue3和html | 写入 VueFormMeta，也用于 HTML 内嵌列表 form 打印标签宽度；如 `auto`、`100px`，不等于 labelCss。 |
+| `labelPosition` | 标签位置 | `right` | vue3 | `left` / `right` / `top`，由宿主表单解释。 |
+| `size` | 控件大小 | `default` | vue3 | `large` / `default` / `small`。 |
+| `popSize` | 表单弹窗大小 | `default` | vue3 | `largeX` / `large` / `default` / `small`。 |
+| `popDraggable` | 弹窗可拖动 | `true` | vue3 | 写入表单元数据，不控制 HTML loadingFrameType。 |
 
-| 属性 | 含义 |
-|---|---|
-| `column` | 字段名。 |
-| `dataUrl` | 选择数据接口。 |
-| `beanName` | 数据源 bean。 |
-| `listKey` / `listViewClass` | 内嵌列表来源。 |
-| `multiple` | 是否多选。 |
-| `defaultFilterExpr` | 默认过滤 SQL。 |
+#### 7.2.2 `groupContainer`
 
-### `htmlFileAttachment`
+位于 `layout` 下，可递归嵌套。以下属性由 `VueFormContainerMetaDesc` 转为容器注解，不能据此保证旧 HTML 模板同样实现 tab/card/collapse。
 
-| 属性 | 含义 |
-|---|---|
-| `generate` | 是否生成附件控件。 |
-| `elementKey` | 组件唯一标识。 |
-| `multiple` | 是否多附件。 |
-| `type` | `text` / `picture` / `picture-card`。 |
-| `location` | `table` / `local` / `oss`。 |
-| `restBasePath` | 存储/访问基础路径。 |
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `elementKey` | 容器唯一键 | DTD 必填 | vue3 | 不与列名、属性名、其他组件键重名；供 includeElements 等引用。 |
+| `name` | 容器名称 | 未设置不输出 | vue3 | 与唯一键、标题区分。 |
+| `type` | 容器类型 | DTD 必填；Parser 缺失则丢弃该容器 | vue3 | `border` / `tab` / `card` / `collapse`。 |
+| `title` | 容器标题 | 未设置不输出 | vue3 | 不改变内嵌列表 label 的配置值。 |
+| `span` | 容器占用栅格 | `24` | vue3 | 24 栅格制。 |
+| `columnNum` | 容器内字段列数 | **`1`**（不是 DTD 注释中的 2） | vue3 | `1,2,3,4,6,12`；不要与 span 混淆。 |
+| `afterColumn` | 放置在指定元素后 | 未设置不输出 | vue3 | 最终定位由运行时布局处理。 |
+| `includeElements` | 容器包含的元素 | 空列表 | vue3 | 逗号分隔列名或组件 elementKey；配置引用应实际存在。 |
+| `noBorder` | 无边框 | `false` | vue3 | 写入容器元数据。 |
+| `hideExpression` | 隐藏条件 | 未设置不输出 | vue3 | 表单表达式，不是 SQL；见 7.3.2。 |
+| `className` | 容器 CSS 类 | 未设置不输出 | vue3 | 类样式须由宿主提供。 |
 
-### `htmlElementInnerList`
+父容器键由 XML 嵌套层级计算：顶层无父键，子层使用直接父容器 elementKey；当前 DTD **没有** `parentElementKey` 属性，不能照旧注释手填。
 
-| 属性 | 含义 |
-|---|---|
-| `elementKey` | 组件唯一标识。 |
-| `sourceBeanName` | 来源表 bean。 |
-| `relationField` | 关联字段。 |
-| `dataField` / `dataUrl` | 数据来源二选一。 |
-| `editMode` | `row` / `cell` / `none`。 |
-| `vxeListButtons` | 内嵌列表按钮。 |
-| `defaultFilterExpr` | 默认过滤 SQL。 |
-| `defaultSort` | 默认排序。 |
-| `totalRow` / `totalFields` | 合计行配置。 |
+### 7.3 输入组件配置
 
-### Vue3 页面生成与配置（区别于 HTML 页面）
+#### 7.3.1 `htmlElementDescriptor`：字段、控件与数据源
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `column` | 绑定数据库列 | DTD 必填 | vue3和html | Parser 用作 name；内省绑定失败会警告并移除配置，不是新增虚拟字段的方法。 |
+| `tagType` | 控件类型 | DTD 必填；显式节点不自动补齐 | vue3和html | 可选值见当前 DTD `%tagType;`；Vue 将 dropdownlist 转为 select。省略整个 descriptor 时才可能由列规则推导控件。 |
+| `dataSource` | 字典/枚举/实体等来源 | 未设置；可被 dataFormat、自动列规则补齐 | vue3和html | 取当前 DTD `%dataSource;` 值，如 Dict/DictData/DictSys/DictUser/DictEnum/Department/User/Organization/InnerList；不是任意 bean 标识。 |
+| `dataUrl` | 选项/数据接口 | 显式值优先；字典来源可计算，见下文 | vue3和html | getter 对非空且无前导 `/` 的值补 `/`，不应未经核对就写外部绝对 URL。 |
+| `dataFormat` | 快捷语义/日期格式 | 未设置 | vue3和html | 是否/有无/性别/启停/缓急/级别会转换为对应枚举来源；日期类保留给日期控件处理。该转换可覆盖原 dataSource/enumClass，避免矛盾配置。 |
+| `otherFieldName` | 关联显示值属性 | 显式值优先；普通输入/日期等通常取原 Java 属性；其他常去掉末尾 Id 再加 Text，否则属性名加 Text | vue3和html | `ConfigUtil.getOverrideJavaProperty` 计算，默认列还可能有专用映射；必须核对实际 VO 字段。 |
+| `beanName` | 引用数据的 bean/类型 | 未设置；部分自动列描述有专用来源 | vue3和html | Dict 引用须与后端转换及选项服务对应，不自动实现该服务。 |
+| `applyProperty` | 引用对象显示属性 | 未设置，无 Parser 通用默认 | vue3和html | 与 keyMapLabel 不同：前者描述引用对象转换，后者描述远程选项字段映射。 |
+| `applyPropertyKey` | 引用对象值属性 | 未设置，无 Parser 通用默认 | vue3和html | 应与保存字段类型及后端关联键一致。 |
+| `enumClassFullName` | 枚举全类名 | 显式值，或由 dataFormat 推导 | vue3和html | DictEnum 使用；枚举类必须在实际运行 classpath。 |
+| `dictCode` | 字典编码 | 未设置；DictSys/DictData/DictUser 无 dataUrl 时缺省取列名转小驼峰 | vue3和html | 有显式 dataUrl 时不执行这段补值逻辑。 |
+| `callback` | 选择回调名 | 未设置 | vue3和html | HTML 可与关系方法后缀关联；Vue 写入字段注解，不代表业务回调已自动实现。 |
+| `switchText` | 开关文案 | 显式值 → dataFormat 对应枚举文案；否则可为空 | vue3和html | 不将 DTD 的“启用/禁用”注释当所有控件的统一缺省。 |
+| `verify` | 简写校验列表 | 空；通过 basic 的 `VStringUtil.splitToList` 拆分去重 | vue3和html | 当前 basic 源码支持逗号、管道、分号等分隔；如 `required,number`。required 会汇入必填列，复杂 Vue 规则优先用 validator。 |
+| `labelCss` / `elementCss` | 标签/组件附加样式 | 未设置 | vue3和html | Vue 写入字段元数据；实际样式支持依组件实现。 |
+| `dataFmt` | 旧 HTML 控件格式 | 未设置 | html | 不同于 dataFormat；Vue 日期格式计算读取 dataFormat/列类型，未将 dataFmt 作为 valueFormat 传递。 |
+| `dateRange` | 日期范围选择 | `false` | vue3 | 与日期 dataFormat 联合计算 yearrange/monthrange/daterange/datetimerange。 |
+| `multiple` | 多选 | `false` | vue3和html | 日期可转 years/months/dates，引用选择为多值；保存类型/序列化须匹配。 |
+| `listKey` | 引用列表标识 | 未设置 | vue3和html | 不会自动创建相应列表配置。 |
+| `listViewClass` | 引用列表 VO 类 | 未设置 | vue3和html | Vue 写为 sourceListViewClass；必须有可用列表元数据。 |
+
+字典 URL 的实际补值（`TableConfiguration.setHtmlElementDescriptorColumn`）：DictSys → `/system/sys-cfg-dict-impl/option/{dictCode}`，DictData → `/system/sys-dict-data-impl/option/{dictCode}`，DictUser → `/system/dict-content-impl/option/{dictCode}`。仅当 dataSource 匹配且 dataUrl 为空时执行；这些是当前生成器约定，并非所有宿主已有对应接口。
+
+无显式描述时，`TableConfiguration.generateDefaultElementDescriptor` 的列规则会为 state_、priority_、wf_state、parent_id、备注以“是否”开头等列建立描述；Vue 的后备类型推断为数值→number、日期/时间→date/time、长文本→editor、Boolean→switch、其他→input。普通 input 长度大于 499 占满行，大于 1499 转 textarea；editor 占满行。不要把自动列规则等同于任意业务字段都已有正确字典、权限和联动。
+
+#### 7.3.2 远程选项、联动、显隐与只读链接
+
+以下为 `htmlElementDescriptor` 的其余属性；标注 vue3 的项已进入 Vue 字段元数据，不据此承诺旧 HTML 分支支持相同表达式。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `remoteApiParse` | 使用远程解析 | `false` | vue3 | 生成字段标志；接口响应须符合宿主协议。 |
+| `remoteToTree` | 远程选项转树 | `false` | vue3 | 树关系字段及转换规则由运行时决定。 |
+| `remoteAsync` | 远程异步模式 | `false` | vue3 | 不是生成时请求远程数据。 |
+| `keyMapLabel` / `keyMapValue` | 远程选项 label/value 字段映射 | 配置对象为空；注解描述器分别以 name/id 为省略比较值 | vue3 | DTD 注释写 label/value，不能当作 Parser 默认；最终默认核对 basic 注解和宿主。 |
+| `enablePager` | 引用列表分页 | **`false`**（继承配置类布尔初值） | vue3 | TableSelect 也共用此初值，不是其 DTD 注释所写 true。 |
+| `vxeListButtons` | 引用列表工具栏动作键 | 空列表 | vue3 | 逗号分隔；转换为 toolbarActions，不是自动实现 handler。 |
+| `defaultFilterExpr` | 引用列表默认过滤 SQL | 未设置 | vue3 | SQL 用 `=`；不应接受客户端任意 SQL，业务授权须在服务端实现。 |
+| `hideExpression` | 隐藏条件 | 未设置 | vue3 | 表单表达式如 `$.state == 1`；按 Java/TS 属性名引用，而不是数据库列名。 |
+| `disabledExpression` | 禁用条件 | 未设置 | vue3 | 与隐藏不同；禁用不构成后端写权限校验。 |
+| `dataUrlParams` | 数据请求附加参数 | 未设置 | vue3 | 占位符替换依宿主协议；XML 中 `&` 须写作 `&amp;`。 |
+| `watchFields` | 选项刷新监听字段 | 空集合 | vue3 | 逗号分隔表单属性名；只对消费此配置的组件生效。 |
+| `renderHref` | 只读字段链接化 | `false` | vue3 | 不同于 HTML 子节点 hrefElement；还依赖宿主路由。 |
+| `hrefDataKeyField` | 链接目标数据键属性 | 未设置 | vue3 | 当前显示值不是记录键时显式提供；配合 renderHref。 |
+| `tips` | 字段提示 | 未设置 | vue3 | 写入 Vue 字段元数据。 |
+
+显隐表达式与 SQL 过滤表达式是两种语言。DTD 提示可引用 `$`（当前表单）、viewStatus、currentUser，但变量注入及求值由宿主实现；本章不保证所有 HTML/Vue 控件均支持，也不把显示条件当权限规则。
+
+#### 7.3.3 `htmlTableSelectDescriptor`
+
+Parser 复用普通 descriptor 解析，随后强制 dataSource=Dict，tagType 缺省 tableselect。下表覆盖其专有声明；其余已声明属性按 7.3.1、7.3.2 对应行读取，不是继承普通节点的全部可选属性。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `column` | 保存选择值的列 | DTD 必填 | vue3和html | 仍须绑定真实列。 |
+| `tagType` | 表格选择形式 | `tableselect` | vue3和html | 还可为 tableSelectPop；不改变强制 Dict 来源。 |
+| `dataUrl` / `beanName` / `listKey` / `listViewClass` | 接口、引用类型、列表标识与 VO 类 | **四项在 DTD 均必填** | vue3和html | 即使某运行时可能推导，验证型 XML 也不能省略。 |
+| `otherFieldName` / `applyProperty` / `applyPropertyKey` / `callback` | 回填与回调 | 同普通 descriptor | vue3和html | 不会自动提供引用查询业务。 |
+| `multiple` | 多选 | `false` | vue3和html | 默认单选。 |
+| `enablePager` | 分页 | `false` | vue3 | 显式配置 true 才能依靠生成标志开启。 |
+| `dataUrlParams` / `defaultFilterExpr` / `hideExpression` / `disabledExpression` | 参数、过滤、显隐、禁用 | 未设置 | vue3 | 语义与 7.3.2 一致。 |
+| `renderHref` / `hrefDataKeyField` / `tips` | 只读链接及提示 | false / 未设置 / 未设置 | vue3 | 语义与 7.3.2 一致。 |
+
+#### 7.3.4 `htmlSwitchDescriptor` 的当前限制
+
+**当前 `parseHtml` 没有处理直接子节点 htmlSwitchDescriptor 的分支**，会记录未知节点警告；不能把该 DTD 节点描述为可用的页面开关简写。页面中改用 `<htmlElementDescriptor column="..." tagType="switch" .../>`。reusableElements 有同名分支，但并不能据此证明页面直接子节点生效。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `column` | 开关绑定列 | DTD 必填 | vue3和html | 当前页面直接子节点整体未生效，以下亦同。 |
+| `dataUrl` / `dataFormat` / `dataSource` | 数据接口、快捷格式、来源 | 普通描述器逻辑；直接子节点未解析 | vue3和html | dataFormat 限启停/有无/是否，dataSource 限 Dict/DictData/DictUser/DictSys/DictEnum。 |
+| `otherFieldName` / `beanName` / `applyProperty` / `applyPropertyKey` / `dictCode` | 回填与字典映射 | 普通描述器逻辑；直接子节点未解析 | vue3和html | 不额外支持 enumClassFullName 属性。 |
+| `callback` / `switchText` | 回调与文案 | 普通描述器逻辑；直接子节点未解析 | vue3和html | 使用普通 descriptor 才走页面消费链路。 |
+| `hideExpression` / `disabledExpression` / `watchFields` / `tips` | 状态、联动与提示 | 普通描述器逻辑；直接子节点未解析 | vue3和html | 不能以 DTD 验证通过代替行为验收。 |
+
+#### 7.3.5 `htmlFormExtendDescriptor`
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `column` | 设计 JSON / 数据 JSON 保存列 | DTD 必填 | vue3 | 按真实数据库列绑定，不会建立新持久化字段。 |
+| `tagType` | 自定义表单设计/渲染控件 | DTD 必填 | vue3 | formDesign / formRender；复用普通 descriptor 解析后写入 Vue 字段注解。 |
+| `parentFormKey` | 设计时父表单键 | 未设置 | vue3 | 运行时用以定位父表单容器。 |
+| `designIdField` | 渲染时设计 ID 的属性 | 未设置 | vue3 | 应是宿主可读取的表单属性。 |
+| `designRestBasePath` | 设计资源接口基础路径 | 未设置；Parser 保存到 dataUrl | vue3 | 读取时同样可能补前导 `/`。 |
+| `configJsonfield` | 设计配置 JSON 属性名 | `jsonContent` | vue3 | 大小写以此拼写为准；不是 dataUrl 成员。 |
+| `hideExpression` / `disabledExpression` | 隐藏/禁用条件 | 未设置 | vue3 | 同 7.3.2。 |
+
+DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不要在此节点内配置 property 并期待同时通过当前 DTD 验证及解析。此处只记录限制，本次不修改 DTD/Parser。
+
+### 7.4 校验、链接与按钮
+
+#### 7.4.1 `validator`
+
+可作为普通 descriptor、Switch/TableSelect 的子节点；但 Switch 的页面解析限制仍适用。下表描述 Vue 校验注解链路，不表示 HTML Layui 的 verify 字符串与其等效。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `scope` | 规则适用范围 | `0`（未指定，通用）；DTD 显式仅允许 1/2 | vue3 | 1 为表单，2 为内嵌表格编辑；按匹配 scope 或 0 筛选。 |
+| `required` | 必填 | Boolean 未设置；规则先看列非空，再看 validator=true/requiredColumns | vue3 | false 不能取消非空列必填。 |
+| `type` | 验证值类型 | 显式规则优先，否则由 JavaTypeMapEnum 按字段类型推导 | vue3 | 值域见 `%validatorType;`，不要与 tagType 或 verify 规则名混用。 |
+| `min` | 下限/最短长度 | 列 minLength>0 时可推导，再由显式规则覆盖 | vue3 | Parser 要求可解析为数值，否则添加警告。 |
+| `max` | 上限/最长长度 | 字符串列长度可推导 | vue3 | **已知实现偏差**：Parser 校验 max 后却执行 setMax(min)，因此显式 max 不能按声明值保证生效。 |
+| `len` | 精确长度 | 配置对象未设置 | vue3 | string/array 使用；应核对生成规则而非仅看 XML。 |
+| `pattern` | 正则 | 未设置 | vue3 | 注意 XML 与 Java 注解字符串的转义。 |
+| `enum` | 允许值集合 | 未设置 | vue3 | **已知实现偏差**：规则描述器 ENUM 分支读取 pattern 而非 enumList，不能保证按声明值输出。 |
+| `whitespace` | 仅空白输入的校验标志 | Boolean 未设置 | vue3 | Parser 读取，但当前规则描述器未传递该配置，不应承诺生效。 |
+| `transform` | 校验前转换函数 | 未设置 | vue3 | 作为规则文本输出；宿主须支持。 |
+| `validator` | 自定义校验函数 | 未设置 | vue3 | 需匹配表单/内嵌表格的函数签名；不会生成业务函数实现。 |
+| `message` | 校验提示 | 显式配置或按列备注/规则类型生成 | vue3 | 各规则分支取值不完全一致，不是所有规则的全局覆盖值。 |
+| `trigger` | 校验触发方式 | 采用显式值的规则分支优先取配置；否则 scope=1 为 blur、scope=2 为 change | vue3 | DTD 为 blur/change/submit/blurChange；非空列必填等分支直接采用范围默认值，不读取本项。 |
+
+#### 7.4.2 `hrefElement`
+
+普通 descriptor 下可配置一个，用于 HTML 字段附加链接；Vue 字段链接请用 renderHref/hrefDataKeyField。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `href` | 链接地址 | DTD 必填；Parser 空值则丢弃 | html | 不自动创建目标路由。 |
+| `target` | 打开目标 | 配置类 **`_blank`**；DTD 显式值 blank/self/parent/top | html | 省略值与显式值拼写不同，需核对实际 HTML。 |
+| `type` | 滑出/弹窗方式 | **`slideLeft`**（不是注释中的 slideRight） | html | 还支持 slideRight/slideDown/slideUp/pop。 |
+| `text` / `title` | 文案/提示标题 | 配置对象未设置 | html | 不将 DTD 注释中的列备注回退视为 Parser 行为。 |
+| `icon` | 图标 | 未设置 | html | 图标资源由宿主提供。 |
+| `keySelector` | 取记录键的选择器 | `#id` | html | 配合页面实际 DOM。 |
+| `hideExpression` | 隐藏条件 | 未设置 | html | 具体消费以 HTML 控件实现为准。 |
+| `method` / `disabledExpression` | 回调/禁用条件 | DTD 声明但 Parser 未读取 | html | **当前未生效**，不要假定配置后自动创建回调。 |
+
+#### 7.4.3 `htmlButton`
+
+generateHtml、普通 descriptor、innerList 下可声明按钮；Vue 列表按钮另见第 5.2 节。按钮定义不等于自动加入所有工具栏，需有对应动作键引用/模板消费；innerList 的 vxeListButtons/actionColumn 会参与动作描述转换。
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `id` | 动作键 | DTD 必填 | vue3和html | 应与工具栏/行操作动作键匹配。 |
+| `label` / `title` | 文案/标题 | 未设置 | vue3和html | 标准动作可能另有既有描述；自定义动作应明确提供。 |
+| `handler` | 处理函数 | 未设置 | vue3和html | 引用宿主实现，不会自动实现业务。 |
+| `icon` / `elIcon` | 图标 | 未设置 | vue3和html | 按实际前端实现选用，不能保证两种图标通用。 |
+| `type` | 按钮语义样式 | `primary` | vue3和html | primary/success/warning/danger/info。 |
+| `text` / `isLink` / `isRound` / `isCircle` / `isPlain` | 文本、链接、圆角、圆形、朴素样式 | 均 `false` | vue3和html | 是否呈现取决于动作注解/模板及组件支持。 |
+| `classes` / `css` | 类名/内联样式 | 未设置 | vue3和html | 不自动生成样式资源。 |
+| `showCondition` | 显示条件 | 字符串 `true` | vue3和html | 不同于 hideExpression 的隐藏语义。 |
+| `disabledCondition` | 禁用条件 | 字符串 `false` | vue3和html | 不是服务端授权。 |
+| `configurable` | 是否可配置 | `false` | vue3和html | 由消费动作元数据的宿主解释。 |
+| `localeKey` | 国际化键 | 未设置 | vue3和html | 语言资源须存在。 |
+| `componentType` | 动作组件类型 | `button` | vue3和html | icon/text/popSelect/button。 |
+| `uiFrameType` | DTD 预留框架选择 | Parser 未读取 | vue3和html | **当前未生效**，不切换按钮生成分支。 |
+
+### 7.5 附件与审批意见
+
+#### 7.5.1 `htmlFileAttachment`
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `generate` | HTML 附件生成标志 | `true` | html | **Vue 元数据插件遍历所有附件，不检查此标志**；false 不保证移除 Vue 上传组件。 |
+| `elementKey` | 上传组件唯一键 | DTD 必填 | vue3和html | Parser 缺省分支按字符串拼接产生 upload_tmp_field01、upload_tmp_field11 等，但验证型配置不可省略。 |
+| `multiple` | 多附件 | `true` | vue3和html | 单文件须显式 false。 |
+| `type` | 文件列表展示形式 | `text` | vue3 | text/picture/picture-card；不等于文件后缀限制。 |
+| `location` | 存储类型 | `table` | vue3和html | DTD 接受 file/table/local/oss；不表示各宿主均实现所有类型。 |
+| `limit` | 数量上限 | `0` | vue3 | 按协议表示不限制；Parser 解析整数。 |
+| `tips` | 上传提示 | 空字符串 | vue3 | 非服务端文件校验规则。 |
+| `restBasePath` | 上传/访问基础路由 | `/bizcore/vbiz-file-attachment-impl` | vue3和html | 是框架约定路径，不是文件系统目录；本地/OSS 方案须匹配宿主服务。 |
+| `label` | 标题 | `附件` | vue3和html | Vue 非默认值才显式输出。 |
+| `afterColumn` | 定位到指定列后 | 未设置 | vue3和html | HTML 未命中位置通常追加，Vue 依运行时布局。 |
+| `exclusive` | 独占行 | `true` | html | Vue 上传描述器未读取该字段，span 固定初值 24。 |
+| `order` | 附加组件顺序 | `10` | html | **Vue 上传描述器未复制配置 order**，仍按自身 10 判断，不保证此值改变 Vue 排序。 |
+| `hideExpression` | 隐藏条件 | 未设置 | vue3和html | Parser 保存，但 VueFormUploadMetaDesc 未传递；不可依此隐藏 Vue 上传组件，HTML 同样需核对具体模板。 |
+| `verify` | 必填/不校验 | DTD 声明 none/required，Parser 未读取 | vue3和html | **当前未生效**。 |
+
+#### 7.5.2 `approvalComment`
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `generate` | 审批组件生成标志 | **`false`**（Java 布尔初值，不是 DTD 注释中的 true） | html | Vue 规则只判断配置列表非空，描述器未检查 generate；false 不保证移除 Vue 审批组件。 |
+| `elementKey` | 组件键 | DTD 必填 | vue3和html | 不自动实现审批业务。 |
+| `afterColumn` | 放置位置 | 未设置 | vue3和html | 使用实际存在的列。 |
+| `label` | 标题 | `审批意见` | vue3和html | 对应组件文案。 |
+| `placeholder` | 输入提示 | `请输入审批意见` | vue3和html | 不属于必填校验。 |
+| `locationTag` | 业务位置标记 | `审批意见` | vue3和html | Vue 输出为 busLocation。 |
+| `rows` | 文本行数 | `3` | vue3和html | Parser 整数解析。 |
+| `tips` | 提示 | 空字符串 | vue3 | 写入审批元数据。 |
+| `hideExpression` / `verify` | 隐藏/校验 | DTD 声明，Parser 未读取 | vue3和html | **当前未生效**；verify 为 none/required。 |
+
+Parser 还读取 approvalComment 的 span（默认 24），但当前 DTD 未声明，不能在验证型配置中添加此属性。
+
+### 7.6 内嵌列表与打印
+
+#### 7.6.1 `htmlElementInnerList`：来源与布局
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `elementKey` | 组件键 | DTD 必填 | vue3和html | Vue 描述器的备用算法为模块 + 默认 HTML 键 + 序号，但不是可省略 DTD 必填属性的依据。 |
+| `listKey` | 列表标识 | 未设置，不自动生成 | vue3和html | 不同于组件键；应对应真实列表配置。 |
+| `label` | 列表标题 | 配置初值空；Vue 回退为**当前主表**简要备注 | vue3和html | 不应声称自动读取来源表备注。 |
+| `showTitle` | 显示标题 | **`false`**（配置类初值） | vue3 | 描述器会据此输出 showTitle=false。 |
+| `moduleKeyword` | 来源模块 | 显式值转小写；否则取 Context 模块转小写 | vue3和html | Context 必须提供有效模块关键字。 |
+| `sourceBeanName` | 来源 bean | DTD 必填 | vue3和html | Parser 同时计算短横线形式，供路由使用。 |
+| `relationField` | 关联字段 | DTD 必填 | vue3和html | 不自动增加数据库外键或实现级联保存。 |
+| `sourceListViewClass` | 来源列表 VO 全类名 | 未设置 | vue3和html | 必须有可供宿主读取的列表元数据。 |
+| `relationKey` | 关联记录键 | `id` | vue3和html | 与主表/来源对象键保持一致。 |
+| `tagId` | 前端列表引用标识 | DTD 必填 | vue3和html | 不与其他列表引用冲突。 |
+| `dataField` | 主表响应中的子列表属性 | 未设置 | vue3和html | 与 dataUrl 选择合适加载方式；Parser 不校验二选一，需人工保证数据契约。 |
+| `dataUrl` | 子列表请求地址 | 未设置；getter 可补 `/` | vue3和html | 不自动生成该接口。 |
+| `span` | 栅格宽度 | `24` | vue3 | 不等于字段列数。 |
+| `afterColumn` | 放置位置 | 未设置 | vue3和html | 指定已有列。 |
+| `containerType` | 列表容器 | 未设置，不是自动 none | vue3和html | none/tab/border；与 layout/groupContainer 分开配置。 |
+| `order` | 附加组件顺序 | `10` | vue3和html | Vue 内嵌列表描述器会复制此值，与附件不同。 |
+| `restBasePath` | 来源 REST 基础路径 | 未设置 | vue3和html | **当前 Parser 偏差**：显式非空且 sourceBeanName 非 null 时，反而重算为“局部 moduleKeyword 属性值 + `/` + bean 短横线名”；未填时仍为空。仅靠 Context 回退可能得到 null 前缀，不可假定总按配置值/自动路由生效。 |
+| `sourceViewPath` | HTML 来源视图名 | 初值空；显式转小写，getter 取末段 | html | 不控制 Vue 组件文件路径。 |
+| `title` | DTD 预留标题 | Parser 未读取 | vue3和html | **当前未生效**；使用 label 或容器 title。 |
+
+#### 7.6.2 `htmlElementInnerList`：交互、操作与汇总
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `editMode` | 行/单元格/禁编辑 | `row` | vue3 | row/cell/none；不等于保存接口权限。 |
+| `editableFields` | 可编辑字段 | 空集合 | vue3 | 逗号分隔；与来源 VO 字段对齐。 |
+| `enablePager` | 分页 | `false` | vue3 | 不是主列表 viewVo 的分页配置。 |
+| `vxeListButtons` | 工具栏动作键 | 空列表 | vue3 | 逗号分隔，输出 toolbarActions。 |
+| `actionColumn` | 行操作动作键 | 空列表 | vue3 | 逗号分隔，输出 columnActions；可配子 htmlButton。 |
+| `showActionColumn` | 行操作列显示策略 | `default` | vue3 | **当前 VueFormInnerListMetaDesc 未复制/输出此字段**，不能保证生效。 |
+| `actionColumnWidth` | 操作列宽度 | 未设置 | vue3 | 作为字符串进入元数据。 |
+| `defaultFilterExpr` | 默认过滤 SQL | 未设置 | vue3 | 不是隐藏表达式，也不是可信服务端授权条件。 |
+| `batchUpdateColumns` | 批量修改列 | 空集合 | vue3 | 配套接口、字段白名单及权限仍需实现。 |
+| `defaultSort` | 默认排序 | 未设置 | vue3 | 传入列表元数据；服务端仍需约束可排序字段。 |
+| `showRowNumber` | 显示行号 | `true` | vue3 | false 时显式输出。 |
+| `enableEdit` | 编辑策略 | 字符串 `default` | vue3 | default/true/false，不是 boolean 属性。 |
+| `totalRow` | 合计行 | `false` | vue3 | 不自动生成数据库统计。 |
+| `totalFields` | 合计字段 | 空集合 | vue3 | 逗号分隔；字段应支持汇总。 |
+| `totalText` | 合计文案 | `合计` | vue3 | 与合计数据计算分开。 |
+| `editFormIn` / `detailFormIn` | 编辑/详情打开方式 | 配置对象未设置；描述器以 dialog/drawer 为省略比较值 | vue3 | inner/dialog/drawer；最终缺省由 basic 注解与宿主决定。 |
+| `hideExpression` / `disabledExpression` | 隐藏/禁用条件 | 未设置 | vue3 | 两者均进入内嵌列表注解。 |
+| `dataUrlParams` | 请求参数 | 未设置 | vue3 | **Parser 保存但 Vue 内嵌列表描述器未传递**，不能依此保证请求携带参数。 |
+| `verify` | 必填/不验证 | 配置初值空列表；DTD 为 none/required | vue3 | 注解描述器默认 none，实际配置 required 会输出；仍需服务端校验。 |
+
+#### 7.6.3 `htmlElementInnerList`：打印
+
+| 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
+|---|---|---|---|---|
+| `printMode` | HTML 打印布局 | `table` | html | table/form，不触发 Vue3 打印组件。 |
+| `printFormColumnsNum` | 表单式打印列数 | `2` | html | Parser 整数解析。 |
+| `printFields` | 打印字段 | 空列表；getter 去重 | html | 逗号分隔，按打印模板支持范围消费。 |
+
+### 7.7 Vue3 页面生成、接入与覆盖边界
 
 Vue3 文件由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 生成；对应源码和模板分别位于 `src/main/java/org/mybatis/generator/plugins/vue3/` 与 `src/main/resources/templates/vue3/`。与 `generateHtml` 相关的规则共用表级页面配置：**至少配置一个已启用的 editable 页面才能触发编辑型 Vue3 页面**，只读页面配置则可触发详情组件。除此以外，必须在 Context 设置非空 `vueEndProjectPath`，且 model-only 表不会生成页面。
 
@@ -620,16 +888,24 @@ Vue3 文件由 `Vue3OtherFilesPlugin` 与 `Vue3FormFilesPlugin` 生成；对应�
 
 以上 Vue3 产物的完整清单与权威设计边界见[生成器权威说明第 2.2 节](generator-authoritative-spec.md#22-vue3-前端可生成能力)。在多 `generateHtml` 配置场景下，检查是否存在有效 `generate="true"` 且 `type="editable"` / `type="viewOnly"` 的配置；不要只看 XML 中是否出现了 `generateHtml` 节点。
 
-#### Vue3 与 `generateHtml` 的职责边界
+#### 7.7.1 Vue3 与 `generateHtml` 的职责边界
 
 1. `generateHtml` 是表级页面配置节点。它配置的 `type`（`editable`、`viewOnly`、`print`）及 `generate` 值参与 HTML 页面规则判断，也参与 Vue3 editable/viewOnly 产物规则判断；`generate="false"` 或 model-only 不能触发相应页面。
-2. `generateHtml` 下的 `layout`、`htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、附件和打印属性，首先是对应 HTML 模板/生成路径的配置。Vue3 模板使用 Framework `VgoTableView` / `vgoForm`，部分数据来自后端视图/表单配置服务；不能把 HTML 的布局属性直接解释为 Vue3 布局属性。需要 Vue3 页面采用特定字段、控件或行为时，核对实际 Vue 模板、生成配置数据流和宿主运行时契约。
+2. 页面配置存在两条消费链：一条输出 HTML/静态资源；另一条经 `VueHtmMetaAnnotationPlugin` 生成 VO 的表单、字段、容器、上传、内嵌列表及审批注解，再由后端配置服务与 Framework `vgoForm` 消费。`layout` 的字段列数/独占列、标签/弹窗配置，以及多数输入控件和附加组件配置会通过第二条链路影响 Vue3；HTML loadingFrameType/barPosition/uiFrameType、文件路径/覆盖、打印项不能据此当作 Vue3 配置。逐项影响与未传递限制以 7.1～7.6 表格为准，尤其不能用直接子节点 htmlSwitchDescriptor 代替有效普通 descriptor。
 3. Vue3 列表需要 `viewVo`，其视图标识、标题、列/查询/过滤、工具栏、默认排序和菜单元数据等配置按第 5 节 `viewVo` 配置及当前 DTD 生效。`generateVo` 父级必须启用，`viewVo` 子项必须实际启用；仅启用 `generateHtml` 不会生成列表页。
 4. Vue3 编辑/详情模板本身是组件骨架；表单字段定义、数据源和控件如何装配，应通过已生成的 VO/表单元数据及服务端返回的配置确认。不要仅因某列存在于 Entity 或 TypeScript 类型中，就假定它会出现在查询区、表格列或表单中。
 
+#### 7.7.2 `generateHtml` 的附带 HTML 产物
+
+`generateHtml generate="true"` 不只是 Vue3 的触发标志：同一配置也会进入生成器的 HTML 输出路径。当前 core 的解析器将 HTML 根目录默认为 `context.htmlTargetProject`，未配置时为 `src/main/resources/templates`；HTML 包路径默认为 `context.htmlTargetPackage`，未配置时取 `moduleKeyword`，最终 HTML 路径由包路径和 `viewPath` 拼成。未显式设置 `viewPath` 时使用表名小写。
+
+对 `type="editable"`，当前插件还会在 `src/main/resources/static/js/{moduleKeyword}` 输出以 `viewPath` 最后一段命名的 `.js` 与 `.min.js` 文件。HTML、JS、CSS 的 `overWrite*File` 缺省均为 `false`；已有文件是否被跳过或覆盖，须按当前 core 的写文件逻辑和运行 Diff 确认。CSS 另受布局边框样式是否偏离默认值约束，不应仅因启用 editable 就预期必然产生 CSS。
+
+因此，启用 editable 以取得 Vue3 页面时，授权范围和生成前清单必须同时列出 Vue3 输出及此处的 HTML/静态资源输出；不能只核对 `vueEndProjectPath`。该结论来自当前 Parser、HTML 文件收集和 JQuery/CSS 插件源码，仍须在实际目标配置生成后核对文件清单及覆盖结果。
+
 Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm-ui\packages\framework\docs\framework-capability-overview.md)和[组件开发与复用能力指南](D:\vscode\mpmm-ui\packages\framework\docs\components-reuse-capability-overview.md)为复用依据；mpmm-ui 的[OrgRole 列表页](D:\vscode\mpmm-ui\src\modules\organization\views\OrgRole.vue)及其[编辑组件](D:\vscode\mpmm-ui\src\modules\organization\orgrole\components\OrgRoleEdit.vue)、[Hooks](D:\vscode\mpmm-ui\src\modules\organization\orgrole\PrivateUseFormHooks.ts)、[列插槽](D:\vscode\mpmm-ui\src\modules\organization\orgrole\PrivateTableColumnSlots.vue)仅用于核对真实宿主接入方式。示例项目的业务实现不能取代本生成器的 DTD、配置解析、插件/模板源码，也不构成其他宿主必须照搬的方案。
 
-#### 最小配置片段
+#### 7.7.3 最小配置片段
 
 下面是放入既有 `<context>` 的 `<table>` 配置片段，不是完整可执行的 `generatorConfig.xml`。`vueEndProjectPath` 应配置在 `<context>` 上，值为 Vue 项目根目录（不含 `src`）；表配置顺序遵循当前 DTD：
 
@@ -651,9 +927,9 @@ Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm
 </table>
 ```
 
-这是启动 Vue3 列表、编辑、详情及弹窗骨架的配置起点，不代表页面功能完整。根据需求补齐 VO 字段范围、必填/忽略校验、`queryColumn` / `filterColumn` 细项、`fieldOverrides`、列表按钮、值转换、附件和 innerList 等；每项均以当前 DTD 可接受的节点/属性及解析源码为准。仅需要只读详情时可配置启用的 `type="viewOnly"` 页面，但不会因此得到列表页或编辑/弹窗文件。`generateHtml` 的 `layout` 及其文件覆盖属性不能作为 Vue3 文件布局/覆盖配置使用。
+这是启动 Vue3 列表、编辑、详情及弹窗骨架的配置起点，不代表页面功能完整。根据需求补齐 VO 字段范围、必填/忽略校验、`queryColumn` / `filterColumn` 细项、`fieldOverrides`、列表按钮、值转换、附件和 innerList 等；每项均以当前 DTD 可接受的节点/属性及解析源码为准。仅需要只读详情时可配置启用的 `type="viewOnly"` 页面，但不会因此得到列表页或编辑/弹窗文件。`layout` 中已传入表单注解的配置会影响 Vue3 运行时布局，但不会生成任意定制 Vue 模板；HTML 文件覆盖属性不控制 Vue3 覆盖。
 
-#### 页面与配置项对应关系
+#### 7.7.4 页面与配置项对应关系
 
 | 设计目标 | 优先检查的配置 | 说明 |
 |---|---|---|
@@ -662,15 +938,36 @@ Framework API/组件契约以 mpmm-ui 的[Framework 能力总览](D:\vscode\mpmm
 | 过滤器 | `viewVo.filterColumns`、`filterColumn` | 明确字段、控件/操作和值域；需要跨表共用时可评估 `reusableElements` |
 | 列表和行操作 | `viewVo.toolbar`、`actionColumn`、`htmlButton` | 确认按钮 ID 对应已生成动作或已实现的业务扩展，不可只配置前端按钮 |
 | 新增/编辑/详情数据模型 | `generateVo` 及 `modelVo`、`createVo`、`updateVo`、`viewVo` | 列表/表单用途不同，分别核对字段白名单、必填项与校验忽略项 |
-| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、`htmlFileAttachment`、`htmlElementInnerList` | 先辨别目标是 HTML 生成输出还是 Vue3/宿主运行时表单配置；共享节点名不意味着模板行为完全相同 |
+| 表单控件和页面组件 | `htmlElementDescriptor`、`htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList` | 对照 7.3～7.6 的属性传递链与限制；页面直接子节点 htmlSwitchDescriptor 当前未解析，开关用普通 descriptor 的 tagType=switch |
 | 多表复用 | `reusableElements` 中受支持的字段、控件、列和过滤器描述 | 仅复用指南和当前 DTD/源码实际支持的描述，表级配置保留差异项 |
 | 页面菜单及权限 | `viewVo.parentMenuId`、ViewVo 菜单属性，以及 Context/Table 的模块和菜单数据配置 | 确认初始化 SQL 纳入部署链路、父节点和权限数据正确；具体生成条件见项目菜单规范及生成器菜单配置说明 |
 
-#### Vue3 产物覆盖策略
+#### 7.7.5 Vue3 产物覆盖策略
 
 Vue3 列表、编辑、详情、Hooks 和列插槽文件，仅当既有目标文件前 10 行包含完整 `@VCF.overridable` 标记时才被插件标记为可覆盖；没有该标记的既有文件会保留。`T{Domain}.ts`、`{Domain}Modal.vue` 和 `sharedVariables.ts` 在当前插件中显式设为覆盖，不能依赖标记保护人工内容。最终写盘还受运行时 `ShellCallback` 覆盖模式影响。
 
 开始人工维护之前，逐文件核实生成策略，并遵守 `.github/copilot-instructions.md` 第 2.1 节：对于允许扩展且按标记控制的文件，开始人工扩展时先将完整标记改为无法严格匹配的形式，确认标记不再存在；恢复标记前须确认扩展已迁出或可以丢弃。对显式覆盖文件应将必要扩展放入已验证的 Hooks、列插槽或宿主模块扩展点，不应直接依赖文件标记保留内容。生成器升级或修改插件后，重新核验本节条件和生成物差异。
+
+#### 7.7.6 生成 HTML view 路由的权限边界
+
+当前 `ViewElementGenerator` 为生成 Controller 的 GET `view` 方法添加 `@PermitAll`。该方法可按可选 ID 读取实体并把 VO 放入页面模型；在会把 `@PermitAll` 转换为匿名 URL 放行规则的宿主安全配置中，这不等价于“已登录用户可访问”或“具有模块管理权限”。任何启用该路由的管理页面都必须核对实际安全配置和读数据路径，并在业务扩展层实施合适的权限保护；不得只依赖列表页按钮权限或前端菜单隐藏。不要直接修改 `codegen` Controller，优先在允许维护的 Controller 扩展壳覆盖路由，并以实际宿主 HTTP 请求验收匿名拒绝和授权访问。该行为来自生成器 Controller 源码；具体宿主如何解释 `@PermitAll` 仍须在对应安全配置中核实。
+
+### 7.8 源码核对入口与补充规则
+
+以下路径相对于 core 模块 `src\main\`。本章记录当前实现，不授权业务重新生成，也不在本次文档补齐中修复已标出的生成器偏差。
+
+| 核对内容 | 源码入口 |
+|---|---|
+| 合法节点、属性、顺序及必填项 | `resources\org\mybatis\generator\config\xml\mybatis-generator-config_1_8_0.dtd` |
+| 属性读取、类型转换、未处理子节点 | `java\org\mybatis\generator\config\xml\MyBatisGeneratorConfigurationParser.java`：parseHtml、parseHtmlLayout、parseHtmlElementDescriptor、各附加组件解析方法 |
+| 初值、字典 URL、快捷格式、默认列与字段状态合并 | `java\org\mybatis\generator\config\Html*Configuration.java`、`HtmlLayoutDescriptor.java`、`HtmlElementDescriptor.java`、`AbstractHtmlElementDescriptor.java`、`TableConfiguration.java`、`ConfigUtil.java` |
+| Vue 元数据默认页面选择、字段 span 和属性复制 | `java\org\mybatis\generator\plugins\VueHtmMetaAnnotationPlugin.java` |
+| 注解实际输出及省略成员 | `java\org\mybatis\generator\custom\annotations\VueForm*MetaDesc.java`、`VueFormItemRuleDesc.java` |
+| Vue 控件/日期格式/校验推导 | `java\org\mybatis\generator\codegen\mybatis3\vue\VueFormGenerateUtil.java` |
+| HTML 框架分支、打印与附加组件 | `java\org\mybatis\generator\plugins\JavaClientGeneratePlugins.java`、`java\org\mybatis\generator\codegen\mybatis3\htmlmapper\document\` |
+| Vue 文件产物、模板和覆盖 | `java\org\mybatis\generator\plugins\vue3\`、`resources\templates\vue3\` |
+
+后续补充每个属性时，分别确认“DTD 可配置”“Parser 已读取”“计算后最终值”“描述器/模板已传递”“宿主实际消费”五个环节；未输出的注解成员再核对项目实际依赖的 basic 注解默认值。配置存在、生成成功、页面能打开，都不能单独证明某个交互行为已生效。
 
 ## 8. 查询 / 关联 / 统计
 
@@ -1039,8 +1336,8 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 | `moduleKeyword`                       | 必填       | 模块关键字，影响接口根路径和前端模块路径。如没有指定，则默认使用模块名称（全字符)               |
 | `moduleName`                          | 必填       | 模块中文名，用于模块/菜单数据。如没有指定，则默认使用“业务”                         |
 | `jdkVersion`                          | 必填       | `8/9/11/17/21`。 。如没有指定，则默认使用21                          |
-| `parentMenuId`                        | 视需求      | 菜单父级。模块在菜单中显示时需要，如没有指定，则默认使用业务顶级菜单“1628062089249689600” |
-| `updateModuleData` / `updateMenuData` | 视需求      | 是否产出模块/菜单数据 SQL。  没有指定，则默认使用“true”                      |
+| `parentMenuId`                        | 视需求      | 菜单父级。ViewVo 级 `parentMenuId` 优先，否则使用 Context 值；没有配置时无隐式默认父菜单。 |
+| `updateModuleData` / `updateMenuData` | 视需求      | 是否产出模块/菜单数据 SQL；两项缺省均为 `false`，需按需显式开启。 |
 | `onlyTables`                          | 建议       | 多人协作时建议限制本次生成表范围。 没有指定，则默认为空                            |
 | `vueEndProjectPath`                   | 前后端联动时必配 | Vue 项目根路径（不含 `src`）。                                    |
 | `additionalDbTypes`                   | 多库场景必配   | 目标数据库方言集合。 没有指定，则默认为空                                   |
@@ -1050,7 +1347,7 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 | 项     | 建议                                                                |
 |-------|-------------------------------------------------------------------|
 | 表角色   | 先确定是 `dataTable` 还是 `relationTable`。                              |
-| 模块主表  | 是否 `isModules=true`。 需要显示在菜单中则为true,  parentMenuId不为空             |
+| 模块主表  | 需要生成默认视图菜单时配置 `isModules=true`，并确保 Context 或 ViewVo 有有效 `parentMenuId`；另须显式启用 Context `updateMenuData=true`。 |
 | 别名    | `alias` 是否统一（影响 SQL/filter 拼接）。                                   |
 | 上传下载  | 是否启用 `enableFileUpLoad`。 没有指定，则默认为false                           |
 | 关系设计  | 是否需要双侧 `selectByTable`（多对多）、`selectByColumn` 或独立的一对多 `javaModelCollection`；确定关系表两侧键和维护方向。 |
@@ -1144,7 +1441,7 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 | 4 列级配置 | `columnOverride`、`ignoreColumn`、`ignoreColumnsByRegex`、`except` |
 | 5 Java 模型/VO | `generateModel`、`generateVo`、`modelVo/createVo/updateVo/viewVo/excelVo/requestVo`、`additionalProperty`、`generateCachePo` |
 | 6 值转换/渲染 | `overridePropertyValue`、`columnRenderFun`、`htmlElementDescriptor` |
-| 7 页面生成 | `generateHtml`、`layout`、`groupContainer`、`htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、`htmlFileAttachment`、`htmlElementInnerList` |
+| 7 页面生成 | `generateHtml`、`property`、`layout`、`groupContainer`、`htmlElementDescriptor`、`htmlSwitchDescriptor`、`htmlTableSelectDescriptor`、`htmlFormExtendDescriptor`、`validator`、`hrefElement`、`htmlButton`、`htmlFileAttachment`、`approvalComment`、`htmlElementInnerList`；逐项解析/传递限制见第 7 章 |
 | 8 查询/关联/统计 | `selectByColumn`、`selectByTable`、`selectBySqlMethod`、`javaModelAssociation`、`javaModelCollection`、`generateTreeViewCate`、`generateOptions`、`generateDateDimStatistics`、`generateCustomStatistics` |
 | 9 其他辅助 | `htmlButton`、`queryColumn`、`filterColumn`、`nameFragment`、`mapstructMapping`、`reusableElements` |
 | 10 常见歧义/纠错 | DTD 注释 + Parser/Generator 源码校准（如 `excludedTables`、`orderByClause` 等） |
@@ -1196,3 +1493,61 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 | 权限 SQL 文件 | `data-permission-<tableName小写>.sql`、`data-permission-action-<tableName小写>.sql` | 表名派生；条件生成 | 有相应权限数据时生成，固定前缀后追加小写表名。 | `codegen\mybatis3\IntrospectedTableMyBatis3Impl.java` |
 
 常见命名依赖链为：**表名 → `domainObjectName` → 实体派生类名、Bean 名、请求路径及前端文件名**；列相关名称以数据库列名转换得到的 **`javaProperty`** 为基础，并可受列覆盖、VO 属性配置或 HTML 元素配置影响。
+
+## 19. Spring 首次初始化
+
+本节统一指导将生成器及项目提供的数据库初始化资源部署到目标数据库。范围包括数据库结构（DDL）、存储过程 / 函数等数据库程序对象、权限及权限动作数据、菜单 / 模块 / 流程类型等期初数据，以及项目自有的其他 SQL。生成器输出 SQL 文件不等于 Spring 已执行或数据库已写入；`src/main/resources/sql` 下的文件也不会仅因位于该目录而自动执行。
+
+### 19.1 初始化资源盘点
+
+生成完成后，先对**本次完整生成范围**和项目既有初始化目录做资源清单，记录文件来源、数据库方言、目标 schema、前置依赖、是否可重复执行及负责人。至少核对以下类型：
+
+| 资源 | 当前生成器中的常见位置 / 命名 | 检查要点 |
+|---|---|---|
+| 表结构 DDL | 默认位于 `src/main/resources/sql/<方言>/schema_<tableName小写>.sql`；可受 `filePrefix`、目标路径及方言配置影响 | 只执行与目标数据库匹配的方言脚本；核对表、索引、约束和已有 schema 的迁移策略。 |
+| 权限与权限动作期初数据 | `src/main/resources/sql/init/data-permission-<tableName小写>.sql`、`data-permission-action-<tableName小写>.sql` | 仅在生成器收集到相应数据时输出；确认主体权限、动作及其关联 ID 与现有菜单/资源一致。 |
+| 菜单数据 | `src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql` | 受 `updateMenuData` 及 ViewVo 等条件控制；父菜单、权限数据及本次脚本覆盖范围见第 5.2.5 节。 |
+| 模块数据 | `src/main/resources/sql/init/data-module-<moduleKeyword小写>.sql` | 受 `updateModuleData` 及模块数据收集条件控制；检查其他期初记录对模块 ID 的引用。 |
+| 流程类型等业务数据 | 例如 `src/main/resources/sql/init/data-wf-proc-type-<moduleKeyword小写>.sql` | 按流程定义及业务数据依赖顺序执行。 |
+| 存储过程、函数、触发器及自定义 SQL | 由项目、数据库迁移工具或自定义生成插件提供；不应假定上述默认产物已经包含这些程序对象 | 核实方言、分隔符、创建/替换语法、权限、依赖表以及执行器对脚本分隔符的支持。 |
+
+上述路径和文件名是当前实现中的默认模式，不替代生成后检查；其他插件、配置和项目脚本可能增加或改变资源。逐个确认实际生成目录、构建产物中的 classpath 路径以及目标数据库方言，不要仅依赖文件名推断。
+
+### 19.2 建立执行顺序与重复执行策略
+
+执行顺序必须从真实 SQL 的外键、引用和程序对象依赖得出，不存在对所有业务项目都适用的固定序列。通常先准备数据库/schema，再创建表和基础约束；需要依赖表的存储过程 / 函数随后部署；再写入被其他记录引用的基础数据（例如顶级菜单、模块、基础角色/权限）；最后写入依赖这些记录的菜单项、权限动作及其他业务期初数据。若项目的 DDL 或数据库平台要求其他顺序，以目标数据库和既有迁移规范为准。明确记录依赖图，确保外键目标、父菜单、模块 ID、权限资源 ID 和存储过程依赖在引用者之前可用。
+
+对每个脚本确认首次执行和重跑行为。生成的 INSERT 不应默认视为幂等；若脚本会重复插入、覆盖业务变更或与已有 ID 冲突，应由迁移版本记录、一次性门禁或经过审核的方言级幂等策略控制，不要直接重启反复执行。DDL 的“已存在”处理、事务支持、存储过程替换语义和失败后的部分提交均依数据库方言而异，必须在隔离数据库验证。
+
+### 19.3 接入 Spring / 数据库迁移机制
+
+先检查宿主实际使用的 Spring / Spring Boot 版本、DataSource、初始化配置、资源打包、迁移工具（如 Flyway / Liquibase）和既有启动钩子。**优先使用项目已有的版本化数据库迁移流程**：把审核后的 DDL、程序对象和数据脚本放入受控迁移，并显式保证顺序和版本记录。不要为了单个菜单脚本另外建立与项目现有流程并行的 Spring 初始化入口。
+
+如果项目没有迁移工具，且使用的 Spring Boot 版本支持 `spring.sql.init.*`，可在确认兼容后通过 `schema-locations` 和 `data-locations` 显式配置简单 schema/data 脚本。例如，以下仅示意配置形状，必须替换为项目实际存在、已审核且顺序正确的 classpath 资源：
+
+```yaml
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/<方言>/<schema-script>.sql
+      data-locations: classpath:sql/init/<ordered-data-script>.sql
+      continue-on-error: false
+```
+
+该配置不是一次性门禁：`mode: always` 会在每次应用启动时尝试执行所配置的脚本。只用于受控的一次性初始化时，成功后必须关闭/移除该配置；长期部署应使用迁移版本记录，避免普通重启再次执行。属性中声明的脚本需确认实际版本支持、资源能被 classloader 读取，并且 Spring SQL initializer 对脚本格式和分隔符的处理适用。存储过程等含内部分号或数据库专用 delimiter 的脚本，不应假定简单 SQL 初始化器可正确解析；优先使用迁移工具或经项目验证、能指定 separator 的执行器。`continue-on-error` 保持 `false`，确保失败显式暴露，不得把部分初始化当成成功。
+
+非 Spring Boot 项目或已有自定义初始化器，应使用项目现有的 Spring JDBC / `DataSource` 执行机制，明确配置资源、数据库连接、一次性标记、事务边界、失败回滚或补偿策略。不要仅凭“由 Spring 启动”推断其会自动扫描并执行任意 SQL 资源。
+
+### 19.4 首次初始化操作与验收
+
+1. **盘点与确认：** 选定目标环境、数据库/schema 和方言；收齐本次全部生成文件及项目自有脚本，核对资源打包路径、迁移状态和所有前置依赖。
+2. **排序与审核：** 按依赖整理执行序列；检查 DDL、存储过程、权限、菜单及其他数据脚本的实际 SQL、ID、引用、冲突和重跑策略。菜单条件及父菜单验证见第 5.2.5 节。
+3. **隔离环境演练：** 使用与目标环境匹配的数据库版本和权限，在空库或可恢复的隔离库执行完整序列；确认脚本格式、方言、事务/提交行为和失败处理。
+4. **接入正式执行入口：** 使用项目统一迁移工具或经确认的 Spring 初始化机制；确保数据源指向目标数据库、执行顺序正确、错误不会被忽略，且资源实际打包进运行时 classpath。
+5. **首次执行并核验：** 检查迁移/启动日志及退出结果；核验表结构、程序对象、权限关联、菜单父子关系和业务期初数据；任一步骤失败时停止后续初始化，按数据库实际提交状态修复或恢复后再重试。
+6. **关闭一次性开关：** 成功后关闭一次性 `mode: always` 配置或确认迁移版本已被记录；使用同一应用配置做普通重启，验证不会重新执行非幂等脚本。
+
+**AI 自主执行要求：** 先确认当前生成器版本、DTD 与宿主启动/迁移配置；盘点并读取脚本，而不是仅看目录名称；区分生成器产物与项目自有存储过程等资源；建立并验证依赖顺序、方言、运行时 classpath 和重复执行策略；只有实际完成 Spring/迁移执行并核对数据库结果后，才可报告“已初始化”。只生成或接入脚本时，应准确报告“脚本已生成/配置，尚未确认执行入库”。
+
+**开发人员验收要求：** 审核资源清单及差异，确认目标库、备份/恢复方案、依赖次序和迁移版本；在匹配的隔离环境演练后执行正式初始化；检查实际数据库对象与记录、日志错误和重启行为，并归档已执行脚本版本及结果。生成器版本、目标数据库、Spring 初始化实现和迁移机制未核实时，不得把示例 YAML 直接作为生产配置。
