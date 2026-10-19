@@ -14,6 +14,8 @@
 
 跨阶段过程资产、项目文档归属和 AI 辅助开发入口遵守 [AI 辅助跨项目开发过程规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md)。本文件继续作为生成器源码、DTD、方言与生成产物保护的仓库指令；生成器专属规则以本文件及生成器能力文档为准。
 
+每次会话持续执行[实践指导发现与许可门禁 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀)；生成配置和页面设计按[配置指南第 20 章](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#20-约定驱动配置与实践建议)定位实践建议。本入口不复制全局规则正文。
+
 新增或修改 Java 源码时，必须遵守 [跨项目需求驱动设计规范第 6.1 节](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\project-design-standard.md#61-java-类与方法注释规范)：新建类的 Javadoc 添加 `@author vgosoft`，人工编写的 Java 注释及 Javadoc 说明使用中文。
 创建或修改枚举类型时，须按同节规范为每个枚举项添加中文语义注释，并随语义变化同步更新。
 
