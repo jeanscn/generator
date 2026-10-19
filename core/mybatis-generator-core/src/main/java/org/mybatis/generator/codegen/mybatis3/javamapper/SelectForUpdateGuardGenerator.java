@@ -62,8 +62,8 @@ public final class SelectForUpdateGuardGenerator {
         guard.addJavaDocLine(" * @return 门禁验证通过");
         guard.addJavaDocLine(" * @throws IllegalStateException 无事务、只读事务或存在分页上下文");
         guard.addJavaDocLine(" */");
-        guard.addBodyLine("if (!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive()");
-        guard.addBodyLine("        || org.springframework.transaction.support.TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {");
+        guard.addBodyLine("if (!TransactionSynchronizationManager.isActualTransactionActive()");
+        guard.addBodyLine("        || TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {");
         guard.addBodyLine("throw new IllegalStateException(\"锁定查询必须在非只读既有事务中执行\");");
         guard.addBodyLine("}");
         guard.addBodyLine("if (com.github.pagehelper.PageHelper.getLocalPage() != null) {");
@@ -71,6 +71,7 @@ public final class SelectForUpdateGuardGenerator {
         guard.addBodyLine("}");
         guard.addBodyLine("return true;");
         unit.addMethod(guard);
+        unit.addImportedType(new FullyQualifiedJavaType("org.springframework.transaction.support.TransactionSynchronizationManager"));
         if (table.getRules().generateSelectByExampleForUpdate()) {
             addExampleGuard(unit, table);
         }

@@ -115,6 +115,18 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | `generateVo` | VO 总开关 | 子 VO 共用父配置。 |
 | `generateCachePo` | 缓存模型 | 主要用于字典/映射。 |
 
+#### `generateController` 与 `generateOptions`
+
+`<generateOptions>` 必须放在已启用的 `<generateController generate="true">` 内；仅写该子节点不会独立生成 Controller。当前 DTD 要求显式提供 `nameColumn`。每个节点按 `nameColumn` 指定的**物理列名**增加 GET 选项接口。接口尾段由列的 Java 属性名转为短横线形式，例如 `name_` 通常生成 `{controllerBasePath}/option/name`；应以生成的 Controller 注解为准，不要只按 XML 节点名推断路由。生成器以 `id_` 为默认值列、`type="flat"` 为默认结构；`type="tree"` 会使用树选项 DTO 和模型 `children` 关系，须确保模型/父子字段与宿主树组件均支持。显式 `idColumn` 可改变返回值来源。
+
+```xml
+<generateController generate="true">
+    <generateOptions nameColumn="name_"/>
+</generateController>
+```
+
+查询列必须存在且能映射到生成实体属性；当前 `OptionElementGenerator` 在找不到 `nameColumn` 时会跳过该方法，因此生成后须检查路由确实存在。该端点返回 `FormSelectOption` / `FormSelectTreeOption` 列表，包含 ID、显示名称及可选 `selected` 回显；平面选项在存在 `sort_` 时排序，树选项递归使用 `sort` 排序，须确保对应模型属性存在。分页响应取决于 RequestVo 的 `includePageParam` 和请求分页参数。控制器方法会生成独立的数据选项权限 action（权限键由模块、Controller Bean 名及小写化的方法前缀组成，如 `optionname`）；静态权限 SQL 生成不等于权限数据已部署或用户已获权。接口本身不意味着响应来自 `generateCachePo` 缓存。
+
 ### 表级歧义修正
 
 | DTD/注释 | 源码真实含义 |
@@ -282,6 +294,8 @@ Context 的有效运行时必须由工厂解析为标准 `IntrospectedTableMyBat
 
 ## 4. 列级配置
 
+**实践入口：** 字段类型、长度、默认值与页面/业务行为应联合评审，不能只填 XML 属性。按[第 20 章](#20-约定驱动配置与实践建议)选择复用约定、显式配置或扩展；字段命名及 `apply_date` 的分层默认值事实统一见[数据库规范 §4.5、§4.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#45-面向生成与业务使用的字段设计实践)。
+
 | 节点 | 含义 | 真实行为 |
 |---|---|---|
 | `columnOverride` | 覆盖列元数据 | 可改 `property`、`javaType`、`jdbcType`、`typeHandler`、长度、注释、对齐。 |
@@ -413,6 +427,8 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 | `editFormIn`、`detailFormIn` | 编辑和详情的打开方式元数据 | 按 DTD 的 `inner` / `dialog` / `drawer` 配置，并与宿主组件支持方式一致 |
 
 属性解析成功不等于进入默认视图注解。当前 `ViewMetaAnnotationPlugin` 显式传递 `tableType`、合计行、表单打开方式、`showActionColumn`、`defaultSort`、`indexColumn`、查询/过滤与按钮描述、分类树 URL、包含/排除列、类名及路由；默认显示及列顺序写入字段级 `@ViewColumnMeta`。`listKey`、`title`、`size`、`enablePager`、固定列属性、`showRowNumber` 等没有被该插件传入默认 `ViewTableMeta`；`title` 会独立用于生成菜单标题。不要只依据 DTD 声明推断实际产物。
+
+`defaultDisplayFields` 是 ViewVo 属性名列表，只影响已有展示字段的默认列展示与顺序；它不创建关联字段、不执行 ID 到名称转换，也不替代后端查询/映射。例如 `defaultDisplayFields="categoryText"` 只有在 ViewVo 实际含有 `categoryText`（并有可靠的值来源或字典转换声明）时才成立。通常仍须保留 `categoryId` 作为编辑表单保存的 ID 字段，再另有 `categoryText` 展示属性；对 `categoryText` 加 `@ViewColumnMeta(columnName="category_id")` 以绑定原业务列，并确认其 Dict/MapStruct 转换链。若列表或详情也要显示中文，检查后端返回值上该转换能实际执行，不能只通过前端把 ID 换成 option label。
 
 默认视图 ID 由生成器根据 controller bean 名计算：小写的 bean 名与默认视图后缀拼接后取 `MD5_15`，生成在 `ViewTableMeta.value` 中。XML `listKey` 与该 ID 相互独立，且当前 ViewMetaAnnotationPlugin 不将 `listKey` 写入默认 `ViewTableMeta`；不要按 DTD 中过期的 listKey 描述手工设置或覆盖默认视图 ID。视图数据 URL 按生成器 controller 基础路由构造为 `{controllerBasePath}/getdtdata`，路由及数据查询由宿主运行时提供。
 
@@ -623,6 +639,32 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 
 父容器键由 XML 嵌套层级计算：顶层无父键，子层使用直接父容器 elementKey；当前 DTD **没有** `parentElementKey` 属性，不能照旧注释手填。
 
+#### 7.2.3 布局实践建议与宿主边界
+
+**推荐实践：** 普通表单优先评估增加一个 `type="border"`、`noBorder="true"` 且不设置 `title` 的外层 `groupContainer`，统一管理顺序、分组和列数；这是设计建议，不是强制增加的生成默认值。小而简单的表单可不设容器，但仍须检查最终顺序与对齐。
+
+字段按业务操作习惯排列，而非机械照搬表结构。无显式编排时，数据库列经内省和生成后的顺序会影响初始字段顺序；这不保证与物理列顺序完全相同，继承、隐藏和附加组件也会参与。**需要重新排序或稳定业务顺序时，必须在对应容器的 `includeElements` 中显式列出所需字段/组件顺序**，使用数据库列名或组件 `elementKey`，不为页面排序调整数据库物理列。生成器将该列表按序写入容器元数据，最终显示须由目标宿主消费并核对。
+
+字段多时可按业务主题/信息类型设置多个容器，短字段适度多列，说明、富文本、附件和子表按需独立区域。分别确认 `layout.pageColumnsNum`、容器 `columnNum`、容器 `span` 和字段独占行；容器 `columnNum` 当前默认 1，不继承“页面默认两列”的假设。
+
+**已知宿主限制：** 当前示例 Framework 的 `LayoutItems.vue#getSpan` 在容器 `columnNum > 0` 时，对普通字段直接返回 `24/columnNum`，优先于字段 span。因此生成器为长 input、editor 或 `exclusiveColumns` 输出 span=24，不保证其在多列容器里仍独占一行。需要整行显示时，可将长文本放入 `span="24"`、`columnNum="1"` 的独立子容器；若业务要求同一多列容器混排且保留字段独占行，先评审 Framework 能力，不把配置建议冒充已经实现的运行行为。该观察只针对当前示例源码，不推定所有宿主相同。
+
+以下为放入既有 `generateHtml` 的布局示意；表须实际包含 `subject_`、`apply_date`、`remark_`，否则先替换为真实列。外层无标题，短字段两列，长文本区域单列：
+
+```xml
+<layout pageColumnsNum="2" exclusiveColumns="remark_">
+    <groupContainer elementKey="mainGroup" type="border"
+                    noBorder="true" columnNum="2"
+                    includeElements="subject_,apply_date,descriptionGroup">
+        <groupContainer elementKey="descriptionGroup" type="border"
+                        noBorder="true" span="24" columnNum="1"
+                        includeElements="remark_"/>
+    </groupContainer>
+</layout>
+```
+
+**结果检查：** 核对 `VueFormContainerMeta` 中的包含顺序与父键、`VueFormItemMeta` 的 span，以及宿主实际表单中的排列、整行区域、条件隐藏、标签对齐和弹窗/窄屏效果。不能只检查 XML 合法；列表列排序和查询区布局也不由此片段自动确定。源码入口见 §7.8；示例运行时依据为 `D:\vscode\mpmm-ui\packages\framework\src\components\vgoForm\items\LayoutItems.vue` 的 `getElementIds/getSpan`。
+
 ### 7.3 输入组件配置
 
 #### 7.3.1 `htmlElementDescriptor`：字段、控件与数据源
@@ -653,6 +695,22 @@ src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql
 字典 URL 的实际补值（`TableConfiguration.setHtmlElementDescriptorColumn`）：DictSys → `/system/sys-cfg-dict-impl/option/{dictCode}`，DictData → `/system/sys-dict-data-impl/option/{dictCode}`，DictUser → `/system/dict-content-impl/option/{dictCode}`。仅当 dataSource 匹配且 dataUrl 为空时执行；这些是当前生成器约定，并非所有宿主已有对应接口。
 
 无显式描述时，`TableConfiguration.generateDefaultElementDescriptor` 的列规则会为 state_、priority_、wf_state、parent_id、备注以“是否”开头等列建立描述；Vue 的后备类型推断为数值→number、日期/时间→date/time、长文本→editor、Boolean→switch、其他→input。普通 input 长度大于 499 占满行，大于 1499 转 textarea；editor 占满行。不要把自动列规则等同于任意业务字段都已有正确字典、权限和联动。
+
+##### 文本输入实践建议
+
+以下为当前 1.8.0 源码 `VueFormGenerateUtil.setComponentName` 的行为；前提是最终组件为 `input` 且绑定了内省列。textarea 是 input 的 `type`，并非独立 `tagType`：
+
+| 内省列长度 | 该分支的输出 | 设计影响 |
+|---|---|---|
+| 499 及以下 | 不因长度强制 span=24，也不设置 textarea | 是否单行仍按业务需求判断 |
+| 500～1499 | span=24，不因长度设置 textarea | 单行输入也可能占满一行，不要只按多列数估算布局 |
+| 1500 及以上 | span=24、type=textarea | 适用于容量确实较大的多行纯文本；边界是大于 1499，不是大于等于 1499 |
+
+LONGVARCHAR 等被识别为 `isLongVarchar()` 的列，在无显式描述时先走 editor 推断，不经过普通 input 阈值分支；显式选择其他组件也不适用此表。字段 span 在容器中的实际呈现还受 §7.2.3 的宿主规则影响。
+
+**推荐实践：** 先确定业务容量和纯文本/富文本语义，再利用相符的类型、长度约定。不要只为生成 textarea 把原本较短的字段放大到 1500，也不要将“能输入换行”当成必须存储富文本。当前 DTD 的 `tagType` 不含 textarea，`htmlElementDescriptor` 也没有通用 `type` 属性；短字段需要多行时，先核对所用版本是否已有完整配置接点，没有时评审生成器通用完善或受保护的 Framework/业务扩展，不能编造 `tagType="textarea"`、`type="textarea"` 或未经消费验证的 property 配置。
+
+**结果检查：** 检查内省类型/长度、生成的 component/type/span、前后端长度校验，以及换行保存后重新打开、详情展示和窄屏布局；不要把字段容量、输入控件和最终占宽视为同一个配置。
 
 #### 7.3.2 远程选项、联动、显隐与只读链接
 
@@ -1259,7 +1317,7 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
                        dataUrlParams="organId=#organId#"/>
 ```
 
-用途：`dataSource` 决定数据来源，`multiple="true"` 支持多选，`dataUrlParams` 支持按当前表单字段动态传参。
+用途：`dataSource` 决定数据来源，`multiple="true"` 支持多选，`dataUrlParams` 支持按当前表单字段动态传参。业务表作为引用选项时，需显式配置与目标 Controller 路由对应的 `dataUrl`；启用 `remoteApiParse="true"` 后，远端响应按选项字段映射转换，缺少自定义 key 映射时按当前注解默认 `name`/`id` 读取。表单保存值仍应是引用 ID，显示标签与提交字段不能混为一谈。复杂父子级联还要确认数据是否具有真实层级结构、生成接口返回的 flat/tree DTO 与 Framework 组件协议是否匹配；普通 `<select>` 配置本身不产生级联规则。
 
 ### 13.4 `columnRenderFun` 的列表展示渲染
 
@@ -1276,10 +1334,60 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 ### 13.5 `generateCachePo`
 
 ```xml
-<generateCachePo valueColumn="name_" includeColumns="name_,nick_name,username_" generate="true"/>
+<generateCachePo generate="true" valueColumn="name_"/>
 ```
 
-用途：生成缓存 PO，常用于字典值映射或名称查找。`valueColumn` 是翻译结果字段，`includeColumns` 决定缓存模型包含哪些列。
+用途：启用缓存字典模型与按键名称查询链路，常用于把引用 ID 转为名称。该节点缺省关闭；`generate="true"` 会生成 `{Domain}CachePo`、对应 MapStruct 转换方法和 Service `selectByKeysDict` 缓存查询方法；同时启用 Controller 生成时，会增加 `/dict` 查询端点及缓存配置。当前 DTD 即使 `generate` 缺省为 `false`，仍要求显式填写 `valueColumn`。该列指向用作翻译文本的物理列，生成器把它映射到缓存 PO 的 `dictValueText`；应配置为业务展示名称列（常见为 `name_`），并确认列存在及生成映射正确。
+
+`keyColumn` 缺省为 `id_`，`typeColumn` 可选；配置后查询键/类型语义随之变化，需同时核对调用方 `@Dict(beanName=...)`、接口参数与唯一性范围。`includeColumns` 不是简单的全部字段白名单：源码将主键、配置的 key/type/value 列始终纳入；指定非空 include 集合时再加所选基础列，省略或解析为空时回退为所有基础列。若希望 PO 最小化，应先确认其转换、缓存调用和后续业务映射需要哪些列，并查看生成的 CachePo/Mapper 映射。
+
+此缓存字典查询与 `generateOptions` 的表单选项 GET 路由是两套用途不同的接口：前者通过 Service 的缓存查询按键取翻译值（Controller 查询路由为 `/dict`），后者查询记录并投影 `FormSelectOption`（如 `/option/name`）。不要因启用了 CachePo 就假定 `/option/name` 已被缓存；也不要因下拉接口可用，就假定列表 ViewVo 的 `categoryText` 已能完成 ID 到名称的后端转换。实际缓存还依赖生成的缓存注解配置与宿主 Spring Cache/缓存实现及失效链路，须检查运行时配置，不能仅以生成了 CachePo 宣称缓存已生效。
+
+### 13.5.1 分类/业务字典作为引用选项与展示转换
+
+此场景包含两条相互配合、但不能互相替代的链路：表单通过选项 API 将显示名称选为引用 ID；列表/详情通过后端字典转换将引用 ID 显示为名称。建议按以下顺序完成配置，再逐步核对生成物和宿主行为。示例以引用方字段 `category_id`、分类主键 `id_`、显示列 `name_` 为例；应替换为实际表名、列名、模块路由和 Service Bean 名。
+
+**步骤 1：在被引用表启用缓存字典转换。** 在分类/字典表的 table 配置下启用 Cache PO：
+
+```xml
+<generateCachePo generate="true" valueColumn="name_"/>
+```
+
+`valueColumn` 是用于 ID→名称转换的物理列，生成器会将其映射为缓存 PO 的 `dictValueText`。`keyColumn` 缺省为 `id_`；只有键不是主键时才显式配置。若同一字典需按类型区分，再配置 `typeColumn`，并确保 `@Dict` 调用方提供匹配的类型值。当前 DTD 即使 `generate` 缺省关闭，也要求 `valueColumn`。生成后检查 Cache PO 字段、MapStruct 转换、`selectByKeysDict` 查询及缓存注解；缓存真正可用还依赖宿主 Spring Cache 配置和缓存失效链路。
+
+**步骤 2：在同一被引用表生成选项 API。** 确认 Controller 已启用，并在其中增加 `generateOptions`：
+
+```xml
+<generateController generate="true">
+    <generateOptions nameColumn="name_"/>
+</generateController>
+```
+
+`nameColumn` 必须是存在且可映射到实体属性的物理列，`idColumn` 缺省为 `id_`。以 `name_` 为例，通常生成 `{controllerBasePath}/option/name` 的 GET 方法，返回平面 `FormSelectOption` 列表；该选项 API 查询记录并投影选项，**不会因为步骤 1 启用了 Cache PO 就自动使用字典缓存**。生成后核对真实 Controller 路由、请求参数、返回类型及权限 action；当前生成器在找不到 `nameColumn` 时会跳过该方法。
+
+**步骤 3：在引用方页面配置选择控件。** 在引用方表的对应 `generateHtml` 下，把 `htmlElementDescriptor.column` 指向实际引用 ID 列，并使用步骤 2 核对过的 URL：
+
+```xml
+<htmlElementDescriptor column="category_id"
+                       tagType="select"
+                       dataSource="Dict"
+                       beanName="sensitiveCategoryImpl"
+                       remoteApiParse="true"
+                       dataUrl="/sensitive/sensitive-category-impl/option/name"/>
+```
+
+`beanName` 用于 ID→名称的字典转换，必须对应步骤 1 所生成并注册的缓存字典 Service；`dataUrl` 则用于获取表单选项，必须对应步骤 2 的真实路由。`remoteApiParse="true"` 要求前端解析远端响应，默认选项字段映射为 `name`/`id`；响应契约不同时，按当前配置能力显式映射并验证。表单提交值仍应是 ID。该配置不实现服务端引用有效性、状态/租户过滤或级联校验。
+
+**步骤 4：在引用方 ViewVo 配置中文展示。** 确保 `categoryText` 是最终 ViewVo 的实际属性，具有可靠的字典转换来源，再把它列入默认显示字段：
+
+```xml
+<viewVo generate="true"
+        defaultDisplayFields="categoryText,name,created"/>
+```
+
+例如，ViewVo 可为 `categoryText` 配置 `@Dict(beanName="sensitiveCategoryImpl", source="categoryId")`，并以 `@ViewColumnMeta(value="categoryText", columnName="category_id")` 关联引用列。`defaultDisplayFields` 使用 ViewVo 属性名，仅决定已有字段的默认展示/顺序；它不创建属性、不增加 SQL JOIN，也不执行 ID 翻译。若项目使用 `overridePropertyValue`、MapStruct 或人工扩展实现转换，生成后都应确认最终 VO 字段、映射调用和接口响应。
+
+**完成检查：** 先核对 ID、显示列及可选类型键的实际语义；再分别验证选项接口路由/权限/响应和字典缓存 Bean/key/value。最后验证编辑表单回显名称且提交 ID、列表/详情能将 ID 转成名称，并覆盖空引用、已删除或停用引用、无权限及缓存更新/失效等场景。若需求是级联选择，还须另行配置和验证父子关系、树选项接口、响应结构及 Framework 级联行为；平面 `select` 配置不会自动形成级联。
 
 ### 13.6 `generateHtml` + 附件/打印页
 
@@ -1363,6 +1471,8 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 | 页面控件策略 | 每个字段的 `tagType/dataSource/dataFormat` 是否明确。 |
 | 大字段策略 | `bytes_`/BLOB/LONGTEXT 字段是否走上传下载、富文本、或仅详情展示。 |
 | 默认值策略 | 列默认值是否可用于 `new-instance` 与 VO 初始化。 |
+
+准备时同时填写采用的默认约定、业务适用性、显式配置/扩展位置、默认值赋值时机、字段业务顺序、容器列数与长文本区域；按[第 20 章](#20-约定驱动配置与实践建议)说明例外及检查场景，避免只收集技术属性而遗漏交互和业务语义。
 
 ## 15. 常量选项与决策参考（字典/枚举/控件）
 
@@ -1551,3 +1661,34 @@ spring:
 **AI 自主执行要求：** 先确认当前生成器版本、DTD 与宿主启动/迁移配置；盘点并读取脚本，而不是仅看目录名称；区分生成器产物与项目自有存储过程等资源；建立并验证依赖顺序、方言、运行时 classpath 和重复执行策略；只有实际完成 Spring/迁移执行并核对数据库结果后，才可报告“已初始化”。只生成或接入脚本时，应准确报告“脚本已生成/配置，尚未确认执行入库”。
 
 **开发人员验收要求：** 审核资源清单及差异，确认目标库、备份/恢复方案、依赖次序和迁移版本；在匹配的隔离环境演练后执行正式初始化；检查实际数据库对象与记录、日志错误和重启行为，并归档已执行脚本版本及结果。生成器版本、目标数据库、Spring 初始化实现和迁移机制未核实时，不得把示例 YAML 直接作为生产配置。
+
+## 20. 约定驱动配置与实践建议
+
+### 20.1 使用方法与性质
+
+本章是实践决策和阅读索引，具体配置行为仍在对应主题章节唯一维护。目的不是让数据库和业务迁就生成器，而是在业务语义正确的前提下利用约定，减少重复配置、重复代码和跨人员理解成本。
+
+配置前按以下顺序判断：**业务目标与字段语义 → 默认约定及其前提 → 是否适用 → 显式配置或扩展归属 → 数据库/后端/页面联动 → 生成结果与宿主检查**。已有行为须有版本及源码依据；推荐实践允许按场景取舍；强制要求按相应规范执行。配置合法、注解已输出和页面实际生效是不同证据。
+
+### 20.2 实践主题与决策入口
+
+| 场景 | 推荐操作与必须确认的事项 | 规则归属/操作入口 |
+|---|---|---|
+| 分类/业务字典引用 | 将选择 API、缓存字典转换、引用方控件和 ViewVo 展示字段分开配置；核对 beanName、key/value、完整路由、响应映射、权限、缓存失效和父子级联，不把 `defaultDisplayFields` 当转换器 | 本文 §3 `generateOptions`、§5.2 `defaultDisplayFields`、§7.3、§13.5、§13.5.1 |
+| 多行文本或大容量说明 | 先定容量及纯文本/富文本，匹配默认控件；短字段多行不靠虚增长度实现，核对配置或扩展接点 | 本文 §7.3.1“文本输入实践建议”；数据库规范 §4.5 |
+| `apply_date` 等语义字段 | 核对标准名称、父类、实际类型、默认值来源及切面条件；明确新增缺省、显式值、编辑保留、草稿与提交赋值差异 | [数据库规范 §4.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#46-apply_date语义默认值与页面的联动实例)；本文 §7.3.1 日期控件/格式及 §7.8 源码入口 |
+| 页面顺序、分组与多列 | 推荐评估无边框无标题外层容器，用 `includeElements` 表达业务顺序；长文本/富文本/显式整行单独评估，注意宿主容器列数优先级 | 本文 §7.2.3；不要靠数据库列迁移调整页面 |
+| 状态、字典和关联字段 | 按值集维护方式选择枚举/字典/引用选择，统一保存值与展示值；检查数据源接口、回填属性、权限及联动清空 | 本文第 6 章、§7.3、§15.2；来源稳定不等于所有宿主都已提供接口 |
+| 跨表复用 | 真正同语义、同来源、同交互的配置优先进入 `reusableElements`，表内保留差异；不可只因字段同名就合并 | 本文 §13.1；复用前检查列绑定、覆盖和最终 VO/页面元数据 |
+| 新增、编辑、详情与系统字段 | 分开确定可见/可写/必填/默认值；用户可编辑字段与审计、租户等可信系统字段分开；前端隐藏/禁用不替代后端约束 | 本文 §7.1.2、§7.4；项目设计记录维护方及服务端校验 |
+| 列表展示与查询 | 列表、查询、过滤、表单和详情分别选字段，长内容按需摘要/详情展示，避免整表字段平铺 | 本文 §5.2、第 6 章；字段进入 VO 不等于有查询实现 |
+| 标题、说明与提示 | 复用数据库短标题，说明和页面提示另行设计；不把技术长度或内部标识堆进标签 | [数据库规范 §2.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#25-字段中文标题与说明强制)；本文 `columnSubComment`、`tips` 等配置 |
+| 配置不能表达的业务行为 | 先评审已有生成能力、基础组件及合法扩展点；人工代码进入受保护扩展区，并保持接口/实现同步 | [全局过程 §1.1](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#11-持久化实现与生成扩展评审门禁)；本仓指令 §2.1 |
+
+### 20.3 协作记录与持续维护
+
+生成配置向导记录本项目采用的约定、配置节点、输出和保护范围；设计说明书记录业务取舍、默认值时机、布局及扩展职责；已有任务书记录许可、实际结果和未覆盖项。同一事实只维护一处，其他记录回链，不能只在聊天中约定。
+
+AI 与开发人员在配置评审时应主动指出适用的实践建议和重要连带影响，例如“字段加长将改变输入控件和占宽”“增加容器后须重新确认列数与长文本整行”，而非只报告 XML 可解析。检查至少覆盖新增与编辑、历史值保留、边界长度、条件隐藏、保存后重开及实际宿主布局。
+
+沟通交流或阅读代码时发现新的实践指导，按[全局过程 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀)先说明候选内容、依据、价值和归属，获得许可后补充；当前清单不是封闭目录，也不是随时自动修改文档、代码或生成产物的授权。

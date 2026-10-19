@@ -161,7 +161,11 @@ SQL 语法核对分组：MySQL/MariaDB/PostgreSQL/Oracle/H2 使用 `FOR UPDATE`�
 
 ## 2.4 AI 约定优先规则（Convention First）
 
-> 这一节用于给 AI 做“默认推断”，减少重复确认。
+> 这一节用于给 AI 与设计开发人员提供有前提的默认推断，减少重复配置；不以列名或单个配置推定完整业务行为。
+
+实践操作统一见[配置指南第 20 章](generator-config-guide.md#20-约定驱动配置与实践建议)，其中按主题连接字段长度与控件、语义字段默认值、排序分组、多列布局及复用边界。业务语义相符时优先利用约定；不相符时显式配置或评审扩展，不反向扭曲数据库设计。字段默认值的赋值层次及 `apply_date` 实例由[数据库规范 §4.5、§4.6](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-core-db\src\main\resources\docs\database-authoritative-spec.md#45-面向生成与业务使用的字段设计实践)维护，不能由日期字段名称推断所有写入口均会赋当前日期。
+
+沟通或代码阅读中发现值得复用的约定及非代码设计思想，按[全局过程 §1.5](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀)提案并获许可后更新归属文档，具体行为仍以实际版本、生成链路及宿主消费为准。
 
 | 约定主题 | 默认行为（源码口径） | AI 使用建议 |
 |---|---|---|

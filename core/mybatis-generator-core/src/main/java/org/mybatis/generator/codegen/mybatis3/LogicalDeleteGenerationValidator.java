@@ -5,6 +5,7 @@ import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.config.SelectByColumnGeneratorConfiguration;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,8 +41,8 @@ public final class LogicalDeleteGenerationValidator {
                 throw failure(table, "仅支持 XMLMAPPER");
             }
             if (config.getColumns().isEmpty() || config.getColumnNames().size() != config.getColumns().size()
-                    || !table.getAllColumns().containsAll(config.getColumns())
-                    || new java.util.HashSet<>(config.getColumnNames()).size() != config.getColumnNames().size()) {
+                    || !new HashSet<>(table.getAllColumns()).containsAll(config.getColumns())
+                    || new HashSet<>(config.getColumnNames()).size() != config.getColumnNames().size()) {
                 throw failure(table, "条件列为空、重复或不存在：" + config.getColumnNames());
             }
             var flag = flag(table);
@@ -52,7 +53,7 @@ public final class LogicalDeleteGenerationValidator {
             }
             var version = table.getColumn(DefaultColumnNameEnum.VERSION.columnName());
             if (version.isPresent()) {
-                var column = version.get();
+                var column = version.orElseThrow();
                 boolean integer = "INTEGER".equals(column.getJdbcTypeName())
                         && "java.lang.Integer".equals(column.getFullyQualifiedJavaType().getFullyQualifiedName());
                 boolean longType = "BIGINT".equals(column.getJdbcTypeName())

@@ -5,7 +5,7 @@
 1. [生成器权威说明](..\mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md)  
    用途：生成器能力、输入输出、扩展点与限制。
 2. [生成器配置指南](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md)  
-   用途：配置、DTD 版本与生成行为说明；第 20 章为约定驱动实践索引，§7.2.3 为容器、顺序及多列布局建议，§7.3.1 为文本控件阈值与设计影响。
+   用途：配置、DTD 版本与生成行为说明；第 20 章为约定驱动实践索引，§7.2.3 为容器、顺序及多列布局建议，§7.3.1 为文本控件阈值与设计影响，§13.5.1 为分类/业务字典引用选项及中文展示转换实践。
 3. [生成器再开发补充说明](generator-core-dev-spec.md)  
    用途：本仓库生成器实现补充约定。
 4. [非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)  
