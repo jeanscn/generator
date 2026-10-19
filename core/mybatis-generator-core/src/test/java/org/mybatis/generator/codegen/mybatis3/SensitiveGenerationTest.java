@@ -340,6 +340,35 @@ class SensitiveGenerationTest {
         assertThat(format(service(fixture(CHECK)))).isEqualTo(source);
     }
 
+    /** 受管 CAS 启用时仅真实 CAS 单行方法获得敏感标记，旧 disabled 更新与 upsert 不得标记。 */
+    @Test
+    void marksCasSingleRowMethodsInsteadOfDisabledUpdateMethods() throws Exception {
+        IntrospectedTableMyBatis3Impl table = fixture(CHECK, true, false);
+        TopLevelClass service = service(table);
+        for (String name : List.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas")) {
+            Method method = service.getMethods().stream()
+                    .filter(item -> name.equals(item.getName())).findFirst().orElseThrow();
+            assertThat(method.getParameters()).hasSize(2);
+            assertThat(method.getAnnotations()).contains(
+                    "@SensitiveWrite(operationKey = \"sample.entity.Article:" + name + "\", entityArgumentIndex = 0)",
+                    "@org.springframework.transaction.annotation.Transactional(propagation = "
+                            + "org.springframework.transaction.annotation.Propagation.MANDATORY, rollbackFor = Exception.class)");
+        }
+        for (String name : List.of("updateByPrimaryKey", "updateByPrimaryKeySelective", "insertOrUpdate")) {
+            service.getMethods().stream().filter(item -> name.equals(item.getName())).findFirst().ifPresent(method -> {
+                assertThat(method.getAnnotations()).noneMatch(value -> value.startsWith("@SensitiveWrite"));
+                assertThat(method.getBodyLines()).contains("throw new IllegalStateException(\"ENTRY_DISABLED\");");
+            });
+        }
+    }
+
+    /** CAS 配置仍要求生成 update batch 时必须在服务输出前明确拒绝敏感受管组合。 */
+    @Test
+    void rejectsSensitiveCasWhenUpdateBatchIsEnabled() throws Exception {
+        assertThatThrownBy(() -> fixture(CHECK, true, true))
+                .hasMessageContaining("没有受支持的 CAS 批量更新");
+    }
+
     @Test
     void ignoresUnconfiguredAndDisabledSensitiveOutput() throws Exception {
         IntrospectedTableMyBatis3Impl plain = fixture("");
@@ -519,7 +548,22 @@ class SensitiveGenerationTest {
     }
 
     private IntrospectedTableMyBatis3Impl fixture(String check) throws Exception {
-        Context context = parse(check);
+        return fixture(check, false, false);
+    }
+
+    private IntrospectedTableMyBatis3Impl fixture(String check, boolean casContract, boolean updateBatch)
+            throws Exception {
+        String configuration = XML.formatted(check);
+        if (casContract) {
+            configuration = configuration.replace("tableName=\"article_\"",
+                    "tableName=\"article_\" enableCasWriteContract=\"true\"")
+                    .replace("value=\"com.vgosoft.core.entity.abs.AbstractEntity\"",
+                            "value=\"com.vgosoft.core.entity.abs.AbstractPersistenceLockEntity\"")
+                    .replace("<commentGenerator>",
+                            "<property name=\"additionalDbTypes\" value=\"mysql,h2\"/><commentGenerator>");
+        }
+        Context context = new ConfigurationParser(new ArrayList<>()).parseConfiguration(
+                new StringReader(configuration)).getContexts().get(0);
         java.lang.reflect.Field plugins = Context.class.getDeclaredField("pluginAggregator");
         plugins.setAccessible(true);
         plugins.set(context, new PluginAggregator());
@@ -527,9 +571,31 @@ class SensitiveGenerationTest {
                 org.mybatis.generator.internal.ObjectFactory.createIntrospectedTable(
                         context.getTableConfigurations().get(0), new FullyQualifiedTable(null, null, "article_", "Article", null,
                                 true, null, null, null, false, null, context), context);
+        if (casContract) {
+            table.getTableConfiguration().setUpdateBatchStatementEnabled(updateBatch);
+        }
         table.setRemarks("文章");
         table.addColumn(column("id_", "id"));
         table.addPrimaryKeyColumn("id_");
+        if (casContract) {
+            IntrospectedColumn version = column("version_", "version");
+            version.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.lang.Integer"));
+            version.setJdbcType(Types.INTEGER);
+            version.setJdbcTypeName("INTEGER");
+            version.setNullable(false);
+            table.addColumn(version);
+            for (String[] audit : List.of(
+                    new String[]{"created_", "created"},
+                    new String[]{"modified_", "modified"})) {
+                IntrospectedColumn timestamp = column(audit[0], audit[1]);
+                timestamp.setFullyQualifiedJavaType(new FullyQualifiedJavaType("java.time.LocalDateTime"));
+                timestamp.setJdbcType(Types.TIMESTAMP);
+                timestamp.setJdbcTypeName("TIMESTAMP");
+                table.addColumn(timestamp);
+            }
+            table.addColumn(column("created_id", "createdId"));
+            table.addColumn(column("modified_id", "modifiedId"));
+        }
         table.addColumn(column("content_", "bodyText"));
         table.initialize();
         table.setRules(new FlatModelRules(table));

@@ -25,6 +25,10 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
     private static final Set<String> SINGLE_WRITES = Set.of("insert", "insertSelective",
             "updateByPrimaryKey", "updateByPrimaryKeySelective", "insertOrUpdate", "insertOrUpdateSelective");
     private static final Set<String> BATCH_WRITES = Set.of("insertBatch", "updateBatchByPrimaryKey");
+    private static final Set<String> CAS_WRITES =
+            Set.of("updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas");
+    private static final Set<String> CAS_DISABLED_WRITES = Set.of("updateByPrimaryKey",
+            "updateByPrimaryKeySelective", "updateBatchByPrimaryKey", "insertOrUpdate", "insertOrUpdateSelective");
 
     @Override
     public void addElements(TopLevelClass parentElement) {
@@ -32,7 +36,7 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
     }
 
     public static void addInheritedWriteMethods(TopLevelClass service, AbstractIntrospectedTable table) {
-        if (!isEnabled(table)) {
+        if (!isEnabled(table) || table.getTableConfiguration().isCasWriteContractEnabled()) {
             return;
         }
         FullyQualifiedJavaType entity = new FullyQualifiedJavaType(table.getBaseRecordType());
@@ -57,21 +61,30 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
         }
         SensitiveGenerationValidator.validate(table);
         addInheritedWriteMethods(service, table);
+        boolean casContract = table.getTableConfiguration().isCasWriteContractEnabled();
         FullyQualifiedJavaType entity = new FullyQualifiedJavaType(table.getBaseRecordType());
         Set<String> found = new java.util.HashSet<>();
         for (Method method : service.getMethods()) {
-            boolean batch = BATCH_WRITES.contains(method.getName());
-            if (!batch && !SINGLE_WRITES.contains(method.getName())) {
+            if (casContract && CAS_DISABLED_WRITES.contains(method.getName())) {
                 continue;
             }
-            if (!found.add(method.getName()) || method.getParameters().size() != 1) {
+            boolean cas = CAS_WRITES.contains(method.getName());
+            boolean batch = BATCH_WRITES.contains(method.getName());
+            if (!batch && !cas && !SINGLE_WRITES.contains(method.getName())) {
+                continue;
+            }
+            int expectedParameters = cas ? 2 : 1;
+            if (!found.add(method.getName()) || method.getParameters().size() != expectedParameters) {
                 throw failure(table, method.getName(), "受管写方法重复或实体参数角色不明确");
             }
             if (method.getVisibility() != JavaVisibility.PUBLIC || method.isStatic() || method.isFinal() || method.isAbstract()) {
                 throw failure(table, method.getName(), "受管写方法必须是可代理的 public 非静态、非 final 具体方法");
             }
             FullyQualifiedJavaType parameter = method.getParameters().get(0).getType();
-            boolean supported = batch
+            boolean supported = cas
+                    ? entity.equals(parameter)
+                    && "java.lang.Integer".equals(method.getParameters().get(1).getType().getFullyQualifiedName())
+                    : batch
                     ? "java.util.List".equals(parameter.getFullyQualifiedNameWithoutTypeParameters())
                     && parameter.getTypeArguments().size() == 1 && entity.equals(parameter.getTypeArguments().get(0))
                     : entity.equals(parameter);
@@ -87,24 +100,42 @@ public class SensitiveWriteMethodsElement extends AbstractServiceElementGenerato
                 method.addAnnotation(annotation);
             }
             service.addImportedType(ANNOTATION_PACKAGE + "SensitiveWrite");
-            List<String> transactions = method.getAnnotations().stream().filter(value -> value.startsWith("@Transactional")).toList();
-            if (transactions.isEmpty()) {
+            List<String> transactions = method.getAnnotations().stream().filter(value ->
+                    value.startsWith("@Transactional")
+                            || value.startsWith("@org.springframework.transaction.annotation.Transactional")).toList();
+            if (transactions.isEmpty() && !casContract) {
                 Mb3GenUtil.addTransactionalAnnotation(service, method, "READ_COMMITTED");
-            } else if (transactions.size() != 1 || !transactions.get(0).matches(
-                    "@Transactional\\(rollbackFor = Exception\\.class(, isolation = Isolation\\."
-                            + "(DEFAULT|READ_UNCOMMITTED|READ_COMMITTED|REPEATABLE_READ|SERIALIZABLE))?\\)")) {
+            } else if (transactions.size() != 1 || !supportedTransaction(transactions.get(0), casContract)) {
                 throw failure(table, method.getName(), "事务声明不是已验证的 REQUIRED/Exception 回滚模板，须单独评审");
             }
         }
-        if (!found.containsAll(Set.of("insert", "insertSelective", "updateByPrimaryKey",
-                "updateByPrimaryKeySelective", "insertOrUpdateSelective"))) {
+        Set<String> requiredWrites = casContract
+                ? Set.of("insert", "insertSelective", "updateByPrimaryKeyCas", "updateByPrimaryKeySelectiveCas")
+                : Set.of("insert", "insertSelective", "updateByPrimaryKey",
+                        "updateByPrimaryKeySelective", "insertOrUpdateSelective");
+        if (!found.containsAll(requiredWrites)) {
             throw failure(table, "*", "标准单实体写方法未完整装配");
         }
         if (table.getRules().generateInsertBatch() && !found.contains("insertBatch")
-                || table.getRules().generateUpdateBatch() && !found.contains("updateBatchByPrimaryKey")
-                || table.getRules().generateInsertOrUpdate() && !found.contains("insertOrUpdate")) {
+                || !casContract && table.getRules().generateUpdateBatch()
+                        && !found.contains("updateBatchByPrimaryKey")
+                || !casContract && table.getRules().generateInsertOrUpdate()
+                        && !found.contains("insertOrUpdate")) {
             throw failure(table, "*", "已启用的批量或 upsert 方法未装配");
         }
+    }
+
+    private static boolean supportedTransaction(String annotation, boolean casContract) {
+        if (casContract) {
+            return annotation.equals("@org.springframework.transaction.annotation.Transactional("
+                    + "propagation = org.springframework.transaction.annotation.Propagation.MANDATORY, "
+                    + "rollbackFor = Exception.class)");
+        }
+        String normalized = annotation
+                .replace("@org.springframework.transaction.annotation.Transactional(", "@Transactional(")
+                .replace("org.springframework.transaction.annotation.Isolation.", "Isolation.");
+        return normalized.matches("@Transactional\\(rollbackFor = Exception\\.class(, isolation = Isolation\\."
+                + "(DEFAULT|READ_UNCOMMITTED|READ_COMMITTED|REPEATABLE_READ|SERIALIZABLE))?\\)");
     }
 
     public static void requireServiceGenerated(AbstractIntrospectedTable table) {

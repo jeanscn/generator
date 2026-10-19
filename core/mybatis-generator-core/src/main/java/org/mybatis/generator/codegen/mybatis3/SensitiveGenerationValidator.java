@@ -67,6 +67,10 @@ public final class SensitiveGenerationValidator {
             if (table.getTableConfiguration().isUpdateByExampleStatementEnabled()) {
                 throw failure(table, "*", "updateByExample 影响范围未受控；请关闭 enableUpdateByExample 后另行评审接入");
             }
+            if (table.getTableConfiguration().isCasWriteContractEnabled()
+                    && table.getRules().generateUpdateBatch()) {
+                throw failure(table, "*", "敏感检测与受管 CAS 同时启用时没有受支持的 CAS 批量更新；请关闭 update batch");
+            }
             if (table.getTableConfiguration().getRelationGeneratorConfigurations().stream()
                     .anyMatch(relation -> relation.isEnableInsert() || relation.isEnableUpdate() || relation.isEnableInsertOrUpdate())) {
                 throw failure(table, "*", "主子表级联包含多实体写入，须先提供全部实体的写前检测适配");

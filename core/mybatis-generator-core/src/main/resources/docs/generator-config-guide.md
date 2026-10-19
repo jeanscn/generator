@@ -175,7 +175,8 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | Service 不可落地 | 未生成 ServiceImpl 或 `modelOnly=true` | 启用 Service 生成并关闭 `modelOnly` |
 | 写入口未受控 | 开启 `enableUpdateByExample` | 关闭后再启用敏感检测 |
 | 多实体级联写 | relation 开启 insert/update/upsert | 先拆分为可受控单实体写，或补齐多实体检测方案 |
-| 方法签名异常 | 写方法重复/不可代理/参数不是实体或 `List<Entity>` | 保持标准方法签名，避免自定义破坏参数角色 |
+| 方法签名异常 | 写方法重复/不可代理/参数不是实体、`List<Entity>` 或受管 CAS 的 `(Entity, Integer expectedVersion)` | 保持标准方法签名，避免自定义破坏参数角色 |
+| CAS 与 update batch 冲突 | Sensitive opt-in 与受管 CAS 同时启用，且配置要求生成 `updateBatchByPrimaryKey` | 关闭 update batch；当前没有受管 CAS 批量更新入口 |
 | 事务声明不在白名单 | 已有 `@Transactional` 非已验证模板 | 统一为受支持事务模板后再启用 |
 | 方法矩阵不完整 | 标准写方法未完整装配 | 保证标准写方法生成开关与规则一致 |
 
@@ -188,16 +189,17 @@ DTD 属性仍为 `#IMPLIED`，仅当前 `mybatis-generator-config_1_8_0.dtd` 增
 | 方法 | 实体参数索引 | 生成行为 |
 |---|---:|---|
 | `insert`、`insertSelective` | 0 | 为 opt-in 表装配具体 override 并标记 |
-| `updateByPrimaryKey`、`updateByPrimaryKeySelective` | 0 | 为 opt-in 表装配具体 override 并标记 |
-| `insertBatch`、`updateBatchByPrimaryKey` | 0 | 配置启用时标记；仅同类型有序 `List<Entity>` |
-| `insertOrUpdate` | 0 | 配置启用时标记 |
-| `insertOrUpdateSelective` | 0 | 将原继承方法显式 override 后标记，沿用基础方法语义 |
+| `updateByPrimaryKey`、`updateByPrimaryKeySelective` | 0 | CAS 关闭时为 opt-in 表装配具体 override 并标记；受管 CAS 开启时旧方法为 `ENTRY_DISABLED` 且不加标记 |
+| `updateByPrimaryKeyCas`、`updateByPrimaryKeySelectiveCas` | 0（`expectedVersion` 为 1） | 仅受管 CAS 开启时标记真实单行方法；要求 `(Entity, Integer expectedVersion)`，使用 CAS 已生成的 MANDATORY 事务模板 |
+| `insertBatch` | 0 | 配置启用时标记；仅同类型有序 `List<Entity>` |
+| `updateBatchByPrimaryKey` | 0 | CAS 关闭时配置启用可标记；CAS 与 Sensitive 同时启用且 update batch 被要求时，生成期拒绝 |
+| `insertOrUpdate`、`insertOrUpdateSelective` | 0 | CAS 关闭时按配置标记；受管 CAS 开启时保持 disabled 且不加敏感标记 |
 | `updateByExample*` | — | 未证实受限影响范围，生成期拒绝启用该配置；须关闭 `enableUpdateByExample` 后单独评审接入 |
 | select/delete/纯关系维护、SQL builder、直接 Mapper/JDBC | — | 不生成敏感标记；非标准内容写入口必须显式适配或限制入口 |
 
-`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对操作注册和未过期确认凭证。`entityArgumentIndex=0`。不支持混合实体、参数角色不明、重复写方法或不能被 Spring 代理的写方法，已启用方法未装配则生成失败。当前 opt-in 基线要求标准新增和主键更新方法均可生成。
+`operationKey = 实体全限定名 + ":" + 实际方法名`，同一输入重生成稳定，长度不超过 256；实体包名/方法名改变时必须重新核对操作注册和未过期确认凭证。CAS 方法仍以 `entityArgumentIndex=0` 标记实体，独立 `expectedVersion` 位于参数索引 1；Sensitive 运行时必须把该参数一并绑定到确认请求。非 CAS 写方法继续按实体或同类型有序 `List<Entity>` 验证参数。重复方法、参数角色不明确或不能被 Spring 代理的受管写方法，以及已启用但未完整装配的方法均生成失败。当前 opt-in 基线按配置/事务模式要求完整装配标准写方法；CAS 模式必须生成两个 CAS 单行更新方法，不得把 disabled 旧方法标记为可写。
 
-每个受标记方法在没有已有事务声明时添加 `@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)`；已有 REQUIRED/Exception 回滚模板事务声明保留，不重复添加，其他自定义事务声明明确失败并要求评审。既有缓存失效、关系元数据和事件语句保留，标记只加在具体方法而不是仅接口。事务 Advisor 必须在检测 Aspect 外层，批次原子性、失败结果、缓存提交时序和事件处理仍须宿主集成验收；生成元数据不是已安装敏感运行时。
+CAS 关闭时，每个受标记方法在没有已有事务声明时添加 `@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)`；已有受支持的 REQUIRED/Exception 回滚模板事务声明保留，不重复添加，其他自定义事务声明明确失败并要求评审。受管 CAS 方法保留 CAS 生成器提供的 `MANDATORY`、`rollbackFor = Exception.class` 事务声明，拒绝其他模板。既有缓存失效、关系元数据和事件语句保留，标记只加在具体方法而不是仅接口。事务 Advisor 必须在检测 Aspect 外层；批次原子性、失败结果、缓存提交时序和事件处理仍须宿主集成验收，生成元数据不是已安装敏感运行时。
 
 满足既有 Vue3 TypeScript 类型生成条件时，在 `T{Domain}.ts` 附加只读 `T{Domain}SensitiveFields` 常量，包含 `table/entity/property/label/contentType`，字符串采用 JS 转义。映射仅辅助显示，不授权客户端覆盖后端策略；没有 Vue 目标路径/VO 类型产物时不强行创建前端项目。没有敏感配置的表不改变输出；全部 disabled 时 Service/前端映射保持无配置输出。增量/强制覆盖仍遵守原覆盖规则，标记重建由生成器完成，不能手改受保护产物。
 
