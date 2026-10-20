@@ -4,6 +4,7 @@
 
 | 能力类别 | 文档路径 | 所属项目 | 性质 | 备注 |
 |---|---|---|---|---|
+| Service 方法生成结构 | [主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范) | `generator/core` | 再开发规范正文 | `ServiceMethods` 统一签名与依赖，接口生成器及实现元素复用；实现注解、方法体与业务钩子留在元素层 |
 | 生成器能力 | `mybatis-generator-core\src\main\resources\docs\generator-authoritative-spec.md` | `mybatis-generator-core` | 权威正文 | 生成器能力、输入输出、扩展点与限制；§2.1.1 定义 Entity `@TableMeta`/`@ColumnMeta` 的元数据契约及边界 |
 | 生成器配置 | `mybatis-generator-core\src\main\resources\docs\generator-config-guide.md` | `mybatis-generator-core` | 使用手册 | 配置、DTD 版本与生成行为；§5.0 提供从 Entity 类/字段注解读取物理表列映射的设计/开发指引 |
 | 生成配置实践 | [配置指南第 20 章](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md#20-约定驱动配置与实践建议) | `mybatis-generator-core` | 实践决策索引 | 具体操作在主题章节维护；§7.2.3 布局、§7.3.1 文本输入、§13.5.1 分类/业务字典引用 |

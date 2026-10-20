@@ -7,7 +7,7 @@
 2. [生成器配置指南](..\mybatis-generator-core\src\main\resources\docs\generator-config-guide.md)  
    用途：配置、DTD 版本与生成行为说明；§5.0 指引设计/开发阶段由生成 Entity 类和字段注解读取表列映射；第 20 章为约定驱动实践索引，§7.2.3 为容器、顺序及多列布局建议，§7.3.1 为文本控件阈值与设计影响，§13.5.1 为分类/业务字典引用选项及中文展示转换实践。
 3. [生成器再开发补充说明](generator-core-dev-spec.md)  
-   用途：本仓库生成器实现补充约定。
+   用途：本仓库生成器实现补充约定；Service 签名工厂、接口/实现复用与元素装配遵守[主规范第 8.1 节](copilot-instructions.md#81-service-方法签名共用与实现装配规范)。
 4. [非主线问题登记与后续处理规范](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\deferred-issue-management-standard.md)  
    用途：跨项目唯一权威规范；非主线问题只登记、不擅自处理。本项目 Java 模块台账按 `<module>\src\main\resources\docs\pending-issues.md` 定位，项目级或归属待定问题按 `docs\pending-issues.md` 定位；首次发现需登记的问题时创建，尚未创建的台账不作为已存在文档链接。
 5. [实践指导的持续发现、确认与沉淀](D:\java\idea_projs0\trunk\vgosoft-basic\vgosoft-doc-spec\src\main\resources\docs\ai-assisted-development-standard.md#15-实践指导的持续发现确认与沉淀)
