@@ -1,12 +1,12 @@
 package org.mybatis.generator.codegen.mybatis3;
 
+import com.vgosoft.core.constant.enums.view.ViewDefaultToolBarsEnum;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.internal.DefaultShellCallback;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +95,26 @@ class ExcelImportWorkflowGenerationTest {
                         || source.contains("confirmExcelImport")
                         || source.contains("import/preview")
                         || source.contains("import/confirm"));
+    }
+
+    /** 两阶段导入操作应映射为可配置的主列表和内嵌列表默认按钮元数据。 */
+    @Test
+    void exposesWorkflowImportOperationsAsConfigurableButtons() {
+        ViewDefaultToolBarsEnum tableButton = ViewDefaultToolBarsEnum.ofCode("WF_IMPORT");
+        assertThat(tableButton).isNotNull();
+        assertThat(tableButton.id()).isEqualTo("top-custom-wf-import");
+        assertThat(tableButton.sort()).isEqualTo(9);
+        assertThat(tableButton.handler()).isEqualTo("defaultDtCustomButtonAction");
+        assertThat(tableButton.configurable()).isTrue();
+        assertThat(tableButton.toHtmlButtonAnnotation()).contains("@HtmlButton(value = \"WF_IMPORT\"");
+
+        ViewDefaultToolBarsEnum innerButton = ViewDefaultToolBarsEnum.ofCode("INNER_WF_IMPORT");
+        assertThat(innerButton).isNotNull();
+        assertThat(innerButton.id()).isEqualTo("inner-list-wf-import");
+        assertThat(innerButton.sort()).isEqualTo(37);
+        assertThat(innerButton.handler()).isEqualTo("defaultInnerListButtonAction");
+        assertThat(innerButton.configurable()).isTrue();
+        assertThat(innerButton.toHtmlButtonAnnotation()).contains("@HtmlButton(value = \"INNER_WF_IMPORT\"");
     }
 
     private static Configuration parseWithWorkflow(boolean legacyExcelVo) throws Exception {

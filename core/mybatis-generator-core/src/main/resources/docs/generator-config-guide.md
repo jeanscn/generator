@@ -512,6 +512,8 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | `parentMenuId`、`viewMenuIcon`、`viewMenuElIcon`、`enableShortcut` | 默认视图菜单元数据 | 菜单只在完整菜单生成条件满足时追加；父节点必须已存在并纳入初始化链路 |
 | `editFormIn`、`detailFormIn` | 编辑和详情的打开方式元数据 | 按 DTD 的 `inner` / `dialog` / `drawer` 配置，并与宿主组件支持方式一致 |
 
+`toolbar="WF_IMPORT"` 可配置主列表两阶段 Excel 导入按钮（生成 ID：`top-custom-wf-import`）；内嵌列表可用 `vxeListButtons="INNER_WF_IMPORT"` 配置对应按钮（生成 ID：`inner-list-wf-import`）。两者沿用各自默认 handler，并标记为可配置操作。它们只提供操作元数据和快速配置入口，不实现前端预览/确认交互，也不会自动调用 `import/preview`、`import/confirm`；运行时须由宿主或业务前端实现对应交互。不要把新 ID 与旧 `IMPORT` / `INNER_IMPORT` 同时配置在同一列表并假定旧导入弹窗会处理新工作流。
+
 属性解析成功不等于进入默认视图注解。当前 `ViewMetaAnnotationPlugin` 显式传递 `tableType`、合计行、表单打开方式、`showActionColumn`、`defaultSort`、`indexColumn`、查询/过滤与按钮描述、分类树 URL、包含/排除列、类名及路由；默认显示及列顺序写入字段级 `@ViewColumnMeta`。`listKey`、`title`、`size`、`enablePager`、固定列属性、`showRowNumber` 等没有被该插件传入默认 `ViewTableMeta`；`title` 会独立用于生成菜单标题。不要只依据 DTD 声明推断实际产物。
 
 `defaultDisplayFields` 是 ViewVo 属性名列表，只影响已有展示字段的默认列展示与顺序；它不创建关联字段、不执行 ID 到名称转换，也不替代后端查询/映射。例如 `defaultDisplayFields="categoryText"` 只有在 ViewVo 实际含有 `categoryText`（并有可靠的值来源或字典转换声明）时才成立。通常仍须保留 `categoryId` 作为编辑表单保存的 ID 字段，再另有 `categoryText` 展示属性；对 `categoryText` 加 `@ViewColumnMeta(columnName="category_id")` 以绑定原业务列，并确认其 Dict/MapStruct 转换链。若列表或详情也要显示中文，检查后端返回值上该转换能实际执行，不能只通过前端把 ID 换成 option label。
@@ -989,7 +991,7 @@ Parser 还读取 approvalComment 的 span（默认 24），但当前 DTD 未声�
 | `editMode` | 行/单元格/禁编辑 | `row` | vue3 | row/cell/none；不等于保存接口权限。 |
 | `editableFields` | 可编辑字段 | 空集合 | vue3 | 逗号分隔；与来源 VO 字段对齐。 |
 | `enablePager` | 分页 | `false` | vue3 | 不是主列表 viewVo 的分页配置。 |
-| `vxeListButtons` | 工具栏动作键 | 空列表 | vue3 | 逗号分隔，输出 toolbarActions。 |
+| `vxeListButtons` | 工具栏动作键 | 空列表 | vue3 | 逗号分隔，输出 toolbarActions；`INNER_IMPORT` 为旧导入操作，`INNER_WF_IMPORT` 只声明两阶段导入操作元数据，不实现预览/确认交互。 |
 | `actionColumn` | 行操作动作键 | 空列表 | vue3 | 逗号分隔，输出 columnActions；可配子 htmlButton。 |
 | `showActionColumn` | 行操作列显示策略 | `default` | vue3 | **当前 VueFormInnerListMetaDesc 未复制/输出此字段**，不能保证生效。 |
 | `actionColumnWidth` | 操作列宽度 | 未设置 | vue3 | 作为字符串进入元数据。 |

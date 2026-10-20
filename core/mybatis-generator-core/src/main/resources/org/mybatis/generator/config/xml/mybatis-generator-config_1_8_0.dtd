@@ -750,7 +750,7 @@
             21、keyMapLabel 数据源中的label字段名，默认为label。
             22、keyMapValue 数据源中的value字段名，默认为value。
             23、enablePager 是否启用分页，默认为false
-            24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
+            24、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_WF_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
             25、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             26、hideExpression 隐藏表达式，用于指定隐藏列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时隐藏。
             27、disabledExpression 禁用表达式，用于指定禁用列表的条件，如：$.state = 1 and $.parentId = $.id。可以使用$占位符表示表单数据对象。示例为：当前记录的state=1且parentId=id时禁用。
@@ -1108,7 +1108,7 @@
             16、editMode 编辑模式，row-行编辑，cell-单元格编辑，默认row
             17、editableFields 编辑字段，多个字段用逗号分隔，用于指定默认允许编辑的字段，如果不指定则默认为所有字段。
             18、enablePager 是否启用分页，默认为false
-            19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
+            19、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_WF_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
             20、defaultFilterExpr 默认过滤表达式，用于指定默认的过滤条件，，拼接sql语句where条件，如：alias.state_ = 1 and alias.parent_id = $.xxx。可以使用占位符$.，表示当前记录的属性值。
             21、batchUpdateColumns 批量更新字段，多个字段用逗号分隔，用于指定默认允许批量更新的字段。
             22、showRowNumber 是否显示行号，默认为true
@@ -1548,7 +1548,7 @@
                 当不配置该属性时，默认忽略entity父抽象类属性对应的字段。
             4、listKey 列表的唯一标识，用于唯一标识列表，如果不指定则默认为全小写的beanName+后缀（+default+view），md5，如：sysdictimpl+default+view在md5
             5、title 标题，缺省值为“表简要注释”，用来指定生成的菜单名称等
-            6、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,RECYCLE,HIDE,EXPORT,IMPORT以及自定义操作按钮的id值
+            6、toolbar：工具栏的操作列表。包括：CREATE-新增、REMOVE-删除中的0个或多个等等。可选值：CREATE,EDIT,REMOVE,RECYCLE,HIDE,EXPORT,IMPORT,WF_IMPORT以及自定义操作按钮的id值
             7、size：列表的大小，包括：sm-小、md-中、lg-大三种形式
             8、indexColumn：行选择列的形式。包括：NONE-无、RADIO-单选、CHECKBOX-复选、ROW_INDEX-行号四种形式
             9、actionColumn：操作列的操作列表。包括：ROW_VIEW-查看、ROW_EDIT-编辑、ROW_REMOVE、ROW_RECYCLE-删除中的0个或多个、ROW_HIDE。可选值：ROW_VIEW,ROW_EDIT,ROW_REMOVE以及自定义操作按钮的id值
@@ -1695,7 +1695,7 @@
                     如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
-            36、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
+            36、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_WF_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
             37、showTitle 是否显示标题，true显示，false不显示。缺省值true
            property配置：
             1、htmlHiddenFields 列表中隐藏的属性，多个”,“分隔。会合并当前表htmlConfig中的htmlHiddenFields配置
