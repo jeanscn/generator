@@ -59,7 +59,8 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",infSuperType.getShortNameWithoutTypeArguments()));
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
         if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
-            addExcelImportWorkflowMethods(bizInf, commentGenerator);
+            bizInf.addMethod(serviceMethods.getPreviewExcelImportMethod(bizInf, true));
+            bizInf.addMethod(serviceMethods.getConfirmExcelImportMethod(bizInf, true));
         }
         if (introspectedTable.getRules().generateCasWriteContract()) {
             bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, false, true, true));
@@ -292,54 +293,6 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                     });
         }
         return answer;
-    }
-
-    private void addExcelImportWorkflowMethods(Interface service, CommentGenerator commentGenerator) {
-        FullyQualifiedJavaType importVo = introspectedTable.getTableConfiguration()
-                .getVoGeneratorConfiguration().getVoExcelImportWorkflowConfiguration().getExcelImportType();
-        FullyQualifiedJavaType previewType =
-                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportPreviewVo");
-        previewType.addTypeArgument(importVo);
-        FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
-
-        Method preview = new Method("previewExcelImport");
-        preview.setVisibility(JavaVisibility.PUBLIC);
-        preview.setReturnType(previewType);
-        Parameter file = new Parameter(multipartFile, "file");
-        file.setRemark("待预览的 Excel 文件");
-        preview.addParameter(file);
-        preview.addException(new FullyQualifiedJavaType("java.io.IOException"));
-        preview.setExceptionRemark("文件读取或 Excel 解析失败");
-        commentGenerator.addMethodJavaDocLine(preview, "解析并校验 Excel 导入文件，生成预览结果");
-        service.addMethod(preview);
-
-        FullyQualifiedJavaType confirmType =
-                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportConfirmVo");
-        FullyQualifiedJavaType resultType =
-                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportResultVo");
-        FullyQualifiedJavaType rowsType = FullyQualifiedJavaType.getNewListInstance();
-        rowsType.addTypeArgument(importVo);
-        Method confirm = new Method("confirmExcelImport");
-        confirm.setVisibility(JavaVisibility.PUBLIC);
-        confirm.setReturnType(resultType);
-        Parameter request = new Parameter(confirmType, "request");
-        request.setRemark("导入预览确认凭证");
-        confirm.addParameter(request);
-        Parameter rows = new Parameter(rowsType, "rows");
-        rows.setRemark("确认时重新解析得到的有界导入行");
-        confirm.addParameter(rows);
-        Parameter fileSha256 = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fileSha256");
-        fileSha256.setRemark("重新上传文件的 SHA-256 摘要");
-        confirm.addParameter(fileSha256);
-        commentGenerator.addMethodJavaDocLine(confirm, "重新解析文件并确认、原子提交 Excel 导入预览");
-        service.addMethod(confirm);
-        service.addImportedType(importVo);
-        service.addImportedType(previewType);
-        service.addImportedType(multipartFile);
-        service.addImportedType(rowsType);
-        service.addImportedType(new FullyQualifiedJavaType("java.io.IOException"));
-        service.addImportedType(confirmType);
-        service.addImportedType(resultType);
     }
 
     private void validateExcelImportServiceMethods(Interface service) {

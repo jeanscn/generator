@@ -461,6 +461,8 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 生成的 Service 接口包含 `previewExcelImport(MultipartFile)` 与 `confirmExcelImport(VgoExcelImportConfirmVo, List<EntityExcelImportVo>, String)`。预览入口由 Service 基类按配置构造 `ImportReadLimits` 并调用有界解析，再委托 `createExcelImportPreview(rows, fileSha256)`。确认 Controller 在进入事务 Service 前按相同配置有界解析重新上传的文件，并将凭证、解析行及 SHA-256 摘要传入 Service；确认 Service 使用 `READ_COMMITTED`、`rollbackFor = Exception.class` 的事务包装，校验凭证、行数及摘要格式后委托 `doConfirmExcelImport(request, rows, fileSha256)`。两个受保护业务钩子默认明确抛出 `UnsupportedOperationException`，业务子类必须实现预览校验/凭证签发与确认提交逻辑；确认钩子应核对重新上传文件及行摘要，并在失败时抛出异常以使整批业务写入回滚。只重写受保护钩子，不要重写公开事务包装方法。事务仍依赖通过 Spring 代理从外部调用，生成器不替业务实现预览所有权、令牌过期/一次性消费、revision 校验或具体数据写入。
 
+生成器内部由 `ServiceMethods.getPreviewExcelImportMethod`、`getConfirmExcelImportMethod` 统一构建方法签名、参数说明、异常声明及依赖导入；`JavaServiceGenerator` 使用接口模式，`ExcelImportWorkflowElement` 使用实现模式，再补充覆盖注解、事务注解及方法体。业务扩展钩子仍由 `ExcelImportWorkflowElement` 生成，配置与对外契约不变。
+
 未配置或关闭 `excelImport` 时，既有 `excelVo` 输出不变。若同时启用 `excelVo` 和 `excelImport`，Excel 导出能力仍由 `excelVo` 提供，但旧的逐行 `POST import` 被抑制，避免同一资源同时暴露不具备事务保证的直接导入和两阶段工作流。
 
 ### 5.2 个性化导出接口与接入

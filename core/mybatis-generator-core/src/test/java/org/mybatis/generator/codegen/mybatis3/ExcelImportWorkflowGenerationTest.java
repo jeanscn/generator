@@ -43,6 +43,9 @@ class ExcelImportWorkflowGenerationTest {
                         "new VgoFesodSheet.ImportReadLimits(1048576L, 8388608L, 4194304L, 100, 100, 50)",
                         "confirmExcelImport(request, parsed.rows(), parsed.fileSha256())")
                 .doesNotContain("VgoFesodSheet.read(");
+        assertThat(controller)
+                .contains("import com.vgosoft.core.adapter.web.respone.ResponseResult;")
+                .doesNotContain("import com.vgosoft.core.adapter.ResponseResult;");
 
         String service = generated.values().stream()
                 .filter(source -> source.contains("createExcelImportPreview"))
@@ -65,6 +68,23 @@ class ExcelImportWorkflowGenerationTest {
                 .contains("confirmExcelImport(VgoExcelImportConfirmVo request, List<",
                         "String fileSha256")
                 .doesNotContain("ImportReadLimits limits");
+        for (String methodName : List.of("previewExcelImport", "confirmExcelImport")) {
+            String contractSignature = serviceContract.lines()
+                    .map(String::trim)
+                    .filter(line -> line.contains(" " + methodName + "(") && line.endsWith(";"))
+                    .findFirst().orElseThrow();
+            assertThat(service).contains("public "
+                    + contractSignature.substring(0, contractSignature.length() - 1) + " {");
+        }
+        for (String source : List.of(serviceContract, service)) {
+            assertThat(source).contains("import org.springframework.web.multipart.MultipartFile;",
+                    "import java.io.IOException;",
+                    "import java.util.List;",
+                    "import com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportConfirmVo;",
+                    "import com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportPreviewVo;",
+                    "import com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportResultVo;",
+                    "previewExcelImport(MultipartFile file) throws IOException");
+        }
     }
 
     /** 新工作流与旧 excelVo 同时启用时保留导出能力，但不生成逐行 upsert 导入端点。 */
@@ -89,12 +109,21 @@ class ExcelImportWorkflowGenerationTest {
     /** 未配置新工作流时，旧生成输出不得出现预览或确认入口。 */
     @Test
     void leavesLegacyExcelImportDisabledWhenWorkflowIsNotConfigured() throws Exception {
-        Map<String, String> generated = generate(parse(CasConsumerBaselineTest.consumerXml(null)));
+        Map<String, String> generated = generate(parse(consumerXmlWithoutWorkflow()));
         assertThat(generated.values())
                 .noneMatch(source -> source.contains("previewExcelImport")
                         || source.contains("confirmExcelImport")
                         || source.contains("import/preview")
                         || source.contains("import/confirm"));
+    }
+
+    /** 未配置工作流与显式关闭工作流时，所有生成文件的路径及内容必须完全一致。 */
+    @Test
+    void preservesAllLegacyOutputsWhenWorkflowIsDisabled() throws Exception {
+        Map<String, String> legacyOutput = generate(parse(consumerXmlWithoutWorkflow()));
+        Map<String, String> disabledWorkflowOutput = generate(parse(disabledWorkflowXml()));
+
+        assertThat(disabledWorkflowOutput).isEqualTo(legacyOutput);
     }
 
     /** 两阶段导入操作应映射为可配置的主列表和内嵌列表默认按钮元数据。 */
@@ -122,13 +151,22 @@ class ExcelImportWorkflowGenerationTest {
     }
 
     private static String workflowXml(boolean legacyExcelVo) throws Exception {
-        String xml = CasConsumerBaselineTest.consumerXml(null);
+        String xml = consumerXmlWithoutWorkflow();
         String legacy = "<excelVo generate=\"false\"/>";
         String replacement = "<excelVo generate=\"" + legacyExcelVo + "\"/>" + EXCEL_IMPORT;
         if (!xml.contains(legacy)) {
             throw new IllegalStateException("Expected legacy Excel VO configuration was not found");
         }
         return xml.replace(legacy, replacement);
+    }
+
+    private static String consumerXmlWithoutWorkflow() throws Exception {
+        return CasConsumerBaselineTest.consumerXml(null)
+                .replaceAll("(?s)<excelImport\\b[^>]*/>", "");
+    }
+
+    private static String disabledWorkflowXml() throws Exception {
+        return workflowXml(false).replace(EXCEL_IMPORT, "<excelImport generate=\"false\"/>");
     }
 
     private static Configuration parse(String xml) throws Exception {
@@ -144,6 +182,11 @@ class ExcelImportWorkflowGenerationTest {
         generator.generate(null, null, null, false);
         List<GeneratedFile> output = new ArrayList<>(generator.getGeneratedJavaFiles());
         output.addAll(generator.getGeneratedXmlFiles());
+        output.addAll(generator.getGeneratedKotlinFiles());
+        output.addAll(generator.getGeneratedHtmlFiles());
+        var otherGeneratedFiles = MyBatisGenerator.class.getDeclaredField("otherGeneratedFiles");
+        otherGeneratedFiles.setAccessible(true);
+        output.addAll((List<? extends GeneratedFile>) otherGeneratedFiles.get(generator));
         Map<String, String> generated = new TreeMap<>();
         for (GeneratedFile file : output) {
             String name = file.getTargetPackage() + "." + file.getFileName();

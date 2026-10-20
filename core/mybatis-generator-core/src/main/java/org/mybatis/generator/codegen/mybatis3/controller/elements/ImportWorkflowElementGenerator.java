@@ -13,6 +13,7 @@ import org.mybatis.generator.custom.annotations.swagger3.OperationDesc;
 import org.mybatis.generator.custom.enums.ReturnTypeEnum;
 
 import static org.mybatis.generator.custom.ConstantsUtil.MULTIPART_FILE;
+import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
 /**
  * 生成 Excel 两阶段导入的预览与确认接口。
@@ -62,7 +63,7 @@ public class ImportWorkflowElementGenerator extends AbstractControllerElementGen
 
         parentElement.addImportedType(multipartFile);
         parentElement.addImportedType("org.springframework.http.MediaType");
-        parentElement.addImportedType("com.vgosoft.core.adapter.ResponseResult");
+        parentElement.addImportedType(RESPONSE_RESULT);
         parentElement.addImportedType("com.vgosoft.core.constant.enums.core.ApiCodeEnum");
         parentElement.addImportedType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportPreviewVo");
         parentElement.addImportedType(entityExcelImportVoType);
@@ -129,7 +130,7 @@ public class ImportWorkflowElementGenerator extends AbstractControllerElementGen
         parentElement.addImportedType("org.springframework.http.MediaType");
         parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoFesodSheet");
         parentElement.addImportedType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
-        parentElement.addImportedType("com.vgosoft.core.adapter.ResponseResult");
+        parentElement.addImportedType(RESPONSE_RESULT);
         parentElement.addImportedType("com.vgosoft.core.constant.enums.core.ApiCodeEnum");
         parentElement.addMethod(method);
     }

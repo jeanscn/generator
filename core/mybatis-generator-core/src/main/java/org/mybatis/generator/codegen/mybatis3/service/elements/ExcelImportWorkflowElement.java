@@ -28,42 +28,30 @@ public class ExcelImportWorkflowElement extends AbstractServiceElementGenerator 
                 new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportConfirmVo");
         FullyQualifiedJavaType resultType =
                 new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportResultVo");
-        FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(importVo);
         FullyQualifiedJavaType stringType = FullyQualifiedJavaType.getStringInstance();
 
-        addPreviewMethod(parentElement, configuration, importVo, previewType, multipartFile);
+        addPreviewMethod(parentElement, configuration, importVo, previewType);
         addPreviewHook(parentElement, listType, previewType);
-        addConfirmMethod(parentElement, configuration, confirmType, resultType, listType, stringType);
+        addConfirmMethod(parentElement, configuration, resultType);
         addConfirmHook(parentElement, confirmType, resultType, listType, stringType);
 
         parentElement.addImportedType(importVo);
         parentElement.addImportedType(previewType);
         parentElement.addImportedType(confirmType);
         parentElement.addImportedType(resultType);
-        parentElement.addImportedType(multipartFile);
         parentElement.addImportedType(listType);
         parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoFesodSheet");
         parentElement.addImportedType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
-        parentElement.addImportedType("java.io.IOException");
     }
 
     private void addPreviewMethod(TopLevelClass parentElement,
                                   VoExcelImportWorkflowConfiguration configuration,
                                   FullyQualifiedJavaType importVo,
-                                  FullyQualifiedJavaType previewType,
-                                  FullyQualifiedJavaType multipartFile) {
-        Method preview = new Method("previewExcelImport");
-        preview.setVisibility(JavaVisibility.PUBLIC);
+                                  FullyQualifiedJavaType previewType) {
+        Method preview = serviceMethods.getPreviewExcelImportMethod(parentElement, false);
         preview.addAnnotation("@Override");
-        preview.setReturnType(previewType);
-        Parameter file = new Parameter(multipartFile, "file");
-        file.setRemark("待预览的 Excel 文件");
-        preview.addParameter(file);
-        preview.addException(new FullyQualifiedJavaType("java.io.IOException"));
-        preview.setExceptionRemark("文件读取或 Excel 解析失败");
-        commentGenerator.addMethodJavaDocLine(preview, "按配置限额解析 Excel 文件并交由业务服务生成预览");
         preview.addBodyLine("if (file == null || file.isEmpty()) {");
         preview.addBodyLine("throw new IllegalArgumentException(\"Excel 文件不能为空\");");
         preview.addBodyLine("}");
@@ -111,24 +99,9 @@ public class ExcelImportWorkflowElement extends AbstractServiceElementGenerator 
 
     private void addConfirmMethod(TopLevelClass parentElement,
                                   VoExcelImportWorkflowConfiguration configuration,
-                                  FullyQualifiedJavaType confirmType,
-                                  FullyQualifiedJavaType resultType,
-                                  FullyQualifiedJavaType listType,
-                                  FullyQualifiedJavaType stringType) {
-        Method confirm = new Method("confirmExcelImport");
-        confirm.setVisibility(JavaVisibility.PUBLIC);
+                                  FullyQualifiedJavaType resultType) {
+        Method confirm = serviceMethods.getConfirmExcelImportMethod(parentElement, false);
         confirm.addAnnotation("@Override");
-        confirm.setReturnType(resultType);
-        Parameter request = new Parameter(confirmType, "request");
-        request.setRemark("导入预览确认凭证");
-        confirm.addParameter(request);
-        Parameter rows = new Parameter(listType, "rows");
-        rows.setRemark("确认时重新解析得到的有界导入行");
-        confirm.addParameter(rows);
-        Parameter fileSha256 = new Parameter(stringType, "fileSha256");
-        fileSha256.setRemark("重新上传文件的 SHA-256 摘要");
-        confirm.addParameter(fileSha256);
-        commentGenerator.addMethodJavaDocLine(confirm, "在事务边界内调用业务策略确认并提交 Excel 导入");
         Mb3GenUtil.addTransactionalAnnotation(parentElement, confirm, "READ_COMMITTED");
         confirm.addBodyLine("if (request == null || request.getPreviewToken() == null");
         confirm.addBodyLine("        || request.getPreviewToken().trim().isEmpty()) {");

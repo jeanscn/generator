@@ -33,6 +33,79 @@ public class ServiceMethods {
         exampleType = new FullyQualifiedJavaType(introspectedTable.getExampleType());
     }
 
+    /**
+     * 构建接口与实现共用的 Excel 导入预览签名及依赖。
+     *
+     * @param parentElement 目标编译单元
+     * @param isAbstract 是否为接口方法
+     * @return 不含方法体的预览方法
+     */
+    public Method getPreviewExcelImportMethod(CompilationUnit parentElement, boolean isAbstract) {
+        FullyQualifiedJavaType importVo = introspectedTable.getTableConfiguration()
+                .getVoGeneratorConfiguration().getVoExcelImportWorkflowConfiguration().getExcelImportType();
+        FullyQualifiedJavaType previewType =
+                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportPreviewVo");
+        previewType.addTypeArgument(importVo);
+        FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
+        FullyQualifiedJavaType ioException = new FullyQualifiedJavaType("java.io.IOException");
+        Method method = new Method("previewExcelImport");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setAbstract(isAbstract);
+        method.setReturnType(previewType);
+        Parameter file = new Parameter(multipartFile, "file");
+        file.setRemark("待预览的 Excel 文件");
+        method.addParameter(file);
+        method.addException(ioException);
+        method.setExceptionRemark("文件读取或 Excel 解析失败");
+        context.getCommentGenerator().addMethodJavaDocLine(method, isAbstract
+                ? "解析并校验 Excel 导入文件，生成预览结果"
+                : "按配置限额解析 Excel 文件并交由业务服务生成预览");
+        parentElement.addImportedType(importVo);
+        parentElement.addImportedType(previewType);
+        parentElement.addImportedType(multipartFile);
+        parentElement.addImportedType(ioException);
+        return method;
+    }
+
+    /**
+     * 构建接口与实现共用的 Excel 导入确认签名及依赖。
+     *
+     * @param parentElement 目标编译单元
+     * @param isAbstract 是否为接口方法
+     * @return 不含方法体的确认方法
+     */
+    public Method getConfirmExcelImportMethod(CompilationUnit parentElement, boolean isAbstract) {
+        FullyQualifiedJavaType importVo = introspectedTable.getTableConfiguration()
+                .getVoGeneratorConfiguration().getVoExcelImportWorkflowConfiguration().getExcelImportType();
+        FullyQualifiedJavaType confirmType =
+                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportConfirmVo");
+        FullyQualifiedJavaType resultType =
+                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportResultVo");
+        FullyQualifiedJavaType rowsType = FullyQualifiedJavaType.getNewListInstance();
+        rowsType.addTypeArgument(importVo);
+        Method method = new Method("confirmExcelImport");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setAbstract(isAbstract);
+        method.setReturnType(resultType);
+        Parameter request = new Parameter(confirmType, "request");
+        request.setRemark("导入预览确认凭证");
+        method.addParameter(request);
+        Parameter rows = new Parameter(rowsType, "rows");
+        rows.setRemark("确认时重新解析得到的有界导入行");
+        method.addParameter(rows);
+        Parameter fileSha256 = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fileSha256");
+        fileSha256.setRemark("重新上传文件的 SHA-256 摘要");
+        method.addParameter(fileSha256);
+        context.getCommentGenerator().addMethodJavaDocLine(method, isAbstract
+                ? "重新解析文件并确认、原子提交 Excel 导入预览"
+                : "在事务边界内调用业务策略确认并提交 Excel 导入");
+        parentElement.addImportedType(importVo);
+        parentElement.addImportedType(confirmType);
+        parentElement.addImportedType(resultType);
+        parentElement.addImportedType(rowsType);
+        return method;
+    }
+
     public Method getSelectByPrimaryKeyMethod(CompilationUnit parentElement,boolean isAbstract,boolean isService){
         List<Parameter> parameters = introspectedTable.getPrimaryKeyColumns().stream()
                 .map(Parameter::new)
