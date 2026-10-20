@@ -365,6 +365,37 @@ java -cp "<generator test classpath>" org.mybatis.generator.codegen.mybatis3.vo.
 
 ## 5. Java 模型 / VO
 
+### 5.0 使用生成 Entity 注解读取表与列元数据
+
+设计或开发阶段若要从已有实体确认“实体对应哪张物理表、Java 属性对应哪个物理列、列上记录了哪些描述/建模属性”，优先检查具体生成 Entity 的 `@TableMeta` 与字段 `@ColumnMeta`，无需仅凭类名、属性名或 VO 命名推测。属性的完整含义、当前生成来源与限制见[生成器权威说明 §2.1.1](generator-authoritative-spec.md#211-实体物理表与列元数据注解)。
+
+- `entityClass.getDeclaredAnnotation(TableMeta.class)` 获取该 Entity 声明的表元数据；`value()` 为物理表名，`alias()` 为生成配置中的表别名。优先读取声明注解，避免 `@Inherited` 将父类表注解误用于具体实体。其余 `descript`、`beanname`、`summary`、`voClass`、`superClass`、`superInterfaces` 是生成器提供的描述或模型信息，按字段语义使用。
+- `ColumnMeta` 位于字段，不是类注解。遍历具体 Entity 及各父类的 `getDeclaredFields()`，每个带 `ColumnMeta` 的字段以 Java 字段名作为 property、以 `ColumnMeta.value()` 作为物理列名；`type()`、`nullable()`、`size()`、`scale()`、`pkid()`、`description()`、`remarks()` 等提供已生成的列描述。`ColumnMeta` 上的 `@Inherited` 不会继承字段注解，故不能只扫描子类声明字段。
+- 有基础工具依赖时，可复用 `VReflectionUtil.getAnnotationFields(entityClass, ColumnMeta.class)` 获取类及父类的注解字段；否则按上述层级遍历实现。对需稳定顺序的场景按 `order()` 排序并补物理列名/property tie-break；`order` 是元数据顺序，不保证 SQL 参数顺序。
+- 读取前确认目标为持久化 Entity，并检查 `TableMeta` 缺失、重复物理列映射和父类映射完整性。生成的 VO 字段也可能带 `ColumnMeta`，但通常没有类级 `TableMeta`，不能把 VO 当作表身份入口。
+
+JDK 反射的最小读取形状如下；正式实现还应校验注解存在、重复映射及字段是否属于持久化模型：
+
+```java
+TableMeta tableMeta = entityClass.getDeclaredAnnotation(TableMeta.class);
+if (tableMeta == null) {
+    throw new IllegalStateException("实体缺少 TableMeta");
+}
+for (Class<?> type = entityClass; type != null && type != Object.class; type = type.getSuperclass()) {
+    for (Field field : type.getDeclaredFields()) {
+        ColumnMeta columnMeta = field.getDeclaredAnnotation(ColumnMeta.class);
+        if (columnMeta != null) {
+            String property = field.getName();
+            String physicalColumn = columnMeta.value();
+        }
+    }
+}
+```
+
+适用场景包括：需求/设计阶段盘点既有 Entity 的表列映射和列说明；实现通用的实体元数据展示或依据持久化字段作字段级处理；检查某实体是否具备所需列描述。基础包已有 `AbstractMybatisBGService` 作为复用实例：查询构建器未显式指定时，从实体注解取得表与字段默认映射。若类/字段缺少注解（例如在 `generateModel` 上配置 `noMetaAnnotation=true`），明确转查生成配置、生成源码或数据库权威元数据，不从 Java 命名规则猜测。
+
+**能力边界：** 这些注解是表/列元数据快照，不是完整生成配置或数据库 schema。它们不能单独说明 catalog/schema、索引/唯一约束、外键、identity/generated-always、所有 table/context 开关、最终 SQL、`databaseId`、插件变更或 Mapper statement 的 allow/reject 执行规则。判断要生成哪些文件/方法、实际写入列、CAS/逻辑删除行为、SQL 执行许可时，仍须检查实际 `generatorConfig.xml`、生成产物及运行契约；判断数据库真实结构或目标环境状态时，仍以 DDL/数据库权威来源与获准核验为准。页面展示/编辑/过滤/排序布局应读 View VO 上的 `ViewTableMeta`/`ViewColumnMeta` 与视图配置，不从 Entity 的 `ColumnMeta` 推导。
+
 | 节点 | 含义 | 备注 |
 |---|---|---|
 | `generateModel` | 实体类生成 | `enableChildren` 依赖 `parent_id`。 |

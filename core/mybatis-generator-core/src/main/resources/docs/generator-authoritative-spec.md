@@ -59,6 +59,55 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 
 个性化导出通过生成列限制排除内省 BLOB/LONGVARCHAR 字段及配置的相关派生字段；元数据不广告未被 `selectByExample` 填充的大字段，客户端请求这些字段在查询前失败，不静默输出空值。
 
+### 2.1.1 实体物理表与列元数据注解
+
+生成的 Entity 默认通过基础注解 `com.vgosoft.core.annotation.TableMeta` 和 `com.vgosoft.core.annotation.ColumnMeta` 暴露物理表/列描述，适用于设计和开发阶段从实体类型读取已生成的表映射、字段映射及部分数据库建模属性，避免仅凭 Java 类名或属性名猜测物理标识。`TableMetaAnnotationPlugin` 在模型类与模型字段生成回调中装配注解；`generateModel.noMetaAnnotation=true` 时不装配（默认关闭该抑制，即生成元数据注解）。实体字段有 `ColumnMeta`；该插件也会向生成 VO 字段添加 `ColumnMeta`，但类级 `TableMeta` 应以具体生成 Entity 为表身份入口。
+
+**`TableMeta` 元素**
+
+| 元素 | 元数据含义 | 当前生成来源/使用提示 |
+|---|---|---|
+| `value` | 物理表名 | `TableConfiguration.tableName`；是表名，不含独立 catalog/schema 字段 |
+| `alias` | 表别名 | 当前 table 配置别名 |
+| `descript` | 表描述 | 当前内省表备注 |
+| `beanname` | 生成的 Controller Bean 名称 | 生成器解析的 Controller Bean 名称，不是数据库对象标识 |
+| `summary` | 表级摘要标志 | 当前描述器默认为 `true`；不能用它推断表是否参与某个查询或输出 |
+| `voClass` | 生成 VO 的全限定名 | VO 类型存在时写入 |
+| `superClass`、`superInterfaces` | 实际生成模型的父类/接口 | 反映 Java 模型继承结构，不是数据库继承或表关系 |
+
+**`ColumnMeta` 元素**
+
+| 元素 | 元数据含义 | 当前生成来源/使用提示 |
+|---|---|---|
+| `value` | 物理列名 | 内省列的实际列名；`Field.getName()` 是相应 Java property |
+| `description` | 短字段说明 | 来自列备注；缺少说明时生成器回退到物理列名 |
+| `remarks` | 完整列备注 | 来自内省列完整备注 |
+| `pkid` | 是否主键 | 来自当前内省列的主键判定 |
+| `type` | JDBC 类型 | 来自内省列 JDBC 类型；未显式写出的属性由注解默认值补足 |
+| `nullable` | 是否允许 NULL | 来自内省列 nullable |
+| `size`、`scale` | 列长度与小数位数 | 来自内省列长度、scale |
+| `order` | 生成的列顺序元数据 | 来自内省列顺序；相同或默认顺序时不得假定其单独构成稳定排序键 |
+| `dataFormat` | 日期显示格式提示 | 来自内省列日期格式配置 |
+| `summary`、`sort` | 摘要/排序提示 | 当前描述器默认均为 `true`；不代表查询授权或 SQL 排序已经启用 |
+| `charSet`、`defaultValue`、`position` | 字符集、默认值、DDL 位置描述 | 当前生成描述器固定为 `utf8mb4`、空默认值、空位置；不能据此断定数据库实际字符集、默认表达式或列位置 |
+
+注解定义及具体默认值以基础包 `vgosoft-core-annotation` 中的 `TableMeta`、`ColumnMeta` 源码为准；生成器映射以 `TableMetaAnnotationPlugin`、`TableMetaDesc`、`ColumnMetaDesc` 为准。反射读取建议如下：
+
+1. 使用明确的具体 Entity 类型；读取该类声明的 `TableMeta`，以 `value` 确认物理表名，以 `alias` 等字段取得生成元数据。`TableMeta` 带 `@Inherited`，若使用继承查找，须确认继承到的表身份确实适用于该类。
+2. 从具体 Entity 起逐层遍历 `getDeclaredFields()` 至 `Object`，只收集实际带 `ColumnMeta` 的字段；字段名作为 Java property，`ColumnMeta.value()` 作为物理列名。字段注解上的 `@Inherited` 不会使父类字段注解自动复制到子类，因此不能只扫描子类声明字段，也不能依赖 `Class.getFields()`。
+3. 如需确定顺序，可按 `ColumnMeta.order()` 排序，并使用物理列名/property 作稳定 tie-break；应按业务目的区分字段展示顺序与 SQL/数据库物理顺序。
+4. 读取注解前检查缺失、重复物理表/列映射和映射完整性；对受支持能力无法确认的输入明确失败或回退到正式生成配置/数据库权威元数据，不静默猜测。
+
+这些注解是由内省结果及生成设置形成的**模型元数据快照**，适合设计盘点、实体到表/列映射、属性说明展示，以及可由实体反射驱动的字段级逻辑。它们不是完整 `generatorConfig.xml` 的序列化，也不是数据库 schema 的完整镜像：不含 catalog/schema、索引与唯一约束、外键、identity/generated-always、所有生成开关、SQL statement/databaseId、插件改写结果、权限或 Mapper 写入白/黑名单。某些元素可能采用描述器默认值，而非从数据库或配置显式读取。因此：
+
+- 需要回答“这个 Entity/属性对应哪个表/物理列、有哪些已记录的列描述”时，可优先从类/字段注解读取。
+- 需要决定输出哪些 Mapper/Service/页面、具体写 SQL、受管 CAS/逻辑删除或 statement 是否允许执行时，仍须读取实际生成配置、生成产物及其运行契约。
+- 需要判断数据库真实 DDL、约束、默认表达式或目标环境状态时，仍以数据库权威规范、迁移/DDL 和获准的实际数据库核验为准，不能仅凭注解下结论。
+
+已有运行时复用实例：`vgosoft-mybatis` 的 `AbstractMybatisBGService` 在查询构建器未显式指定表/字段时，从 Entity 的 `TableMeta.value/alias` 和 Entity/父类的 `ColumnMeta` 取得默认表及字段列表。这证明元数据可支撑按 Entity 描述构建基础表列映射；它不表示注解可生成或验证任意 SQL。
+
+注解也不是 `ViewTableMeta`/`ViewColumnMeta` 的替代品：页面列可见性、编辑、过滤、排序和布局等视图契约读取对应 View VO 的视图注解及配置。
+
 ## 2.2 Vue3 前端可生成能力
 
 | 能力域 | 可直接生成内容 | 设计含义 |
