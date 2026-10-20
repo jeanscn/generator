@@ -3058,12 +3058,12 @@ public class MyBatisGeneratorConfigurationParser {
         }
 
         if (configuration.isGenerate()) {
-            configuration.setMaxInputBytes(parseRequiredPositiveLong(attributes, "maxInputBytes"));
-            configuration.setMaxExpandedBytes(parseRequiredPositiveLong(attributes, "maxExpandedBytes"));
-            configuration.setMaxEntryBytes(parseRequiredPositiveLong(attributes, "maxEntryBytes"));
-            configuration.setMaxZipEntries(parseRequiredPositiveInt(attributes, "maxZipEntries"));
-            configuration.setMaxRows(parseRequiredPositiveInt(attributes, "maxRows"));
-            configuration.setMaxErrorMessages(parseRequiredPositiveInt(attributes, "maxErrorMessages"));
+            configuration.setMaxInputBytes(parseRequiredPositiveLong(attributes, "maxInputBytes",31457280L));
+            configuration.setMaxExpandedBytes(parseRequiredPositiveLong(attributes, "maxExpandedBytes",62914560L));
+            configuration.setMaxEntryBytes(parseRequiredPositiveLong(attributes, "maxEntryBytes",31457280L));
+            configuration.setMaxZipEntries(parseRequiredPositiveInt(attributes, "maxZipEntries", 256));
+            configuration.setMaxRows(parseRequiredPositiveInt(attributes, "maxRows", 100));
+            configuration.setMaxErrorMessages(parseRequiredPositiveInt(attributes, "maxErrorMessages", 100));
             if (configuration.getMaxInputBytes() > Integer.MAX_VALUE) {
                 throw new IllegalArgumentException("excelImport maxInputBytes must not exceed " + Integer.MAX_VALUE);
             }
@@ -3097,10 +3097,10 @@ public class MyBatisGeneratorConfigurationParser {
         voGeneratorConfiguration.setVoExcelImportWorkflowConfiguration(configuration);
     }
 
-    private long parseRequiredPositiveLong(Properties attributes, String name) {
+    private long parseRequiredPositiveLong(Properties attributes, String name, long defaultValue) {
         String value = attributes.getProperty(name);
         if (!stringHasValue(value)) {
-            throw new IllegalArgumentException("excelImport requires a positive " + name);
+            return defaultValue;
         }
         try {
             long parsed = Long.parseLong(value);
@@ -3113,10 +3113,10 @@ public class MyBatisGeneratorConfigurationParser {
         }
     }
 
-    private int parseRequiredPositiveInt(Properties attributes, String name) {
+    private int parseRequiredPositiveInt(Properties attributes, String name, int defaultValue) {
         String value = attributes.getProperty(name);
         if (!stringHasValue(value)) {
-            throw new IllegalArgumentException("excelImport requires a positive " + name);
+            return defaultValue;
         }
         try {
             int parsed = Integer.parseInt(value);

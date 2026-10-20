@@ -1805,9 +1805,12 @@
         <!--
            独立的 Excel 两阶段导入工作流；默认关闭，不改变 excelVo 的既有直接导入兼容行为。
            generate 为 true 时，必须显式提供全部资源限制；preview token 的签发、过期和持久化由业务服务负责。
-           importIncludeColumns/importExcludeColumns 使用物理列名，importIgnoreFields 使用 Java 属性名。
-           maxInputBytes 限制原始上传字节；maxExpandedBytes/maxEntryBytes/maxZipEntries 限制 XLSX ZIP 解压资源；
-           maxRows 限制数据行数，maxErrorMessages 限制解析/预览错误数量。
+           importIncludeColumns/importExcludeColumns 使用物理列名，
+           importIgnoreFields 使用 Java 属性名。
+           maxInputBytes 限制原始上传字节；
+           maxExpandedBytes/maxEntryBytes/maxZipEntries 限制 XLSX ZIP 解压资源；
+           maxRows 限制数据行数，
+           maxErrorMessages 限制解析/预览错误数量。
            可选 additionalProperty 用于给 ExcelImportVo 增加业务导入字段。
         -->
         <!ELEMENT excelImport (property*,additionalProperty*)>
