@@ -472,7 +472,17 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                     && previewMethod.getBodyLines().stream().anyMatch(line -> line.contains("previewExcelImport("));
             boolean confirm = confirmMethod != null
                     && confirmMethod.getAnnotations().stream().anyMatch(annotation -> annotation.contains("import/confirm"))
-                    && confirmMethod.getBodyLines().stream().anyMatch(line -> line.contains("confirmExcelImport("));
+                    && confirmMethod.getAnnotations().stream()
+                    .anyMatch(annotation -> annotation.contains("MediaType.MULTIPART_FORM_DATA_VALUE"))
+                    && confirmMethod.getParameters().size() == 2
+                    && confirmMethod.getParameters().get(0).getAnnotations().stream()
+                    .anyMatch(annotation -> annotation.contains("@RequestPart(\"file\")"))
+                    && confirmMethod.getParameters().get(1).getAnnotations().stream()
+                    .anyMatch(annotation -> annotation.contains("@RequestPart(\"request\")"))
+                    && confirmMethod.getBodyLines().stream()
+                    .anyMatch(line -> line.contains("VgoFesodSheet.readBounded"))
+                    && confirmMethod.getBodyLines().stream()
+                    .anyMatch(line -> line.contains("confirmExcelImport(request, parsed.rows(), parsed.fileSha256())"));
             if (!preview || !confirm) {
                 throw new IllegalArgumentException("excelImport Controller endpoints were removed by a plugin for "
                         + introspectedTable.getFullyQualifiedTable());

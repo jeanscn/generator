@@ -271,13 +271,15 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 .anyMatch(line -> line.contains("VgoFesodSheet.readBounded"))
                 && preview.getBodyLines().stream().anyMatch(line -> line.contains("createExcelImportPreview"));
         boolean validConfirm = confirm != null && confirm.getBodyLines().stream()
-                .anyMatch(line -> line.contains("doConfirmExcelImport"))
+                .anyMatch(line -> line.contains("doConfirmExcelImport(request, rows, fileSha256)"))
+                && confirm.getBodyLines().stream().anyMatch(line -> line.contains("fileSha256.matches"))
                 && confirm.getAnnotations().stream().anyMatch(annotation ->
                         annotation.startsWith("@Transactional(rollbackFor = Exception.class"));
         boolean hasHooks = service.getMethods().stream().anyMatch(method ->
                         "createExcelImportPreview".equals(method.getName()))
                 && service.getMethods().stream().anyMatch(method ->
-                        "doConfirmExcelImport".equals(method.getName()));
+                        "doConfirmExcelImport".equals(method.getName())
+                                && method.getParameters().size() == 3);
         if (!validPreview || !validConfirm || !hasHooks) {
             throw new IllegalArgumentException("excelImport Service implementation contract was changed by a plugin for "
                     + introspectedTable.getFullyQualifiedTable());

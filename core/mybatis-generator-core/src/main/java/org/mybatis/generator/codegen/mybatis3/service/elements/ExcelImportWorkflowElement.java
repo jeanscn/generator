@@ -31,11 +31,12 @@ public class ExcelImportWorkflowElement extends AbstractServiceElementGenerator 
         FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(importVo);
+        FullyQualifiedJavaType stringType = FullyQualifiedJavaType.getStringInstance();
 
         addPreviewMethod(parentElement, configuration, importVo, previewType, multipartFile);
         addPreviewHook(parentElement, listType, previewType);
-        addConfirmMethod(parentElement, configuration, confirmType, resultType);
-        addConfirmHook(parentElement, confirmType, resultType);
+        addConfirmMethod(parentElement, configuration, confirmType, resultType, listType, stringType);
+        addConfirmHook(parentElement, confirmType, resultType, listType, stringType);
 
         parentElement.addImportedType(importVo);
         parentElement.addImportedType(previewType);
@@ -111,7 +112,9 @@ public class ExcelImportWorkflowElement extends AbstractServiceElementGenerator 
     private void addConfirmMethod(TopLevelClass parentElement,
                                   VoExcelImportWorkflowConfiguration configuration,
                                   FullyQualifiedJavaType confirmType,
-                                  FullyQualifiedJavaType resultType) {
+                                  FullyQualifiedJavaType resultType,
+                                  FullyQualifiedJavaType listType,
+                                  FullyQualifiedJavaType stringType) {
         Method confirm = new Method("confirmExcelImport");
         confirm.setVisibility(JavaVisibility.PUBLIC);
         confirm.addAnnotation("@Override");
@@ -119,13 +122,24 @@ public class ExcelImportWorkflowElement extends AbstractServiceElementGenerator 
         Parameter request = new Parameter(confirmType, "request");
         request.setRemark("导入预览确认凭证");
         confirm.addParameter(request);
+        Parameter rows = new Parameter(listType, "rows");
+        rows.setRemark("确认时重新解析得到的有界导入行");
+        confirm.addParameter(rows);
+        Parameter fileSha256 = new Parameter(stringType, "fileSha256");
+        fileSha256.setRemark("重新上传文件的 SHA-256 摘要");
+        confirm.addParameter(fileSha256);
         commentGenerator.addMethodJavaDocLine(confirm, "在事务边界内调用业务策略确认并提交 Excel 导入");
         Mb3GenUtil.addTransactionalAnnotation(parentElement, confirm, "READ_COMMITTED");
         confirm.addBodyLine("if (request == null || request.getPreviewToken() == null");
         confirm.addBodyLine("        || request.getPreviewToken().trim().isEmpty()) {");
         confirm.addBodyLine("throw new IllegalArgumentException(\"Excel 导入预览凭证不能为空\");");
         confirm.addBodyLine("}");
-        confirm.addBodyLine(resultType.getShortName() + " result = doConfirmExcelImport(request);");
+        confirm.addBodyLine("if (rows == null || rows.size() > " + configuration.getMaxRows()
+                + " || fileSha256 == null || !fileSha256.matches(\"[0-9a-f]{64}\")) {");
+        confirm.addBodyLine("throw new IllegalArgumentException(\"Excel 导入确认文件或解析结果无效\");");
+        confirm.addBodyLine("}");
+        confirm.addBodyLine(resultType.getShortName()
+                + " result = doConfirmExcelImport(request, rows, fileSha256);");
         confirm.addBodyLine("if (result == null || result.getImportedRows() < 0 || result.getImportedRows() > "
                 + configuration.getMaxRows() + ") {");
         confirm.addBodyLine("throw new IllegalStateException(\"Excel 导入确认策略未返回有效结果\");");
@@ -136,15 +150,23 @@ public class ExcelImportWorkflowElement extends AbstractServiceElementGenerator 
 
     private void addConfirmHook(TopLevelClass parentElement,
                                FullyQualifiedJavaType confirmType,
-                               FullyQualifiedJavaType resultType) {
+                               FullyQualifiedJavaType resultType,
+                               FullyQualifiedJavaType listType,
+                               FullyQualifiedJavaType stringType) {
         Method confirmHook = new Method("doConfirmExcelImport");
         confirmHook.setVisibility(JavaVisibility.PROTECTED);
         confirmHook.setReturnType(resultType);
         Parameter confirmRequest = new Parameter(confirmType, "request");
         confirmRequest.setRemark("导入预览确认凭证");
         confirmHook.addParameter(confirmRequest);
+        Parameter rows = new Parameter(listType, "rows");
+        rows.setRemark("确认时重新解析得到的有界导入行");
+        confirmHook.addParameter(rows);
+        Parameter fileSha256 = new Parameter(stringType, "fileSha256");
+        fileSha256.setRemark("重新上传文件的 SHA-256 摘要");
+        confirmHook.addParameter(fileSha256);
         commentGenerator.addMethodJavaDocLine(confirmHook,
-                "由业务子类在当前事务中校验并消费预览凭证，完成整批业务写入");
+                "由业务子类在当前事务中校验文件摘要、解析行并消费预览凭证，完成整批业务写入");
         confirmHook.addBodyLine("throw new UnsupportedOperationException(\"请在业务服务子类中实现 Excel 导入确认策略\");");
         parentElement.addMethod(confirmHook);
     }

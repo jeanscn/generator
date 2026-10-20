@@ -59,7 +59,7 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 
 个性化导出通过生成列限制排除内省 BLOB/LONGVARCHAR 字段及配置的相关派生字段；元数据不广告未被 `selectByExample` 填充的大字段，客户端请求这些字段在查询前失败，不静默输出空值。
 
-两阶段导入由 `<generateVo><excelImport generate="true">` 独立 opt-in，与 `excelVo` 的直接导入/导出能力解耦。生成器可生成 `<Entity>ExcelImportVo`、模板、带导入权限和日志声明的 `POST import/preview`、`POST import/confirm`，以及 Service 接口和业务策略钩子；预览基础实现使用 Excel 插件 `VgoFesodSheet.readBounded` 和配置的显式资源限额。确认 Service 包装方法在事务中调用业务钩子，钩子负责验证并消费预览凭证及整批业务写入。通用层不生成 token 生命周期、操作者/权限归属、revision 校验或 Entity upsert；钩子未实现时显式失败。启用两阶段流程且同时启用 `excelVo` 时保留导出、抑制旧逐行直接导入。配置约束、扩展方法及兼容边界见[配置指南第 5.1.1 节](generator-config-guide.md#511-显式两阶段-excel-导入工作流)。
+两阶段导入由 `<generateVo><excelImport generate="true">` 独立 opt-in，与 `excelVo` 的直接导入/导出能力解耦。生成器可生成 `<Entity>ExcelImportVo`、模板、带导入权限和日志声明的 `POST import/preview`、`POST import/confirm`，以及 Service 接口和业务策略钩子；两个端点均使用 multipart，确认请求同时携带重传文件和 JSON 预览凭证。预览基础实现使用 Excel 插件 `VgoFesodSheet.readBounded` 和配置的显式资源限额；确认 Controller 在调用事务 Service 前按相同限额重新解析文件，Service 与业务钩子接收凭证、有界行和文件 SHA-256。确认 Service 包装方法在事务中调用业务钩子，钩子负责验证文件/行摘要、消费预览凭证及整批业务写入。通用层不生成 token 生命周期、操作者/权限归属、revision 校验或 Entity upsert；钩子未实现时显式失败。启用两阶段流程且同时启用 `excelVo` 时保留导出、抑制旧逐行直接导入。配置约束、扩展方法及兼容边界见[配置指南第 5.1.1 节](generator-config-guide.md#511-显式两阶段-excel-导入工作流)。
 
 ### 2.1.1 实体物理表与列元数据注解
 

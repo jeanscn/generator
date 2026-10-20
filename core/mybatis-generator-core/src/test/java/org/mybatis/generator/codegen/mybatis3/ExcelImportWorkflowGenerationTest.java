@@ -37,16 +37,22 @@ class ExcelImportWorkflowGenerationTest {
                 .filter(source -> source.contains("import/preview") && source.contains("import/confirm"))
                 .findFirst().orElseThrow();
         assertThat(controller)
-                .contains("previewExcelImport(file)", "confirmExcelImport(request)")
+                .contains("previewExcelImport(file)", "MediaType.MULTIPART_FORM_DATA_VALUE",
+                        "@RequestPart(\"file\")", "@RequestPart(\"request\")",
+                        "VgoFesodSheet.readBounded",
+                        "new VgoFesodSheet.ImportReadLimits(1048576L, 8388608L, 4194304L, 100, 100, 50)",
+                        "confirmExcelImport(request, parsed.rows(), parsed.fileSha256())")
                 .doesNotContain("VgoFesodSheet.read(");
 
         String service = generated.values().stream()
-                .filter(source -> source.contains("VgoFesodSheet.readBounded"))
+                .filter(source -> source.contains("createExcelImportPreview"))
                 .findFirst().orElseThrow();
         assertThat(service)
                 .contains("new VgoFesodSheet.ImportReadLimits(1048576L, 8388608L, 4194304L, 100, 100, 50)",
                         "createExcelImportPreview(parsed.rows(), parsed.fileSha256())",
-                        "doConfirmExcelImport(request)",
+                        "doConfirmExcelImport(request, rows, fileSha256)",
+                        "rows.size() > 100",
+                        "fileSha256.matches(\"[0-9a-f]{64}\")",
                         "@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)",
                         "请在业务服务子类中实现 Excel 导入预览策略",
                         "请在业务服务子类中实现 Excel 导入确认策略");
@@ -56,7 +62,8 @@ class ExcelImportWorkflowGenerationTest {
                         && !source.contains("VgoFesodSheet.readBounded"))
                 .findFirst().orElseThrow();
         assertThat(serviceContract)
-                .contains("confirmExcelImport(VgoExcelImportConfirmVo request)")
+                .contains("confirmExcelImport(VgoExcelImportConfirmVo request, List<",
+                        "String fileSha256")
                 .doesNotContain("ImportReadLimits limits");
     }
 
