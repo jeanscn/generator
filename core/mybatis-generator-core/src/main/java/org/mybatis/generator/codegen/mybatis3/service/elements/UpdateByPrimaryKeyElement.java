@@ -40,7 +40,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
                     .collect(Collectors.toList());
             outSubBatchMethodBody(updateByPrimaryKeySelective, "UPDATE", "record", parentElement, configs, false);
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()) || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
-                overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+                overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId(), parentElement);
             }else{
                 updateByPrimaryKeySelective.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                         , entityType.getShortName()
@@ -53,7 +53,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             }
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
-            overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId());
+            overwriteParentUpdate(updateByPrimaryKeySelective, introspectedTable.getUpdateByPrimaryKeySelectiveStatementId(), parentElement);
         }
         parentElement.addMethod(updateByPrimaryKeySelective);
 
@@ -69,7 +69,7 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             Mb3GenUtil.addTransactionalAnnotation(parentElement,updateByPrimaryKey,"READ_COMMITTED");
             outSubBatchMethodBody(updateByPrimaryKey, "UPDATE", "record", parentElement, configs, false);
             if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.UPDATED.name()) || this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
-                overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());
+                overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId(), parentElement);
             }else{
                 updateByPrimaryKey.addBodyLine("ServiceResult<{0}> result = super.{1}(record);"
                         , entityType.getShortName()
@@ -82,16 +82,15 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
             }
             parentElement.addImportedType(SERVICE_CODE_ENUM);
         } else {
-            overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId());
+            overwriteParentUpdate(updateByPrimaryKey, introspectedTable.getUpdateByPrimaryKeyStatementId(), parentElement);
         }
         parentElement.addMethod(updateByPrimaryKey);
-        parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
     }
 
     /**
      * 重写父类如下的方法。插入事件发布
      */
-    private void  overwriteParentUpdate(Method method ,String methodName){
+    private void  overwriteParentUpdate(Method method ,String methodName, TopLevelClass parentElement){
         method.addBodyLine("try {");
         if (this.serviceImplConfiguration.getEntityEvent().contains(EntityEventEnum.PRE_UPDATE.name())) {
             method.addBodyLine("if (publisher != null) {");
@@ -108,5 +107,6 @@ public class UpdateByPrimaryKeyElement extends AbstractServiceElementGenerator {
         method.addBodyLine("} catch (Exception e) {");
         method.addBodyLine("throw new VgoException(ServiceCodeEnum.FAIL.code(), e.getMessage());");
         method.addBodyLine("}");
+        parentElement.addImportedType("com.vgosoft.core.exception.VgoException");
     }
 }

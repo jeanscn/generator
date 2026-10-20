@@ -10,6 +10,9 @@ import org.mybatis.generator.internal.util.Mb3GenUtil;
 
 import static org.mybatis.generator.custom.ConstantsUtil.RESPONSE_RESULT;
 
+/**
+ * @author cen_c
+ */
 public class RecycleBatchElementGenerator extends AbstractControllerElementGenerator {
 
     public RecycleBatchElementGenerator() {
