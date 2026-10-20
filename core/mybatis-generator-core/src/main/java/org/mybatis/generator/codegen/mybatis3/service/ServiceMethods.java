@@ -57,6 +57,7 @@ public class ServiceMethods {
         method.addParameter(file);
         method.addException(ioException);
         method.setExceptionRemark("文件读取或 Excel 解析失败");
+        method.setReturnRemark("预览结果VO对象");
         context.getCommentGenerator().addMethodJavaDocLine(method, isAbstract
                 ? "解析并校验 Excel 导入文件，生成预览结果"
                 : "按配置限额解析 Excel 文件并交由业务服务生成预览");
@@ -93,6 +94,7 @@ public class ServiceMethods {
         Parameter rows = new Parameter(rowsType, "rows");
         rows.setRemark("确认时重新解析得到的有界导入行");
         method.addParameter(rows);
+        method.setReturnRemark("导入结果");
         Parameter fileSha256 = new Parameter(FullyQualifiedJavaType.getStringInstance(), "fileSha256");
         fileSha256.setRemark("重新上传文件的 SHA-256 摘要");
         method.addParameter(fileSha256);
