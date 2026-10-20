@@ -1232,7 +1232,7 @@
                 9、genControllerMethod 是否生成controller方法，默认false
              说明：
                 1、statType为total时，表示统计总数，返回一个或多个总数值；
-                2、statType为yoy时，表示同比统计，返回一个列表，包含当前月和去年同月的统计值；
+                2、statType为yoy时，表示同比统计，返回一个列表，包含当前月和去年同月份的统计值；
                 3、statType为mom时，表示环比统计，返回一个列表，包含当前月和上月的统计值。
                 4、dateDimColumn和dateDimension用于指定与时间维度表连接的列名和最小维度。
                 5、customAggregationExpr 直接统计字段值无法满足需求时，可以使用自定义聚合表达式来使用其他聚合函数或者指定条件过滤的统计项，多个条件使用管道符“|”分割。
@@ -1674,7 +1674,7 @@
             21、uiFrameType:ui框架类型，dataTables、layTable、elPlusTable、vxeTable，1.6.0版本新增（默认值为elPlusTable）
             22、tableType:表格类型，default、treeTable，1.6.0版本新增（默认值为default）
             23、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
-                    如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
+                    如果指定了表单的viewPath，列表的单元格编辑会继承该表单地指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
             24、height：列表的高度。设置表格容器高度，默认自适应。其他可选值的规则如下：
@@ -1692,7 +1692,7 @@
             33、editFormIn 编辑表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             34、detailFormIn 详情表单打开方式，inner-内嵌，dialog-弹窗，drawer-抽屉，默认inner
             35、editExtendsForm：为编辑元素指定要继承的表单的viewPath。
-                    如果指定了表单的viewPath，列表的单元格编辑会继承该表单的指定的页面元素htmlElementDescriptor配置；
+                    如果指定了表单的viewPath，列表的单元格编辑会继承该表单地指定的页面元素htmlElementDescriptor配置；
                     如果不指定，则使用默认的表单（配置的第一个）viewPath。
                     可以通过配置htmlElementDescriptor元素进行继承属性的覆盖。
             36、vxeListButtons 内嵌列表的默认按钮按钮标识，多个按钮用逗号分隔。包括：INNER_ADD_ROW,INNER_BATCH_ADD,INNER_EDIT,INNER_BATCH_EDIT,INNER_IMPORT,INNER_WF_IMPORT,INNER_EXPORT,INNER_REMOVE,zoomBtn,customBtn
