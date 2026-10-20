@@ -47,7 +47,11 @@ public class EasyExcelAnnotationPlugin extends PluginAdapter {
         if (field.getInitializationString().isPresent()) {
             field.addAnnotation("@Builder.Default");
         }
-        Set<String> ignoreFields = abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration().getImportIgnoreFields();
+        Set<String> ignoreFields = abstractIntrospectedTable.getRules().isGenerateExcelImportWorkflow()
+                ? abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration()
+                .getVoExcelImportWorkflowConfiguration().getImportIgnoreFields()
+                : abstractIntrospectedTable.getTableConfiguration().getVoGeneratorConfiguration()
+                .getVoExcelConfiguration().getImportIgnoreFields();
         if (ignoreFields.contains(field.getName())) {
             field.addAnnotation("@ExcelIgnore");
             topLevelClass.addImportedType("org.apache.fesod.sheet.annotation.ExcelIgnore");

@@ -437,6 +437,13 @@ public interface Rules {
     boolean isGenerateExcelVo();
 
     /**
+     * 是否生成独立的 Excel 两阶段导入工作流
+     *
+     * @return 已显式启用独立导入工作流时返回 true
+     */
+    boolean isGenerateExcelImportWorkflow();
+
+    /**
      * 是否生成RequestVo
      * @return true if the Request Vo should be generated
      */

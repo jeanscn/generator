@@ -58,6 +58,9 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
         bizInf.addSuperInterface(infSuperType);
         classComments.add(VStringUtil.format("该类继承自'{'@link {0}'}'，",infSuperType.getShortNameWithoutTypeArguments()));
         ServiceMethods serviceMethods = new ServiceMethods(context, introspectedTable);
+        if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+            addExcelImportWorkflowMethods(bizInf, commentGenerator);
+        }
         if (introspectedTable.getRules().generateCasWriteContract()) {
             bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, false, true, true));
             bizInf.addMethod(serviceMethods.getCasWriteMethod(bizInf, true, true, true));
@@ -194,7 +197,15 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 classComments.toArray(new String[0]));
 
         List<CompilationUnit> answer = new ArrayList<>();
-        if (plugins.serviceGenerated(bizInf, introspectedTable)) {
+        boolean serviceGenerated = plugins.serviceGenerated(bizInf, introspectedTable);
+        if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+            if (!serviceGenerated) {
+                throw new IllegalArgumentException("excelImport requires the generated Service interface for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+            validateExcelImportServiceMethods(bizInf);
+        }
+        if (serviceGenerated) {
             answer.add(bizInf);
         }
 
@@ -215,7 +226,12 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                 VStringUtil.format("用于扩展或重写 {0}。",bizInf.getType().getShortNameWithoutTypeArguments()));
         boolean overridable = Mb3GenUtil.fileOverridable(serviceInfConfiguration.getTargetProject(), serviceInfConfiguration.getTargetPackage(), "I" + entityType.getShortName()+".java");
         if (overridable) {
-            if (plugins.subServiceGenerated(bizSubInf, introspectedTable)) {
+            boolean subServiceGenerated = plugins.subServiceGenerated(bizSubInf, introspectedTable);
+            if (introspectedTable.getRules().isGenerateExcelImportWorkflow() && !subServiceGenerated) {
+                throw new IllegalArgumentException("excelImport requires the generated Service extension interface for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+            if (subServiceGenerated) {
                 answer.add(bizSubInf);
             }
         }
@@ -276,6 +292,66 @@ public class JavaServiceGenerator extends AbstractServiceGenerator {
                     });
         }
         return answer;
+    }
+
+    private void addExcelImportWorkflowMethods(Interface service, CommentGenerator commentGenerator) {
+        FullyQualifiedJavaType importVo = introspectedTable.getTableConfiguration()
+                .getVoGeneratorConfiguration().getVoExcelImportWorkflowConfiguration().getExcelImportType();
+        FullyQualifiedJavaType previewType =
+                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportPreviewVo");
+        previewType.addTypeArgument(importVo);
+        FullyQualifiedJavaType multipartFile = new FullyQualifiedJavaType("org.springframework.web.multipart.MultipartFile");
+
+        Method preview = new Method("previewExcelImport");
+        preview.setVisibility(JavaVisibility.PUBLIC);
+        preview.setReturnType(previewType);
+        Parameter file = new Parameter(multipartFile, "file");
+        file.setRemark("待预览的 Excel 文件");
+        preview.addParameter(file);
+        preview.addException(new FullyQualifiedJavaType("java.io.IOException"));
+        preview.setExceptionRemark("文件读取或 Excel 解析失败");
+        commentGenerator.addMethodJavaDocLine(preview, "解析并校验 Excel 导入文件，生成预览结果");
+        service.addMethod(preview);
+
+        FullyQualifiedJavaType confirmType =
+                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportConfirmVo");
+        FullyQualifiedJavaType resultType =
+                new FullyQualifiedJavaType("com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportResultVo");
+        Method confirm = new Method("confirmExcelImport");
+        confirm.setVisibility(JavaVisibility.PUBLIC);
+        confirm.setReturnType(resultType);
+        Parameter request = new Parameter(confirmType, "request");
+        request.setRemark("导入预览确认凭证");
+        confirm.addParameter(request);
+        commentGenerator.addMethodJavaDocLine(confirm, "确认并原子提交已校验的 Excel 导入预览");
+        service.addMethod(confirm);
+        service.addImportedType(importVo);
+        service.addImportedType(previewType);
+        service.addImportedType(multipartFile);
+        service.addImportedType(new FullyQualifiedJavaType("java.io.IOException"));
+        service.addImportedType(confirmType);
+        service.addImportedType(resultType);
+    }
+
+    private void validateExcelImportServiceMethods(Interface service) {
+        boolean preview = service.getMethods().stream().anyMatch(method ->
+                "previewExcelImport".equals(method.getName())
+                        && method.getParameters().size() == 1
+                        && method.getReturnType().map(returnType -> returnType.getFullyQualifiedName().startsWith(
+                                "com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportPreviewVo")).orElse(false)
+                        && "org.springframework.web.multipart.MultipartFile".equals(
+                                method.getParameters().get(0).getType().getFullyQualifiedName()));
+        boolean confirm = service.getMethods().stream().anyMatch(method ->
+                "confirmExcelImport".equals(method.getName())
+                        && method.getParameters().size() == 1
+                        && method.getReturnType().map(returnType -> "com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportResultVo"
+                                .equals(returnType.getFullyQualifiedName())).orElse(false)
+                        && "com.vgosoft.plugins.excel.pojo.vo.VgoExcelImportConfirmVo".equals(
+                                method.getParameters().get(0).getType().getFullyQualifiedName()));
+        if (!preview || !confirm) {
+            throw new IllegalArgumentException("excelImport Service methods were removed or changed by a plugin for "
+                    + introspectedTable.getFullyQualifiedTable());
+        }
     }
 
     /**

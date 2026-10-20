@@ -24,7 +24,7 @@ public class TemplateElementGenerator extends AbstractControllerElementGenerator
         parentElement.addImportedType("jakarta.servlet.http.HttpServletResponse");
         parentElement.addImportedType("com.vgosoft.plugins.excel.service.VgoFesodSheet");
         parentElement.addImportedType("java.io.IOException");
-        parentElement.addImportedType(entityExcelVoType);
+        parentElement.addImportedType(entityExcelImportVoType);
         parentElement.addImportedType(FullyQualifiedJavaType.getNewListInstance());
 
         final String methodPrefix = "template";

@@ -100,6 +100,9 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         constructor.addBodyLine("this.mapper = mapper;");
         bizGenClazzImpl.addMethod(constructor);
 
+        if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+            initializeAndExecuteGenerator(new ExcelImportWorkflowElement(), bizGenClazzImpl);
+        }
 
         /*
          * insertBatch
@@ -184,7 +187,15 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
                 classComments.toArray(new String[0]));
 
         List<CompilationUnit> answer = new ArrayList<>();
-        if (plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable)) {
+        boolean serviceImplGenerated = plugins.serviceImplGenerated(bizGenClazzImpl, introspectedTable);
+        if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+            if (!serviceImplGenerated) {
+                throw new IllegalArgumentException("excelImport requires the generated Service implementation for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+            validateExcelImportWorkflowMethods(bizGenClazzImpl);
+        }
+        if (serviceImplGenerated) {
             if (org.mybatis.generator.codegen.mybatis3.SensitiveFieldResolver.isEnabled(introspectedTable)) {
                 initializeAndExecuteGenerator(new SensitiveWriteMethodsElement(), bizGenClazzImpl);
             }
@@ -236,12 +247,41 @@ public class JavaServiceImplGenerator extends AbstractServiceGenerator {
         bizClazzImpl.addMethod(conMethod);
         boolean overridable = Mb3GenUtil.fileOverridable(javaServiceImplGeneratorConfiguration.getTargetProject(), javaServiceImplGeneratorConfiguration.getTargetPackage(), implClazzName+".java");
         if (overridable) {
-            if (plugins.subServiceImplGenerated(bizGenClazzImpl, introspectedTable)) {
+            boolean subServiceImplGenerated = plugins.subServiceImplGenerated(bizClazzImpl, introspectedTable);
+            if (introspectedTable.getRules().isGenerateExcelImportWorkflow() && !subServiceImplGenerated) {
+                throw new IllegalArgumentException("excelImport requires the generated Service extension implementation for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+            if (subServiceImplGenerated) {
                 answer.add(bizClazzImpl);
             }
         }
 
         return answer;
+    }
+
+    private void validateExcelImportWorkflowMethods(TopLevelClass service) {
+        Method preview = service.getMethods().stream()
+                .filter(method -> "previewExcelImport".equals(method.getName()))
+                .findFirst().orElse(null);
+        Method confirm = service.getMethods().stream()
+                .filter(method -> "confirmExcelImport".equals(method.getName()))
+                .findFirst().orElse(null);
+        boolean validPreview = preview != null && preview.getBodyLines().stream()
+                .anyMatch(line -> line.contains("VgoFesodSheet.readBounded"))
+                && preview.getBodyLines().stream().anyMatch(line -> line.contains("createExcelImportPreview"));
+        boolean validConfirm = confirm != null && confirm.getBodyLines().stream()
+                .anyMatch(line -> line.contains("doConfirmExcelImport"))
+                && confirm.getAnnotations().stream().anyMatch(annotation ->
+                        annotation.startsWith("@Transactional(rollbackFor = Exception.class"));
+        boolean hasHooks = service.getMethods().stream().anyMatch(method ->
+                        "createExcelImportPreview".equals(method.getName()))
+                && service.getMethods().stream().anyMatch(method ->
+                        "doConfirmExcelImport".equals(method.getName()));
+        if (!validPreview || !validConfirm || !hasHooks) {
+            throw new IllegalArgumentException("excelImport Service implementation contract was changed by a plugin for "
+                    + introspectedTable.getFullyQualifiedTable());
+        }
     }
 
     private void addUpdateDeleteFlagElement(TopLevelClass bizGenClazzImpl) {

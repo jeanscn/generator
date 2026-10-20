@@ -334,6 +334,11 @@ public class RulesDelegate implements Rules {
     }
 
     @Override
+    public boolean isGenerateExcelImportWorkflow() {
+        return false;
+    }
+
+    @Override
     public boolean isGenerateRequestVo() {
         return false;
     }

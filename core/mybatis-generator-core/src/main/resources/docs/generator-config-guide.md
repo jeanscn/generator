@@ -404,13 +404,66 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 | `createVo` | 新增参数 VO | 可指定必填列、选择性创建。 |
 | `updateVo` | 更新参数 VO | 可指定必填列、选择性编辑。 |
 | `requestVo` | 查询参数 VO | 支持分页参数和查询片段。 |
-| `viewVo` | 列表/详情 VO 与视图元数据 | 控制 ViewVo 字段及列表列、查询/过滤、默认排序和菜单元数据；详见第 5.2 节。 |
-| `excelVo` | 导入导出 VO | 支持 include/exclude/ignore/import 配置。 |
+| `viewVo` | 列表/详情 VO 与视图元数据 | 控制 ViewVo 字段及列表列、查询/过滤、默认排序和菜单元数据；详见第 5.3 节。 |
+| `excelVo` | 导入导出 VO | 导入字段与导入流程见第 5.1 节，导出字段与接口见第 5.2 节。 |
+| `excelImport` | 两阶段 Excel 导入工作流 | 独立 opt-in；资源限制、预览/确认端点及业务 Service 钩子见第 5.1.1 节。 |
 | `generateCachePo` | 缓存 PO | 常用于字典值映射。 |
 | `overridePropertyValue` | 值转换字段 | 生成 `Text`/展示字段或注解映射。 |
 | `additionalProperty` | 附加属性 | 给 VO 增加新字段。 |
 
-### 5.1 个性化导出接口与接入
+### 5.1 `excelVo` 导入字段与生成行为
+
+`excelVo` 是导入与导出的共同开关，不是独立的“仅导入”开关。必须同时启用父级 `<generateVo generate="true">`；`excelVo generate="false"` 时，导入/导出 VO、导入模板、导入端点及导出端点均不生成。首次配置时建议显式写出 `generate` 和导入字段范围：
+
+```xml
+<generateVo generate="true">
+    <excelVo generate="true"
+             importIncludeColumns="code,name,category_id"
+             importIgnoreFields="id,version"/>
+</generateVo>
+```
+
+`importIncludeColumns` / `importExcludeColumns` 使用数据库物理列名；`importIgnoreFields` 使用 Java 属性名。它们与 `includeFields`、`excludeFields`、`ignoreFields` 不同，后者控制导出 Excel VO：
+
+| 属性 | 作用 | 生效规则 |
+|---|---|---|
+| `importIncludeColumns` | 指定导入 VO 的数据库列集合 | 非空时只按所列物理列生成导入 VO 字段，并按配置顺序处理；不存在的列不生成。全局 VO 排除列仍然生效，不能通过 include 重新加入。 |
+| `importExcludeColumns` | 从导入 VO 排除数据库列 | 仅在 `importIncludeColumns` 为空时生效；配置 include 后此项不再筛选。 |
+| `importIgnoreFields` | 标记不参与 Excel 导入的导入 VO 属性 | 使用 Java 属性名；生成字段仍保留在 VO 中。启用 `EasyExcelAnnotationPlugin` 时，字段添加 `@ExcelIgnore`；生成的模板样例也跳过这些属性。它不等同于从 Entity 映射或数据库写入列中移除字段。 |
+
+除上述筛选外，`generateVo` 的全局排除列仍参与导入字段筛选；`excelVo` 自身的附加属性配置也可能增加导入 VO 字段。修改配置后应检查实际生成的 `ExcelImportVo`、模板字段和 mappings，不仅依据配置文本推断最终字段集合。
+
+启用后，生成器在 Controller 基础路由下提供 `GET import/template` 和 `POST import`，并生成 `<Entity>ExcelImportVo`、模板样例方法及 VO/Entity 映射。模板样例方法可在生成的可扩展 Controller 子类中重写；导入监听器工厂 `getImportReadListener` 也可在子类扩展。以上扩展点不改变默认导入流程的事务或业务语义。
+
+**默认导入边界：** 当前生成的 `POST import` 保存上传文件到本地 `upload` 路径后解析 Excel，再将行映射为 Entity 并逐条调用 `insertOrUpdate`；成功数按实际成功项计数。因此它可能更新已有数据，且代码没有为整份文件提供全有或全无事务保证，某些行成功、其他行失败时已成功行不会因该接口而自动回滚。默认配置也没有通过上述字段属性定义预览/确认、仅新增、业务级重复检查、文件/行数限制或预览过期控制；不能把通用导入端点直接当作这些业务契约的实现。需要预览后确认、严格整批原子性或特定业务校验时，应先设计可验证的共享生成器扩展契约和业务实现，不要仅开启 `excelVo`。
+
+### 5.1.1 显式两阶段 Excel 导入工作流
+
+`excelImport` 是与 `excelVo` 分离、默认关闭的导入工作流配置。启用时仍须启用父级 `<generateVo generate="true">`，并生成 Java Controller、Service 及 Service 实现；当前 `mybatis-generator-config_1_8_0.dtd` 中的全部资源限制均为必填正数。`maxInputBytes` 不能超过 `Integer.MAX_VALUE`，`maxEntryBytes` 不能超过 `maxExpandedBytes`：
+
+```xml
+<generateVo generate="true">
+    <excelImport generate="true"
+                 importIncludeColumns="code,name,category_id"
+                 importIgnoreFields="id,version"
+                 maxInputBytes="10485760"
+                 maxExpandedBytes="52428800"
+                 maxEntryBytes="10485760"
+                 maxZipEntries="256"
+                 maxRows="1000"
+                 maxErrorMessages="100"/>
+</generateVo>
+```
+
+限制值必须由使用方根据上传并发、内存预算和业务容量显式确定；示例值不是通用安全默认值。`VgoFesodSheet` 会按原始文件字节上限暂存文件，因此 `maxInputBytes` 同时是单个导入文件的内存上限。ZIP 展开字节、单条目字节和条目数限制作用于 XLSX 预检；数据行数和解析错误条数由有界读取器限制。当前 Excel 插件的有界接口仅接受 XLS/XLSX 文件签名。
+
+`importIncludeColumns` / `importExcludeColumns` 使用数据库物理列名，`importIgnoreFields` 使用 Java 属性名；筛选及全局 VO 排除规则与 `excelVo` 导入 VO 一致。`excelImport` 生成独立工作流使用的 `<Entity>ExcelImportVo`、映射方法、导入模板和两个 Controller 端点：`POST import/preview`（multipart 文件）与 `POST import/confirm`（JSON 确认凭证）。两个端点沿用导入权限及系统日志声明。业务层必须依赖提供 `VgoFesodSheet.readBounded` 和 `com.vgosoft.plugins.excel.pojo.vo` 导入 DTO 的 Excel 插件版本。
+
+生成的 Service 接口包含 `previewExcelImport(MultipartFile)` 与 `confirmExcelImport(VgoExcelImportConfirmVo)`。生成的 Service 基类在预览入口按配置构造 `ImportReadLimits` 并调用有界解析，再委托 `createExcelImportPreview(rows, fileSha256)`；确认入口使用 `READ_COMMITTED`、`rollbackFor = Exception.class` 的事务包装，并委托 `doConfirmExcelImport(request)`。两个受保护业务钩子默认明确抛出 `UnsupportedOperationException`，业务子类必须实现预览校验/凭证签发与确认提交逻辑。只重写受保护钩子，不要重写公开事务包装方法；确认钩子必须在失败时抛出异常，以使整批业务写入回滚。事务仍依赖通过 Spring 代理从外部调用，生成器不替业务实现预览所有权、令牌过期/一次性消费、revision 校验或具体数据写入。
+
+未配置或关闭 `excelImport` 时，既有 `excelVo` 输出不变。若同时启用 `excelVo` 和 `excelImport`，Excel 导出能力仍由 `excelVo` 提供，但旧的逐行 `POST import` 被抑制，避免同一资源同时暴露不具备事务保证的直接导入和两阶段工作流。
+
+### 5.2 个性化导出接口与接入
 
 当规则启用 `excelVo` 时，`ExportElementGenerator` 为单列 `String` 主键表生成以下端点（均相对于 Controller 基础路由）：
 
@@ -435,11 +488,11 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 跨项目 API 兼容验证可为同一测试传入 `-Dexport.contract.classes=<Excel 模块已编译 classes 目录>` 与 `-Dexport.contract.classpath-file=<Excel dependency:build-classpath 输出文件>`。此模式移除插件契约替身，将实际渲染 Controller 直接对当前编译的 `VgoExportRequestVo/OptionsVo/OptionsViewVo`、`ExportSupport` 与 `VgoFesodSheet` 类型检查；常规独立运行仍使用内存契约替身，不要求另一仓库存在。
 
-### 5.2 `viewVo` 默认列表视图配置
+### 5.3 `viewVo` 默认列表视图配置
 
 `viewVo` 必须放在 `<generateVo>` 内。当前配置构造器默认关闭它；要生成 ViewVo，必须显式写 `generate="true"`，并同时启用父级 `<generateVo generate="true">`。启用后生成的是后端 ViewVo 和视图元数据，不等同于 Vue 页面布局，也不会单独实现自定义查询、按钮服务端逻辑或权限。
 
-#### 5.2.1 主要属性
+#### 5.3.1 主要属性
 
 | 属性 | 配置作用 | 设计/使用要点 |
 |---|---|---|
@@ -465,7 +518,7 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 默认视图 ID 由生成器根据 controller bean 名计算：小写的 bean 名与默认视图后缀拼接后取 `MD5_15`，生成在 `ViewTableMeta.value` 中。XML `listKey` 与该 ID 相互独立，且当前 ViewMetaAnnotationPlugin 不将 `listKey` 写入默认 `ViewTableMeta`；不要按 DTD 中过期的 listKey 描述手工设置或覆盖默认视图 ID。视图数据 URL 按生成器 controller 基础路由构造为 `{controllerBasePath}/getdtdata`，路由及数据查询由宿主运行时提供。
 
-#### 5.2.2 子节点与列级元数据
+#### 5.3.2 子节点与列级元数据
 
 | 子节点 | 作用 | 关键约束 |
 |---|---|---|
@@ -479,7 +532,7 @@ for (Class<?> type = entityClass; type != null && type != Object.class; type = t
 
 DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn`、`filterColumn`、`fieldOverrides` 等分别解析。`queryColumn` / `filterColumn` 描述只有同时列入 `queryColumns` / `filterColumns` 时才参与对应元数据；无显式 `queryColumn` 描述时，不存在的 query 字段会被忽略，显式描述须匹配真实列；不存在的 filter 字段会抛出异常。子节点合法仅表示可被配置解析，不表示宿主页面一定消费或服务端已有对应行为。
 
-#### 5.2.3 最小视图配置示例
+#### 5.3.3 最小视图配置示例
 
 以下片段放在既有 `<table>` 的 `<generateVo>` 中，字段名必须替换为真实表列/VO 属性：
 
@@ -508,11 +561,11 @@ DTD 允许 `viewVo` 含上述及相关子节点；当前 Parser 对 `queryColumn
 
 本示例只建立 VO/视图元数据的配置起点。生成前后都应核对目标字段是否在 ViewVo 中、查询是否由 RequestVo/后端消费、过滤操作符是否受支持、工具栏和行操作是否有实现及权限、列元数据是否被目标宿主消费。
 
-#### 5.2.4 分页属性与菜单数据限制
+#### 5.3.4 分页属性与菜单数据限制
 
 当前 1.8.0 DTD 的 `viewVo.enablePager` 声明接受 `true`、`false`、`simple`、`auto`，而 Parser 使用 `Boolean.parseBoolean` 解析，且配置对象默认值为 `true`；因此只有 `true` 会解析为真，`simple` 和 `auto` 都会变成假。它也不是 `ViewTableMeta` 注解成员，不可将其当作 Vue3 表格分页模式的可靠配置。需使用分页显示模式时，先按实际模板和宿主运行时核验；不要依赖 DTD 的枚举声明推断行为。
 
-#### 5.2.5 菜单期初数据生成
+#### 5.3.5 菜单期初数据生成
 
 本节只说明生成器能够保证的菜单配置与脚本边界。所有数据库期初资源（包括 DDL、权限数据、菜单数据和存储过程等）的汇总、执行顺序及 Spring 首次写库流程统一见[第 19 节「Spring 首次初始化」](#19-spring-首次初始化)。生成器本身只产出对应 SQL 资源，不连接应用数据库执行，也不自动触发 Spring 初始化。
 
@@ -848,7 +901,7 @@ DTD 的子内容模型为 `properties*`，而 Parser 只识别 `property`；不�
 
 #### 7.4.3 `htmlButton`
 
-generateHtml、普通 descriptor、innerList 下可声明按钮；Vue 列表按钮另见第 5.2 节。按钮定义不等于自动加入所有工具栏，需有对应动作键引用/模板消费；innerList 的 vxeListButtons/actionColumn 会参与动作描述转换。
+generateHtml、普通 descriptor、innerList 下可声明按钮；Vue 列表按钮另见第 5.3 节。按钮定义不等于自动加入所有工具栏，需有对应动作键引用/模板消费；innerList 的 vxeListButtons/actionColumn 会参与动作描述转换。
 
 | 属性 | 含义 | 默认值或值来源 | 影响 | 备注 |
 |---|---|---|---|---|
@@ -1649,7 +1702,7 @@ mvn -q -pl mybatis-generator-core "-Denforcer.skip=true" `
 |---|---|---|
 | 表结构 DDL | 默认位于 `src/main/resources/sql/<方言>/schema_<tableName小写>.sql`；可受 `filePrefix`、目标路径及方言配置影响 | 只执行与目标数据库匹配的方言脚本；核对表、索引、约束和已有 schema 的迁移策略。 |
 | 权限与权限动作期初数据 | `src/main/resources/sql/init/data-permission-<tableName小写>.sql`、`data-permission-action-<tableName小写>.sql` | 仅在生成器收集到相应数据时输出；确认主体权限、动作及其关联 ID 与现有菜单/资源一致。 |
-| 菜单数据 | `src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql` | 受 `updateMenuData` 及 ViewVo 等条件控制；父菜单、权限数据及本次脚本覆盖范围见第 5.2.5 节。 |
+| 菜单数据 | `src/main/resources/sql/init/data-menu-<moduleKeyword小写>.sql` | 受 `updateMenuData` 及 ViewVo 等条件控制；父菜单、权限数据及本次脚本覆盖范围见第 5.3.5 节。 |
 | 模块数据 | `src/main/resources/sql/init/data-module-<moduleKeyword小写>.sql` | 受 `updateModuleData` 及模块数据收集条件控制；检查其他期初记录对模块 ID 的引用。 |
 | 流程类型等业务数据 | 例如 `src/main/resources/sql/init/data-wf-proc-type-<moduleKeyword小写>.sql` | 按流程定义及业务数据依赖顺序执行。 |
 | 存储过程、函数、触发器及自定义 SQL | 由项目、数据库迁移工具或自定义生成插件提供；不应假定上述默认产物已经包含这些程序对象 | 核实方言、分隔符、创建/替换语法、权限、依赖表以及执行器对脚本分隔符的支持。 |
@@ -1685,7 +1738,7 @@ spring:
 ### 19.4 首次初始化操作与验收
 
 1. **盘点与确认：** 选定目标环境、数据库/schema 和方言；收齐本次全部生成文件及项目自有脚本，核对资源打包路径、迁移状态和所有前置依赖。
-2. **排序与审核：** 按依赖整理执行序列；检查 DDL、存储过程、权限、菜单及其他数据脚本的实际 SQL、ID、引用、冲突和重跑策略。菜单条件及父菜单验证见第 5.2.5 节。
+2. **排序与审核：** 按依赖整理执行序列；检查 DDL、存储过程、权限、菜单及其他数据脚本的实际 SQL、ID、引用、冲突和重跑策略。菜单条件及父菜单验证见第 5.3.5 节。
 3. **隔离环境演练：** 使用与目标环境匹配的数据库版本和权限，在空库或可恢复的隔离库执行完整序列；确认脚本格式、方言、事务/提交行为和失败处理。
 4. **接入正式执行入口：** 使用项目统一迁移工具或经确认的 Spring 初始化机制；确保数据源指向目标数据库、执行顺序正确、错误不会被忽略，且资源实际打包进运行时 classpath。
 5. **首次执行并核验：** 检查迁移/启动日志及退出结果；核验表结构、程序对象、权限关联、菜单父子关系和业务期初数据；任一步骤失败时停止后续初始化，按数据库实际提交状态修复或恢复后再重试。

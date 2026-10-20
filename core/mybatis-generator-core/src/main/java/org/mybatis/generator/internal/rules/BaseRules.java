@@ -653,7 +653,7 @@ public abstract class BaseRules implements Rules {
     @Override
     public boolean isGenerateAnyVo() {
         return isGenerateCreateVo() || isGenerateUpdateVo()
-                || isGenerateVoModel() || isGenerateExcelVo()
+                || isGenerateVoModel() || isGenerateExcelVo() || isGenerateExcelImportWorkflow()
                 || isGenerateRequestVo() || isGenerateViewVo();
     }
 
@@ -693,6 +693,14 @@ public abstract class BaseRules implements Rules {
                 && tc.getVoGeneratorConfiguration().isGenerate()
                 && tc.getVoGeneratorConfiguration().getVoExcelConfiguration() != null
                 && tc.getVoGeneratorConfiguration().getVoExcelConfiguration().isGenerate();
+    }
+
+    @Override
+    public boolean isGenerateExcelImportWorkflow() {
+        return tc.getVoGeneratorConfiguration() != null
+                && tc.getVoGeneratorConfiguration().isGenerate()
+                && tc.getVoGeneratorConfiguration().getVoExcelImportWorkflowConfiguration() != null
+                && tc.getVoGeneratorConfiguration().getVoExcelImportWorkflowConfiguration().isGenerate();
     }
 
     @Override

@@ -144,7 +144,7 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
             mappingsInterface.addMethod(method);
         });
 
-        /*
+        /**
          * 生成Vo类
          * */
         if (introspectedTable.getRules().isGenerateVoModel()) {
@@ -247,11 +247,17 @@ public class ViewObjectClassGenerator extends AbstractJavaGenerator {
         /*
          * 生成ExcelImportVo
          * */
-        if (introspectedTable.getRules().isGenerateExcelVo()) {
+        if (introspectedTable.getRules().isGenerateExcelVo()
+                || introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
             TopLevelClass excelImportVoClass = new VoExcelImportGenerator(introspectedTable, "project", progressCallback, warnings, mappingsInterface).generate();
             //添加生成excelImportVo到生成列表
             if (introspectedTable.getRules().isForceGenerateScalableElement(ScalableElementEnum.excelVo.name()) || fileNotExist(excelImportVoClass.getType().getShortName())) {
-                if (context.getPlugins().voModelExcelImportClassGenerated(excelImportVoClass, introspectedTable)) {
+                boolean generated = context.getPlugins().voModelExcelImportClassGenerated(excelImportVoClass, introspectedTable);
+                if (introspectedTable.getRules().isGenerateExcelImportWorkflow() && !generated) {
+                    throw new IllegalArgumentException("excelImport requires the generated ExcelImportVo for "
+                            + introspectedTable.getFullyQualifiedTable());
+                }
+                if (generated) {
                     answer.add(excelImportVoClass);
                 }
             }

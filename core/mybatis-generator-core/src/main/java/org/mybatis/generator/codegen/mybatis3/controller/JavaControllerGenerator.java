@@ -139,10 +139,18 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         addUploadElement(conTopClazz);
         addDownloadElement(conTopClazz);
 
-        if (introspectedTable.getRules().isGenerateExcelVo()) {
+        boolean importWorkflow = introspectedTable.getRules().isGenerateExcelImportWorkflow();
+        if (introspectedTable.getRules().isGenerateExcelVo() || importWorkflow) {
             addTemplateElement(conTopClazz);
-            addImportElement(conTopClazz);
+        }
+        if (introspectedTable.getRules().isGenerateExcelVo()) {
+            if (!importWorkflow) {
+                addImportElement(conTopClazz);
+            }
             addExportElement(conTopClazz);
+        }
+        if (importWorkflow) {
+            addImportWorkflowElement(conTopClazz);
         }
 
         if (!tc.getJavaControllerGeneratorConfiguration().getFormOptionGeneratorConfigurations().isEmpty()) {
@@ -191,7 +199,8 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             conTopClazz.addImportedType("com.github.pagehelper.Page");
         }
         //追加1、导入监听的工厂方法、2、构造导入Excel模板的样例数据方法
-        if (introspectedTable.getRules().isGenerateExcelVo()) {
+        if (introspectedTable.getRules().isGenerateExcelVo() || importWorkflow) {
+            if (introspectedTable.getRules().isGenerateExcelVo() && !importWorkflow) {
             //追加一个导入监听的工厂方法
             Method getImportReadListener = new Method("getImportReadListener");
             getImportReadListener.setVisibility(JavaVisibility.PROTECTED);
@@ -206,6 +215,7 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
             getImportReadListener.addBodyLine("return new DefaultReadListener<>();");
             conTopClazz.addMethod(getImportReadListener);
             conTopClazz.addImportedType("com.vgosoft.plugins.excel.listener.DefaultReadListener");
+            }
 
             //追加一个导出的样式方法
             Method getDefaultColumnWidthStyleStrategy = new Method("getDefaultColumnWidthStyleStrategy");
@@ -236,10 +246,22 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 conTopClazz.addImportedType("java.util.Collections");
             }
             buildTemplateSampleData.addBodyLine("        {0}.builder()", entityExcelImportVoType.getShortName());
-            VoExcelGeneratorConfiguration voExcelConfiguration = introspectedTable.getTableConfiguration().getVoGeneratorConfiguration().getVoExcelConfiguration();
-
-            List<IntrospectedColumn> introspectedColumns = voGenService.getVoColumns(new ArrayList<>(), voExcelConfiguration.getImportIncludeColumns(), voExcelConfiguration.getImportExcludeColumns());
-            Set<String> importIgnoreFields = voExcelConfiguration.getImportIgnoreFields();
+            VoGeneratorConfiguration voConfiguration =
+                    introspectedTable.getTableConfiguration().getVoGeneratorConfiguration();
+            VoExcelImportWorkflowConfiguration workflowConfiguration =
+                    voConfiguration.getVoExcelImportWorkflowConfiguration();
+            VoExcelGeneratorConfiguration voExcelConfiguration = voConfiguration.getVoExcelConfiguration();
+            List<String> importIncludeColumns = importWorkflow
+                    ? workflowConfiguration.getImportIncludeColumns()
+                    : voExcelConfiguration.getImportIncludeColumns();
+            Set<String> importExcludeColumns = importWorkflow
+                    ? workflowConfiguration.getImportExcludeColumns()
+                    : voExcelConfiguration.getImportExcludeColumns();
+            Set<String> importIgnoreFields = importWorkflow
+                    ? workflowConfiguration.getImportIgnoreFields()
+                    : voExcelConfiguration.getImportIgnoreFields();
+            List<IntrospectedColumn> introspectedColumns = voGenService.getVoColumns(
+                    new ArrayList<>(), importIncludeColumns, importExcludeColumns);
             for (IntrospectedColumn excelVoColumn : introspectedColumns) {
                 if (importIgnoreFields.contains(excelVoColumn.getJavaProperty())) {
                     continue;
@@ -433,7 +455,30 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
                 classComments.toArray(new String[0]));
 
         //追加到列表
-        if (context.getPlugins().controllerGenerated(conTopClazz, introspectedTable)) {
+        boolean controllerGenerated = context.getPlugins().controllerGenerated(conTopClazz, introspectedTable);
+        if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+            if (!controllerGenerated) {
+                throw new IllegalArgumentException("excelImport requires the generated Controller for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+            Method previewMethod = conTopClazz.getMethods().stream()
+                    .filter(candidate -> ("importPreview" + entityType.getShortName()).equals(candidate.getName()))
+                    .findFirst().orElse(null);
+            Method confirmMethod = conTopClazz.getMethods().stream()
+                    .filter(candidate -> ("importConfirm" + entityType.getShortName()).equals(candidate.getName()))
+                    .findFirst().orElse(null);
+            boolean preview = previewMethod != null
+                    && previewMethod.getAnnotations().stream().anyMatch(annotation -> annotation.contains("import/preview"))
+                    && previewMethod.getBodyLines().stream().anyMatch(line -> line.contains("previewExcelImport("));
+            boolean confirm = confirmMethod != null
+                    && confirmMethod.getAnnotations().stream().anyMatch(annotation -> annotation.contains("import/confirm"))
+                    && confirmMethod.getBodyLines().stream().anyMatch(line -> line.contains("confirmExcelImport("));
+            if (!preview || !confirm) {
+                throw new IllegalArgumentException("excelImport Controller endpoints were removed by a plugin for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+        }
+        if (controllerGenerated) {
             answer.add(conTopClazz);
         }
         //生成子类
@@ -482,7 +527,13 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
         conSubTopClazz.addMethod(conMethod);
         boolean overridable = Mb3GenUtil.fileOverridable(javaControllerGeneratorConfiguration.getTargetProject(), conSubClazzType.getPackageName(), subControllerName+ ".java");
         if (overridable) {
-            if (context.getPlugins().subControllerGenerated(conSubTopClazz, introspectedTable)) {
+            boolean subControllerGenerated =
+                    context.getPlugins().subControllerGenerated(conSubTopClazz, introspectedTable);
+            if (introspectedTable.getRules().isGenerateExcelImportWorkflow() && !subControllerGenerated) {
+                throw new IllegalArgumentException("excelImport requires the generated Controller extension for "
+                        + introspectedTable.getFullyQualifiedTable());
+            }
+            if (subControllerGenerated) {
                 answer.add(conSubTopClazz);
             }
         }
@@ -686,15 +737,24 @@ public class JavaControllerGenerator extends AbstractJavaGenerator {
     }
 
     private void addTemplateElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateExcelVo()) {
+        if (introspectedTable.getRules().isGenerateExcelVo()
+                || introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
             AbstractControllerElementGenerator elementGenerator = new TemplateElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }
 
     private void addImportElement(TopLevelClass parentElement) {
-        if (introspectedTable.getRules().isGenerateExcelVo()) {
+        if (introspectedTable.getRules().isGenerateExcelVo()
+                && !introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
             AbstractControllerElementGenerator elementGenerator = new ImportElementGenerator();
+            initializeAndExecuteGenerator(elementGenerator, parentElement);
+        }
+    }
+
+    private void addImportWorkflowElement(TopLevelClass parentElement) {
+        if (introspectedTable.getRules().isGenerateExcelImportWorkflow()) {
+            AbstractControllerElementGenerator elementGenerator = new ImportWorkflowElementGenerator();
             initializeAndExecuteGenerator(elementGenerator, parentElement);
         }
     }

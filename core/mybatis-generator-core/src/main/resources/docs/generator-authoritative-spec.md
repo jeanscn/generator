@@ -59,6 +59,8 @@ MySQL、MariaDB、TiDB、PolarDB、TDSQL 的 JDBC 兜底也必须调用 core-db 
 
 个性化导出通过生成列限制排除内省 BLOB/LONGVARCHAR 字段及配置的相关派生字段；元数据不广告未被 `selectByExample` 填充的大字段，客户端请求这些字段在查询前失败，不静默输出空值。
 
+两阶段导入由 `<generateVo><excelImport generate="true">` 独立 opt-in，与 `excelVo` 的直接导入/导出能力解耦。生成器可生成 `<Entity>ExcelImportVo`、模板、带导入权限和日志声明的 `POST import/preview`、`POST import/confirm`，以及 Service 接口和业务策略钩子；预览基础实现使用 Excel 插件 `VgoFesodSheet.readBounded` 和配置的显式资源限额。确认 Service 包装方法在事务中调用业务钩子，钩子负责验证并消费预览凭证及整批业务写入。通用层不生成 token 生命周期、操作者/权限归属、revision 校验或 Entity upsert；钩子未实现时显式失败。启用两阶段流程且同时启用 `excelVo` 时保留导出、抑制旧逐行直接导入。配置约束、扩展方法及兼容边界见[配置指南第 5.1.1 节](generator-config-guide.md#511-显式两阶段-excel-导入工作流)。
+
 ### 2.1.1 实体物理表与列元数据注解
 
 生成的 Entity 默认通过基础注解 `com.vgosoft.core.annotation.TableMeta` 和 `com.vgosoft.core.annotation.ColumnMeta` 暴露物理表/列描述，适用于设计和开发阶段从实体类型读取已生成的表映射、字段映射及部分数据库建模属性，避免仅凭 Java 类名或属性名猜测物理标识。`TableMetaAnnotationPlugin` 在模型类与模型字段生成回调中装配注解；`generateModel.noMetaAnnotation=true` 时不装配（默认关闭该抑制，即生成元数据注解）。实体字段有 `ColumnMeta`；该插件也会向生成 VO 字段添加 `ColumnMeta`，但类级 `TableMeta` 应以具体生成 Entity 为表身份入口。

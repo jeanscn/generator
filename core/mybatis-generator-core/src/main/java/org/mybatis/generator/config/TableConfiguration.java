@@ -322,6 +322,24 @@ public class TableConfiguration extends PropertyHolder {
 
         String fqTableName = composeFullyQualifiedTableName(catalog, schema, tableName, '.');
 
+        VoGeneratorConfiguration voConfiguration = getVoGeneratorConfiguration();
+        VoExcelImportWorkflowConfiguration importWorkflow =
+                voConfiguration == null ? null : voConfiguration.getVoExcelImportWorkflowConfiguration();
+        if (importWorkflow != null && importWorkflow.isGenerate()) {
+            if (!voConfiguration.isGenerate()) {
+                errors.add("excelImport requires generateVo generate=\"true\" for table " + fqTableName);
+            }
+            if (javaControllerGeneratorConfiguration == null || !javaControllerGeneratorConfiguration.isGenerate()) {
+                errors.add("excelImport requires a generated Java Controller for table " + fqTableName);
+            }
+            if (javaServiceGeneratorConfiguration == null || !javaServiceGeneratorConfiguration.isGenerate()) {
+                errors.add("excelImport requires a generated Java Service for table " + fqTableName);
+            }
+            if (javaServiceImplGeneratorConfiguration == null || !javaServiceImplGeneratorConfiguration.isGenerate()) {
+                errors.add("excelImport requires a generated Java Service implementation for table " + fqTableName);
+            }
+        }
+
         if (generatedKey != null) {
             generatedKey.validate(errors, fqTableName);
         }

@@ -1444,7 +1444,7 @@
             3、validateIgnoreColumns，指定忽略验证的列。用于表单验证时忽略的列。
             4、equalsAndHashCodeColumns，可选 指定生成equals和HashCode方法的列名。此处指定后，所有子vo对象将使用该配置，除非子对象中配置了该属性。
         -->
-        <!ELEMENT generateVo (property*,mapstructMapping*,overridePropertyValue*,additionalProperty*,modelVo?,createVo?,updateVo?,viewVo?,excelVo?,requestVo?)>
+        <!ELEMENT generateVo (property*,mapstructMapping*,overridePropertyValue*,additionalProperty*,modelVo?,createVo?,updateVo?,viewVo?,excelVo?,excelImport?,requestVo?)>
         <!ATTLIST generateVo
                 generate (true|false) #REQUIRED
                 excludeColumns CDATA #IMPLIED
@@ -1801,6 +1801,27 @@
                 importExcludeColumns CDATA #IMPLIED
                 importIgnoreFields CDATA #IMPLIED
                 equalsAndHashCodeColumns CDATA #IMPLIED>
+
+        <!--
+           独立的 Excel 两阶段导入工作流；默认关闭，不改变 excelVo 的既有直接导入兼容行为。
+           generate 为 true 时，必须显式提供全部资源限制；preview token 的签发、过期和持久化由业务服务负责。
+           importIncludeColumns/importExcludeColumns 使用物理列名，importIgnoreFields 使用 Java 属性名。
+           maxInputBytes 限制原始上传字节；maxExpandedBytes/maxEntryBytes/maxZipEntries 限制 XLSX ZIP 解压资源；
+           maxRows 限制数据行数，maxErrorMessages 限制解析/预览错误数量。
+           可选 additionalProperty 用于给 ExcelImportVo 增加业务导入字段。
+        -->
+        <!ELEMENT excelImport (property*,additionalProperty*)>
+        <!ATTLIST excelImport
+                generate (true|false) #IMPLIED
+                importIncludeColumns CDATA #IMPLIED
+                importExcludeColumns CDATA #IMPLIED
+                importIgnoreFields CDATA #IMPLIED
+                maxInputBytes CDATA #IMPLIED
+                maxExpandedBytes CDATA #IMPLIED
+                maxEntryBytes CDATA #IMPLIED
+                maxZipEntries CDATA #IMPLIED
+                maxRows CDATA #IMPLIED
+                maxErrorMessages CDATA #IMPLIED>
 
         <!--
            缓存模型配置的生成描述，用于指定数据的redis缓存处理，该模型为简单模型不继承父类

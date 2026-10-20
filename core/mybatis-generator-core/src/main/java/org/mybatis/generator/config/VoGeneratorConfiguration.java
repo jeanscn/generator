@@ -25,6 +25,8 @@ public class VoGeneratorConfiguration extends AbstractModelGeneratorConfiguratio
 
     private VoExcelGeneratorConfiguration voExcelConfiguration;
 
+    private VoExcelImportWorkflowConfiguration voExcelImportWorkflowConfiguration;
+
     private VoRequestGeneratorConfiguration voRequestConfiguration;
 
     private VoCacheGeneratorConfiguration voCacheConfiguration;
@@ -41,6 +43,9 @@ public class VoGeneratorConfiguration extends AbstractModelGeneratorConfiguratio
     @Override
     public void validate(List<String> errors, String contextId) {
         super.validate(errors, contextId, "VoGeneratorConfiguration");
+        if (voExcelImportWorkflowConfiguration != null) {
+            voExcelImportWorkflowConfiguration.validate(errors, contextId);
+        }
     }
 
     public void addMappingConfigurations(MapstructMappingConfiguration mappingConfiguration) {

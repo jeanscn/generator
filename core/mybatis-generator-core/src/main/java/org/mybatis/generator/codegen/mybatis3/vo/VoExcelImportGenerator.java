@@ -2,6 +2,7 @@ package org.mybatis.generator.codegen.mybatis3.vo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.mybatis.generator.api.AbstractIntrospectedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -13,6 +14,7 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.VoExcelGeneratorConfiguration;
+import org.mybatis.generator.config.VoExcelImportWorkflowConfiguration;
 import org.mybatis.generator.config.VoAdditionalPropertyGeneratorConfiguration;
 import org.mybatis.generator.custom.ConstantsUtil;
 
@@ -31,13 +33,19 @@ public class VoExcelImportGenerator extends AbstractVoGenerator {
 
     @Override
     public TopLevelClass generate() {
+        boolean importWorkflow = introspectedTable.getRules().isGenerateExcelImportWorkflow();
         VoExcelGeneratorConfiguration voExcelGeneratorConfiguration = voGeneratorConfiguration.getVoExcelConfiguration();
-        FullyQualifiedJavaType excelImportVoType = voExcelGeneratorConfiguration.getExcelImportType();
+        VoExcelImportWorkflowConfiguration workflowConfiguration =
+                voGeneratorConfiguration.getVoExcelImportWorkflowConfiguration();
+        FullyQualifiedJavaType excelImportVoType = importWorkflow
+                ? workflowConfiguration.getExcelImportType()
+                : voExcelGeneratorConfiguration.getExcelImportType();
         TopLevelClass excelImportVoClass = createTopLevelClass(excelImportVoType.getFullyQualifiedName(), null);
         commentGenerator.addModelClassComment(excelImportVoClass, introspectedTable);
         FullyQualifiedJavaType superInterface = new FullyQualifiedJavaType(ConstantsUtil.I_BASE_DTO);
         excelImportVoClass.addSuperInterface(superInterface);
-        voGenService.addConfigurationSuperInterface(excelImportVoClass, voExcelGeneratorConfiguration);
+        voGenService.addConfigurationSuperInterface(excelImportVoClass,
+                importWorkflow ? workflowConfiguration : voExcelGeneratorConfiguration);
         excelImportVoClass.addImportedType(superInterface);
         excelImportVoClass.addImportedType("lombok.*");
         excelImportVoClass.addAnnotation("@Data");
@@ -46,7 +54,17 @@ public class VoExcelImportGenerator extends AbstractVoGenerator {
         excelImportVoClass.addSerialVersionUID(introspectedTable.getContext().getJdkVersion());
 
         //添加属性
-        List<IntrospectedColumn> introspectedColumns = voGenService.getVoColumns(new ArrayList<>(), voExcelGeneratorConfiguration.getImportIncludeColumns(), voExcelGeneratorConfiguration.getImportExcludeColumns());
+        List<String> importIncludeColumns = importWorkflow
+                ? workflowConfiguration.getImportIncludeColumns()
+                : voExcelGeneratorConfiguration.getImportIncludeColumns();
+        Set<String> importExcludeColumns = importWorkflow
+                ? workflowConfiguration.getImportExcludeColumns()
+                : voExcelGeneratorConfiguration.getImportExcludeColumns();
+        Set<String> importIgnoreFields = importWorkflow
+                ? workflowConfiguration.getImportIgnoreFields()
+                : voExcelGeneratorConfiguration.getImportIgnoreFields();
+        List<IntrospectedColumn> introspectedColumns = voGenService.getVoColumns(
+                new ArrayList<>(), importIncludeColumns, importExcludeColumns);
         if (!introspectedColumns.isEmpty()) {
             excelImportVoClass.addAnnotation("@AllArgsConstructor");
         }
@@ -64,7 +82,10 @@ public class VoExcelImportGenerator extends AbstractVoGenerator {
         }
 
         //附加属性
-        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations();
+        List<VoAdditionalPropertyGeneratorConfiguration> additionalPropertyConfigurations = new ArrayList<>(
+                importWorkflow
+                        ? workflowConfiguration.getAdditionalPropertyConfigurations()
+                        : voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations());
         VCollectionUtil.addAllIfNotContains(additionalPropertyConfigurations, voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         importFields.addAll(excelImportVoClass.getAdditionalPropertiesFields(additionalPropertyConfigurations));
         int idx = 1;

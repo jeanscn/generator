@@ -2490,6 +2490,9 @@ public class MyBatisGeneratorConfigurationParser {
                 case "excelVo":
                     parseVoExcel(context, tc, childNode, configuration);
                     break;
+                case "excelImport":
+                    parseVoExcelImportWorkflow(context, tc, childNode, configuration);
+                    break;
                 case "requestVo":
                     parseVoRequest(context, tc, childNode, configuration);
                     break;
@@ -3032,6 +3035,98 @@ public class MyBatisGeneratorConfigurationParser {
         VCollectionUtil.addAllIfNotContains(voExcelGeneratorConfiguration.getAdditionalPropertyConfigurations(), voGeneratorConfiguration.getAdditionalPropertyConfigurations());
         //添加到vo配置
         voGeneratorConfiguration.setVoExcelConfiguration(voExcelGeneratorConfiguration);
+    }
+
+    private void parseVoExcelImportWorkflow(Context context, TableConfiguration tc, Node node,
+                                            VoGeneratorConfiguration voGeneratorConfiguration) {
+        Properties attributes = parseAttributes(node);
+        VoExcelImportWorkflowConfiguration configuration =
+                new VoExcelImportWorkflowConfiguration(context, tc);
+        configuration.setGenerate(Boolean.parseBoolean(attributes.getProperty("generate", "false")));
+
+        String includeColumns = attributes.getProperty("importIncludeColumns");
+        if (stringHasValue(includeColumns)) {
+            configuration.setImportIncludeColumns(splitToList(includeColumns));
+        }
+        String excludeColumns = attributes.getProperty("importExcludeColumns");
+        if (stringHasValue(excludeColumns)) {
+            configuration.setImportExcludeColumns(splitToSet(excludeColumns));
+        }
+        String ignoreFields = attributes.getProperty("importIgnoreFields");
+        if (stringHasValue(ignoreFields)) {
+            configuration.setImportIgnoreFields(splitToSet(ignoreFields));
+        }
+
+        if (configuration.isGenerate()) {
+            configuration.setMaxInputBytes(parseRequiredPositiveLong(attributes, "maxInputBytes"));
+            configuration.setMaxExpandedBytes(parseRequiredPositiveLong(attributes, "maxExpandedBytes"));
+            configuration.setMaxEntryBytes(parseRequiredPositiveLong(attributes, "maxEntryBytes"));
+            configuration.setMaxZipEntries(parseRequiredPositiveInt(attributes, "maxZipEntries"));
+            configuration.setMaxRows(parseRequiredPositiveInt(attributes, "maxRows"));
+            configuration.setMaxErrorMessages(parseRequiredPositiveInt(attributes, "maxErrorMessages"));
+            if (configuration.getMaxInputBytes() > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException("excelImport maxInputBytes must not exceed " + Integer.MAX_VALUE);
+            }
+            if (configuration.getMaxEntryBytes() > configuration.getMaxExpandedBytes()) {
+                throw new IllegalArgumentException("excelImport maxEntryBytes must not exceed maxExpandedBytes");
+            }
+        }
+
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node childNode = nodeList.item(i);
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            switch (childNode.getNodeName()) {
+                case "property":
+                    parseProperty(configuration, childNode);
+                    break;
+                case "additionalProperty":
+                    configuration.addAdditionalPropertyConfigurations(
+                            parseAdditionalProperty(context, tc, childNode));
+                    break;
+                default:
+                    warnings.add(getString("Warning.21", childNode.getNodeName()));
+                    log.warn(getString("Warning.21", childNode.getNodeName()));
+                    break;
+            }
+        }
+        VCollectionUtil.addAllIfNotContains(configuration.getAdditionalPropertyConfigurations(),
+                voGeneratorConfiguration.getAdditionalPropertyConfigurations());
+        voGeneratorConfiguration.setVoExcelImportWorkflowConfiguration(configuration);
+    }
+
+    private long parseRequiredPositiveLong(Properties attributes, String name) {
+        String value = attributes.getProperty(name);
+        if (!stringHasValue(value)) {
+            throw new IllegalArgumentException("excelImport requires a positive " + name);
+        }
+        try {
+            long parsed = Long.parseLong(value);
+            if (parsed < 1) {
+                throw new IllegalArgumentException("excelImport requires a positive " + name);
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("excelImport " + name + " must be a positive integer", e);
+        }
+    }
+
+    private int parseRequiredPositiveInt(Properties attributes, String name) {
+        String value = attributes.getProperty(name);
+        if (!stringHasValue(value)) {
+            throw new IllegalArgumentException("excelImport requires a positive " + name);
+        }
+        try {
+            int parsed = Integer.parseInt(value);
+            if (parsed < 1) {
+                throw new IllegalArgumentException("excelImport requires a positive " + name);
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("excelImport " + name + " must be a positive integer", e);
+        }
     }
 
     private void parseVoView(Context context, TableConfiguration tc, Node node, VoGeneratorConfiguration voGeneratorConfiguration) {
